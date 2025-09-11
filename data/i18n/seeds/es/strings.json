@@ -66,11 +66,13 @@
   },
   "dashboard": {
     "about_suma": "Acerca de Suma",
-    "available_cash": "Efectivo disponible: {{balance, sumaCurrency}}",
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
     "check_ongoing_trip_button": "Ver Mi Viaje",
     "claim_orders": "Tu pedido está listo para ser recogido.",
     "intro": "Ayudando a nuestra comunidad a ahorrar dinero en las cosas que compra con más frecuencia - todo en un solo lugar.",
+    "negative_cash_balance": "Tu último pago a MySuma falló. Lo intentaremos de nuevo pronto. Por favor envía un mensaje de texto al $t(strings.common.suma_help_number) si tienes preguntas.",
+    "negative_cash_balance_no_instrument": "Debes agregar un método de pago para que podamos cobrar a tu cuenta. [Agrega una nueva tarjeta](/funding) para seguir accediendo a suma.",
+    "payment_methods_expiring": "Algunos de tus métodos de pago están por vencer. [Agrega una nueva tarjeta](/funding) para evitar problemas.",
     "program_ends": "Programa termina {{date}}"
   },
   "errors": {

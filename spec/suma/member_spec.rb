@@ -35,6 +35,51 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  describe "datasets" do
+    describe "with_email" do
+      it "uses a whitespace and case insensitive search" do
+        m = Suma::Fixtures.member.create(email: "abc@xyz.com")
+        expect(described_class.dataset.with_email(" ABC@XYZ.com").all).to have_same_ids_as(m)
+        expect(described_class.dataset.with_email(" ABC@XYZ").all).to be_empty
+      end
+    end
+
+    describe "with_normalized_phone" do
+      it "searches with already normalized phone numbers" do
+        phone = "15552223333"
+        m = Suma::Fixtures.member.create(phone:)
+        expect(described_class.dataset.with_normalized_phone("17772223333", phone).all).to have_same_ids_as(m)
+        expect(described_class.dataset.with_normalized_phone("17772223333").all).to be_empty
+        expect(described_class.dataset.with_normalized_phone(Suma::PhoneNumber::US.format(phone)).all).to be_empty
+      end
+    end
+
+    describe "for_alerting_about_expiring_payment_instruments" do
+      it "includes members with instruments expiring soon and who have taken mobility trips" do
+        trip_only = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_only)
+
+        trip_and_current_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_and_current_card)
+        Suma::Fixtures.card.member(trip_and_current_card).create
+
+        notrip_expiring_card = Suma::Fixtures.member.create
+        Suma::Fixtures.card.member(notrip_expiring_card).expiring.create
+
+        trip_and_expiring_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_and_expiring_card)
+        Suma::Fixtures.card.member(trip_and_expiring_card).expiring.create
+
+        trip_and_expired_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_and_expired_card)
+        Suma::Fixtures.card.member(trip_and_expired_card).expired.create
+
+        ds = described_class.for_alerting_about_expiring_payment_instruments(Time.now)
+        expect(ds.all).to have_same_ids_as(trip_and_expiring_card)
+      end
+    end
+  end
+
   it "can guess names" do
     m = Suma::Fixtures.member.instance
     m.name = ""
