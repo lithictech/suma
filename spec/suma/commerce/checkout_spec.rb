@@ -59,6 +59,17 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
   end
 
+  describe "available_payment_instruments" do
+    it "includes instruments that can be used for funding" do
+      co = Suma::Fixtures.checkout.create
+      Suma::Fixtures.card.member(co.cart.member).create.soft_delete
+      exp = Suma::Fixtures.card.member(co.cart.member).expired.create
+      c = Suma::Fixtures.card.member(co.cart.member).create
+      expect(co.available_payment_instruments).to have_same_ids_as(c)
+      expect(co.unavailable_payment_instruments).to have_same_ids_as(exp)
+    end
+  end
+
   describe "requires_payment_instrument?" do
     let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }

@@ -11,7 +11,6 @@ import { dt, imageAltT, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
-import { anyMoney } from "../shared/money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
@@ -39,7 +38,7 @@ export default function Dashboard() {
   }
   return (
     <>
-      <TopAlerts />
+      <TopAlerts dashboard={dashboard} />
       <img
         src={foodHeaderImage}
         alt={imageAltT("local_food_stand")}
@@ -58,11 +57,6 @@ export default function Dashboard() {
         </div>
         <AddToHomescreen />
       </LayoutContainer>
-      {anyMoney(dashboard.cashBalance) && (
-        <Alert className="border-radius-0 my-3" variant="success">
-          {t("dashboard.available_cash", { balance: dashboard.cashBalance })}
-        </Alert>
-      )}
       {dashboardLoading ? (
         <PageLoader buffered />
       ) : (
@@ -78,7 +72,7 @@ export default function Dashboard() {
   );
 }
 
-function TopAlerts() {
+function TopAlerts({ dashboard }) {
   const { user } = useUser();
   return (
     <>
@@ -98,8 +92,8 @@ function TopAlerts() {
         </Alert>
       )}
       {readOnlyReason(user, "read_only_unverified") && (
-        <Alert variant="danger" className="border-radius-0">
-          {readOnlyReason(user, "read_only_unverified")}
+        <Alert variant="danger" className="border-radius-0 mb-0">
+          foooooo
         </Alert>
       )}
       {user.unclaimedOrdersCount > 0 && (
@@ -112,6 +106,15 @@ function TopAlerts() {
           to="/unclaimed-orders"
         />
       )}
+      {dashboard?.alerts?.map(({ localizationKey, localizationParams, variant }) => (
+        <Alert
+          key={localizationKey}
+          variant={variant}
+          className="blinking-alert mb-0 border-radius-0"
+        >
+          {t(localizationKey, localizationParams)}
+        </Alert>
+      ))}
     </>
   );
 }

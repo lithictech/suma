@@ -4,6 +4,7 @@
   "offerings/2023_07_pilot_confirmation.sms": "Thanks for your order! Go to this link when you're at the market to claim your vouchers: {{ app_url }}/unclaimed-orders - suma",
   "offerings/2023_12_holiday_confirmation.sms": "suma: Thanks for your order! We'll reach out by December 15 with information about pickup. Reply HELP if you have questions. Reply STOP to unsubscribe.",
   "onboarding_verification.sms": "Your suma account has been verified. Log in at {{ value }} to start saving money on food and transportation while building community purchasing power!",
+  "payments/expiring_instrument.sms": "The card hooked up to your suma account is expiring soon. To continue riding, please update it at {{ app_url }}",
   "sms_compliance/help.sms": "Thanks! We'll be in touch soon. STOP to unsubscribe.",
   "sms_compliance/optin.sms": "Thanks for signing up for suma! Msg&Data rates may apply. STOP to unsubscribe or HELP for assistance.",
   "sms_compliance/optout.sms": "You have successfully unsubscribed from suma and will no longer receive SMS messages. START to resubscribe."

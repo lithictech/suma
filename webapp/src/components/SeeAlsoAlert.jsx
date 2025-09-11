@@ -10,21 +10,15 @@ export default function SeeAlsoAlert({
   show,
   to,
   variant,
-  textVariant,
 }) {
   if (!show) {
     return null;
   }
   const linkCls = clsx(
-    "stretched-link d-flex justify-content-between align-items-center text-decoration-none fw-bold",
-    `text-${textVariant || variant}`
+    "stretched-link d-flex justify-content-between align-items-centerl"
   );
   return (
-    <Alert
-      variant={variant}
-      className={clsx("border-radius-0", alertClass)}
-      style={{ borderTop: "none" }}
-    >
+    <Alert variant={variant} className={clsx("border-radius-0", alertClass)}>
       <Alert.Link as={RLink} href={to} className={linkCls}>
         <i className={`bi ${iconClass} me-3`}></i>
         {label}

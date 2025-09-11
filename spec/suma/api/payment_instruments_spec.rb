@@ -98,6 +98,8 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
   end
 
   describe "POST /v1/payment_instruments/cards/create_stripe" do
+    let(:token_param) { load_fixture_data("stripe/token.json", raw: true) }
+
     it "creates a customer and card using a Stripe token" do
       reqs = [
         stub_token_req,
@@ -107,7 +109,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
           to_return(fixture_response("stripe/card")),
       ]
 
-      post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
+      post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
       expect(last_response).to have_status(200)
       expect(reqs).to all(have_been_made)
@@ -126,7 +128,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
         to_return(fixture_response("stripe/card"))
 
       member.update(stripe_customer_json: load_fixture_data("stripe/customer"))
-      post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
+      post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
       expect(last_response).to have_status(200)
       expect(token_req).to have_been_made
@@ -146,7 +148,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       it "returns the existing card" do
         token_req = stub_token_req
 
-        post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token", raw: true)
+        post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
         expect(token_req).to have_been_made
         expect(last_response).to have_status(200)
@@ -161,7 +163,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
         add_card_req = stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
           to_return(fixture_response("stripe/card"))
 
-        post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token", raw: true)
+        post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
         expect(token_req).to have_been_made
         expect(add_card_req).to have_been_made
@@ -178,7 +180,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
 
       member.update(stripe_customer_json: load_fixture_data("stripe/customer"))
 
-      post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
+      post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
       expect(token_req).to have_been_made
       expect(req).to have_been_made
@@ -190,10 +192,27 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
     it "errors if bank accounts are not an enabled method" do
       Suma::Payment.supported_methods = []
 
-      post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
+      post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
       expect(last_response).to have_status(402)
       expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
+    end
+
+    it "soft deletes all expired cards" do
+      reqs = [
+        stub_token_req,
+        stub_request(:post, "https://api.stripe.com/v1/customers").
+          to_return(fixture_response("stripe/customer")),
+        stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
+          to_return(fixture_response("stripe/card")),
+      ]
+      old_card = Suma::Fixtures.card.member(member).expired.create
+
+      post "/v1/payment_instruments/cards/create_stripe", token: token_param
+
+      expect(last_response).to have_status(200)
+      expect(reqs).to all(have_been_made)
+      expect(old_card.refresh).to be_soft_deleted
     end
   end
 

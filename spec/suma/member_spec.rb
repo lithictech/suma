@@ -35,6 +35,60 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  describe "datasets" do
+    describe "with_email" do
+      it "uses a whitespace and case insensitive search" do
+        m = Suma::Fixtures.member.create(email: "abc@xyz.com")
+        expect(described_class.dataset.with_email(" ABC@XYZ.com").all).to have_same_ids_as(m)
+        expect(described_class.dataset.with_email(" ABC@XYZ").all).to be_empty
+      end
+    end
+
+    describe "with_normalized_phone" do
+      it "searches with already normalized phone numbers" do
+        phone = "15552223333"
+        m = Suma::Fixtures.member.create(phone:)
+        expect(described_class.dataset.with_normalized_phone("17772223333", phone).all).to have_same_ids_as(m)
+        expect(described_class.dataset.with_normalized_phone("17772223333").all).to be_empty
+        expect(described_class.dataset.with_normalized_phone(Suma::PhoneNumber::US.format(phone)).all).to be_empty
+      end
+    end
+
+    describe "for_alerting_about_expiring_payment_instruments" do
+      it "includes members with instruments expiring soon and who have taken mobility trips" do
+        trip_only = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_only)
+
+        trip_and_current_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_and_current_card)
+        Suma::Fixtures.card.member(trip_and_current_card).create
+
+        notrip_expiring_card = Suma::Fixtures.member.create
+        Suma::Fixtures.card.member(notrip_expiring_card).expiring.create
+
+        trip_and_expiring_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_and_expiring_card)
+        Suma::Fixtures.card.member(trip_and_expiring_card).expiring.create
+
+        old_trip_and_expiring_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: old_trip_and_expiring_card, began_at: 2.years.ago)
+        Suma::Fixtures.card.member(old_trip_and_expiring_card).expiring.create
+
+        deleted_with_trip_and_expiring_card = Suma::Fixtures.member.create
+        deleted_with_trip_and_expiring_card.soft_delete
+        Suma::Fixtures.mobility_trip.create(member: deleted_with_trip_and_expiring_card)
+        Suma::Fixtures.card.member(deleted_with_trip_and_expiring_card).expiring.create
+
+        trip_and_expired_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: trip_and_expired_card)
+        Suma::Fixtures.card.member(trip_and_expired_card).expired.create
+
+        ds = described_class.for_alerting_about_expiring_payment_instruments(Time.now)
+        expect(ds.all).to have_same_ids_as(trip_and_expiring_card)
+      end
+    end
+  end
+
   it "can guess names" do
     m = Suma::Fixtures.member.instance
     m.name = ""
@@ -236,7 +290,7 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  describe "usable_payment_instruments", reset_configuration: Suma::Payment do
+  describe "public_payment_instruments", reset_configuration: Suma::Payment do
     let(:member) { Suma::Fixtures.member.create }
     let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
     let(:card_fac) { Suma::Fixtures.card.member(member) }
@@ -252,16 +306,29 @@ RSpec.describe "Suma::Member", :db do
       ba1 = bank_fac.create
       c2 = card_fac.create
 
-      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, ba2, c2, c1).ordered
+      expect(member.public_payment_instruments).to have_same_ids_as(ba1, ba2, c2, c1).ordered
     end
 
     it "excludes unsupported payment methods" do
       c1 = card_fac.create
       ba1 = bank_fac.create
 
-      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, c1)
+      expect(member.public_payment_instruments).to have_same_ids_as(ba1, c1)
       Suma::Payment.supported_methods = ["card"]
-      expect(member.usable_payment_instruments).to have_same_ids_as(c1)
+      expect(member.public_payment_instruments).to have_same_ids_as(c1)
+    end
+  end
+
+  describe "default_payment_instrument" do
+    it "is the first ok payment instrument" do
+      m = Suma::Fixtures.member.create
+      expect(m.default_payment_instrument).to be_nil
+      Suma::Fixtures.card.member(m).expired.create
+      Suma::Fixtures.card.member(m).create.soft_delete
+      expect(m.default_payment_instrument).to be_nil
+
+      c = Suma::Fixtures.card.member(m).create
+      expect(m.default_payment_instrument).to be === c
     end
   end
 

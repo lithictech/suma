@@ -26,7 +26,7 @@ module Suma::Fixtures::Cards
       "cvc_check" => "pass",
       "dynamic_last4" => nil,
       "exp_month" => 8,
-      "exp_year" => 2023,
+      "exp_year" => Time.now.year + 1,
       "fingerprint" => "vIjZVstYyGmkvbVe",
       "funding" => "credit",
       "last4" => "4242",
@@ -58,5 +58,17 @@ module Suma::Fixtures::Cards
   decorator :visa do
     self.stripe_json["brand"] = "Visa"
     self.stripe_json["last4"] = "4242"
+  end
+
+  decorator :expired do |month: Time.now.last_month.month, year: Time.now.last_month.year|
+    self.stripe_json["exp_month"] = month
+    self.stripe_json["exp_year"] = year
+  end
+
+  # Mark the card as expiring soon. The simplest way to do this is to set the expiration date
+  # to this month, so the 'expires at' is the start of next month.
+  decorator :expiring do |now=Time.now|
+    self.stripe_json["exp_month"] = now.month
+    self.stripe_json["exp_year"] = now.year
   end
 end

@@ -66,11 +66,13 @@
   },
   "dashboard": {
     "about_suma": "About Suma",
-    "available_cash": "Available cash: {{balance, sumaCurrency}}",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
     "claim_orders": "Your order is ready for pickup.",
     "intro": "Helping our community save money on things you buy the most - all in one place.",
+    "negative_cash_balance": "Your last payment to suma failed. We will retry soon. Please send a text message to $t(strings.common.suma_help_number) if you have questions.",
+    "negative_cash_balance_no_instrument": "You must add a payment method so we can charge your account. [Add a new card](/funding) to continue accessing suma.",
+    "payment_methods_expiring": "Some of your payment methods are expiring. [Add a new card](/funding) to avoid any problems.",
     "program_ends": "Program ends {{ date }}"
   },
   "errors": {
@@ -221,6 +223,7 @@
     "invalid_bank_account_number": "Please enter your bank account number.",
     "invalid_bank_account_number_confirm": "Must match your Account Number above.",
     "invalid_card_cvc": "The security code is a 3 or 4 digit number on the back fo the card.",
+    "invalid_card_expired": "Expiration date must be in the future.",
     "invalid_card_expiry": "Expiration date should be typed Month Month / Year Year, like '10 / 23'.",
     "invalid_card_number": "Please double check the account number.",
     "invalid_field": "This field is not valid.",
@@ -323,6 +326,8 @@
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "no_cards_warning": "You don't have any credit or debit cards linked.",
     "no_transaction_history": "You haven't added or spent any money.",
+    "payment_account_expired": "Expired",
+    "payment_account_expires": "Expires",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
     "payment_intro": {

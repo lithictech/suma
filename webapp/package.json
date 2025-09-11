@@ -22,7 +22,6 @@
     "leaflet.markercluster": "^1.5.3",
     "lodash": "^4.17.21",
     "markdown-to-jsx": "^7.7.4",
-    "payment": "^2.4.6",
     "react-bootstrap": "^2.7.0",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.42.1",

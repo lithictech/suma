@@ -39,7 +39,7 @@ export default function FundingAddFunds() {
     pickData: true,
   });
   const instrument =
-    find(user.usablePaymentInstruments, {
+    find(user.paymentInstruments, {
       id: Number(params.get("id")),
       paymentMethodType: params.get("paymentMethodType"),
     }) || {};
@@ -107,7 +107,7 @@ export default function FundingAddFunds() {
   }
   if (!instrument.id) {
     logger
-      .context({ instruments: user.usablePaymentInstruments })
+      .context({ instruments: user.paymentInstruments })
       .error("instrument_not_found");
     return <ErrorScreen />;
   }

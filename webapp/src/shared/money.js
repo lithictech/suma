@@ -120,11 +120,25 @@ export function scaleMoney(m, n) {
  * @returns {boolean}
  */
 export function anyMoney(m) {
+  return moneySign(m) !== 0;
+}
+
+/**
+ * Return -1 if money is negative, 0 if zero or falsey, 1 if positive.
+ * @param m
+ * @return {number}
+ */
+export function moneySign(m) {
   if (!m) {
-    return false;
+    return 0;
   }
   const cents = m.cents;
-  return cents > 0 || cents < 0;
+  if (cents === 0) {
+    return 0;
+  } else if (cents > 0) {
+    return 1;
+  }
+  return -1;
 }
 
 const optionedFormatters = {

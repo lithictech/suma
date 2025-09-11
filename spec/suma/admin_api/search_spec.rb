@@ -95,7 +95,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
 
-      post "/v1/search/payment_instruments", q: "abc"
+      post "/v1/search/payment_instruments", q: "abc", purpose: :funding
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
@@ -112,7 +112,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       Suma::Payment::BankAccount.hybrid_search_reindex_all
       Suma::Payment::Card.hybrid_search_reindex_all
 
-      post "/v1/search/payment_instruments", q: "abc"
+      post "/v1/search/payment_instruments", q: "abc", purpose: :funding
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba_abc, card_abc))
@@ -124,10 +124,22 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       Suma::Payment::BankAccount.hybrid_search_reindex_all
       Suma::Payment::Card.hybrid_search_reindex_all
 
-      post "/v1/search/payment_instruments", q: "myaccount", types: ["card"]
+      post "/v1/search/payment_instruments", q: "myaccount", types: ["card"], purpose: :funding
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(card))
+    end
+
+    it "can filter on purpose" do
+      ba = Suma::Fixtures.bank_account.verified.create
+      card = Suma::Fixtures.card.create
+      Suma::Payment::BankAccount.hybrid_search_reindex_all
+      Suma::Payment::Card.hybrid_search_reindex_all
+
+      post "/v1/search/payment_instruments", q: "*", purpose: :payout
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba))
     end
   end
 

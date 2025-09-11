@@ -1,6 +1,6 @@
 
 .blinking-alert {
-  border-width: 2px;
+  border-width: 3px !important;
   animation-duration: 1s;
   animation-name: blinkingAlertAnimation;
   animation-iteration-count: infinite;
@@ -10,10 +10,22 @@
 
 @keyframes blinkingAlertAnimation {
   from {
-    border-color: rgba(var(--bs-alert-bg), 1);
+    border-color: unquote("hsl(from var(--bs-alert-bg) h s l)")
   }
 
   to {
-    border-color: var(--bs-alert-bg);
+    border-color: unquote("hsl(from var(--bs-alert-bg) h s calc(l - 10))")
   }
+}
+
+.alert {
+  a {
+    color: var(--bs-alert-color) !important;
+    text-decoration: none;
+    font-weight: bold;
+  }
+}
+
+.solo-alert {
+  border-top: none !important;
 }

@@ -2,8 +2,9 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import ReactCreditCards from "../components/ReactCreditCards";
 import config from "../config";
+import Payment from "../forks/Payment";
+import ReactCreditCards from "../forks/ReactCreditCards";
 import { t } from "../localization";
 import elementDimensions from "../modules/elementDimensions";
 import keepDigits from "../modules/keepDigits";
@@ -11,7 +12,6 @@ import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useStripeErrorMessage from "../state/useStripeErrorMessage.jsx";
 import get from "lodash/get";
-import Payment from "payment";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -197,8 +197,18 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             value={expiry}
             errors={errors}
             register={register}
-            registerOptions={{ validate: Payment.fns.validateCardExpiry }}
-            errorKeys={{ validate: "forms.invalid_card_expiry" }}
+            registerOptions={{
+              validate: {
+                format: (m, y) =>
+                  Payment.fns.validateCardExpiryReason(m, y) !== Payment.INVALID_FORMAT,
+                expired: (m, y) =>
+                  Payment.fns.validateCardExpiryReason(m, y) !== Payment.INVALID_EXPIRED,
+              },
+            }}
+            errorKeys={{
+              format: "forms.invalid_card_expiry",
+              expired: "forms.invalid_card_expired",
+            }}
             onChange={handleExpiryChange}
             onFocus={handleFocus}
             onBlur={handleBlur}

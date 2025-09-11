@@ -59,24 +59,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :hybrid_search
 
   one_to_many :activities, class: "Suma::Member::Activity", order: order_desc
-  many_through_many :bank_accounts,
-                    [
-                      [:legal_entities, :id, :id],
-                      [:payment_bank_accounts, :legal_entity_id, :id],
-                    ],
-                    class: "Suma::Payment::BankAccount",
-                    left_primary_key: :legal_entity_id,
-                    order: order_assoc(:asc),
-                    read_only: true
-  many_through_many :cards,
-                    [
-                      [:legal_entities, :id, :id],
-                      [:payment_cards, :legal_entity_id, :id],
-                    ],
-                    class: "Suma::Payment::Card",
-                    left_primary_key: :legal_entity_id,
-                    order: order_assoc(:asc),
-                    read_only: true
+  one_to_many :bank_accounts,
+              class: "Suma::Payment::BankAccount",
+              key: :legal_entity_id,
+              primary_key: :legal_entity_id,
+              order: order_assoc(:asc),
+              read_only: true
+  one_to_many :cards,
+              class: "Suma::Payment::Card",
+              key: :legal_entity_id,
+              primary_key: :legal_entity_id,
+              order: order_assoc(:asc),
+              read_only: true
   one_to_many :charges, class: "Suma::Charge", order: order_desc
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery", order: order_desc
@@ -193,8 +187,32 @@ class Suma::Member < Suma::Postgres::Model(:members)
       return self.where(email: emails)
     end
 
-    def with_normalized_phone(*phones)
-      return self.where(phone: phones)
+    def with_normalized_phone(*phones) = self.where(phone: phones)
+
+    # If a member has an instrument expiring soon,
+    # AND has taken mobility trip in the last 12 months,
+    # we want to let them know about an expiring payment instrument.
+    #
+    # We don't want to tell people about expiring cards if they haven't taken trips,
+    # since they don't need to keep them active.
+    #
+    # We don't need to look at trips all time, since they may not be using suma trips anymore.
+    #
+    # We look at cards expiring within 6 weeks (42 days), since a card company will pretty reliably
+    # have sent out a replacement card at that point.
+    def for_alerting_about_expiring_payment_instruments(as_of)
+      expiring_intruments = Suma::Payment::Instrument.
+        dataset.
+        not_soft_deleted.
+        where { expires_at >= as_of }.
+        expired_as_of(as_of + 6.weeks).
+        where(legal_entity_id: self.select(:legal_entity_id))
+      recent_trips = Suma::Mobility::Trip.dataset.where { began_at > (as_of - 12.months) }
+      ds = self.not_soft_deleted.where(
+        mobility_trips: recent_trips,
+        legal_entity_id: expiring_intruments.select(:legal_entity_id),
+      )
+      return ds
     end
   end
 
@@ -280,19 +298,20 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.terms_agreed < LATEST_TERMS_PUBLISH_DATE
   end
 
-  def usable_payment_instruments
+  # Return the instruments (cards, bank accounts) that can be returned to the user (are not deleted).
+  def public_payment_instruments
     ord = [Sequel.desc(:created_at), :id]
     result = []
-    result.concat(self.legal_entity.bank_accounts_dataset.usable.order(*ord).all) if
+    result.concat(self.legal_entity.bank_accounts_dataset.not_soft_deleted.order(*ord).all) if
       Suma::Payment.method_supported?("bank_account")
-    result.concat(self.legal_entity.cards_dataset.usable.order(*ord).all) if
+    result.concat(self.legal_entity.cards_dataset.not_soft_deleted.order(*ord).all) if
       Suma::Payment.method_supported?("card")
     return result
   end
 
   def default_payment_instrument
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
-    return self.usable_payment_instruments.first
+    return self.public_payment_instruments.find { |pi| pi.status == :ok }
   end
 
   def search_label

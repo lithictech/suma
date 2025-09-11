@@ -18,6 +18,7 @@ module Suma::Service::Entities
 
   class Base < Grape::Entity
     def current_time = self.options.fetch(:env).fetch("now")
+    def current_member = self.options.fetch(:env).fetch("yosoy").authenticated_object!.public_user
 
     def self.timezone(*lookup_path, field: nil)
       return lambda do |instance, opts|
