@@ -64,11 +64,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "Emailer" do
+  describe "MessageUnsentPoller" do
     it "sends emails" do
       d = Suma::Fixtures.message_delivery.create
       Timecop.freeze do
-        Suma::Async::Emailer.new.perform
+        Suma::Async::MessageUnsentPoller.new.perform
         expect(d.refresh).to have_attributes(sent_at: match_time(:now))
       end
     end
