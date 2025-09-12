@@ -53,6 +53,32 @@ RSpec.describe "Suma::Payment::Card", :db do
     end
   end
 
+  describe "refetch_remote_data" do
+    let(:card) { Suma::Fixtures.card.create }
+
+    it "fetches and sets the card info from the customer" do
+      cust = load_fixture_data("stripe/customer")
+      cust["sources"]["data"] << card.stripe_json.merge("exp_year" => 2100)
+
+      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
+        to_return(json_response(cust))
+
+      card.refetch_remote_data
+      expect(req).to have_been_made
+      expect(card.stripe_json.to_h).to include("exp_year" => 2100)
+    end
+
+    it "errors if the card is not on the customer" do
+      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
+        to_return(json_response(load_fixture_data("stripe/customer")))
+
+      expect do
+        card.refetch_remote_data
+      end.to raise_error(Suma::InvariantViolation, /has no source/)
+      expect(req).to have_been_made
+    end
+  end
+
   describe "external links" do
     it "links to the Stripe dashboard" do
       ca = Suma::Fixtures.card.with_stripe({"customer" => "cu_123"}).create

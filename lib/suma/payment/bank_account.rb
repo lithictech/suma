@@ -45,6 +45,7 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   def simple_label = "#{self.name} x-#{self.last4}"
   def institution_name = self.institution.name
   def expires_at = nil
+  def refetch_remote_data = nil
 
   def institution
     inst = self.plaid_institution

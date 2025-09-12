@@ -69,6 +69,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def usable_for_payout = self.where(usable_for_payout: true)
     def unexpired_as_of(t) = self.where((Sequel[:expires_at] =~ nil) | (Sequel[:expires_at] > Sequel[t]))
     def expired_as_of(t) = self.where { expires_at <= Sequel[t] }
+    def for(type, id) = self.where(payment_method_type: type, id:)
   end
 
   def payment_method_type = self[:payment_method_type]
@@ -77,6 +78,8 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
   def expires_at = self[:expires_at]
   def verified? = self[:verified]
   def institution_name = self[:institution_name]
+  def refetch_remote_data = nil
+  def reify = Suma::Payment::Instrument.reify([self]).first
 
   class << self
     def primary_key = :id
@@ -103,6 +106,10 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
       end
       result = rows.map { |r| instances_by_type[r.payment_method_type].fetch(r.id) }
       return result
+    end
+
+    def post_create_cleanup(instrument, now:)
+      instrument.legal_entity.cards_dataset.expired_as_of(now).each(&:soft_delete)
     end
   end
 end

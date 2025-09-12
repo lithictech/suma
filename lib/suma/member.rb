@@ -198,14 +198,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
     #
     # We don't need to look at trips all time, since they may not be using suma trips anymore.
     #
-    # We look at cards expiring within 6 weeks (42 days), since a card company will pretty reliably
-    # have sent out a replacement card at that point.
+    # We look at cards expiring within 4 weeks since a card company
+    # will pretty reliably have sent out a replacement card at that point.
+    # Note that Stripe will often update the card behind the scenes,
+    # this 4 weeks should also hopefully be enough time for Stripe to update.
     def for_alerting_about_expiring_payment_instruments(as_of)
       expiring_intruments = Suma::Payment::Instrument.
         dataset.
         not_soft_deleted.
         where { expires_at >= as_of }.
-        expired_as_of(as_of + 6.weeks).
+        expired_as_of(as_of + 4.weeks).
         where(legal_entity_id: self.select(:legal_entity_id))
       recent_trips = Suma::Mobility::Trip.dataset.where { began_at > (as_of - 12.months) }
       ds = self.not_soft_deleted.where(

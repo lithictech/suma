@@ -74,6 +74,15 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       expect(last_response).to have_status(402)
       expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
+
+    it "soft deletes expired instruments" do
+      old_card = Suma::Fixtures.card.member(member).expired.create
+
+      post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
+
+      expect(last_response).to have_status(200)
+      expect(old_card.refresh).to be_soft_deleted
+    end
   end
 
   describe "DELETE /v1/payment_instruments/bank_accounts/:id" do
@@ -145,15 +154,19 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
         member.update(stripe_customer_json: load_fixture_data("stripe/customer"))
       end
 
-      it "returns the existing card" do
+      it "returns the existing card (with updated data)" do
         token_req = stub_token_req
+        cust = load_fixture_data("stripe/customer")
+        cust["sources"]["data"] << existing_card.stripe_json.merge("exp_year" => 2100)
+        cust_req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
+          to_return(json_response(cust))
 
         post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
-        expect(token_req).to have_been_made
         expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(id: existing_card.id)
-        expect(member.legal_entity.cards_dataset.all).to have_length(1)
+        expect(token_req).to have_been_made
+        expect(cust_req).to have_been_made
+        expect(existing_card.refresh).to have_attributes(exp_year: 2100)
       end
 
       it "creates a new card if the existing card is not usable" do
@@ -198,7 +211,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
 
-    it "soft deletes all expired cards" do
+    it "soft deletes expired instruments" do
       reqs = [
         stub_token_req,
         stub_request(:post, "https://api.stripe.com/v1/customers").

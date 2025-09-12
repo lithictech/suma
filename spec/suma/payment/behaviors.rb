@@ -81,6 +81,7 @@ RSpec.shared_examples "a payment instrument" do
     )
     expect(instrument.usable_for_funding?).to be_bool
     expect(instrument.usable_for_payout?).to be_bool
+    expect(instrument).to respond_to(:refetch_remote_data), "must be implemented on concrete classes"
 
     expect(described_class.dataset).to respond_to(:not_soft_deleted)
     expect(described_class.dataset).to respond_to(:usable_for_funding)

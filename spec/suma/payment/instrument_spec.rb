@@ -38,4 +38,27 @@ RSpec.describe "Suma::Payment::Instrument", :db do
       be === card,
     )
   end
+
+  it "can query concrete types" do
+    ba = Suma::Fixtures.bank_account.create
+    expect(described_class.for("bank_account", ba.id).first).to have_attributes(
+      payment_method_type: "bank_account", id: ba.id,
+    )
+    expect(described_class.for("card", ba.id).first).to be_nil
+  end
+
+  describe "::post_create_cleanup" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:now) { Time.now }
+
+    it "soft deletes all expired instruments" do
+      e = Suma::Fixtures.card.member(member).expired.create
+      t = 5.hours.ago
+      d = Suma::Fixtures.card.member(member).create(soft_deleted_at: t)
+      c = Suma::Fixtures.card.member(member).create
+      described_class.post_create_cleanup(c, now:)
+      expect(e.refresh).to be_soft_deleted
+      expect(d.refresh).to have_attributes(soft_deleted_at: match_time(t))
+    end
+  end
 end
