@@ -34,6 +34,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         end
         set_declared(ba, params)
         save_or_error!(ba)
+        Suma::Payment::Instrument.post_create_cleanup(ba, now: current_time)
         add_current_member_header
         status 200
         present ba, with: MutationPaymentInstrumentEntity
@@ -69,10 +70,6 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           Suma::Payment.method_supported?("card")
         me.stripe.ensure_registered_as_customer
         card = me.db.transaction do
-          # First of all, soft deleted all expired cards. If someone adds a card,
-          # assume we want to clean up existing cards. If the card they pass in,
-          # is already an card with a new date, we'll create a new one with the same number.
-          me.cards_dataset.expired_as_of(current_time).each(&:soft_delete)
           # token fingerprint is not passed through params
           # for security reasons, fetch it with stripe API instead
           tok_fingerprint = Stripe::Token.retrieve(params[:token][:id]).card.fingerprint
@@ -80,7 +77,8 @@ class Suma::API::PaymentInstruments < Suma::API::V1
             c.fingerprint === tok_fingerprint
           end
           if existing_card
-            existing_card
+            existing_card.refetch_remote_data
+            existing_card.save_changes
           else
             stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
             Suma::Payment::Card.create(
@@ -89,6 +87,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
             )
           end
         end
+        Suma::Payment::Instrument.post_create_cleanup(card, now: current_time)
         add_current_member_header
         status 200
         present card, with: MutationPaymentInstrumentEntity

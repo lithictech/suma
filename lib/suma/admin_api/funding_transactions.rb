@@ -36,15 +36,9 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     end
     post :create_for_self do
       check_admin_role_access!(:write, Suma::Payment::FundingTransaction)
-      instrument_ds = case params[:payment_method_type]
-        when "bank_account"
-          Suma::Payment::BankAccount.dataset
-        when "card"
-          Suma::Payment::Card.dataset
-        else
-          raise "Invalid payment_method_type"
-      end
-      (instrument = instrument_ds[params[:payment_instrument_id]]) or forbidden!
+      (instrument = Suma::Payment::Instrument.for(
+        params[:payment_method_type], params[:payment_instrument_id],
+      ).first&.reify) or forbidden!
       c = instrument.member
       begin
         fx = Suma::Payment::FundingTransaction.start_and_transfer(

@@ -277,35 +277,44 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "ExpiringInstrumentNotifier" do
-    let(:member) do
-      m = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
-      Suma::Fixtures.mobility_trip.create(member: m)
-      Suma::Fixtures.card.member(m).expiring.create
-      m
-    end
+    let!(:member) { Suma::Fixtures.member.create(timezone: "America/Los_Angeles") }
+    let!(:expiring_card) { Suma::Fixtures.card.member(member).expiring.create }
+    let!(:trip) { Suma::Fixtures.mobility_trip.create(member: member) }
 
     before(:each) do
       import_localized_message_seeds
     end
 
-    it "dispatches a message to the member" do
+    def prepare_stripe_req
+      cust = load_fixture_data("stripe/customer")
+      cust["sources"]["data"] << expiring_card.stripe_json.dup
+      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
+          to_return(json_response(cust))
+    end
+
+    it "syncs external and dispatches a message to the member" do
+      req = prepare_stripe_req
       Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
       expect(member.message_deliveries).to contain_exactly(
         have_attributes(template: "payments/expiring_instrument"),
       )
+      expect(req).to have_been_made
     end
 
     it "uses idempotency" do
+      req = prepare_stripe_req
       Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
       Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
       expect(member.message_deliveries).to have_length(1)
+      expect(req).to have_been_made
     end
 
     it "noops if the member is no longer eligble for notifications" do
-      _ = member
-      Suma::Mobility::Trip.dataset.delete
+      req = prepare_stripe_req
+      trip.destroy
       Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
       expect(member.message_deliveries).to be_empty
+      expect(req).to have_been_made
     end
   end
 
