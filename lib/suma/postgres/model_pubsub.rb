@@ -12,19 +12,34 @@ module Suma::Postgres::ModelPubsub
     model_class.include(InstanceMethods)
   end
 
-  module ClassMethods
-    def event_prefix
-      prefix = self.name or return # No events for anonymous classes
-      return prefix.gsub("::", ".").downcase
-    end
-
+  class << self
     # Given a +topic+ string, like 'domain.model.created',
     # find the model class for it.
     # Note that multiple models may share a prefix,
     # like `domain.model` and `domain.model.submodel`.
     # Always return the most 'nested' model, so that a topic of
     # 'domain.model.submodel.created' returns `Domain::Model::Submodel`.
-    def model_for_event_topic(topic); end
+    def model_for_event_topic(topic)
+      names = topic.split(".")
+      current_ns = Suma
+      most_resolved = nil
+      names.each do |name|
+        const_name = current_ns.constants.find { |c| c.to_s.casecmp?(name) }
+        next unless const_name
+        con = current_ns.const_get(const_name)
+        next unless con.is_a?(Class) || con.is_a?(Module)
+        current_ns = con
+        most_resolved = con if current_ns.singleton_class.included_modules.include?(Suma::Postgres::ModelPubsub)
+      end
+      return most_resolved
+    end
+  end
+
+  module ClassMethods
+    def event_prefix
+      prefix = self.name or return # No events for anonymous classes
+      return prefix.gsub("::", ".").downcase
+    end
   end
 
   module InstanceMethods
