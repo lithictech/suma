@@ -614,6 +614,58 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "PaymentInstrumentChargeBalance" do
+    let!(:member) { Suma::Fixtures.member.with_cash_ledger.create }
+    let!(:bx) { Suma::Fixtures.book_transaction.from(member.payment_account!.cash_ledger!).create(amount: money("$3")) }
+    let!(:ba) { Suma::Fixtures.bank_account.member(member).verified.create }
+
+    it "charges a negative cash ledger balance to the updated instrument" do
+      req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
+        to_return(fixture_response("increase/ach_transfer"))
+      expect do
+        ba.update(name: "xyz")
+      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
+
+      expect(member.payment_account.originated_funding_transactions).to contain_exactly(
+        have_attributes(amount: cost("$3")),
+      )
+      expect(req).to have_been_made
+    end
+
+    it "noops if the instrument is deleted" do
+      expect do
+        ba.soft_delete
+      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
+
+      expect(member.payment_account.originated_funding_transactions).to be_empty
+    end
+
+    it "noops if a payment instrument is not updated" do
+      expect do
+        Suma::Fixtures.ledger.create
+      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
+      expect(member.payment_account.originated_funding_transactions).to be_empty
+    end
+
+    it "noops if the instrument cannot be used for funding" do
+      ba.update(verified_at: nil)
+      expect do
+        ba.update(name: "xyz")
+      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
+
+      expect(member.payment_account.originated_funding_transactions).to be_empty
+    end
+
+    it "noops if there is not a negative cash balance" do
+      bx.destroy
+      expect do
+        ba.update(name: "xyz")
+      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
+
+      expect(member.payment_account.originated_funding_transactions).to be_empty
+    end
+  end
+
   describe "PayoutTransactionProcessor" do
     it "processes all created and sending payout transactions" do
       created = Suma::Fixtures.payout_transaction.with_fake_strategy.create

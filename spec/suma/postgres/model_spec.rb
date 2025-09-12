@@ -279,6 +279,35 @@ RSpec.describe "Suma::Postgres::Model", :db do
         ],
       )
     end
+
+    describe "model_for_event_topic" do
+      it "can find the class constant for a topic" do
+        cls = Suma::Postgres::TestingPixie
+        stub_const("Suma::MyClass::Xyz", cls)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.xyz.created")).to eq(cls)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.xyz")).to eq(cls)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.xyz.abc.updated")).to eq(cls)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.foo.bar")).to be_nil
+      end
+
+      it "finds the most nested constant" do
+        cls1 = Class.new(Suma::Postgres::TestingPixie)
+        cls2 = Class.new(Suma::Postgres::TestingPixie)
+        stub_const("Suma::MyClass::Cls1", cls1)
+        stub_const("Suma::MyClass::Cls1::Cls2", cls2)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.cls1.cls2.updated")).to eq(cls2)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.cls1.cls2")).to eq(cls2)
+      end
+
+      it "ignores non-model constants" do
+        cls1 = Class.new(Suma::Postgres::TestingPixie)
+        cls2 = Class.new
+        stub_const("Suma::MyClass::Cls1", cls1)
+        stub_const("Suma::MyClass::Cls1::Cls2", cls2)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.cls1.cls2.updated")).to eq(cls1)
+        expect(Suma::Postgres::ModelPubsub.model_for_event_topic("suma.myclass.cls1.cls2")).to eq(cls1)
+      end
+    end
   end
 
   describe "inspect" do

@@ -47,6 +47,7 @@ module Suma::Async
     "suma/async/message_unsent_poller",
     "suma/async/offering_schedule_fulfillment",
     "suma/async/order_confirmation",
+    "suma/async/payment_instrument_charge_balance",
     "suma/async/payout_transaction_processor",
     "suma/async/plaid_update_institutions",
     "suma/async/process_anon_proxy_inbound_webhookdb_relays",
