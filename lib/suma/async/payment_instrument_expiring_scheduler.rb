@@ -2,12 +2,12 @@
 
 require "amigo/scheduled_job"
 
-require "suma/async/expiring_instrument_notifier"
+require "suma/async/payment_instrument_expiring_notifier"
 
 # Each week, look for payment instruments set to expire.
 # For each member, enqueue a job so that they get a text message
 # between 10am-1pm local time.
-class Suma::Async::ExpiringInstrumentScheduler
+class Suma::Async::PaymentInstrumentExpiringScheduler
   extend Amigo::ScheduledJob
 
   sidekiq_options(Suma::Async.cron_job_options)
@@ -22,7 +22,7 @@ class Suma::Async::ExpiringInstrumentScheduler
       perform_at = self.class.schedule_notifier_for(m)
       # It's okay that we may enqueue multiple notifications for the same user.
       # The notifier has proper idempotency.
-      Suma::Async::ExpiringInstrumentNotifier.perform_at(perform_at, m.id)
+      Suma::Async::PaymentInstrumentExpiringNotifier.perform_at(perform_at, m.id)
     end
   end
 
