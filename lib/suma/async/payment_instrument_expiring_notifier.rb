@@ -2,7 +2,7 @@
 
 require "amigo/job"
 
-class Suma::Async::ExpiringInstrumentNotifier
+class Suma::Async::PaymentInstrumentExpiringNotifier
   extend Amigo::Job
 
   def perform(member_id)

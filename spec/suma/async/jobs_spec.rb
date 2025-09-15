@@ -249,75 +249,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "ExpiringInstrumentScheduler" do
-    it "enqueues a notifier job for each member with an expiring instrument" do
-      to_warn = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
-      Suma::Fixtures.mobility_trip.create(member: to_warn)
-      Suma::Fixtures.card.member(to_warn).expiring.create
-
-      not_warn = Suma::Fixtures.member.create
-
-      expect(Suma::Async::ExpiringInstrumentNotifier).to receive(:perform_at).
-        with(match_time("2025-09-11 12:00:00-0700").within(3.hours), to_warn.id)
-
-      Timecop.freeze("2025-09-09T01:00:00Z") do
-        Suma::Async::ExpiringInstrumentScheduler.new.perform(true)
-      end
-    end
-
-    describe "schedule_performance_for" do
-      it "chooses a random time for the member's next Thursday, 10am-1pm local time" do
-        m = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
-        Timecop.freeze("2025-09-09T01:00:00Z") do
-          t = Suma::Async::ExpiringInstrumentScheduler.schedule_notifier_for(m)
-          expect(t).to match_time("2025-09-11 12:00:00-0700").within(3.hours)
-        end
-      end
-    end
-  end
-
-  describe "ExpiringInstrumentNotifier" do
-    let!(:member) { Suma::Fixtures.member.create(timezone: "America/Los_Angeles") }
-    let!(:expiring_card) { Suma::Fixtures.card.member(member).expiring.create }
-    let!(:trip) { Suma::Fixtures.mobility_trip.create(member: member) }
-
-    before(:each) do
-      import_localized_message_seeds
-    end
-
-    def prepare_stripe_req
-      cust = load_fixture_data("stripe/customer")
-      cust["sources"]["data"] << expiring_card.stripe_json.dup
-      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-          to_return(json_response(cust))
-    end
-
-    it "syncs external and dispatches a message to the member" do
-      req = prepare_stripe_req
-      Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
-      expect(member.message_deliveries).to contain_exactly(
-        have_attributes(template: "payments/expiring_instrument"),
-      )
-      expect(req).to have_been_made
-    end
-
-    it "uses idempotency" do
-      req = prepare_stripe_req
-      Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
-      Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
-      expect(member.message_deliveries).to have_length(1)
-      expect(req).to have_been_made
-    end
-
-    it "noops if the member is no longer eligble for notifications" do
-      req = prepare_stripe_req
-      trip.destroy
-      Suma::Async::ExpiringInstrumentNotifier.new.perform(member.id)
-      expect(member.message_deliveries).to be_empty
-      expect(req).to have_been_made
-    end
-  end
-
   describe "ForwardMessages" do
     before(:each) do
       Suma::Message::Forwarder.reset_configuration
@@ -663,6 +594,75 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
 
       expect(member.payment_account.originated_funding_transactions).to be_empty
+    end
+  end
+
+  describe "PaymentInstrumentExpiringScheduler" do
+    it "enqueues a notifier job for each member with an expiring instrument" do
+      to_warn = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
+      Suma::Fixtures.mobility_trip.create(member: to_warn)
+      Suma::Fixtures.card.member(to_warn).expiring.create
+
+      not_warn = Suma::Fixtures.member.create
+
+      expect(Suma::Async::PaymentInstrumentExpiringNotifier).to receive(:perform_at).
+        with(match_time("2025-09-11 12:00:00-0700").within(3.hours), to_warn.id)
+
+      Timecop.freeze("2025-09-09T01:00:00Z") do
+        Suma::Async::PaymentInstrumentExpiringScheduler.new.perform(true)
+      end
+    end
+
+    describe "schedule_performance_for" do
+      it "chooses a random time for the member's next Thursday, 10am-1pm local time" do
+        m = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
+        Timecop.freeze("2025-09-09T01:00:00Z") do
+          t = Suma::Async::PaymentInstrumentExpiringScheduler.schedule_notifier_for(m)
+          expect(t).to match_time("2025-09-11 12:00:00-0700").within(3.hours)
+        end
+      end
+    end
+  end
+
+  describe "PaymentInstrumentExpiringNotifier" do
+    let!(:member) { Suma::Fixtures.member.create(timezone: "America/Los_Angeles") }
+    let!(:expiring_card) { Suma::Fixtures.card.member(member).expiring.create }
+    let!(:trip) { Suma::Fixtures.mobility_trip.create(member: member) }
+
+    before(:each) do
+      import_localized_message_seeds
+    end
+
+    def prepare_stripe_req
+      cust = load_fixture_data("stripe/customer")
+      cust["sources"]["data"] << expiring_card.stripe_json.dup
+      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
+          to_return(json_response(cust))
+    end
+
+    it "syncs external and dispatches a message to the member" do
+      req = prepare_stripe_req
+      Suma::Async::PaymentInstrumentExpiringNotifier.new.perform(member.id)
+      expect(member.message_deliveries).to contain_exactly(
+        have_attributes(template: "payments/expiring_instrument"),
+      )
+      expect(req).to have_been_made
+    end
+
+    it "uses idempotency" do
+      req = prepare_stripe_req
+      Suma::Async::PaymentInstrumentExpiringNotifier.new.perform(member.id)
+      Suma::Async::PaymentInstrumentExpiringNotifier.new.perform(member.id)
+      expect(member.message_deliveries).to have_length(1)
+      expect(req).to have_been_made
+    end
+
+    it "noops if the member is no longer eligble for notifications" do
+      req = prepare_stripe_req
+      trip.destroy
+      Suma::Async::PaymentInstrumentExpiringNotifier.new.perform(member.id)
+      expect(member.message_deliveries).to be_empty
+      expect(req).to have_been_made
     end
   end
 
