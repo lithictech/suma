@@ -11,10 +11,7 @@ RSpec.describe Suma::Tasks::Integration, :db do
     let(:vendor_service) do
       Suma::Fixtures.vendor_service.
         mobility.
-        create(
-          mobility_vendor_adapter_key: "lyft_deeplink",
-          charge_after_fulfillment: true,
-        )
+        create(mobility_vendor_adapter_key: "lyft_deeplink")
     end
     let(:program) do
       Suma::Fixtures.program(lyft_pass_program_id: "5678").with_pricing(vendor_service:, vendor_service_rate:).create

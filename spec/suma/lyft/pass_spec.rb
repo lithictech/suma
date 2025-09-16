@@ -10,10 +10,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   let(:vendor_service) do
     Suma::Fixtures.vendor_service.
       mobility.
-      create(
-        mobility_vendor_adapter_key: "lyft_deeplink",
-        charge_after_fulfillment: true,
-      )
+      create(mobility_vendor_adapter_key: "lyft_deeplink")
   end
 
   before(:each) do

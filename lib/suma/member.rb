@@ -281,7 +281,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def read_only_reason
     return "read_only_unverified" if self.onboarding_verified_at.nil?
-    return "read_only_technical_error" if self.payment_account.nil?
+    return "read_only_technical_error" unless self.payment_account&.cash_ledger
     return nil
   end
 

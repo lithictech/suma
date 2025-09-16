@@ -8,7 +8,6 @@ export default function VendorServiceCreatePage() {
     internalName: "",
     externalName: "",
     vendor: { name: "" },
-    chargeAfterFulfillment: false,
   };
   return (
     <ResourceCreate
