@@ -19,8 +19,11 @@ class Suma::Async::PaymentInstrumentExpiringNotifier
         pi.save_changes
       end
       return if Suma::Member.for_alerting_about_expiring_payment_instruments(now).where(id: member.id).empty?
-      msg = Suma::Messages::SingleValue.new("payments", "expiring_instrument", nil)
-      member.message_preferences!.dispatch(msg)
+      Suma::FeatureFlags.expiring_cards.check(member) do
+        msg = Suma::Messages::SingleValue.new("payments", "expiring_instrument", nil)
+        member.message_preferences!.dispatch(msg)
+        nil
+      end
     end
   end
 end
