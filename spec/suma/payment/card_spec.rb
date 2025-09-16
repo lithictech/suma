@@ -77,6 +77,18 @@ RSpec.describe "Suma::Payment::Card", :db do
       end.to raise_error(Suma::InvariantViolation, /has no source/)
       expect(req).to have_been_made
     end
+
+    it "handles a nil sources" do
+      cust = load_fixture_data("stripe/customer")
+      cust.delete("sources")
+      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
+        to_return(json_response(cust))
+
+      expect do
+        card.refetch_remote_data
+      end.to raise_error(Suma::InvariantViolation, /has no source/)
+      expect(req).to have_been_made
+    end
   end
 
   describe "external links" do
