@@ -59,6 +59,35 @@ RSpec.describe "Suma::Payment::Ledger", :db do
         balance: cost("$12.25"),
       )
     end
+
+    it "can load directed, simple book transactions" do
+      amount = money("$2")
+      _ = ledger
+      counter = Suma::Fixtures.ledger.create
+      to = Suma::Fixtures.book_transaction.from(counter).to(ledger).create(apply_at: 6.minutes.ago, amount:)
+      from = Suma::Fixtures.book_transaction.from(ledger).to(counter).create(apply_at: 5.minutes.ago, amount:)
+      from2 = Suma::Fixtures.book_transaction.from(ledger).create(apply_at: 7.minutes.ago, amount:)
+      expect(ledger.combined_book_transactions_raw).to contain_exactly(
+        include(amount_cents: -200, apply_at: match_time(from.apply_at)),
+        include(amount_cents: 200, apply_at: match_time(to.apply_at)),
+        include(amount_cents: -200, apply_at: match_time(from2.apply_at)),
+      )
+      expect(counter.combined_book_transactions_raw).to contain_exactly(
+        include(amount_cents: 200, apply_at: match_time(from.apply_at)),
+        include(amount_cents: -200, apply_at: match_time(to.apply_at)),
+      )
+
+      eager_led, eager_counter = described_class.where(id: [ledger.id, counter.id]).order(:id).all
+      expect(eager_led.combined_book_transactions_raw).to contain_exactly(
+        include(amount_cents: -200, apply_at: match_time(from.apply_at)),
+        include(amount_cents: 200, apply_at: match_time(to.apply_at)),
+        include(amount_cents: -200, apply_at: match_time(from2.apply_at)),
+      )
+      expect(eager_counter.combined_book_transactions_raw).to contain_exactly(
+        include(amount_cents: 200, apply_at: match_time(from.apply_at)),
+        include(amount_cents: -200, apply_at: match_time(to.apply_at)),
+      )
+    end
   end
 
   describe "transactions?" do

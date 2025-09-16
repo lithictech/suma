@@ -21,6 +21,45 @@ RSpec.describe Suma::Payment, :db do
     end
   end
 
+  describe "can_use_services?", reset_configuration: described_class do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:ledger) { described_class.ensure_cash_ledger(member) }
+    let(:account) { ledger.account }
+
+    it "is true when the cash balance is >= minimum amount" do
+      described_class.minimum_cash_balance_for_services_cents = 0
+      expect(described_class.can_use_services?(account)).to eq(true)
+      described_class.minimum_cash_balance_for_services_cents = -5
+      expect(described_class.can_use_services?(account)).to eq(true)
+      described_class.minimum_cash_balance_for_services_cents = 5
+      expect(described_class.can_use_services?(account)).to eq(false)
+    end
+
+    it "is false when the cash balance is negative, but greater than minimum amount, but the grace period expired" do
+      described_class.minimum_cash_balance_for_services_cents = -20_00
+      described_class.negative_cash_balance_grace_period = 10.hours
+      expect(described_class.can_use_services?(account)).to eq(true)
+
+      # Test that a simple before/after balance check works
+      book_fac = fixtures.book_transaction(amount: money("$1"))
+      x = book_fac.from(ledger).create(apply_at: 5.hours.ago)
+      account.refresh
+      expect(described_class.can_use_services?(account)).to eq(true)
+      x.update(apply_at: 15.hours.ago)
+      account.refresh
+      expect(described_class.can_use_services?(account)).to eq(false)
+
+      # Now test that going back to 0, then back negative, treats the account as ok
+      book_fac.to(ledger).create(apply_at: 5.hours.ago)
+      account.refresh
+      expect(described_class.can_use_services?(account)).to eq(true)
+      book_fac.from(ledger).create(apply_at: 5.hours.ago)
+      book_fac.from(ledger).create(apply_at: 5.hours.ago)
+      account.refresh
+      expect(described_class.can_use_services?(account)).to eq(true)
+    end
+  end
+
   describe Suma::Payment::Institution do
     describe "logo_to_src" do
       it "converts nil to empty string" do

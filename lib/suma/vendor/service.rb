@@ -51,10 +51,19 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     return Suma::Mobility::VendorAdapter.create(self.mobility_vendor_adapter_key)
   end
 
-  def guard_zero_balance!(member)
-    return if self.charge_after_fulfillment
-    return if (pa = member.payment_account) && pa && pa.total_balance > Money.new(0)
-    raise Suma::Member::ReadOnlyMode, "read_only_zero_balance"
+  # Raise a +Suma::Member::ReadOnlyMode+ error there is a +usage_prohibited_reason+.
+  # This should generally be called before starting to use the service.
+  def guard_usage!(member, now:)
+    return unless (reason = self.usage_prohibited_reason(member, now:))
+    raise Suma::Member::ReadOnlyMode, reason
+  end
+
+  # Return the reason why usage is prohibited, or nil if usage is allowed.
+  # For example, a negative balance may prohibit usage.
+  def usage_prohibited_reason(member, now:)
+    return member.read_only_reason if member.read_only_reason
+    return "usage_prohibited_cash_balance" unless Suma::Payment.can_use_services?(member.payment_account, now:)
+    return nil
   end
 
   # A hash is said to satisfy the vendor service constraints

@@ -338,23 +338,22 @@ class Suma::Lyft::Pass
     return nil if check_dupes && !Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
     member.db.transaction(savepoint: true) do
       begin
-        trip = Suma::Mobility::Trip.start_trip(
+        trip = Suma::Mobility::Trip.import_trip(
           member:,
           vehicle_id: ride_id,
           vehicle_type: VEHICLE_TYPES_FOR_RIDEABLE_TYPES.fetch(ride.fetch("rideable_type")),
           vendor_service:,
           rate: vendor_service_rate,
-          lat: 0,
-          lng: 0,
-          at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
-          # Set this to ensure the ride shows as ended and doesn't hit a unique constraint
-          # on the active trip.
-          ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
+          begin_lat: 0,
+          begin_lng: 0,
+          began_at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
           end_lat: 0,
           end_lng: 0,
+          ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
           begin_address: ride.fetch("pickup").fetch("address"),
           end_address: ride.fetch("dropoff").fetch("address"),
           external_trip_id: ride_id,
+          adapter_kw: {ride_response: ride_resp},
         )
       rescue Sequel::UniqueConstraintViolation
         self.logger.debug("ride_already_exists", ride_id:)
@@ -376,7 +375,7 @@ class Suma::Lyft::Pass
         )
       end
 
-      charge = trip.end_trip(lat: 0, lng: 0, adapter_kw: {ride_response: ride_resp})
+      charge = trip.charge
       ride.fetch("line_items").each do |li|
         charge.add_off_platform_line_item(
           amount: self._money2money(li),

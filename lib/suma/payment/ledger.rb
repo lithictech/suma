@@ -62,6 +62,45 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
       order(*self.class.combined_dataset_sorter(id))
   end
 
+  # Association used for things like running balance transactions.
+  # It has to load all associations, so does it using naked hashes and specific columns.
+  one_to_many :combined_book_transactions_raw,
+              class: "Suma::Payment::BookTransaction",
+              read_only: true,
+              eager_loader: (lambda do |eo|
+                assocs_by_ledger_id = {}
+                eo[:rows].each do |r|
+                  arr = []
+                  assocs_by_ledger_id[r.id] = arr
+                  r.associations[:combined_book_transactions_raw] = arr
+                end
+                ids = eo[:id_map].keys
+                Suma::Payment::BookTransaction.
+                  where(Sequel[originating_ledger_id: ids] | Sequel[receiving_ledger_id: ids]).
+                  order(*combined_dataset_sorter(ids)).
+                  naked.
+                  select(:apply_at, :receiving_ledger_id, :originating_ledger_id, :amount_cents).
+                  all do |row|
+                  # We need to handle the same row seeing multiple eagered ledgers in the eager
+                  if (assoc_orig = assocs_by_ledger_id[row[:originating_ledger_id]])
+                    assoc_orig << {apply_at: row.fetch(:apply_at), amount_cents: row.fetch(:amount_cents) * -1}
+                  end
+                  if (assoc_received = assocs_by_ledger_id[row[:receiving_ledger_id]])
+                    assoc_received << {apply_at: row.fetch(:apply_at), amount_cents: row.fetch(:amount_cents)}
+                  end
+                end
+                assocs_by_ledger_id
+              end) do |_ds|
+    Suma::Payment::BookTransaction.
+      where(Sequel[originating_ledger_id: id] | Sequel[receiving_ledger_id: id]).
+      order(*self.class.combined_dataset_sorter([id])).
+      naked.
+      select(
+        :apply_at,
+        Sequel.case({Sequel[receiving_ledger_id: id] => :amount_cents}, Sequel[:amount_cents] * -1).as(:amount_cents),
+      )
+  end
+
   # These are used for #transactions? to avoid writing a custom eager loader.
   # If we need this sort of thing more in the future, we can refactor it as needed,
   # it's sort of hacky.
