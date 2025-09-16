@@ -9,12 +9,10 @@ import { formatOrNull } from "../modules/dayConfig";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
   FormControl,
-  FormControlLabel,
   FormHelperText,
   InputLabel,
   Select,
   Stack,
-  Switch,
   TextField,
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
@@ -102,20 +100,6 @@ export default function VendorServiceForm({
           onChange={(_, c) => setField("categories.0", c)}
           required
         />
-        <Stack>
-          <FormControlLabel
-            control={<Switch />}
-            label="Charge After Fulfillment"
-            name="chargeAfterFulfillment"
-            checked={resource.chargeAfterFulfillment}
-            onChange={(e) => setField("chargeAfterFulfillment", e.target.checked)}
-          />
-          <FormHelperText>
-            Services that happen off platform (the member uses the service through a 3rd
-            party application) generally require suma to charge the member for the service
-            only after they have used it.
-          </FormHelperText>
-        </Stack>
         <FormControl>
           <InputLabel id="mobility-adapter-key-label">Mobility Adapter Key</InputLabel>
           <Select

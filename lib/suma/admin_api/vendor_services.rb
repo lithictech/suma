@@ -10,7 +10,6 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :audit_activities, with: ActivityEntity
     expose :mobility_vendor_adapter_key
-    expose :charge_after_fulfillment
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
     expose :program_pricings, with: ProgramPricingEntity
     expose_image :image
@@ -41,7 +40,6 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :mobility_vendor_adapter_key, type: String, default: ""
-        optional :charge_after_fulfillment, type: Boolean, default: false
         optional :constraints, type: String
         optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end
@@ -64,7 +62,6 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         optional :period_begin, type: Time
         optional :period_end, type: Time
         optional :mobility_vendor_adapter_key, type: String
-        optional :charge_after_fulfillment, type: Boolean
         optional :constraints, type: String
         optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end

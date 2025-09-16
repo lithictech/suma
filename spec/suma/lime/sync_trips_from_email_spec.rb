@@ -16,7 +16,7 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       Suma::Fixtures.program.with_pricing(
         vendor_service: Suma::Fixtures.vendor_service.
           mobility.
-          create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
+          create(mobility_vendor_adapter_key: "lime_deeplink"),
         vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
       ).create
     end
