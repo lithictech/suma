@@ -47,7 +47,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     it "errors if the member already has an ongoing trip" do
       ongoing = Suma::Fixtures.mobility_trip(member:).ongoing.create
       expect do
-        trip = described_class.start_trip(
+        described_class.start_trip(
           member:,
           vehicle_id: "abcd",
           vehicle_type: "ebike",
@@ -58,6 +58,22 @@ RSpec.describe "Suma::Mobility::Trip", :db do
           at: t,
         )
       end.to raise_error(described_class::OngoingTrip)
+    end
+
+    it "errors if service usage is prohibited" do
+      member.update(onboarding_verified: false)
+      expect do
+        described_class.start_trip(
+          member:,
+          vehicle_id: "abcd",
+          vehicle_type: "ebike",
+          vendor_service:,
+          rate:,
+          lat: 1.5,
+          lng: 2.5,
+          at: t,
+        )
+      end.to raise_error(Suma::Member::ReadOnlyMode)
     end
   end
 
@@ -73,8 +89,8 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       )
     end
 
-    it "errors if the eligible account balance is negative" do
-      Suma::Fixtures.book_transaction.from(member.payment_account.ledgers.first).create(amount: money("$100"))
+    it "errors if the service prohibits usage" do
+      member.update(onboarding_verified: false)
       v = Suma::Fixtures.mobility_vehicle.create
       expect do
         described_class.start_trip_from_vehicle(member:, vehicle: v, rate:)
@@ -187,6 +203,74 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       trip.end_trip(lat: 1, lng: 2)
       expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
       expect(trip.charge.line_items).to be_empty
+    end
+  end
+
+  describe "import_trip" do
+    it "imports a completed trip" do
+      trip = described_class.import_trip(
+        member:,
+        vehicle_id: "abcd",
+        vehicle_type: "ebike",
+        vendor_service:,
+        rate:,
+        begin_lat: 1.5,
+        begin_lng: 2.5,
+        began_at: t,
+        end_lat: 3,
+        end_lng: 4,
+        ended_at: t + 1,
+      )
+      expect(trip).to have_attributes(
+        member:,
+        vehicle_id: "abcd",
+        vehicle_type: "ebike",
+        vendor_service:,
+        vendor_service_rate: rate,
+        begin_lat: 1.5,
+        begin_lng: 2.5,
+        began_at: t,
+        end_lat: 3,
+        end_lng: 4,
+        # The end time comes from the adapter in end_trip, not 'at', so don't both testing it.
+        # ended_at: match_time(t + 1),
+      )
+    end
+
+    it "does not error for an ongoing trip" do
+      ongoing = Suma::Fixtures.mobility_trip(member:).ongoing.create
+      trip = described_class.import_trip(
+        member:,
+        vehicle_id: "abcd",
+        vehicle_type: "ebike",
+        vendor_service:,
+        rate:,
+        begin_lat: 1.5,
+        begin_lng: 2.5,
+        began_at: t,
+        end_lat: 3,
+        end_lng: 4,
+        ended_at: t + 1,
+      )
+      expect(trip).to be_a(described_class)
+    end
+
+    it "does not error for a readonly user" do
+      member.update(onboarding_verified: false)
+      trip = described_class.import_trip(
+        member:,
+        vehicle_id: "abcd",
+        vehicle_type: "ebike",
+        vendor_service:,
+        rate:,
+        begin_lat: 1.5,
+        begin_lng: 2.5,
+        began_at: t,
+        end_lat: 3,
+        end_lng: 4,
+        ended_at: t + 1,
+      )
+      expect(trip).to be_a(described_class)
     end
   end
 

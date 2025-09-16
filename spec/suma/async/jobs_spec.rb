@@ -550,6 +550,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     let!(:bx) { Suma::Fixtures.book_transaction.from(member.payment_account!.cash_ledger!).create(amount: money("$3")) }
     let!(:ba) { Suma::Fixtures.bank_account.member(member).verified.create }
 
+    around(:each) do |example|
+      valid_ach_processing_time = "2025-09-16T12:00:00-0500"
+      Timecop.freeze(valid_ach_processing_time) do
+        example.run
+      end
+    end
+
     it "charges a negative cash ledger balance to the updated instrument" do
       req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
         to_return(fixture_response("increase/ach_transfer"))

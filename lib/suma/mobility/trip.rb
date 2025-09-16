@@ -43,8 +43,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def self.start_trip(member:, vehicle_id:, vehicle_type:, vendor_service:, rate:, lat:, lng:, at: Time.now, **kw)
-    member.read_only_mode!
-    vendor_service.guard_zero_balance!(member)
+    vendor_service.guard_usage!(member, now: at)
     self.db.transaction(savepoint: true) do
       # noinspection RubyArgCount
       trip = self.new(
@@ -111,6 +110,42 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
+  def self.import_trip(
+    member:,
+    vehicle_id:,
+    vehicle_type:,
+    vendor_service:,
+    rate:,
+    begin_lat:,
+    begin_lng:,
+    began_at:,
+    end_lat:,
+    end_lng:,
+    ended_at:,
+    adapter_kw: {},
+    **kw
+  )
+    trip = self.new(
+      member:,
+      vehicle_id:,
+      vehicle_type:,
+      vendor_service:,
+      vendor_service_rate: rate,
+      begin_lat: begin_lat,
+      begin_lng: begin_lng,
+      began_at: began_at,
+      # We must set the end fields here so we don't hit an issue with the ongoing trip constraint.
+      end_lat:,
+      end_lng:,
+      ended_at:,
+      **kw,
+    )
+    vendor_service.mobility_adapter.begin_trip(trip)
+    trip.save_changes
+    trip.end_trip(lat: end_lat, lng: end_lng, at: ended_at, adapter_kw:)
+    return trip
+  end
+
   def ended? = !self.ended_at.nil?
   def ongoing? = self.ended_at.nil?
 
@@ -124,13 +159,6 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     r = self.duration.to_i / 1.minute
     r = 1 if r <= 0
     return r
-  end
-
-  def rate_units
-    x = self.ended_at - self.began_at
-    x /= 60
-    x = x.round
-    return x
   end
 
   def begin_address_parsed = self.parse_address(self.begin_address)

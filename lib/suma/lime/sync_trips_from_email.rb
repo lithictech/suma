@@ -42,26 +42,26 @@ class Suma::Lime::SyncTripsFromEmail
     receipt = self.parse_row_to_receipt(row)
     registration.db.transaction(savepoint: true) do
       begin
-        trip = Suma::Mobility::Trip.start_trip(
+        trip = Suma::Mobility::Trip.import_trip(
           member: registration.account.member,
           vehicle_id: receipt.ride_id,
           vehicle_type: receipt.vehicle_type,
           vendor_service: pricing.vendor_service,
           rate: pricing.vendor_service_rate,
-          lat: 0,
-          lng: 0,
-          at: receipt.started_at,
-          ended_at: receipt.ended_at,
+          begin_lat: 0,
+          begin_lng: 0,
+          began_at: receipt.started_at,
           end_lat: 0,
           end_lng: 0,
+          ended_at: receipt.ended_at,
           external_trip_id: receipt.ride_id,
+          adapter_kw: {receipt:},
         )
       rescue Sequel::UniqueConstraintViolation
         self.logger.debug("ride_already_exists", ride_id: receipt.ride_id)
         raise Sequel::Rollback
       end
-
-      charge = trip.end_trip(lat: 0, lng: 0, adapter_kw: {receipt:})
+      charge = trip.charge
       receipt[:line_items].each do |li|
         charge.add_off_platform_line_item(
           amount: li[:amount],

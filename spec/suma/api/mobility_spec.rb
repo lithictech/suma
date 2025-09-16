@@ -81,18 +81,22 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response_json_body[:escooter][0][:c][0].to_f / last_response_json_body[:precision]).to eq(-0.5)
     end
 
-    it "indicates if the service allows zero-balance rides" do
+    it "includes the usage prohibited reason", reset_configuration: Suma::Payment do
       vehicle_fac.loc(20, 120).create
 
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
       expect(last_response).to have_status(200)
-      expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: false)))
+      expect(last_response).to have_json_body.that_includes(
+        providers: contain_exactly(include(usage_prohibited_reason: nil)),
+      )
 
-      vendor_service.update(charge_after_fulfillment: true)
+      Suma::Payment.minimum_cash_balance_for_services_cents = 2000
 
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
       expect(last_response).to have_status(200)
-      expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: true)))
+      expect(last_response).to have_json_body.that_includes(
+        providers: contain_exactly(include(usage_prohibited_reason: "usage_prohibited_cash_balance")),
+      )
     end
 
     it "tells the frontend to refresh in 30 seconds" do

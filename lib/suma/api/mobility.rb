@@ -202,7 +202,9 @@ class Suma::API::Mobility < Suma::API::V1
     expose :slug, &self.delegate_to(:vendor_service, :internal_name)
     expose :vendor_name, &self.delegate_to(:vendor_service, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor_service, :vendor, :slug)
-    expose :zero_balance_ok, &self.delegate_to(:vendor_service, :charge_after_fulfillment)
+    expose :usage_prohibited_reason do |inst|
+      inst.vendor_service.usage_prohibited_reason(current_member, now: current_time)
+    end
   end
 
   class MobilityMapEntity < BaseEntity

@@ -10,7 +10,6 @@ export default useUser;
 /**
  * @typedef User
  * @property {boolean} ongoingTrip
- * @property {boolean} readOnlyMode
  * @property {string} readOnlyReason
  * @property {Array<object>} paymentInstruments
  */

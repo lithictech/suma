@@ -107,7 +107,6 @@
     "rate_not_found": "$t(strings.errors.unhandled_error)",
     "read_only_technical_error": "$t(strings.errors.read_only_unverified)",
     "read_only_unverified": "Your account is limited while we verify your information. We'll let you know when it's ready!",
-    "read_only_zero_balance": "Sorry, you can't use this until you've added some money to your account.",
     "required": "This field is required.",
     "resource_not_found": "$t(strings.errors.forbidden)",
     "role_check": "$t(strings.errors.invalid_permissions)",
@@ -116,6 +115,7 @@
     "too_many_requests": "You have made too many requests in a short period of time. Please try again after {{seconds}} seconds.",
     "unauthenticated": "You must be logged in to proceed.",
     "unhandled_error": "Sorry, something went wrong. Please try again.",
+    "usage_prohibited_cash_balance": "Your account balance is negative. Please [add a payment method](/funding) to keep using suma.",
     "validation_error": "Some fields were left blank, please fill in all required fields and try again.",
     "vehicle_not_found": "No vehicle found in this location."
   },

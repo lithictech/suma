@@ -2,12 +2,10 @@ import api from "../../api";
 import config from "../../config";
 import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
-import readOnlyReason from "../../modules/readOnlyReason";
 import useMountEffect from "../../shared/react/useMountEffect";
 import { extractErrorCode, useError } from "../../state/useError";
 import useGlobalViewState from "../../state/useGlobalViewState";
 import useUser from "../../state/useUser";
-import AddFundsLinkButton from "../AddFundsLinkButton";
 import FormError from "../FormError";
 import { MdLink } from "../SumaMarkdown";
 import Drawer from "./Drawer";
@@ -42,13 +40,9 @@ export default function Map() {
         return;
       }
       const { loc, provider, disambiguator, type } = mapVehicle;
-      if (user.readOnlyMode) {
-        const canStillRide =
-          user.readOnlyReason === "read_only_zero_balance" && provider.zeroBalanceOk;
-        if (!canStillRide) {
-          setError(extractErrorCode(user.readOnlyReason));
-          return;
-        }
+      if (provider.usageProhibitedReason) {
+        setError(provider.usageProhibitedReason);
+        return;
       }
       api
         .getMobilityVehicle({ loc, providerId: provider.id, disambiguator, type })
@@ -59,7 +53,7 @@ export default function Map() {
           setError(extractErrorCode(e));
         });
     },
-    [user, setError, setReserveError]
+    [setError, setReserveError]
   );
 
   const handleVehicleRemove = React.useCallback(() => setSelectedMapVehicle(null), []);
@@ -188,17 +182,7 @@ export default function Map() {
 
   const drawerContent = (() => {
     if (error) {
-      return (
-        <>
-          <FormError error={error} noMargin component="div" />
-          {!config.featureMobilityRestricted &&
-            readOnlyReason(user, "read_only_zero_balance") && (
-              <div className="text-center mt-2">
-                <AddFundsLinkButton />
-              </div>
-            )}
-        </>
-      );
+      return <FormError error={error} noMargin component="div" />;
     }
     if (ongoingTrip) {
       return (
