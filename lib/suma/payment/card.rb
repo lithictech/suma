@@ -56,9 +56,7 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
 
   def refetch_remote_data
     customer = self.stripe_json.fetch("customer")
-    existing = Stripe::Customer.retrieve(customer).
-      sources.
-      find { |src| src.id == self.stripe_id }
+    existing = Stripe::Customer.retrieve(customer).sources&.find { |src| src.id == self.stripe_id }
     if existing.nil?
       msg = "Card[#{self.id}] with Stripe Customer #{customer} has no source with id #{self.stripe_id}"
       raise Suma::InvariantViolation, msg

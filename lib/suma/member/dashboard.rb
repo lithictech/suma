@@ -34,7 +34,7 @@ class Suma::Member::Dashboard
   # We only want to prompt for expiring instruments
   def expiring_instruments?
     return @expiring_instruments unless @expiring_instruments.nil?
-    return @expiring_instruments ||= Suma::FeatureFlags.expiring_cards.check(@member, false) do
+    return @expiring_instruments ||= Suma::FeatureFlags.expiring_cards_flag.check(@member, false) do
       ds = Suma::Member.for_alerting_about_expiring_payment_instruments(@at).where(id: @member.id)
       !ds.empty?
     end

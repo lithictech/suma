@@ -39,6 +39,6 @@ module Suma::FeatureFlags
   end
 
   class << self
-    def expiring_cards = (@expiring_cards ||= Flag.new(:expiring_cards))
+    def expiring_cards_flag = (@expiring_cards_flag ||= Flag.new(:expiring_cards))
   end
 end
