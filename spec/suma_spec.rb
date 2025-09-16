@@ -290,4 +290,19 @@ RSpec.describe Suma do
       Suma.instance_variable_set(:@app_loaded, true)
     end
   end
+
+  describe "money cachcing" do
+    it "caches 0 cent money" do
+      z1 = Money.new(0)
+      z2 = Money.new(0)
+      expect(z1.object_id).to eq(z2.object_id)
+      o1 = Money.new(1)
+      o2 = Money.new(1)
+      expect(o1.object_id).to_not eq(o2.object_id)
+      eu1 = Money.new(0, "EUR")
+      eu2 = Money.new(0, "EUR")
+      expect(eu1.object_id).to eq(eu2.object_id)
+      expect(z1.object_id).to_not eq(eu1.object_id)
+    end
+  end
 end
