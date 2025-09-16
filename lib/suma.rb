@@ -238,12 +238,14 @@ module Suma
     raise AssertionError, msg
   end
 
-  def self.bool?(v) = [true, false].include?(v)
+  BOOLEANS = [true, false].freeze
+  def self.bool?(v) = BOOLEANS.include?(v)
 
   def self.as_ary(x)  = x.respond_to?(:to_ary) ? x : [x]
 end
 
 require "suma/enumerable"
+require "suma/feature_flags"
 require "suma/phone_number"
 require "suma/signals"
 require "suma/typed_struct"
