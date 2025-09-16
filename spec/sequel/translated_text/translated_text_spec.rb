@@ -63,13 +63,32 @@ RSpec.describe SequelTranslatedText, :db do
       x = cls.create(text: TranslatedTextEx.create(en: "x"))
       y = cls.create(text: TranslatedTextEx.create(en: "y"))
       q = cls.dataset.translation_join(:text, [:en, :fr])
+      expect(q.where(text_en: "x").all).to contain_exactly(be === x)
+      puts q.sql
       expect(q.sql).to eq(
         'SELECT * FROM (SELECT "test_articles".*, "text"."en" AS "text_en", "text"."fr" AS "text_fr" ' \
         'FROM "test_articles" INNER JOIN "test_translated_texts" AS "text" ' \
-        'ON ("text"."id" = "test_articles"."text_id")) AS "t1"',
+        'ON ("text"."id" = "test_articles"."text_id")) AS "test_articles"',
       )
-      expect(q.where(text_en: "x").all).to contain_exactly(be === x)
       expect(q.where(id: -1).all).to be_empty # Ensure we don't get ambiguous columns
+    end
+
+    it "works when the chained dataset uses explicit column names" do
+      cls = Class.new(Sequel::Model(:test_articles)) do
+        plugin :column_select
+        plugin :translated_text, :text, TranslatedTextEx
+      end
+      x = cls.create(text: TranslatedTextEx.create(en: "x"))
+      q = cls.dataset.translation_join(:text, [:en])
+      expect(q.where(text_en: "x").all).to contain_exactly(be === x)
+      puts q.sql
+      expect(q.sql).to eq(
+        'SELECT "test_articles"."id", "test_articles"."title_id", "test_articles"."text_id" FROM ' \
+        '(SELECT "test_articles"."id", "test_articles"."title_id", "test_articles"."text_id", ' \
+        '"text"."en" AS "text_en" ' \
+        'FROM "test_articles" INNER JOIN "test_translated_texts" AS "text" ' \
+        'ON ("text"."id" = "test_articles"."text_id")) AS "test_articles"',
+      )
     end
   end
 
