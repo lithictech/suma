@@ -71,7 +71,6 @@ RSpec.describe "sequel-hybrid-searchable" do
         TEXT
       end
     end
-    m.dataset = @db[:svs_tester]
     m
   end
 
@@ -345,6 +344,28 @@ RSpec.describe "sequel-hybrid-searchable" do
       SequelHybridSearch.threadpool.shutdown
       SequelHybridSearch.threadpool.wait_for_termination
       expect(o.refresh).to have_attributes(search_content: match(/Geralt1/))
+    end
+  end
+
+  describe "querying" do
+    it "does not load the search columns by default" do
+      o = model.create(name: "Geralt")
+      o.hybrid_search_reindex
+      expect(o.values).to have_key(:search_hash) # Was loaded when checking the hash
+      expect(o.values).to_not have_key(:search_content)
+      expect(o.values).to_not have_key(:search_embedding)
+      o = model[o.id]
+      expect(o.values).to_not have_key(:search_hash)
+      expect(o.values).to_not have_key(:search_content)
+      expect(o.values).to_not have_key(:search_embedding)
+      expect(o.search_hash).to be_present
+      expect(o.search_content).to be_present
+      expect(o.search_embedding).to be_present
+      expect(o.values).to include(
+        search_hash: be_present,
+        search_content: be_present,
+        search_embedding: be_present,
+      )
     end
   end
 

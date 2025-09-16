@@ -70,12 +70,10 @@ module Sequel::Plugins::TranslatedText
 
   module DatasetMethods
     def translation_join(association, translation_columns)
-      selects = [
-        Sequel[self.first_source_alias][Sequel.lit("*")],
-      ]
-      selects.concat(translation_columns.map { |c| Sequel[association][c].as("#{association}_#{c}") })
+      selects = self.opts[:select] || [Sequel[self.first_source_alias][Sequel.lit("*")]]
+      selects += translation_columns.map { |c| Sequel[association][c].as("#{association}_#{c}") }
       ds = self.association_join(association).select(*selects)
-      return self.from(ds)
+      return self.from(ds.as(selects.first.table))
     end
   end
 end

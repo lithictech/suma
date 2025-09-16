@@ -45,7 +45,18 @@ module Sequel::Plugins::HybridSearch
     indexing_backoff: ->(attempt) { 4 * (2**(attempt - 1)) },
   }.freeze
 
-  def self.apply(*); end
+  def self.apply(model, opts=DEFAULT_OPTIONS)
+    opts = DEFAULT_OPTIONS.merge(opts)
+    # The search implementation columns can be quite large; there's almost no reason to return them,
+    # since they're just used by the database.
+    # The hash column is used by the 'hash changed' instance check;
+    # but this will run relatively rarely as compared to fetching data,
+    # so it's better to make an additional database call for these fields on update
+    # (which is already relatively slower, so an additional read is ok given the fact we just wrote).
+    model.plugin :lazy_attributes, opts[:content_column], opts[:hash_column], opts[:vector_column]
+    model.plugin :insert_returning_select
+    model.plugin :pgvector, opts[:vector_column]
+  end
 
   def self.configure(model, opts=DEFAULT_OPTIONS)
     opts = DEFAULT_OPTIONS.merge(opts)
@@ -61,7 +72,11 @@ module Sequel::Plugins::HybridSearch
     model.hybrid_search_indexing_retries = opts[:indexing_retries]
     model.hybrid_search_indexing_backoff = opts[:indexing_backoff]
     SequelHybridSearch.indexable_models << model unless opts[:indexable] == false
-    model.plugin :pgvector, model.hybrid_search_vector_column
+    # The :pgvector plugin deserializes by overriding `[]`, which isn't called by the :lazy_attributes plugin.
+    # So we need to redefine a getter that will deserialize.
+    model.define_method(opts[:vector_column]) do
+      ::Pgvector.decode(super())
+    end
   end
 
   module DatasetMethods
@@ -118,7 +133,7 @@ module Sequel::Plugins::HybridSearch
       # Rank text-filtered rows based on their text match.
       # We use both text vector AND trigram similarity to figure out what rows to include, and how to rank.
       kw_search = self.model.
-        from(self, table_and_tsquery).
+        from(self.select(Sequel.lit("*")), table_and_tsquery).
         where(matches_tsquery | matches_trigram).
         select(
           Sequel[pk].as(:id),
@@ -146,7 +161,7 @@ module Sequel::Plugins::HybridSearch
       # Now for semantic search. We still need to do the keyword matching,
       # so we only rank rows that are possible search candidates.
       semantic_search = self.model.
-        from(self, table_and_tsquery).
+        from(self.select(Sequel.lit("*")), table_and_tsquery).
         where(matches_tsquery).
         select(
           Sequel[pk].as(:id),
