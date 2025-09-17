@@ -305,4 +305,20 @@ RSpec.describe Suma do
       expect(z1.object_id).to_not eq(eu1.object_id)
     end
   end
+
+  describe "require_files" do
+    it "finds relevant files and passes them to require as rooted in the input path" do
+      expect(Gem).to receive(:find_files).with("suma/spec_helpers/*.rb").
+        and_return([
+                     "/Users/me/programming/suma/spec/suma/spec_helpers/postgres_spec.rb",
+                     "/Users/me/programming/suma/lib/suma/spec_helpers/async.rb",
+                     "/Users/me/programming/suma/spec/suma/spec_helpers/service_spec.rb",
+                     "/Users/me/programming/suma/lib/suma/spec_helpers/i18n.rb",
+                   ])
+      expect(Kernel).to receive(:require).with("suma/spec_helpers/async")
+      expect(Kernel).to receive(:require).with("suma/spec_helpers/i18n")
+
+      Suma.require_files("suma/spec_helpers")
+    end
+  end
 end

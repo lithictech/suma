@@ -21,42 +21,6 @@ module Suma::Async
   require "suma/async/job_logger"
   require "suma/async/job_utils"
 
-  # Registry of all jobs that will be required when the async system is started/run.
-  JOBS = [
-    "suma/async/analytics_dispatch",
-    "suma/async/anon_proxy_destroyed_member_contact_cleanup",
-    "suma/async/deprecated_jobs",
-    "suma/async/enrollment_removal_runner",
-    "suma/async/forward_messages",
-    "suma/async/frontapp_list_sync",
-    "suma/async/frontapp_upsert_contact",
-    "suma/async/funding_transaction_processor",
-    "suma/async/gbfs_sync_enqueue",
-    "suma/async/gbfs_sync_run",
-    "suma/async/hybrid_search_reindex",
-    "suma/async/lime_trip_sync",
-    "suma/async/lime_violations_processor",
-    "suma/async/lyft_pass_trip_sync",
-    "suma/async/marketing_list_sync",
-    "suma/async/marketing_sms_broadcast_dispatch",
-    "suma/async/member_default_relations",
-    "suma/async/member_onboarding_verified_dispatch",
-    "suma/async/message_dispatched",
-    "suma/async/message_unsent_poller",
-    "suma/async/offering_schedule_fulfillment",
-    "suma/async/order_confirmation",
-    "suma/async/payment_instrument_charge_balance",
-    "suma/async/payment_instrument_expiring_notifier",
-    "suma/async/payment_instrument_expiring_scheduler",
-    "suma/async/payout_transaction_processor",
-    "suma/async/plaid_update_institutions",
-    "suma/async/process_anon_proxy_inbound_webhookdb_relays",
-    "suma/async/reset_code_create_dispatch",
-    "suma/async/reset_code_update_twilio",
-    "suma/async/signalwire_process_optouts",
-    "suma/async/stripe_refunds_backfiller",
-  ].freeze
-
   class << self
     def configure_sidekiq_server(config)
       url = Suma::Redis.fetch_url(self.sidekiq_redis_provider, self.sidekiq_redis_url)
@@ -170,7 +134,7 @@ module Suma::Async
   end
 
   def self._require_jobs
-    JOBS.each { |j| require(j) }
+    Suma.require_files("suma/async")
   end
 
   def self._setup_common
