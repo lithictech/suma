@@ -23,7 +23,7 @@ class Suma::Mobility::VendorAdapter::LimeMaas
       at: trip.began_at,
     )
     trip.external_trip_id = resp.dig("data", "id")
-    return BeginTripResult.new(raw_result: resp)
+    return BeginTripResult.new
   end
 
   def end_trip(trip)
@@ -33,12 +33,18 @@ class Suma::Mobility::VendorAdapter::LimeMaas
       lng: trip.end_lng,
       at: trip.ended_at,
     )
-    duration = resp.dig("data", "duration_seconds") / 60.0
+    trip.ended_at = resp.dig("data", "completed_at")
+    Suma.assert do
+      duration = resp.dig("data", "duration_seconds")
+      [
+        duration == trip.duration.to_i,
+        "API duration #{duration} and calculated duration #{trip.duration.to_i} should match",
+      ]
+    end
+    minutes = trip.duration_minutes
     return EndTripResult.new(
-      cost: trip.vendor_service_rate.calculate_total(duration),
-      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(duration),
-      end_time: resp.dig("data", "completed_at"),
-      duration_minutes: duration.ceil,
+      cost: trip.vendor_service_rate.calculate_total(minutes),
+      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
     )
   end
 

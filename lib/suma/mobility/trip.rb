@@ -29,7 +29,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     self.opaque_id ||= Suma::Secureid.new_opaque_id("trp")
   end
 
-  def self.start_trip_from_vehicle(member:, vehicle:, rate:, at: Time.now)
+  def self.start_trip_from_vehicle(member:, vehicle:, rate:, now: Time.now)
     return self.start_trip(
       member:,
       vehicle_id: vehicle.vehicle_id,
@@ -38,14 +38,26 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       rate:,
       lat: vehicle.lat,
       lng: vehicle.lng,
-      at:,
+      now:,
     )
   end
 
-  def self.start_trip(member:, vehicle_id:, vehicle_type:, vendor_service:, rate:, lat:, lng:, at: Time.now, **kw)
-    vendor_service.guard_usage!(member, rate:, now: at)
+  # Start a trip through a mobility adapter.
+  # This is the "synchronous" trip start endpoint, where suma tells the vendor adapter
+  # about a trip actively starting.
+  # If this is a historical trip, use +import_trip+ instead.
+  def self.start_trip(
+    member:,
+    vehicle_id:,
+    vehicle_type:,
+    vendor_service:,
+    rate:,
+    lat:,
+    lng:,
+    now:
+  )
+    vendor_service.guard_usage!(member, rate:, now:)
     self.db.transaction(savepoint: true) do
-      # noinspection RubyArgCount
       trip = self.new(
         member:,
         vehicle_id:,
@@ -54,8 +66,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         vendor_service_rate: rate,
         begin_lat: lat,
         begin_lng: lng,
-        began_at: at,
-        **kw,
+        began_at: now,
       )
       vendor_service.mobility_adapter.begin_trip(trip)
       trip.save_changes
@@ -66,25 +77,28 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
-  def end_trip(lat:, lng:, at: Time.now, adapter_kw: {})
-    # Not sure how to handle API multiple calls to a 3rd party service for the same trip,
-    # or if we lose track of something (out of sync between us and service).
-    # We can work this out more clearly once we have more providers to work with.
-    result = self.vendor_service.mobility_adapter.end_trip(self, **adapter_kw)
+  # End a trip through the mobility adapter. Charge the member any outstanding cost.
+  def end_trip(lat:, lng:, now:)
+    self.set(end_lat: lat, end_lng: lng, ended_at: now)
+    result = self.vendor_service.mobility_adapter.end_trip(self)
+    return self._charge_trip(cost: result.cost, undiscounted_subtotal: result.undiscounted)
+  end
+
+  def _charge_trip(cost:, undiscounted_subtotal:)
     # This would be bad, but we should know when it happens and pick up the pieces
     # instead of trying to figure out a solution to an impossible problem.
-    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost.negative?
+    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if cost.negative?
     self.db.transaction do
-      self.update(end_lat: lat, end_lng: lng, ended_at: result.end_time)
+      self.save_changes
       self.charge = Suma::Charge.create(
         mobility_trip: self,
-        undiscounted_subtotal: result.undiscounted,
+        undiscounted_subtotal: undiscounted_subtotal,
         member: self.member,
       )
       contrib_coll = self.member.payment_account!.calculate_charge_contributions(
-        Suma::Payment::CalculationContext.new(at),
+        Suma::Payment::CalculationContext.new(self.ended_at),
         self.vendor_service,
-        result.cost,
+        cost,
       )
       debitable_contribs = contrib_coll.all.select(&:amount?)
       book_xactions = self.member.payment_account.debit_contributions(
@@ -110,40 +124,9 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
-  def self.import_trip(
-    member:,
-    vehicle_id:,
-    vehicle_type:,
-    vendor_service:,
-    rate:,
-    begin_lat:,
-    begin_lng:,
-    began_at:,
-    end_lat:,
-    end_lng:,
-    ended_at:,
-    adapter_kw: {},
-    **kw
-  )
-    trip = self.new(
-      member:,
-      vehicle_id:,
-      vehicle_type:,
-      vendor_service:,
-      vendor_service_rate: rate,
-      begin_lat: begin_lat,
-      begin_lng: begin_lng,
-      began_at: began_at,
-      # We must set the end fields here so we don't hit an issue with the ongoing trip constraint.
-      end_lat:,
-      end_lng:,
-      ended_at:,
-      **kw,
-    )
-    vendor_service.mobility_adapter.begin_trip(trip)
-    trip.save_changes
-    trip.end_trip(lat: end_lat, lng: end_lng, at: ended_at, adapter_kw:)
-    return trip
+  def self.import_trip(unsaved_trip, cost:, undiscounted_subtotal:)
+    charge = unsaved_trip._charge_trip(cost:, undiscounted_subtotal:)
+    return charge
   end
 
   def ended? = !self.ended_at.nil?
@@ -155,10 +138,18 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def duration_minutes
-    return -1 if self.ongoing?
-    r = self.duration.to_i / 1.minute
-    r = 1 if r <= 0
-    return r
+    d = self.duration
+    # Ongoing: return nil
+    return nil if d.nil?
+    # No duration: return 0 duration
+    return 0 if d.zero?
+    div, remainder = d.to_i.divmod(60)
+    # Less than 60 seconds: return 1 minute
+    return 1 if div.zero?
+    # On a minute boundary (60, 120, etc.): return 1, 2, etc
+    return div if remainder.zero?
+    # All other seconds (1, 61, 119, etc.): round minute up
+    return div + 1
   end
 
   def begin_address_parsed = self.parse_address(self.begin_address)

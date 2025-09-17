@@ -150,7 +150,7 @@ class Suma::API::Mobility < Suma::API::V1
       member = current_member
       trip = Suma::Mobility::Trip.ongoing.where(member:).first
       merror!(409, "No ongoing trip", code: "no_active_trip") if trip.nil?
-      trip.end_trip(lat: params[:lat], lng: params[:lng])
+      trip.end_trip(lat: params[:lat], lng: params[:lng], now: current_time)
       add_current_member_header
       status 200
       present trip, with: MobilityTripEntity

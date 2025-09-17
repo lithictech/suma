@@ -14,27 +14,4 @@ class Suma::Mobility::VendorAdapter::LimeDeeplink
     account = Suma::AnonProxy::VendorAccount.where(configuration:, member:)
     return account.first
   end
-
-  def begin_trip(_trip)
-    return Suma::Mobility::VendorAdapter::BeginTripResult.new
-  end
-
-  class RideReceipt < Suma::TypedStruct
-    attr_accessor :ride_id,
-                  :vehicle_type,
-                  :started_at,
-                  :ended_at,
-                  :total,
-                  :discount,
-                  :line_items
-  end
-
-  def end_trip(_trip, receipt:)
-    return Suma::Mobility::VendorAdapter::EndTripResult.new(
-      cost: receipt.total,
-      undiscounted: receipt.discount + receipt.total,
-      end_time: receipt.ended_at,
-      duration_minutes: ((receipt.ended_at - receipt.started_at) / 60.0).to_i,
-    )
-  end
 end

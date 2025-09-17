@@ -40,22 +40,26 @@ class Suma::Lime::SyncTripsFromEmail
     program = Suma::Enumerable.one!(vendor_config.programs)
     pricing = Suma::Enumerable.one!(program.pricings)
     receipt = self.parse_row_to_receipt(row)
+    trip = Suma::Mobility::Trip.new(
+      member: registration.account.member,
+      vehicle_id: receipt.ride_id,
+      vehicle_type: receipt.vehicle_type,
+      vendor_service: pricing.vendor_service,
+      vendor_service_rate: pricing.vendor_service_rate,
+      begin_lat: 0,
+      begin_lng: 0,
+      began_at: receipt.started_at,
+      end_lat: 0,
+      end_lng: 0,
+      ended_at: receipt.ended_at,
+      external_trip_id: receipt.ride_id,
+    )
     registration.db.transaction(savepoint: true) do
       begin
-        trip = Suma::Mobility::Trip.import_trip(
-          member: registration.account.member,
-          vehicle_id: receipt.ride_id,
-          vehicle_type: receipt.vehicle_type,
-          vendor_service: pricing.vendor_service,
-          rate: pricing.vendor_service_rate,
-          begin_lat: 0,
-          begin_lng: 0,
-          began_at: receipt.started_at,
-          end_lat: 0,
-          end_lng: 0,
-          ended_at: receipt.ended_at,
-          external_trip_id: receipt.ride_id,
-          adapter_kw: {receipt:},
+        Suma::Mobility::Trip.import_trip(
+          trip,
+          cost: receipt.total,
+          undiscounted_subtotal: receipt.discount + receipt.total,
         )
       rescue Sequel::UniqueConstraintViolation
         self.logger.debug("ride_already_exists", ride_id: receipt.ride_id)
@@ -72,7 +76,7 @@ class Suma::Lime::SyncTripsFromEmail
   end
 
   def parse_row_to_receipt(row)
-    r = Suma::Mobility::VendorAdapter::LimeDeeplink::RideReceipt.new(
+    r = RideReceipt.new(
       vehicle_type: DEFAULT_VEHICLE_TYPE,
       ride_id: row.fetch(:message_id),
       ended_at: row.fetch(:timestamp) - 1.minute,
@@ -122,5 +126,15 @@ class Suma::Lime::SyncTripsFromEmail
       riding_line_item[:amount] -= pause_line_item[:amount]
     end
     return r
+  end
+
+  class RideReceipt < Suma::TypedStruct
+    attr_accessor :ride_id,
+                  :vehicle_type,
+                  :started_at,
+                  :ended_at,
+                  :total,
+                  :discount,
+                  :line_items
   end
 end

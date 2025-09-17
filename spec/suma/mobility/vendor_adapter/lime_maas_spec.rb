@@ -8,11 +8,13 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
   let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
   let(:vehicle) { Suma::Fixtures.mobility_vehicle.create(vendor_service:) }
   let(:rate) { Suma::Fixtures.vendor_service_rate.for_service(vendor_service).create }
+  let(:trip_started) { Time.parse(load_fixture_data("lime/complete_trip").fetch("data").fetch("started_at")) }
+  let(:trip_ended) { Time.parse(load_fixture_data("lime/complete_trip").fetch("data").fetch("completed_at")) }
   let(:trip) do
     Suma::Fixtures.mobility_trip.create(
       member:,
       vehicle_id: "TICTM376DA74U",
-      began_at: Time.at(1_528_768_782.421),
+      began_at: trip_started,
     )
   end
 
@@ -34,7 +36,7 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
           location: {
             type: "Feature",
             geometry: {type: "Point", coordinates: [trip.begin_lng.to_f, trip.begin_lat.to_f]},
-            properties: {timestamp: 1_528_768_782_421},
+            properties: {timestamp: trip_started.to_i * 1000},
           },
           rate_plan_id: "placeholder",
         }.to_json,
@@ -60,12 +62,13 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
   it "can stop an ongoing trip" do
     member.update(lime_user_id: "myuser")
     rate = Suma::Fixtures.vendor_service_rate.surcharge(100).discounted_by(0.5).create
+    fake_end = Time.parse("2025-09-17T09:43:05Z")
     trip.update(
       vendor_service_rate: rate,
       external_trip_id: "mytrip",
       end_lng: 120.5,
       end_lat: 45.2,
-      ended_at: Time.at(1_528_768_782.9),
+      ended_at: fake_end, # Should be set to actual trip end time
     )
 
     stop_req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/trips/mytrip/complete").
@@ -74,12 +77,11 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
           location: {
             type: "Feature",
             geometry: {type: "Point", coordinates: [120.5, 45.2]},
-            properties: {timestamp: 1_528_768_782_900},
+            properties: {timestamp: fake_end.to_i * 1000},
           },
         }.to_json,
       ).to_return(fixture_response("lime/complete_trip"))
     expect(instance.end_trip(trip)).to have_attributes(
-      end_time: match_time("2022-01-19T10:17:20:12Z"),
       cost: cost("$1"),
       undiscounted: cost("$2"),
     )

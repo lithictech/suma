@@ -17,8 +17,8 @@
         "timestamp": 1528768782421
       }
     },
-    "started_at": "2021-01-19T10:15:20:12Z",
-    "updated_at": "2021-01-19T10:17:20:12Z",
+    "started_at": "2021-01-19T10:15:20Z",
+    "updated_at": "2021-01-19T10:17:20Z",
     "route": {
       "type": "FeatureCollection",
       "features": [

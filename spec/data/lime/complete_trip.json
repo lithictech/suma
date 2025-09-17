@@ -17,8 +17,8 @@
         "timestamp": 1528768782421
       }
     },
-    "started_at": "2021-01-19T10:15:20:12Z",
-    "updated_at": "2021-01-19T10:17:20:12Z",
+    "started_at": "2021-01-19T10:15:20Z",
+    "updated_at": "2021-01-19T10:17:20Z",
     "route": {
       "type": "FeatureCollection",
       "features": [
@@ -50,14 +50,14 @@
         }
       ]
     },
-    "duration_seconds": 5,
+    "duration_seconds": 300,
     "distance_meters": 50,
     "rate_plan_id": "e94d66ab-775e-44af-a8a5-1caa9ece92de",
     "vehicle_id": "TICTM376DA74U",
     "vehicle_attributes": {
       "battery_percentage": 10
     },
-    "completed_at": "2022-01-19T10:17:20:12Z",
+    "completed_at": "2021-01-19T10:20:20Z",
     "end_location": {
       "type": "Feature",
       "geometry": {

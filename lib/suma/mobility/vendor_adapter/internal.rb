@@ -26,13 +26,9 @@ class Suma::Mobility::VendorAdapter::Internal
   end
 
   def end_trip(trip)
-    ended = Time.now
-    duration = (ended - trip.began_at) / 60.0
     return EndTripResult.new(
-      cost: trip.vendor_service_rate.calculate_total(duration),
-      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(duration),
-      end_time: ended,
-      duration_minutes: duration.to_i,
+      cost: trip.vendor_service_rate.calculate_total(trip.duration_minutes),
+      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(trip.duration_minutes),
     )
   end
 
