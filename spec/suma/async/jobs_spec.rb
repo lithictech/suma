@@ -838,6 +838,45 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "TripReceipt" do
+    let!(:order) { Suma::Fixtures.order.create }
+
+    it "sends the trip receipt" do
+      import_localized_message_seeds
+
+      trip = Suma::Fixtures.mobility_trip.ended.create
+      expect do
+        trip.update(begin_address: "y")
+      end.to perform_async_job(Suma::Async::TripReceipt)
+
+      expect(Suma::Message::Delivery.all).to contain_exactly(
+        have_attributes(
+          template: "mobility/trip_receipt",
+          transport_type: "sms",
+          template_language: "en",
+        ),
+      )
+    end
+
+    it "noops if the trip is not ended" do
+      trip = Suma::Fixtures.mobility_trip.ongoing.create
+      expect do
+        trip.update(begin_address: "y")
+      end.to perform_async_job(Suma::Async::TripReceipt)
+
+      expect(Suma::Message::Delivery.all).to be_empty
+    end
+
+    it "noops if the ended too long ago" do
+      trip = Suma::Fixtures.mobility_trip.ended.create(ended_at: 1.day.ago)
+      expect do
+        trip.update(begin_address: "y")
+      end.to perform_async_job(Suma::Async::TripReceipt)
+
+      expect(Suma::Message::Delivery.all).to be_empty
+    end
+  end
+
   describe "GbfsSyncEnqueue" do
     it "enqueues syncs for all feeds and components requiring a sync", sidekiq: :fake do
       feed = Suma::Fixtures.mobility_gbfs_feed.create(free_bike_status_enabled: true)

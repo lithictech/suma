@@ -165,6 +165,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
 
   def rel_admin_link = "/mobility-trip/#{self.id}"
 
+  def rel_app_link = "/trip/#{self.id}"
+
   def hybrid_search_fields
     return [
       :external_trip_id,
