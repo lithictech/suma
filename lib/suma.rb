@@ -246,6 +246,20 @@ module Suma
     Thread.current[:suma_request_now] = t
   end
 
+  # Dynamically require files using +Gem.find_files+.
+  # Skip spec files, and make sure required file paths are relative to the given root;
+  # otherwise, we'll load multiple copies of the same file, causing
+  # memory and coverage issues.
+  def self.require_files(root)
+    ext_len = -3 # '.rb'.size
+    Gem.find_files(File.join("#{root}/*.rb")).each do |path|
+      next if path.end_with?("_spec.rb")
+      index = path.rindex(root)
+      cleaned = path[index...ext_len]
+      Kernel.require cleaned
+    end
+  end
+
   def self.assert(&)
     do_assert = RACK_ENV == "test" || RACK_ENV == "development"
     return unless do_assert
