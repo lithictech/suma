@@ -33,4 +33,6 @@ class Suma::Mobility::VendorAdapter::Internal
   end
 
   def uses_deep_linking? = false
+  def find_anon_proxy_vendor_account(_member) = raise Unsupported
+  def send_receipts? = true
 end

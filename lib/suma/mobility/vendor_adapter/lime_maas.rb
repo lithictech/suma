@@ -49,4 +49,6 @@ class Suma::Mobility::VendorAdapter::LimeMaas
   end
 
   def uses_deep_linking? = false
+  def send_receipts? = true
+  def find_anon_proxy_vendor_account(_member) = nil
 end

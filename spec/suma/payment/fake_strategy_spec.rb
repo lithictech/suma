@@ -20,7 +20,7 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
     let(:xaction) { Suma::Fixtures.funding_transaction.with_fake_strategy.create }
 
     it "ignores webmock errors" do
-      run_error_test { Suma::Http.get("/fakeurl", logger: nil, timeout: nil) }
+      assert_implemented { Suma::Http.get("/fakeurl", logger: nil, timeout: nil) }
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
     let(:xaction) { Suma::Fixtures.payout_transaction.with_fake_strategy.create }
 
     it "ignores webmock errors" do
-      run_error_test { Suma::Http.get("/fakeurl", logger: nil, timeout: nil) }
+      assert_implemented { Suma::Http.get("/fakeurl", logger: nil, timeout: nil) }
     end
   end
 

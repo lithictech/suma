@@ -16,6 +16,7 @@ class Suma::Async::TripReceipt
     trip = self.lookup_model(Suma::Mobility::Trip, event)
     return unless trip.ended?
     return if trip.ended_at < CUTOFF.ago
+    return unless trip.vendor_service.mobility_adapter.send_receipts?
     # Don't bother checking for 'ended_at changed from nil' or whatever,
     # the cutoff and idempotency is enough.
     Suma::Idempotency.once_ever.under_key("trip-#{trip.id}-receipt") do

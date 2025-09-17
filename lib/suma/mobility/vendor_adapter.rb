@@ -5,6 +5,8 @@ require "suma/simple_registry"
 module Suma::Mobility::VendorAdapter
   extend Suma::SimpleRegistry
 
+  class Unsupported < StandardError; end
+
   BeginTripResult = Struct.new(:_, keyword_init: true)
   EndTripResult = Struct.new(
     :raw_result,
@@ -23,7 +25,7 @@ module Suma::Mobility::VendorAdapter
   # The adapter can set fields on the trip, which will be saved on success.
   #
   # NOTE: If this adapter is for off-platform rides (through a deeplink adapter),
-  # this method does not need to be implemented as it will not be called.
+  # raise +Unsupported+.
   #
   # @param [Suma::Mobility::Trip]
   # @return [BeginTripResult]
@@ -35,7 +37,7 @@ module Suma::Mobility::VendorAdapter
   # which will be saved on success.
   #
   # NOTE: If this adapter is for off-platform rides (through a deeplink adapter),
-  # this method does not need to be implemented as it will not be called.
+  # raise +Unsupported+.
   #
   # @param [Suma::Mobility::Trip]
   # @return [EndTripResult]
@@ -46,9 +48,15 @@ module Suma::Mobility::VendorAdapter
   # @param [true,false]
   def uses_deep_linking? = raise NotImplementedError
 
+  # True if suma should send receipts.
+  # This should be false where the underlying provider takes care of sending receipts
+  # (which usually means the provider is charging the member themselves).
+  def send_receipts? = raise NotImplementedError
+
   # Find the anonymous proxy vendor account for the member
   # that satisfies this adapter (usually this means finding one for the right vendor).
   # It is ok to return nil if the account or vendor does not exist.
+  # If this is not relevant, raise +Unsupported+.
   #
   # @return [nil,Suma::AnonProxy::VendorAccount]
   def find_anon_proxy_vendor_account(member) = raise NotImplementedError

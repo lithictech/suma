@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/mobility/behaviors"
 require "suma/mobility/vendor_adapter"
 
 RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
@@ -17,6 +18,8 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
       began_at: trip_started,
     )
   end
+
+  it_behaves_like "a mobility vendor adapter"
 
   it "registers an unregistered user when starting a trip" do
     register_user_req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/users").
