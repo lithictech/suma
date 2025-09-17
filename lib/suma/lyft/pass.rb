@@ -336,24 +336,35 @@ class Suma::Lyft::Pass
       return nil
     end
     return nil if check_dupes && !Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
+
+    ride_total = ride_resp.fetch("money")
+    zero_money = Money.new(0, ride_total.fetch("currency"))
+    total_of_non_promo_items = ride.fetch("line_items").sum(zero_money) do |li|
+      next Money.new(0) if li.fetch("title") == "Promo applied"
+      Money.new(li.fetch("money").fetch("amount"), li.fetch("money").fetch("currency"))
+    end
+    trip = Suma::Mobility::Trip.new(
+      member:,
+      vehicle_id: ride_id,
+      vehicle_type: VEHICLE_TYPES_FOR_RIDEABLE_TYPES.fetch(ride.fetch("rideable_type")),
+      vendor_service:,
+      vendor_service_rate:,
+      begin_lat: 0,
+      begin_lng: 0,
+      began_at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
+      end_lat: 0,
+      end_lng: 0,
+      ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
+      begin_address: ride.fetch("pickup").fetch("address"),
+      end_address: ride.fetch("dropoff").fetch("address"),
+      external_trip_id: ride_id,
+    )
     member.db.transaction(savepoint: true) do
       begin
-        trip = Suma::Mobility::Trip.import_trip(
-          member:,
-          vehicle_id: ride_id,
-          vehicle_type: VEHICLE_TYPES_FOR_RIDEABLE_TYPES.fetch(ride.fetch("rideable_type")),
-          vendor_service:,
-          rate: vendor_service_rate,
-          begin_lat: 0,
-          begin_lng: 0,
-          began_at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
-          end_lat: 0,
-          end_lng: 0,
-          ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
-          begin_address: ride.fetch("pickup").fetch("address"),
-          end_address: ride.fetch("dropoff").fetch("address"),
-          external_trip_id: ride_id,
-          adapter_kw: {ride_response: ride_resp},
+        Suma::Mobility::Trip.import_trip(
+          trip,
+          cost: total_of_non_promo_items,
+          undiscounted_subtotal: Money.new(ride_total.fetch("amount"), ride_total.fetch("currency")),
         )
       rescue Sequel::UniqueConstraintViolation
         self.logger.debug("ride_already_exists", ride_id:)

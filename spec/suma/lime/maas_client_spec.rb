@@ -54,7 +54,7 @@ RSpec.describe Suma::Lime::MaasClient, :db do
       at: Time.at(1_681_238_802.098),
     )
     expect(req).to have_been_made
-    expect(resp).to include("data" => hash_including("completed_at" => "2022-01-19T10:17:20:12Z"))
+    expect(resp).to include("data" => hash_including("completed_at" => "2021-01-19T10:20:20Z"))
   end
 
   it "gets trip details" do
