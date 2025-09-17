@@ -9,6 +9,8 @@ import useUser from "../../state/useUser";
 import FormError from "../FormError";
 import { MdLink } from "../SumaMarkdown";
 import Drawer from "./Drawer";
+import DrawerContents from "./DrawerContents.jsx";
+import DrawerTitle from "./DrawerTitle.jsx";
 import PreTrip from "./PreTrip";
 import Trip from "./Trip";
 import React from "react";
@@ -181,8 +183,29 @@ export default function Map() {
   const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
 
   const drawerContent = (() => {
-    if (error) {
+    if (error && !selectedMapVehicle) {
       return <FormError error={error} noMargin component="div" />;
+    } else if (error) {
+      const { provider } = selectedMapVehicle;
+      const locVars = provider.rate.localizationVars;
+      return (
+        <DrawerContents>
+          <DrawerTitle>{provider.name}</DrawerTitle>
+          <p className="text-muted">
+            {t(provider.rate.localizationKey, {
+              surchargeCents: {
+                cents: locVars.surchargeCents,
+                currency: locVars.surchargeCurrency,
+              },
+              unitCents: {
+                cents: locVars.unitCents,
+                currency: locVars.unitCurrency,
+              },
+            })}
+          </p>
+          <FormError error={error} />
+        </DrawerContents>
+      );
     }
     if (ongoingTrip) {
       return (

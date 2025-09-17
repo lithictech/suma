@@ -71,8 +71,8 @@
     "claim_orders": "Tu pedido está listo para ser recogido.",
     "intro": "Ayudando a nuestra comunidad a ahorrar dinero en las cosas que compra con más frecuencia - todo en un solo lugar.",
     "negative_cash_balance": "Tu último pago a suma falló. Lo intentaremos de nuevo pronto. Por favor envía un mensaje de texto al $t(strings.common.suma_help_number) si tienes preguntas.",
-    "negative_cash_balance_no_instrument": "Debes agregar un método de pago para que podamos cobrar a tu cuenta. [Agrega una nueva tarjeta](/funding) para seguir accediendo a suma.",
-    "payment_methods_expiring": "Algunos de tus métodos de pago están por vencer. [Agrega una nueva tarjeta](/funding) para evitar problemas.",
+    "negative_cash_balance_no_instrument": "Debes agregar un método de pago para que podamos cobrar a tu cuenta. [Agrega una nueva tarjeta](/add-card) para seguir accediendo a suma.",
+    "payment_methods_expiring": "Algunos de tus métodos de pago están por vencer. [Agrega una nueva tarjeta](/add-card) para evitar problemas.",
     "program_ends": "Programa termina {{date}}"
   },
   "errors": {
@@ -115,7 +115,8 @@
     "too_many_requests": "Ha realizado demasiadas solicitudes en un corto período de tiempo. Por favor inténtelo de nuevo después de {{seconds}} segundos.",
     "unauthenticated": "Debe iniciar una sesión para proceder.",
     "unhandled_error": "Lo sentimos, algo salió mal. Intenta de nuevo.",
-    "usage_prohibited_cash_balance": "Tu saldo está en negativo. [Agrega un método de pago](/funding) para seguir usando suma.",
+    "usage_prohibited_cash_balance": "Tu saldo está en negativo. [Agrega un método de pago](/add-card?returnToImmediate=/mobility) para seguir usando suma.",
+    "usage_prohibited_instrument_required": "Debes [agregar un método de pago](/add-card?returnToImmediate=/mobility) para usar este servicio.",
     "validation_error": "Algunos campos de texto están en blanco, introducza los datos requeridos e intente de nuevo.",
     "vehicle_not_found": "No se encuentra un vehículo en este lugar."
   },
