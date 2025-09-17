@@ -1,5 +1,6 @@
 {
   "anon_proxy/lime_deep_link_access_code.sms": "Presione este enlace para acceder a su cuenta Lime a través de suma: {{ value }}",
+  "mobility/trip_receipt.sms": "suma: ¡Gracias por viajar con nosotros! Aquí tienes tu recibo por tu viaje de {{ minutes}} minutos con {{ vendor_name }}: {{ trip_link }}",
   "offerings/2022_12_pilot_confirmation.sms": "¡Gracias por tu pedido! Nos pondremos en contacto antes del 12 de diciembre con información sobre la recogida. Responda a este texto o envíe un correo electrónico a info@mysuma.org si necesita ayuda. - suma",
   "offerings/2023_07_pilot_confirmation.sms": "¡Gracias por tu orden! Ve a este enlace cuando estés en el mercado para reclamar tus cupones: {{ app_url }}/unclaimed-orders - suma",
   "offerings/2023_12_holiday_confirmation.sms": "suma: ¡Gracias por tu pedido! Nos pondremos en contacto antes del 15 de diciembre con información sobre la recogida. Responde HELP si tienes preguntas. Responda STOP para cancelar la suscripción.",
