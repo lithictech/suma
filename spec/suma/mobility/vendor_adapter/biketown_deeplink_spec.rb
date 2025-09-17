@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require "suma/mobility/behaviors"
+
 RSpec.describe Suma::Mobility::VendorAdapter::BiketownDeeplink, :db, reset_configuration: Suma::Biketown do
   let(:instance) { described_class.new }
   let(:member) { Suma::Fixtures.member.onboarding_verified.create }
   let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
   let(:vendor) { vendor_service.vendor }
+
+  it_behaves_like "a mobility vendor adapter"
 
   it "returns the vendor account for the Biketown vendor, if one exists" do
     Suma::Biketown.deeplink_vendor_slug = vendor.slug

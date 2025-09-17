@@ -1,49 +1,34 @@
 # frozen_string_literal: true
 
 require "rspec"
+require "suma/spec_helpers/testing_helpers"
 
 RSpec.shared_examples "a funding transaction payment strategy" do
-  it "implements all abstract methods", on_potential_false_positives: :nothing do
-    run_error_test { strategy.short_name }
-    run_error_test { strategy.admin_details_typed }
-    run_error_test { strategy.check_validity }
-    run_error_test { strategy.supports_refunds? }
-    run_error_test { strategy.originating_instrument_label }
-    run_error_test { strategy.ready_to_collect_funds? }
-    run_error_test { strategy.collect_funds }
-    run_error_test { strategy.funds_cleared? }
-    run_error_test { strategy.funds_canceled? }
-  end
+  include Suma::SpecHelpers::TestingHelpers
 
-  def run_error_test
-    # Go the long way around to avoid the rspect warning of on_potential_false_positives
-    yield
-  rescue WebMock::NetConnectNotAllowedError
-    # We expect we'll hit these at times because we aren't doing faking for these behavior tests.
-    nil
-  rescue StandardError => e
-    expect(e).to_not be_a(NotImplementedError)
+  it "implements all abstract methods" do
+    assert_implemented { strategy.short_name }
+    assert_implemented { strategy.admin_details_typed }
+    assert_implemented { strategy.check_validity }
+    assert_implemented { strategy.supports_refunds? }
+    assert_implemented { strategy.originating_instrument_label }
+    assert_implemented { strategy.ready_to_collect_funds? }
+    assert_implemented { strategy.collect_funds }
+    assert_implemented { strategy.funds_cleared? }
+    assert_implemented { strategy.funds_canceled? }
   end
 end
 
 RSpec.shared_examples "a payout transaction payment strategy" do
-  it "implements all abstract methods", on_potential_false_positives: :nothing do
-    run_error_test { strategy.short_name }
-    run_error_test { strategy.admin_details_typed }
-    run_error_test { strategy.check_validity }
-    run_error_test { strategy.ready_to_send_funds? }
-    run_error_test { strategy.send_funds }
-    run_error_test { strategy.funds_settled? }
-  end
+  include Suma::SpecHelpers::TestingHelpers
 
-  def run_error_test
-    # Go the long way around to avoid the rspect warning of on_potential_false_positives
-    yield
-  rescue WebMock::NetConnectNotAllowedError
-    # We expect we'll hit these at times because we aren't doing faking for these behavior tests.
-    nil
-  rescue StandardError => e
-    expect(e).to_not be_a(NotImplementedError)
+  it "implements all abstract methods" do
+    assert_implemented { strategy.short_name }
+    assert_implemented { strategy.admin_details_typed }
+    assert_implemented { strategy.check_validity }
+    assert_implemented { strategy.ready_to_send_funds? }
+    assert_implemented { strategy.send_funds }
+    assert_implemented { strategy.funds_settled? }
   end
 end
 

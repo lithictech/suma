@@ -5,8 +5,11 @@ require "suma/lyft"
 class Suma::Mobility::VendorAdapter::LyftDeeplink
   include Suma::Mobility::VendorAdapter
 
+  def begin_trip(_trip) = raise Unsupported
+  def end_trip(_trip) = raise Unsupported
   def requires_vendor_account? = false
   def uses_deep_linking? = true
+  def send_receipts? = false
 
   protected def deeplink_vendor = Suma::Lyft.deeplink_vendor
 

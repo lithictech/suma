@@ -2,6 +2,7 @@
 
 require "suma/messages/order_confirmation"
 require "suma/messages/single_value"
+require "suma/messages/trip_receipt"
 require "suma/messages/verification"
 
 RSpec.describe Suma::Messages, :db do
@@ -22,6 +23,14 @@ RSpec.describe Suma::Messages, :db do
       tmpl.dispatch(r, transport: :sms)
       expect(r.message_deliveries).to have_length(1)
       expect(r.message_deliveries.first.bodies.first.content).to eq("test single value (en)")
+    end
+
+    it "can fixture TripReceipt" do
+      tmpl = Suma::Messages::TripReceipt.fixtured(r)
+      tmpl.language = "en"
+      tmpl.dispatch(r, transport: :sms)
+      expect(r.message_deliveries).to have_length(1)
+      expect(r.message_deliveries.first.bodies.first.content).to eq("test receipt (en)")
     end
 
     it "can fixture Verification" do

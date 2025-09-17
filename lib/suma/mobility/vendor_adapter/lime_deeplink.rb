@@ -5,8 +5,11 @@ require "suma/lime"
 class Suma::Mobility::VendorAdapter::LimeDeeplink
   include Suma::Mobility::VendorAdapter
 
+  def begin_trip(_trip) = raise Unsupported
+  def end_trip(_trip) = raise Unsupported
   def requires_vendor_account? = true
   def uses_deep_linking? = true
+  def send_receipts? = true
 
   def find_anon_proxy_vendor_account(member)
     vendor = Suma::Lime.deeplink_vendor
