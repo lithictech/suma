@@ -53,16 +53,19 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
   # Raise a +Suma::Member::ReadOnlyMode+ error there is a +usage_prohibited_reason+.
   # This should generally be called before starting to use the service.
-  def guard_usage!(member, now:)
-    return unless (reason = self.usage_prohibited_reason(member, now:))
+  def guard_usage!(member, rate:, now:)
+    return unless (reason = self.usage_prohibited_reason(member, rate:, now:))
     raise Suma::Member::ReadOnlyMode, reason
   end
 
   # Return the reason why usage is prohibited, or nil if usage is allowed.
   # For example, a negative balance may prohibit usage.
-  def usage_prohibited_reason(member, now:)
+  def usage_prohibited_reason(member, rate:, now:)
     return member.read_only_reason if member.read_only_reason
     return "usage_prohibited_cash_balance" unless Suma::Payment.can_use_services?(member.payment_account, now:)
+    instrument_required = (rate.surcharge_cents.positive? || rate.unit_amount_cents.positive?) &&
+      member.default_payment_instrument.nil?
+    return "usage_prohibited_instrument_required" if instrument_required
     return nil
   end
 

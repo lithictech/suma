@@ -27,7 +27,9 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
   };
 
   let action;
-  if (vehicle.gotoPrivateAccount) {
+  if (vehicle.usageProhibitedReason) {
+    action = <p>{t(vehicle.usageProhibitedReason)}</p>;
+  } else if (vehicle.gotoPrivateAccount) {
     action = (
       <>
         <p>

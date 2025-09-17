@@ -297,6 +297,19 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.that_includes(vehicle_id: "abc")
     end
 
+    it "returns a service-specific prohibited reason" do
+      program_pricing.vendor_service_rate.update(surcharge: money("$5"))
+
+      vehicle_fac.loc(0.5, 179.5).ebike.create
+
+      get "/v1/mobility/vehicle",
+          loc: [5_000_000, 1_795_000_000], provider_id: program_pricing.id, type: "ebike"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(usage_prohibited_reason: "usage_prohibited_instrument_required")
+    end
+
     it "403s if no vehicle is found" do
       vehicle_fac.ebike.create
 

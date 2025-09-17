@@ -43,7 +43,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def self.start_trip(member:, vehicle_id:, vehicle_type:, vendor_service:, rate:, lat:, lng:, at: Time.now, **kw)
-    vendor_service.guard_usage!(member, now: at)
+    vendor_service.guard_usage!(member, rate:, now: at)
     self.db.transaction(savepoint: true) do
       # noinspection RubyArgCount
       trip = self.new(

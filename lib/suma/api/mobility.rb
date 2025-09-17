@@ -102,7 +102,7 @@ class Suma::API::Mobility < Suma::API::V1
       optional :disambiguator, type: String
     end
     get :vehicle do
-      member = current_member
+      current_member
       pricing, vehicles = find_pricing_and_vehicles(
         params[:provider_id],
         lat_int: params[:loc][0],
@@ -119,7 +119,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = vehicles[0]
       end
-      present vehicle, with: MobilityVehicleEntity, member:, request:, rate: pricing.vendor_service_rate
+      present vehicle, with: MobilityVehicleEntity, request:, rate: pricing.vendor_service_rate
     end
 
     params do
@@ -197,13 +197,17 @@ class Suma::API::Mobility < Suma::API::V1
   end
 
   class MobilityMapProviderEntity < BaseEntity
+    include Suma::API::Entities
     expose :id
     expose :name, &self.delegate_to(:vendor_service, :external_name)
     expose :slug, &self.delegate_to(:vendor_service, :internal_name)
     expose :vendor_name, &self.delegate_to(:vendor_service, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor_service, :vendor, :slug)
-    expose :usage_prohibited_reason do |inst|
-      inst.vendor_service.usage_prohibited_reason(current_member, now: current_time)
+    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :usage_prohibited_reason do |pricing|
+      pricing.vendor_service.usage_prohibited_reason(
+        current_member, rate: pricing.vendor_service_rate, now: current_time,
+      )
     end
   end
 
@@ -245,9 +249,16 @@ class Suma::API::Mobility < Suma::API::V1
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)
     end
     expose :goto_private_account do |vehicle|
-      member = options.fetch(:member)
+      member = self.current_member
       now = self.current_time
       vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member, now:)
+    end
+    expose :usage_prohibited_reason do |vehicle, opts|
+      vehicle.vendor_service.usage_prohibited_reason(
+        self.current_member,
+        rate: opts.fetch(:rate),
+        now: self.current_time,
+      )
     end
   end
 

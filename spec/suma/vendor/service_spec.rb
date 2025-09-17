@@ -20,28 +20,44 @@ RSpec.describe "Suma::Vendor::Service", :db do
   end
 
   describe "guard_usage!" do
+    let(:svc) { Suma::Fixtures.vendor_service.create }
+    let(:rate) { Suma::Fixtures.vendor_service_rate.create }
+    let(:now) { Time.now }
+
     it "raises if there is a usage prohibited reason" do
-      svc = Suma::Fixtures.vendor_service.create
       member = Suma::Fixtures.member.create
-      expect { svc.guard_usage!(member, now: Time.now) }.to raise_error(Suma::Member::ReadOnlyMode)
+      expect { svc.guard_usage!(member, rate:, now:) }.to raise_error(Suma::Member::ReadOnlyMode)
     end
   end
 
   describe "usage_prohibited_reason" do
     let(:svc) { Suma::Fixtures.vendor_service.create }
+    let(:rate) { Suma::Fixtures.vendor_service_rate.create }
     let(:now) { Time.now }
 
     it "uses the user read only reason" do
       member = Suma::Fixtures.member.create
-      expect(svc.usage_prohibited_reason(member, now:)).to eq("read_only_unverified")
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to eq("read_only_unverified")
     end
 
     it "uses the cash balance reason if met", reset_configuration: Suma::Payment do
       member = Suma::Fixtures.member.onboarding_verified.create
       Suma::Payment.ensure_cash_ledger(member)
-      expect(svc.usage_prohibited_reason(member, now:)).to be_nil
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to be_nil
       Suma::Payment.minimum_cash_balance_for_services_cents = 100_00
-      expect(svc.usage_prohibited_reason(member, now:)).to eq("usage_prohibited_cash_balance")
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to eq("usage_prohibited_cash_balance")
+    end
+
+    it "uses the instrument required reason if the rate is nonzero and the member has no instrument" do
+      member = Suma::Fixtures.member.onboarding_verified.create
+      Suma::Payment.ensure_cash_ledger(member)
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to be_nil
+      rate.update(surcharge_cents: 100)
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to eq("usage_prohibited_instrument_required")
+      card = Suma::Fixtures.card.member(member).create
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to be_nil
+      card.soft_delete
+      expect(svc.usage_prohibited_reason(member, rate:, now:)).to eq("usage_prohibited_instrument_required")
     end
   end
 end
