@@ -168,7 +168,7 @@ build-frontends: build-webapp build-adminapp ## Build the JS frontends and place
 goto-logging: cmd-exists-heroku
 	heroku addons:open coralogix --app $(production_app)
 goto-heroku:
-	open 'https://dashboard.heroku.com/pipelines/e6dc59e6-757c-462f-bd72-15f48b2064d1'
+	open 'https://dashboard.heroku.com/pipelines/d222ec37-69fd-40a3-b5b8-562538b1421f'
 goto-production:
 	open 'https://dashboard.heroku.com/apps/$(production_app)'
 goto-staging:
