@@ -3,6 +3,7 @@
 require "appydays/loggable"
 require "suma/lyft"
 require "suma/mobility"
+require "suma/mobility/trip_importer"
 
 # Integrates with the Lyft Pass (Business) system.
 # Can log into Lyft using the configured username, find the auth token in the sent email,
@@ -343,58 +344,31 @@ class Suma::Lyft::Pass
       next Money.new(0) if li.fetch("title") == "Promo applied"
       Money.new(li.fetch("money").fetch("amount"), li.fetch("money").fetch("currency"))
     end
-    trip = Suma::Mobility::Trip.new(
+    receipt = Suma::Mobility::TripImporter::Receipt.new(
+      total: total_of_non_promo_items,
+      discount: Money.new(ride_total.fetch("amount"), ride_total.fetch("currency")) - total_of_non_promo_items,
+      image_url: ride.fetch("map_image_url"),
+    )
+    receipt.trip.set(
       member:,
       vehicle_id: ride_id,
+      external_trip_id: ride_id,
       vehicle_type: VEHICLE_TYPES_FOR_RIDEABLE_TYPES.fetch(ride.fetch("rideable_type")),
       vendor_service:,
       vendor_service_rate:,
-      begin_lat: 0,
-      begin_lng: 0,
       began_at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
-      end_lat: 0,
-      end_lng: 0,
       ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
       begin_address: ride.fetch("pickup").fetch("address"),
       end_address: ride.fetch("dropoff").fetch("address"),
-      external_trip_id: ride_id,
     )
-    member.db.transaction(savepoint: true) do
-      begin
-        Suma::Mobility::Trip.import_trip(
-          trip,
-          cost: total_of_non_promo_items,
-          undiscounted_subtotal: Money.new(ride_total.fetch("amount"), ride_total.fetch("currency")),
-        )
-      rescue Sequel::UniqueConstraintViolation
-        self.logger.debug("ride_already_exists", ride_id:)
-        raise Sequel::Rollback
-      end
-
-      if (image_url = ride.fetch("map_image_url"))
-        resp = Suma::Http.get(image_url, logger: self.logger)
-        map_uf = Suma::UploadedFile.create_with_blob(
-          bytes: resp.body,
-          content_type: resp.headers["Content-Type"],
-          private: true,
-          created_by: member,
-        )
-        Suma::Image.create(
-          mobility_trip: trip,
-          uploaded_file: map_uf,
-          caption: Suma::TranslatedText.empty,
-        )
-      end
-
-      charge = trip.charge
-      ride.fetch("line_items").each do |li|
-        charge.add_off_platform_line_item(
-          amount: self._money2money(li),
-          memo: Suma::TranslatedText.create(all: li.fetch("title")),
-        )
-      end
-      return charge
+    ride.fetch("line_items").each do |li|
+      receipt.line_items << receipt.line_item(
+        amount: self._money2money(li),
+        memo: li.fetch("title"),
+      )
     end
+    Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
+    return receipt.trip.charge
   end
 
   def invite_member(member, program_id:)

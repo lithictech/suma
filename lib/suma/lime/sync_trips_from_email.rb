@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/mobility/trip_importer"
+
 # For all Lime trips we have receipt emails from,
 # create mobility trips for them.
 # Lime receipt emails are pretty bare, but we do our best!
@@ -40,72 +42,45 @@ class Suma::Lime::SyncTripsFromEmail
     program = Suma::Enumerable.one!(vendor_config.programs)
     pricing = Suma::Enumerable.one!(program.pricings)
     receipt = self.parse_row_to_receipt(row)
-    trip = Suma::Mobility::Trip.new(
+    receipt.trip.set(
       member: registration.account.member,
-      vehicle_id: receipt.ride_id,
-      vehicle_type: receipt.vehicle_type,
       vendor_service: pricing.vendor_service,
       vendor_service_rate: pricing.vendor_service_rate,
-      begin_lat: 0,
-      begin_lng: 0,
-      began_at: receipt.started_at,
-      end_lat: 0,
-      end_lng: 0,
-      ended_at: receipt.ended_at,
-      external_trip_id: receipt.ride_id,
     )
-    registration.db.transaction(savepoint: true) do
-      begin
-        Suma::Mobility::Trip.import_trip(
-          trip,
-          cost: receipt.total,
-          undiscounted_subtotal: receipt.discount + receipt.total,
-        )
-      rescue Sequel::UniqueConstraintViolation
-        self.logger.debug("ride_already_exists", ride_id: receipt.ride_id)
-        raise Sequel::Rollback
-      end
-      charge = trip.charge
-      receipt[:line_items].each do |li|
-        charge.add_off_platform_line_item(
-          amount: li[:amount],
-          memo: Suma::TranslatedText.create(all: li[:memo]),
-        )
-      end
-    end
+    Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
   end
 
   def parse_row_to_receipt(row)
-    r = RideReceipt.new(
-      vehicle_type: DEFAULT_VEHICLE_TYPE,
-      ride_id: row.fetch(:message_id),
-      ended_at: row.fetch(:timestamp) - 1.minute,
-      line_items: [],
-    )
+    r = Suma::Mobility::TripImporter::Receipt.new
+    r.trip.external_trip_id = row.fetch(:message_id)
+    r.trip.vehicle_id = r.trip.external_trip_id
+    r.trip.vehicle_type = DEFAULT_VEHICLE_TYPE
+    r.trip.ended_at = row.fetch(:timestamp) - 1.minute
+
     lines = row.fetch(:data).fetch("TextBody").lines.reject(&:blank?).map(&:strip)
     i = 0
     riding_line_item = pause_line_item = nil
     while i < lines.length
       line = lines[i]
       if line == "Start Fee"
-        r.line_items << {memo: line, amount: Monetize.parse(lines[i + 1])}
+        r.line_items << r.line_item(memo: line, amount: Monetize.parse(lines[i + 1]))
         i += 1
       elsif line == "Discount"
         r.discount = Monetize.parse(lines[i + 1]) * -1
-        r.line_items << {memo: line, amount: -r.discount}
+        r.line_items << r.line_item(memo: line, amount: -r.discount)
         i += 1
       elsif line.start_with?("Riding -", "Pause -")
         match = line.match(%r{(\$\d+\.\d\d)/min \((\d+) min\)})
         per_minute = Monetize.parse(match[1])
         minutes = match[2].to_i
-        line_item = {memo: line, amount: Monetize.parse(lines[i + 1]), minutes:, per_minute:}
+        line_item = r.line_item(memo: line, amount: Monetize.parse(lines[i + 1]), minutes:, per_minute:)
         if line.start_with?("Riding")
           riding_line_item = line_item
         else
           pause_line_item = line_item
         end
         r.line_items << line_item
-        r.started_at = r.ended_at - (minutes * 60)
+        r.trip.began_at = r.trip.ended_at - (minutes * 60)
         i += 1
       elsif line == "Total"
         total = lines[i + 1] == "FREE" ? Money.new(0) : Monetize.parse(lines[i + 1])
@@ -118,23 +93,13 @@ class Suma::Lime::SyncTripsFromEmail
       # but the riding charge also contains the pause charge. Not sure why this is!
       # But handle it by reducing the riding charge. Raise an error if it looks wrong, though;
       # this is an email receipt so we should expect it to change without notice.
-      expected_riding_total = pause_line_item[:amount] + (riding_line_item[:per_minute] * riding_line_item[:minutes])
-      if expected_riding_total != riding_line_item[:amount]
+      expected_riding_total = pause_line_item.amount + (riding_line_item.per_minute * riding_line_item.minutes)
+      if expected_riding_total != riding_line_item.amount
         msg = "unexpected pause and riding line items: #{pause_line_item}, #{riding_line_item}"
         raise Suma::InvariantViolation, msg
       end
-      riding_line_item[:amount] -= pause_line_item[:amount]
+      riding_line_item.amount -= pause_line_item.amount
     end
     return r
-  end
-
-  class RideReceipt < Suma::TypedStruct
-    attr_accessor :ride_id,
-                  :vehicle_type,
-                  :started_at,
-                  :ended_at,
-                  :total,
-                  :discount,
-                  :line_items
   end
 end
