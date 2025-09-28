@@ -64,9 +64,8 @@ class Frontapp::Client
   def create(path, body)
     body_key = HTTP::FormData.send(:multipart?, body) ? :form : :json
     res = @headers.post("#{base_url}#{path}", body_key => body)
-    response = JSON.parse(res.to_s)
     raise Frontapp::Error.from_response(res) unless res.status.success?
-    response
+    JSON.parse(res.to_s)
   end
 end
 
