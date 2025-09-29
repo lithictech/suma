@@ -1209,4 +1209,14 @@ RSpec.describe Suma::Service, :db do
       expect(described_class).to be_puma_worker
     end
   end
+
+  describe "encode and decode cookie" do
+    it "encodes and decodes" do
+      h = {"x" => 1}
+      s = described_class.encode_cookie(h)
+      expect(s).to be_a(String)
+      h2 = described_class.decode_cookie(s)
+      expect(h2).to eq(h)
+    end
+  end
 end

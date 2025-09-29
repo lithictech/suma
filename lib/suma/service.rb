@@ -92,8 +92,15 @@ class Suma::Service < Grape::API
     s = Rack::Utils.unescape(s)
     cookie_app = Rack::Session::Cookie.new(nil, cfg)
     dc = cookie_app.encryptors.first
-    ds = dc.decrypt(s)
-    return ds
+    h = dc.decrypt(s)
+    return h
+  end
+
+  def self.encode_cookie(h)
+    cookie_app = Rack::Session::Cookie.new(nil, self.cookie_config)
+    dc = cookie_app.encryptors.first
+    s = dc.encrypt(h)
+    return s
   end
 
   ### Build the Rack app according to the configured environment.
