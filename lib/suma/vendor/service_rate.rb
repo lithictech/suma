@@ -15,9 +15,14 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
               key: :vendor_service_rate_id,
               order: order_desc
 
-  def calculate_total(units)
+  def calculate_unit_cost(units)
     offset_units = [units - self.unit_offset, 0].max
     t = self.unit_amount * offset_units
+    return t
+  end
+
+  def calculate_total(units)
+    t = self.calculate_unit_cost(units)
     t += self.surcharge
     return t
   end
