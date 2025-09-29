@@ -77,39 +77,6 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(described_class.available_at(5.days.ago).all).to be_empty
       expect(described_class.available_at(5.days.from_now).all).to be_empty
     end
-
-    it "can find offerings eligible to a member based on programs" do
-      as_of = Time.now
-      mem_no_constraints = Suma::Fixtures.member.create
-      member_in_program = Suma::Fixtures.member.create
-      member_unapproved = Suma::Fixtures.member.create
-      member_unenrolled = Suma::Fixtures.member.create
-
-      program = Suma::Fixtures.program.create
-      Suma::Fixtures.program_enrollment(member: member_in_program, program:).create
-      Suma::Fixtures.program_enrollment(member: member_unapproved, program:).unapproved.create
-      Suma::Fixtures.program_enrollment(member: member_unenrolled, program:).unenrolled.create
-
-      no_program = Suma::Fixtures.offering.create
-      with_program = Suma::Fixtures.offering.with_programs(program).create
-
-      expect(described_class.eligible_to(mem_no_constraints, as_of:).all).to have_same_ids_as(no_program)
-      expect(described_class.eligible_to(member_in_program, as_of:).all).to have_same_ids_as(
-        no_program,
-        with_program,
-      )
-      expect(described_class.eligible_to(member_unapproved, as_of:).all).to have_same_ids_as(no_program)
-      expect(described_class.eligible_to(member_unenrolled, as_of:).all).to have_same_ids_as(no_program)
-
-      # Test the instance methods
-      expect(no_program).to be_eligible_to(mem_no_constraints, as_of:)
-      expect(no_program).to be_eligible_to(member_in_program, as_of:)
-      expect(no_program).to be_eligible_to(member_unapproved, as_of:)
-
-      expect(with_program).to_not be_eligible_to(mem_no_constraints, as_of:)
-      expect(with_program).to be_eligible_to(member_in_program, as_of:)
-      expect(with_program).to_not be_eligible_to(member_unapproved, as_of:)
-    end
   end
 
   describe "#begin_order_fulfillment" do

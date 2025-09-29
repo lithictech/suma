@@ -49,7 +49,7 @@ export default function Programs({
       // Show a chip if there are no programs.
       displayables.push({
         key: 0,
-        label: "* Resource has no programs. All members and organizations can access it.",
+        label: "* Resource has no programs. No one can access it.",
         variant: "outlined",
         color: "success",
       });
