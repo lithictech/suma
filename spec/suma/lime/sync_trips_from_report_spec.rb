@@ -2,8 +2,8 @@
 
 require "suma/lime/sync_trips_from_report"
 
-RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
-  describe "run" do
+RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::Lime do
+  describe "run_for_report" do
     let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger.registered_as_stripe_customer.create }
     let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create(member:) }
     let(:mc) { Suma::Fixtures.anon_proxy_member_contact.email("m1@in.mysuma.org").create(member:) }
@@ -26,7 +26,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
         RTOKEN2,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
       CSV
-      described_class.new(StringIO.new(txt)).run
+      described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to contain_exactly(
         have_attributes(
           vehicle_id: "RTOKEN1",
@@ -57,7 +57,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$2.99,$3.44,$19.06,m1@in.mysuma.org,$0.77
       CSV
       rate.update(surcharge_cents: 5, unit_amount_cents: 7)
-      described_class.new(StringIO.new(txt)).run
+      described_class.new.run_for_report(txt)
       charge = Suma::Mobility::Trip.first.charge
       expect(charge).to have_attributes(undiscounted_subtotal: cost("$2.99"), discounted_subtotal: cost("$2.99"))
       expect(charge.line_items).to contain_exactly(
@@ -77,7 +77,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
       CSV
       rate.update(surcharge_cents: 2, unit_amount_cents: 1)
       rate.update(undiscounted_rate: Suma::Fixtures.vendor_service_rate.unit_amount(7).surcharge(5).create)
-      described_class.new(StringIO.new(txt)).run
+      described_class.new.run_for_report(txt)
       charge = Suma::Mobility::Trip.first.charge
       expect(charge).to have_attributes(undiscounted_subtotal: cost("$2.99"), discounted_subtotal: cost("$0.44"))
       expect(charge.line_items).to contain_exactly(
@@ -92,7 +92,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
         TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
       CSV
-      described_class.new(StringIO.new(txt)).run
+      described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to be_empty
     end
 
@@ -103,7 +103,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
       CSV
       expect do
-        described_class.new(StringIO.new(txt)).run
+        described_class.new.run_for_report(txt)
       end.to raise_error(/have exactly 1 item/)
     end
 
@@ -114,7 +114,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
       CSV
       expect do
-        described_class.new(StringIO.new(txt)).run
+        described_class.new.run_for_report(txt)
       end.to raise_error(ArgumentError, /must have exactly 1 item/)
     end
 
@@ -123,10 +123,95 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db do
         TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
       CSV
-      described_class.new(StringIO.new(txt)).run
+      described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to have_length(1)
-      described_class.new(StringIO.new(txt)).run
+      described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to have_length(1)
+    end
+  end
+
+  describe "dataset" do
+    before(:each) do
+      Suma::Lime.lime_trip_report_from_email = "from@mysuma.org"
+      Suma::Lime.lime_trip_report_to_email = "to@mysuma.org"
+    end
+
+    it "finds only emails with the configured to and from address" do
+      now = Time.now
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid",
+        to_email: "to@mysuma.org",
+        from_email: "from@mysuma.org",
+        timestamp: now,
+        data: "{}",
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "flipped",
+        to_email: "from@mysuma.org",
+        from_email: "to@mysuma.org",
+        timestamp: now,
+        data: "{}",
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "old",
+        to_email: "to@mysuma.org",
+        from_email: "from@mysuma.org",
+        timestamp: now - 4.weeks,
+        data: "{}",
+      )
+      expect(described_class.new.dataset.select_map(&:message_id)).to contain_exactly("valid")
+    end
+  end
+
+  describe "run" do
+    let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger.registered_as_stripe_customer.create }
+    let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create(member:) }
+    let(:mc) { Suma::Fixtures.anon_proxy_member_contact.email("m1@in.mysuma.org").create(member:) }
+    let(:rate) { Suma::Fixtures.vendor_service_rate.create }
+    let(:program) do
+      Suma::Fixtures.program.with_pricing(
+        vendor_service: Suma::Fixtures.vendor_service.mobility.create(mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service_rate: rate,
+      ).create
+    end
+
+    before(:each) do
+      va.add_registration(external_program_id: mc.email)
+      va.configuration.add_program(program)
+      Suma::Lime.lime_trip_report_from_email = "from@mysuma.org"
+      Suma::Lime.lime_trip_report_to_email = "to@mysuma.org"
+    end
+
+    def csv_attachment(text)
+      return {
+        Name: "Report.csv",
+        Content: Base64.strict_encode64(text),
+        ContentID: "f_mg5b72r40",
+        ContentType: "text/csv",
+        ContentLength: text.length,
+      }
+    end
+
+    it "syncs all reports in the dataset" do
+      txt = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
+        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
+      CSV
+
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid",
+        from_email: "from@mysuma.org",
+        to_email: "to@mysuma.org",
+        timestamp: Time.now,
+        data: {Attachments: [csv_attachment(txt)]}.to_json,
+      )
+
+      described_class.new.run
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(
+          vehicle_id: "RTOKEN1",
+        ),
+      )
     end
   end
 end

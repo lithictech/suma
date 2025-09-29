@@ -7,6 +7,8 @@ class Suma::Lime::SyncTripsFromReport
   include Appydays::Loggable
 
   DEFAULT_VEHICLE_TYPE = Suma::Mobility::ESCOOTER
+  CUTOFF = 2.weeks
+
   TRIP_TOKEN = "TRIP_TOKEN"
   START_TIME = "START_TIME"
   END_TIME = "END_TIME"
@@ -20,12 +22,30 @@ class Suma::Lime::SyncTripsFromReport
   USER_EMAIL = "USER_EMAIL"
   PRICE_PER_MINUTE = "Price per minute"
 
-  def initialize(report_io)
-    @csv = CSV.parse(report_io, headers: true)
-  end
+  def row_iterator = Suma::Webhookdb::RowIterator.new("lime/synctripsreport/pk")
 
   def run
-    @csv.each do |row|
+    ds = self.dataset
+    ds = ds.select(:pk, Sequel.pg_jsonb(:data).get("Attachments").get(0).get_text("Content").as(:content))
+    self.row_iterator.each(ds) do |row|
+      b64content = row.fetch(:content)
+      content = Base64.decode64(b64content)
+      self.run_for_report(content)
+    end
+  end
+
+  def dataset
+    ds = Suma::Webhookdb.postmark_inbound_messages_dataset.
+      where(
+        from_email: Suma::Lime.lime_trip_report_from_email,
+        to_email: Suma::Lime.lime_trip_report_to_email,
+      ).where { timestamp > CUTOFF.ago }
+    return ds
+  end
+
+  def run_for_report(txt)
+    csv = CSV.parse(txt, headers: true)
+    csv.each do |row|
       if Suma::AnonProxy::VendorAccountRegistration.where(external_program_id: row.fetch(USER_EMAIL)).empty?
         self.logger.warn("lime_report_missing_member",
                          member_contact_email: row.fetch(USER_EMAIL),
