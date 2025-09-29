@@ -384,7 +384,12 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "LimeTripSync", reset_configuration: Suma::Lime do
-    it "syncs trips" do
+    before(:each) do
+      Suma::Lime.lime_trip_report_from_email = "from@mysuma.org"
+      Suma::Lime.lime_trip_report_to_email = "to@mysuma.org"
+    end
+
+    it "syncs trips from receipt emails and reports" do
       member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
@@ -397,7 +402,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       ).create
       va.configuration.add_program(program)
 
-      text_body = <<~TXT
+      receipt_text_body = <<~TXT
         Start Fee
         $0.50
         Riding - $0.07/min (76 min)
@@ -410,16 +415,32 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         FREE
       TXT
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
-        message_id: "valid",
+        message_id: "valid-receipt",
         from_email: "no-reply@li.me",
         to_email: mc.email,
         subject: "Receipt for your Lime ride",
         timestamp: Time.now,
-        data: Sequel.pg_jsonb({"TextBody" => text_body}),
+        data: Sequel.pg_jsonb({"TextBody" => receipt_text_body}),
       )
+
+      report_txt = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
+        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,#{mc.email},$0.07
+      CSV
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid-report",
+        from_email: "from@mysuma.org",
+        to_email: "to@mysuma.org",
+        timestamp: Time.now,
+        data: {Attachments: [{Content: Base64.encode64(report_txt)}]}.to_json,
+      )
+
       Suma::Async::LimeTripSync.new.perform
 
-      expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vehicle_id: "valid"))
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(vehicle_id: "valid-receipt"),
+        have_attributes(vehicle_id: "RTOKEN1"),
+      )
     end
   end
 

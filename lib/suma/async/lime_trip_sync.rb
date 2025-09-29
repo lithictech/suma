@@ -2,6 +2,7 @@
 
 require "amigo/scheduled_job"
 require "suma/lime/sync_trips_from_email"
+require "suma/lime/sync_trips_from_report"
 
 class Suma::Async::LimeTripSync
   extend Amigo::ScheduledJob
@@ -12,5 +13,6 @@ class Suma::Async::LimeTripSync
 
   def _perform
     Suma::Lime::SyncTripsFromEmail.new.run
+    Suma::Lime::SyncTripsFromReport.new.run
   end
 end
