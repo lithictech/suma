@@ -270,15 +270,17 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       row = {message_id: "xyz", timestamp: Time.parse("2024-07-15T12:00:00Z"), data: {"TextBody" => txt}}
       receipt = described_class.new.parse_row_to_receipt(row)
       expect(receipt).to have_attributes(
-        ride_id: "xyz",
-        started_at: Time.parse("2024-07-15T10:43:00Z"),
-        ended_at: Time.parse("2024-07-15T11:59:00Z"),
+        trip: have_attributes(
+          external_trip_id: "xyz",
+          began_at: Time.parse("2024-07-15T10:43:00Z"),
+          ended_at: Time.parse("2024-07-15T11:59:00Z"),
+        ),
         total: cost("$0"),
         discount: cost("$5.82"),
         line_items: [
-          include(amount: cost("$0.50"), memo: "Start Fee"),
-          include(amount: cost("$5.32"), memo: "Riding - $0.07/min (76 min)"),
-          include(amount: cost("-$5.82"), memo: "Discount"),
+          have_attributes(amount: cost("$0.50"), memo: "Start Fee"),
+          have_attributes(amount: cost("$5.32"), memo: "Riding - $0.07/min (76 min)"),
+          have_attributes(amount: cost("-$5.82"), memo: "Discount"),
         ],
       )
     end

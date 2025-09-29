@@ -29,14 +29,14 @@ module Suma::SpecHelpers
   module_function def load_fixture_data(name, raw: false)
     name = name.to_s
     path = TEST_DATA_DIR + name
-    path = TEST_DATA_DIR + "#{name}.json" unless path.exist? || !File.extname(name).empty?
-    path = TEST_DATA_DIR + "#{name}.yaml" unless path.exist? || !File.extname(name).empty?
-    path = TEST_DATA_DIR + "#{name}.yml" unless path.exist? || !File.extname(name).empty?
-    path = TEST_DATA_DIR + "#{name}.xml" unless path.exist? || !File.extname(name).empty?
-    path = TEST_DATA_DIR + "#{name}.txt" unless path.exist? || !File.extname(name).empty?
+    if File.extname(name).empty?
+      ["json", "yaml", "yml", "xml", "txt", "csv"].each do |ext|
+        break if path.exist?
+        path = TEST_DATA_DIR + "#{name}.#{ext}"
+      end
+    end
 
     rawdata = path.read(encoding: "utf-8")
-
     return rawdata if raw
 
     return case path.extname

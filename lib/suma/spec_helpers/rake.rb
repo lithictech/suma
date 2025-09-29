@@ -25,9 +25,18 @@ module Suma::SpecHelpers::Rake
     end
   end
 
-  module_function def invoke_rake_task(name, *)
+  module_function def invoke_rake_task(name, *args, argf: nil)
+    argv = ["rake"]
+    if args.empty?
+      argv << name
+    else
+      argstr = args.map(&:to_s).join(",")
+      argv << "#{name}[#{argstr}]"
+    end
+    stub_const("ARGV", argv)
+    stub_const("ARGF", argf) if argf
     Rake::Task.tasks.each(&:reenable)
-    Rake::Task[name].invoke(*)
+    Rake::Task[name].invoke(*args)
   ensure
     # If the task itself calls Rake[task].invoke, we need to make sure it gets reset.
     Rake::Task.tasks.each(&:reenable)
