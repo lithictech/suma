@@ -25,12 +25,12 @@ module Suma::Program::Has
 
   module DatasetMethods
     def eligible_to(member, as_of:)
-      # Include all rows that have no programs
-      unconstrained = Sequel.~(programs: Suma::Program.dataset)
-      ds = self.where(
-        unconstrained |
-        Sequel[program_enrollments: member.combined_program_enrollments_dataset.active(as_of:)],
-      )
+      cond = Sequel[program_enrollments: member.combined_program_enrollments_dataset.active(as_of:)]
+      if Suma::Program::UNPROGRAMMED_ACCESSIBLE
+        # Include all rows that have no programs
+        cond |= Sequel.~(programs: Suma::Program.dataset)
+      end
+      ds = self.where(cond)
       return ds
     end
   end

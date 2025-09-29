@@ -11,6 +11,16 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   include Suma::HasActivityAudit
   include Suma::Image::SingleAssociatedMixin
 
+  # True if +Suma::Program::Has+ types should be available to everyone when they have no programs (value of +true+),
+  # or available to no one until they are associated with a program (value of +false+).
+  #
+  # This value is +true+ when running tests, because otherwise we need to create a program to link
+  # every fixtured object to a member being tested.
+  #
+  # Since programs are designed to be orthogonal to the components they're providing access to,
+  # this makes tests and concepts messy. But it's a safer default outside of tests.
+  UNPROGRAMMED_ACCESSIBLE = Suma.test?
+
   plugin :hybrid_search
   plugin :timestamps
   plugin :tstzrange_fields, :period
