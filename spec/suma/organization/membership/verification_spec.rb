@@ -465,15 +465,6 @@ RSpec.describe "Suma::Organization::Membership::Verification",
     end
   end
 
-  describe "notes" do
-    it "renders markdown to html" do
-      v = Suma::Fixtures.organization_membership_verification.create
-      note = v.add_note(content: "hello **there**", created_at: Time.now)
-      expect(note.content_html).to eq("hello <strong>there</strong>")
-      expect(note.verification).to be === v
-    end
-  end
-
   describe "rendering the front template" do
     it "renders using a context" do
       v = Suma::Fixtures.organization_membership_verification.create

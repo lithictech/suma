@@ -1,19 +1,47 @@
 # frozen_string_literal: true
 
-require "suma/organization"
 require "suma/postgres/model"
+require "suma/support"
 
-class Suma::Organization::Membership::Verification::Note <
-  Suma::Postgres::Model(:organization_membership_verification_notes)
-  many_to_one :verification, class: "Suma::Organization::Membership::Verification", key: :verification_id
+class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
   many_to_one :creator, class: "Suma::Member"
   many_to_one :editor, class: "Suma::Member"
+
+  many_to_many :organization_membership_verifications,
+               class: "Suma::Organization::Membership::Verification",
+               join_table: :support_notes_organization_membership_verifications,
+               left_key: :note_id,
+               right_key: :verification_id
+
+  many_to_many :members,
+               class: "Suma::Member",
+               join_table: :support_notes_members,
+               left_key: :note_id,
+               right_key: :member_id
+
+  class << self
+    def api_create(content)
+      self.create(
+        content:,
+        creator: Suma.request_user_and_admin[1],
+        created_at: Time.now,
+      )
+    end
+  end
 
   # Return content rendered as markdown html.
   # It will have no container paragraph element, to make it easier to nest.
   def content_html
     s = Suma::I18n::Formatter.redcarpet.render(self.content)
     return Suma::I18n::Formatter.strip_paragraph_container!(s)
+  end
+
+  def api_update(content)
+    self.update(
+      content:,
+      editor: Suma.request_user_and_admin[1],
+      edited_at: Time.now,
+    )
   end
 end
 

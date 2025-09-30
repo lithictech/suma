@@ -39,10 +39,11 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
               class: "Suma::Organization::Membership::Verification::AuditLog",
               order: order_desc(:at),
               key: :verification_id
-  one_to_many :notes,
-              class: "Suma::Organization::Membership::Verification::Note",
-              order: order_desc,
-              key: :verification_id
+  many_to_many :notes,
+               class: "Suma::Support::Note",
+               join_table: :support_notes_organization_membership_verifications,
+               left_key: :verification_id,
+               order: order_desc
   many_to_one :owner, class: "Suma::Member"
 
   many_to_one :front_partner_conversation,

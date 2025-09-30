@@ -112,6 +112,12 @@ class Suma::Member < Suma::Postgres::Model(:members)
                order: order_desc(:label)
   one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
+  many_to_many :notes,
+               class: "Suma::Support::Note",
+               join_table: :support_notes_members,
+               left_key: :member_id,
+               order: order_desc
+
   one_to_many :program_enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
   one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
   many_through_many :program_enrollments_via_organizations,
