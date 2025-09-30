@@ -129,6 +129,7 @@ module Suma::Postgres
     "suma/payment/trigger/execution",
     "suma/plaid_institution",
     "suma/role",
+    "suma/support/ticket",
     "suma/supported_currency",
     "suma/supported_geography",
     "suma/translated_text",
