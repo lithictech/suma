@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
+require "suma/async/anon_proxy_member_contact_destroyed_resource_cleanup"
 
 class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
   def key = "signalwire"

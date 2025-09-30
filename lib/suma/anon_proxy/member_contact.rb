@@ -4,7 +4,7 @@ require "suma/admin_linked"
 require "suma/external_links"
 require "suma/postgres"
 require "suma/anon_proxy"
-require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
+require "suma/async/anon_proxy_member_contact_destroyed_resource_cleanup"
 
 class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_contacts)
   include Suma::AdminLinked
