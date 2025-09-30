@@ -977,10 +977,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lime::HandleViolations.new.row_iterator.reset
     end
 
-    it "creates Front discussion conversations for violation messages" do
+    it "creates support ticket for violation messages" do
       Suma::Lime.violations_processor_enabled = true
-      req = stub_request(:post, "https://api2.frontapp.com/conversations").
-        to_return(json_response({}))
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid-to-email",
@@ -991,7 +989,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         data: Sequel.pg_jsonb({"HtmlBody" => "htmlbody", "TextBody" => "txtbody"}),
       )
       Suma::Async::LimeViolationsProcessor.new.perform(true)
-      expect(req).to have_been_made
+      expect(Suma::Support::Ticket.all).to contain_exactly(have_attributes(subject: "Service Violation Notification"))
     end
 
     it "noops if not enabled" do

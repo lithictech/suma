@@ -17,7 +17,7 @@ module Suma::Fixtures::SupportNotes
     instance
   end
 
-  decorator :annotate, presave: true do |m|
-    m.add_note(self)
+  decorator :annotate, presave: true do |*objs|
+    objs.each { |o| o.add_note(self) }
   end
 end

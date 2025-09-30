@@ -75,7 +75,7 @@ class Frontapp::Client
     data.any? do |k, v|
       next true if v.is_a? ::HTTP::FormData::Part
       next true if k.is_a?(String) && k.include?("[")
-      v.respond_to?(:to_ary) && v.to_ary.any?(FormData::Part)
+      v.respond_to?(:to_ary) && v.to_ary.any?(::HTTP::FormData::Part)
     end
   end
 end

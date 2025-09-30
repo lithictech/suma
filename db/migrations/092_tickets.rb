@@ -39,13 +39,40 @@ Sequel.migration do
     )
     from(:support_notes).each do |row|
       from(:support_notes_organization_membership_verifications).insert(
-        note_id: row[:id],
-        verification_id: row[:verification_id],
+        note_id: row.fetch(:id),
+        verification_id: row.fetch(:verification_id),
       )
     end
 
     alter_table(:support_notes) do
-      drop_column :verification_id
+      rename_column :verification_id, :legacy_verification_id
+      set_column_allow_null :legacy_verification_id
+    end
+
+    from(:members).exclude(note: "").each do |row|
+      notes = from(:support_notes).returning(:id).insert(content: row.fetch(:note), created_at: row[:updated_at])
+      note = notes.first
+      from(:support_notes_members).insert(member_id: row.fetch(:id), note_id: note.fetch(:id))
+    end
+
+    alter_table(:members) do
+      rename_column :note, :legacy_note
+    end
+  end
+
+  down do
+    drop_table(:support_tickets_uploaded_files)
+    drop_table(:support_tickets)
+    rename_table(:support_notes, :organization_membership_verification_notes)
+    drop_table(:support_notes_organization_membership_verifications)
+    drop_table(:support_notes_members)
+    from(:organization_membership_verification_notes).where(legacy_verification_id: nil).delete
+    alter_table(:organization_membership_verification_notes) do
+      set_column_not_null :legacy_verification_id
+      rename_column :legacy_verification_id, :verification_id
+    end
+    alter_table(:members) do
+      rename_column :legacy_note, :note
     end
   end
 end

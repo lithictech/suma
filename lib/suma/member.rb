@@ -322,6 +322,17 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.public_payment_instruments.find { |pi| pi.status == :ok }
   end
 
+  def combined_notes
+    notes = Suma::Support::Note.
+      where(
+        Sequel[members: self] |
+            Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
+              where(membership: self.organization_memberships_dataset),
+            ],
+      ).order(Sequel.desc(:created_at), :id).all
+    return notes
+  end
+
   def search_label
     lbl = "(#{self.id}) #{self.name}"
     return lbl
@@ -448,7 +459,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def before_soft_delete
     self.email = "#{Time.now.to_f}+#{self[:email]}" if self.email
     self.password = "aA1!#{SecureRandom.hex(8)}"
-    self.note = (self.note + "\nOriginal phone: #{self.phone}").strip
+    self.add_note(Suma::Support::Note.api_create("Original phone: #{self.phone}"))
     # To make sure we clear out the phone, use +37-(13 chars).
     # But we do need to make sure no one already has this phone number.
     loop do
@@ -491,7 +502,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
       :name,
       ["Phone number", phone],
       ["Email address", self.email],
-      :note,
       ["Organization memberships", orgnames],
       ["Anonymous Contacts", self.anon_proxy_contacts.map { |c| c.phone || c.email }],
       ["Roles", self.roles.map(&:name)],

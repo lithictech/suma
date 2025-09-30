@@ -39,7 +39,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.member(note: "Hi, zzz").create,
+          Suma::Fixtures.member(email: "zzz@example.org").create,
           Suma::Fixtures.member(name: "Zzz Zam").create,
         ]
       end
@@ -76,10 +76,10 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
     it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/members" }
-      let(:order_by_field) { "note" }
+      let(:order_by_field) { "opaque_id" }
       def make_item(i)
-        return admin.update(note: i.to_s) if i.zero?
-        return Suma::Fixtures.member.create(created_at: Time.now + rand(1..100).days, note: i.to_s)
+        return admin.update(opaque_id: i.to_s) if i.zero?
+        return Suma::Fixtures.member.create(created_at: Time.now + rand(1..100).days, opaque_id: i.to_s)
       end
     end
   end
