@@ -459,7 +459,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def before_soft_delete
     self.email = "#{Time.now.to_f}+#{self[:email]}" if self.email
     self.password = "aA1!#{SecureRandom.hex(8)}"
-    self.add_note(Suma::Support::Note.api_create("Original phone: #{self.phone}"))
+    self.add_note(Suma::Support::Note.create(content: "Original phone: #{self.phone}"))
     # To make sure we clear out the phone, use +37-(13 chars).
     # But we do need to make sure no one already has this phone number.
     loop do

@@ -348,7 +348,7 @@ module Suma::AdminAPI::CommonEndpoints
             check_admin_role_access!(:write, model_type)
             (m = model_type[params[:id]]) or forbidden!
             m.db.transaction do
-              note = Suma::Support::Note.api_create(params[:content])
+              note = Suma::Support::Note.create(content: params[:content])
               m.add_note(note)
             end
             created_resource_headers(m.id, m.admin_link)
@@ -364,7 +364,7 @@ module Suma::AdminAPI::CommonEndpoints
               check_admin_role_access!(:write, model_type)
               (m = model_type[params[:id]]) or forbidden!
               (note = m.notes_dataset[params[:note_id]]) or forbidden!
-              note.api_update(params[:content])
+              note.update(content: params[:content])
               created_resource_headers(m.id, m.admin_link)
               status 200
               present m, with: entity

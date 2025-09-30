@@ -9,11 +9,9 @@ module Suma::Fixtures::SupportNotes
 
   base :support_note do
     self.content ||= Faker::Lorem.paragraph
-    self.created_at ||= Time.now
   end
 
   before_saving do |instance|
-    instance.creator ||= Suma::Fixtures.member.create
     instance
   end
 

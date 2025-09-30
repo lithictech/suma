@@ -19,16 +19,6 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
                left_key: :note_id,
                right_key: :member_id
 
-  class << self
-    def api_create(content)
-      self.create(
-        content:,
-        creator: Suma.request_user_and_admin[1],
-        created_at: Time.now,
-      )
-    end
-  end
-
   # Return content rendered as markdown html.
   # It will have no container paragraph element, to make it easier to nest.
   def content_html
@@ -36,12 +26,16 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
     return Suma::I18n::Formatter.strip_paragraph_container!(s)
   end
 
-  def api_update(content)
-    self.update(
-      content:,
-      editor: Suma.request_user_and_admin[1],
-      edited_at: Time.now,
-    )
+  def before_create
+    self.creator ||= Suma.request_user_and_admin[1]
+    self.created_at ||= Time.now
+    super
+  end
+
+  def before_update
+    self.editor = Suma.request_user_and_admin[1]
+    self.edited_at = Time.now
+    super
   end
 end
 

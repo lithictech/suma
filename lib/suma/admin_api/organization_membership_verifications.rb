@@ -162,7 +162,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
         post do
           v = lookup_writeable!
           v.db.transaction do
-            note = Suma::Support::Note.api_create(params[:content])
+            note = Suma::Support::Note.create(content: params[:content])
             v.add_note(note)
           end
           status 200
@@ -176,7 +176,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
           post do
             v = lookup_writeable!
             (note = v.notes_dataset[params[:note_id]]) or forbidden!
-            note.api_update(params[:content])
+            note.update(content: params[:content])
             status 200
             present v, with: VerificationListEntity
           end
