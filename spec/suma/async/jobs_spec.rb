@@ -859,6 +859,26 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "SupportTicketSyncToFront", reset_configuration: Suma::Frontapp do
+    it "creates a Front conversation" do
+      Suma::Frontapp.auth_token = "goodtoken"
+      req = stub_request(:post, "https://api2.frontapp.com/conversations").
+        to_return(fixture_response("front/conversation_create"))
+
+      expect do
+        Suma::Fixtures.support_ticket.create
+      end.to perform_async_job(Suma::Async::SupportTicketSyncToFront)
+
+      expect(req).to have_been_made
+    end
+
+    it "noops if Front is not configured" do
+      expect do
+        Suma::Fixtures.support_ticket.create
+      end.to perform_async_job(Suma::Async::SupportTicketSyncToFront)
+    end
+  end
+
   describe "TripReceipt" do
     before(:each) do
       Suma::Mobility::VendorAdapter::Fake.send_receipts = true
