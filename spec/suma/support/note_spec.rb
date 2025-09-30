@@ -18,10 +18,20 @@ RSpec.describe "Suma::Support::Note", :db do
     expect(ver.notes).to have_same_ids_as(note)
   end
 
-  it "renders markdown to html" do
-    m = Suma::Fixtures.member.create
-    note = m.add_note(content: "hello **there**")
-    expect(note.content_html).to eq("hello <strong>there</strong>")
+  describe "rendering" do
+    it "renders markdown to html" do
+      m = Suma::Fixtures.member.create
+      note = m.add_note(content: "hello **there**")
+      expect(note.content_html).to eq("hello <strong>there</strong>")
+    end
+
+    it "automatically converts non-markdown hyperlinks" do
+      # rubocop:disable Layout/LineLength
+      m = Suma::Fixtures.member.create
+      note = m.add_note(content: "https://h1.org https://h2.org [https://h3.com](https://h3.com) https://h4.com")
+      expect(note.content_md).to eq("[https://h1.org](https://h1.org) [https://h2.org](https://h2.org) [https://h3.com](https://h3.com) [https://h4.com](https://h4.com)")
+      # rubocop:enable Layout/LineLength
+    end
   end
 
   describe "creator/editor fields" do
@@ -75,6 +85,15 @@ RSpec.describe "Suma::Support::Note", :db do
         editor: be_nil,
         edited_at: match_time(t4),
       )
+    end
+
+    it "does not modify edit fields if content has not changed" do
+      note = Suma::Fixtures.support_note.create
+      expect(note).to have_attributes(edited_at: nil)
+      note.update(created_at: 1.hour.ago)
+      expect(note).to have_attributes(edited_at: nil)
+      note.update(content: "")
+      expect(note).to have_attributes(edited_at: match_time(:now))
     end
   end
 end

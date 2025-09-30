@@ -371,7 +371,7 @@ RSpec.describe "Suma::Member", :db do
       mn1 = Suma::Fixtures.support_note.annotate(m).create(created_at: 10.hours.ago)
       vn1 = Suma::Fixtures.support_note.annotate(v_fac.create).create(created_at: 4.hours.ago)
       vn2 = Suma::Fixtures.support_note.annotate(v_fac.create).create(created_at: 6.hours.ago)
-      shared = Suma::Fixtures.support_note.annotate(m, v_fac.create).create(created_at: 5.hours.ago)
+      shared = Suma::Fixtures.support_note.annotate(m, v_fac.create).create(edited_at: 5.hours.ago)
 
       expect(m.combined_notes).to have_same_ids_as(vn1, shared, vn2, mn1).ordered
     end

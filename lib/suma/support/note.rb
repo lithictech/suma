@@ -22,9 +22,33 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
   # Return content rendered as markdown html.
   # It will have no container paragraph element, to make it easier to nest.
   def content_html
-    s = Suma::I18n::Formatter.redcarpet.render(self.content)
+    c = self.content_md
+    s = Suma::I18n::Formatter.redcarpet.render(c)
     return Suma::I18n::Formatter.strip_paragraph_container!(s)
   end
+
+  # Convert the content into markdown, which may require some processing for convenience
+  # (like turning raw urls into markdown urls).
+  def content_md
+    c = self.content
+    start_of_string_regex = %r{^https?://\S+}
+    c = c.gsub(start_of_string_regex) do |url|
+      # Since this is the start of the string, we can just format as markdown.
+      "[#{url}](#{url})"
+    end
+
+    in_string_regex = %r{\shttps?://\S+}
+    c = c.gsub(in_string_regex) do |match|
+      # The leading character is a space; remove it from the url and prepend it before the markdown link.
+      # We do not have matchdata available so cannot use capture groups.
+      url = match[1..]
+      "#{match[0]}[#{url}](#{url})"
+    end
+    return c
+  end
+
+  def author = self.editor || self.creator
+  def authored_at = self.edited_at || self.created_at
 
   def before_create
     self.creator ||= Suma.request_user_and_admin[1]
@@ -33,8 +57,10 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
   end
 
   def before_update
-    self.editor = Suma.request_user_and_admin[1]
-    self.edited_at = Time.now
+    if self.changed_columns.include?(:content)
+      self.editor = Suma.request_user_and_admin[1]
+      self.edited_at = Time.now
+    end
     super
   end
 end

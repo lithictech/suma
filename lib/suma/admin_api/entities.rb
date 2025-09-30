@@ -107,9 +107,8 @@ module Suma::AdminAPI::Entities
   class SupportNoteEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :creator, with: AuditMemberEntity
-    expose :edited_at
-    expose :editor, with: AuditMemberEntity
+    expose :author, with: AuditMemberEntity
+    expose :authored_at
     expose :content
     expose :content_html
   end

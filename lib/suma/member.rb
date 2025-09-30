@@ -323,14 +323,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def combined_notes
-    notes = Suma::Support::Note.
+    ds = Suma::Support::Note.
       where(
         Sequel[members: self] |
             Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
               where(membership: self.organization_memberships_dataset),
             ],
-      ).order(Sequel.desc(:created_at), :id).all
-    return notes
+      ).order(Sequel.desc(Sequel.function(:coalesce, :edited_at, :created_at)), :id)
+    return ds.all
   end
 
   def search_label

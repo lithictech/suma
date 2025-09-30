@@ -10,6 +10,7 @@ import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
+import SupportNoteModal from "../components/SupportNoteModal";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
@@ -20,6 +21,7 @@ import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Typography,
   Switch,
@@ -29,6 +31,7 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
+  Stack,
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
@@ -137,6 +140,7 @@ export default function MemberDetailPage() {
           <ResourceSummary>
             <LegalEntity {...model.legalEntity} />
           </ResourceSummary>,
+          <Notes notes={model.notes} model={model} setModel={setModel} />,
           <OrganizationMemberships
             memberships={model.organizationMemberships}
             model={model}
@@ -256,6 +260,69 @@ function OrganizationMemberships({ memberships, model }) {
         <OrganizationMembership membership={row} detailed />,
       ]}
     />
+  );
+}
+
+function Notes({ notes, model, setModel }) {
+  const modalToggle = useToggle();
+
+  const [scratchNote, setScratchNote] = React.useState({});
+
+  function handleNoteSubmitted(r) {
+    setModel(r.data);
+    modalToggle.turnOff();
+  }
+
+  function handleNewClick() {
+    setScratchNote({});
+    modalToggle.turnOn();
+  }
+
+  function handleEditClick(row) {
+    setScratchNote(row);
+    modalToggle.turnOn();
+  }
+
+  return (
+    <>
+      <SupportNoteModal
+        toggle={modalToggle}
+        note={scratchNote}
+        setNote={setScratchNote}
+        apiCreate={api.createMemberNote}
+        apiUpdate={api.updateMemberNote}
+        apiParams={{ id: model.id }}
+        onSubmitted={handleNoteSubmitted}
+      />
+      <RelatedList
+        title="Notes"
+        headers={["Id", "Content", "Author", "At"]}
+        rows={notes}
+        addNewLabel="Add note"
+        onAddNewClick={handleNewClick}
+        addNewRole="member"
+        keyRowAttr="id"
+        toCells={(row) => [
+          row.id,
+          <Stack direction="horizontal" gap={0.5} alignItems="center">
+            <IconButton
+              size="small"
+              sx={{ marginRight: 1 }}
+              onClick={() => handleEditClick(row)}
+            >
+              <EditIcon />
+            </IconButton>
+            <div dangerouslySetInnerHTML={{ __html: row.contentHtml }} />
+          </Stack>,
+          row.author && (
+            <AdminLink key="id" model={row.author}>
+              {row.author.name}
+            </AdminLink>
+          ),
+          formatDate(row.authoredAt),
+        ]}
+      />
+    </>
   );
 }
 
