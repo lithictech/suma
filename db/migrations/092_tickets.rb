@@ -12,7 +12,8 @@ Sequel.migration do
       text :subject, null: false
       text :body, null: false
 
-      text :front_message_id, null: true
+      text :external_id, null: true, unique: true
+      text :front_id, null: true
     end
 
     create_join_table(

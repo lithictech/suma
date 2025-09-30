@@ -22,15 +22,21 @@ class Suma::Lime::HandleViolations
         row.fetch(:data).fetch("TextBody"),
       ].compact
 
-      Suma::Frontapp.client.create_conversation(
-        type: "discussion",
-        inbox_id: Suma::Frontapp.to_inbox_id(Suma::Frontapp.default_inbox_id),
-        subject: row.fetch(:subject),
-        "comment[body]" => body_lines.join("\n"),
-        "attachments[0]" => HTTP::FormData::Part.new(
-          html_body, content_type: "text/html", filename: "limewarning.html",
-        ),
-      )
+      Suma::Support::Ticket.db.transaction do
+        external_id = row.fetch(:message_id)
+        ticket = Suma::Support::Ticket.find_or_create_or_find(
+          subject: row.fetch(:subject),
+          body: body_lines.join("\n"),
+          external_id:,
+        )
+        uf = Suma::UploadedFile.create_with_blob(
+          bytes: html_body,
+          content_type: "text/html",
+          filename: "limewarning.html",
+          validate: false,
+        )
+        ticket.add_uploaded_file(uf)
+      end
     end
     return num_synced
   end
