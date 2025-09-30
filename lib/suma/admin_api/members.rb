@@ -88,6 +88,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
     expose :message_deliveries, with: MessageDeliveryEntity
+    expose :notes, with: SupportNoteEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
     expose :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
@@ -152,6 +153,12 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         end
       end
     end
+
+    Suma::AdminAPI::CommonEndpoints.annotated(
+      self,
+      Suma::Member,
+      DetailedMemberEntity,
+    )
 
     route_param :id, type: Integer do
       helpers do

@@ -320,4 +320,60 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
+
+  describe "POST /v1/members/:id/notes/create" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "creates a note" do
+      post "/v1/members/#{member.id}/notes/create", content: 'hello'
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(notes: contain_exactly(include(content: 'hello', creator: include(id: admin.id))))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      post "/v1/members/#{member.id}/notes/create", content: 'hello'
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
+
+  describe "POST /v1/members/:id/notes/:id/update" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "updates a note" do
+      note = Suma::Fixtures.support_note.annotate(member).create
+
+      post "/v1/members/#{member.id}/notes/#{note.id}", content: 'hello'
+
+      expect(last_response).to have_status(200)
+      puts admin.values
+      puts last_response_json_body
+      expect(last_response).to have_json_body.
+        that_includes(notes: contain_exactly(include(content: 'hello', editor: include(id: admin.id))))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      note = Suma::Fixtures.support_note.annotate(member).create
+
+      post "/v1/members/#{member.id}/notes/#{note.id}", content: 'hello'
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
+    it "errors if the note is not associated" do
+      note = Suma::Fixtures.support_note.create
+
+      post "/v1/members/#{member.id}/notes/#{note.id}", content: 'hello'
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

@@ -17,8 +17,8 @@ RSpec.describe Suma::API::Support, :db do
       expect(last_response).to have_status(204)
       expect(Suma::Support::Ticket.all).to contain_exactly(
         have_attributes(
-          name: "Rob",
-          body: "Name: Rob\nPrevious Phone: (555) 111-2222\nCurrent Phone: (555) 111-3333\n",
+          sender_name: "Rob",
+          body: "Name: Rob\nPrevious Phone: (555) 111-2222\nCurrent Phone: (555) 111-3333",
         ),
       )
     end
