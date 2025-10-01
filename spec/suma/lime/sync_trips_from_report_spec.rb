@@ -86,6 +86,23 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       )
     end
 
+    it "parses the absurd time formats properly" do
+      txt = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
+        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
+        RTOKEN2,09/16/2025 01:01 AM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
+        RTOKEN3,09/16/2025 12:01 PM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
+        RTOKEN4,09/16/2025 13:01 PM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
+      CSV
+      described_class.new.run_for_report(txt)
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(began_at: match_time("2025-09-16T00:01:00-0700")),
+        have_attributes(began_at: match_time("2025-09-16T01:01:00-0700")),
+        have_attributes(began_at: match_time("2025-09-16T12:01:00-0700")),
+        have_attributes(began_at: match_time("2025-09-16T13:01:00-0700")),
+      )
+    end
+
     it "noops if no program registration with the email exists" do
       va.registrations.first.destroy
       txt = <<~CSV

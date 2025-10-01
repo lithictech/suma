@@ -105,5 +105,11 @@ class Suma::Lime::SyncTripsFromReport
     return r
   end
 
-  def parsetime(t) = Time.strptime("#{t} -0700", "%m/%d/%Y %I:%M %p %Z")
+  def parsetime(t)
+    date, time, ampm = t.split
+    hr, min = time.split(":")
+    # Turn 12 AM into 00 AM
+    hr = "00" if hr == "12" && ampm == "AM"
+    return Time.strptime("#{date} #{hr}:#{min} -0700", "%m/%d/%Y %H:%M %Z")
+  end
 end
