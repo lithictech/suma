@@ -627,16 +627,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "PaymentInstrumentExpiringScheduler" do
     it "enqueues a notifier job for each member with an expiring instrument" do
-      to_warn = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
-      Suma::Fixtures.mobility_trip.create(member: to_warn)
-      Suma::Fixtures.card.member(to_warn).expiring.create
-
-      not_warn = Suma::Fixtures.member.create
-
-      expect(Suma::Async::PaymentInstrumentExpiringNotifier).to receive(:perform_at).
-        with(match_time("2025-09-11 12:00:00-0700").within(3.hours), to_warn.id)
-
       Timecop.freeze("2025-09-09T01:00:00Z") do
+        to_warn = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
+        Suma::Fixtures.mobility_trip.create(member: to_warn)
+        Suma::Fixtures.card.member(to_warn).expiring.create
+
+        not_warn = Suma::Fixtures.member.create
+
+        expect(Suma::Async::PaymentInstrumentExpiringNotifier).to receive(:perform_at).
+          with(match_time("2025-09-11 12:00:00-0700").within(3.hours), to_warn.id)
+
         Suma::Async::PaymentInstrumentExpiringScheduler.new.perform(true)
       end
     end
