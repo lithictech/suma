@@ -1,12 +1,12 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
+import PhoneInput from "../components/PhoneInput.jsx";
 import SignupAgreement from "../components/SignupAgreement";
+import { MdLink } from "../components/SumaMarkdown.jsx";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
-import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
@@ -34,8 +34,7 @@ export default function Start() {
     mode: "all",
   });
 
-  const handlePhoneChange = (e) => {
-    const formattedNum = maskPhoneNumber(e.target.value);
+  const handlePhoneChange = (e, formattedNum) => {
     clearErrors();
     setValue("phone", formattedNum);
     setPhone(formattedNum);
@@ -75,22 +74,29 @@ export default function Start() {
       <h2>{t("forms.get_started")}</h2>
       <p id="phoneRequired">{t("forms.get_started_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
-        <FormControlGroup
+        <PhoneInput
           className="mb-3"
-          type="tel"
           name="phone"
           label={t("forms.phone")}
-          pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           register={register}
           errors={errors}
           value={phone}
           aria-describedby="phoneRequired"
-          autoComplete="tel"
           autoFocus
           required
-          onChange={handlePhoneChange}
+          onPhoneChange={handlePhoneChange}
         />
-        <p>{t("auth.phone_number_changed")}</p>
+        <p>
+          {t(
+            "auth.phone_number_changed",
+            {},
+            {
+              markdown: {
+                overrides: { a: { component: MdLink, props: { immediate: true } } },
+              },
+            }
+          )}
+        </p>
         <SignupAgreement
           checked={agreementChecked}
           onCheckedChanged={setAgreementChecked}

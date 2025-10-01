@@ -3,14 +3,22 @@ import ELink from "./ELink";
 import Markdown from "markdown-to-jsx";
 import React from "react";
 
-export default function SumaMarkdown({ options, overrides, children }) {
-  overrides = {
+/**
+ * Render Markdown with Suma components and options.
+ * @param {object} options Passed to Markdown, with exceptions listed here.
+ * @param {object} options.overrides Merged on top of the default overrides,
+ *   which include a Copyable component and custom link.
+ * @param children
+ */
+export default function SumaMarkdown({ options, children }) {
+  const { overrides, ...rest } = options;
+  const combinedOverrides = {
     a: { component: MdLink },
     Copyable: { component: Copyable, props: { inline: true } },
     ...overrides,
   };
-  options = { overrides, ...options };
-  return <Markdown options={options}>{children || ""}</Markdown>;
+  const mdopts = { overrides: combinedOverrides, ...rest };
+  return <Markdown options={mdopts}>{children || ""}</Markdown>;
 }
 
 // Ignore 'node' because we replace it with ELink
