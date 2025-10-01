@@ -2,6 +2,11 @@
 
 Sequel.migration do
   up do
+    alter_table(:testing_pixies) do
+      add_column :created_at, :timestamptz
+      add_column :updated_at, :timestamptz
+    end
+
     create_table(:support_tickets) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -73,6 +78,10 @@ Sequel.migration do
     end
     alter_table(:members) do
       rename_column :legacy_note, :note
+    end
+    alter_table(:testing_pixies) do
+      drop_column :created_at
+      drop_column :updated_at
     end
   end
 end

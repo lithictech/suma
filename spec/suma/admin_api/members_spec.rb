@@ -329,7 +329,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(notes: contain_exactly(include(content: "hello", creator: include(id: admin.id))))
+        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
     end
 
     it "errors without role access" do
@@ -354,7 +354,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       puts admin.values
       puts last_response_json_body
       expect(last_response).to have_json_body.
-        that_includes(notes: contain_exactly(include(content: "hello", editor: include(id: admin.id))))
+        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
     end
 
     it "errors without role access" do

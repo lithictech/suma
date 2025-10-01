@@ -391,7 +391,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
   end
 
   describe "resource_lock!" do
-    let(:instance) { Suma::Fixtures.member.create(note: "hello") }
+    let(:instance) { Suma::Postgres::TestingPixie.create(name: "hello") }
     let(:now) { Time.now }
 
     it "raises a LockFailed if updated_at changed before/after the lock" do
@@ -403,12 +403,12 @@ RSpec.describe "Suma::Postgres::Model", :db do
 
     it "calls the block if updated_at is not set" do
       expect(instance).to have_attributes(updated_at: nil)
-      expect(instance.resource_lock!(&:note)).to eq(instance.note)
+      expect(instance.resource_lock!(&:name)).to eq(instance.name)
     end
 
     it "calls the block if updated_at has not changed" do
       instance.update(updated_at: now.change(usec: 0))
-      expect(instance.resource_lock!(&:note)).to eq(instance.note)
+      expect(instance.resource_lock!(&:name)).to eq(instance.name)
     end
 
     it "touches updated_at after the block returns" do
@@ -416,10 +416,10 @@ RSpec.describe "Suma::Postgres::Model", :db do
     end
 
     it "ignores fractional microseconds since databases do not store that precision" do
-      instance.update(note: instance.note + "prime")
+      instance.update(name: instance.name + "prime", updated_at: Time.now.change(nsec: 123))
       expect(instance.refresh.updated_at.nsec).to eq(instance.refresh.updated_at.usec * 1000)
       instance.updated_at = instance.updated_at.change(nsec: (instance.updated_at.usec * 1000) + 1)
-      expect(instance.resource_lock!(&:note)).to eq(instance.note)
+      expect(instance.resource_lock!(&:name)).to eq(instance.name)
     end
   end
 

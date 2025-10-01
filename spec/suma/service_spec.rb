@@ -94,7 +94,7 @@ class Suma::API::TestService < Suma::Service
 
   class MemberEntity < Grape::Entity
     expose :id
-    expose :note
+    expose :name
   end
 
   get :collection_array do
@@ -500,7 +500,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
         object: "list",
-        items: [{id: member.id, note: member.note}],
+        items: [{id: member.id, name: member.name}],
         current_page: 1,
         has_more: false,
         page_count: 1,
