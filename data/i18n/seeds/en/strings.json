@@ -7,7 +7,13 @@
     "suma_logo": "Suma logo showing an ear of corn on top of a coin, all within a circle and gold shaded"
   },
   "auth": {
+    "access_account_current_phone": "Current phone",
+    "access_account_previous_phone": "Previous phone",
+    "access_account_subtitle": "Please enter your details.",
+    "access_account_title": "Access your account",
+    "access_account_confirmed": "Our customer service team will get back to you as soon as possible.",
     "agree_aria_label": "Agree to terms",
+    "phone_number_changed": "Have an account, but changed your phone number? [Message us](/regain-account-access).",
     "sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
   },
   "common": {
@@ -38,10 +44,12 @@
     "pagination_prev": "‹ Prev",
     "privacy_policy": "Privacy Policy",
     "reference_id": "Reference ID",
+    "return_home": "Return home",
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
     "suma_help_email": "[info@mysuma.org](mailto:info@mysuma.org 'suma help email')",
     "suma_help_number": "[971-351-7862](tel:971-351-7862)",
     "terms_of_use": "Terms of Use",
+    "thank_you": "Thank you",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
     "view_all": "View all",

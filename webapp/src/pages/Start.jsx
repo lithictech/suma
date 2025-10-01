@@ -90,6 +90,7 @@ export default function Start() {
           required
           onChange={handlePhoneChange}
         />
+        <p>{t("auth.phone_number_changed")}</p>
         <SignupAgreement
           checked={agreementChecked}
           onCheckedChanged={setAgreementChecked}
