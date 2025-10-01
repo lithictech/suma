@@ -37,8 +37,8 @@ class Suma::Lime::SyncTripsFromReport
   def dataset
     ds = Suma::Webhookdb.postmark_inbound_messages_dataset.
       where(
-        from_email: Suma::Lime.lime_trip_report_from_email,
-        to_email: Suma::Lime.lime_trip_report_to_email,
+        from_email: Suma::Lime.trip_report_from_email,
+        to_email: Suma::Lime.trip_report_to_email,
       ).where { timestamp > CUTOFF.ago }
     return ds
   end

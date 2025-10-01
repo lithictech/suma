@@ -16,9 +16,9 @@ module Suma::Lime
     # even if other environments (like development) point towards the production email table.
     setting :violations_processor_enabled, false
     # Email where trip reports are sent from.
-    setting :lime_trip_report_from_email, "lime-trip-report-from-email@example.org"
+    setting :trip_report_from_email, "lime-trip-report-from-email@example.org"
     # Email where trip reports are sent to.
-    setting :lime_trip_report_to_email, "lime-trip-report-to-email@example.org"
+    setting :trip_report_to_email, "lime-trip-report-to-email@example.org"
   end
 
   # @return [Suma::Vendor]

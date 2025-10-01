@@ -132,8 +132,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
   describe "dataset" do
     before(:each) do
-      Suma::Lime.lime_trip_report_from_email = "from@mysuma.org"
-      Suma::Lime.lime_trip_report_to_email = "to@mysuma.org"
+      Suma::Lime.trip_report_from_email = "from@mysuma.org"
+      Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end
 
     it "finds only emails with the configured to and from address" do
@@ -178,8 +178,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     before(:each) do
       va.add_registration(external_program_id: mc.email)
       va.configuration.add_program(program)
-      Suma::Lime.lime_trip_report_from_email = "from@mysuma.org"
-      Suma::Lime.lime_trip_report_to_email = "to@mysuma.org"
+      Suma::Lime.trip_report_from_email = "from@mysuma.org"
+      Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end
 
     def csv_attachment(text)

@@ -385,8 +385,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "LimeTripSync", reset_configuration: Suma::Lime do
     before(:each) do
-      Suma::Lime.lime_trip_report_from_email = "from@mysuma.org"
-      Suma::Lime.lime_trip_report_to_email = "to@mysuma.org"
+      Suma::Lime.trip_report_from_email = "from@mysuma.org"
+      Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end
 
     it "syncs trips from receipt emails and reports" do
