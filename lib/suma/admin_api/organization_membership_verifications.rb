@@ -15,7 +15,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
-    expose :notes, with: SupportNoteEntity
+    expose :combined_notes, as: :notes, with: SupportNoteEntity
     expose :duplicate_risk
   end
 
@@ -27,7 +27,6 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
     expose :address, with: AddressEntity, &self.delegate_to(:membership, :member, :legal_entity, :address, safe: true)
-    expose :notes, with: SupportNoteEntity
     expose :audit_logs, with: AuditLogEntity
     expose :partner_outreach_front_conversation_id
     expose :member_outreach_front_conversation_id

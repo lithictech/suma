@@ -329,6 +329,8 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   # Duplicates are stored sorted so we can use the 0th item.
   def duplicate_risk = self.find_duplicates.first&.max_risk
 
+  def combined_notes = Suma::Support::Note.combine_instances(self.notes, self.membership.member.notes)
+
   def rel_admin_link = "/membership-verification/#{self.id}"
 
   def hybrid_search_fields

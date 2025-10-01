@@ -465,6 +465,22 @@ RSpec.describe "Suma::Organization::Membership::Verification",
     end
   end
 
+  describe "combined_notes" do
+    it "combines and sorts verification and member notes" do
+      content = "hi"
+      v = Suma::Fixtures.organization_membership_verification.create
+      vn1 = v.add_note(content:, edited_at: 4.hours.ago)
+      vn2 = v.add_note(content:, created_at: 2.hours.ago)
+      vn3 = v.add_note(content:, created_at: 3.hours.ago)
+      mn1 = v.membership.member.add_note(content:, created_at: 5.hours.ago)
+      mn2 = v.membership.member.add_note(content:, edited_at: 1.hours.ago)
+
+      other_vn = Suma::Fixtures.organization_membership_verification.create.add_note(content:)
+
+      expect(v.combined_notes).to have_same_ids_as(mn2, vn2, vn3, vn1, mn1).ordered
+    end
+  end
+
   describe "rendering the front template" do
     it "renders using a context" do
       v = Suma::Fixtures.organization_membership_verification.create

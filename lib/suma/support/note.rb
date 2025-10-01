@@ -19,6 +19,21 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
                left_key: :note_id,
                right_key: :member_id
 
+  class << self
+    def combine_datasets(*exprs)
+      ds = self.reduce_expr(:|, exprs)
+      ds = ds.order(Sequel.desc(Sequel.function(:coalesce, :edited_at, :created_at)), :id)
+      return ds
+    end
+
+    def combine_instances(*arrays)
+      notes = [].concat(*arrays)
+      notes.sort_by! { |n| [n.authored_at, -n.id] }
+      notes.reverse!
+      return notes
+    end
+  end
+
   # Return content rendered as markdown html.
   # It will have no container paragraph element, to make it easier to nest.
   def content_html
