@@ -50,6 +50,7 @@ const config = {
   mapboxAccessToken: env.VITE_MAPBOX_ACCESS_TOKEN,
   // Set to https://metrics.mysuma.org/count or similar to enable goatcounter
   metricsEndpoint: env.VITE_METRICS_ENDPOINT,
+  tracingSampleRate: Number(env.VITE_TRACING_SAMPLE_RATE || 0.1),
 };
 
 initSentry({
@@ -58,6 +59,8 @@ initSentry({
   application: "web-app",
   release: config.release,
   environment: config.environment,
+  tracesSampleRate: config.tracingSampleRate,
+  tracePropagationTargets: [config.apiHost],
 });
 
 export default config;

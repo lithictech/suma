@@ -169,6 +169,7 @@ module Suma::Apps
       "VITE_API_HOST" => vars[:api_host],
       "VITE_SENTRY_DSN" => Suma::Sentry.dsn,
       "VITE_STRIPE_PUBLIC_KEY" => Suma::Stripe.public_key,
+      "VITE_TRACING_SAMPLE_RATE" => Suma::Sentry.traces_sample_rate,
       "VITE_RELEASE" => "sumaweb@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
