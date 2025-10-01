@@ -465,12 +465,19 @@ RSpec.describe "Suma::Organization::Membership::Verification",
     end
   end
 
-  describe "notes" do
-    it "renders markdown to html" do
+  describe "combined_notes" do
+    it "combines and sorts verification and member notes" do
+      content = "hi"
       v = Suma::Fixtures.organization_membership_verification.create
-      note = v.add_note(content: "hello **there**", created_at: Time.now)
-      expect(note.content_html).to eq("hello <strong>there</strong>")
-      expect(note.verification).to be === v
+      vn1 = v.add_note(content:, edited_at: 4.hours.ago)
+      vn2 = v.add_note(content:, created_at: 2.hours.ago)
+      vn3 = v.add_note(content:, created_at: 3.hours.ago)
+      mn1 = v.membership.member.add_note(content:, created_at: 5.hours.ago)
+      mn2 = v.membership.member.add_note(content:, edited_at: 1.hours.ago)
+
+      other_vn = Suma::Fixtures.organization_membership_verification.create.add_note(content:)
+
+      expect(v.combined_notes).to have_same_ids_as(mn2, vn2, vn3, vn1, mn1).ordered
     end
   end
 

@@ -129,6 +129,11 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
     return StringIO.new(@_blob_bytes)
   end
 
+  if Suma.test?
+    # Provide an easy accessor for use in have_attributes matchers and general testing purposes.
+    def read_blob_for_testing = self.blob_stream_unsafe.read
+  end
+
   def absolute_url
     return "#{Suma.api_url}/v1/images/#{self.opaque_id}"
   end

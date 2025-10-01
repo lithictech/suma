@@ -346,7 +346,7 @@ RSpec.describe "Suma::Member", :db do
       c.soft_delete
       expect(c.phone).to_not eq("15551234567")
       expect(c.phone).to have_length(15)
-      expect(c.note).to include("15551234567")
+      expect(c.notes).to contain_exactly(have_attributes(content: "Original phone: 15551234567"))
     end
 
     it "can retrieve the display email" do
@@ -361,6 +361,19 @@ RSpec.describe "Suma::Member", :db do
       expect(c).to have_attributes(email: nil, display_email: nil)
       c.soft_delete
       expect(c).to have_attributes(email: nil, display_email: nil)
+    end
+  end
+
+  describe "#combine_notes" do
+    it "selects and sorts all notes from related resources" do
+      m = Suma::Fixtures.member.create
+      v_fac = Suma::Fixtures.organization_membership_verification.member(m)
+      mn1 = Suma::Fixtures.support_note.annotate(m).create(created_at: 10.hours.ago)
+      vn1 = Suma::Fixtures.support_note.annotate(v_fac.create).create(created_at: 4.hours.ago)
+      vn2 = Suma::Fixtures.support_note.annotate(v_fac.create).create(created_at: 6.hours.ago)
+      shared = Suma::Fixtures.support_note.annotate(m, v_fac.create).create(edited_at: 5.hours.ago)
+
+      expect(m.combined_notes).to have_same_ids_as(vn1, shared, vn2, mn1).ordered
     end
   end
 

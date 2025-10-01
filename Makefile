@@ -124,9 +124,11 @@ message-render: env-MESSAGE
 
 i18n-import:
 	@bundle exec rake i18n:import
-
 i18n-export:
 	@bundle exec rake i18n:export
+i18n-reset:
+	@bundle exec rake i18n:replace
+
 
 analytics-reimport:
 	@bundle exec rake analytics:truncate

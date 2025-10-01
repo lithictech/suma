@@ -39,7 +39,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.member(note: "Hi, zzz").create,
+          Suma::Fixtures.member(email: "zzz@example.org").create,
           Suma::Fixtures.member(name: "Zzz Zam").create,
         ]
       end
@@ -76,10 +76,10 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
     it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/members" }
-      let(:order_by_field) { "note" }
+      let(:order_by_field) { "opaque_id" }
       def make_item(i)
-        return admin.update(note: i.to_s) if i.zero?
-        return Suma::Fixtures.member.create(created_at: Time.now + rand(1..100).days, note: i.to_s)
+        return admin.update(opaque_id: i.to_s) if i.zero?
+        return Suma::Fixtures.member.create(created_at: Time.now + rand(1..100).days, opaque_id: i.to_s)
       end
     end
   end
@@ -318,6 +318,62 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
+
+  describe "POST /v1/members/:id/notes/create" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "creates a note" do
+      post "/v1/members/#{member.id}/notes/create", content: "hello"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      post "/v1/members/#{member.id}/notes/create", content: "hello"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
+
+  describe "POST /v1/members/:id/notes/:id/update" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "updates a note" do
+      note = Suma::Fixtures.support_note.annotate(member).create
+
+      post "/v1/members/#{member.id}/notes/#{note.id}", content: "hello"
+
+      expect(last_response).to have_status(200)
+      puts admin.values
+      puts last_response_json_body
+      expect(last_response).to have_json_body.
+        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      note = Suma::Fixtures.support_note.annotate(member).create
+
+      post "/v1/members/#{member.id}/notes/#{note.id}", content: "hello"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
+    it "errors if the note is not associated" do
+      note = Suma::Fixtures.support_note.create
+
+      post "/v1/members/#{member.id}/notes/#{note.id}", content: "hello"
+
+      expect(last_response).to have_status(403)
     end
   end
 end

@@ -148,5 +148,8 @@ export default {
     post("/api/v1/preferences/public", data, ...args),
   updatePreferences: (data, ...args) => post("/api/v1/preferences", data, ...args),
 
+  supportRegainAccountAccess: (data, ...args) =>
+    post("/api/v1/support/regain_account_access", data, ...args),
+
   completeSurvey: (data, ...args) => post(`/api/v1/surveys`, data, ...args),
 };

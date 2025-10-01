@@ -68,7 +68,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :opaque_id
-    expose :note
     expose :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified
     expose :previous_phones do |instance|
@@ -88,6 +87,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
     expose :message_deliveries, with: MessageDeliveryEntity
+    expose :combined_notes, as: :notes, with: SupportNoteEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
     expose :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
@@ -131,7 +131,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     ) do
       params do
         optional :name, type: String
-        optional :note, type: String
         optional :email, type: String
         optional :phone, type: Integer
         optional :timezone, type: String, values: ALL_TIMEZONES
@@ -152,6 +151,12 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         end
       end
     end
+
+    Suma::AdminAPI::CommonEndpoints.annotated(
+      self,
+      Suma::Member,
+      DetailedMemberEntity,
+    )
 
     route_param :id, type: Integer do
       helpers do

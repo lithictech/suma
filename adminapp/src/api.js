@@ -309,6 +309,10 @@ export default {
     post(`/adminapi/v1/members/${id}`, data, ...args),
   softDeleteMember: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/members/${id}/close`, data, ...args),
+  createMemberNote: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/members/${id}/notes/create`, data, ...args),
+  updateMemberNote: ({ id, noteId, ...data }, ...args) =>
+    post(`/adminapi/v1/members/${id}/notes/${noteId}`, data, ...args),
 
   getOrganizations: (data, ...args) => get(`/adminapi/v1/organizations`, data, ...args),
   getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),

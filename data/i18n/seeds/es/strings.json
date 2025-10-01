@@ -7,7 +7,13 @@
     "suma_logo": "Logo de suma que muestra una mazorca de maíz encima de una moneda, todo dentro de un círculo y sombreado en dorado"
   },
   "auth": {
+    "access_account_current_phone": "Teléfono actual",
+    "access_account_previous_phone": "Teléfono anterior",
+    "access_account_subtitle": "Ingresa tus datos.",
+    "access_account_title": "Accede a tu cuenta",
+    "access_account_confirmed": "Nuestro equipo de atención al cliente te responderá lo antes posible.",
     "agree_aria_label": "Aceptar los terminos",
+    "phone_number_changed": "¿Tienes una cuenta pero cambiaste tu número de teléfono? [Escríbenos](/regain-account-access).",
     "sign_up_agreement": "Acepto y estoy de acuerdo con suma's [Términos de uso](/terms-of-use) y [Política de privacidad](/privacy-policy). También acepto recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
   },
   "common": {
@@ -38,10 +44,12 @@
     "pagination_prev": "‹ Previo",
     "privacy_policy": "Política de Privacidad",
     "reference_id": "ID de referencia",
+    "return_home": "Volver al inicio",
     "scooter_cost": "{{startCost, sumaCurrency}} para empezar, y luego {{costPerMinute, sumaCurrency}}/min + impuestos",
     "suma_help_email": "[info@mysuma.org](mailto:info@mysuma.org 'correo electrónico de ayuda de suma')",
     "suma_help_number": "[971-351-7862](tel:971-351-7862)",
     "terms_of_use": "Términos de Uso",
+    "thank_you": "Gracias",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
     "view_all": "Ver todos",

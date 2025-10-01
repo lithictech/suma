@@ -24,6 +24,7 @@ export default function RelatedList({
   addNewRole,
   emptyState,
   className,
+  onAddNewClick,
   ...rest
 }) {
   const expanded = useToggle();
@@ -55,7 +56,7 @@ export default function RelatedList({
     showMore = DEFAULT_SHOW_MORE;
   }
   const { canWriteResource } = useRoleAccess();
-  const addNew = Boolean(addNewLink) && canWriteResource(addNewRole);
+  const addNew = Boolean(addNewLink || onAddNewClick) && canWriteResource(addNewRole);
   if (isEmpty(rows) && !addNew && !emptyState) {
     return null;
   }
@@ -76,7 +77,7 @@ export default function RelatedList({
           </Typography>
         )}
         {addNew && (
-          <Link to={addNewLink}>
+          <Link to={addNewLink} onClick={onAddNewClick}>
             <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
             {addNewLabel}
           </Link>

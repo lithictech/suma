@@ -336,4 +336,42 @@ module Suma::AdminAPI::CommonEndpoints
       end
     end
   end
+
+  def self.annotated(route_def, model_type, entity)
+    route_def.instance_exec do
+      route_param :id, type: Integer do
+        resource :notes do
+          params do
+            requires :content, type: String, allow_blank: false
+          end
+          post :create do
+            check_admin_role_access!(:write, model_type)
+            (m = model_type[params[:id]]) or forbidden!
+            m.db.transaction do
+              note = Suma::Support::Note.create(content: params[:content])
+              m.add_note(note)
+            end
+            created_resource_headers(m.id, m.admin_link)
+            status 200
+            present m, with: entity
+          end
+
+          route_param :note_id, type: Integer do
+            params do
+              requires :content, type: String, allow_blank: false
+            end
+            post do
+              check_admin_role_access!(:write, model_type)
+              (m = model_type[params[:id]]) or forbidden!
+              (note = m.notes_dataset[params[:note_id]]) or forbidden!
+              note.update(content: params[:content])
+              created_resource_headers(m.id, m.admin_link)
+              status 200
+              present m, with: entity
+            end
+          end
+        end
+      end
+    end
+  end
 end

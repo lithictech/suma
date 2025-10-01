@@ -627,16 +627,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "PaymentInstrumentExpiringScheduler" do
     it "enqueues a notifier job for each member with an expiring instrument" do
-      to_warn = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
-      Suma::Fixtures.mobility_trip.create(member: to_warn)
-      Suma::Fixtures.card.member(to_warn).expiring.create
-
-      not_warn = Suma::Fixtures.member.create
-
-      expect(Suma::Async::PaymentInstrumentExpiringNotifier).to receive(:perform_at).
-        with(match_time("2025-09-11 12:00:00-0700").within(3.hours), to_warn.id)
-
       Timecop.freeze("2025-09-09T01:00:00Z") do
+        to_warn = Suma::Fixtures.member.create(timezone: "America/Los_Angeles")
+        Suma::Fixtures.mobility_trip.create(member: to_warn)
+        Suma::Fixtures.card.member(to_warn).expiring.create
+
+        not_warn = Suma::Fixtures.member.create
+
+        expect(Suma::Async::PaymentInstrumentExpiringNotifier).to receive(:perform_at).
+          with(match_time("2025-09-11 12:00:00-0700").within(3.hours), to_warn.id)
+
         Suma::Async::PaymentInstrumentExpiringScheduler.new.perform(true)
       end
     end
@@ -859,6 +859,26 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "SupportTicketSyncToFront", reset_configuration: Suma::Frontapp do
+    it "creates a Front conversation" do
+      Suma::Frontapp.auth_token = "goodtoken"
+      req = stub_request(:post, "https://api2.frontapp.com/conversations").
+        to_return(fixture_response("front/conversation_create"))
+
+      expect do
+        Suma::Fixtures.support_ticket.create
+      end.to perform_async_job(Suma::Async::SupportTicketSyncToFront)
+
+      expect(req).to have_been_made
+    end
+
+    it "noops if Front is not configured" do
+      expect do
+        Suma::Fixtures.support_ticket.create
+      end.to perform_async_job(Suma::Async::SupportTicketSyncToFront)
+    end
+  end
+
   describe "TripReceipt" do
     before(:each) do
       Suma::Mobility::VendorAdapter::Fake.send_receipts = true
@@ -957,10 +977,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lime::HandleViolations.new.row_iterator.reset
     end
 
-    it "creates Front discussion conversations for violation messages" do
+    it "creates support ticket for violation messages" do
       Suma::Lime.violations_processor_enabled = true
-      req = stub_request(:post, "https://api2.frontapp.com/conversations").
-        to_return(json_response({}))
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid-to-email",
@@ -971,7 +989,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         data: Sequel.pg_jsonb({"HtmlBody" => "htmlbody", "TextBody" => "txtbody"}),
       )
       Suma::Async::LimeViolationsProcessor.new.perform(true)
-      expect(req).to have_been_made
+      expect(Suma::Support::Ticket.all).to contain_exactly(have_attributes(subject: "Service Violation Notification"))
     end
 
     it "noops if not enabled" do

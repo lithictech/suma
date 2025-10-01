@@ -112,6 +112,12 @@ class Suma::Member < Suma::Postgres::Model(:members)
                order: order_desc(:label)
   one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
+  many_to_many :notes,
+               class: "Suma::Support::Note",
+               join_table: :support_notes_members,
+               left_key: :member_id,
+               order: order_desc
+
   one_to_many :program_enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
   one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
   many_through_many :program_enrollments_via_organizations,
@@ -198,16 +204,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
     #
     # We don't need to look at trips all time, since they may not be using suma trips anymore.
     #
-    # We look at cards expiring within 4 weeks since a card company
-    # will pretty reliably have sent out a replacement card at that point.
+    # We look at cards expiring in the current month (ie, expiration date of first next month)
+    # since a card company will pretty reliably have sent out a replacement card at that point.
     # Note that Stripe will often update the card behind the scenes,
-    # this 4 weeks should also hopefully be enough time for Stripe to update.
+    # this 30-ish days should also hopefully be enough time for Stripe to update.
     def for_alerting_about_expiring_payment_instruments(as_of)
       expiring_intruments = Suma::Payment::Instrument.
         dataset.
         not_soft_deleted.
         where { expires_at >= as_of }.
-        expired_as_of(as_of + 4.weeks).
+        expired_as_of(as_of.next_month). # It's ok if this is in the middle of the month
         where(legal_entity_id: self.select(:legal_entity_id))
       recent_trips = Suma::Mobility::Trip.dataset.where { began_at > (as_of - 12.months) }
       ds = self.not_soft_deleted.where(
@@ -314,6 +320,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def default_payment_instrument
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
     return self.public_payment_instruments.find { |pi| pi.status == :ok }
+  end
+
+  def combined_notes
+    ds = Suma::Support::Note.combine_datasets(
+      Sequel[members: self],
+      Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
+        where(membership: self.organization_memberships_dataset)],
+    )
+    return ds.all
   end
 
   def search_label
@@ -442,7 +457,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def before_soft_delete
     self.email = "#{Time.now.to_f}+#{self[:email]}" if self.email
     self.password = "aA1!#{SecureRandom.hex(8)}"
-    self.note = (self.note + "\nOriginal phone: #{self.phone}").strip
+    self.add_note(Suma::Support::Note.create(content: "Original phone: #{self.phone}"))
     # To make sure we clear out the phone, use +37-(13 chars).
     # But we do need to make sure no one already has this phone number.
     loop do
@@ -485,7 +500,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
       :name,
       ["Phone number", phone],
       ["Email address", self.email],
-      :note,
       ["Organization memberships", orgnames],
       ["Anonymous Contacts", self.anon_proxy_contacts.map { |c| c.phone || c.email }],
       ["Roles", self.roles.map(&:name)],

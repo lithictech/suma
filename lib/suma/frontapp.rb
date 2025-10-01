@@ -62,10 +62,21 @@ end
 
 class Frontapp::Client
   def create(path, body)
-    body_key = HTTP::FormData.send(:multipart?, body) ? :form : :json
+    body_key = self.multipart?(body) ? :form : :json
     res = @headers.post("#{base_url}#{path}", body_key => body)
     raise Frontapp::Error.from_response(res) unless res.status.success?
     JSON.parse(res.to_s)
+  end
+
+  # True if the hash is a multipart request.
+  # Copied from HTTP::FormData#multipart?, but also check for keys like 'xyz[abc]'
+  # which are only valid in a multipart setting.
+  def multipart?(data)
+    data.any? do |k, v|
+      next true if v.is_a? ::HTTP::FormData::Part
+      next true if k.is_a?(String) && k.include?("[")
+      v.respond_to?(:to_ary) && v.to_ary.any?(::HTTP::FormData::Part)
+    end
   end
 end
 

@@ -104,6 +104,15 @@ module Suma::AdminAPI::Entities
     expose :actor, with: AuditMemberEntity
   end
 
+  class SupportNoteEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :author, with: AuditMemberEntity
+    expose :authored_at
+    expose :content
+    expose :content_html
+  end
+
   class ActivityEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase

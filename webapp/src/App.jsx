@@ -40,6 +40,7 @@ import PreferencesAuthed from "./pages/PreferencesAuthed";
 import PreferencesPublic from "./pages/PreferencesPublic";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
+import RegainAccountAccess from "./pages/RegainAccountAccess.jsx";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
 import TripDetail from "./pages/TripDetail.jsx";
@@ -155,6 +156,27 @@ function AppRoutes() {
             withMetatags({ title: t("titles.start") }),
             withPageLayout({ gutters: true, top: true }),
             Start
+          )}
+        />
+        <Route
+          path="/regain-account-access"
+          exact
+          element={renderWithHocs(
+            redirectIfAuthed,
+            withMetatags({ title: t("auth.access_account_title") }),
+            withPageLayout({ gutters: true, top: true }),
+            RegainAccountAccess
+          )}
+        />
+        <Route
+          path="/regain-account-access/success"
+          exact
+          element={renderWithHocs(
+            redirectIfAuthed,
+            withMetatags({ title: t("auth.access_account_title") }),
+            withPageLayout({ gutters: true, top: true }),
+            withProps({ success: true }),
+            RegainAccountAccess
           )}
         />
         <Route
