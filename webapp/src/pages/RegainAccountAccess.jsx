@@ -3,6 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput";
+import RLink from "../components/RLink.jsx";
 import { t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { extractLocalizedError, useError } from "../state/useError";
@@ -10,16 +11,17 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
-export default function RegainAccountAccess() {
+export default function RegainAccountAccess({ success }) {
+  const navigate = useNavigate();
   const submitting = useToggle(false);
-  const [submitted, setSubmitted] = React.useState(false);
+  const [error, setError] = useError();
   const [state, setState] = React.useState({
     name: "",
     currentPhone: "",
     previousPhone: "",
   });
-  const [error, setError] = useError();
 
   const {
     register,
@@ -48,19 +50,21 @@ export default function RegainAccountAccess() {
     setError(null);
     api
       .supportRegainAccountAccess(state)
-      .then(() => setSubmitted(true))
+      .then(() => navigate("/regain-account-access/success", { replace: true }))
       .catch((err) => {
         setError(extractLocalizedError(err));
         submitting.turnOff();
       });
   }
-  if (submitted) {
+  if (success) {
     return (
       <div className="d-flex flex-column">
         <h2>{t("common.thank_you")}</h2>
         <p>{t("auth.access_account_confirmed")}</p>
         <Button
           variant="outline-primary"
+          as={RLink}
+          to="/"
           className="w-100 align-self-center"
           style={{ maxWidth: 330 }}
         >

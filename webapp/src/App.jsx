@@ -169,6 +169,17 @@ function AppRoutes() {
           )}
         />
         <Route
+          path="/regain-account-access/success"
+          exact
+          element={renderWithHocs(
+            redirectIfAuthed,
+            withMetatags({ title: t("auth.access_account_title") }),
+            withPageLayout({ gutters: true, top: true }),
+            withProps({ success: true }),
+            RegainAccountAccess
+          )}
+        />
+        <Route
           path="/one-time-password"
           exact
           element={renderWithHocs(
