@@ -12,6 +12,7 @@ module Suma::Sentry
 
   configurable(:sentry) do
     setting :dsn, ""
+    setting :traces_sample_rate, 0.1
 
     after_configured do
       if self.dsn
@@ -21,6 +22,10 @@ module Suma::Sentry
           # See https://docs.sentry.io/clients/ruby/config/ for more info.
           config.dsn = dsn
           config.sdk_logger = self.logger
+          # We can narrow this down to ignore uninteresting traces if
+          # the amount of data gets overwhelming.
+          # WebhookDB's Sentry module has an example for a similar stack.
+          config.traces_sample_rate = self.traces_sample_rate
         end
       else
         Sentry.instance_variable_set(:@main_hub, nil)
