@@ -3,27 +3,47 @@
 lib = File.expand_path("lib", "#{__dir__}/..")
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
+ENV["PROC_MODE"] = "puma"
+
 require "appydays/dotenviable"
 Appydays::Dotenviable.load
 
 raise "No port defined?" unless ENV["PORT"]
 port ENV.fetch("PORT", nil)
 
-workers_count = Integer(ENV.fetch("WEB_CONCURRENCY", 2))
+workers_count = Integer(ENV.fetch("WEB_CONCURRENCY", "2"))
 workers workers_count
-threads_count = Integer(ENV["RAILS_MAX_THREADS"] || 4) # We must use threads, even locally, due to Server Sent Events
+# We must use threads, even locally, due to Server Sent Events
+threads_count = Integer(ENV.fetch("RAILS_MAX_THREADS", "4"))
 threads threads_count, threads_count
 
 preload_app!
 
+require "barnes"
 require "suma"
 Suma.load_app
-require "suma/async/autoscaler"
-Suma::Async::Autoscaler.start
-Suma::I18n::StaticStringRebuilder.instance.start_watcher
 
+require "suma/autoscaler"
+require "suma/i18n/static_string_rebuilder"
+
+if Suma::Autoscaler.web_enabled
+  amigo_autoscaler_interval Suma::Autoscaler.web_poll_interval
+  amigo_puma_pool_usage_checker Suma::Autoscaler.puma_pool_usage_checker
+  plugin :amigo
+end
+
+def run_singleton_threads
+  Suma::I18n::StaticStringRebuilder.instance.start_watcher
+  Suma::Autoscaler.build_worker.start if Suma::Autoscaler.worker_enabled
+  Suma::Autoscaler.build_web.start if Suma::Autoscaler.web_enabled
+end
+
+# Load the appropriate code based on if we're running clustered or not.
+# If we are not clustered, just start Barnes.
+# If we are, then start Barnes before the fork, and reconnect files and database conns after the fork.
 if workers_count.positive?
   before_fork do
+    Barnes.start
     Suma::Postgres.model_superclasses.map(&:db).each(&:disconnect)
     Suma::UploadedFile.blob_database.disconnect
     Suma::Webhookdb.connection.disconnect
@@ -31,12 +51,10 @@ if workers_count.positive?
 
   on_worker_boot do |idx|
     ENV["PUMA_WORKER"] = idx.to_s
+    run_singleton_threads if idx.zero?
     SemanticLogger.reopen if defined?(SemanticLogger)
-    # We have to recreate the DB for some reason or we get segfaults in cluster mode.
-    # I'm not sure why. Probably some adapter state that is left over.
-    # See https://github.com/jeremyevans/sequel/discussions/2318
-    Suma::Postgres.model_superclasses.select do |c|
-      c.respond_to?(:run_after_configured_hooks)
-    end.each(&:run_after_configured_hooks)
   end
+else
+  Barnes.start
+  run_singleton_threads
 end
