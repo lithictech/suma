@@ -93,7 +93,7 @@ function TopAlerts({ dashboard }) {
       )}
       {readOnlyReason(user, "read_only_unverified") && (
         <Alert variant="danger" className="border-radius-0 mb-0">
-          foooooo
+          {readOnlyReason(user, "read_only_unverified")}
         </Alert>
       )}
       {user.unclaimedOrdersCount > 0 && (
