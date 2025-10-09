@@ -3,14 +3,14 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import config from "../config";
-import Payment from "../forks/Payment";
-import ReactCreditCards from "../forks/ReactCreditCards";
 import { t } from "../localization";
 import elementDimensions from "../modules/elementDimensions";
 import keepDigits from "../modules/keepDigits";
+import Payment from "../modules/payment";
 import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
-import useStripeErrorMessage from "../state/useStripeErrorMessage.jsx";
+import useStripeErrorMessage from "../state/useStripeErrorMessage";
+import CreditCardPreview from "./CreditCardPreview.jsx";
 import get from "lodash/get";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -39,9 +39,15 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const [rerender, setRerender] = React.useState(1);
 
   const [name, setName] = React.useState(config.devCardDetails.name || "");
-  const [number, setNumber] = React.useState(config.devCardDetails.number || "");
-  const [expiry, setExpiry] = React.useState(config.devCardDetails.expiry || "");
-  const [cvc, setCvc] = React.useState(config.devCardDetails.cvc || "");
+  const [cardNumber, setCardNumber] = React.useState(config.devCardDetails.number || "");
+  const [cardExpiry, setCardExpiry] = React.useState(config.devCardDetails.expiry || "");
+  const [cardCvc, setCardCvc] = React.useState(config.devCardDetails.cvc || "");
+
+  const cardInfo = React.useMemo(
+    () => new Payment.CardInfo(cardNumber, cardExpiry, cardCvc),
+    [cardNumber, cardExpiry, cardCvc]
+  );
+
   const [focus, setFocus] = React.useState("");
 
   const { localizeStripeError } = useStripeErrorMessage();
@@ -57,15 +63,15 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   );
 
   const handleSubmitInner = React.useCallback(() => {
-    const exp = keepDigits(expiry);
+    const exp = keepDigits(cardExpiry);
     screenLoader.turnOn();
     setError("");
     const form = new FormData();
     form.set("card[name]", name);
-    form.set("card[number]", number);
+    form.set("card[number]", cardNumber);
     form.set("card[exp_month]", exp[0] + exp[1]);
     form.set("card[exp_year]", exp[2] + exp[3]);
-    form.set("card[cvc]", cvc);
+    form.set("card[cvc]", cardCvc);
     const body = new URLSearchParams(form).toString();
     api.axios
       .post("https://api.stripe.com/v1/tokens", body, {
@@ -82,7 +88,16 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
         setError(<span>{errMsg}</span>);
         document.activeElement?.blur();
       });
-  }, [cvc, expiry, localizeStripeError, name, number, onSuccess, screenLoader, setError]);
+  }, [
+    cardCvc,
+    cardExpiry,
+    localizeStripeError,
+    name,
+    cardNumber,
+    onSuccess,
+    screenLoader,
+    setError,
+  ]);
 
   const handleFocus = (e) => {
     setFocus(e.target.name);
@@ -90,15 +105,24 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   };
   const handleBlur = () => setFocus("");
 
-  const handleExpiryChange = (e) => {
-    let { name, value } = e.target;
-    value = paymentLibSafeExpiry(value);
-    runSetter(name, setExpiry, value);
-    const digits = keepDigits(value).length;
-    if (digits === 4) {
+  function handleCardNumberChange(e) {
+    const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
+    runSetter(e.target.name, setCardNumber, value);
+  }
+
+  function handleCardExpiryChange(e) {
+    const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
+    runSetter(e.target.name, setCardExpiry, value);
+    if (value.length === 4) {
       cvcRef.current.focus();
     }
-  };
+  }
+
+  function handleCardCvcChange(e) {
+    let { name, value } = e.target;
+    value = keepDigits(value);
+    runSetter(name, setCardCvc, value);
+  }
 
   let numberOffset = 0,
     expOffset = 0,
@@ -134,10 +158,10 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
         <Row className="mb-3">
           <FormControlGroup
+            name="name"
             as={Col}
             required
             type="text"
-            name="name"
             autoComplete="name"
             autoCorrect="off"
             spellCheck="false"
@@ -156,23 +180,25 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           style={{ transform: `translateY(${numberOffset}px)` }}
         >
           <FormControlGroup
-            inputRef={(r) => r && Payment.formatCardNumber(r)}
+            name="number"
             as={Col}
             required
             type="text"
             pattern="\d*"
             inputMode="numeric"
-            name="number"
             autoComplete="cc-number"
             autoCorrect="off"
             spellCheck="false"
             label={t("forms.card_number")}
-            value={number}
+            value={Payment.formatCardNumber(cardInfo, { editing: true })}
             errors={errors}
-            registerOptions={{ validate: Payment.fns.validateCardNumber }}
+            registerOptions={{
+              validate: (number) =>
+                !Payment.invalidCardNumberReason(cardInfo.change({ number })),
+            }}
             errorKeys={{ validate: "forms.invalid_card_number" }}
             register={register}
-            onChange={(e) => runSetter(e.target.name, setNumber, e.target.value)}
+            onChange={handleCardNumberChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
@@ -183,57 +209,57 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           style={{ transform: `translateY(${expOffset}px)` }}
         >
           <FormControlGroup
-            // Do NOT use Payment here, it has bugs.
+            name="expiry"
             as={Col}
             required
             type="text"
             pattern="\d*"
             inputMode="numeric"
-            name="expiry"
             autoComplete="cc-exp"
             autoCorrect="off"
             spellCheck="false"
             label={"MM / YY"}
-            value={expiry}
+            value={Payment.formatCardExpiry(cardInfo, { editing: true })}
             errors={errors}
             register={register}
             registerOptions={{
               validate: {
-                format: (m, y) =>
-                  Payment.fns.validateCardExpiryReason(m, y) !== Payment.INVALID_FORMAT,
-                expired: (m, y) =>
-                  Payment.fns.validateCardExpiryReason(m, y) !== Payment.INVALID_EXPIRED,
+                format: (expiry) =>
+                  Payment.invalidCardExpiryReason(cardInfo.change({ expiry })) !==
+                  Payment.Invalid.FORMAT,
+                expired: (expiry) =>
+                  Payment.invalidCardExpiryReason(cardInfo.change({ expiry })) !==
+                  Payment.Invalid.EXPIRED,
               },
             }}
             errorKeys={{
               format: "forms.invalid_card_expiry",
               expired: "forms.invalid_card_expired",
             }}
-            onChange={handleExpiryChange}
+            onChange={handleCardExpiryChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
           <FormControlGroup
-            inputRef={(r) => {
-              cvcRef.current = r;
-              r && Payment.formatCardCVC(r);
-            }}
+            inputRef={cvcRef}
+            name="cvc"
             as={Col}
             required
             type="text"
             pattern="\d*"
             inputMode="numeric"
-            name="cvc"
             autoComplete="cc-cvc"
             autoCorrect="off"
             spellCheck="false"
             label={"CVC"}
-            value={cvc}
+            value={Payment.formatCardCvc(cardInfo, { editing: true })}
             errors={errors}
             register={register}
-            registerOptions={{ validate: Payment.fns.validateCardCVC }}
+            registerOptions={{
+              validate: (cvc) => !Payment.invalidCardCvcReason(cardInfo.change({ cvc })),
+            }}
             errorKeys={{ validate: "forms.invalid_card_cvc" }}
-            onChange={(e) => runSetter(e.target.name, setCvc, e.target.value)}
+            onChange={handleCardCvcChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
@@ -260,37 +286,10 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           style={{ transform: `translateY(${cardOffset}px)` }}
         >
           <Col>
-            <ReactCreditCards
-              cvc={cvc}
-              expiry={reactCardSafeExpiry(expiry)}
-              focused={focus}
-              name={name}
-              number={number}
-            />
+            <CreditCardPreview cardInfo={cardInfo} focused={focus} name={name} />
           </Col>
         </Row>
       </Form>
     </>
   );
-}
-
-function reactCardSafeExpiry(s) {
-  // It doesn't work with 00 / 00, only 00/00
-  const digits = keepDigits(s);
-  if (digits.length < 2) {
-    return digits;
-  } else if (digits.length === 2) {
-    return digits + "/";
-  } else {
-    return digits.slice(0, 2) + "/" + digits.slice(2);
-  }
-}
-
-function paymentLibSafeExpiry(s) {
-  const digits = keepDigits(s);
-  if (digits.length < 3) {
-    return digits;
-  } else {
-    return digits.slice(0, 2) + " / " + digits.slice(2);
-  }
 }
