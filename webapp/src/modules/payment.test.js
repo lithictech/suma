@@ -1,5 +1,27 @@
 import Payment, { PaymentCardInfo as PCI } from "./payment.js";
 
+const visa = "4242424242424242";
+const amex = "378282246310005";
+
+describe("PaymentCardInfo", () => {
+  it("is null for null or empty string", () => {
+    let pci = new PCI("", "", "");
+    expect(pci.ccts).toHaveLength(13);
+    expect(pci.cct).toBeNull();
+    pci = new PCI(null, "", "");
+    expect(pci.ccts).toHaveLength(13);
+    expect(pci.cct).toBeNull();
+  });
+  it("sets the credit card type", () => {
+    let pci = new PCI("4", "", "");
+    expect(pci.ccts).toHaveLength(3);
+    expect(pci.cct).toBeNull();
+    pci = new PCI("42", "", "");
+    expect(pci.ccts).toHaveLength(1);
+    expect(pci.cct).toHaveProperty("type", "visa");
+  });
+});
+
 describe("invalidCardNumberReason", () => {
   const getreason = (x) => Payment.invalidCardNumberReason(new PCI(x, "", ""));
   it("fails a lund check", () => {
@@ -55,14 +77,33 @@ describe("invalidCardExpiryReason", () => {
 });
 
 describe("invalidCardCvcReason", () => {
-  const getreason = (x) =>
-    Payment.invalidCardCvcReason(new PCI("4242 4242 4242 4242", "", x));
+  const getreason = (x, number) =>
+    Payment.invalidCardCvcReason(new PCI(number || visa, "", x));
   it("fails for an invalid format", () => {
     expect(getreason("11")).toEqual(Payment.Invalid.FORMAT);
     expect(getreason("11111")).toEqual(Payment.Invalid.FORMAT);
   });
   it("succeeds if valid", () => {
     expect(getreason("199")).toEqual("");
+  });
+  it("fails for an invalid number (cannot figure out code)", () => {
+    expect(getreason("199", "-")).toEqual(Payment.Invalid.FORMAT);
+  });
+});
+
+describe("validator", () => {
+  it("returns a validator using the given method", () => {
+    const f = Payment.invalidCardNumberReason;
+    expect(Payment.validator("number", f, {})("1")).toBe(false);
+    expect(Payment.validator("number", f, {})(visa)).toBe(true);
+    expect(Payment.validator("number", f, {})(amex)).toBe(true);
+  });
+  it("can seed the validator with fields", () => {
+    const f = Payment.invalidCardCvcReason;
+    expect(Payment.validator("cvc", f, { number: visa })("1")).toBe(false);
+    expect(Payment.validator("cvc", f, { number: visa })("1234")).toBe(false);
+    expect(Payment.validator("cvc", f, { number: visa })("123")).toBe(true);
+    expect(Payment.validator("cvc", f, {})("123")).toBe(false);
   });
 });
 
@@ -89,6 +130,17 @@ describe("formatCardNumber", () => {
     expect(fmt("42424242", opts)).toEqual("4242 4242 xxxx xxxx");
     expect(fmt("424242424", opts)).toEqual("4242 4242 4xxx xxxx");
     expect(fmt("3782821", opts)).toEqual("3782 821xxx xxxxx");
+  });
+  it("sets a max length", () => {
+    expect(fmt("4242111122223333444455556666")).toEqual("4242 1111 2222 3333444");
+    expect(fmt(amex + "9999999")).toEqual("3782 822463 10005");
+  });
+  it("using a trailing space when editing a gap", () => {
+    const opts = { editing: true };
+    expect(fmt("", opts)).toEqual("");
+    expect(fmt("4", opts)).toEqual("4");
+    expect(fmt("4242", opts)).toEqual("4242 ");
+    expect(fmt("4242 4", opts)).toEqual("4242 4");
   });
 });
 
@@ -131,16 +183,23 @@ describe("formatCardExpiry", () => {
     expect(fmt("123", opts)).toEqual("01 / 23");
     expect(fmt("1233", opts)).toEqual("12 / 33");
   });
+  it("adds a slash when editing the year", () => {
+    const opts = { editing: true };
+    expect(fmt("", opts)).toEqual("");
+    expect(fmt("4", opts)).toEqual("4");
+    expect(fmt("42", opts)).toEqual("42 / ");
+    expect(fmt("423", opts)).toEqual("42 / 3");
+    expect(fmt("4232", opts)).toEqual("42 / 32");
+    expect(fmt("42323", opts)).toEqual("42 / 32");
+  });
 });
 
 describe("formatCardCvc", () => {
-  const visa = "4242424242424242";
-  const amex = "378282246310005";
   const fmt = (x, opts, number) =>
     Payment.formatCardCvc(new PCI(number || visa, "", x), opts);
   it("formats a full number", () => {
     expect(fmt("123")).toEqual("123");
-    expect(fmt("1234")).toEqual("1234");
+    expect(fmt("1234", {}, amex)).toEqual("1234");
   });
   it("formats a partial number", () => {
     expect(fmt("")).toEqual("");
@@ -154,5 +213,10 @@ describe("formatCardCvc", () => {
     expect(fmt("", opts, visa)).toEqual("xxx");
     expect(fmt("", opts, amex)).toEqual("xxxx");
     expect(fmt("1", opts, amex)).toEqual("1xxx");
+  });
+  it("sets a max length", () => {
+    expect(fmt("")).toEqual("");
+    expect(fmt("1111")).toEqual("111");
+    expect(fmt("1234567", {}, amex)).toEqual("1234");
   });
 });
