@@ -47,6 +47,21 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       check_admin_role_access!(:read, :admin_access)
       present Suma::AdminAPI::Access.as_json
     end
+
+    resource :state_machines do
+      route_param :name, type: Symbol do
+        get do
+          use_http_expires_caching 12.hours
+          check_admin_role_access!(:read, :admin_access)
+          sm = {
+            organization_membership_verification_status: Suma::Organization::Membership::Verification.state_machine(:status),
+          }[params[:name]]
+          forbidden! unless sm
+          state_names = sm.states.map(&:name)
+          present({state_names:})
+        end
+      end
+    end
   end
 
   class CurrencyEntity < BaseEntity

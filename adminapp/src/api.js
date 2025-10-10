@@ -94,6 +94,8 @@ export default {
   getProgramsMeta: (data, ...args) => get(`/adminapi/v1/meta/programs`, data, ...args),
   getResourceAccessMeta: (data, ...args) =>
     get(`/adminapi/v1/meta/resource_access`, data, ...args),
+  getStateMachine: ({ name, ...data }, ...args) =>
+    get(`/adminapi/v1/meta/state_machines/${name}`, data, ...args),
 
   getBankAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),

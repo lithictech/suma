@@ -15,6 +15,7 @@ const loading = Symbol("globalApiStateLoading");
  * @param {object=} options
  * @param {function=} options.pick Called with the response, to pick the data for the state.
  *   Defaults to `(r) => r.data`.
+ * @param {string=} options.key Key to use. Default to apiGet as string.
  * @returns {*} The default value before the API call is resolved
  *   (before it's made, while it's pending, if it's rejected),
  *   or the picked value (like response.data) once the API call is resolved.
@@ -23,7 +24,7 @@ export function useGlobalApiState(apiGet, defaultValue, options) {
   options = merge({}, defaultOptions, options);
   const { hasKey, getKey, setKey } = React.useContext(GlobalApiStateContext);
   const { enqueueErrorSnackbar } = useErrorSnackbar();
-  const key = "" + apiGet;
+  const key = "" + (options.key || apiGet);
   React.useEffect(() => {
     if (hasKey(key)) {
       return;
