@@ -87,4 +87,21 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
       )
     end
   end
+
+  describe "GET /v1/meta/state_machines/:machine" do
+    it "returns info about the state machine" do
+      get "/v1/meta/state_machines/organization_membership_verification_status"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        state_names: include("created", "in_progress", "verified"),
+      )
+    end
+
+    it "errors for an invalid state machine" do
+      get "/v1/meta/state_machines/xyz"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

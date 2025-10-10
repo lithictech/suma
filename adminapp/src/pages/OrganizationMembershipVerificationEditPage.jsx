@@ -1,6 +1,7 @@
 import api from "../api";
 import FormLayout from "../components/FormLayout";
 import ResourceEdit from "../components/ResourceEdit";
+import StateMachineStateSelect from "../components/StateMachineStateSelect";
 import { Stack, TextField } from "@mui/material";
 import React from "react";
 
@@ -25,9 +26,9 @@ function VerificationForm({ resource, setFieldFromInput, register, isBusy, onSub
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <TextField
+        <StateMachineStateSelect
           {...register("status")}
-          label="Status"
+          stateMachineName="organization_membership_verification_status"
           name="status"
           value={resource.status}
           variant="outlined"
