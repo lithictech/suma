@@ -15,6 +15,7 @@ class Suma::Analytics::Member < Suma::Analytics::Model(Sequel[:analytics][:membe
     :name,
     :timezone,
     [:onboarding_verified, ->(m) { m.onboarding_verified_at ? true : false }],
+    [:roles, ->(m) { m.roles.map(&:name).sort }],
   ]
 
   denormalize Suma::Commerce::Order, with: :denormalize_order

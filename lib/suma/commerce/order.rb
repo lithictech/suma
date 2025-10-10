@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
+require "suma/charge/has"
 require "suma/commerce"
 require "suma/postgres/model"
-require "suma/admin_linked"
 
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   include Suma::AdminLinked
+  include Suma::Charge::Has
   include Suma::Postgres::HybridSearch
 
   FULFILLABLE_ORDER_STATUSES = ["open", "completed"].freeze
@@ -121,33 +123,8 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   def member = self.checkout.cart.member
 
-  # How much was paid for this order is the sum of all book transactions linked to charges.
-  # Note that this includes subsidy AND synchronous charges during checkout.
-  def paid_amount = self.charges.sum(Money.new(0), &:discounted_subtotal)
-  alias paid_cost paid_amount
-
-  # How much of the paid amount was synchronously funded during checkout?
-  # Note that there is no book transaction associated from the charge (which are all debits)
-  # to the funding transaction (which is a credit)- payments work with ledgers, not linking
-  # charges to orders, so we keep track of this additional data via associated_funding_transaction.
-  def funded_amount
-    return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
-  end
-  alias funded_cost funded_amount
-
   delegate :undiscounted_cost, :customer_cost, :savings, :handling, :taxable_cost, :tax, :total,
            to: :checkout
-
-  def cash_paid
-    cash = self.member.payment_account&.cash_ledger
-    return self.charges.sum(Money.new(0)) do |ch|
-      ch.line_items.map(&:book_transaction).
-          select { |x| x.originating_ledger === cash }.
-          sum(Money.new(0), &:amount)
-    end
-  end
-
-  def noncash_paid = self.paid_cost - self.cash_paid
 
   def after_open_order_canceled
     return if self.fulfillment_status == "fulfilled"

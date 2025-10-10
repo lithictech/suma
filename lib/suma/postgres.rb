@@ -148,6 +148,7 @@ module Suma::Postgres
     "suma/analytics/order",
     "suma/analytics/order_item",
     "suma/analytics/payout_transaction",
+    "suma/analytics/trip",
 
     # webhookdb models
     "suma/webhookdb/front_message",
