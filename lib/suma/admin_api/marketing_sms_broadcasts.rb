@@ -3,6 +3,7 @@
 require "suma/admin_api"
 
 class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
+  include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
   class DetailedSmsBroadcastEntity < MarketingSmsBroadcastEntity
@@ -10,6 +11,8 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :created_by, with: MemberEntity
     expose :body, with: TranslatedTextEntity
+    expose :sending_number
+    expose :sending_number_formatted
     expose :lists, with: MarketingListEntity
     expose :all_lists, with: MarketingListEntity do |_inst|
       Suma::Marketing::List.dataset.order(:label).all
@@ -18,6 +21,9 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
       instance.preview(opts.fetch(:env).fetch("yosoy").authenticated_object!.member)
     end
     expose :sms_dispatches, with: MarketingSmsDispatchEntity
+    expose :available_sending_numbers do |_instance|
+      Suma::Marketing::SmsBroadcast.available_sending_numbers
+    end
   end
 
   class SmsBroadcastPayloadEntity < BaseEntity
@@ -99,6 +105,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
     ) do
       params do
         optional :label, type: String
+        optional :sending_number, type: String
         optional(:body, type: JSON) { use :translated_text, allow_blank: true }
         optional :lists, type: Array
       end

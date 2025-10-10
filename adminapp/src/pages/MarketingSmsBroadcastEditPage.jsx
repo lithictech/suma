@@ -8,12 +8,16 @@ import {
   Card,
   CardContent,
   Checkbox,
+  FormControl,
   FormLabel,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Select,
   Stack,
   TextField,
   Typography,
@@ -84,6 +88,24 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
           fullWidth
           onChange={setFieldFromInput}
         />
+        <FormControl>
+          <InputLabel shrink>Sending Number</InputLabel>
+          <Select
+            {...register("sendingNumber")}
+            label="Sending Number"
+            name="sendingNumber"
+            value={resource.sendingNumber || ""}
+            displayEmpty
+            onChange={setFieldFromInput}
+          >
+            <MenuItem value="">Blank - Will not send</MenuItem>
+            {resource.availableSendingNumbers.map(({ name, number, formatted }) => (
+              <MenuItem key={name} value={number}>
+                {name}: {formatted}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <ResponsiveStack>
           <BodyPreview
             register={register}

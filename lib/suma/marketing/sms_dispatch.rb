@@ -25,46 +25,41 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
         self.db,
         "cannot send sms while in a transaction due to potential progress loss",
       )
-      if Suma::Signalwire.marketing_number.blank?
-        self.logger.info("sms_dispatch_no_marketing_number")
-        self.dataset.pending.each do |dispatch|
-          dispatch.cancel
+      self.dataset.pending.where(sms_broadcast: Suma::Marketing::SmsBroadcast.where(sending_number: "")).each do |d|
+      end
+      self.dataset.pending.each do |dispatch|
+        log_tags = {
+          member_id: dispatch.member.id,
+          member_name: dispatch.member.name,
+          broadcast_id: dispatch.sms_broadcast.id,
+          broadcast: dispatch.sms_broadcast.label,
+        }
+        SemanticLogger.named_tagged(log_tags) do
+          if dispatch.sms_broadcast.sending_number.blank?
+            self.logger.info("sms_dispatch_no_marketing_number")
+            dispatch.cancel.save_changes
+            next
+          end
+          body = dispatch.sms_broadcast.render(member: dispatch.member, language: nil)
+          if body.blank?
+            dispatch.cancel.save_changes
+            next
+          end
+          begin
+            sw_resp = Suma::Signalwire.send_sms(
+              Suma::PhoneNumber.format_e164(dispatch.sms_broadcast.sending_number),
+              Suma::PhoneNumber.format_e164(dispatch.member.phone),
+              body,
+            )
+          rescue Twilio::REST::RestError => e
+            self.logger.error("dispatch_marketing_broadcast_error", e)
+            Sentry.capture_exception(e, tags: log_tags)
+            next
+          end
+          self.logger.info("dispatched_marketing_broadcast", signalwire_message_id: sw_resp.sid)
+          dispatch.set_sent(sw_resp.sid)
           dispatch.save_changes
         end
-        return
-      end
-      marketing_number = Suma::PhoneNumber.format_e164(Suma::Signalwire.marketing_number)
-      self.dataset.pending.each do |dispatch|
-        body = dispatch.sms_broadcast.render(member: dispatch.member, language: nil)
-        if body.blank?
-          dispatch.cancel.save_changes
-          next
-        end
-        begin
-          sw_resp = Suma::Signalwire.send_sms(
-            marketing_number,
-            Suma::PhoneNumber.format_e164(dispatch.member.phone),
-            body,
-          )
-        rescue Twilio::REST::RestError => e
-          tags = {
-            member_id: dispatch.member.id,
-            member_name: dispatch.member.name,
-            broadcast_id: dispatch.sms_broadcast.id,
-            broadcast: dispatch.sms_broadcast.label,
-          }
-          self.logger.error("dispatch_marketing_broadcast_error", tags, e)
-          Sentry.capture_exception(e, tags:)
-          next
-        end
-        self.logger.info(
-          "dispatched_marketing_broadcast",
-          member_id: dispatch.member.id,
-          broadcast: dispatch.sms_broadcast.label,
-          signalwire_message_id: sw_resp.sid,
-        )
-        dispatch.set_sent(sw_resp.sid)
-        dispatch.save_changes
       end
     end
   end
