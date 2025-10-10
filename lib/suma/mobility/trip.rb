@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
+require "suma/charge/has"
 require "suma/mobility"
 require "suma/postgres/model"
-require "suma/admin_linked"
 
 class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
-  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::Charge::Has
   include Suma::Image::SingleAssociatedMixin
+  include Suma::Postgres::HybridSearch
 
   class OngoingTrip < StandardError; end
 

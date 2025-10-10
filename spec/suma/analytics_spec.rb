@@ -168,12 +168,25 @@ RSpec.describe Suma::Analytics, :db do
     end
   end
 
-  describe "PayoutTransactions" do
+  describe "PayoutTransaction" do
     it "denormalizes from payout transactions" do
       o = Suma::Fixtures.payout_transaction.with_fake_strategy.create
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::PayoutTransaction.dataset.all).to contain_exactly(
         include(payout_transaction_id: o.id),
+      )
+    end
+  end
+
+  describe "Trip" do
+    it "denormalizes from mobility trips" do
+      inprog = Suma::Fixtures.mobility_trip.ongoing.create
+      ended = Suma::Fixtures.mobility_trip.ended.create
+      Suma::Fixtures.charge.create(mobility_trip: ended)
+      Suma::Analytics.upsert_from_transactional_model([inprog, ended])
+      expect(Suma::Analytics::Trip.dataset.all).to contain_exactly(
+        include(trip_id: inprog.id),
+        include(trip_id: ended.id),
       )
     end
   end
