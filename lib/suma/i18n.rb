@@ -35,6 +35,8 @@ module Suma::I18n
     # How often do we check for new static strings?
     # Changes to static strings may take this long to show up in the UI, if not picked up through pub/sub.
     setting :static_string_rebuild_interval, 300
+    # True to disable the watcher. Generally only used during development.
+    setting :static_string_watcher_disabled, false
 
     after_configured do
       @enabled_locales = self.enabled_locale_codes.map { |c| SUPPORTED_LOCALES.fetch(c) }

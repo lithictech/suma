@@ -10,6 +10,28 @@ RSpec.describe "Suma::Marketing::SmsBroadcast", :db do
     expect(c.lists).to contain_exactly(l1)
   end
 
+  describe "sending number", reset_configuration: Suma::Signalwire do
+    it "defaults to the configured marketing number" do
+      Suma::Signalwire.transactional_number = "19992223333"
+      Suma::Signalwire.marketing_number = "12223334444"
+      expect(Suma::Fixtures.marketing_sms_broadcast.instance).to have_attributes(sending_number: "12223334444")
+      Suma::Signalwire.marketing_number = ""
+      expect(Suma::Fixtures.marketing_sms_broadcast.instance).to have_attributes(sending_number: "")
+    end
+
+    it "returns the transactional and marketing numbers as valid values" do
+      Suma::Signalwire.marketing_number = "12223334444"
+      Suma::Signalwire.transactional_number = "19992223333"
+      expect(described_class.available_sending_numbers).to contain_exactly(
+        {name: "Marketing", number: "12223334444", formatted: "(222) 333-4444"},
+        {name: "Transactional", number: "19992223333", formatted: "(999) 222-3333"},
+      )
+      Suma::Signalwire.marketing_number = ""
+      Suma::Signalwire.transactional_number = ""
+      expect(described_class.available_sending_numbers).to be_empty
+    end
+  end
+
   describe "rendering" do
     it "returns the content if it does not parse correctly" do
       s = described_class.render(member: nil, content: "hi {{ name")

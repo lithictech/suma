@@ -26,6 +26,17 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
   one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
   class << self
+    def available_sending_numbers
+      r = []
+      [
+        ["Marketing", Suma::Signalwire.marketing_number],
+        ["Transactional", Suma::Signalwire.transactional_number],
+      ].each do |(name, number)|
+        r << {name:, number:, formatted: Phony.format(number, format: :national)} if number.present?
+      end
+      return r
+    end
+
     def render(member:, content:)
       ctx = {name: member&.name, phone: member&.us_phone, email: member&.email}
       ctx.stringify_keys!
@@ -49,6 +60,13 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
       }
     end
   end
+
+  def initialize(*)
+    super
+    self.sending_number ||= Suma::Signalwire.marketing_number || ""
+  end
+
+  def sending_number_formatted = self.sending_number.blank? ? "" : Phony.format(self.sending_number, format: :national)
 
   def sent? = Suma::MethodUtilities.timestamp_set?(self, :sent_at)
 

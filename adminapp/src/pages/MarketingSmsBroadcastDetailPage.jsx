@@ -22,6 +22,10 @@ export default function MarketingSmsBroadcastDetailPage() {
           label: "Created By",
           value: <AdminLink model={model.createdBy}>{model.createdBy?.name}</AdminLink>,
         },
+        {
+          label: "Sending From",
+          value: model.sendingNumberFormatted || "(Blank - Will not send)",
+        },
         { label: "Sent At", value: formatDate(model.sentAt) },
         { label: "English Body", value: model.body.en },
         {
