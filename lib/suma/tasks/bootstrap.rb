@@ -86,16 +86,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   class Mobility < Common
     def fixture
-      lime_vs = self.create_mobility_vendor_service(
-        vendor_name: "Lime",
-        internal_name: "lime_demo_mobility_deeplink",
-        external_name: "Lime Demo E-Scooter",
+      lemon_vs = self.create_mobility_vendor_service(
+        internal_name: "lemon_demo_mobility_deeplink",
+        external_name: "Lemon Demo E-Scooter",
         constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
         mobility_vendor_adapter_key: "lime_deeplink",
       )
-      # Lime: "https://data.lime.bike/api/partners/v2/gbfs_transit"
       lyft_vs = self.create_mobility_vendor_service(
-        vendor_name: "Lyft",
         internal_name: "biketown_demo_mobility_deeplink",
         external_name: "Biketown Demo E-Bike",
         constraints: [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}],
@@ -105,18 +102,18 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         feed_root_url: "https://gbfs.lyft.com/gbfs/2.3/pdx/en",
         vendor: lyft_vs.vendor,
       )
-      self.sync_bikes(vendor_service: lime_vs, vehicle_type: "escooter")
+      self.sync_bikes(vendor_service: lemon_vs, vehicle_type: "escooter")
       self.sync_bikes(vendor_service: lyft_vs, vehicle_type: "ebike")
     end
 
     protected def create_mobility_vendor_service(
-      vendor_name:,
       internal_name:,
       external_name:,
+      # TODO: add services and offerings to programs, no one can access unprogrammed resources
       constraints:,
       mobility_vendor_adapter_key:
     )
-      vendor = Suma::Vendor.create(name: vendor_name)
+      vendor = Suma::Vendor.find_or_create(name: Suma::Mobility::VendorAdapter::InternalDeeplink::VENDOR_NAME)
       svc = Suma::Vendor::Service.create(
         vendor:,
         internal_name:,

@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
-require "suma/lyft"
-
-class Suma::Mobility::VendorAdapter::LyftDeeplink
+class Suma::Mobility::VendorAdapter::InternalDeeplink
   include Suma::Mobility::VendorAdapter
+
+  VENDOR_NAME = "Acme Mobility"
 
   def begin_trip(_trip) = raise Unsupported
   def end_trip(_trip) = raise Unsupported
   def uses_deep_linking? = true
   def send_receipts? = false
 
-  protected def deeplink_vendor = Suma::Lyft.deeplink_vendor
-
   def find_anon_proxy_vendor_account(member)
-    configuration = Suma::AnonProxy::VendorConfiguration.where(vendor: self.deeplink_vendor)
+    vendor = Suma.cached_get("internal_deeplink_vendor") do
+      Suma::Vendor.find!(name: VENDOR_NAME)
+    end
+    configuration = Suma::AnonProxy::VendorConfiguration.where(vendor:)
     account = Suma::AnonProxy::VendorAccount.where(configuration:, member:)
     return account.first
   end

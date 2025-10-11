@@ -46,14 +46,20 @@ class Suma::Lime::SyncTripsFromReport
   def run_for_report(txt)
     csv = CSV.parse(txt, headers: true)
     csv.each do |row|
-      if Suma::AnonProxy::VendorAccountRegistration.where(external_program_id: row.fetch(USER_EMAIL)).empty?
+      reg_ds = Suma::AnonProxy::VendorAccountRegistration.where(
+        account: Suma::AnonProxy::VendorAccount.where(
+          configuration: Suma::AnonProxy::VendorConfiguration.where(vendor: Suma::Lime.deeplink_vendor),
+        ),
+        external_program_id: row.fetch(USER_EMAIL),
+      )
+      if reg_ds.empty?
         self.logger.warn("lime_report_missing_member",
                          member_contact_email: row.fetch(USER_EMAIL),
                          trip_token: row.fetch(TRIP_TOKEN),)
         next
       end
       ride_id = row.fetch(TRIP_TOKEN)
-      return nil unless Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
+      next unless Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
       self.create_trip_from_row(row)
     end
   end
@@ -94,6 +100,8 @@ class Suma::Lime::SyncTripsFromReport
     # So, in the end: use the actual cost they give us,
     # and then use the vendor service to figure out discount.
     Suma.assert do
+      # TODO: do we want this to always error?
+      # TODO: for Lime, always use what they give us, we cannot infer, since the rate/discount may change during the report itself (cannot trust the registration lookup)
       r.total == rate.calculate_total(minutes)
     end
     r.discount = rate.discount(minutes)

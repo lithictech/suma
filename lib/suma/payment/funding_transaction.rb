@@ -26,6 +26,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   many_to_one :platform_ledger, class: "Suma::Payment::Ledger"
   many_to_one :originating_payment_account, class: "Suma::Payment::Account"
   many_to_one :originated_book_transaction, class: "Suma::Payment::BookTransaction"
+  many_to_one :reversal_book_transaction, class: "Suma::Payment::BookTransaction"
   one_to_many :audit_logs, class: "Suma::Payment::FundingTransaction::AuditLog", order: order_desc(:at)
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
@@ -81,6 +82,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   class << self
     # Create a new funding transaction with the given parameters.
+    # A BookTransaction is automatically created when funds are collected.
+    #
     # @param [Suma::Payment::Account] payment_account
     # @param [Money] amount
     # @param [Suma::Payment::Instrument::Interface] instrument The payment instrument to use.
@@ -89,6 +92,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     #   Only some strategies, like cards, require this to be set.
     # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
     #   When using a FakeStrategy, pass it in this way.
+    # @param [true,false] collect If true, try to +collect_funds+ if possible.
+    #   Note that this will also create a book transaction on success.
     # @return [Suma::Payment::FundingTransaction]
     def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil, collect: true)
       if strategy.nil?
@@ -127,27 +132,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
         return xaction
       end
     end
-
-    # Like +start_new+, but also creates a +BookTransaction+ that moves funds
-    # from the platform cash ledger into the cash ledger on payment_account.
-    def start_and_transfer(member_or_payment_account, amount:, apply_at:, instrument: nil, strategy: nil)
-      receiving_ledger = Suma::Payment.ensure_cash_ledger(member_or_payment_account)
-      vendor_service_category = Suma::Vendor::ServiceCategory.cash
-      self.db.transaction do
-        # collect should always be true, since making the funds available implies we try to collect them.
-        fx = self.start_new(receiving_ledger.account, amount:, instrument:, strategy:, collect: true)
-        originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at:,
-          amount: fx.amount,
-          originating_ledger: fx.platform_ledger,
-          receiving_ledger:,
-          associated_vendor_service_category: vendor_service_category,
-          memo: fx.memo,
-        )
-        fx.update(originated_book_transaction:)
-        fx
-      end
-    end
   end
 
   def refunded_amount = self.refund_payout_transactions.sum(Money.new(0), &:amount)
@@ -169,6 +153,10 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # :section: State Machine methods
   #
 
+  # Collect funds if the strategy is ready to collect them.
+  # If the collection fails, put this payment into review.
+  # If the collection succeeds, originate a book transaction from the platform cash ledger
+  # into the payment account cash ledger, so these funds are available for use.
   def collect_funds
     begin
       return false unless self.strategy.ready_to_collect_funds?
@@ -177,12 +165,30 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       self.logger.error("collect_funds_error", error: e)
       return self.put_into_review("Error collecting funds", exception: e)
     end
-    if collected && (member = self.originating_payment_account.member)
-      self.audit_activity(
-        "fundscollecting",
-        actor: member,
-        summary: "FundingTransaction[#{self.id}] started collecting funds",
-      )
+    if collected
+      if (member = self.originating_payment_account.member)
+        self.audit_activity(
+          "fundscollecting",
+          actor: member,
+          summary: "FundingTransaction[#{self.id}] started collecting funds",
+        )
+      end
+      if self.originated_book_transaction.nil?
+        receiving_ledger = Suma::Payment.ensure_cash_ledger(self.originating_payment_account)
+        associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
+        self.db.transaction do
+          originated_book_transaction = Suma::Payment::BookTransaction.create(
+            apply_at:,
+            amount: self.amount,
+            originating_ledger: self.platform_ledger,
+            receiving_ledger:,
+            associated_vendor_service_category:,
+            memo: self.memo,
+          )
+          # If a funding transaction fails, reverse the associated book transaction (add a new inverted book transaction)
+          self.update(originated_book_transaction:)
+        end
+      end
     end
     return super
   end
@@ -197,6 +203,24 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   def put_into_review(message, opts={})
     self._put_into_review_helper(message, opts)
     return super
+  end
+
+  # Cancel the funds. If a book transaction is originated, create an inverse one,
+  # reclaiming funds from the account's cash ledger back to the platform.
+  def cancel
+    if self.reversal_book_transaction.nil? && (orig_bx = self.originated_book_transaction)
+      self.db.transaction do
+        reversal_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: Time.now,
+          amount: orig_bx.amount,
+          originating_ledger: orig_bx.receiving_ledger,
+          receiving_ledger: orig_bx.originating_ledger,
+          associated_vendor_service_category: orig_bx.associated_vendor_service_category,
+          memo: self.memo,
+        )
+        self.update(reversal_book_transaction:)
+      end
+    end
   end
 
   def hybrid_search_fields

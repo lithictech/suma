@@ -7,7 +7,6 @@ class Suma::Mobility::VendorAdapter::LimeDeeplink
 
   def begin_trip(_trip) = raise Unsupported
   def end_trip(_trip) = raise Unsupported
-  def requires_vendor_account? = true
   def uses_deep_linking? = true
   def send_receipts? = true
 
