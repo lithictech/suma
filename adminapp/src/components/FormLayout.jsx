@@ -4,9 +4,16 @@ import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 
-export default function FormLayout({ title, subtitle, onSubmit, isBusy, children }) {
+export default function FormLayout({
+  title,
+  subtitle,
+  onSubmit,
+  isBusy,
+  style,
+  children,
+}) {
   return (
-    <div style={{ maxWidth: 650 }}>
+    <div style={{ maxWidth: 650, ...style }}>
       <Typography variant="h4" gutterBottom>
         {title}
       </Typography>

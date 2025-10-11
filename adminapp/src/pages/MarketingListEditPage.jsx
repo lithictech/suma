@@ -5,10 +5,13 @@ import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useMountEffect from "../shared/react/useMountEffect";
 import AddIcon from "@mui/icons-material/Add";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ClearIcon from "@mui/icons-material/Clear";
 import RemoveIcon from "@mui/icons-material/Remove";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import SearchIcon from "@mui/icons-material/Search";
 import {
+  Box,
   Card,
   CardContent,
   CircularProgress,
@@ -21,7 +24,9 @@ import {
   ListItemText,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import debounce from "lodash/debounce";
 import React from "react";
@@ -43,8 +48,9 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
       subtitle="Broadcasts are sent to lists. We should generally use
       Managed (auto-created and updated) lists,
       but sometimes we want manual lists too."
-      onSubmit={onSubmit}
       isBusy={isBusy}
+      style={{ maxWidth: null }}
+      onSubmit={onSubmit}
     >
       <Stack spacing={2}>
         <FormLabel>Marketing List</FormLabel>
@@ -102,43 +108,58 @@ function Members({ members, setMembers }) {
     setMembers([...members, m]);
   }
 
+  function handleAddAll() {
+    setMembers([...members, ...eligibleMembers]);
+  }
+
+  function handleRemoveAll() {
+    setMembers([]);
+  }
+
   function handleRemove(m) {
     const without = members.filter((m2) => m2.id !== m.id);
     setMembers(without);
   }
 
   return (
-    <>
-      <Card variant="outlined">
+    <Stack direction={{ xs: "column", lg: "row" }} gap={2}>
+      <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent>
-          <FormLabel>List Members</FormLabel>
-          <List dense>
-            {members.length === 0 && (
-              <ListItem disablePadding dense>
-                <ListItemText primary="(Empty)" />
-              </ListItem>
-            )}
-            {members.map((m) => (
-              <ListItem key={m.id} disablePadding dense>
-                <ListItemButton onClick={() => handleRemove(m)} dense>
-                  <ListItemIcon>
-                    <RemoveIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={formatMember(m)} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
+          <Stack gap={1}>
+            <Typography variant="h6" color="secondary">
+              List Members ({members.length})
+            </Typography>
+            <BulkActionButton
+              disabled={members.length === 0}
+              startIcon={<RemoveCircleOutlineIcon />}
+              onClick={handleRemoveAll}
+            >
+              Remove all members
+            </BulkActionButton>
+            <MemberList>
+              {members.map((m) => (
+                <ListItem key={m.id} disablePadding dense>
+                  <ListItemButton onClick={() => handleRemove(m)} dense>
+                    <ListItemIcon>
+                      <RemoveIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={formatMember(m)} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </MemberList>
+          </Stack>
         </CardContent>
       </Card>
-      <Card variant="outlined">
+      <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent>
-          <Stack gap={2}>
+          <Stack gap={1}>
             <TextField
               variant="outlined"
               type="search"
               value={search}
               placeholder="Search"
+              helperText={`${eligibleMembers.length || "No"} results`}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -159,16 +180,20 @@ function Members({ members, setMembers }) {
               }}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <FormLabel>Add Members</FormLabel>
-          </Stack>
-          <List dense>
-            {isBusy ? (
-              <ListItem disablePadding dense>
-                <CircularProgress />
-              </ListItem>
-            ) : (
-              <>
-                {eligibleMembers.map((m) => (
+            <BulkActionButton
+              startIcon={<AddCircleOutlineIcon />}
+              disabled={eligibleMembers.length === 0}
+              onClick={handleAddAll}
+            >
+              Add all members
+            </BulkActionButton>
+            <MemberList>
+              {isBusy ? (
+                <ListItem disablePadding dense>
+                  <CircularProgress />
+                </ListItem>
+              ) : (
+                eligibleMembers.map((m) => (
                   <ListItem key={m.id} disablePadding dense>
                     <ListItemButton onClick={() => handleAdd(m)} dense>
                       <ListItemIcon>
@@ -177,18 +202,49 @@ function Members({ members, setMembers }) {
                       <ListItemText primary={formatMember(m)} />
                     </ListItemButton>
                   </ListItem>
-                ))}
-                {eligibleMembers.length === 0 && (
-                  <ListItem disablePadding dense>
-                    <ListItemText primary="No results" />
-                  </ListItem>
-                )}
-              </>
-            )}
-          </List>
+                ))
+              )}
+            </MemberList>
+          </Stack>
         </CardContent>
       </Card>
-    </>
+    </Stack>
+  );
+}
+
+function MemberList({ children }) {
+  return (
+    <div style={{ position: "relative" }}>
+      <List dense sx={{ maxHeight: { xs: 500, lg: "60vh" }, overflow: "scroll" }}>
+        {children}
+        <ListItem sx={{ height: "20px" }}></ListItem>
+      </List>
+      <div
+        style={{
+          width: "calc(100% - 10px)",
+          position: "absolute",
+          backgroundImage: "linear-gradient(0deg, white, transparent)",
+          // background: "red",
+          pointerEvents: "none",
+          height: 60,
+          bottom: 0,
+        }}
+      ></div>
+    </div>
+  );
+}
+
+function BulkActionButton(props) {
+  return (
+    <Box mt={1}>
+      <Button
+        variant="outlined"
+        color="secondary"
+        size="small"
+        sx={{ borderRadius: 100 }}
+        {...props}
+      />
+    </Box>
   );
 }
 
