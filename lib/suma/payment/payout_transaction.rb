@@ -28,6 +28,9 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   # Represents the book transaction from the user's ledger to the platform ledger,
   # to represent that money is leaving their ledger and eventually the system.
   many_to_one :originated_book_transaction, class: "Suma::Payment::BookTransaction"
+  # If the payout fails, this reverses the originated_book_transaction.
+  # Since money didn't leave the system, it should go back to the user's ledger.
+  many_to_one :reversal_book_transaction, class: "Suma::Payment::BookTransaction"
   # Represent the book transaction from the platform ledger to the user's ledger
   # to compensate them for a refund.
   many_to_one :crediting_book_transaction, class: "Suma::Payment::BookTransaction"
@@ -44,19 +47,24 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
           :sending,
           :settled,
           :needs_review,
-          :canceled
+          :failed
 
     event :send_funds do
       transition created: :sending
       transition sending: :settled, if: :funds_settled?
+      transition sending: :failed, if: :send_failed?
     end
 
     event :cancel do
-      transition [:created, :needs_review] => :canceled
+      transition [:created, :needs_review] => :failed
     end
+
     event :put_into_review do
       transition (any - :needs_review) => :needs_review
     end
+
+    after_transition to: :sending, do: :after_sending
+    after_transition to: :failed, do: :after_failed
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
@@ -67,7 +75,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       [{to: "sending"}, :funds_sending_at],
       [{to: "settled"}, :funds_settled_at],
       [{to: "needs_review"}, :put_into_review_at],
-      [{to: "canceled"}, :canceled_at],
+      [{to: "failed"}, :failed_at],
     ],
   )
 
@@ -103,9 +111,20 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
 
     # Create and return a payout based on an existing funding transaction.
     #
-    # The created payout will always have an +originated_book_transaction+ created
-    # from the original payment account's cash ledger, to the platform ledger,
-    # to represent the withdrawal of funds.
+    # Refund payouts are actually a two-step process: apply a credit, then do the payout.
+    # The funds flow goes from the platform to member ledger (apply a credit),
+    # then back from member to platform ledger (pay the credit out).
+    #
+    # If the payout fails, only this second transaction (member->platform) is reversed;
+    # the member ends up with a credit on their ledger. This credit can be paid out
+    # using a normal PayoutTransaction at this point, like writing a check
+    # and then creating an OffPlatformPayout.
+    #
+    # In these cases, the payout fields are:
+    # - +crediting_book_transaction+: The platform->member 'credit' transaction.
+    # - +originated_book_transaction+: The member->platform 'pay this money out' transaction.
+    # - +reversal_book_transaction+: If the money cannot move,
+    #   this platform->member transaction reverses +originated_book_transaction+.
     #
     # @param funding_transaction [Suma::Payment::FundingTransaction]
     # @param amount [Money]
@@ -115,38 +134,14 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #   Usually the strategy is known when backfilling from an external system,
     #   but is +:infer+ when running working from the funding transaction
     #   (the refund being processed asynchronously later).
-    # @param apply_credit [true,false,:infer] If is true, a +credited_book_transaction+ is created
-    #   from the platform cash ledger to the original payment account's cash ledger,
-    #   representing a credit of any funds used for a purchase.
-    #   The overall effect on the cash ledgers is a $0 balance change.
-    #
-    #   If +apply_credit+ is false, no credited transaction is created.
-    #   The overall effect is to subtract +amount+ from the original payment account's cash ledger's balance,
-    #   and add it to the platform cash ledger's balance (at which point it leaves the system
-    #   as part of the +PayoutTransaction+).
-    #
-    #   So, as a rule, if a funding transaction was part of a purchase (has a +Charge+, etc)
-    #   a credit should be given; but if someone accidentally loaded money into their wallet,
-    #   no credit would be given.
-    #
-    #   If +apply_credit+ is +:infer+, the rule of thumb is assumed.
-    #   +apply_credit+ will be true if there are any charges
-    #   associated with the funding transaction.
     #
     # @return [Suma::Payment::PayoutTransaction]
-    def initiate_refund(funding_transaction, amount:, apply_at:, strategy:, apply_credit:)
+    def initiate_refund(funding_transaction, amount:, apply_at:, strategy:)
       if amount > funding_transaction.refundable_amount
         msg = "refund cannot be greater than unrefunded amount of #{funding_transaction.refundable_amount.format}"
         raise InvalidAmount, msg
       end
 
-      if apply_credit == :infer
-        # If this funding transaction was part of a charge, it was almost definitely used for some
-        # sort of purchase that has been partially or entirely refunded. In this case,
-        # apply a credit, as per the payment system docs.
-        # See docs for more information.
-        apply_credit = !funding_transaction.associated_charges_dataset.empty?
-      end
       self.db.transaction do
         associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
         refund_memo = Suma::TranslatedText.create(
@@ -165,39 +160,29 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
               raise ArgumentError, "no refund strategy for funding strategy #{funding_transaction.strategy.inspect}"
           end
         end
-        px = Suma::Payment::PayoutTransaction.start_new(
-          funding_transaction.originating_payment_account,
-          amount:,
-          strategy:,
-          memo: refund_memo,
-        )
-        member_ledger = Suma::Payment.ensure_cash_ledger(funding_transaction.originating_payment_account)
-        crediting_book_transaction = nil
-        if apply_credit
-          crediting_book_transaction = Suma::Payment::BookTransaction.create(
-            apply_at:,
-            amount: px.amount,
-            originating_ledger: px.platform_ledger,
-            receiving_ledger: member_ledger,
-            associated_vendor_service_category:,
-            memo: Suma::TranslatedText.create(
-              en: "Credit from suma",
-              es: "Crédito de suma",
-            ),
+        px = Suma.set_request_now(apply_at) do
+          self.start_new(
+            funding_transaction.originating_payment_account,
+            amount:,
+            strategy:,
+            memo: refund_memo,
           )
         end
-        originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at: apply_at + 0.001, # Apply 1 ms later than the credit
+        member_ledger = Suma::Payment.ensure_cash_ledger(funding_transaction.originating_payment_account)
+        crediting_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: px.originated_book_transaction.apply_at - 0.001, # Apply 1 ms before the money movement out
           amount: px.amount,
-          originating_ledger: member_ledger,
-          receiving_ledger: px.platform_ledger,
+          originating_ledger: px.platform_ledger,
+          receiving_ledger: member_ledger,
           associated_vendor_service_category:,
-          memo: refund_memo,
+          memo: Suma::TranslatedText.create(
+            en: "Credit from suma",
+            es: "Crédito de suma",
+          ),
         )
         px.update(
           refunded_funding_transaction: funding_transaction,
           crediting_book_transaction:,
-          originated_book_transaction:,
         )
         px
       end
@@ -240,24 +225,55 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   def send_funds
     begin
       return false unless self.strategy.ready_to_send_funds?
-      sent = self.strategy.send_funds
+      send_result = self.strategy.send_funds
+      Suma.assert { send_result.nil? }
     rescue SendFundsFailed => e
       self.logger.error("send_funds_error", error: e)
       return self.put_into_review("Error sending funds", exception: e)
     end
-    if sent && (member = self.originating_payment_account.member)
+    return super
+  end
+
+  # Create the transaction from platform->member immediately on create.
+  # We do not want to do it only after sending funds; since a payout could be coupled with a credit
+  # (see +initiate_refund+), we need to make we don't provide a credit, then the user could pay it down,
+  # then we'd try to move money off-platform (originated book transaction).
+  def after_create
+    super
+    self._originate_book_transaction(
+      originating_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
+      receiving_ledger: self.platform_ledger,
+    )
+  end
+
+  def after_sending
+    if (member = self.originating_payment_account.member)
       self.audit_activity(
         "fundssending",
         actor: member,
         summary: "PayoutTransaction[#{self.id}] started sending funds",
       )
     end
-    return super
   end
 
-  def funds_settled?
-    return self.strategy.funds_settled?
+  def after_failed
+    if self.reversal_book_transaction.nil? && (orig_bx = self.originated_book_transaction)
+      self.db.transaction do
+        reversal_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: Suma.request_now,
+          amount: orig_bx.amount,
+          originating_ledger: orig_bx.receiving_ledger,
+          receiving_ledger: orig_bx.originating_ledger,
+          associated_vendor_service_category: orig_bx.associated_vendor_service_category,
+          memo: self.memo,
+        )
+        self.update(reversal_book_transaction:)
+      end
+    end
   end
+
+  def funds_settled? = self.strategy.funds_settled?
+  def send_failed? = self.strategy.send_failed?
 
   def put_into_review(message, opts={})
     self._put_into_review_helper(message, opts)

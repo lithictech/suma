@@ -34,13 +34,14 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
   end
 
   def ready_to_collect_funds? = true
-  def collect_funds = true
+  def collect_funds = nil
   def funds_cleared? = true
   def funds_canceled? = false
 
   def ready_to_send_funds? = true
-  def send_funds = true
+  def send_funds = nil
   def funds_settled? = true
+  def send_failed? = false
 
   def rel_admin_link = "/payment-off-platform/#{self.id}"
 

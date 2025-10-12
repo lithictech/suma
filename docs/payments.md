@@ -241,16 +241,16 @@ versus individual ledger balances (which always work out to $0 since BookTransac
       - -$50 `BookTransaction` originated (payment for food)
     - Total system: Still $50
 
-At this point, Dee contacts support and explains he only meant to purchase $25 worth of food
-and requests a partial refund.
+At this point, Dee contacts support and explains he only meant to purchase $30 worth of food
+and requests a partial refund of $20.
 
-The first is to truly refund the $20 so it goes back to the original payment instrument,
+There are two ways for support to handle this refund.
+
+The first option is to truly refund the $20 so it goes back to the original payment instrument,
 such as refunding a card charge or sending money back to their bank account.
 For this option:
 
-- Suma operators initiate a $20 refund in the payment processor, such as Stripe.
-  - Eventually we may initiate refunds from suma, but as of this writing, it's easier to initiate it in the processor.
-- Suma backend finds the refund via polling or webhooks.
+- Suma operators initiate a $20 refund in the admin tool.
 - Backend creates a Payout Transaction for $20.
   There are also two Book Transactions created, moving money to the member ledger (representing the refund)
   and from the member ledger (representing the payout).

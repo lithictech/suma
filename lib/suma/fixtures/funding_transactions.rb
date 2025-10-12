@@ -21,10 +21,6 @@ module Suma::Fixtures::FundingTransactions
     instance.memo ||= Suma::Fixtures.translated_text(en: Faker::Lorem.words(number: 3).join(" ")).create
     instance.platform_ledger ||= Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
     instance.originating_payment_account ||= Suma::Fixtures.payment_account.create
-    instance.originated_book_transaction ||= Suma::Fixtures.book_transaction.
-      from(instance.platform_ledger).
-      to(Suma::Payment.ensure_cash_ledger(instance.originating_payment_account)).
-      create(amount: instance.amount)
     instance
   end
 

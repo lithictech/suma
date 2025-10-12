@@ -17,6 +17,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     expose :refund_payout_transactions, with: PayoutTransactionEntity
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :originated_book_transaction, with: BookTransactionEntity
+    expose :reversal_book_transaction, with: BookTransactionEntity
     expose :audit_activities, with: ActivityEntity
     expose :audit_logs, with: AuditLogEntity
     expose :strategy, with: PaymentStrategyEntity
@@ -41,11 +42,11 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       ).first&.reify) or forbidden!
       c = instrument.member
       begin
-        fx = Suma::Payment::FundingTransaction.start_and_transfer(
-          c,
+        fx = Suma::Payment::FundingTransaction.start_new(
+          c.payment_account,
           amount: params[:amount],
           instrument:,
-          apply_at: Time.now,
+          collect: true,
         )
       rescue Suma::Payment::Invalid => e
         merror!(409, e.message, code: "invalid_funding_instrument", skip_loc_check: true)
@@ -76,9 +77,8 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
             px = Suma::Payment::PayoutTransaction.initiate_refund(
               fx,
               amount:,
-              apply_at: Time.now,
+              apply_at: current_time,
               strategy: :infer,
-              apply_credit: :infer,
             )
           rescue Suma::Payment::PayoutTransaction::InvalidAmount => e
             invalid!(e.to_s)

@@ -230,11 +230,13 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
       # If there are any remainder contributions, we need to fund them against the cash ledger.
       if contrib_collection.remainder?
-        funding = Suma::Payment::FundingTransaction.start_and_transfer(
-          self.card.member,
+        funding = Suma::Payment::FundingTransaction.start_new(
+          self.card.member.payment_account,
           amount: contrib_collection.remainder,
           instrument: self.payment_instrument,
-          apply_at:,
+          # Once we have asynchronous instruments (bank accounts, etc.),
+          # we can set this to true and figure out how to handle later failures.
+          collect: :must,
         )
         charge.add_associated_funding_transaction(funding)
       end

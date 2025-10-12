@@ -110,6 +110,9 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
     it "uses 'funding' if receiver has a funding transaction" do
       ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
       fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      fx.strategy.set_response(:ready_to_collect_funds?, true)
+      fx.strategy.set_response(:collect_funds, nil)
+      expect(fx).to transition_on(:collect_funds).to("collecting")
       fx.strategy.set_response(:originating_instrument_label, ba.simple_label)
       expect(fx.originated_book_transaction).to have_attributes(
         usage_details: contain_exactly(
@@ -121,7 +124,7 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
     it "uses 'credit' if a receiver is crediting on a payout", :lang do
       fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
-      px = Suma::Fixtures::PayoutTransactions.refund_of(fx, ba, apply_credit: true)
+      px = Suma::Fixtures::PayoutTransactions.refund_of(fx, ba)
       expect(px.crediting_book_transaction).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "credit", args: {memo: "Credit from suma"}),
@@ -132,7 +135,7 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
     it "uses 'refund' if receiver is originated on a refund", :lang do
       fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
-      px = Suma::Fixtures::PayoutTransactions.refund_of(fx, ba, apply_credit: true)
+      px = Suma::Fixtures::PayoutTransactions.refund_of(fx, ba)
       expect(px.originated_book_transaction).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "refund", args: {memo: "Refund sent to My Savings x-1234"}),
@@ -163,6 +166,16 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       bt.receiving_ledger = bt.originating_ledger
       bt.validate
       expect(bt.errors).to eq({receiving_ledger_id: ["originating and receiving ledgers cannot be the same"]})
+    end
+
+    it "allows the same originating and receiving id if it is the platform account" do
+      led = Suma::Payment::Account.lookup_platform_account.ensure_cash_ledger
+      bt = Suma::Fixtures.book_transaction.instance(
+        receiving_ledger: led,
+        originating_ledger: led,
+      )
+      bt.validate
+      expect(bt.errors).to be_empty
     end
   end
 end

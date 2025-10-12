@@ -46,4 +46,8 @@ module Suma::Payment::PayoutTransaction::Strategy
   # such as an ACH debit we originated from our platform account has likely settled
   # in an external ACH account.
   def funds_settled? = raise NotImplementedError
+
+  # Return true if the payment processor reports funds have failed to send,
+  # such as if the account we sent funds to does not exist.
+  def send_failed? = raise NotImplementedError
 end

@@ -19,11 +19,11 @@ class Suma::API::Payments < Suma::API::V1
       c = current_member
       Suma::Payment.ensure_cash_ledger(c)
       instrument = find_payment_instrument!(c, params)
-      fx = Suma::Payment::FundingTransaction.start_and_transfer(
-        c,
+      fx = Suma::Payment::FundingTransaction.start_new(
+        c.payment_account,
         amount: params[:amount],
         instrument:,
-        apply_at: current_time,
+        collect: true,
       )
       add_current_member_header
       status 200

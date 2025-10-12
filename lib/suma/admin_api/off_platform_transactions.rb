@@ -47,7 +47,7 @@ class Suma::AdminAPI::OffPlatformTransactions < Suma::AdminAPI::V1
         rt.params[:created_by] = rt.admin_member
         if rt.params[:type] == :funding
           model_cls = Suma::Payment::FundingTransaction
-          startparams = {originating_ip: rt.request.ip}
+          startparams = {originating_ip: rt.request.ip, collect: true}
           process_event = :collect_funds
         else
           model_cls = Suma::Payment::PayoutTransaction

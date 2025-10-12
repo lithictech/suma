@@ -26,15 +26,13 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
     return []
   end
 
-  def ready_to_send_funds?
-    return true
-  end
+  def ready_to_send_funds? = true
 
   def refund_id = self.refund_json&.fetch("id")
 
   def send_funds
     if self.refund_id.present?
-      return false if self.refund_json["status"] == "succeeded"
+      return if self.refund_json["status"] == "succeeded"
       raise WorkInProgressImplementation, "handling not-succeeded refunds is not implemented"
     end
     refund = Stripe::Refund.create(
@@ -52,12 +50,19 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
     )
     self.refund_json = refund.as_json
     refund_id_set!
-    return true
+    return
   end
 
   def funds_settled?
-    raise Suma::InvalidPrecondition, "refund_json must be set" if self.refund_json.nil?
+    refund_id_set!
     return self.refund_json["status"] == "succeeded"
+  end
+
+  UNFAILED_STATES = ["pending", "succeeded"].freeze
+
+  def send_failed?
+    refund_id_set!
+    return !UNFAILED_STATES.include?(self.refund_json["status"])
   end
 
   private def refund_id_set!
@@ -118,7 +123,6 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
           amount: Money.new(refund_row.fetch(:amount)),
           apply_at: refund_row.fetch(:created),
           strategy: strat,
-          apply_credit: :infer,
         )
         # We only process succeeded refunds, so this transition should/must always succeed.
         px.must_process(:send_funds)

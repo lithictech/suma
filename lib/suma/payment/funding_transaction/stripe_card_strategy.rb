@@ -4,6 +4,13 @@ require "suma/stripe"
 require "suma/payment/funding_transaction/strategy"
 require "suma/postgres/model"
 
+# Stripe card funding transactions have some subtleties because of async refunds/failures/disputes.
+# - An uncaptured charge is created on collect_funds.
+#   Collecting funds causes the funding transaction to originate the book transaction.
+# - The charge is captured on funds_cleared? The funds are cleared if captured.
+# - If the charge has failed (no money moved), then funds_canceled? is true.
+#   This will cause the funding transaction to create a reversal.
+# - If the charge is refunded, then the 'reversal' book transaction is handled as part of the payout.
 class Suma::Payment::FundingTransaction::StripeCardStrategy <
   Suma::Postgres::Model(:payment_funding_transaction_stripe_card_strategies)
   include Suma::Payment::FundingTransaction::Strategy
@@ -38,7 +45,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
   def charge_id = self.charge_json&.fetch("id")
 
   def collect_funds
-    return false if self.charge_id.present?
+    return if self.charge_id.present?
     charge = self.originating_card.member.stripe.charge_card(
       card: self.originating_card,
       amount: self.funding_transaction.amount,
@@ -49,7 +56,6 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
     )
     self.charge_json = charge.as_json
     charge_id_set!(Suma::InvalidPostcondition)
-    return true
   end
 
   def funds_cleared?
@@ -80,8 +86,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
 
   def funds_canceled?
     charge_id_set!(Suma::InvalidPrecondition)
-    # Handle only full refunds.
-    return self.charge_json["refunded"]
+    return self.charge_json["status"] == "failed"
   end
 
   private def charge_id_set!(cls)

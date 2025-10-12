@@ -145,7 +145,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let!(:platform_cash_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
 
     around(:each) do |ex|
-      Suma::Payment::FundingTransaction.force_fake(proc { Suma::Payment::FakeStrategy.create.not_ready }) do
+      Suma::Payment::FundingTransaction.force_fake(proc { Suma::Payment::FakeStrategy.create.ready }) do
         ex.run
       end
     end
@@ -200,7 +200,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       Suma::Fixtures.book_transaction(amount: money("$5")).to(cash_ledger).create
       order = create_order(money("$35")) # take into account the $5 existing balance
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
-        have_attributes(amount: cost("$35"), status: "created"),
+        have_attributes(amount: cost("$35"), status: "collecting"),
       )
       expect(order.charges.first.associated_funding_transactions).to contain_exactly(
         be === member.payment_account.originated_funding_transactions.first,

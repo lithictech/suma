@@ -21,7 +21,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         crediting_book_transaction: nil,
-        originated_book_transaction: nil,
+        originated_book_transaction: be_present,
         strategy: be_a(Suma::Payment::FakeStrategy),
       )
     end
@@ -30,9 +30,9 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])
       strategy.set_response(:ready_to_send_funds?, true)
-      strategy.set_response(:send_funds, true)
+      strategy.set_response(:send_funds, nil)
       xaction = described_class.start_new(pacct, amount:, strategy:)
-      expect(xaction).to have_attributes(status: "sending")
+      expect(xaction).to have_attributes(status: "sending", originated_book_transaction: be_present)
     end
 
     it "errors if the strategy validity check fails" do
@@ -62,7 +62,6 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         amount: Money.new(500, "USD"),
         strategy: Suma::Payment::FakeStrategy.create.not_ready,
         apply_at: now,
-        apply_credit: true,
       )
       expect(px).to have_attributes(
         status: "created",
@@ -74,7 +73,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       expect(fx.originating_payment_account.originated_payout_transactions).to contain_exactly(be === px)
       expect(px.crediting_book_transaction).to have_attributes(
         amount: cost("$5"),
-        apply_at: match_time(now),
+        apply_at: match_time(now).within(1),
         memo: have_attributes(en: "Credit from suma"),
         originating_ledger: px.platform_ledger,
       )
@@ -85,27 +84,9 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         memo: have_attributes(en: "Refund sent to My Savings x-1234"),
         receiving_ledger: px.platform_ledger,
       )
-      # Balance is still $7.50 because the user was credited.
-      expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$7.50"))
-    end
-
-    it "can optionally not apply a credit" do
-      px = described_class.initiate_refund(
-        fx,
-        amount: Money.new(500, "USD"),
-        strategy: Suma::Payment::FakeStrategy.create.not_ready,
-        apply_at: now,
-        apply_credit: false,
-      )
-      expect(px).to have_attributes(
-        status: "created",
-        refunded_funding_transaction: be === fx,
-        crediting_book_transaction: be_nil,
-        originated_book_transaction: be_present,
-        memo: have_attributes(en: "Refund sent to My Savings x-1234"),
-      )
-      # Balance is still $2.50 because the $5 refund was sent
-      expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$2.50"))
+      # Balance is $0 because $5 from platform->member->platform.
+      expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$0"))
+      expect(px.platform_ledger.account).to have_attributes(total_balance: cost("$0"))
     end
 
     it "errors if the amount is greater than the refundable amount" do
@@ -117,7 +98,6 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
           amount: money("$100"),
           strategy: Suma::Payment::FakeStrategy.create.not_ready,
           apply_at: now,
-          apply_credit: false,
         )
       end.to raise_error(Suma::InvalidPrecondition, /refund cannot be greater than unrefunded amount of \$95\.00/)
     end
@@ -139,7 +119,6 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
           amount: Money.new(500, "USD"),
           strategy: :infer,
           apply_at: now,
-          apply_credit: false,
         )
         expect(req).to have_been_made
         expect(px).to have_attributes(
@@ -149,32 +128,6 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
           stripe_charge_id: "ch123",
           refund_id: "re_1Nispe2eZvKYlo2Cd31jOCgZ",
         )
-      end
-    end
-
-    describe "using apply_credit of :infer" do
-      it "treats apply_credit as false if there are no charges" do
-        described_class.initiate_refund(
-          fx,
-          amount: Money.new(500, "USD"),
-          strategy: Suma::Payment::FakeStrategy.create.not_ready,
-          apply_at: now,
-          apply_credit: :infer,
-        )
-        expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$2.50"))
-      end
-
-      it "treats apply_credit as true if the funding transaction has an associated charge" do
-        charge = Suma::Fixtures.charge.create
-        charge.add_associated_funding_transaction(fx)
-        described_class.initiate_refund(
-          fx,
-          amount: Money.new(500, "USD"),
-          strategy: Suma::Payment::FakeStrategy.create.not_ready,
-          apply_at: now,
-          apply_credit: :infer,
-        )
-        expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$7.50"))
       end
     end
   end
@@ -226,25 +179,44 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         expect(payment).to not_transition_on(:send_funds)
 
         strategy.set_response(:ready_to_send_funds?, true)
-        strategy.set_response(:send_funds, true)
+        strategy.set_response(:send_funds, nil)
         expect(payment).to transition_on(:send_funds).to("sending")
         strategy.set_response(:funds_settled?, false)
+        strategy.set_response(:send_failed?, false)
         expect(payment).to not_transition_on(:send_funds)
 
         strategy.set_response(:funds_settled?, true)
         expect(payment).to transition_on(:send_funds).to("settled")
       end
 
-      it "creates an activity when strategy.send_funds returns true" do
+      it "creates an activity" do
         strategy.set_response(:ready_to_send_funds?, true)
-        strategy.set_response(:send_funds, true)
+        strategy.set_response(:send_funds, nil)
         strategy.set_response(:funds_settled?, false)
+        strategy.set_response(:send_failed?, false)
         expect(payment).to transition_on(:send_funds).to("sending")
         expect(member.refresh.activities).to have_length(1)
 
-        strategy.set_response(:send_funds, false)
+        strategy.set_response(:send_funds, nil)
         expect(payment).to transition_on(:send_funds).to("sending")
         expect(member.refresh.activities).to have_length(1)
+      end
+
+      it "originates a book transaction when funds are collected" do
+        strategy.set_response(:ready_to_send_funds?, true)
+        strategy.set_response(:send_funds, nil)
+        expect(payment).to transition_on(:send_funds).to("sending")
+        expect(payment.originated_book_transaction).to have_attributes(
+          amount: payment.amount,
+          originating_ledger: member.payment_account.cash_ledger!,
+          receiving_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+        )
+
+        orig_bx = payment.originated_book_transaction
+        payment.status = "created"
+        expect(payment).to transition_on(:send_funds).to("sending")
+        expect(payment.originated_book_transaction).to be === orig_bx
+        expect(Suma::Payment::BookTransaction.all).to have_same_ids_as(orig_bx)
       end
 
       it "transition to review needed if ready to collect funds fails terminally" do
@@ -258,15 +230,76 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         expect(payment).to transition_on(:send_funds).to("needs_review")
         expect(payment.audit_logs.last.messages).to include("Error sending funds: nope")
       end
+
+      describe "when funds fail to be sent" do
+        before(:each) do
+          strategy.set_response(:ready_to_send_funds?, true)
+          strategy.set_response(:send_funds, nil)
+          strategy.set_response(:funds_settled?, false)
+          strategy.set_response(:send_failed?, true)
+        end
+
+        it "transitions to failed (and originates/reverses book transactions)" do
+          expect(payment).to transition_on(:send_funds).to("sending")
+          expect(payment).to transition_on(:send_funds).to("failed")
+          expect(payment.originated_book_transaction).to have_attributes(
+            amount: payment.amount,
+            originating_ledger: member.payment_account.cash_ledger!,
+            receiving_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+          )
+          expect(payment.reversal_book_transaction).to have_attributes(
+            amount: payment.amount,
+            originating_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+            receiving_ledger: member.payment_account.cash_ledger!,
+          )
+        end
+
+        it "does not reverse a book transaction if none originated" do
+          payment.update(status: "sending", originated_book_transaction: nil)
+          expect(payment).to transition_on(:send_funds).to("failed")
+          expect(payment).to have_attributes(
+            originated_book_transaction: nil,
+            reversal_book_transaction: nil,
+          )
+        end
+      end
     end
 
     describe "cancel" do
-      it "transitions to canceled" do
-        expect(payment).to transition_on(:cancel).to("canceled")
+      it "transitions to failed" do
+        expect(payment).to transition_on(:cancel).to("failed")
         expect(payment).to not_transition_on(:cancel)
 
         expect(payment).to transition_on(:put_into_review).with("hi").to("needs_review")
-        expect(payment).to transition_on(:cancel).to("canceled")
+        expect(payment).to transition_on(:cancel).to("failed")
+      end
+
+      it "does not reverse a book transaction if none originated" do
+        payment.update(originated_book_transaction: nil)
+        expect(payment).to transition_on(:put_into_review).with("oops").to("needs_review")
+        expect(payment).to transition_on(:cancel).to("failed")
+        expect(payment).to have_attributes(
+          originated_book_transaction: nil,
+          reversal_book_transaction: nil,
+        )
+      end
+
+      it "reverses an originated book transaction" do
+        strategy.set_response(:ready_to_send_funds?, true)
+        strategy.set_response(:send_funds, nil)
+        expect(payment).to transition_on(:send_funds).to("sending")
+        expect(payment.originated_book_transaction).to have_attributes(
+          amount: payment.amount,
+          originating_ledger: member.payment_account.cash_ledger!,
+          receiving_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+        )
+        expect(payment).to transition_on(:put_into_review).with("oops").to("needs_review")
+        expect(payment).to transition_on(:cancel).to("failed")
+        expect(payment.reversal_book_transaction).to have_attributes(
+          amount: payment.amount,
+          originating_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+          receiving_ledger: member.payment_account.cash_ledger!,
+        )
       end
     end
 
@@ -296,7 +329,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
 
     it "has them set by events" do
       strategy.set_response(:ready_to_send_funds?, true)
-      strategy.set_response(:send_funds, false)
+      strategy.set_response(:send_funds, nil)
       strategy.set_response(:funds_settled?, true)
 
       t = trunc_time(Time.now)
@@ -322,57 +355,6 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       payment = Suma::Fixtures.payout_transaction.with_fake_strategy.create
       expect { payment.save_changes }.to_not raise_error
       expect { payment.update(fake_strategy: nil) }.to raise_error(/strategy is not available/i)
-    end
-
-    it "does not allow the crediting transaction to be set without a payout transaction and refund" do
-      payout = Suma::Fixtures.payout_transaction.with_fake_strategy.create
-      bx = Suma::Fixtures.book_transaction.create
-      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      # Everything can be set
-      expect do
-        payout.update(
-          crediting_book_transaction: bx,
-          originated_book_transaction: bx,
-          refunded_funding_transaction: fx,
-        )
-      end.to_not raise_error
-      # Only the originated xaction can be set
-      expect do
-        payout.update(
-          crediting_book_transaction: nil,
-          originated_book_transaction: bx,
-          refunded_funding_transaction: nil,
-        )
-      end.to_not raise_error
-      # Can set the originated xaction and the refund, with no credit
-      expect do
-        payout.update(
-          crediting_book_transaction: nil,
-          originated_book_transaction: bx,
-          refunded_funding_transaction: fx,
-        )
-      end.to_not raise_error
-      # Cannot set the crediting xaction without the originated
-      expect do
-        payout.db.transaction(savepoint: true) do
-          payout.update(
-            crediting_book_transaction: bx,
-            originated_book_transaction: nil,
-            refunded_funding_transaction: fx,
-          )
-        end
-      end.to raise_error(Sequel::CheckConstraintViolation)
-      # Cannot set a crediting xaction without a refund
-      payout.refresh
-      expect do
-        payout.db.transaction(savepoint: true) do
-          payout.update(
-            crediting_book_transaction: bx,
-            originated_book_transaction: bx,
-            refunded_funding_transaction: nil,
-          )
-        end
-      end.to raise_error(Sequel::CheckConstraintViolation)
     end
   end
 

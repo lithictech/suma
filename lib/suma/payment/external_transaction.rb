@@ -74,6 +74,38 @@ module Suma::Payment::ExternalTransaction
       self.audit(message, reason:)
     end
 
+    protected def _originate_book_transaction(originating_ledger:, receiving_ledger:)
+      return unless self.originated_book_transaction.nil?
+      associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
+      self.db.transaction do
+        originated_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: Suma.request_now,
+          amount: self.amount,
+          originating_ledger:,
+          receiving_ledger:,
+          associated_vendor_service_category:,
+          memo: self.memo,
+        )
+        # If the transaction fails, this gets reversed (adds a new inverted 'reversal book transaction')
+        self.update(originated_book_transaction:)
+      end
+    end
+
+    protected def _reverse_originated_book_transaction
+      return unless self.reversal_book_transaction.nil? && (orig_bx = self.originated_book_transaction)
+      self.db.transaction do
+        reversal_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: Suma.request_now,
+          amount: orig_bx.amount,
+          originating_ledger: orig_bx.receiving_ledger,
+          receiving_ledger: orig_bx.originating_ledger,
+          associated_vendor_service_category: orig_bx.associated_vendor_service_category,
+          memo: self.memo,
+        )
+        self.update(reversal_book_transaction:)
+      end
+    end
+
     #
     # :section: Sequel Hooks
     #

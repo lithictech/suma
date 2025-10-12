@@ -33,18 +33,16 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
   end
 
   def collect_funds
-    return false if self.ach_transfer_id.present?
+    return if self.ach_transfer_id.present?
     self.ach_transfer_json = Suma::Increase.create_ach_debit_from_bank_account(
       self.originating_bank_account,
       amount_cents: self.funding_transaction.amount.cents,
       memo: self.funding_transaction.memo.en,
     )
-    if self.ach_transfer_id.blank?
-      msg = "Increase ACH Transfer Id was not set after API call from #{self.class.name}[#{self.id}]. " \
-            "JSON: #{self.ach_transfer_json}"
-      raise Suma::InvalidPostcondition, msg
-    end
-    return true
+    return unless self.ach_transfer_id.blank?
+    msg = "Increase ACH Transfer Id was not set after API call from #{self.class.name}[#{self.id}]. " \
+          "JSON: #{self.ach_transfer_json}"
+    raise Suma::InvalidPostcondition, msg
   end
 
   def funds_cleared?

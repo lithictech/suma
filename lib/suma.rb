@@ -244,6 +244,12 @@ module Suma
 
   def self.set_request_now(t)
     Thread.current[:suma_request_now] = t
+    return unless block_given?
+    begin
+      yield
+    ensure
+      set_request_now(nil)
+    end
   end
 
   # Dynamically require files using +Gem.find_files+.
