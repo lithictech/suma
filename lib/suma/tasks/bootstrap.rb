@@ -61,15 +61,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       admin.ensure_role(Suma::Role.cache.admin)
       Suma::Payment.ensure_cash_ledger(admin)
 
-      usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
-      Suma::SupportedGeography.find_or_create(
+      usa = Suma::SupportedGeography.create(label: "USA", value: "United States of America", type: "country")
+      Suma::SupportedGeography.create(
         label: "Oregon", value: "Oregon", type: "province", parent: usa,
       )
-      Suma::SupportedGeography.find_or_create(
+      Suma::SupportedGeography.create(
         label: "North Carolina", value: "North Carolina", type: "province", parent: usa,
       )
 
-      Suma::SupportedCurrency.find_or_create(code: "USD") do |c|
+      Suma::SupportedCurrency.create(code: "USD") do |c|
         c.symbol = "$"
         c.funding_minimum_cents = 500
         c.funding_maximum_cents = 100_00
@@ -79,42 +79,38 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.ordinal = 1
       end
 
-      Suma::Organization.find_or_create(name: "Affordable Housing")
-      Suma::Organization.find_or_create(name: "Homes for All")
+      Suma::Organization.create(name: "Affordable Housing")
+      Suma::Organization.create(name: "Homes for All")
     end
   end
 
   class Mobility < Common
     def fixture
-      lime_vs = self.create_mobility_vendor_service(
-        vendor_name: "Lime",
-        internal_name: "lime_demo_mobility_deeplink",
-        external_name: "Lime Demo E-Scooter",
+      lemon_vs = self.create_mobility_vendor_service(
+        vendor_name: "Lemon",
+        internal_name: "lemon_mobility_deeplink",
+        external_name: "Lemon E-Scooter",
         constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-        mobility_vendor_adapter_key: "lime_deeplink",
       )
-      # Lime: "https://data.lime.bike/api/partners/v2/gbfs_transit"
-      lyft_vs = self.create_mobility_vendor_service(
-        vendor_name: "Lyft",
-        internal_name: "biketown_demo_mobility_deeplink",
-        external_name: "Biketown Demo E-Bike",
+      rayse_vs = self.create_mobility_vendor_service(
+        vendor_name: "Rayse",
+        internal_name: "rayse_mobility_deeplink",
+        external_name: "Rayse E-Bike",
         constraints: [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}],
-        mobility_vendor_adapter_key: "lyft_deeplink",
       )
       Suma::Mobility::GbfsFeed.create(
         feed_root_url: "https://gbfs.lyft.com/gbfs/2.3/pdx/en",
-        vendor: lyft_vs.vendor,
+        vendor: rayse_vs.vendor,
       )
-      self.sync_bikes(vendor_service: lime_vs, vehicle_type: "escooter")
-      self.sync_bikes(vendor_service: lyft_vs, vehicle_type: "ebike")
+      self.sync_bikes(vendor_service: lemon_vs, vehicle_type: "escooter")
+      self.sync_bikes(vendor_service: rayse_vs, vehicle_type: "ebike")
     end
 
     protected def create_mobility_vendor_service(
       vendor_name:,
       internal_name:,
       external_name:,
-      constraints:,
-      mobility_vendor_adapter_key:
+      constraints:
     )
       vendor = Suma::Vendor.create(name: vendor_name)
       svc = Suma::Vendor::Service.create(
@@ -122,10 +118,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         internal_name:,
         external_name:,
         constraints:,
-        mobility_vendor_adapter_key:,
-        period: Time.now..1.year.from_now,
+        period: Time.now..100.years.from_now,
       )
-      svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category))
+      svc.mobility_adapter_setting = "deep_linking_suma_receipts"
+      svc.add_category(self.mobility_category)
       return svc
     end
 
@@ -148,13 +144,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_private_accounts
-      [Suma::Vendor[name: "Lime"], Suma::Vendor[name: "Lyft"]].each do |vendor|
-        Suma::AnonProxy::VendorConfiguration.find_or_create(vendor:) do |vc|
+      [Suma::Vendor[name: "Lemon"], Suma::Vendor[name: "Rayse"]].each do |vendor|
+        Suma::AnonProxy::VendorConfiguration.create(vendor:) do |vc|
           vc.enabled = true
           vc.auth_to_vendor_key = "fake"
           vc.message_handler_key = "fake"
           vc.app_install_link = "https://mysuma.org"
-          vc.instructions = Suma::TranslatedText.find_or_create(
+          vc.instructions = Suma::TranslatedText.create(
             en: <<~MD,
               1. Step 1 en
               1. Step 2 en
@@ -185,12 +181,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       offering = Suma::Commerce::Offering.create do |o|
         o.confirmation_template = "2022_12_pilot_confirmation"
         o.period = Time.now..1.year.from_now
-        o.description = Suma::TranslatedText.find_or_create(en: "Holidays Demo", es: "Días festivos")
-        o.fulfillment_prompt = Suma::TranslatedText.find_or_create(
+        o.description = Suma::TranslatedText.create(en: "Holidays Demo", es: "Días festivos")
+        o.fulfillment_prompt = Suma::TranslatedText.create(
           en: "How do you want to get your stuff?",
           es: "¿Cómo desea obtener sus cosas?",
         )
-        o.fulfillment_confirmation = Suma::TranslatedText.find_or_create(
+        o.fulfillment_confirmation = Suma::TranslatedText.create(
           en: "How you’re getting it",
           es: "Cómo lo está recibiendo",
         )
@@ -200,7 +196,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       offering.add_fulfillment_option(
         type: "pickup",
         ordinal: 0,
-        description: Suma::TranslatedText.find_or_create(
+        description: Suma::TranslatedText.create(
           en: "Pickup at Market (Dec 21-22)",
           es: "Recogida en Market (21-22 de dic)",
         ),
@@ -214,7 +210,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       offering.add_fulfillment_option(
         type: "pickup",
         ordinal: 1,
-        description: Suma::TranslatedText.find_or_create(
+        description: Suma::TranslatedText.create(
           en: "Pickup at Community Location (Dec 21-22)",
           es: "Recogida en una ubicación de la comunidad (21-22 de dic)",
         ),
@@ -244,7 +240,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         },
       ]
 
-      vendor = Suma::Vendor.find_or_create(name: "Local Market")
+      vendor = Suma::Vendor.create(name: "Local Market")
       products.each do |ps|
         self.create_product(
           name_en: ps[:name_en],
@@ -269,10 +265,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         active_during: Time.now..1.year.from_now,
         match_multiplier: 8,
         maximum_cumulative_subsidy_cents: 80_00,
-        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.holidays_category),
         receiving_ledger_name: "Holidays Food Demo",
-        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
+        receiving_ledger_contribution_text: Suma::TranslatedText.create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
       )
     end
 
@@ -293,15 +289,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         o.period = offering_period
         o.confirmation_template = "2023_07_pilot_confirmation"
         o.set(
-          description: Suma::TranslatedText.find_or_create(
+          description: Suma::TranslatedText.create(
             en: "#{market_name} Ride & Shop",
             es: "Paseo y Compra en #{market_name}",
           ),
-          fulfillment_prompt: Suma::TranslatedText.find_or_create(
+          fulfillment_prompt: Suma::TranslatedText.create(
             en: "Do you need transportation?",
             es: "¿Necesitas transporte?",
           ),
-          fulfillment_confirmation: Suma::TranslatedText.find_or_create(
+          fulfillment_confirmation: Suma::TranslatedText.create(
             en: "Transportation needed",
             es: "Necesito transporte",
           ),
@@ -314,7 +310,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         {
           type: "pickup",
           ordinal: 0,
-          description: Suma::TranslatedText.find_or_create(
+          description: Suma::TranslatedText.create(
             en: "Yes, please contact me",
             es: "Sí, por favor contácteme",
           ),
@@ -323,7 +319,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         {
           type: "pickup",
           ordinal: 1,
-          description: Suma::TranslatedText.find_or_create(
+          description: Suma::TranslatedText.create(
             en: "No, I have my own transportation",
             es: "No, tengo mi propio transporte",
           ),
@@ -400,63 +396,63 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         active_during: Time.now..1.year.from_now,
         match_multiplier: 3.8,
         maximum_cumulative_subsidy_cents: 1900,
-        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_intro_category),
         receiving_ledger_name: "Farmers Market Intro Demo",
-        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Intro Offer", es: "FM Intro Offer (es)"),
+        receiving_ledger_contribution_text: Suma::TranslatedText.create(en: "FM Intro Offer", es: "FM Intro Offer (es)"),
       )
       Suma::Payment::Trigger.create(
         label: "Farmers market 1 to 1",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 1,
         maximum_cumulative_subsidy_cents: 1500,
-        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_match_category),
         receiving_ledger_name: "Farmers Market Match Demo",
-        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Match", es: "FM Match (es)"),
+        receiving_ledger_contribution_text: Suma::TranslatedText.create(en: "FM Match", es: "FM Match (es)"),
       )
     end
   end
 
   class Programs
     def fixture
-      scooter_rate = Suma::Vendor::ServiceRate.find_or_create(name: "Demo Scooter Rate") do |r|
+      scooter_rate = Suma::Vendor::ServiceRate.create(name: "Lemon Scooter Rate") do |r|
         r.surcharge = Money.new(0)
         r.unit_amount = Money.new(7)
-        r.localization_key = "mobility_start_and_per_minute"
+        r.localization_key = "rates.unlock_and_per_minute"
       end
-      scooter_vs = Suma::Vendor::Service[internal_name: "lime_demo_mobility_deeplink"]
-      bike_rate = Suma::Vendor::ServiceRate.find_or_create(name: "Demo Bike Rate") do |r|
+      scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
+
+      bike_rate = Suma::Vendor::ServiceRate.create(name: "Rayse Bike Rate") do |r|
         r.surcharge = Money.new(50)
         r.unit_amount = Money.new(10)
-        r.localization_key = "mobility_start_and_per_minute"
+        r.localization_key = "rates.unlock_and_per_minute"
       end
-      bike_vs = Suma::Vendor::Service[internal_name: "biketown_demo_mobility_deeplink"]
+      bike_vs = Suma::Vendor::Service[internal_name: "rayse_mobility_deeplink"]
 
-      mobility_program_name = Suma::TranslatedText.find_or_create(en: "Micromobility", es: "Micromobility (ES)")
-      mobility_program = Suma::Program.find_or_create(name: mobility_program_name) do |g|
-        g.description = Suma::TranslatedText.find_or_create(en: "Ride electric bikes and scooters", es: "Ride electric bikes and scooters (ES)")
+      mobility_program_name = Suma::TranslatedText.create(en: "Micromobility", es: "Micromobility (ES)")
+      mobility_program = Suma::Program.create(name: mobility_program_name) do |g|
+        g.description = Suma::TranslatedText.create(en: "Ride electric bikes and scooters", es: "Ride electric bikes and scooters (ES)")
         g.period = 1.year.ago..1.year.from_now
         g.app_link = "/mobility"
-        g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out mobility map", es: "Check out mobility map (ES)")
+        g.app_link_text = Suma::TranslatedText.create(en: "Check out mobility map", es: "Check out mobility map (ES)")
       end
 
       mobility_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})
       mobility_program.add_pricing({vendor_service: bike_vs, vendor_service_rate: bike_rate})
 
-      fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
-      fm_program = Suma::Program.find_or_create(name: fm_name) do |g|
-        g.description = Suma::TranslatedText.find_or_create(en: "Get subsidized local food", es: "Get subsidized local food (ES)")
+      fm_name = Suma::TranslatedText.create(en: "Farmers Markets", es: "Farmers Markets (ES)")
+      fm_program = Suma::Program.create(name: fm_name) do |g|
+        g.description = Suma::TranslatedText.create(en: "Get subsidized local food", es: "Get subsidized local food (ES)")
         g.period = 1.year.ago..1.year.from_now
         g.app_link = "/food"
-        g.app_link_text = Suma::TranslatedText.find_or_create(en: "See offering", es: "See offering (ES)")
+        g.app_link_text = Suma::TranslatedText.create(en: "See offering", es: "See offering (ES)")
       end
-      return unless fm_program.commerce_offerings.empty?
       fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022_12_pilot_confirmation"])
       fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023_07_pilot_confirmation"])
 
       Suma::Program.all.each do |pr|
-        pr.add_enrollment(role: Suma::Role.cache.admin, approved_at: Time.now)
+        pr.add_enrollment(role: Suma::Role.cache.member, approved_at: Time.now)
       end
     end
   end

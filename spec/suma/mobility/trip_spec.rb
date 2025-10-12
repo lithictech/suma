@@ -5,13 +5,8 @@ require "suma/behaviors"
 RSpec.describe "Suma::Mobility::Trip", :db do
   let(:described_class) { Suma::Mobility::Trip }
   let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
-  let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create(external_name: "Super Scoot") }
   let(:rate) { Suma::Fixtures.vendor_service_rate.create }
   let(:t) { trunc_time(Time.now) }
-
-  before(:each) do
-    Suma::Mobility::VendorAdapter::Fake.reset
-  end
 
   it "can be fixtured" do
     expect(Suma::Fixtures.mobility_trip.create).to be_a(described_class)
@@ -22,6 +17,8 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   end
 
   describe "start_trip" do
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_maas.create(external_name: "Super Scoot") }
+
     it "creates a trip with the given parameters" do
       trip = described_class.start_trip(
         member:,
@@ -96,8 +93,10 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   end
 
   describe "start_trip_from_vehicle" do
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_maas.create }
+
     it "uses vehicle params for the trip" do
-      v = Suma::Fixtures.mobility_vehicle.create
+      v = Suma::Fixtures.mobility_vehicle.create(vendor_service:)
       trip = described_class.start_trip_from_vehicle(member:, vehicle: v, rate:)
       expect(trip).to have_attributes(
         vehicle_id: v.vehicle_id,
@@ -109,7 +108,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
     it "errors if the service prohibits usage" do
       member.update(onboarding_verified: false)
-      v = Suma::Fixtures.mobility_vehicle.create
+      v = Suma::Fixtures.mobility_vehicle.create(vendor_service:)
       expect do
         described_class.start_trip_from_vehicle(member:, vehicle: v, rate:)
       end.to raise_error(Suma::Member::ReadOnlyMode)
@@ -117,25 +116,20 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   end
 
   describe "end_trip" do
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_maas.create(external_name: "Super Scoot") }
     let!(:mobility_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
     let!(:cash) { Suma::Vendor::ServiceCategory.find!(slug: "cash") }
     let!(:mobility) { Suma::Vendor::ServiceCategory.find!(slug: "mobility") }
 
     it "ends the trip and creates a charge using the returned cost" do
-      Suma::Mobility::VendorAdapter::Fake.end_trip_callback = lambda do |etr|
-        etr.cost = money("$1.20")
-        etr.undiscounted = money("$1.62")
-      end
-      trip = Suma::Fixtures.mobility_trip.ongoing.create(member:)
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(member:, vendor_service:)
       trip.end_trip(lat: 1, lng: 2, now: Time.now)
       expect(trip.refresh).to have_attributes(end_lat: 1, end_lng: 2)
       expect(trip.charge).to have_attributes(
-        undiscounted_subtotal: cost("$1.62"),
-        discounted_subtotal: cost("$1.20"),
+        undiscounted_subtotal: cost("$0"),
+        discounted_subtotal: cost("$0"),
       )
-      expect(trip.charge.line_items).to contain_exactly(
-        have_attributes(book_transaction: have_attributes(amount: cost("$1.20"))),
-      )
+      expect(trip.charge.line_items).to be_empty
     end
 
     it "charges the mobility ledger if there is a balance" do
@@ -217,7 +211,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
       trip = Suma::Fixtures.mobility_trip.
         ongoing.
-        create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
+        create(began_at: 6.minutes.ago, vendor_service:, vendor_service_rate: rate, member:)
       trip.end_trip(lat: 1, lng: 2, now: Time.now)
       expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
       expect(trip.charge.line_items).to be_empty
@@ -225,6 +219,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   end
 
   describe "import_trip" do
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
     let(:began_at) { 30.minutes.ago }
 
     it "imports and charges the given trip" do

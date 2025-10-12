@@ -14,9 +14,7 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
     let(:mc) { Suma::Fixtures.anon_proxy_member_contact.email.create(member:) }
     let(:program) do
       Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.
-          mobility.
-          create(mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service: Suma::Fixtures.vendor_service.mobility_deeplink.create,
         vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
       ).create
     end

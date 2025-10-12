@@ -15,8 +15,65 @@ RSpec.describe "Suma::Vendor::Service", :db do
   end
 
   it "can create mobility vendor adapters" do
-    vs = Suma::Fixtures.vendor_service.mobility.create
-    expect(vs.mobility_adapter).to be_a(Suma::Mobility::VendorAdapter::Fake)
+    vs = Suma::Fixtures.vendor_service.mobility_maas.create
+    expect(vs.mobility_adapter.trip_provider).to be_a(Suma::Mobility::TripProvider::Internal)
+  end
+
+  describe "mobility adapter settings" do
+    it "can set and describe all options" do
+      vs = Suma::Fixtures.vendor_service.create
+      expect(vs.mobility_adapter_setting_options).to match_array(
+        [
+          {name: "No Adapter/Non-Mobility", value: "no_adapter"},
+          {name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"},
+          {name: "Deep Linking (vendor sends receipts)", value: "deep_linking_vendor_receipts"},
+          {name: "MaaS: lime_maas", value: "lime_maas"},
+          {name: "MaaS: internal", value: "internal"},
+        ],
+      )
+
+      expect(vs).to have_attributes(
+        mobility_adapter_setting: "no_adapter",
+        mobility_adapter_setting_name: "No Adapter/Non-Mobility",
+        mobility_adapter: nil,
+      )
+
+      vs.mobility_adapter_setting = "deep_linking_suma_receipts"
+      expect(vs).to have_attributes(
+        mobility_adapter_setting: "deep_linking_suma_receipts",
+        mobility_adapter_setting_name: "Deep Linking (suma sends receipts)",
+        mobility_adapter: have_attributes(uses_deep_linking: true, trip_provider_key: "", send_receipts: true),
+      )
+
+      vs.mobility_adapter_setting = "deep_linking_vendor_receipts"
+      expect(vs).to have_attributes(
+        mobility_adapter_setting: "deep_linking_vendor_receipts",
+        mobility_adapter: have_attributes(uses_deep_linking: true, trip_provider_key: "", send_receipts: false),
+      )
+
+      vs.mobility_adapter_setting = "internal"
+      expect(vs).to have_attributes(
+        mobility_adapter_setting: "internal",
+        mobility_adapter: have_attributes(uses_deep_linking: false, trip_provider_key: "internal"),
+      )
+
+      vs.mobility_adapter_setting = "deep_linking_vendor_receipts"
+      expect(vs).to have_attributes(
+        mobility_adapter_setting: "deep_linking_vendor_receipts",
+        mobility_adapter: have_attributes(uses_deep_linking: true, trip_provider_key: ""),
+      )
+
+      vs.mobility_adapter_setting = "no_adapter"
+      expect(vs).to have_attributes(
+        mobility_adapter_setting: "no_adapter",
+        mobility_adapter: nil,
+      )
+    end
+
+    it "errors for an invalid setting" do
+      vs = Suma::Fixtures.vendor_service.create
+      expect { vs.mobility_adapter_setting = "foo" }.to raise_error(Sequel::ValidationFailed)
+    end
   end
 
   describe "guard_usage!" do

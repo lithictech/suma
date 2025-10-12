@@ -4,7 +4,7 @@ require "suma/mobility/gbfs"
 require "suma/mobility/gbfs/fake_client"
 
 RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
-  let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
+  let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
   let(:vendor) { vendor_service.vendor }
   let(:fake_geofencing_json) do
     {

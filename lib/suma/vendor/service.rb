@@ -28,6 +28,8 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   include Suma::Vendor::HasServiceCategories
 
   one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id, order: order_desc
+  one_to_one :mobility_adapter, class: "Suma::Mobility::VendorAdapter", key: :vendor_service_id
+
   one_to_many :program_pricings,
               class: "Suma::Program::Pricing",
               key: :vendor_service_id,
@@ -47,10 +49,6 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     end
   end
 
-  def mobility_adapter
-    return Suma::Mobility::VendorAdapter.create(self.mobility_vendor_adapter_key)
-  end
-
   # Raise a +Suma::Member::ReadOnlyMode+ error there is a +usage_prohibited_reason+.
   # This should generally be called before starting to use the service.
   def guard_usage!(member, rate:, now:)
@@ -67,6 +65,55 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
       member.default_payment_instrument.nil?
     return "usage_prohibited_instrument_required" if instrument_required
     return nil
+  end
+
+  def mobility_adapter_setting_options
+    return [
+      {name: "No Adapter/Non-Mobility", value: "no_adapter"},
+      {name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"},
+      {name: "Deep Linking (vendor sends receipts)", value: "deep_linking_vendor_receipts"},
+    ].concat(
+      Suma::Mobility::TripProvider.registered_keys.map do |value|
+        {name: "MaaS: #{value}", value:}
+      end,
+    )
+  end
+
+  def mobility_adapter_setting
+    return "no_adapter" if self.mobility_adapter.nil?
+    if self.mobility_adapter.uses_deep_linking?
+      return "deep_linking_suma_receipts" if self.mobility_adapter.send_receipts?
+      return "deep_linking_vendor_receipts"
+    end
+    return self.mobility_adapter.trip_provider_key
+  end
+
+  def mobility_adapter_setting_name
+    self.mobility_adapter_setting_options.find { |h| h[:value] == self.mobility_adapter_setting }.fetch(:name)
+  end
+
+  def mobility_adapter_setting=(value)
+    case value
+      when "no_adapter"
+        self.mobility_adapter&.destroy
+        self.associations[:mobility_adapter] = nil
+      when "deep_linking_suma_receipts"
+        self.ensure_mobility_adapter.configure_deep_linking(send_receipts: true).save_changes
+      when "deep_linking_vendor_receipts"
+        self.ensure_mobility_adapter.configure_deep_linking(send_receipts: false).save_changes
+      else
+        self.ensure_mobility_adapter.configure_trip_provider(value).save_changes
+    end
+  end
+
+  def ensure_mobility_adapter
+    if self.mobility_adapter.nil?
+      Suma::Mobility::VendorAdapter.find_or_create_or_find(vendor_service: self) do |a|
+        # Need to give it some default.
+        a.uses_deep_linking = true
+      end
+    end
+    return self.mobility_adapter
   end
 
   # A hash is said to satisfy the vendor service constraints
