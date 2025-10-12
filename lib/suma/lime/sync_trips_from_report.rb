@@ -68,7 +68,7 @@ class Suma::Lime::SyncTripsFromReport
     vendor_config = registration.account.configuration
     program = Suma::Enumerable.one!(vendor_config.programs)
     pricing = Suma::Enumerable.one!(program.pricings)
-    receipt = self.parse_row_to_receipt(row, rate: pricing.vendor_service_rate)
+    receipt = self.parse_row_to_receipt(row)
     receipt.trip.set(
       member: registration.account.member,
       vendor_service: pricing.vendor_service,
@@ -77,7 +77,45 @@ class Suma::Lime::SyncTripsFromReport
     Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
   end
 
-  def parse_row_to_receipt(row, rate:)
+  # Convert a CSV report row into a parsed receipt.
+  # Unfortunately this report is a bit of a mess, but we need to use it,
+  # so here is a long explanation.
+  #
+  # There are 3 prices in this report:
+  # - The full, undiscounted retail price, which we'll call 'undiscounted retail price' (URP)
+  # - The Lime Access price, which we'll call the 'discounted retail price' (DRP)
+  # - How much Lime charged suma (which is what suma will charge the member), which we'll call the 'suma price' (SP)
+  #
+  # We need to get enough information to show the user a line-itemed receipt of what they were charged,
+  # along with the full undiscounted price.
+  #
+  # Lime tells us some information in its report, but much of it is wrong.
+  # So we need to both use and derive necessary information.
+  #
+  # - PRICE_PER_MINUTE is wrong and unusable. It seems to vary between 7 and 9 cents.
+  # - TRIP_DURATION_MINUTES is wrong, and we don't need to use it.
+  #   'end - begin in minutes inclusive' gives a more accurate trip length,
+  #   as verified by comparing it to the trip price.
+  # - INTERNAL_COST is the Lime Access cost (DRP), and we can ignore it.
+  # - NORMAL_COST gives us the correct full retail cost, verified when we use proper minute calculation.
+  #   Since we don't need line item information, we can use this as the URP.
+  # - ACTUAL_COST is what Lime charged the user's account (suma). This is the SP.
+  #
+  # However, to make a receipt useful, we need to provide line items:
+  # - Unlock cost
+  # - Per-minute cost and ride cost.
+  #
+  # Since we have to ignore PRICE_PER_MINUTE (it's inconsistent,
+  # and it's not clear if it would map correctly to INTERNAL_COST anyway),
+  # we *must* use our pricing to 'undiscounted pricing' to get the per-minute URP cost.
+  #
+  # We can then subtract that ride cost from the NORMAL_COST to get the unlock fee.To get URP, we can just use NORMAL_COST. We prefer this over calculating it ourselves from a Vendor::Service::Rate.
+  #
+  # We don't actually care about DRP. This is only relevant for storytelling about platform value.
+  # We only care about the SP and URP when it comes to platform costs and savings.
+  #
+  # When we calculate SP,
+  def parse_row_to_receipt(row)
     r = Suma::Mobility::TripImporter::Receipt.new
     r.trip.set(
       vehicle_id: row.fetch(TRIP_TOKEN),
@@ -86,26 +124,35 @@ class Suma::Lime::SyncTripsFromReport
       ended_at: parsetime(row.fetch(END_TIME)),
       external_trip_id: row.fetch(TRIP_TOKEN),
     )
-    r.total = Monetize.parse(row.fetch(ACTUAL_COST))
-    minutes = r.trip.duration_minutes
     # Unfortunately the cost columns in this report are not correct.
+    # However, since what Lime lists as its cost, and what it charges suma, are based on out-of-band mechanics,
+    # NOT our suma service rates, we need to use what Lime tells us, always.
+    # Here are some notes on the problems with the columns as of early October 2025.
+    #
+    #
+    #
+    # This is the only Lime column we can ignore.
+    #
     # INTERNAL_COST should be the Lime Access cost,
-    # but it cannot be derived from PRICE_PER_MINUTE and TRIP_DURATION_MINUTES.
-    # PRICE_PER_MINUTE is wrong, no idea why it's not consistent.
-    # TRIP_DURATION_MINUTES is wrong. 'end - begin in minutes inclusive' gives a more accurate trip length,
-    # as verified by comparing it to the trip price.
-    # NORMAL_COST may give us the correct full retail cost (if we use proper minute calculation),
-    # but we can't get any line item information at that point since we don't know per-minute pricing.
-    # So, in the end: use the actual cost they give us,
-    # and then use the vendor service to figure out discount.
-    Suma.assert do
-      r.total == rate.calculate_total(minutes)
-    end
-    r.discount = rate.discount(minutes)
+    # but it cannot be derived from PRICE_PER_MINUTE and TRIP_DURATION_MINUTES,
+    # since both are independently wrong.
+    # However, we need to use this column to derive the 'unlock cost'
+    #
+    #
+    #
+    #
+    #
+    undiscounted_cost = Monetize.parse(row.fetch(NORMAL_COST))
+    r.total = Monetize.parse(row.fetch(ACTUAL_COST))
+    r.discount = undiscounted_cost - r.total
+    per_minute_rate = Monetize.parse(row.fetch(PRICE_PER_MINUTE))
+    minutes = r.trip.duration_minutes
+    riding_cost = per_minute_rate * r.trip.duration_minutes
+    unlock_cost = undiscounted_cost - riding_cost
     r.line_items << r.line_item(amount: rate.surcharge, memo: "Start Fee")
     r.line_items << r.line_item(
-      amount: rate.calculate_unit_cost(minutes),
-      memo: "Riding - #{rate.unit_amount.format}/min (#{minutes} min)",
+      amount: riding_cost,
+      memo: "Riding - #{per_minute_rate.format}/min (#{minutes} min)",
     )
     return r
   end

@@ -2,11 +2,15 @@
 
 module Suma::Mobility::TripImporter
   class Receipt < Suma::TypedStruct
-    attr_accessor :trip,
-                  :total,
-                  :discount,
-                  :image_url
-
+    # @!attribute trip [Suma::Mobility::Trip] unsaved, parsed trip.
+    attr_accessor :trip
+    # @!attribute total [Money] How much the member was charged.
+    attr_accessor :total
+    # @!attribute discount [Money] How much the member avoided paying.
+    #   Added to +total+ to get the undiscounted trip cost.
+    attr_accessor :discount
+    # @!attribute image_url [String] Optional url of the trip route image.
+    attr_accessor :image_url
     # @return [Array<LineItem>]
     attr_accessor :line_items
 

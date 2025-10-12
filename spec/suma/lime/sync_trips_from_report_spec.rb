@@ -61,13 +61,12 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       expect(Suma::Mobility::Trip.all).to be_empty
     end
 
-    it "calculates and charges the cost based on rate" do
+    it "calculates and charges ACTUAL_COST" do
       card = Suma::Fixtures.card.member(member).create
       txt = <<~CSV
         TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$2.99,$3.44,$19.06,m1@in.mysuma.org,$0.77
       CSV
-      rate.update(surcharge_cents: 5, unit_amount_cents: 7)
       described_class.new.run_for_report(txt)
       charge = Suma::Mobility::Trip.first.charge
       expect(charge).to have_attributes(undiscounted_subtotal: cost("$2.99"), discounted_subtotal: cost("$2.99"))
@@ -80,14 +79,12 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       )
     end
 
-    it "calculates discount based on undiscounted rate" do
+    it "calculates discount based on NORMAL_COST" do
       Suma::Fixtures.card.member(member).create
       txt = <<~CSV
         TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.44,$3.44,$19.06,m1@in.mysuma.org,$0.77
       CSV
-      rate.update(surcharge_cents: 2, unit_amount_cents: 1)
-      rate.update(undiscounted_rate: Suma::Fixtures.vendor_service_rate.unit_amount(7).surcharge(5).create)
       described_class.new.run_for_report(txt)
       charge = Suma::Mobility::Trip.first.charge
       expect(charge).to have_attributes(undiscounted_subtotal: cost("$2.99"), discounted_subtotal: cost("$0.44"))
