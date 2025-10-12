@@ -50,14 +50,14 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
           ),
         ).
         to_return(fixture_response("increase/ach_transfer"))
-      expect(strategy.collect_funds).to eq(true)
+      strategy.collect_funds
       expect(req).to have_been_made
       expect(strategy.ach_transfer_id).to eq("ach_transfer_uoxatyh3lt5evrsdvo7q")
     end
 
     it "noops if an increase ach transfer id is present" do
       strategy.ach_transfer_json = {id: "ach-transfer-id"}.to_json
-      expect(strategy.collect_funds).to eq(false)
+      expect { strategy.collect_funds }.to_not(change { strategy.ach_transfer_json })
     end
 
     it "errors if no Increase ach transfer id is set after it is called" do

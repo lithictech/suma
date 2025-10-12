@@ -29,6 +29,7 @@ RSpec.shared_examples "a payout transaction payment strategy" do
     assert_implemented { strategy.ready_to_send_funds? }
     assert_implemented { strategy.send_funds }
     assert_implemented { strategy.funds_settled? }
+    assert_implemented { strategy.send_failed? }
   end
 end
 

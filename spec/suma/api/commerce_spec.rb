@@ -325,7 +325,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:cost) { cart.customer_cost.cents }
 
     around(:each) do |ex|
-      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready) do
         ex.run
       end
     end
@@ -344,6 +344,15 @@ RSpec.describe Suma::API::Commerce, :db do
       checkout.soft_delete
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
+    end
+
+    it "409s if the payment fails to process" do
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
+      end
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))

@@ -45,14 +45,14 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
           ),
         ).to_return(**fixture_response("stripe/charge"))
 
-      expect(strategy.collect_funds).to eq(true)
+      strategy.collect_funds
       expect(req).to have_been_made
       expect(strategy.charge_id).to eq("ch_1Cgkfs2eZvKYlo2CVPsK4I3f")
     end
 
     it "noops if a charge is present" do
       strategy.charge_json = {"id" => "ch_abc"}.to_json
-      expect(strategy.collect_funds).to eq(false)
+      expect { strategy.collect_funds }.to_not(change { strategy.charge_json })
     end
   end
 
@@ -85,7 +85,7 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
         to_return(fixture_response(body: error_body.to_json, status: 400))
 
       get_body = load_fixture_data("stripe/charge")
-      get_body["refunded"] = true
+      get_body["status"] = "failed"
       get_body["captured"] = false
       get_req = stub_request(:get, "https://api.stripe.com/v1/charges/ch_123").
         to_return(fixture_response(body: get_body.to_json))
@@ -93,7 +93,7 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       expect(strategy).to_not be_funds_cleared
       expect(capture_req).to have_been_made
       expect(get_req).to have_been_made
-      expect(strategy.charge_json.as_json).to include("refunded" => true)
+      expect(strategy.charge_json.as_json).to include("status" => "failed")
       expect(strategy).to be_funds_canceled
     end
 
@@ -133,10 +133,10 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       end.to raise_error(Suma::InvalidPrecondition, /Stripe charge id not set/)
     end
 
-    it "is true if the charge is refunded" do
-      strategy.charge_json = {"id" => "ch_123", "refunded" => true}
+    it "is true if the charge is failed" do
+      strategy.charge_json = {"id" => "ch_123", "status" => "failed"}
       expect(strategy).to be_funds_canceled
-      strategy.charge_json = {"id" => "ch_123", "refunded" => false}
+      strategy.charge_json = {"id" => "ch_123", "status" => "pending"}
       expect(strategy).to_not be_funds_canceled
     end
   end

@@ -97,7 +97,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       Suma::Payment.ensure_cash_ledger(member)
       card = Suma::Fixtures.card.member(member).create
       co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-      order = Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+      order = Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready) do
         co1.create_order(cash_charge_amount: co1.items.sum(&:customer_cost), apply_at: Time.now)
       end
       return order

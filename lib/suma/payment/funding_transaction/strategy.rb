@@ -11,6 +11,7 @@ module Suma::Payment::FundingTransaction::Strategy
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,
   # it does not have to be totally unambiguous.
+  # @return [String]
   def short_name = raise NotImplementedError
 
   # Return an array of reasons this strategy is not valid
@@ -34,6 +35,7 @@ module Suma::Payment::FundingTransaction::Strategy
   def supports_refunds? = false
 
   # Something like the last-4 of the card, or 'Off Platform'.
+  # # @return [String]
   def originating_instrument_label = raise NotImplementedError
 
   # Return true if we are ready to initiate
@@ -43,8 +45,6 @@ module Suma::Payment::FundingTransaction::Strategy
 
   # Start a payment with the given details.
   # This method must be idempotent.
-  # It should return true the 'first time' through to the end of the function;
-  # in other cases, such as an idempotent call, it should return false.
   # In the case of being unable to collect funds, one of two exceptions should be raised:
   # - Suma::Payment::FundingTransaction::CollectionFailed when the payment should move into a 'needs review' state,
   # - Any other exception type, in which case the collection will be retried.

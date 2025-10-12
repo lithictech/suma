@@ -79,14 +79,12 @@ Naming/PredicateMethod:
   AllowedMethods:
     - 'admin_member?'
     - 'authenticated_object?'
-    - 'collect_funds'
     - 'connect'
     - 'drop_blobs_table'
     - 'fail_with'
     - 'format?'
     - 'read_key'
     - 'repl'
-    - 'send_funds'
     - 'write_key'
     - 'with_lock?'
   AllowedPatterns:

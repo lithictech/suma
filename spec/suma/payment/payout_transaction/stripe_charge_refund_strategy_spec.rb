@@ -23,7 +23,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
         with(body: hash_including("charge" => "ch_1", amount: xaction.amount.cents.to_s)).
         to_return(json_response(load_fixture_data("stripe/refund")))
 
-      expect(strategy.send_funds).to eq(true)
+      strategy.send_funds
       expect(req).to have_been_made
       expect(strategy).to have_attributes(
         stripe_charge_id: "ch_1",
@@ -38,7 +38,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
 
     it "noops if a succeeded refund is present" do
       strategy.refund_json = {"id" => "re_abc", "status" => "succeeded"}.to_json
-      expect(strategy.send_funds).to eq(false)
+      expect { strategy.send_funds }.to_not(change { strategy.refund_json })
     end
 
     it "errors if somehow the id isn't set after calling Stripe" do
@@ -54,12 +54,22 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
   end
 
   describe "funds_settled?" do
-    it "is true if the charge is captured" do
+    it "is true if the refund succeeded" do
       strategy.refund_json = {"id" => "re_123", "status" => "pending"}
       expect(strategy).to_not be_funds_settled
 
       strategy.refund_json = {"id" => "re_123", "status" => "succeeded"}
       expect(strategy).to be_funds_settled
+    end
+  end
+
+  describe "send_failed?" do
+    it "is true if the refund is in a failed state" do
+      strategy.refund_json = {"id" => "re_123", "status" => "succeeded"}
+      expect(strategy).to_not be_send_failed
+
+      strategy.refund_json = {"id" => "re_123", "status" => "canceled"}
+      expect(strategy).to be_send_failed
     end
   end
 
@@ -94,28 +104,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
       )
     end
 
-    it "creates non-credit refund payout transactions for Stripe refunds in webhookdb" do
-      described_class.backfill_payouts_from_webhookdb
-      expect(Suma::Payment::PayoutTransaction.all).to contain_exactly(
-        have_attributes(
-          status: "settled",
-          amount: cost("$2.50"),
-          originating_payment_account: be === funding_xaction.originating_payment_account,
-          originated_book_transaction: be_present,
-          crediting_book_transaction: nil,
-        ),
-      )
-      expect(described_class.all).to contain_exactly(
-        have_attributes(
-          stripe_charge_id:,
-          refund_json: hash_including("id" => "re_abc"),
-        ),
-      )
-    end
-
     it "creates crediting refund payout transactions if the funding transaction is used in a charge" do
-      charge = Suma::Fixtures.charge.create
-      charge.add_associated_funding_transaction(funding_xaction)
       described_class.backfill_payouts_from_webhookdb
       expect(Suma::Payment::PayoutTransaction.all).to contain_exactly(
         have_attributes(

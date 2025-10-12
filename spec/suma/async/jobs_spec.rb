@@ -344,19 +344,19 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     it "processes all created and collecting funding transactions" do
       created = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       created.strategy.set_response(:ready_to_collect_funds?, true)
-      created.strategy.set_response(:collect_funds, true)
+      created.strategy.set_response(:collect_funds, nil)
       created.strategy.set_response(:funds_cleared?, true)
       created.strategy.set_response(:funds_canceled?, false)
 
       collecting = Suma::Fixtures.funding_transaction.with_fake_strategy.create(status: "collecting")
       collecting.strategy.set_response(:ready_to_collect_funds?, true)
-      collecting.strategy.set_response(:collect_funds, false)
+      collecting.strategy.set_response(:collect_funds, nil)
       collecting.strategy.set_response(:funds_cleared?, true)
       collecting.strategy.set_response(:funds_canceled?, false)
 
       stuck = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       stuck.strategy.set_response(:ready_to_collect_funds?, true)
-      stuck.strategy.set_response(:collect_funds, true)
+      stuck.strategy.set_response(:collect_funds, nil)
       stuck.strategy.set_response(:funds_cleared?, false)
       stuck.strategy.set_response(:funds_canceled?, false)
 
@@ -580,16 +580,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
 
     it "charges a negative cash ledger balance to the updated instrument" do
-      req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
-        to_return(fixture_response("increase/ach_transfer"))
       expect do
         ba.update(name: "xyz")
       end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
 
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
-        have_attributes(amount: cost("$3")),
+        have_attributes(status: "created", amount: cost("$3")),
       )
-      expect(req).to have_been_made
     end
 
     it "noops if the instrument is deleted" do
@@ -699,18 +696,19 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     it "processes all created and sending payout transactions" do
       created = Suma::Fixtures.payout_transaction.with_fake_strategy.create
       created.strategy.set_response(:ready_to_send_funds?, true)
-      created.strategy.set_response(:send_funds, true)
+      created.strategy.set_response(:send_funds, nil)
       created.strategy.set_response(:funds_settled?, true)
 
       sending = Suma::Fixtures.payout_transaction.with_fake_strategy.create(status: "sending")
       sending.strategy.set_response(:ready_to_send_funds?, true)
-      sending.strategy.set_response(:send_funds, false)
+      sending.strategy.set_response(:send_funds, nil)
       sending.strategy.set_response(:funds_settled?, true)
 
       stuck = Suma::Fixtures.payout_transaction.with_fake_strategy.create
       stuck.strategy.set_response(:ready_to_send_funds?, true)
-      stuck.strategy.set_response(:send_funds, true)
+      stuck.strategy.set_response(:send_funds, nil)
       stuck.strategy.set_response(:funds_settled?, false)
+      stuck.strategy.set_response(:send_failed?, false)
 
       Suma::Async::PayoutTransactionProcessor.new.perform
 

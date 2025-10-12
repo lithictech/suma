@@ -160,6 +160,8 @@ class Suma::API::Commerce < Suma::API::V1
               checkout.create_order(apply_at: current_time, cash_charge_amount: Money.new(params[:charge_amount_cents]))
             rescue Suma::Commerce::Checkout::Prohibited => e
               merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
+            rescue StateMachines::Sequel::FailedTransition
+              merror!(409, "Checkout prohibited: could not collect funds", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
               merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end

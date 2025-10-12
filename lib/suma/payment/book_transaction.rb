@@ -119,8 +119,14 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
 
   def validate
     super
-    self.errors.add(:receiving_ledger_id, "originating and receiving ledgers cannot be the same") if
-      self.receiving_ledger_id == self.originating_ledger_id
+    validate_self_referential_ledgers
+  end
+
+  private def validate_self_referential_ledgers
+    return if self.receiving_ledger_id != self.originating_ledger_id
+    circular_platform = Suma::Payment::Account.lookup_platform_account.id == self.receiving_ledger.account_id
+    return if circular_platform
+    self.errors.add(:receiving_ledger_id, "originating and receiving ledgers cannot be the same")
   end
 
   def before_create

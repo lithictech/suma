@@ -15,7 +15,7 @@ RSpec.describe "Suma::Payment::OffPlatformStrategy", :db do
 
     it "returns true for all state machine methods" do
       expect(strategy).to be_ready_to_collect_funds
-      expect(strategy.collect_funds).to eq(true)
+      expect(strategy.collect_funds).to be_nil
       expect(strategy).to be_funds_cleared
       expect(strategy).to_not be_funds_canceled
     end
@@ -31,7 +31,7 @@ RSpec.describe "Suma::Payment::OffPlatformStrategy", :db do
 
     it "returns true for all state machine methods" do
       expect(strategy).to be_ready_to_send_funds
-      expect(strategy.send_funds).to eq(true)
+      expect(strategy.send_funds).to be_nil
       expect(strategy).to be_funds_settled
     end
   end

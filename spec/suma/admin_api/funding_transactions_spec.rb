@@ -79,7 +79,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
   end
 
   describe "POST /v1/funding_transactions/create_for_self" do
-    let(:member) { Suma::Fixtures.member.create }
+    let(:member) { Suma::Fixtures.member.with_cash_ledger.create }
 
     it "using a bank account creates the funding and book transaction to the instrument owner cash ledger" do
       ba = Suma::Fixtures.bank_account.member(member).verified.create
@@ -94,7 +94,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
-        have_attributes(status: "created", originated_book_transaction: be_present),
+        have_attributes(status: "created"),
       )
     end
 
@@ -111,7 +111,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
-        have_attributes(status: "created", originated_book_transaction: be_present),
+        have_attributes(status: "created"),
       )
     end
 

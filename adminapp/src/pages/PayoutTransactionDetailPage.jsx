@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
+import BookTransactionDetail from "../components/BookTransactionDetail";
 import DetailGrid from "../components/DetailGrid";
 import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
@@ -27,88 +28,42 @@ export default function PayoutTransactionDetailPage() {
         { label: "Memo", value: model.memo },
       ]}
     >
-      {(model) => {
-        const {
-          originatedBookTransaction: originated,
-          creditingBookTransaction: crediting,
-          refundedFundingTransaction: refund,
-        } = model;
-        return [
-          <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
-          refund && (
-            <DetailGrid
-              title="Refunded Transaction"
-              properties={[
-                { label: "ID", value: <AdminLink model={refund} /> },
-                { label: "Created At", value: dayjs(refund.createdAt) },
-                { label: "Amount", value: <Money>{refund.amount}</Money> },
-              ]}
-            />
-          ),
-          originated && (
-            <DetailGrid
-              title="Originated Book Transaction"
-              properties={[
-                { label: "ID", value: <AdminLink model={originated} /> },
-                { label: "Apply At", value: dayjs(originated.applyAt) },
-                { label: "Amount", value: <Money>{originated.amount}</Money> },
-                {
-                  label: "Category",
-                  value: originated.associatedVendorServiceCategory?.name,
-                },
-                {
-                  label: "Originating",
-                  value: (
-                    <AdminLink model={originated.originatingLedger}>
-                      {originated.originatingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Receiving",
-                  value: (
-                    <AdminLink model={originated.receivingLedger}>
-                      {originated.receivingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-              ]}
-            />
-          ),
-          crediting && (
-            <DetailGrid
-              title="Crediting Book Transaction"
-              properties={[
-                { label: "ID", value: <AdminLink model={crediting} /> },
-                { label: "Apply At", value: dayjs(crediting.applyAt) },
-                { label: "Amount", value: <Money>{crediting.amount}</Money> },
-                {
-                  label: "Category",
-                  value: crediting.associatedVendorServiceCategory?.name,
-                },
-                {
-                  label: "Originating",
-                  value: (
-                    <AdminLink model={crediting.originatingLedger}>
-                      {crediting.originatingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Receiving",
-                  value: (
-                    <AdminLink model={crediting.receivingLedger}>
-                      {crediting.receivingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-              ]}
-            />
-          ),
-          <ExternalLinks externalLinks={model.externalLinks} />,
-          <AuditLogs auditLogs={model.auditLogs} />,
-        ];
-      }}
+      {(model) => [
+        <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
+        model.refundedFundingTransaction && (
+          <DetailGrid
+            title="Refunded Transaction"
+            properties={[
+              {
+                label: "ID",
+                value: <AdminLink model={model.refundedFundingTransaction} />,
+              },
+              {
+                label: "Created At",
+                value: dayjs(model.refundedFundingTransaction.createdAt),
+              },
+              {
+                label: "Amount",
+                value: <Money>{model.refundedFundingTransaction.amount}</Money>,
+              },
+            ]}
+          />
+        ),
+        <BookTransactionDetail
+          title="Originated Book Transaction"
+          transaction={model.originatedBookTransaction}
+        />,
+        <BookTransactionDetail
+          title="Reversal Book Transaction"
+          transaction={model.reversaldBookTransaction}
+        />,
+        <BookTransactionDetail
+          title="Crediting Book Transaction"
+          transaction={model.creditingBookTransaction}
+        />,
+        <ExternalLinks externalLinks={model.externalLinks} />,
+        <AuditLogs auditLogs={model.auditLogs} />,
+      ]}
     </ResourceDetail>
   );
 }

@@ -26,6 +26,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   many_to_one :platform_ledger, class: "Suma::Payment::Ledger"
   many_to_one :originating_payment_account, class: "Suma::Payment::Account"
   many_to_one :originated_book_transaction, class: "Suma::Payment::BookTransaction"
+  many_to_one :reversal_book_transaction, class: "Suma::Payment::BookTransaction"
   one_to_many :audit_logs, class: "Suma::Payment::FundingTransaction::AuditLog", order: order_desc(:at)
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
@@ -62,9 +63,13 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     event :cancel do
       transition [:created, :needs_review] => :canceled
     end
+
     event :put_into_review do
       transition (any - :needs_review) => :needs_review
     end
+
+    after_transition to: :collecting, do: :after_collecting
+    after_transition to: :canceled, do: :after_canceled
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
@@ -81,6 +86,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   class << self
     # Create a new funding transaction with the given parameters.
+    # A BookTransaction is automatically created when funds are collected.
+    #
     # @param [Suma::Payment::Account] payment_account
     # @param [Money] amount
     # @param [Suma::Payment::Instrument::Interface] instrument The payment instrument to use.
@@ -89,8 +96,13 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     #   Only some strategies, like cards, require this to be set.
     # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
     #   When using a FakeStrategy, pass it in this way.
+    # @param [true,false,:must] collect If true, try to +collect_funds+ if possible.
+    #   If :must, error if funds are not available.
+    #   If false, do not even try to collect.
+    #   Note that this will also create a book transaction on success.
     # @return [Suma::Payment::FundingTransaction]
-    def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil, collect: true)
+    def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil, collect: :must)
+      Suma.assert { [payment_account.is_a?(Suma::Payment::Account), payment_account.inspect] }
       if strategy.nil?
         strategy = @fake_strategy.respond_to?(:call) ? @fake_strategy.call : @fake_strategy
       end
@@ -119,33 +131,15 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           originating_payment_account: payment_account,
           platform_ledger:,
           originating_ip:,
-          originated_book_transaction: nil,
           strategy:,
         )
         xaction.save_changes
-        xaction.process(:collect_funds) if collect && xaction.strategy.ready_to_collect_funds?
+        if collect == :must
+          xaction.must_process(:collect_funds)
+        elsif collect && xaction.strategy.ready_to_collect_funds?
+          xaction.process(:collect_funds)
+        end
         return xaction
-      end
-    end
-
-    # Like +start_new+, but also creates a +BookTransaction+ that moves funds
-    # from the platform cash ledger into the cash ledger on payment_account.
-    def start_and_transfer(member_or_payment_account, amount:, apply_at:, instrument: nil, strategy: nil)
-      receiving_ledger = Suma::Payment.ensure_cash_ledger(member_or_payment_account)
-      vendor_service_category = Suma::Vendor::ServiceCategory.cash
-      self.db.transaction do
-        # collect should always be true, since making the funds available implies we try to collect them.
-        fx = self.start_new(receiving_ledger.account, amount:, instrument:, strategy:, collect: true)
-        originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at:,
-          amount: fx.amount,
-          originating_ledger: fx.platform_ledger,
-          receiving_ledger:,
-          associated_vendor_service_category: vendor_service_category,
-          memo: fx.memo,
-        )
-        fx.update(originated_book_transaction:)
-        fx
       end
     end
   end
@@ -169,22 +163,40 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # :section: State Machine methods
   #
 
+  # Collect funds if the strategy is ready to collect them.
+  # If the collection fails, put this payment into review.
   def collect_funds
     begin
       return false unless self.strategy.ready_to_collect_funds?
-      collected = self.strategy.collect_funds
+      collect_result = self.strategy.collect_funds
+      Suma.assert { collect_result.nil? }
     rescue CollectFundsFailed => e
       self.logger.error("collect_funds_error", error: e)
       return self.put_into_review("Error collecting funds", exception: e)
     end
-    if collected && (member = self.originating_payment_account.member)
+    return super
+  end
+
+  # If the collection succeeds, originate a book transaction from the platform cash ledger
+  # into the payment account cash ledger, so these funds are available for use.
+  def after_collecting
+    return unless self.originated_book_transaction.nil?
+    if (member = self.originating_payment_account.member)
       self.audit_activity(
         "fundscollecting",
         actor: member,
         summary: "FundingTransaction[#{self.id}] started collecting funds",
       )
     end
-    return super
+    self._originate_book_transaction(
+      originating_ledger: self.platform_ledger,
+      receiving_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
+    )
+  end
+
+  # Whenever we transition to canceled, ensure we reverse any originated book transaction.
+  def after_canceled
+    self._reverse_originated_book_transaction
   end
 
   def funds_cleared? = self.strategy.funds_cleared?

@@ -18,11 +18,11 @@ class Suma::Async::PaymentInstrumentChargeBalance
     return unless pi.usable_for_funding?
     balance = pi.member.payment_account!.cash_ledger!.balance
     return unless balance.negative?
-    Suma::Payment::FundingTransaction.start_and_transfer(
-      pi.member,
+    Suma::Payment::FundingTransaction.start_new(
+      pi.member.payment_account,
       amount: -balance,
       instrument: pi,
-      apply_at: Time.now,
+      collect: false,
     )
   end
 end

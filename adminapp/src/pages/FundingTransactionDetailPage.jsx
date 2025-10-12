@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
-import DetailGrid from "../components/DetailGrid";
+import BookTransactionDetail from "../components/BookTransactionDetail";
 import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import RelatedList from "../components/RelatedList";
@@ -41,48 +41,16 @@ export default function FundingTransactionDetailPage() {
       ]}
     >
       {(model) => {
-        const originated = model.originatedBookTransaction;
         return [
           <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
-          originated && (
-            <DetailGrid
-              title="Book Transaction"
-              properties={[
-                { label: "ID", value: <AdminLink model={originated} /> },
-                { label: "Apply At", value: dayjs(originated.applyAt) },
-                { label: "Amount", value: <Money>{originated.amount}</Money> },
-                {
-                  label: "Category",
-                  value: originated.associatedVendorServiceCategory.name,
-                },
-                {
-                  label: "Originating",
-                  value: (
-                    <AdminLink model={originated.originatingLedger}>
-                      {originated.originatingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Receiving",
-                  value: (
-                    <AdminLink model={originated.receivingLedger}>
-                      {originated.receivingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Actor",
-                  hideEmpty: true,
-                  value: originated.actor ? (
-                    <AdminLink model={originated.actor}>
-                      {originated.actor.name}
-                    </AdminLink>
-                  ) : undefined,
-                },
-              ]}
-            />
-          ),
+          <BookTransactionDetail
+            title="Originated Book Transaction"
+            transaction={model.originatedBookTransaction}
+          />,
+          <BookTransactionDetail
+            title="Reversal Book Transaction"
+            transaction={model.reversaldBookTransaction}
+          />,
           <RelatedList
             title="Refund Payout Transactions"
             rows={model.refundPayoutTransactions}
