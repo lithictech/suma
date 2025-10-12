@@ -18,7 +18,7 @@ module Suma::Fixtures::MobilityVehicles
   end
 
   before_saving do |instance|
-    instance.vendor_service ||= Suma::Fixtures.vendor_service.mobility.create
+    instance.vendor_service ||= Suma::Fixtures.vendor_service.mobility_deeplink.create
     instance
   end
 

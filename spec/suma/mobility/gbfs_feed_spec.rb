@@ -24,7 +24,7 @@ RSpec.describe "Suma::Mobility::GbfsFeed", :db do
   end
 
   describe "sync_component" do
-    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
     let(:vendor) { vendor_service.vendor }
 
     it "syncs" do

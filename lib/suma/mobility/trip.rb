@@ -70,7 +70,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         begin_lng: lng,
         began_at: now,
       )
-      vendor_service.mobility_adapter.begin_trip(trip)
+      vendor_service.mobility_adapter.trip_provider.begin_trip(trip)
       trip.save_changes
     rescue Sequel::UniqueConstraintViolation => e
       raise OngoingTrip, "member #{member.id} is already in a trip" if
@@ -82,7 +82,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   # End a trip through the mobility adapter. Charge the member any outstanding cost.
   def end_trip(lat:, lng:, now:)
     self.set(end_lat: lat, end_lng: lng, ended_at: now)
-    result = self.vendor_service.mobility_adapter.end_trip(self)
+    result = self.vendor_service.mobility_adapter.trip_provider.end_trip(self)
     return self._charge_trip(cost: result.cost, undiscounted_subtotal: result.undiscounted)
   end
 

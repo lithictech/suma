@@ -10,12 +10,13 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     let(:rate) { Suma::Fixtures.vendor_service_rate.create }
     let(:program) do
       Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.mobility.create(mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service: Suma::Fixtures.vendor_service.mobility_deeplink.create,
         vendor_service_rate: rate,
       ).create
     end
 
     before(:each) do
+      Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       va.add_registration(external_program_id: mc.email)
       va.configuration.add_program(program)
     end
@@ -48,6 +49,16 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
         have_attributes(amount: cost("$0.00"), memo: have_attributes(en: "Start Fee")),
         have_attributes(amount: cost("$0.00"), memo: have_attributes(en: "Riding - $0.00/min (42 min)")),
       )
+    end
+
+    it "only looks at the configured vendor configuration" do
+      Suma::Lime.trip_report_vendor_configuration_id = 0
+      txt = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL,Price per minute
+        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org,$0.07
+      CSV
+      described_class.new.run_for_report(txt)
+      expect(Suma::Mobility::Trip.all).to be_empty
     end
 
     it "calculates and charges the cost based on rate" do
@@ -187,7 +198,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     let(:rate) { Suma::Fixtures.vendor_service_rate.create }
     let(:program) do
       Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.mobility.create(mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service: Suma::Fixtures.vendor_service.mobility_deeplink.create,
         vendor_service_rate: rate,
       ).create
     end
@@ -195,6 +206,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     before(:each) do
       va.add_registration(external_program_id: mc.email)
       va.configuration.add_program(program)
+      Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       Suma::Lime.trip_report_from_email = "from@mysuma.org"
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end

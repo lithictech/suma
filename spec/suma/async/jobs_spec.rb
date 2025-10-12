@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "suma/async"
+require "suma/frontapp"
+require "suma/lime"
 require "suma/messages/specs"
 
 RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transaction_check do
@@ -393,11 +395,10 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
+      Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       va.add_registration(external_program_id: mc.email)
       program = Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.
-          mobility.
-          create(mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service: Suma::Fixtures.vendor_service.mobility_deeplink.create,
         vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
       ).create
       va.configuration.add_program(program)
@@ -880,18 +881,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "TripReceipt" do
-    before(:each) do
-      Suma::Mobility::VendorAdapter::Fake.send_receipts = true
-    end
-
-    after(:each) do
-      Suma::Mobility::VendorAdapter::Fake.reset
-    end
-
     it "sends the trip receipt" do
       import_localized_message_seeds
 
       trip = Suma::Fixtures.mobility_trip.ended.create
+      trip.vendor_service.mobility_adapter.update(send_receipts: true)
       expect do
         trip.update(begin_address: "y")
       end.to perform_async_job(Suma::Async::TripReceipt)
@@ -907,6 +901,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "noops if the trip is not ended" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create
+      trip.vendor_service.mobility_adapter.update(send_receipts: true)
       expect do
         trip.update(begin_address: "y")
       end.to perform_async_job(Suma::Async::TripReceipt)
@@ -916,6 +911,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "noops if the ended too long ago" do
       trip = Suma::Fixtures.mobility_trip.ended.create(ended_at: 1.day.ago)
+      trip.vendor_service.mobility_adapter.update(send_receipts: true)
       expect do
         trip.update(begin_address: "y")
       end.to perform_async_job(Suma::Async::TripReceipt)
@@ -925,7 +921,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "noops if the adapter does not send receipts" do
       trip = Suma::Fixtures.mobility_trip.ended.create
-      Suma::Mobility::VendorAdapter::Fake.send_receipts = false
+      trip.vendor_service.mobility_adapter.update(send_receipts: false)
       expect do
         trip.update(begin_address: "y")
       end.to perform_async_job(Suma::Async::TripReceipt)
@@ -943,7 +939,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "GbfsSyncRun" do
-    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
     let(:vendor) { vendor_service.vendor }
 
     it "sync geofencing zones gbfs" do

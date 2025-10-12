@@ -2,8 +2,8 @@
 
 require "suma/lime/maas_client"
 
-class Suma::Mobility::VendorAdapter::LimeMaas
-  include Suma::Mobility::VendorAdapter
+class Suma::Mobility::TripProvider::LimeMaas
+  include Suma::Mobility::TripProvider
 
   attr_reader :maas_client
 
@@ -47,8 +47,4 @@ class Suma::Mobility::VendorAdapter::LimeMaas
       undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
     )
   end
-
-  def uses_deep_linking? = false
-  def send_receipts? = true
-  def find_anon_proxy_vendor_account(_member) = nil
 end

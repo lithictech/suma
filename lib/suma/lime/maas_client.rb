@@ -2,6 +2,8 @@
 
 require "appydays/loggable"
 
+require "suma/lime"
+
 class Suma::Lime::MaasClient
   include Appydays::Loggable
 

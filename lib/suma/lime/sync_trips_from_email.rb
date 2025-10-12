@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/lime"
 require "suma/mobility/trip_importer"
 
 # For all Lime trips we have receipt emails from,

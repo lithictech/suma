@@ -7,11 +7,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   let(:instance) { Suma::Lyft::Pass.from_config }
   let(:now) { Time.now }
   let(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create }
-  let(:vendor_service) do
-    Suma::Fixtures.vendor_service.
-      mobility.
-      create(mobility_vendor_adapter_key: "lyft_deeplink")
-  end
+  let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
 
   before(:each) do
     Suma::Lyft.pass_authorization = "Basic xyz"

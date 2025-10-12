@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/lime"
+
 class Suma::Lime::HandleViolations
   CUTOFF = 2.weeks
 

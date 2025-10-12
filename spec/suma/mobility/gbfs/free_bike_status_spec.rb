@@ -63,7 +63,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
   end
 
   describe "gbfs vehicles" do
-    let(:vs) { Suma::Fixtures.vendor_service.mobility.create }
+    let(:vs) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
     let(:vendor) { vs.vendor }
 
     def sync_gbfs(**kw)

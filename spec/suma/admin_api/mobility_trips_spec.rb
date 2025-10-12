@@ -65,7 +65,7 @@ RSpec.describe Suma::AdminAPI::MobilityTrips, :db do
   describe "GET /v1/mobility_trips/:id" do
     it "returns the mobility trip" do
       rate = Suma::Fixtures.vendor_service_rate.create
-      service = Suma::Fixtures.vendor_service.mobility.create
+      service = Suma::Fixtures.vendor_service.mobility_deeplink.create
       charge = Suma::Fixtures.charge(member: admin).create
       trip = Suma::Fixtures.mobility_trip.create(vendor_service: service, vendor_service_rate: rate, member: admin)
       trip.charge = charge

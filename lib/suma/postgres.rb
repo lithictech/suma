@@ -95,6 +95,7 @@ module Suma::Postgres
     "suma/mobility/restricted_area",
     "suma/mobility/trip",
     "suma/mobility/vehicle",
+    "suma/mobility/vendor_adapter",
     "suma/organization",
     "suma/organization",
     "suma/organization/membership",

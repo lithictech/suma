@@ -3,10 +3,6 @@
 RSpec.describe "Suma::Mobility::Vehicle", :db do
   let(:described_class) { Suma::Mobility::Vehicle }
 
-  before(:each) do
-    Suma::Mobility::VendorAdapter::Fake.reset
-  end
-
   it "can be fixtured" do
     expect(Suma::Fixtures.mobility_vehicle.create).to be_a(described_class)
   end
@@ -33,19 +29,18 @@ RSpec.describe "Suma::Mobility::Vehicle", :db do
     # rubocop:enable Layout/LineLength
 
     it "is nil if the adapter does not use deep linking" do
+      v.vendor_service.mobility_adapter.update(uses_deep_linking: false, trip_provider_key: "internal")
       v.rental_uris = {"android" => "playstore", "ios" => "appstore"}
       expect(v.deep_link_for_user_agent(android_ua)).to be_nil
     end
 
     it "uses the appropriate platform" do
-      Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
       v.rental_uris = {"android" => "playstore", "ios" => "appstore"}
       expect(v.deep_link_for_user_agent(android_ua)).to eq("playstore")
       expect(v.deep_link_for_user_agent(ios_ua)).to eq("appstore")
     end
 
     it "falls back to web if available, android if not, and finally ios" do
-      Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
       v.rental_uris = {"android" => "playstore", "ios" => "appstore", "web" => "open"}
       expect(v.deep_link_for_user_agent(desktop_ua)).to eq("open")
       expect(v.deep_link_for_user_agent(nil)).to eq("open")
@@ -60,7 +55,6 @@ RSpec.describe "Suma::Mobility::Vehicle", :db do
     end
 
     it "uses Biketown urls if the vendor is Biketown and the vehicle is an ebike" do
-      Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
       v.vehicle_type = "ebike"
       canonical = "https://www.biketownpdx.com/lastmile_qr_scan"
       v.rental_uris = {"android" => canonical}

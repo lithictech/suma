@@ -62,10 +62,10 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
   end
 
   describe "POST /v1/vendor_services/create" do
-    it "creates a model" do
-      photo_file = File.open("spec/data/images/photo.png", "rb")
-      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+    let(:photo_file) { File.open("spec/data/images/photo.png", "rb") }
+    let(:image) { Rack::Test::UploadedFile.new(photo_file, "image/png", true) }
 
+    it "creates a model" do
       post "/v1/vendor_services/create",
            vendor: {id: Suma::Fixtures.vendor.create.id},
            image:,
@@ -79,12 +79,27 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(Suma::Vendor::Service.all).to have_length(1)
       expect(last_response).to have_json_body.that_includes(external_name: "testext")
     end
+
+    it "can create a model with a mobility adapter" do
+      post "/v1/vendor_services/create",
+           vendor: {id: Suma::Fixtures.vendor.create.id},
+           image:,
+           image_caption: {en: "testen", es: "testes"},
+           internal_name: "testint",
+           external_name: "testext",
+           period_begin: "2024-07-01T00:00:00-0700",
+           period_end: "2024-10-01T00:00:00-0700",
+           mobility_adapter_setting: "deep_linking_suma_receipts"
+
+      expect(last_response).to have_status(200)
+      expect(Suma::Vendor::Service.first).to have_attributes(mobility_adapter: be_present)
+    end
   end
 
   describe "GET /v1/vendor_services/:id" do
     it "returns the vendor service" do
       vendor = Suma::Fixtures.vendor.create
-      service = Suma::Fixtures.vendor_service.mobility.create(vendor:)
+      service = Suma::Fixtures.vendor_service.create(vendor:)
       pricing = Suma::Fixtures.program_pricing.create(vendor_service: service)
 
       get "/v1/vendor_services/#{service.id}"
@@ -94,8 +109,19 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
         id: service.id,
         vendor: include(id: vendor.id),
         program_pricings: have_same_ids_as(pricing),
-        mobility_vendor_adapter_key: "fake",
+      )
+    end
+
+    it "returns a mobility service" do
+      service = Suma::Fixtures.vendor_service.mobility_maas.create
+
+      get "/v1/vendor_services/#{service.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        id: service.id,
         categories: contain_exactly(include(name: "Mobility")),
+        mobility_adapter_setting: "internal",
       )
     end
 
@@ -120,6 +146,15 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
 
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(external_name: "test")
+    end
+
+    it "can update the mobility adapter" do
+      v = Suma::Fixtures.vendor_service.create
+
+      post "/v1/vendor_services/#{v.id}", mobility_adapter_setting: "deep_linking_suma_receipts"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh).to have_attributes(mobility_adapter_setting: "deep_linking_suma_receipts")
     end
   end
 end

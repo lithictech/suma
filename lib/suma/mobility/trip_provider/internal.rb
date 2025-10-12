@@ -15,8 +15,8 @@
 #       end)
 #
 # See bootstrap.rb for example code on fixturing resources.
-class Suma::Mobility::VendorAdapter::Internal
-  include Suma::Mobility::VendorAdapter
+class Suma::Mobility::TripProvider::Internal
+  include Suma::Mobility::TripProvider
 
   VENDOR_NAME = "Suma-Internal-Testing"
 
@@ -31,8 +31,4 @@ class Suma::Mobility::VendorAdapter::Internal
       undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(trip.duration_minutes),
     )
   end
-
-  def uses_deep_linking? = false
-  def find_anon_proxy_vendor_account(_member) = raise Unsupported
-  def send_receipts? = true
 end

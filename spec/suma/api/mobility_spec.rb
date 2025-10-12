@@ -9,7 +9,7 @@ RSpec.describe Suma::API::Mobility, :db do
 
   let(:app) { described_class.build_app }
   let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
-  let(:vendor_service_fac) { Suma::Fixtures.vendor_service(mobility_vendor_adapter_key: "fake").available_to(member) }
+  let(:vendor_service_fac) { Suma::Fixtures.vendor_service.mobility_maas.available_to(member) }
   let(:vendor_service) { vendor_service_fac.create }
   let(:program_pricing) { vendor_service.program_pricings.first }
   let(:vehicle_fac) { Suma::Fixtures.mobility_vehicle(vendor_service:) }
@@ -17,7 +17,6 @@ RSpec.describe Suma::API::Mobility, :db do
   before(:each) do
     login_as(member)
     stub_const("Suma::Mobility::SPIDERIFY_OFFSET_MAGNITUDE", 0.000004)
-    Suma::Mobility::VendorAdapter::Fake.reset
   end
 
   describe "GET /v1/mobility/map" do
@@ -363,9 +362,8 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "provides deeplink information if adapter uses it" do
-      Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
-
       b1 = vehicle_fac.loc(0.5, 179.5).ebike.create(vehicle_id: "abcd")
+      b1.vendor_service.mobility_adapter.update(uses_deep_linking: true, trip_provider_key: "")
 
       get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: program_pricing.id, type: "ebike"
 

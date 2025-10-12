@@ -101,18 +101,17 @@ export default function VendorServiceForm({
           required
         />
         <FormControl>
-          <InputLabel id="mobility-adapter-key-label">Mobility Adapter Key</InputLabel>
+          <InputLabel>Mobility Adapter</InputLabel>
           <Select
-            {...register("mobilityVendorAdapterKey")}
-            labelId="mobility-adapter-key-label"
+            {...register("mobilityAdapterSetting")}
             label="Mobility Adapter Key"
-            name="mobilityVendorAdapterKey"
-            value={resource.mobilityVendorAdapterKey}
+            name="mobilityAdapterSetting"
+            value={resource.mobilityAdapterSetting}
             onChange={setFieldFromInput}
           >
-            {resource.mobilityVendorAdapterKeyOptions.map((v) => (
-              <MenuItem key={v} value={v}>
-                {v}
+            {resource.mobilityAdapterSettingOptions.map(({ name, value }) => (
+              <MenuItem key={value} value={value}>
+                {name}
               </MenuItem>
             ))}
           </Select>
@@ -123,7 +122,7 @@ export default function VendorServiceForm({
         </FormControl>
         <TextField
           {...register("constraints")}
-          label="Mobility Constraints"
+          label="Constraints"
           name="constraints"
           value={
             typeof resource.constraints === "string"
