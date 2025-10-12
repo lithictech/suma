@@ -20,9 +20,14 @@ module Suma::Fixtures::VendorServices
     instance
   end
 
-  decorator :mobility, presave: true do
+  decorator :mobility_deeplink, presave: true do
     self.add_category(Suma::Fixtures.vendor_service_category.mobility.create)
-    self.mobility_vendor_adapter_key = "fake" if self.mobility_vendor_adapter_key.blank?
+    Suma::Fixtures.mobility_vendor_adapter.deeplink.create(vendor_service: self)
+  end
+
+  decorator :mobility_maas, presave: true do
+    self.add_category(Suma::Fixtures.vendor_service_category.mobility.create)
+    Suma::Fixtures.mobility_vendor_adapter.maas.create(vendor_service: self)
   end
 
   decorator :food, presave: true do

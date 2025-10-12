@@ -8,11 +8,7 @@ RSpec.describe Suma::Tasks::Mobility, :db do
 
   describe "mobility:sync:lyftpass" do
     let(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create }
-    let(:vendor_service) do
-      Suma::Fixtures.vendor_service.
-        mobility.
-        create(mobility_vendor_adapter_key: "lyft_deeplink")
-    end
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
     let(:program) do
       Suma::Fixtures.program(lyft_pass_program_id: "5678").with_pricing(vendor_service:, vendor_service_rate:).create
     end
@@ -47,19 +43,20 @@ RSpec.describe Suma::Tasks::Mobility, :db do
     end
   end
 
-  describe "mobility:sync:limereport" do
+  describe "mobility:sync:limereport", reset_configuration: Suma::Lime do
     let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create }
     let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create(member:) }
     let(:mc) { Suma::Fixtures.anon_proxy_member_contact.email("m1@in.mysuma.org").create(member:) }
     let(:rate) { Suma::Fixtures.vendor_service_rate.create }
     let(:program) do
       Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.mobility.create(mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service: Suma::Fixtures.vendor_service.mobility_deeplink.create,
         vendor_service_rate: rate,
       ).create
     end
 
     before(:each) do
+      Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       va.add_registration(external_program_id: mc.email)
       va.configuration.add_program(program)
     end

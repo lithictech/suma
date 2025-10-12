@@ -9,15 +9,19 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :audit_activities, with: ActivityEntity
-    expose :mobility_vendor_adapter_key
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
     expose :program_pricings, with: ProgramPricingEntity
     expose_image :image
     expose :constraints
 
-    expose :mobility_vendor_adapter_key_options do |_|
-      Suma::Mobility::VendorAdapter.registered_keys
-    end
+    expose(:mobility_adapter_present) { |inst| !inst.mobility_adapter.nil? }
+    expose :mobility_adapter_trip_provider_key, &self.delegate_to(:mobility_adapter, :trip_provider_key, safe: true)
+    expose :mobility_adapter_uses_deep_linking, &self.delegate_to(:mobility_adapter, :uses_deep_linking, safe: true)
+    expose :mobility_adapter_send_receipts, &self.delegate_to(:mobility_adapter, :send_receipts, safe: true)
+
+    expose :mobility_adapter_setting
+    expose :mobility_adapter_setting_name
+    expose :mobility_adapter_setting_options
   end
 
   resource :vendor_services do
@@ -30,6 +34,11 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       self,
       Suma::Vendor::Service,
       DetailedVendorServiceEntity,
+      around: lambda do |rt, m, &block|
+        setting = rt.params.delete(:mobility_adapter_setting)
+        block.call
+        m.mobility_adapter_setting = setting if setting
+      end,
     ) do
       params do
         requires(:vendor, type: JSON) { use :model_with_id }
@@ -39,7 +48,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         requires :external_name, type: String
         requires :period_begin, type: Time
         requires :period_end, type: Time
-        optional :mobility_vendor_adapter_key, type: String, default: ""
+        optional :mobility_adapter_setting, type: String
         optional :constraints, type: String
         optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end
@@ -61,7 +70,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         optional :external_name, type: String
         optional :period_begin, type: Time
         optional :period_end, type: Time
-        optional :mobility_vendor_adapter_key, type: String
+        optional :mobility_adapter_setting, type: String
         optional :constraints, type: String
         optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end

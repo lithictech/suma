@@ -25,9 +25,9 @@ export default function VendorServiceDetailPage() {
         },
         { label: "Opening Date", value: dayjs(model.periodBegin) },
         { label: "Closing Date", value: dayjs(model.periodEnd) },
-        { label: "Mobility Vendor Adapter", value: model.mobilityVendorAdapterKey },
+        { label: "Mobility Adapter", value: model.mobilityAdapterSettingName },
         {
-          label: "Mobility Constraints",
+          label: "Constraints",
           value: <code>{JSON.stringify(model.constraints)}</code>,
         },
       ]}

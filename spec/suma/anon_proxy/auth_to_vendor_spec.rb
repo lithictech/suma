@@ -27,6 +27,18 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
         va.auth_to_vendor.auth(now:)
       end.to change { Suma::AnonProxy::AuthToVendor::Fake.calls }.from(0).to(1)
     end
+
+    it "provisions a contact with an anonymous email" do
+      va.auth_to_vendor.auth(now:)
+      expect(va.refresh.contact).to be_a(Suma::AnonProxy::MemberContact)
+      expect(va.registrations).to contain_exactly(have_attributes(external_program_id: va.contact.email))
+    end
+
+    it "needs attention if there is no member contact" do
+      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
+      va.ensure_anonymous_contact(:email)
+      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+    end
   end
 
   describe "Lime" do

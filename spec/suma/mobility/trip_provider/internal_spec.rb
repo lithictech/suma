@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 require "suma/mobility/behaviors"
-require "suma/mobility/vendor_adapter"
+require "suma/mobility/trip_provider"
 
-RSpec.describe Suma::Mobility::VendorAdapter::Internal, :db do
+RSpec.describe Suma::Mobility::TripProvider::Internal, :db do
   let(:ad) { described_class.new }
 
-  it_behaves_like "a mobility vendor adapter"
-
-  it "does not use deep linking" do
-    expect(ad).to_not be_uses_deep_linking
-  end
+  it_behaves_like "a mobility trip provider"
 
   it "can start and stop" do
     trip = Suma::Mobility::Trip.new
