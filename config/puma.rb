@@ -33,7 +33,11 @@ if Suma::Autoscaler.web_enabled
 end
 
 def run_singleton_threads
-  Suma::I18n::StaticStringRebuilder.instance.start_watcher unless Suma::I18n.static_string_watcher_disabled
+  if Suma::I18n.static_string_watcher_disabled
+    Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+  else
+    Suma::I18n::StaticStringRebuilder.instance.start_watcher
+  end
   Suma::Autoscaler.build_worker.start if Suma::Autoscaler.worker_enabled
   Suma::Autoscaler.build_web.start if Suma::Autoscaler.web_enabled
 end
