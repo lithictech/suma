@@ -11,7 +11,7 @@ import React from "react";
  * @param children
  */
 export default function SumaMarkdown({ options, children }) {
-  const { overrides, ...rest } = options;
+  const { overrides, ...rest } = options || {};
   const combinedOverrides = {
     a: { component: MdLink },
     Copyable: { component: Copyable, props: { inline: true } },
