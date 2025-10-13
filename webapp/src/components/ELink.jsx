@@ -30,13 +30,27 @@ export default function ELink({ href, to, immediate, ...rest }) {
     return <ExternalLink href={clean} {...rest} />;
   }
   if (u.startsWith("/") || u.startsWith("#")) {
+    let to, replace;
     if (immediate) {
-      rest = { onPointerDown: (e) => navigate(e.target.attributes.href.value), ...rest };
+      rest = {
+        onPointerDown: () => {
+          // We have to use u here, not e.target.attributes.href.value,
+          // since href.value already has `/app/<href>` in the built app,
+          // which will cause a misnavigate. Instead, use what was passed in.
+          // Note this closes over 'to', which may change below.
+          navigate(u);
+        },
+        ...rest,
+      };
     }
     if (u.includes("##")) {
-      return <Link to={u.replace("##", "#")} replace {...rest} />;
+      to = u.replace("##", "#");
+      replace = true;
+    } else {
+      to = u;
+      replace = u.startsWith("##");
     }
-    return <Link to={u} replace={u.startsWith("##")} {...rest} />;
+    return <Link to={to} replace={replace} {...rest} />;
   }
   return <ExternalLink href={u} {...rest} />;
 }
