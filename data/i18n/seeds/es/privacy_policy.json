@@ -1,157 +1,87 @@
 {
-  "common": {
-    "table_of_contents": "Tabla de contenido"
-  },
-  "links": {
-    "suma_help_email": "[info@mysuma.org](mailto:info@mysuma.org 'correo electrónico de ayuda de suma')",
-    "suma_platform_homepage": "[https://app.mysuma.org/app/](https://app.mysuma.org/app/ 'plataforma de suma')",
-    "suma_privacy_policy": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'política de privacidad de suma')"
-  },
-  "overview": {
-    "community_driven_intro": "Suma desarrolló nuestra política de privacidad para y con los miembros de la comunidad. Nuestro trabajo comenzó con los estudiantes del Ida B. Wells Just Data Lab, donde exploramos las mejores y peores prácticas de política de privacidad. Tambien queríamos escuchar lo que la comunidad tenía que decir sobre nuestros hallazgos y tuvimos conversaciones con miembros de la comunidad de Portland. Sus ideas, opiniones y pensamientos han sido incorporados en nuestra política de privacidad.",
-    "community_driven_title": "Hecho por la comunidad",
-    "consent": {
-      "statement": "Suma solicita el consentimiento de nuestros usuarios y les dará la opción de cambiar de opinión",
-      "title": "Consentimiento"
-    },
-    "contact_us": "Contacto",
-    "education": {
-      "statement": "Suma busca mantener informados a nuestros usuarios y explica cómo y por qué necesitamos o utilizamos sus datos",
-      "title": "Educación"
-    },
-    "faq": "Preguntas frecuentes",
-    "intro": "En suma, creemos que usted tiene el derecho a comprender cómo se utilizan sus datos.",
-    "jump_to_privacy_policy": "Haga clic para ir a la política de privacidad de suma",
-    "title": "Visión",
-    "transparency": {
-      "statement": "Suma obtiene un mínimo de datos personales de nuestros usuarios, sin trucos ocultos en la letra pequeña",
-      "title": "Transparencia"
-    },
-    "trust": {
-      "statement": "Suma trata de construir la confianza con los que servimos y resolver los asuntos de privacidad que impiden a la comunidad utilizar la tecnología",
-      "title": "Confianza"
-    }
-  },
-  "sections": {
-    "business_transfer": {
-      "list": {
-        "email": "te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma suma ($t(privacy_policy.links.suma_platform_homepage)); y",
-        "opt_out": "tendrás la oportunidad de optar por no participar antes de que tu información esté sujeta a una política de privacidad distinta a la presente"
-      },
-      "paragraph": "Podemos optar por comprar o vender los activos de la plataforma suma. Estas transacciones pueden ser precisos por el beneficio legítimo de la plataforma, en particular, para cumplir con nuestro objetivo de hacer crecer la plataforma, servir a más miembros de la comunidad y ampliar la oferta de bienes y servicios. El traslado de los datos de los usuarios suele ocurrir en estas transacciones (tales como la venta, unión, liquidación, intervención judicial o transferencia de todos o una parte sustancialmente de los activos de la plataforma suma). Si tenemos la intención de transferir tu información:",
-      "title": "Transferencias de negocios"
-    },
-    "children_under_13": {
-      "paragraph": "La plataforma suma no está destinada a niños menores de 13 años. No recogemos a sabiendas información personal de niños menores de 13 años. Si tienes menos de 13 años, no proporciones información personal alguna en la plataforma suma.",
-      "title": "Los niños menores de 13 años"
-    },
-    "communications": {
-      "list": {
-        "platform_communications": "no se permite optar por no recibir comunicaciones en la plataforma",
-        "service_messages": "no se permite optar por no recibir los mensajes de servicio, incluidas actualizaciones a la política de privacidad, avisos de seguridad y avisos legales",
-        "valid_communication_methods": "debes mantener un número de teléfono válido o un correo electrónico vigente registrado para recibir los mensajes de la plataforma"
-      },
-      "paragraph": "A veces necesitaremos comunicarnos contigo sobre la plataforma, incluso para informarte  sobre nuevos proveedores, nuevas organizaciones comunitarias o sin fines de lucro afiliadas, oportunidades de ahorros o subsidios, eventos comunitarios y mensajes de servicio. Enviaremos estas comunicaciones por correo electrónico, mensaje de texto y/o a través de la plataforma misma usando el método de comunicación preferido y los datos de contacto que hayas proporcionado (es decir, mensajes que colocamos en su bandeja de entrada en la plataforma suma). Las comunicaciones se llevarán a cabo en el idioma elegido en tus preferencias de comunicación. Puedes cambiar los métodos preferidos de comunicación y datos de contacto en cualquier momento, con las siguientes excepciones:",
-      "title": "Comunicaciones"
-    },
-    "contact_information": {
-      "paragraph": "Si tienes alguna pregunta sobre esta política de privacidad, estamos para atenderte en $t(privacy_policy.links.suma_help_email). También estamos a la orden para organizar reuniones informativas virtuales o en persona, para resolver cualquier duda que tengas sobre la política de privacidad.",
-      "title": "Los datos de contacto"
-    },
-    "cookies_policy": {
-      "conclusion": "La plataforma suma solo utiliza las cookies esenciales que se llaman las \"Cookies de sesión. Estas permiten a la plataforma saber quién inició la sesión, y son indispensables para las operaciones de la plataforma. Las cookies de sesión caducan periódicamente, como cuando cierras una sesión de la plataforma. La plataforma suma no utiliza cookies persistentes, optativas o no esenciales.",
-      "paragraph": "Utilizamos cookies para ayudarnos a administrar la plataforma. Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas la plataforma suma. Una cookie contiene un código único, que utilizamos para reconocer tu dispositivo cuando vuelves a ingresar a la plataforma suma.",
-      "title": "Política de cookies"
-    },
-    "date": "2 de agosto de 2022",
-    "effective": "Fecha de entrada en vigor:",
-    "future_changes_to_policy": {
-      "conclusion": "Puedes consultar la política de privacidad vigente de la plataforma suma en cualquier momento en $t(privacy_policy.links.suma_privacy_policy). Por cualquier pregunta o inquietud sobre cambios a esta política, comunícate con $t(privacy_policy.links.suma_help_email).",
-      "paragraph": "Es posible que se actualice la política de privacidad de la plataforma suma de vez en cuando. Si cambiamos la política de privacidad de suma, te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma $t(privacy_policy.links.suma_platform_homepage). Este aviso te informará qué va a cambiar y por qué está cambiando. Proporcionaremos un aviso al menos 30 días antes de que los cambios entren en vigor, a menos que la ley requiera que el plazo de notificación sea distinto. Tendrás la oportunidad autorizar los cambios la primera vez que inicias una nueva sesión después de que los cambios entren en vigor. Si no aceptas los cambios, su cuenta será suspendida.",
-      "title": "Cambios futuros a la presente política"
-    },
-    "information_collected": {
-      "list": {
-        "registration": "**El registro:**  Recopilamos su nombre, número de teléfono, correo electrónico, datos de pago, los datos de tu cuenta bancaria o de la tarjeta de crédito/débito y el nombre del socio de la comunidad cuando creas tu cuenta de la plataforma suma.",
-        "subsidy": "**Los subsidios:** Recopilamos los datos necesarios para obtener subsidios. Por ejemplo, si el proveedor del subsidio ofrece fondos de suma para los usuarios en función de un límite de ingresos, podemos recopilar su información financiera para confirmar que es elegible para el subsidio.",
-        "vendors": "**Los proveedores y comerciantes:** Recopilamos datos sobre los bienes y servicios a los que accedes y compras a través de la plataforma suma."
-      },
-      "paragraph": "Recogemos los datos mínimos que sean necesarios para crear tu cuenta en la plataforma suma, para colaborar con las organizaciones comunitarias y sin fines de lucro afiliadas, para conectarte con los proveedores de servicios y comerciantes y para brindar los subsidios:",
-      "title": "¿Qué información se recoge?"
-    },
-    "information_retention_and_removal": {
-      "paragraph": "Tenemos los siguientes estándares para la conservación y eliminación de información personal que procesamos en la plataforma suma:",
-      "title": "Retención, solicitudes y eliminación de información"
-    },
-    "methods_of_collection": {
-      "list": {
-        "community_partners": "**Socios de la comunidad:** Recopilamos información de socios de la comunidad (como Hacienda CDC, Proud Ground, Home Forward, otros) para ayudarnos a calificarlo para descuentos de proveedores en la plataforma de suma, así como para asegurar financiamiento externo que reduzca el costo de bienes y servicios en suma. plataforma.",
-        "cookies": "**Las cookies y archivos de registro:** Utilizamos cookies para saber cuándo ha iniciado sesión y utilizamos archivos de registro para comprender su actividad en la plataforma. Consulte nuestra política de cookies para conocer las cookies que utilizamos y por qué.",
-        "registration_page": "**Registro:** Utilizamos nuestra página de registro para recopilar información cuando crea su cuenta suma."
-      },
-      "paragraph": "Tu confianza, consentimiento y comprensión de nuestra política de privacidad son primordiales para la plataforma suma. Para proporcionar los servicios de la plataforma, recogemos información a través de los siguientes métodos:",
-      "title": "Métodos de recogida"
-    },
-    "methods_of_information_usage": {
-      "paragraph": "Utilizamos información personal para impulsar los servicios de la plataforma suma, para calificarlo para descuentos de proveedores de la plataforma, para respaldar el subsidio de organizaciones externas, para comunicarnos con usted, para seguridad y prevención de fraude, y para cumplir con la ley:",
-      "title": "Métodos de uso de datos"
-    },
-    "third_party_access": {
-      "list": {
-        "personal_information": "Para obtener detalles sobre cómo compartimos cierta información personal con proveedores de plataformas o proveedores de subsidios, y cómo podemos compartir cierta información personal para cumplir con la ley o resolver disputas, consulte",
-        "service_providers": "**Proveedores de servicio** Estos son proveedores que nos ayudan a operar la plataforma suma e incluyen procesadores y facilitadores de pago y servicios de alojamiento en la nube",
-        "with_your_consent": "**Con su consentimiento** Podemos compartir su información personal con terceros adicionales si le notificamos y usted da su consentimiento para compartirla"
-      },
-      "paragraph": "Suma no comparte información personal sobre usted con terceros para sus propios fines de marketing. Compartimos esta información con terceros confiables y examinados (proveedores de plataformas, proveedores de subsidios, proveedores de servicios a la plataforma), para cumplir con la ley o en caso de disputa:",
-      "title": "Acceso de terceros"
-    },
-    "title": "Política De Privacidad"
-  },
-  "subsections": {
-    "communicate_with_you": {
-      "paragraph": "Podemos utilizar tu información para responder a tus comunicaciones, para comunicarnos contigo sobre las transacciones o tu cuenta, para promocionar la plataforma, para proporcionar otra información relevante o para solicitar información y comentarios. Para obtener más información sobre cómo nos comunicamos contigo,",
-      "see_communications": "ver comunicaciones.",
-      "title": "Para comunícarnos contigo"
-    },
-    "community_partners": {
-      "paragraph": "Podemos compartir ciertos datos con los proveedores de vivienda asequible y otras organizaciones comunitarias y sin fines de lucro sobre cómo sus residentes utilizan la plataforma. Por ejemplo, una organización comunitaria puede solicitar datos agregados y anónimos de transporte para abogar por más estaciones de bicicletas eléctricas en su vecindario o solicitar los datos agregados y anónimos de alimentos para abogar por un mercado de agricultores para su edificio de vivienda asequible. A menos que optes por no participar, podemos compartir datos agregados y anónimos, incluidos los tuyos, con estos socios.",
-      "title": "Las organizaciones comunitarias y sin fines de lucro afiliadas"
-    },
-    "comply_with_law": {
-      "paragraph": "Podemos compartir tu información personal en cumplimiento de la ley aplicable, por exigencias reglamentarias, en cumplimento de los términos del contrato o licencia de operación, en vinculación con un proceso legal o solicitud gubernamental, o si hubiera lugar por razones de seguridad o preocupaciones similares.  Por ejemplo, podemos compartir tu información personal en caso de que se dañe o pierda una patineta eléctrica para ayudar al proveedor de la patineta a determinar la razón de la pérdida o daños el vehículo. Le avisaremos si su información personal se compartirá para este propósito cuando lo exija la ley.",
-      "title": "En cumplimiento de la ley"
-    },
-    "information_removal": {
-      "list": {
-        "deleting_certain_data": "es posible que no se pueda eliminar ciertos datos debido a requisitos legales, reglamentarios o de seguimiento vinculado a los subsidios, por razones de seguridad, para la prevención de fraude, o debido a un problema relacionado con su cuenta, como un crédito pendiente o reclamo o disputa sin resolverse",
-        "deleting_your_account": "es posible que la eliminación de tu cuenta no libere tu dirección de correo electrónico o número de teléfono para la creación de una nueva cuenta"
-      },
-      "paragraph": "Puede solicitar la eliminación de su cuenta de la plataforma suma y su información personal asociada en cualquier momento desde su página de Preferencias en la aplicación suma. Eliminaremos su cuenta y su información personal dentro de los 7 días posteriores a su solicitud de eliminación. Tenga en cuenta:",
-      "title": "Eliminación de información"
-    },
-    "information_retention": {
-      "list": {
-        "information_driven_business_decisions": "tomar decisiones empresariales basadas en datos sobre nuevas características y ofertas de la plataforma",
-        "legal_obligations": "cumpliendo con nuestras obligaciones legales",
-        "maintain_performance": "manteniendo el rendimiento de la plataforma suma",
-        "qualifications": "brindarle los servicios básicos de la plataforma suma, como ayudarlo a encontrar bienes y servicios esenciales y calificarlo para descuentos de proveedores de la plataforma",
-        "resolving_disputes": "resolución de disputas",
-        "subsidy": "subvención de apoyo de organizaciones externas"
-      },
-      "paragraph": "Conservaremos tu información para los fines comerciales legítimos y esenciales de la plataforma mientras tu cuenta de suma esté activa. Estos propósitos incluyen:",
-      "title": "Conservación de datos"
-    },
-    "security_and_fraud_prevention": {
-      "paragraph": "Podemos utilizar tu información para la detección y prevención de fraude. Por ejemplo, para detectar transacciones fraudulentas o el uso fraudulento de la plataforma.",
-      "title": "Seguridad y prevención del fraude"
-    },
-    "services": {
-      "paragraph": "Usamos su información de registro para configurar su cuenta de plataforma para que pueda acceder a bienes y servicios en la plataforma y calificar para descuentos y/o subsidios de proveedores.",
-      "title": "Servicios"
-    },
-    "support_subsidy": {
-      "paragraph": "Es posible que los financiadores de organizaciones públicas y privadas desean invertir dinero en la plataforma suma para reducir el costo de los alimentos, el transporte, los servicios públicos u otros bienes y servicios para los usuarios de la plataforma como usted.",
-      "title": "Subsidio de apoyo de organizaciones externas"
-    }
-  }
+  "common.table_of_contents": "Tabla de contenido",
+  "links.suma_help_email": "[info@mysuma.org](mailto:info@mysuma.org 'correo electrónico de ayuda de suma')",
+  "links.suma_platform_homepage": "[https://app.mysuma.org/app/](https://app.mysuma.org/app/ 'plataforma de suma')",
+  "links.suma_privacy_policy": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'política de privacidad de suma')",
+  "overview.community_driven_intro": "Suma desarrolló nuestra política de privacidad para y con los miembros de la comunidad. Nuestro trabajo comenzó con los estudiantes del Ida B. Wells Just Data Lab, donde exploramos las mejores y peores prácticas de política de privacidad. Tambien queríamos escuchar lo que la comunidad tenía que decir sobre nuestros hallazgos y tuvimos conversaciones con miembros de la comunidad de Portland. Sus ideas, opiniones y pensamientos han sido incorporados en nuestra política de privacidad.",
+  "overview.community_driven_title": "Hecho por la comunidad",
+  "overview.consent.statement": "Suma solicita el consentimiento de nuestros usuarios y les dará la opción de cambiar de opinión",
+  "overview.consent.title": "Consentimiento",
+  "overview.contact_us": "Contacto",
+  "overview.education.statement": "Suma busca mantener informados a nuestros usuarios y explica cómo y por qué necesitamos o utilizamos sus datos",
+  "overview.education.title": "Educación",
+  "overview.faq": "Preguntas frecuentes",
+  "overview.intro": "En suma, creemos que usted tiene el derecho a comprender cómo se utilizan sus datos.",
+  "overview.jump_to_privacy_policy": "Haga clic para ir a la política de privacidad de suma",
+  "overview.title": "Visión",
+  "overview.transparency.statement": "Suma obtiene un mínimo de datos personales de nuestros usuarios, sin trucos ocultos en la letra pequeña",
+  "overview.transparency.title": "Transparencia",
+  "overview.trust.statement": "Suma trata de construir la confianza con los que servimos y resolver los asuntos de privacidad que impiden a la comunidad utilizar la tecnología",
+  "overview.trust.title": "Confianza",
+  "sections.business_transfer.list.email": "te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma suma ($t(privacy_policy.links.suma_platform_homepage)); y",
+  "sections.business_transfer.list.opt_out": "tendrás la oportunidad de optar por no participar antes de que tu información esté sujeta a una política de privacidad distinta a la presente",
+  "sections.business_transfer.paragraph": "Podemos optar por comprar o vender los activos de la plataforma suma. Estas transacciones pueden ser precisos por el beneficio legítimo de la plataforma, en particular, para cumplir con nuestro objetivo de hacer crecer la plataforma, servir a más miembros de la comunidad y ampliar la oferta de bienes y servicios. El traslado de los datos de los usuarios suele ocurrir en estas transacciones (tales como la venta, unión, liquidación, intervención judicial o transferencia de todos o una parte sustancialmente de los activos de la plataforma suma). Si tenemos la intención de transferir tu información:",
+  "sections.business_transfer.title": "Transferencias de negocios",
+  "sections.children_under_13.paragraph": "La plataforma suma no está destinada a niños menores de 13 años. No recogemos a sabiendas información personal de niños menores de 13 años. Si tienes menos de 13 años, no proporciones información personal alguna en la plataforma suma.",
+  "sections.children_under_13.title": "Los niños menores de 13 años",
+  "sections.communications.list.platform_communications": "no se permite optar por no recibir comunicaciones en la plataforma",
+  "sections.communications.list.service_messages": "no se permite optar por no recibir los mensajes de servicio, incluidas actualizaciones a la política de privacidad, avisos de seguridad y avisos legales",
+  "sections.communications.list.valid_communication_methods": "debes mantener un número de teléfono válido o un correo electrónico vigente registrado para recibir los mensajes de la plataforma",
+  "sections.communications.paragraph": "A veces necesitaremos comunicarnos contigo sobre la plataforma, incluso para informarte  sobre nuevos proveedores, nuevas organizaciones comunitarias o sin fines de lucro afiliadas, oportunidades de ahorros o subsidios, eventos comunitarios y mensajes de servicio. Enviaremos estas comunicaciones por correo electrónico, mensaje de texto y/o a través de la plataforma misma usando el método de comunicación preferido y los datos de contacto que hayas proporcionado (es decir, mensajes que colocamos en su bandeja de entrada en la plataforma suma). Las comunicaciones se llevarán a cabo en el idioma elegido en tus preferencias de comunicación. Puedes cambiar los métodos preferidos de comunicación y datos de contacto en cualquier momento, con las siguientes excepciones:",
+  "sections.communications.title": "Comunicaciones",
+  "sections.contact_information.paragraph": "Si tienes alguna pregunta sobre esta política de privacidad, estamos para atenderte en $t(privacy_policy.links.suma_help_email). También estamos a la orden para organizar reuniones informativas virtuales o en persona, para resolver cualquier duda que tengas sobre la política de privacidad.",
+  "sections.contact_information.title": "Los datos de contacto",
+  "sections.cookies_policy.conclusion": "La plataforma suma solo utiliza las cookies esenciales que se llaman las \"Cookies de sesión. Estas permiten a la plataforma saber quién inició la sesión, y son indispensables para las operaciones de la plataforma. Las cookies de sesión caducan periódicamente, como cuando cierras una sesión de la plataforma. La plataforma suma no utiliza cookies persistentes, optativas o no esenciales.",
+  "sections.cookies_policy.paragraph": "Utilizamos cookies para ayudarnos a administrar la plataforma. Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas la plataforma suma. Una cookie contiene un código único, que utilizamos para reconocer tu dispositivo cuando vuelves a ingresar a la plataforma suma.",
+  "sections.cookies_policy.title": "Política de cookies",
+  "sections.date": "2 de agosto de 2022",
+  "sections.effective": "Fecha de entrada en vigor:",
+  "sections.future_changes_to_policy.conclusion": "Puedes consultar la política de privacidad vigente de la plataforma suma en cualquier momento en $t(privacy_policy.links.suma_privacy_policy). Por cualquier pregunta o inquietud sobre cambios a esta política, comunícate con $t(privacy_policy.links.suma_help_email).",
+  "sections.future_changes_to_policy.paragraph": "Es posible que se actualice la política de privacidad de la plataforma suma de vez en cuando. Si cambiamos la política de privacidad de suma, te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma $t(privacy_policy.links.suma_platform_homepage). Este aviso te informará qué va a cambiar y por qué está cambiando. Proporcionaremos un aviso al menos 30 días antes de que los cambios entren en vigor, a menos que la ley requiera que el plazo de notificación sea distinto. Tendrás la oportunidad autorizar los cambios la primera vez que inicias una nueva sesión después de que los cambios entren en vigor. Si no aceptas los cambios, su cuenta será suspendida.",
+  "sections.future_changes_to_policy.title": "Cambios futuros a la presente política",
+  "sections.information_collected.list.registration": "**El registro:**  Recopilamos su nombre, número de teléfono, correo electrónico, datos de pago, los datos de tu cuenta bancaria o de la tarjeta de crédito/débito y el nombre del socio de la comunidad cuando creas tu cuenta de la plataforma suma.",
+  "sections.information_collected.list.subsidy": "**Los subsidios:** Recopilamos los datos necesarios para obtener subsidios. Por ejemplo, si el proveedor del subsidio ofrece fondos de suma para los usuarios en función de un límite de ingresos, podemos recopilar su información financiera para confirmar que es elegible para el subsidio.",
+  "sections.information_collected.list.vendors": "**Los proveedores y comerciantes:** Recopilamos datos sobre los bienes y servicios a los que accedes y compras a través de la plataforma suma.",
+  "sections.information_collected.paragraph": "Recogemos los datos mínimos que sean necesarios para crear tu cuenta en la plataforma suma, para colaborar con las organizaciones comunitarias y sin fines de lucro afiliadas, para conectarte con los proveedores de servicios y comerciantes y para brindar los subsidios:",
+  "sections.information_collected.title": "¿Qué información se recoge?",
+  "sections.information_retention_and_removal.paragraph": "Tenemos los siguientes estándares para la conservación y eliminación de información personal que procesamos en la plataforma suma:",
+  "sections.information_retention_and_removal.title": "Retención, solicitudes y eliminación de información",
+  "sections.methods_of_collection.list.community_partners": "**Socios de la comunidad:** Recopilamos información de socios de la comunidad (como Hacienda CDC, Proud Ground, Home Forward, otros) para ayudarnos a calificarlo para descuentos de proveedores en la plataforma de suma, así como para asegurar financiamiento externo que reduzca el costo de bienes y servicios en suma. plataforma.",
+  "sections.methods_of_collection.list.cookies": "**Las cookies y archivos de registro:** Utilizamos cookies para saber cuándo ha iniciado sesión y utilizamos archivos de registro para comprender su actividad en la plataforma. Consulte nuestra política de cookies para conocer las cookies que utilizamos y por qué.",
+  "sections.methods_of_collection.list.registration_page": "**Registro:** Utilizamos nuestra página de registro para recopilar información cuando crea su cuenta suma.",
+  "sections.methods_of_collection.paragraph": "Tu confianza, consentimiento y comprensión de nuestra política de privacidad son primordiales para la plataforma suma. Para proporcionar los servicios de la plataforma, recogemos información a través de los siguientes métodos:",
+  "sections.methods_of_collection.title": "Métodos de recogida",
+  "sections.methods_of_information_usage.paragraph": "Utilizamos información personal para impulsar los servicios de la plataforma suma, para calificarlo para descuentos de proveedores de la plataforma, para respaldar el subsidio de organizaciones externas, para comunicarnos con usted, para seguridad y prevención de fraude, y para cumplir con la ley:",
+  "sections.methods_of_information_usage.title": "Métodos de uso de datos",
+  "sections.third_party_access.list.personal_information": "Para obtener detalles sobre cómo compartimos cierta información personal con proveedores de plataformas o proveedores de subsidios, y cómo podemos compartir cierta información personal para cumplir con la ley o resolver disputas, consulte",
+  "sections.third_party_access.list.service_providers": "**Proveedores de servicio** Estos son proveedores que nos ayudan a operar la plataforma suma e incluyen procesadores y facilitadores de pago y servicios de alojamiento en la nube",
+  "sections.third_party_access.list.with_your_consent": "**Con su consentimiento** Podemos compartir su información personal con terceros adicionales si le notificamos y usted da su consentimiento para compartirla",
+  "sections.third_party_access.paragraph": "Suma no comparte información personal sobre usted con terceros para sus propios fines de marketing. Compartimos esta información con terceros confiables y examinados (proveedores de plataformas, proveedores de subsidios, proveedores de servicios a la plataforma), para cumplir con la ley o en caso de disputa:",
+  "sections.third_party_access.title": "Acceso de terceros",
+  "sections.title": "Política De Privacidad",
+  "subsections.communicate_with_you.paragraph": "Podemos utilizar tu información para responder a tus comunicaciones, para comunicarnos contigo sobre las transacciones o tu cuenta, para promocionar la plataforma, para proporcionar otra información relevante o para solicitar información y comentarios. Para obtener más información sobre cómo nos comunicamos contigo,",
+  "subsections.communicate_with_you.see_communications": "ver comunicaciones.",
+  "subsections.communicate_with_you.title": "Para comunícarnos contigo",
+  "subsections.community_partners.paragraph": "Podemos compartir ciertos datos con los proveedores de vivienda asequible y otras organizaciones comunitarias y sin fines de lucro sobre cómo sus residentes utilizan la plataforma. Por ejemplo, una organización comunitaria puede solicitar datos agregados y anónimos de transporte para abogar por más estaciones de bicicletas eléctricas en su vecindario o solicitar los datos agregados y anónimos de alimentos para abogar por un mercado de agricultores para su edificio de vivienda asequible. A menos que optes por no participar, podemos compartir datos agregados y anónimos, incluidos los tuyos, con estos socios.",
+  "subsections.community_partners.title": "Las organizaciones comunitarias y sin fines de lucro afiliadas",
+  "subsections.comply_with_law.paragraph": "Podemos compartir tu información personal en cumplimiento de la ley aplicable, por exigencias reglamentarias, en cumplimento de los términos del contrato o licencia de operación, en vinculación con un proceso legal o solicitud gubernamental, o si hubiera lugar por razones de seguridad o preocupaciones similares.  Por ejemplo, podemos compartir tu información personal en caso de que se dañe o pierda una patineta eléctrica para ayudar al proveedor de la patineta a determinar la razón de la pérdida o daños el vehículo. Le avisaremos si su información personal se compartirá para este propósito cuando lo exija la ley.",
+  "subsections.comply_with_law.title": "En cumplimiento de la ley",
+  "subsections.information_removal.list.deleting_certain_data": "es posible que no se pueda eliminar ciertos datos debido a requisitos legales, reglamentarios o de seguimiento vinculado a los subsidios, por razones de seguridad, para la prevención de fraude, o debido a un problema relacionado con su cuenta, como un crédito pendiente o reclamo o disputa sin resolverse",
+  "subsections.information_removal.list.deleting_your_account": "es posible que la eliminación de tu cuenta no libere tu dirección de correo electrónico o número de teléfono para la creación de una nueva cuenta",
+  "subsections.information_removal.paragraph": "Puede solicitar la eliminación de su cuenta de la plataforma suma y su información personal asociada en cualquier momento desde su página de Preferencias en la aplicación suma. Eliminaremos su cuenta y su información personal dentro de los 7 días posteriores a su solicitud de eliminación. Tenga en cuenta:",
+  "subsections.information_removal.title": "Eliminación de información",
+  "subsections.information_retention.list.information_driven_business_decisions": "tomar decisiones empresariales basadas en datos sobre nuevas características y ofertas de la plataforma",
+  "subsections.information_retention.list.legal_obligations": "cumpliendo con nuestras obligaciones legales",
+  "subsections.information_retention.list.maintain_performance": "manteniendo el rendimiento de la plataforma suma",
+  "subsections.information_retention.list.qualifications": "brindarle los servicios básicos de la plataforma suma, como ayudarlo a encontrar bienes y servicios esenciales y calificarlo para descuentos de proveedores de la plataforma",
+  "subsections.information_retention.list.resolving_disputes": "resolución de disputas",
+  "subsections.information_retention.list.subsidy": "subvención de apoyo de organizaciones externas",
+  "subsections.information_retention.paragraph": "Conservaremos tu información para los fines comerciales legítimos y esenciales de la plataforma mientras tu cuenta de suma esté activa. Estos propósitos incluyen:",
+  "subsections.information_retention.title": "Conservación de datos",
+  "subsections.security_and_fraud_prevention.paragraph": "Podemos utilizar tu información para la detección y prevención de fraude. Por ejemplo, para detectar transacciones fraudulentas o el uso fraudulento de la plataforma.",
+  "subsections.security_and_fraud_prevention.title": "Seguridad y prevención del fraude",
+  "subsections.services.paragraph": "Usamos su información de registro para configurar su cuenta de plataforma para que pueda acceder a bienes y servicios en la plataforma y calificar para descuentos y/o subsidios de proveedores.",
+  "subsections.services.title": "Servicios",
+  "subsections.support_subsidy.paragraph": "Es posible que los financiadores de organizaciones públicas y privadas desean invertir dinero en la plataforma suma para reducir el costo de los alimentos, el transporte, los servicios públicos u otros bienes y servicios para los usuarios de la plataforma como usted.",
+  "subsections.support_subsidy.title": "Subsidio de apoyo de organizaciones externas"
 }

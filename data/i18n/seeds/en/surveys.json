@@ -1,45 +1,35 @@
 {
-  "food_learn_more": {
-    "connect_resources": "Connect suma users to additional resources",
-    "grant_support": "Support the app with grant funds",
-    "label": "I want to learn more about the suma app so I can:",
-    "partner": "Bring my grocery onto the app",
-    "save": "Save money on food"
-  },
-  "food_options": {
-    "albertsons": "Albertsons",
-    "fred_meyer": "Fred meyer",
-    "label": "Where do you shop for food (check all that apply)?",
-    "market": "Tienda, bodega or other cultural market",
-    "safeway": "Safeway",
-    "winco": "Winco"
-  },
+  "food_learn_more.connect_resources": "Connect suma users to additional resources",
+  "food_learn_more.grant_support": "Support the app with grant funds",
+  "food_learn_more.label": "I want to learn more about the suma app so I can:",
+  "food_learn_more.partner": "Bring my grocery onto the app",
+  "food_learn_more.save": "Save money on food",
+  "food_options.albertsons": "Albertsons",
+  "food_options.fred_meyer": "Fred meyer",
+  "food_options.label": "Where do you shop for food (check all that apply)?",
+  "food_options.market": "Tienda, bodega or other cultural market",
+  "food_options.safeway": "Safeway",
+  "food_options.winco": "Winco",
   "join_waitlist": "Join Waiting List",
-  "member_type": {
-    "community": "Community member",
-    "for_profit": "For profit",
-    "government": "Government",
-    "label": "Which option describes you best?",
-    "non_profit": "Non-profit",
-    "philanthropy": "Philanthropy"
-  },
-  "utilities_learn_more": {
-    "connect_resources": "Connect suma users to additional resources",
-    "grant_support": "Support the app with grant funds",
-    "label": "I want to learn more about the suma app so I can:",
-    "partner": "Bring my grocery onto the app",
-    "save": "Save money on utilities"
-  },
-  "utilities_options": {
-    "centurylink": "CenturyLink",
-    "comcast": "Comcast",
-    "frontier": "Frontier",
-    "label": "Check the box for all the utilities at your household:",
-    "nw_natural": "NW Natural",
-    "pacific_power": "Pacific Power",
-    "pge": "PGE",
-    "verizon": "Verizon"
-  },
-  "waitlist_joined": "Great! You are on the waiting list and we'll let you know when it's available.",
-  "waitlisted_already": "You are already on the waiting list. We'll let you know when we have an update!"
+  "member_type.community": "Community member",
+  "member_type.for_profit": "For profit",
+  "member_type.government": "Government",
+  "member_type.label": "Which option describes you best?",
+  "member_type.non_profit": "Non-profit",
+  "member_type.philanthropy": "Philanthropy",
+  "utilities_learn_more.connect_resources": "Connect suma users to additional resources",
+  "utilities_learn_more.grant_support": "Support the app with grant funds",
+  "utilities_learn_more.label": "I want to learn more about the suma app so I can:",
+  "utilities_learn_more.partner": "Bring my grocery onto the app",
+  "utilities_learn_more.save": "Save money on utilities",
+  "utilities_options.centurylink": "CenturyLink",
+  "utilities_options.comcast": "Comcast",
+  "utilities_options.frontier": "Frontier",
+  "utilities_options.label": "Check the box for all the utilities at your household:",
+  "utilities_options.nw_natural": "NW Natural",
+  "utilities_options.pacific_power": "Pacific Power",
+  "utilities_options.pge": "PGE",
+  "utilities_options.verizon": "Verizon",
+  "waitlisted_already": "You are already on the waiting list. We'll let you know when we have an update!",
+  "waitlist_joined": "Great! You are on the waiting list and we'll let you know when it's available."
 }
