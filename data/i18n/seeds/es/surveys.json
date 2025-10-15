@@ -1,45 +1,35 @@
 {
-  "food_learn_more": {
-    "connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
-    "grant_support": "Apoyar la aplicación con fondos donados",
-    "label": "Quiero obtener más información sobre la aplicación suma para poder:",
-    "partner": "Incorporar mi servicio público a la aplicación",
-    "save": "Ahorrar dinero en comida"
-  },
-  "food_options": {
-    "albertsons": "Albertsons",
-    "fred_meyer": "Fred meyer",
-    "label": "Dónde compra alimentos (marque todo lo que corresponda)",
-    "market": "Tienda, bodega u otro mercado cultural",
-    "safeway": "Safeway",
-    "winco": "Winco"
-  },
+  "food_learn_more.connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
+  "food_learn_more.grant_support": "Apoyar la aplicación con fondos donados",
+  "food_learn_more.label": "Quiero obtener más información sobre la aplicación suma para poder:",
+  "food_learn_more.partner": "Incorporar mi servicio público a la aplicación",
+  "food_learn_more.save": "Ahorrar dinero en comida",
+  "food_options.albertsons": "Albertsons",
+  "food_options.fred_meyer": "Fred meyer",
+  "food_options.label": "Dónde compra alimentos (marque todo lo que corresponda)",
+  "food_options.market": "Tienda, bodega u otro mercado cultural",
+  "food_options.safeway": "Safeway",
+  "food_options.winco": "Winco",
   "join_waitlist": "Join Waiting List",
-  "member_type": {
-    "community": "Miembro de la comunidad",
-    "for_profit": "Negocio",
-    "government": "Gobierno",
-    "label": "¿Qué opción lo describe mejor?",
-    "non_profit": "Organización sin fines de lucro",
-    "philanthropy": "Filantropía"
-  },
-  "utilities_learn_more": {
-    "connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
-    "grant_support": "Apoyar la aplicación con fondos donados",
-    "label": "Quiero obtener más información sobre la aplicación suma para poder:",
-    "partner": "Incorporar mi servicio público a la aplicación",
-    "save": "Ahorrar dinero en servicios públicos"
-  },
-  "utilities_options": {
-    "centurylink": "CenturyLink",
-    "comcast": "Comcast",
-    "frontier": "Frontier",
-    "label": "Marque la casilla para todos los servicios públicos en su hogar",
-    "nw_natural": "NW Natural",
-    "pacific_power": "Pacific Power",
-    "pge": "PGE",
-    "verizon": "Verizon"
-  },
-  "waitlist_joined": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible.",
-  "waitlisted_already": "Ya estás en la lista de espera. ¡Te avisaremos cuando tengamos una actualización!"
+  "member_type.community": "Miembro de la comunidad",
+  "member_type.for_profit": "Negocio",
+  "member_type.government": "Gobierno",
+  "member_type.label": "¿Qué opción lo describe mejor?",
+  "member_type.non_profit": "Organización sin fines de lucro",
+  "member_type.philanthropy": "Filantropía",
+  "utilities_learn_more.connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
+  "utilities_learn_more.grant_support": "Apoyar la aplicación con fondos donados",
+  "utilities_learn_more.label": "Quiero obtener más información sobre la aplicación suma para poder:",
+  "utilities_learn_more.partner": "Incorporar mi servicio público a la aplicación",
+  "utilities_learn_more.save": "Ahorrar dinero en servicios públicos",
+  "utilities_options.centurylink": "CenturyLink",
+  "utilities_options.comcast": "Comcast",
+  "utilities_options.frontier": "Frontier",
+  "utilities_options.label": "Marque la casilla para todos los servicios públicos en su hogar",
+  "utilities_options.nw_natural": "NW Natural",
+  "utilities_options.pacific_power": "Pacific Power",
+  "utilities_options.pge": "PGE",
+  "utilities_options.verizon": "Verizon",
+  "waitlisted_already": "Ya estás en la lista de espera. ¡Te avisaremos cuando tengamos una actualización!",
+  "waitlist_joined": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible."
 }
