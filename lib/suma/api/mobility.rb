@@ -172,18 +172,18 @@ class Suma::API::Mobility < Suma::API::V1
           began_at = item.began_at.in_time_zone(member.timezone)
           week_key = began_at.beginning_of_week.to_date.to_s
           if week_key == current_week_key
-            weeks.last[:end_index] = idx
+            weeks.last[:end_index] = idx + 1
           else
             current_week_key = week_key
             weeks << {
               begin_at: began_at.beginning_of_week.to_date,
               end_at: began_at.end_of_week.to_date,
               begin_index: idx,
-              end_index: idx,
+              end_index: idx + 1,
             }
           end
         end
-        weeks.last[:end_index] = collection.items.count - 1
+        weeks.last[:end_index] = collection.items.count
       end
       present collection, with: MobilityTripCollectionEntity, ongoing: member.ongoing_trip, weeks:
     end
