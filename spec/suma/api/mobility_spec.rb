@@ -480,13 +480,13 @@ RSpec.describe Suma::API::Mobility, :db do
             begin_at: "2025-02-17",
             end_at: "2025-02-23",
             begin_index: 0,
-            end_index: 2,
+            end_index: 3,
           },
           {
             begin_at: "2024-09-30",
             end_at: "2024-10-06",
             begin_index: 3,
-            end_index: 3,
+            end_index: 4,
           },
         ],
       )
