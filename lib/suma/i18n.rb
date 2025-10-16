@@ -50,7 +50,7 @@ module Suma::I18n
       return @localized_error_codes ||= begin
         f = Suma::I18n::StaticStringIO::SEEDS_DIR + self.base_locale_code + "#{self.base_namespace}.json"
         j = JSON.load_file(f)
-        j.fetch("errors").keys
+        j.keys.select { |k| k.start_with?("errors") }.map { |k| k.delete_prefix("errors.") }
       end
     end
 
