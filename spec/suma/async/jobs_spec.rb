@@ -387,6 +387,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "LimeTripSync", reset_configuration: Suma::Lime do
     before(:each) do
+      Suma::Lime.trip_email_sync_enabled = true
+      Suma::Lime.trip_report_sync_enabled = true
       Suma::Lime.trip_report_from_email = "from@mysuma.org"
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end
@@ -442,6 +444,17 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         have_attributes(vehicle_id: "valid-receipt"),
         have_attributes(vehicle_id: "RTOKEN1"),
       )
+    end
+
+    it "does not sync trips if not enabled" do
+      Suma::Lime.trip_email_sync_enabled = false
+      Suma::Lime.trip_report_sync_enabled = false
+      expect(Suma::Lime::SyncTripsFromEmail).to_not receive(:new)
+      expect(Suma::Lime::SyncTripsFromReport).to_not receive(:new)
+
+      Suma::Async::LimeTripSync.new.perform
+
+      expect(Suma::Mobility::Trip.all).to be_empty
     end
   end
 
