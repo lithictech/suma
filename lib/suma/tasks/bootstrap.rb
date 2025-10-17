@@ -18,22 +18,31 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         Suma::Member.db.transaction do
           Suma::I18n::StaticStringIO.import_seeds
           Meta.new.fixture
+          Programs.new.fixture
           Mobility.new.fixture
           AnonProxy.new.fixture
           Commerce.new.fixture
-          Programs.new.fixture
         end
       end
     end
   end
 
   class Common
+    def ttext(en, es: "#{en} (ES)") = Suma::TranslatedText.find_or_create(en:, es:)
+
     def cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
     def mobility_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category)
     def food_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Food", parent: cash_category)
     def holidays_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Holiday Demo", parent: food_category)
     def farmers_market_intro_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Farmers Market Demo", parent: cash_category)
     def farmers_market_match_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Farmers Market Match Demo", parent: cash_category)
+
+    def scooter_program(&) = Suma::Program.find_or_create(name: ttext("Scooters"), &)
+    def bike_program(&) = Suma::Program.find_or_create(name: ttext("Bikes"), &)
+    def farmers_market_program(&) = Suma::Program.find_or_create(name: ttext("Farmers Markets"), &)
+
+    def lemon_vendor = Suma::Vendor.find_or_create(name: "Lemon")
+    def rayse_vendor = Suma::Vendor.find_or_create(name: "Rayse")
 
     def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
       bytes = File.binread(file_path + filename)
@@ -87,17 +96,36 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   class Mobility < Common
     def fixture
       lemon_vs = self.create_mobility_vendor_service(
-        vendor_name: "Lemon",
+        vendor: self.lemon_vendor,
         internal_name: "lemon_mobility_deeplink",
         external_name: "Lemon E-Scooter",
         constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
+        image: self.create_uploaded_file("lemon.png", "image/png"),
       )
       rayse_vs = self.create_mobility_vendor_service(
-        vendor_name: "Rayse",
+        vendor: self.rayse_vendor,
         internal_name: "rayse_mobility_deeplink",
         external_name: "Rayse E-Bike",
         constraints: [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}],
+        image: self.create_uploaded_file("rayse.png", "image/png"),
       )
+
+      bike_rate = Suma::Vendor::ServiceRate.create(name: "Rayse Bike Rate") do |r|
+        r.surcharge = Money.new(50)
+        r.unit_amount = Money.new(10)
+        r.localization_key = "rates.unlock_and_per_minute"
+      end
+      bike_vs = Suma::Vendor::Service[internal_name: "rayse_mobility_deeplink"]
+      self.bike_program.add_pricing({vendor_service: bike_vs, vendor_service_rate: bike_rate})
+
+      scooter_rate = Suma::Vendor::ServiceRate.create(name: "Lemon Scooter Rate") do |r|
+        r.surcharge = Money.new(0)
+        r.unit_amount = Money.new(7)
+        r.localization_key = "rates.unlock_and_per_minute"
+      end
+      scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
+      self.scooter_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})
+
       Suma::Mobility::GbfsFeed.create(
         feed_root_url: "https://gbfs.lyft.com/gbfs/2.3/pdx/en",
         vendor: rayse_vs.vendor,
@@ -107,12 +135,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def create_mobility_vendor_service(
-      vendor_name:,
+      vendor:,
       internal_name:,
       external_name:,
-      constraints:
+      constraints:,
+      image:
     )
-      vendor = Suma::Vendor.create(name: vendor_name)
+      vendor.add_image({uploaded_file: image})
       svc = Suma::Vendor::Service.create(
         vendor:,
         internal_name:,
@@ -144,28 +173,39 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_private_accounts
-      [Suma::Vendor[name: "Lemon"], Suma::Vendor[name: "Rayse"]].each do |vendor|
-        Suma::AnonProxy::VendorConfiguration.create(vendor:) do |vc|
-          vc.enabled = true
-          vc.auth_to_vendor_key = "fake"
-          vc.message_handler_key = "fake"
-          vc.app_install_link = "https://mysuma.org"
-          vc.instructions = Suma::TranslatedText.create(
-            en: <<~MD,
-              1. Step 1 en
-              1. Step 2 en
-              1. Step 3 en
-              1. Step 4 en
-            MD
-            es: <<~MD,
-              1. Step 1 es
-              1. Step 2 es
-              1. Step 3 es
-              1. Step 4 es
-            MD
-          )
-        end
-      end
+      instructions = Suma::TranslatedText.create(
+        en: <<~MD,
+          1. Step 1 en
+          1. Step 2 en
+          1. Step 3 en
+          1. Step 4 en
+        MD
+        es: <<~MD,
+          1. Step 1 es
+          1. Step 2 es
+          1. Step 3 es
+          1. Step 4 es
+        MD
+      )
+      lemon_vc = Suma::AnonProxy::VendorConfiguration.create(
+        vendor: self.lemon_vendor,
+        instructions:,
+        enabled: true,
+        auth_to_vendor_key: "fake",
+        message_handler_key: "fake",
+        app_install_link: "https://mysuma.org/fake-lemon",
+      )
+      self.scooter_program.add_anon_proxy_vendor_configuration(lemon_vc)
+
+      rayse_vc = Suma::AnonProxy::VendorConfiguration.create(
+        vendor: self.rayse_vendor,
+        instructions:,
+        enabled: true,
+        auth_to_vendor_key: "fake",
+        message_handler_key: "fake",
+        app_install_link: "https://mysuma.org/fake-rayse",
+      )
+      self.bike_program.add_anon_proxy_vendor_configuration(rayse_vc)
     end
   end
 
@@ -191,6 +231,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           es: "Cómo lo está recibiendo",
         )
       end
+      self.farmers_market_program.add_commerce_offering(offering)
+
       uf = self.create_uploaded_file("holiday-offering.jpeg", "image/jpeg")
       offering.add_image({uploaded_file: uf}) if offering.images.empty?
       offering.add_fulfillment_option(
@@ -268,7 +310,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.holidays_category),
         receiving_ledger_name: "Holidays Food Demo",
-        receiving_ledger_contribution_text: Suma::TranslatedText.create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
+        receiving_ledger_contribution_text: self.ttext("Holiday Food Subsidy"),
       )
     end
 
@@ -304,8 +346,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           begin_fulfillment_at: offering_period.begin,
         )
       end
-
       offering.add_image({uploaded_file: hero})
+      self.farmers_market_program.add_commerce_offering(offering)
+
       fulfillment_params = [
         {
           type: "pickup",
@@ -399,7 +442,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_intro_category),
         receiving_ledger_name: "Farmers Market Intro Demo",
-        receiving_ledger_contribution_text: Suma::TranslatedText.create(en: "FM Intro Offer", es: "FM Intro Offer (es)"),
+        receiving_ledger_contribution_text: self.ttext("FM Intro Offer"),
       )
       Suma::Payment::Trigger.create(
         label: "Farmers market 1 to 1",
@@ -409,47 +452,33 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_match_category),
         receiving_ledger_name: "Farmers Market Match Demo",
-        receiving_ledger_contribution_text: Suma::TranslatedText.create(en: "FM Match", es: "FM Match (es)"),
+        receiving_ledger_contribution_text: self.ttext("FM Match"),
       )
     end
   end
 
-  class Programs
+  class Programs < Common
     def fixture
-      scooter_rate = Suma::Vendor::ServiceRate.create(name: "Lemon Scooter Rate") do |r|
-        r.surcharge = Money.new(0)
-        r.unit_amount = Money.new(7)
-        r.localization_key = "rates.unlock_and_per_minute"
-      end
-      scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
-
-      bike_rate = Suma::Vendor::ServiceRate.create(name: "Rayse Bike Rate") do |r|
-        r.surcharge = Money.new(50)
-        r.unit_amount = Money.new(10)
-        r.localization_key = "rates.unlock_and_per_minute"
-      end
-      bike_vs = Suma::Vendor::Service[internal_name: "rayse_mobility_deeplink"]
-
-      mobility_program_name = Suma::TranslatedText.create(en: "Micromobility", es: "Micromobility (ES)")
-      mobility_program = Suma::Program.create(name: mobility_program_name) do |g|
-        g.description = Suma::TranslatedText.create(en: "Ride electric bikes and scooters", es: "Ride electric bikes and scooters (ES)")
+      self.scooter_program do |g|
+        g.description = self.ttext("Ride electric scooters")
         g.period = 1.year.ago..1.year.from_now
         g.app_link = "/mobility"
-        g.app_link_text = Suma::TranslatedText.create(en: "Check out mobility map", es: "Check out mobility map (ES)")
+        g.app_link_text = self.ttext("Check out mobility map")
       end
 
-      mobility_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})
-      mobility_program.add_pricing({vendor_service: bike_vs, vendor_service_rate: bike_rate})
+      self.bike_program do |g|
+        g.description = self.ttext("Ride electric bikes")
+        g.period = 1.year.ago..1.year.from_now
+        g.app_link = "/mobility"
+        g.app_link_text = self.ttext("Check out mobility map")
+      end
 
-      fm_name = Suma::TranslatedText.create(en: "Farmers Markets", es: "Farmers Markets (ES)")
-      fm_program = Suma::Program.create(name: fm_name) do |g|
-        g.description = Suma::TranslatedText.create(en: "Get subsidized local food", es: "Get subsidized local food (ES)")
+      self.farmers_market_program do |g|
+        g.description = self.ttext("Get subsidized local food")
         g.period = 1.year.ago..1.year.from_now
         g.app_link = "/food"
-        g.app_link_text = Suma::TranslatedText.create(en: "See offering", es: "See offering (ES)")
+        g.app_link_text = self.ttext("See offering")
       end
-      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022_12_pilot_confirmation"])
-      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023_07_pilot_confirmation"])
 
       Suma::Program.all.each do |pr|
         pr.add_enrollment(role: Suma::Role.cache.member, approved_at: Time.now)
