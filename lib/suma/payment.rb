@@ -91,23 +91,31 @@ module Suma::Payment
     def minimum_funding_amount = Money.new(self.minimum_funding_amount_cents)
     def minimum_cash_balance_for_services = Money.new(self.minimum_cash_balance_for_services_cents)
 
+    # Return true if +service_usage_prohibited_reason+ is nil.
+    def can_use_services?(payment_account, now: Time.now)
+      return self.service_usage_prohibited_reason(payment_account, now:).nil?
+    end
+
     # Return true if the payment account can use services.
     # Members are prohibited from using services when:
     # - Their cash ledger balance is less than +minimum_cash_balance_for_services+,
     # - Their cash ledger balance has been negative for more than +negative_cash_balance_grace_period+
     #   (this is only relevant when +minimum_cash_balance_for_services+ is negative).
     #
-    # Internal note: We don't take in a 'now' because we want to use the Ledger#balance value as a fast path,
+    # Internal note: We require a 'now' because we want to use the Ledger#balance value as a fast path,
     # which is based on associations. If that fails, we need to calculate using database queries.
-    def can_use_services?(payment_account, now: Time.now)
+    #
+    # @return [String,nil] The error code, like "usage_prohibited_instrument_required", or nil.
+    def service_usage_prohibited_reason(payment_account, now: Time.now)
+      return "unhandled_error" if payment_account.nil?
       ledger = payment_account.cash_ledger!
       # We're below the minimum, so this is never ok.
-      return false if ledger.balance < self.minimum_cash_balance_for_services
+      return "usage_prohibited_cash_balance" if ledger.balance < self.minimum_cash_balance_for_services
       # We've above the minimum, and the minimum is zero or higher, so we are okay and do not need
       # to worry about grace period.
-      return true if self.minimum_cash_balance_for_services >= 0
+      return nil if self.minimum_cash_balance_for_services >= 0
       # The minimum is negative, but our balance is ok, so we don't need to check the grace period.
-      return true if ledger.balance >= 0
+      return nil if ledger.balance >= 0
       # We have a negative balance that is higher than the minimum.
       # So now we need to see if the ledger has been brought out of the red at any point
       # during the grace period (if it has, the grace period would start over).
@@ -116,7 +124,7 @@ module Suma::Payment
       if (first_bx = ledger.combined_book_transactions_raw.last) && (first_bx.fetch(:apply_at) > grace_start)
         # If the first transaction started after the grace period,
         # we know we cannot have been negative for longer than it.
-        return true
+        return nil
       end
       has_been_positive_during_grace_period = false
       ledger.combined_book_transactions_raw.reverse_each do |row|
@@ -126,7 +134,7 @@ module Suma::Payment
           break
         end
       end
-      return has_been_positive_during_grace_period
+      return has_been_positive_during_grace_period ? nil : "usage_prohibited_cash_balance"
     end
   end
 

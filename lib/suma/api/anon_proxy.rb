@@ -31,6 +31,9 @@ class Suma::API::AnonProxy < Suma::API::V1
 
         post :make_auth_request do
           apva = lookup
+          if (code = Suma::Payment.service_usage_prohibited_reason(apva.member.payment_account))
+            merror!(402, "Account cannot use services", code:)
+          end
           apva.auth_to_vendor.auth(now: current_time)
           apva.update(latest_access_code_requested_at: current_time)
           status 200
@@ -125,8 +128,9 @@ class Suma::API::AnonProxy < Suma::API::V1
         end
 
         post :errors do
-          Sentry.set_context(:signalwire, params.to_h)
-          Sentry.capture_message("Received Signalwire error webhook")
+          Sentry.capture_message("Received Signalwire error webhook") do |scope|
+            scope.set_context(:signalwire, params.to_h)
+          end
           status 200
           present({})
         end

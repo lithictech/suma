@@ -21,42 +21,54 @@ RSpec.describe Suma::Payment, :db do
     end
   end
 
-  describe "can_use_services?", reset_configuration: described_class do
+  describe "service_usage_prohibited_reason", reset_configuration: described_class do
     let(:member) { Suma::Fixtures.member.create }
     let(:ledger) { described_class.ensure_cash_ledger(member) }
     let(:account) { ledger.account }
 
+    it "is false if payment account is nil" do
+      described_class.minimum_cash_balance_for_services_cents = 0
+      expect(described_class.service_usage_prohibited_reason(nil)).to eq("unhandled_error")
+    end
+
     it "is true when the cash balance is >= minimum amount" do
       described_class.minimum_cash_balance_for_services_cents = 0
-      expect(described_class.can_use_services?(account)).to eq(true)
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
       described_class.minimum_cash_balance_for_services_cents = -5
-      expect(described_class.can_use_services?(account)).to eq(true)
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
       described_class.minimum_cash_balance_for_services_cents = 5
-      expect(described_class.can_use_services?(account)).to eq(false)
+      expect(described_class.service_usage_prohibited_reason(account)).to eq("usage_prohibited_cash_balance")
     end
 
     it "is false when the cash balance is negative, but greater than minimum amount, but the grace period expired" do
       described_class.minimum_cash_balance_for_services_cents = -20_00
       described_class.negative_cash_balance_grace_period = 10.hours
-      expect(described_class.can_use_services?(account)).to eq(true)
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
 
       # Test that a simple before/after balance check works
       book_fac = fixtures.book_transaction(amount: money("$1"))
       x = book_fac.from(ledger).create(apply_at: 5.hours.ago)
       account.refresh
-      expect(described_class.can_use_services?(account)).to eq(true)
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
       x.update(apply_at: 15.hours.ago)
       account.refresh
-      expect(described_class.can_use_services?(account)).to eq(false)
+      expect(described_class.service_usage_prohibited_reason(account)).to eq("usage_prohibited_cash_balance")
 
       # Now test that going back to 0, then back negative, treats the account as ok
       book_fac.to(ledger).create(apply_at: 5.hours.ago)
       account.refresh
-      expect(described_class.can_use_services?(account)).to eq(true)
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
       book_fac.from(ledger).create(apply_at: 5.hours.ago)
       book_fac.from(ledger).create(apply_at: 5.hours.ago)
       account.refresh
-      expect(described_class.can_use_services?(account)).to eq(true)
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
+    end
+
+    it "has a can_use_services? predicate" do
+      described_class.minimum_cash_balance_for_services_cents = 0
+      expect(described_class).to be_can_use_services(account)
+      described_class.minimum_cash_balance_for_services_cents = 5
+      expect(described_class).to_not be_can_use_services(account)
     end
   end
 

@@ -45,16 +45,35 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
         nil
       end
       vendor_account.update(pending_closure: false)
-    else
-      link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).url : magic_link
-      vendor_account.replace_access_code(token, link_to_use).save_changes
-      msg = Suma::Messages::SingleValue.new(
-        "anon_proxy",
-        "lime_deep_link_access_code",
-        link_to_use,
-      )
-      vendor_account.member.message_preferences!.dispatch(msg)
+      result.handled = true
+      return result
+    elsif Suma::Payment.service_usage_prohibited_reason(vendor_account.member.payment_account)
+      # It is possible for a Lime user who is logged out to manually request a reset code link.
+      # We normally can't tell apart requests that we make, from requests that they make;
+      # and since there is usually no need to, we don't worry about it.
+      # However, if we've logged them out due to non-payment, and they request a link
+      # (which would only be done by a technically savvy, malicious user)
+      # we do NOT want to send the code onto them. If we see this behavior,
+      # report it to developers so we can take action. There may be nothing to do,
+      # or we may want to reach out to ban the user from suma entirely.
+      Sentry.capture_message("Prohibited Lime user requested access code") do |scope|
+        scope.set_extras(
+          vendor_account_id: vendor_account.id,
+          vendor_configuration_id: vendor_account.configuration_id,
+          member_name: vendor_account.member.name,
+        )
+      end
+      result.handled = true
+      return result
     end
+    link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).url : magic_link
+    vendor_account.replace_access_code(token, link_to_use).save_changes
+    msg = Suma::Messages::SingleValue.new(
+      "anon_proxy",
+      "lime_deep_link_access_code",
+      link_to_use,
+    )
+    vendor_account.member.message_preferences!.dispatch(msg)
     result.handled = true
     return result
   end
