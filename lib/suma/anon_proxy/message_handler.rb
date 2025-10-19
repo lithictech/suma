@@ -82,18 +82,11 @@ class Suma::AnonProxy::MessageHandler
       self.logger.info("anon_proxy_message_handled",
                        relay: relay.key,
                        member_id: vendor_account.member_id,
-                       handler: handler.key,)
+                       handler: handler.key,
+                       vendor_configuration_id: vendor_account.configuration_id,)
       return vam
     end
   end
-
-  #   def extract_message(whdb_row, contact_optional: false)
-  #     parsed_message = self.parse_message(whdb_row)
-  #     mc_criteria = {relay_key: self.key, self.transport => parsed_message.to}
-  #     member_contact = Suma::AnonProxy::MemberContact[mc_criteria]
-  #     raise NoRecipient, "cannot find MemberContact using #{mc_criteria}" if member_contact.nil? && !contact_optional
-  #     return Suma::AnonProxy::RelayedMessage.new(parsed_message:, relay: self, member_contact:)
-  #   end
 
   require_relative "message_handler/fake"
   register(Fake.new.key, Fake)
@@ -101,9 +94,4 @@ class Suma::AnonProxy::MessageHandler
   register(Lime.new.key, Lime)
   require_relative "message_handler/noop"
   register(Noop.new.key, Noop)
-
-  # @return [Suma::AnonProxy::MessageHandler]
-  def self.create!(key)
-    return self.registry_create!(key)
-  end
 end

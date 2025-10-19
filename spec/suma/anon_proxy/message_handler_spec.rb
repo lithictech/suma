@@ -12,7 +12,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
   describe "handle" do
     let(:relay) { Suma::AnonProxy::Relay.create!("fake-email-relay") }
-    let(:fake_handler) { Suma::AnonProxy::MessageHandler.create!("fake-handler") }
+    let(:fake_handler) { Suma::AnonProxy::MessageHandler.registry_create!("fake-handler") }
 
     it "noops for old messages" do
       older = relay.parse_message({from: "fake-email-relay", timestamp: 20.minutes.ago})
@@ -83,7 +83,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
   end
 
   describe Suma::AnonProxy::MessageHandler::Lime do
-    let(:lime) { Suma::AnonProxy::MessageHandler.create!(described_class.new.key) }
+    let(:lime) { Suma::AnonProxy::MessageHandler.registry_create!(described_class.new.key) }
     let(:vendor_config) { Suma::Fixtures.anon_proxy_vendor_configuration(message_handler_key: lime.key).create }
     let(:vendor_account) do
       Suma::Fixtures.anon_proxy_vendor_account(configuration: vendor_config).with_contact.create
@@ -105,6 +105,8 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
     before(:each) do
       import_localized_message_seeds
+      Suma::Payment.ensure_cash_ledger(vendor_account.member)
+      Suma::Payment.minimum_cash_balance_for_services_cents = -5
     end
 
     it "handles messages from no-reply" do
@@ -229,6 +231,22 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
         expect(req).to have_been_made
         expect(vendor_account.refresh).to have_attributes(pending_closure: false)
+      end
+    end
+
+    describe "when the member's payment account cannot use services" do
+      before(:each) do
+        Suma::Payment.minimum_cash_balance_for_services_cents = 5
+      end
+
+      it "calls Sentry and does not set the url" do
+        expect(Suma::Payment).to_not be_can_use_services(vendor_account.member.payment_account)
+        got = Suma::AnonProxy::MessageHandler.handle(
+          Suma::AnonProxy::Relay.create!("fake-email-relay"),
+          signin_message,
+        )
+        expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
+        expect(vendor_account.refresh).to have_attributes(latest_access_code: nil)
       end
     end
   end

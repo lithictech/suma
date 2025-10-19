@@ -104,6 +104,11 @@ RSpec.describe Suma::API::AnonProxy, :db do
         create(member:)
     end
 
+    before(:each) do
+      Suma::Payment.ensure_cash_ledger(member)
+      Suma::Payment.minimum_cash_balance_for_services_cents = -5
+    end
+
     it "403s if the account does not belong to the member" do
       va.update(member: Suma::Fixtures.member.create)
 
@@ -120,6 +125,15 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.that_includes(error: include(message: match(/config is not enabled/)))
+    end
+
+    it "402s if the member cannot use services" do
+      Suma::Payment.minimum_cash_balance_for_services_cents = 5
+      expect(Suma::Payment).to_not be_can_use_services(member.payment_account)
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
+
+      expect(last_response).to have_status(402)
     end
 
     it "auths to vendor and marks the code as requested" do
