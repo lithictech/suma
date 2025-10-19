@@ -164,8 +164,9 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end
 
+    let(:now) { Time.now }
+
     it "finds only emails with the configured to and from address" do
-      now = Time.now
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid",
         to_email: "to@mysuma.org",
@@ -188,6 +189,32 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
         data: "{}",
       )
       expect(described_class.new.dataset.select_map(&:message_id)).to contain_exactly("valid")
+    end
+
+    it "can use an ILIKE statement for the from email" do
+      Suma::Lime.trip_report_from_email = "%@mysuma.org"
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "v1",
+        to_email: "to@mysuma.org",
+        from_email: "x1@mysuma.org",
+        timestamp: now,
+        data: "{}",
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "v2",
+        to_email: "to@mysuma.org",
+        from_email: "x2@mysuma.org",
+        timestamp: now,
+        data: "{}",
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "other",
+        to_email: "to@mysuma.org",
+        from_email: "x1@other.mysuma.org",
+        timestamp: now,
+        data: "{}",
+      )
+      expect(described_class.new.dataset.select_map(&:message_id)).to contain_exactly("v1", "v2")
     end
   end
 
