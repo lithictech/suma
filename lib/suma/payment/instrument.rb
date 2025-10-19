@@ -33,7 +33,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     # @return [String]
     def institution_name = raise NotImplementedError
 
-    def rel_admin_link = "/member/#{self.member&.id}"
+    def rel_admin_link = "/#{self.payment_method_type.dasherize}/#{self.id}"
 
     def expired_as_of?(t) = self.expires_at.nil? ? false : self.expires_at <= t
     def expired? = self.expired_as_of?(Time.now)

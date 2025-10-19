@@ -41,11 +41,12 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   def usable_for_funding? = self.verified?
   def usable_for_payout? = true
   def expired? = false
-  def last4 = self.account_number[-4..]
+  def last4 = self.account_number.last(4)
   def simple_label = "#{self.name} x-#{self.last4}"
   def institution_name = self.institution.name
   def expires_at = nil
   def refetch_remote_data = nil
+  def masked_account_number = "****#{self.last4}"
 
   def institution
     inst = self.plaid_institution

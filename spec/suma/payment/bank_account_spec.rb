@@ -83,6 +83,15 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
         admin_label: "Checking x-4567 (Chase)",
       )
     end
+
+    it "has a masked account number" do
+      ba = Suma::Fixtures.bank_account.instance(account_number: "123456789")
+      expect(ba.masked_account_number).to eq("****6789")
+      ba.account_number = "123"
+      expect(ba.masked_account_number).to eq("****123")
+      ba.account_number = ""
+      expect(ba.masked_account_number).to eq("****")
+    end
   end
 
   describe "validations" do

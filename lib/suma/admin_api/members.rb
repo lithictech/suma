@@ -79,13 +79,13 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :audit_activities, with: ActivityEntity
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
-    expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
     expose :direct_program_enrollments, with: ProgramEnrollmentEntity
     expose :program_enrollment_exclusions, with: ProgramEnrollmentExclusionEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
+    expose :payment_instruments, with: PaymentInstrumentEntity
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :combined_notes, as: :notes, with: SupportNoteEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity

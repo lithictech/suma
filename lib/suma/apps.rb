@@ -39,6 +39,7 @@ require "suma/admin_api/anon_proxy_vendor_configurations"
 require "suma/admin_api/auth"
 require "suma/admin_api/bank_accounts"
 require "suma/admin_api/book_transactions"
+require "suma/admin_api/cards"
 require "suma/admin_api/charges"
 require "suma/admin_api/commerce_offerings"
 require "suma/admin_api/commerce_orders"
@@ -102,6 +103,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::BankAccounts
     mount Suma::AdminAPI::BookTransactions
+    mount Suma::AdminAPI::Cards
     mount Suma::AdminAPI::Charges
     mount Suma::AdminAPI::CommerceOfferings
     mount Suma::AdminAPI::CommerceOrders

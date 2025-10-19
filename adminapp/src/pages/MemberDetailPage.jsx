@@ -154,7 +154,7 @@ export default function MemberDetailPage() {
           <Activities activities={model.activities} />,
           <Orders orders={model.orders} />,
           <Charges charges={model.charges} />,
-          <BankAccounts bankAccounts={model.bankAccounts} />,
+          <PaymentInstruments instruments={model.paymentInstruments} />,
           <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />,
           <VendorAccounts vendorAccounts={model.vendorAccounts} />,
           <MemberContacts memberContacts={model.memberContacts} />,
@@ -418,18 +418,18 @@ function Charges({ charges }) {
   );
 }
 
-function BankAccounts({ bankAccounts }) {
+function PaymentInstruments({ instruments }) {
   return (
     <RelatedList
-      title="Bank Accounts"
-      headers={["Id", "Name", "Added", "Deleted"]}
-      rows={bankAccounts}
-      keyRowAttr="id"
+      title="Payment Methods"
+      headers={["Id", "Type", "Name", "Status"]}
+      rows={instruments}
+      getKey={(r) => `${r.id}-${r.paymentMethodType}`}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        row.adminLabel,
-        formatDate(row.createdAt),
-        formatDate(row.softDeletedAt),
+        row.paymentMethodType,
+        row.name,
+        row.status,
       ]}
     />
   );
