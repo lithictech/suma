@@ -82,6 +82,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
   def reify = Suma::Payment::Instrument.reify([self]).first
 
   class << self
+    def read_only? = true
     def primary_key = :id
 
     def type_strings_to_types

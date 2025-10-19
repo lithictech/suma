@@ -532,6 +532,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
           describe "#{assoc_name} association" do
             fk_to_this_model = assoc.fetch(:key_method)
             assoc_class = Kernel.const_get(assoc.fetch(:class_name))
+            next if assoc_class.read_only?
             assoc_table = [assoc_class.schema_name, assoc_class.table_name].compact.join(".")
             it "has an index on #{assoc_table}.#{fk_to_this_model}" do
               find_idx_sql = <<~SQL
