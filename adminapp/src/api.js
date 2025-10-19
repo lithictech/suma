@@ -100,6 +100,8 @@ export default {
   getBankAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),
 
+  getCard: ({ id, ...data }, ...args) => get(`/adminapi/v1/cards/${id}`, data, ...args),
+
   getBookTransactions: (data, ...args) =>
     get(`/adminapi/v1/book_transactions`, data, ...args),
   getBookTransaction: ({ id, ...data }, ...args) =>

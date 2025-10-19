@@ -31,6 +31,7 @@ class Suma::AdminAPI::Access
     Suma::Organization => [:organization, MEMBERS, MANAGEMENT],
     Suma::Payment::BankAccount => [:bank_account, MEMBERS, MEMBERS],
     Suma::Payment::BookTransaction => [:book_transaction, PAYMENTS, PAYMENTS],
+    Suma::Payment::Card => [:card, MEMBERS, MEMBERS],
     Suma::Payment::FundingTransaction => [:funding_transaction, PAYMENTS, PAYMENTS],
     Suma::Payment::Ledger => [:ledger, PAYMENTS, PAYMENTS],
     Suma::Payment::PayoutTransaction => [:payout_transaction, PAYMENTS, PAYMENTS],

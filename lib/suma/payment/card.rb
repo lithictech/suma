@@ -26,8 +26,6 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
   def usable_for_payout? = false
   def verified? = true
 
-  def rel_admin_link = "/member/#{self.member&.id}"
-
   def institution
     inst = INSTITUTIONS[self.brand]
     inst ||= Suma::Payment::Institution.new(

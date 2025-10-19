@@ -28,10 +28,14 @@ RSpec.describe "Suma::Member", :db do
     end
 
     it "has payment instrument associations" do
-      ba = Suma::Fixtures.bank_account.member.create
-      expect(ba.member.bank_accounts).to have_same_ids_as(ba)
-      card = Suma::Fixtures.card.member.create
-      expect(card.member.cards).to have_same_ids_as(card)
+      member = Suma::Fixtures.member.create
+
+      ba = Suma::Fixtures.bank_account.member(member).create
+      card = Suma::Fixtures.card.member(member).create
+      expect(member.bank_accounts).to have_same_ids_as(ba)
+      expect(member.cards).to have_same_ids_as(card)
+      expect(member.payment_instruments).to have_same_ids_as(ba, card)
+      expect(member.payment_instruments).to all(be_a(Suma::Payment::Instrument))
     end
   end
 

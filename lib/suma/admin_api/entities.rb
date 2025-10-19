@@ -79,11 +79,9 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :payment_method_type
     expose :legal_entity, with: LegalEntityEntity
-    expose :institution
+    expose :institution_name
     expose :name
-    expose :last4
-    expose :simple_label
-    expose :admin_label
+    expose :status
   end
 
   class AuditMemberEntity < BaseEntity
@@ -144,14 +142,6 @@ module Suma::AdminAPI::Entities
     expose :to
     expose :formatted_to
     expose :recipient, with: MemberEntity
-  end
-
-  class BankAccountEntity < PaymentInstrumentEntity
-    include AutoExposeDetail
-    expose :verified_at
-    expose :routing_number
-    expose :account_number
-    expose :account_type
   end
 
   class ProgramEntity < BaseEntity

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "suma/admin_api/bank_accounts"
+require "suma/admin_api/cards"
 require "suma/api/behaviors"
 
-RSpec.describe Suma::AdminAPI::BankAccounts, :db do
+RSpec.describe Suma::AdminAPI::Cards, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
@@ -13,11 +13,11 @@ RSpec.describe Suma::AdminAPI::BankAccounts, :db do
     login_as(admin)
   end
 
-  describe "GET /v1/bank_accounts" do
-    it "returns all bank_accounts" do
-      c = Array.new(2) { Suma::Fixtures.bank_account.create }
+  describe "GET /v1/cards" do
+    it "returns all cards" do
+      c = Array.new(2) { Suma::Fixtures.card.create }
 
-      get "/v1/bank_accounts"
+      get "/v1/cards"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -25,51 +25,40 @@ RSpec.describe Suma::AdminAPI::BankAccounts, :db do
     end
 
     it_behaves_like "an endpoint capable of search" do
-      let(:url) { "/v1/bank_accounts" }
+      let(:url) { "/v1/cards" }
       let(:search_term) { "zzz" }
 
       def make_matching_items
-        return [Suma::Fixtures.bank_account(name: "zzz").create]
+        return [Suma::Fixtures.card(legal_entity: Suma::Fixtures.legal_entity(name: "zzz").create).create]
       end
 
       def make_non_matching_items
-        return [Suma::Fixtures.bank_account(name: "wibble wobble").create]
+        return [Suma::Fixtures.card(legal_entity: Suma::Fixtures.legal_entity(name: "wibble wobble").create).create]
       end
     end
 
     it_behaves_like "an endpoint with pagination" do
-      let(:url) { "/v1/bank_accounts" }
+      let(:url) { "/v1/cards" }
       def make_item(i)
         # Sorting is newest first, so the first items we create need to the the oldest.
         created = Time.now - i.days
-        return Suma::Fixtures.bank_account.create(created_at: created)
-      end
-    end
-
-    it_behaves_like "an endpoint with member-supplied ordering" do
-      let(:url) { "/v1/bank_accounts" }
-      let(:order_by_field) { "name" }
-      def make_item(i)
-        return Suma::Fixtures.bank_account.create(
-          created_at: Time.now + rand(1..100).days,
-          name: i.to_s,
-        )
+        return Suma::Fixtures.card.create(created_at: created)
       end
     end
   end
 
-  describe "GET /v1/bank_accounts/:id" do
+  describe "GET /v1/cards/:id" do
     it "returns the item" do
-      c = Suma::Fixtures.bank_account.create
+      c = Suma::Fixtures.card.create
 
-      get "/v1/bank_accounts/#{c.id}"
+      get "/v1/cards/#{c.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: c.id)
     end
 
     it "403s if the item does not exist" do
-      get "/v1/bank_accounts/0"
+      get "/v1/cards/0"
 
       expect(last_response).to have_status(403)
     end
