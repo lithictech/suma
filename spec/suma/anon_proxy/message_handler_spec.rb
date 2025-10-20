@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "url_shortener/spec_helpers"
+require "suma/spec_helpers/sentry"
 
 RSpec.describe Suma::AnonProxy::MessageHandler, :db do
   include UrlShortener::SpecHelpers
@@ -83,6 +84,8 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
   end
 
   describe Suma::AnonProxy::MessageHandler::Lime do
+    include Suma::SpecHelpers::Sentry
+
     let(:lime) { Suma::AnonProxy::MessageHandler.registry_create!(described_class.new.key) }
     let(:vendor_config) { Suma::Fixtures.anon_proxy_vendor_configuration(message_handler_key: lime.key).create }
     let(:vendor_account) do
@@ -241,6 +244,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
       it "calls Sentry and does not set the url" do
         expect(Suma::Payment).to_not be_can_use_services(vendor_account.member.payment_account)
+        expect_sentry_capture(type: :message, arg_matcher: include("Prohibited Lime"))
         got = Suma::AnonProxy::MessageHandler.handle(
           Suma::AnonProxy::Relay.create!("fake-email-relay"),
           signin_message,

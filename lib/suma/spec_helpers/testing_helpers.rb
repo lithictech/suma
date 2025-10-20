@@ -16,4 +16,36 @@ module Suma::SpecHelpers::TestingHelpers
     raise e if e.inspect.include?("ArgumentError: wrong number of arguments")
     # Other errors are probably ok to ignore.
   end
+
+  # Run the RSpec mock verification code that would normally come at the end of an example.
+  # Needed for testing helpers that set up mocks.
+  def flush_mocks
+    RSpec::Mocks.space.verify_all
+  ensure
+    RSpec::Mocks.space.reset_all
+  end
+
+  # Same as 'expect', but always flushes mocks after the block is called.
+  # Helpful because sometimes a capture will or won't raise due to a mock match,
+  # so this ensures mocks are always flushed.
+  def expect_mocking(&)
+    return expect do
+      yield
+    ensure
+      flush_mocks
+    end
+  end
+
+  # Like fail_with, but use rspec mocks exception type.
+  def fail_mocks_with(msg, &)
+    return RSpec::Matchers::BuiltIn::RaiseError.new(RSpec::Mocks::MockExpectationError, msg, &)
+  end
+
+  # Reraise expectation failures as mock expectation failures, so fail_mocks_with works right
+  # and we get more consistent behavior.
+  def reraise_as_mock_expectation(&)
+    yield
+  rescue RSpec::Expectations::ExpectationNotMetError => e
+    raise RSpec::Mocks::MockExpectationError, e.message
+  end
 end
