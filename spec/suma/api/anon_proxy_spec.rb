@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "suma/api/anon_proxy"
+require "suma/spec_helpers/sentry"
 
 RSpec.describe Suma::API::AnonProxy, :db do
   include Rack::Test::Methods
+  include Suma::SpecHelpers::Sentry
 
   let(:app) { described_class.build_app }
   let(:member) { Suma::Fixtures.member.onboarding_verified.create }
@@ -227,7 +229,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
     it "return empty for no matching member contact" do
       Suma::Message::Transport::Sms.allowlist = ["*"]
-      expect(Sentry).to receive(:capture_message).with("Received webhook for signalwire for unmatched number")
+      expect_sentry_capture(type: :message, arg_matcher: eq("Received webhook for signalwire for unmatched number"))
 
       post "/v1/anon_proxy/relays/signalwire/webhooks", body
 
@@ -242,7 +244,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
       mc = Suma::Fixtures.anon_proxy_member_contact.phone("15552221111").create
       mc.member.update(phone: "15558889999")
 
-      expect(Sentry).to receive(:capture_message).with("Received webhook for signalwire to not-allowlisted phone")
+      expect_sentry_capture(type: :message, arg_matcher: eq("Received webhook for signalwire to not-allowlisted phone"))
 
       post "/v1/anon_proxy/relays/signalwire/webhooks", body
 
@@ -254,7 +256,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
   describe "POST /v1/anon_proxy/relays/signalwire/errors" do
     it "records the error in Sentry" do
-      expect(Sentry).to receive(:capture_message)
+      expect_sentry_capture(type: :message, arg_matcher: eq("Received Signalwire error webhook"))
 
       post "/v1/anon_proxy/relays/signalwire/errors", {x: 1}
 
