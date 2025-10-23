@@ -17,6 +17,7 @@ export default function ProgramEnrollmentForm({
   isCreate,
   resource,
   setField,
+  clearField,
   register,
   isBusy,
   onSubmit,
@@ -48,7 +49,7 @@ export default function ProgramEnrollmentForm({
 
   const handleEnrolleeTypeChange = (e) => {
     setEnrolleeType(e.target.value);
-    setField(enrolleeType, {});
+    clearField(enrolleeType);
   };
   return (
     <FormLayout
@@ -91,13 +92,13 @@ export default function ProgramEnrollmentForm({
             {...register("member")}
             label="Member"
             helperText="Who can access this program?"
-            value={resource.member.label || ""}
+            value={resource.member?.label || ""}
             fullWidth
             search={api.searchMembers}
             disabled={fixedEnrollee}
             style={{ flex: 1 }}
             onValueSelect={(mem) => setField("member", mem)}
-            onTextChange={() => setField("member", {})}
+            onTextChange={() => clearField("member")}
           />
         )}
         {enrolleeType === "organization" && (
@@ -106,13 +107,13 @@ export default function ProgramEnrollmentForm({
             {...register("organization")}
             label="Organization"
             helperText="What members in this organization can access this program?"
-            value={resource.organization.label || ""}
+            value={resource.organization?.label || ""}
             fullWidth
             disabled={fixedEnrollee}
             search={api.searchOrganizations}
             style={{ flex: 1 }}
             onValueSelect={(org) => setField("organization", org)}
-            onTextChange={() => setField("organization", {})}
+            onTextChange={() => clearField("organization")}
           />
         )}
         {enrolleeType === "role" && (
@@ -121,14 +122,14 @@ export default function ProgramEnrollmentForm({
             {...register("role")}
             label="Role"
             helperText="What members with this role can access this program?"
-            value={resource.role.label || ""}
+            value={resource.role?.label || ""}
             fullWidth
             search={api.searchRoles}
             searchEmpty={true}
             disabled={fixedEnrollee}
             style={{ flex: 1 }}
             onValueSelect={(role) => setField("role", role)}
-            onTextChange={() => setField("role", {})}
+            onTextChange={() => clearField("role")}
           />
         )}
       </Stack>

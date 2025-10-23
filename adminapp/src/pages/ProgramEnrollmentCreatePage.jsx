@@ -6,9 +6,6 @@ import React from "react";
 export default function ProgramEnrollmentCreatePage() {
   const empty = {
     program: {},
-    member: {},
-    organization: {},
-    role: {},
   };
   return (
     <ResourceCreate
