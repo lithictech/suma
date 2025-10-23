@@ -180,6 +180,19 @@ RSpec.describe Suma::API::Meta, :db do
       expect(last_response).to have_json_body.that_includes(s1: ["s", "hi"])
     end
 
+    it "does not require a valid member" do
+      Suma::Fixtures.static_string.text("hi").create(namespace: "forms", key: "s1")
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+
+      m = Suma::Fixtures.member.create
+      login_as(m)
+      m.soft_delete
+
+      get "/v1/meta/static_strings/en/forms"
+
+      expect(last_response).to have_status(200)
+    end
+
     it "sets the last-modified header" do
       t = Time.parse("2020-01-01T12:00:00Z")
       Suma::Fixtures.static_string.text("hi").create(namespace: "x", modified_at: t)

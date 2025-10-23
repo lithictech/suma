@@ -196,9 +196,7 @@ class Suma::Yosoy
     end
 
     def logout
-      self.rack_session.keys.select { |k| k.start_with?("yosoy.") }.to_a.each do |key|
-        self.rack_session.delete(key)
-      end
+      self.rack_session.destroy
       self.reset!
     end
   end
