@@ -49,10 +49,11 @@ module Suma::Service::Helpers
   def current_member?
     return nil unless (cs = current_session?)
     if cs.impersonation?
-      unauthenticated! unless cs.member.role_access { read?(impersonate) }
+      return nil unless admin_member?
+      return nil unless cs.member.role_access { read?(impersonate) }
       return cs.impersonating
     end
-    unauthenticated! if cs.member.soft_deleted?
+    return nil if cs.member.soft_deleted?
     return cs.member
   end
 
@@ -68,7 +69,7 @@ module Suma::Service::Helpers
     return nil unless (cs = current_session?)
     m = cs.member
     return nil unless m.role_access { read?(admin_access) }
-    unauthenticated! if m.soft_deleted?
+    return nil if m.soft_deleted?
     return m
   end
 

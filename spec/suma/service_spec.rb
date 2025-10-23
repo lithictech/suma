@@ -843,11 +843,12 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "401s and clears cookies if the user is deleted" do
+    it "returns nil and clears cookies if the user is deleted" do
       login_as(member)
       member.soft_delete
       get "/current_member_safe"
-      expect(last_response).to have_status(401)
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
     it "returns the impersonated user (even if deleted)" do
@@ -857,11 +858,12 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
-    it "401s if the admin impersonating a user is deleted/missing role" do
+    it "returns nil if the admin impersonating a user is deleted/missing role" do
       impersonate(admin:, target: member)
       admin.soft_delete
       get "/current_member_safe"
-      expect(last_response).to have_status(401)
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: nil)
     end
   end
 
@@ -920,11 +922,12 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "401s if the admin is deleted" do
+    it "uses nil if the admin is deleted" do
       login_as(admin)
       admin.soft_delete
       get "/admin_member_safe"
-      expect(last_response).to have_status(401)
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
     it "uses nil if the admin does not have the role" do

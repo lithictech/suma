@@ -33,7 +33,7 @@ RSpec.describe Suma::Yosoy do
     s = s.delete_prefix("rack.session=")
     s = s.split(";", 2).first
     s = Rack::Utils.unescape(s)
-    create_cookie_app(nil).encryptors.first.decrypt(s).to_a
+    create_cookie_app(nil).encryptors.first.decrypt(s)
   end
 
   it "handles the auth flow successfully" do
@@ -49,10 +49,10 @@ RSpec.describe Suma::Yosoy do
     expect(resp).to match_array(
       [200, {"set-cookie" => start_with("rack.session=")}, "ok"],
     )
-    expect(decode_cookie(resp)).to contain_exactly(
-      ["session_id", be_present],
-      ["yosoy.key", 1],
-      ["yosoy.last_access", match_time(:now)],
+    expect(decode_cookie(resp)).to match(
+      "session_id" => have_attributes(to_s: have_attributes(length: 64)),
+      "yosoy.key" => 1,
+      "yosoy.last_access" => match_time(:now),
     )
   end
 
@@ -72,6 +72,7 @@ RSpec.describe Suma::Yosoy do
     mw = create_mw do |env|
       yosoy = env.fetch("yosoytest")
       yosoy.set_authenticated_object(auth_obj)
+      env.fetch("rack.session")[:xyz] = 1
       yosoy.logout
       [200, {}, "ok"]
     end
@@ -80,9 +81,7 @@ RSpec.describe Suma::Yosoy do
     expect(resp).to match_array(
       [200, {"set-cookie" => start_with("rack.session=")}, "ok"],
     )
-    expect(decode_cookie(resp)).to contain_exactly(
-      ["session_id", be_present],
-    )
+    expect(decode_cookie(resp)).to match("session_id" => have_attributes(to_s: have_attributes(length: 64)))
   end
 
   it "can use the throw! method" do
