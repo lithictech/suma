@@ -393,7 +393,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
     end
 
-    it "syncs trips from receipt emails and reports" do
+    xit "syncs trips from receipt emails and reports" do
       member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)

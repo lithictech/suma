@@ -297,17 +297,13 @@ class Suma::Lyft::Pass
   end
 
   def sync_trips_from_program(program)
-    program_id = program.lyft_pass_program_id
-    raise Suma::InvalidPrecondition, "program must have lyft_pass_program_id set" if program_id.blank?
     pricing = Suma::Enumerable.one!(program.pricings)
-    self.sync_trips(
-      program_id:,
-      vendor_service: pricing.vendor_service,
-      vendor_service_rate: pricing.vendor_service_rate,
-    )
+    self.sync_trips(pricing)
   end
 
-  def sync_trips(program_id:, vendor_service:, vendor_service_rate:)
+  def sync_trips(pricing)
+    program_id = pricing.program.lyft_pass_program_id
+    raise Suma::InvalidPrecondition, "program must have lyft_pass_program_id set" if program_id.blank?
     self.with_log_tags(lyft_program_id: program_id) do
       account_id = self.fetch_account_id_for_program_id(program_id)
       self.with_log_tags(lyft_account_id: account_id) do
@@ -316,7 +312,7 @@ class Suma::Lyft::Pass
         tx_ids.each do |txid|
           self.with_log_tags(lyft_transaction_id: txid) do
             ride = self.fetch_ride(txid)
-            self.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
+            self.upsert_ride_as_trip(ride, pricing)
           end
         end
       end
@@ -328,7 +324,9 @@ class Suma::Lyft::Pass
     "ELECTRIC_SCOOTER" => Suma::Mobility::ESCOOTER,
   }.freeze
 
-  def upsert_ride_as_trip(ride_resp, vendor_service:, vendor_service_rate:, check_dupes: true)
+  def upsert_ride_as_trip(ride_resp, pricing, check_dupes: true)
+    vendor_service = pricing.vendor_service
+    vendor_service_rate = pricing.vendor_service_rate
     ride = ride_resp.fetch("ride")
     rider_phone = ride.fetch("rider").fetch("phone_number")
     ride_id = ride.fetch("ride_id")
@@ -338,17 +336,9 @@ class Suma::Lyft::Pass
     end
     return nil if check_dupes && !Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
 
-    ride_total = ride_resp.fetch("money")
-    zero_money = Money.new(0, ride_total.fetch("currency"))
-    total_of_non_promo_items = ride.fetch("line_items").sum(zero_money) do |li|
-      next Money.new(0) if li.fetch("title") == "Promo applied"
-      Money.new(li.fetch("money").fetch("amount"), li.fetch("money").fetch("currency"))
-    end
-    receipt = Suma::Mobility::TripImporter::Receipt.new(
-      total: total_of_non_promo_items,
-      discount: Money.new(ride_total.fetch("amount"), ride_total.fetch("currency")) - total_of_non_promo_items,
-      image_url: ride.fetch("map_image_url"),
-    )
+    receipt = Suma::Mobility::TripImporter::Receipt.new
+    receipt.charged_at = Time.at(ride_resp.fetch("created_at_ms") / 1000)
+    receipt.image_url = ride.fetch("map_image_url")
     receipt.trip.set(
       member:,
       vehicle_id: ride_id,
@@ -361,13 +351,37 @@ class Suma::Lyft::Pass
       begin_address: ride.fetch("pickup").fetch("address"),
       end_address: ride.fetch("dropoff").fetch("address"),
     )
+
+    # Get the charged rates from our rate calculation. We may want to parse these in the future.
+    receipt.unlock_fee = vendor_service_rate.surcharge
+    receipt.per_minute_fee = vendor_service_rate.unit_amount
+    # The "transaction amount". Will never be zero, since otherwise we wouldn't see it in our Lyft Pass.
+    receipt.subsidized_by_suma_amount = _money2money(ride_resp)
+    # Lyft has already charged the member
+    receipt.to_charge_member_amount = Money.new(0)
+    # Lyft doesn't tell us how much was paid.
+    # We can infer it based on the sum of all non-promo line items.
+    total_ride_cost = Money.new(0, receipt.subsidized_by_suma_amount.currency)
     ride.fetch("line_items").each do |li|
-      receipt.line_items << receipt.line_item(
-        amount: self._money2money(li),
-        memo: li.fetch("title"),
-      )
+      amount = _money2money(li)
+      memo = li.fetch("title")
+      is_this_lyft_pass_subsidy = PROMO_LINE_ITEM_TITLES.include?(memo.upcase) &&
+        amount == -receipt.subsidized_by_suma_amount
+      handled_by_us = memo == "Unlock fee" || memo.start_with?("Ebike ride")
+      total_ride_cost += amount unless is_this_lyft_pass_subsidy
+      # Ignore line items we handle through other fields
+      # (promo is 'subsized by suma', unlock/minute fees are special cased)
+      next if handled_by_us || is_this_lyft_pass_subsidy
+      # Misc line items are those which are the charges that need to show on the receipt,
+      # which we cannot model ourselves (parking fees, usually).
+      receipt.misc_line_items << Suma::Mobility::TripImporter::LineItem.new(amount:, memo:)
     end
-    Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
+
+    # Undiscounted subtotal is calculated by us, PLUS any uncategorized items like parking fees.
+    receipt.undiscounted_subtotal = vendor_service_rate.calculate_undiscounted_total(receipt.trip.duration_minutes) +
+      receipt.misc_line_items.sum(Money.new(0), &:amount)
+
+    Suma::Mobility::TripImporter.import(receipt:, program: pricing.program, apply_at: Time.now, logger: self.logger)
     return receipt.trip.charge
   end
 

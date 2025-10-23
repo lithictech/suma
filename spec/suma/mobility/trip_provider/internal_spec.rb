@@ -23,8 +23,11 @@ RSpec.describe Suma::Mobility::TripProvider::Internal, :db do
     trip.ended_at = t + 5.minutes
     endres = ad.end_trip(trip)
     expect(endres).to have_attributes(
-      cost: cost("$2"),
-      undiscounted: cost("$4"),
+      undiscounted_cost: cost("$4"),
+      line_items: contain_exactly(
+        have_attributes(memo: 'Unlock fee', amount: cost('$1')),
+        have_attributes(memo: "Ride cost (0.20/min for 5 min)", amount: cost('$1')),
+      )
     )
   end
 end

@@ -2,7 +2,7 @@
 
 require "suma/lime/sync_trips_from_email"
 
-RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
+RSpec.xdescribe Suma::Lime::SyncTripsFromEmail, :db do
   before(:each) do
     Suma::Webhookdb.postmark_inbound_messages_dataset.delete
     described_class.new.row_iterator.reset

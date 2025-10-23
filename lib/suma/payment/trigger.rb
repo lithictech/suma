@@ -161,7 +161,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       Money.new(amount.cents * self.match_multiplier, amount.currency).round_to_nearest_cash_value,
       amount.currency,
     )
-    if self.maximum_cumulative_subsidy_cents
+    if self.maximum_cumulative_subsidy_cents.positive?
       max_subsidy_cents = self.maximum_cumulative_subsidy_cents
       cents_received_already = context.cached_get("trigger-funded-amt-from-#{self.id}-to-#{receiving.id}") do
         Suma::Payment::Trigger::Execution.where(trigger: self).

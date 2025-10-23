@@ -16,16 +16,6 @@ RSpec.describe "Suma::Payment::Account", :db do
       expect(acct.cash_ledger).to be === cashledger
     end
 
-    it "can find its mobility ledger" do
-      acct = Suma::Fixtures.payment_account.create
-      expect(acct.mobility_ledger).to be_nil
-      expect { acct.mobility_ledger! }.to raise_error(/has no mobility ledger/)
-      mobility = Suma::Fixtures.vendor_service_category.create(name: "mobility")
-      led = Suma::Fixtures.ledger(account: acct).with_categories(mobility).create
-      expect(acct.refresh.mobility_ledger).to be === led
-      expect(acct.refresh.mobility_ledger!).to be === led
-    end
-
     it "can find book transactions across all ledgers" do
       acct = Suma::Fixtures.payment_account.create
       led1 = Suma::Fixtures.ledger(account: acct).create

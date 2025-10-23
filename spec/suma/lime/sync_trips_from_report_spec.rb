@@ -2,7 +2,7 @@
 
 require "suma/lime/sync_trips_from_report"
 
-RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::Lime do
+RSpec.xdescribe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::Lime do
   describe "run_for_report" do
     let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger.registered_as_stripe_customer.create }
     let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create(member:) }

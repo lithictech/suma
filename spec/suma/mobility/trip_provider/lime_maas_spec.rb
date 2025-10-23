@@ -85,8 +85,11 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
         }.to_json,
       ).to_return(fixture_response("lime/complete_trip"))
     expect(instance.end_trip(trip)).to have_attributes(
-      cost: cost("$1"),
-      undiscounted: cost("$2"),
+      undiscounted_cost: cost("$2"),
+      line_items: contain_exactly(
+        have_attributes(memo: 'Unlock fee', amount: cost('$1')),
+        have_attributes(memo: "Ride cost (0.00/min for 5 min)", amount: cost('$0')),
+      )
     )
     expect(stop_req).to have_been_made
   end

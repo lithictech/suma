@@ -42,9 +42,16 @@ class Suma::Mobility::TripProvider::LimeMaas
       ]
     end
     minutes = trip.duration_minutes
+    trip_amount = trip.vendor_service_rate.calculate_unit_cost(minutes)
     return EndTripResult.new(
-      cost: trip.vendor_service_rate.calculate_total(minutes),
-      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
+      undiscounted_cost: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
+      line_items: [
+        Suma::Mobility::Trip::LineItem.new(memo: 'Unlock fee', amount: trip.vendor_service_rate.surcharge),
+        Suma::Mobility::Trip::LineItem.new(
+          memo: "Ride cost (#{trip.vendor_service_rate.unit_amount}/min for #{minutes} min)",
+          amount: trip_amount,
+        ),
+      ]
     )
   end
 end

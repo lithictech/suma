@@ -118,8 +118,8 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   describe "end_trip" do
     let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_maas.create(external_name: "Super Scoot") }
     let!(:mobility_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
-    let!(:cash) { Suma::Vendor::ServiceCategory.find!(slug: "cash") }
-    let!(:mobility) { Suma::Vendor::ServiceCategory.find!(slug: "mobility") }
+    let!(:cash) { Suma::Fixtures.vendor_service_category.cash.create }
+    let!(:mobility) { Suma::Fixtures.vendor_service_category.mobility.create }
 
     it "ends the trip and creates a charge using the returned cost" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(member:, vendor_service:)
@@ -132,9 +132,10 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip.charge.line_items).to be_empty
     end
 
-    it "charges the mobility ledger if there is a balance" do
+    it "charges the service's category ledgers if there is a balance" do
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
-      Suma::Fixtures.book_transaction.to(member.payment_account.mobility_ledger!).create(amount: money("$1"))
+      member_mobility_ledger = member.payment_account.ensure_ledger_with_category(mobility)
+      Suma::Fixtures.book_transaction.to(member_mobility_ledger).create(amount: money("$1"))
       trip = Suma::Fixtures.mobility_trip(vendor_service:).
         ongoing.
         create(began_at: t - 211.seconds, vendor_service_rate: rate, member:)
@@ -144,9 +145,9 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$0.80"),
         discounted_subtotal: cost("$0.80"),
       )
-      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
+      expect(trip.charge.contributing_book_transactions).to contain_exactly(
         have_attributes(
-          originating_ledger: member.payment_account.mobility_ledger!,
+          originating_ledger: member_mobility_ledger,
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility),
           amount: cost("$0.80"),
           memo: have_attributes(en: start_with("Super Scoot - trp_")),
@@ -311,12 +312,12 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       cash = Suma::Payment.ensure_cash_ledger(charge.member)
       bxcash = Suma::Fixtures.book_transaction.from(cash).create(amount: money("$12.50"))
       bxnoncash = Suma::Fixtures.book_transaction.from({account: cash.account}).create(amount: money("$5"))
-      charge.add_line_item(book_transaction: bxcash)
-      charge.add_line_item(book_transaction: bxnoncash)
-      Suma::Fixtures.charge_line_item.self_data(amount: money("$3")).create(charge:)
+      charge.add_contributing_book_transaction(bxcash)
+      charge.add_contributing_book_transaction(bxnoncash)
+      Suma::Fixtures.charge_line_item.create(amount: money("$17.75"), charge:)
       o = Suma::Fixtures.mobility_trip(member: charge.member).create
       o.update(charge:)
-      expect(o.paid_cost).to cost("$20.50") # 12.50 + 5 + 3
+      expect(o.paid_cost).to cost("$17.75") # Set by line items
       expect(o.cash_paid).to cost("$12.50") # 12.50 bookx from cash
       expect(o.noncash_paid).to cost("$5") # 5 from non-book. 3 self/offplatform is not noncash paid.
     end
