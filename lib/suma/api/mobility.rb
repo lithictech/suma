@@ -102,7 +102,7 @@ class Suma::API::Mobility < Suma::API::V1
       optional :disambiguator, type: String
     end
     get :vehicle do
-      current_member
+      member = current_member
       pricing, vehicles = find_pricing_and_vehicles(
         params[:provider_id],
         lat_int: params[:loc][0],
@@ -119,7 +119,16 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = vehicles[0]
       end
-      present vehicle, with: MobilityVehicleEntity, request:, rate: pricing.vendor_service_rate
+      payment_trigger = Suma::Payment::Trigger.gather(member.payment_account!, active_as_of: current_time).
+        potentially_contributing_to(vehicle.vendor_service, summed: true).
+        first
+      present(
+        vehicle,
+        with: MobilityDetailedVehicleEntity,
+        request:,
+        rate: pricing.vendor_service_rate,
+        payment_trigger:,
+      )
     end
 
     params do
@@ -203,7 +212,6 @@ class Suma::API::Mobility < Suma::API::V1
     expose :slug, &self.delegate_to(:vendor_service, :internal_name)
     expose :vendor_name, &self.delegate_to(:vendor_service, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor_service, :vendor, :slug)
-    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :usage_prohibited_reason do |pricing|
       pricing.vendor_service.usage_prohibited_reason(
         current_member, rate: pricing.vendor_service_rate, now: current_time,
@@ -234,7 +242,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :restrictions, with: MobilityMapRestrictionEntity
   end
 
-  class MobilityVehicleEntity < BaseEntity
+  class MobilityDetailedVehicleEntity < BaseEntity
     include Suma::API::Entities
     expose :precision do |_|
       Suma::Mobility::COORD2INT_FACTOR
@@ -242,8 +250,14 @@ class Suma::API::Mobility < Suma::API::V1
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
-    expose :rate, with: VendorServiceRateEntity do |_v, options|
-      options.fetch(:rate)
+    expose :rate_id do |_v, options|
+      options.fetch(:rate).id
+    end
+    expose :rate_localization_key do |_v, options|
+      options.fetch(:rate).localization_key
+    end
+    expose :rate_localization_vars do |_v, options|
+      options.fetch(:rate).localization_vars(payment_trigger: options.fetch(:payment_trigger))
     end
     expose :deeplink do |vehicle, options|
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)

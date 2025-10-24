@@ -49,12 +49,6 @@ module Suma::API::Entities
     end
   end
 
-  class VendorServiceRateEntity < BaseEntity
-    expose :id
-    expose :localization_key
-    expose :localization_vars
-  end
-
   class VendorServiceEntity < BaseEntity
     expose :id
     expose :external_name, as: :name
@@ -80,7 +74,6 @@ module Suma::API::Entities
     expose :vehicle_id
     expose :vehicle_type
     expose :vendor_service, as: :provider, with: VendorServiceEntity
-    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :begin_lat
     expose :begin_lng
     expose :begin_address_parsed, as: :begin_address
