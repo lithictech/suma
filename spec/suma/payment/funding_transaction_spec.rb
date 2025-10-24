@@ -283,6 +283,15 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(payment).to transition_on(:put_into_review).with("mymessage", exception: e).to("needs_review")
         expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage: hello: bye"])
       end
+
+      it "creates a support ticket" do
+        expect(payment).to transition_on(:put_into_review).with("mymessage", reason: "hi").to("needs_review")
+        expect(Suma::Support::Ticket.all).to contain_exactly(
+          have_attributes(
+            body: "Suma::Payment::FundingTransaction[#{payment.id}] was put into review (reason=hi): mymessage",
+          ),
+        )
+      end
     end
   end
 

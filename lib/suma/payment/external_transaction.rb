@@ -72,6 +72,11 @@ module Suma::Payment::ExternalTransaction
         reason = ex.wrapped.class.name if ex.respond_to?(:wrapped)
       end
       self.audit(message, reason:)
+      Suma::Support::Ticket.create(
+        sender_name: "Suma Payments",
+        subject: "#{self.class.name.split('::').last} Needs Review",
+        body: "#{self.class.name}[#{self.id}] was put into review (reason=#{reason}): #{message}",
+      )
     end
 
     protected def _originate_book_transaction(originating_ledger:, receiving_ledger:)
