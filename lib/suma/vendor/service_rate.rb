@@ -47,13 +47,30 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
     return (f * 100).to_i
   end
 
-  def localization_vars
-    return {
+  def localization_vars(payment_trigger:)
+    h = {
+      unit_currency: self.unit_amount_currency,
+      surcharge_currency: self.surcharge_currency,
       unit_cents: self.unit_amount.cents,
-      unit_currency: self.unit_amount.currency.to_s,
-      surcharge_cents: self.surcharge.cents,
-      surcharge_currency: self.surcharge.currency.to_s,
+      surcharge_cents: self.surcharge_cents,
+      undiscounted_unit_cents: self.undiscounted_rate&.unit_amount_cents,
+      undiscounted_surcharge_cents: self.undiscounted_rate&.surcharge_cents,
     }
+    if payment_trigger
+      fraction = payment_trigger.payer_fraction
+      h.merge!(
+        chargeable_percentage: (fraction * 100).round,
+        chargeable_unit_cents: (fraction * self.unit_amount).cents,
+        chargeable_surcharge_cents: (fraction * self.surcharge).cents,
+      )
+    else
+      h.merge!(
+        chargeable_percentage: nil,
+        chargeable_unit_cents: nil,
+        chargeable_surcharge_cents: nil,
+      )
+    end
+    return h
   end
 
   def rel_admin_link = "/vendor-service-rate/#{self.id}"
