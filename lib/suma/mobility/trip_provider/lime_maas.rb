@@ -23,7 +23,7 @@ class Suma::Mobility::TripProvider::LimeMaas
       at: trip.began_at,
     )
     trip.external_trip_id = resp.dig("data", "id")
-    return BeginTripResult.new
+    return Suma::Mobility::BeginTripResult.new
   end
 
   def end_trip(trip)
@@ -42,9 +42,19 @@ class Suma::Mobility::TripProvider::LimeMaas
       ]
     end
     minutes = trip.duration_minutes
-    return EndTripResult.new(
-      cost: trip.vendor_service_rate.calculate_total(minutes),
-      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
+    trip_amount = trip.vendor_service_rate.calculate_unit_cost(minutes)
+    return Suma::Mobility::EndTripResult.new(
+      undiscounted_cost: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
+      line_items: [
+        Suma::Mobility::EndTripResult::LineItem.new(
+          memo: "Unlock fee",
+          amount: trip.vendor_service_rate.surcharge,
+        ),
+        Suma::Mobility::EndTripResult::LineItem.new(
+          memo: "Ride cost (#{trip.vendor_service_rate.unit_amount}/min for #{minutes} min)",
+          amount: trip_amount,
+        ),
+      ],
     )
   end
 end

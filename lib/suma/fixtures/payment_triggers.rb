@@ -61,4 +61,8 @@ module Suma::Fixtures::PaymentTriggers
     end
     self.add_execution(book_transaction: book_x)
   end
+
+  decorator :memo do |en, es: en|
+    self.memo = Suma::Fixtures.translated_text.create(en:, es:)
+  end
 end

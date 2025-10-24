@@ -10,10 +10,10 @@ RSpec.describe Suma::Mobility::TripProvider::Internal, :db do
 
   it "can start and stop" do
     trip = Suma::Mobility::Trip.new
-    expect(ad.begin_trip(trip)).to be_a(described_class::BeginTripResult)
+    expect(ad.begin_trip(trip)).to be_a(Suma::Mobility::BeginTripResult)
     expect(trip).to have_attributes(external_trip_id: be_present)
     trip = Suma::Fixtures.mobility_trip.ended.create
-    expect(ad.end_trip(trip)).to be_a(described_class::EndTripResult)
+    expect(ad.end_trip(trip)).to be_a(Suma::Mobility::EndTripResult)
   end
 
   it "returns the charge based on the rate" do
@@ -23,8 +23,11 @@ RSpec.describe Suma::Mobility::TripProvider::Internal, :db do
     trip.ended_at = t + 5.minutes
     endres = ad.end_trip(trip)
     expect(endres).to have_attributes(
-      cost: cost("$2"),
-      undiscounted: cost("$4"),
+      undiscounted_cost: cost("$4"),
+      line_items: contain_exactly(
+        have_attributes(memo: "Unlock fee", amount: cost("$1")),
+        have_attributes(memo: "Ride cost (0.20/min for 5 min)", amount: cost("$1")),
+      ),
     )
   end
 end

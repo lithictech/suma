@@ -13,6 +13,17 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
 
   class OngoingTrip < StandardError; end
 
+  class ChargeFailed < StandardError
+    attr_reader :amount, :member, :reason
+
+    def initialize(amount:, member:, reason:)
+      super("#{amount.format} charge for Member[#{member.id}] #{member.name} failed: #{reason}")
+      @amount = amount
+      @member = member
+      @reason = reason
+    end
+  end
+
   plugin :hybrid_search
   plugin :timestamps
 
@@ -83,51 +94,76 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   def end_trip(lat:, lng:, now:)
     self.set(end_lat: lat, end_lng: lng, ended_at: now)
     result = self.vendor_service.mobility_adapter.trip_provider.end_trip(self)
-    return self._charge_trip(cost: result.cost, undiscounted_subtotal: result.undiscounted)
+    return self._charge_trip(result)
   end
 
-  def _charge_trip(cost:, undiscounted_subtotal:)
+  def _charge_trip(result)
     # This would be bad, but we should know when it happens and pick up the pieces
     # instead of trying to figure out a solution to an impossible problem.
-    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if cost.negative?
-    self.db.transaction do
-      self.save_changes
-      self.charge = Suma::Charge.create(
-        mobility_trip: self,
-        undiscounted_subtotal: undiscounted_subtotal,
-        member: self.member,
-      )
-      contrib_coll = self.member.payment_account!.calculate_charge_contributions(
-        Suma::Payment::CalculationContext.new(self.ended_at),
-        self.vendor_service,
-        cost,
-      )
-      debitable_contribs = contrib_coll.all.select(&:amount?)
-      book_xactions = self.member.payment_account.debit_contributions(
-        debitable_contribs,
-        memo: Suma::TranslatedText.create(all: "#{self.vendor_service.external_name} - #{self.opaque_id}"),
-      )
-      book_xactions.each { |x| self.charge.add_line_item(book_transaction: x) }
-      if contrib_coll.remainder?
-        instrument = self.member.default_payment_instrument or
-          raise Suma::InvalidPrecondition, "member #{self.member.id} has no payment instrument"
-        # If we have a remainder, we need to create a funding transaction to cover it.
-        # Since the ride already happened, we want to collect this later, not now-
-        # if the funding fails, we handle it like any other fialed funding.
-        funding = Suma::Payment::FundingTransaction.start_new(
-          Suma::Payment.as_account(self.member),
-          amount: contrib_coll.remainder,
-          instrument:,
-          collect: false,
-        )
-        self.charge.add_associated_funding_transaction(funding)
-      end
-      return self.charge
+    # TODO: test
+    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if
+      result.line_items.sum(&:amount).negative?
+    self.db.transaction(savepoint: true) do
+      return self.__charge_trip(result)
     end
+    return self.charge
   end
 
-  def self.import_trip(unsaved_trip, cost:, undiscounted_subtotal:)
-    charge = unsaved_trip._charge_trip(cost:, undiscounted_subtotal:)
+  # @param result [Suma::Mobility::EndTripResult]
+  def __charge_trip(result)
+    self.save_changes
+    self.charge = Suma::Charge.create(
+      mobility_trip: self,
+      undiscounted_subtotal: result.undiscounted_cost,
+      member: self.member,
+    )
+    result.line_items.each do |li|
+      self.charge.add_line_item(amount: li.amount, memo: Suma::TranslatedText.create(all: li.memo))
+    end
+    total_cost = result.line_items.sum(&:amount)
+    contrib_collection = self.member.payment_account!.calculate_charge_contributions(
+      Suma::Payment::CalculationContext.new(self.ended_at),
+      self.vendor_service,
+      total_cost,
+    )
+    if contrib_collection.remainder?
+      contrib_collection.cash.mutate_amount(contrib_collection.cash.amount + contrib_collection.remainder)
+    end
+    debitable_contribs = contrib_collection.all.select(&:amount?)
+    book_xactions = self.member.payment_account.debit_contributions(
+      debitable_contribs,
+      memo: Suma::TranslatedText.create(all: "#{self.vendor_service.external_name} - #{self.opaque_id}"),
+    )
+    book_xactions.each { |x| self.charge.add_contributing_book_transaction(x) }
+    if contrib_collection.remainder?
+      instrument = self.member.default_payment_instrument or
+        raise ChargeFailed.new(amount: contrib_collection.remainder, member:, reason: "no_instrument")
+      # If we have a remainder, we need to create a funding transaction to cover it.
+      # Since the ride already happened, we want to collect this later, not now-
+      # if the funding fails, we handle it like any other fialed funding.
+      funding = Suma::Payment::FundingTransaction.start_new(
+        Suma::Payment.as_account(self.member),
+        amount: contrib_collection.remainder,
+        instrument:,
+        collect: false,
+      )
+      self.charge.add_associated_funding_transaction(funding)
+    end
+    return self.charge
+  end
+
+  # Save and charge the trip.
+  # The +cost+ is paid for by whatever is on the member ledger,
+  # plus a funding transaction is created for any outstanding amount.
+  # The funding transaction processes asynchronously,
+  # so it may fail even if this method succeeds (though one will always be created if needed).
+  #
+  # If the charge could not be created at all (probably because the member
+  # has no payment method), a support ticket is created and no charge is returned.
+  # @param result [Suma::Mobility::EndTripResult]
+  # @return [Suma::Charge,nil]
+  def self.import_trip(unsaved_trip, result)
+    charge = unsaved_trip._charge_trip(result)
     return charge
   end
 

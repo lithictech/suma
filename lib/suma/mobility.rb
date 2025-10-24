@@ -23,6 +23,27 @@ module Suma::Mobility
 
   class UnknownVehicleType < ArgumentError; end
 
+  class BeginTripResult < Suma::TypedStruct
+  end
+
+  class EndTripResult < Suma::TypedStruct
+    class LineItem < Suma::TypedStruct
+      # @return [String]
+      attr_reader :memo
+
+      # @return [Money]
+      attr_reader :amount
+    end
+
+    # The cost of the trip without discounts.
+    # @return [Money]
+    attr_reader :undiscounted_cost
+
+    # Line items for components of the trip, including unlock fee, trip cost, parking violations, etc.
+    # @return [Array<LineItem>]
+    attr_reader :line_items
+  end
+
   def self.coord2int(c)
     raise OutOfBounds, "#{c} must be between -180 and 180" unless COORD_RANGE.cover?(c)
     return (c * COORD2INT_FACTOR).to_i

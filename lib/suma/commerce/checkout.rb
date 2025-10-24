@@ -226,7 +226,12 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
           es: "Suma Pedido %04d - %s" % [order.id, self.cart.offering.description.es],
         ),
       )
-      book_xactions.each { |x| charge.add_line_item(book_transaction: x) }
+      # Instead of an itemized charge receipt, just add each transaction as an item.
+      # We will use the order itself to create an itemized receipt.
+      book_xactions.each do |x|
+        charge.add_contributing_book_transaction(x)
+        charge.add_line_item(amount: x.amount, memo: x.memo)
+      end
 
       # If there are any remainder contributions, we need to fund them against the cash ledger.
       if contrib_collection.remainder?

@@ -22,13 +22,21 @@ class Suma::Mobility::TripProvider::Internal
 
   def begin_trip(trip)
     trip.external_trip_id = "internal-" + SecureRandom.hex(4)
-    return BeginTripResult.new
+    return Suma::Mobility::BeginTripResult.new
   end
 
   def end_trip(trip)
-    return EndTripResult.new(
-      cost: trip.vendor_service_rate.calculate_total(trip.duration_minutes),
-      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(trip.duration_minutes),
+    minutes = trip.duration_minutes
+    trip_amount = trip.vendor_service_rate.calculate_unit_cost(minutes)
+    return Suma::Mobility::EndTripResult.new(
+      undiscounted_cost: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
+      line_items: [
+        Suma::Mobility::EndTripResult::LineItem.new(memo: "Unlock fee", amount: trip.vendor_service_rate.surcharge),
+        Suma::Mobility::EndTripResult::LineItem.new(
+          memo: "Ride cost (#{trip.vendor_service_rate.unit_amount}/min for #{minutes} min)",
+          amount: trip_amount,
+        ),
+      ],
     )
   end
 end

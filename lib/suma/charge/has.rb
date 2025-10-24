@@ -4,8 +4,7 @@
 module Suma::Charge::Has
   private def _allcharges = self.respond_to?(:charges) ? self.charges : [self.charge].compact
 
-  # How much was paid for this order is the sum of all book transactions linked to charges.
-  # Note that this includes subsidy AND synchronous charges during checkout.
+  # How much was paid for this order is the sum of all charge line items.
   def paid_amount = _allcharges.sum(Money.new(0), &:discounted_subtotal)
   alias paid_cost paid_amount
 
@@ -31,14 +30,11 @@ module Suma::Charge::Has
     cash_led = self.member.payment_account&.cash_ledger
     cash = Money.new(0)
     noncash = Money.new(0)
-    _allcharges.each do |ch|
-      ch.line_items.
-        filter_map(&:book_transaction).each do |bx|
-        if bx.originating_ledger === cash_led
-          cash += bx.amount
-        else
-          noncash += bx.amount
-        end
+    _allcharges.flat_map(&:contributing_book_transactions).each do |bx|
+      if bx.originating_ledger === cash_led
+        cash += bx.amount
+      else
+        noncash += bx.amount
       end
     end
     return {cash:, noncash:}

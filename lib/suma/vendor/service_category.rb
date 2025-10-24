@@ -13,10 +13,14 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
   many_to_one :parent, class: self
   one_to_many :children, class: self, key: :parent_id
 
-  def self.cash
-    return Suma.cached_get("vendor_service_category_cash") do
-      self.find_or_create_or_find(name: "Cash")
+  class << self
+    def lookup(name)
+      return Suma.cached_get("vendor_service_category_#{name}") do
+        self.find_or_create_or_find(name:)
+      end
     end
+
+    def cash = self.lookup("Cash")
   end
 
   # TSort API: Iterate self and children to go through entire graph.
