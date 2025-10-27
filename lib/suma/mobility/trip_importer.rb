@@ -7,17 +7,17 @@
 # and then it's recomposed back into Suma objects.
 #
 # Most use of the importers involve multiple different 'levels' of amounts:
-# - The 'undiscounted subtotal', which is the retail value of the trip.
+# - The 'undiscounted subtotal', which is the full retail price of the trip.
 #   It is often not in the receipt, so needs to be calculated by the undiscounted service rate
 #   (plus additional line items!).
 # - The 'unlock fee'. This may be in the receipt, or may be calculated by the primary service rate.
 # - The 'per minute fee'. The cost per minute may be in the receipt,
 #   or may be calculated by the primary service rate.
 #   It is multipled by the trip duration minutes to get the total for this charge.
-# - The 'misc line items'. These are usually parking violations.
-# - The 'paid off platofrm amount'. If the vendor charged the user, this is the amount.
-# - The 'to charge member amount'. If the vendor doesn't charge the member, this is the amount suma charges them.
-# - The 'subsizied by suma amount'. If the vendor is invoicing suma, this is the amount.
+# - The 'misc line items'. These are usually parking or out-of-dock fees.
+# - The 'paid off platofrm amount'. If the vendor charged the user through its own system,
+#   this is the amount. We aren't charging the user if they already paid the vendor.
+# - The 'subsizied by suma amount'. If suma has set up
 module Suma::Mobility::TripImporter
   class Receipt
     # When the external service created the trip receipt/charge.
@@ -34,11 +34,7 @@ module Suma::Mobility::TripImporter
     # @return [Suma::Mobility::Trip]
     attr_reader :trip
 
-    # These line items are added to the charge as 'self data' line items (informational only).
-    # Do NOT include unlock and ride fee items.
-    # @return [Array<LineItem>]
-    attr_reader :misc_line_items
-
+    # The full retail price of the trip, including the undiscounted price of all line items.
     # @return [Money]
     attr_accessor :undiscounted_subtotal
 
@@ -50,30 +46,32 @@ module Suma::Mobility::TripImporter
     # @return [Money]
     attr_accessor :per_minute_fee
 
+    # Line items to include in the charged amount.
+    # Do NOT include unlock and ride fee items.
+    # @return [Array<Suma::Mobility::EndTripResult::LineItem>]
+    attr_reader :misc_line_items
+
     # If an image is available, it is fetched from this URL.
     attr_accessor :image_url
 
-    # The amount to charge the member.
-    # If +paid_off_platform+ is nonzero,
-    # +to_charge_member+ is normally zero.
-    # Both fields may be zero if the trip was fully paid by the vendor.
+    # The amount the user paid for this trip off-platform (like for Biketown).
+    #
+    # If the total of the line items, minus the amount paid off-platform,
+    # is what the member is charged.
+    #
     # Note that charges to a member follow the normal suma ledger debit calculations
     # (ie, pulling from available ledgers before charging cash money).
     # @return [Money]
-    attr_accessor :to_charge_member_amount
-
-    # The amount the user paid for this trip off-platform.
-    # See +to_charge_member+ for more info.
-    # @return [Money]
     attr_accessor :paid_off_platform_amount
 
-    # The amount Suma paid the vendor to subsidize this trip;
-    # usually this means Suma will be invoiced by the vendor
-    # for this amount.
+    # The amount Suma paid the vendor to subsidize this trip.
+    #
+    # usually this means Suma will be invoiced by the vendor for this amount.
+    # Note that this is *not* the amount Suma is
     # It may be zero if the ride is discounted by the vendor (often through a low-income program),
     # and the remainder is charged to the user (no additional suma discount).
     # @return [Money]
-    attr_accessor :subsidized_by_suma_amount
+    attr_accessor :subsidized_off_platform_amount
 
     def initialize
       @trip = Suma::Mobility::Trip.new(
@@ -82,34 +80,38 @@ module Suma::Mobility::TripImporter
       )
       @misc_line_items = []
     end
-  end
 
-  class LineItem < Suma::TypedStruct
-    # @return [Money]
-    attr_accessor :amount
-    # @return [String]
-    attr_accessor :memo
+    def end_trip_result
+      r = Suma::Mobility::EndTripResult.new(
+        undiscounted_cost: self.undiscounted_subtotal,
+        charged_off_platform: self.paid_off_platform_amount,
+        line_items: [],
+      )
+      r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
+        amount: self.unlock_fee,
+        memo: "Unlock fee",
+      )
+      r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
+        amount: self.per_minute_fee * self.trip.duration_minutes,
+        memo: "Riding - #{self.per_minute_fee.format}/min (#{trip.duration_minutes} min)",
+      )
+      r.line_items.concat(self.misc_line_items)
+      return r
+    end
   end
 
   # @param receipt [Receipt]
   def self.import(receipt:, program:, logger:)
     trip = receipt.trip
-    trip.db.transaction(savepoint: true) do
+    end_trip_result = receipt.end_trip_result
+    trip.db.transaction do
+      self._prepare_subsidy(receipt, program)
       begin
-        charge = Suma::Mobility::Trip.import_trip(
-          trip,
-          cost: receipt.to_charge_member_amount,
-          undiscounted_subtotal: receipt.undiscounted_subtotal,
-        )
+        trip.charge_trip(end_trip_result)
       rescue Sequel::UniqueConstraintViolation
         logger.debug("ride_already_exists", external_trip_id: trip.external_trip_id)
         raise Sequel::Rollback
       end
-      if charge.nil?
-        # TODO: test
-        return
-      end
-
       if receipt.image_url
         resp = Suma::Http.get(receipt.image_url, logger:)
         map_uf = Suma::UploadedFile.create_with_blob(
@@ -124,56 +126,58 @@ module Suma::Mobility::TripImporter
           caption: Suma::TranslatedText.empty,
         )
       end
+    end
+  end
 
-      # Once we've "imported" the trip, we have a trip,
-      # a charge (for "to_charge_member_amount"), and no line items.
-      #
-      charge = trip.charge
-      charge.add_off_platform_line_item(
-        amount: receipt.unlock_fee,
-        memo: Suma::TranslatedText.create(all: "Unlock fee"),
+  # Before charging the trip, if there was an explicit subsidy charged by the vendor to suma,
+  # we need to add that money to the user ledger, so it can be used to pay for the trip.
+  #
+  # We use first 'potential' trigger; this logic is different from calculating ideal triggers,
+  # since we already know the subsidized amount, and we can't realistically
+  # 'back into' the right subsidy numbers based on how much we subsidized
+  # (we only do this to find subsidy based on how much we paid).
+  #
+  # If there are no potential triggers, we fall back to creating a subsidy from the mobility ledger,
+  # without a trigger, since we MUST have a subsidy of the right amount
+  # to avoid charging the member.
+  # We prefer triggers because this allows more precise control of ledgers,
+  # and also shows predictive ride pricing properly.
+  #
+  # @param receipt [Receipt]
+  def self._prepare_subsidy(receipt, _program)
+    return if receipt.subsidized_off_platform_amount.zero?
+    member_account = receipt.trip.member.payment_account!
+    subsidizing_trigger = Suma::Payment::Trigger.
+      gather(member_account, active_as_of: receipt.charged_at).
+      potentially_contributing_to(receipt.trip.vendor_service).
+      first
+    if subsidizing_trigger
+      subsidizing_trigger.execute(
+        apply_at: receipt.charged_at,
+        amount: receipt.subsidized_off_platform_amount,
+        receiving_ledger: subsidizing_trigger.ensure_receiving_ledger(member_account),
       )
-      charge.add_off_platform_line_item(
-        amount: receipt.per_minute_fee * trip.duration_minutes,
-        memo: Suma::TranslatedText.create(
-          all: "Riding - #{receipt.per_minute_fee.format}/min (#{trip.duration_minutes} min)",
-        ),
+      return
+    end
+
+    category = Suma::Vendor::ServiceCategory.lookup("Mobility")
+    originating_ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(category)
+    receiving_ledger = receipt.trip.member.payment_account.ensure_ledger_with_category(category)
+    Suma::Payment::BookTransaction.create(
+      apply_at: receipt.charged_at,
+      amount: receipt.subsidized_off_platform_amount,
+      originating_ledger:,
+      receiving_ledger:,
+      memo: Suma::TranslatedText.create(all: "Subsidy from local funders"),
+    )
+    Sentry.capture_message("Trip had off platform subsidy but no Payment Triggers") do |scope|
+      scope.set_extras(
+        external_trip_id: receipt.trip.external_trip_id,
+        member_id: receipt.trip.member_id,
+        member_name: receipt.trip.member.name,
+        vendor_service_id: receipt.trip.vendor_service.id,
+        vendor_service_name: receipt.trip.vendor_service.internal_name,
       )
-      receipt.misc_line_items.each do |li|
-        charge.add_off_platform_line_item(
-          amount: li.amount,
-          memo: Suma::TranslatedText.create(all: li.memo),
-        )
-      end
-      if receipt.subsidized_by_suma_amount.nonzero?
-        # If there is a subsidy, we need to figure out how to apply it.
-        # Our best guess of how this should work, is that we find a payment trigger
-        # for the program the trip was taken with, and try to create a subsidy from this trigger.
-        #
-        # This follows a different code path from payment triggers during commerce checkout,
-        # since the situation is pretty different: this charge is coming after-the-fact,
-        # and we don't have great control over how its categories are set up
-        # (so the trigger subsidy matching cannot be relied on fully).
-        #
-        # So instead of gathering all applicable triggers (across all programs),
-        # we gather only mobility triggers for a given program.
-        #
-        # It is likely this logic will all change in the future.
-        trigger_collection = Suma::Payment::Trigger.gather(
-          trip.member.payment_account!,
-          active_as_of: apply_at,
-          dataset: Suma::Payment::Trigger.where(programs: [program]),
-        )
-        calc_ctx = Suma::Payment::CalculationContext.new(apply_at)
-        funding_plan = trigger_collection.funding_plan(calc_ctx, receipt.subsidized_by_suma_amount)
-        # Since we don't have 'outside' categories (like those set up from products),
-        # use the ledger the trigger itself creates/wants to send to.
-        member_ledger = Suma::Enumerable.one!(funding_plan.steps).receiving_ledger
-        executions = funding_plan.execute(ledgers: [member_ledger], at: apply_at)
-        executions.each do |execution|
-          charge.add_line_item(book_transaction: execution.book_transaction)
-        end
-      end
     end
   end
 end

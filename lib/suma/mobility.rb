@@ -42,6 +42,10 @@ module Suma::Mobility
     # Line items for components of the trip, including unlock fee, trip cost, parking violations, etc.
     # @return [Array<LineItem>]
     attr_reader :line_items
+
+    # If a charge was made off-platform (usually through a deeplink vendor),
+    # record it here so we record it properly and do not try to charge the balance.
+    attr_reader :charged_off_platform
   end
 
   def self.coord2int(c)

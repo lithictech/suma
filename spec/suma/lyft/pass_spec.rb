@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
+require "suma/spec_helpers/sentry"
+
 require "suma/lyft/pass"
 
 # rubocop:disable Layout/LineLength
 RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   let(:instance) { Suma::Lyft::Pass.from_config }
   let(:now) { Time.now }
-  let(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create }
-  let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
 
   before(:each) do
     Suma::Lyft.pass_authorization = "Basic xyz"
@@ -329,6 +329,9 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   end
 
   describe "sync_trips" do
+    let(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create }
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
+
     it "fetches and upserts rides" do
       insert_valid_credential
       program_req = stub_request(:post, "https://www.lyft.com/api/rideprograms/ride-program").
@@ -413,11 +416,11 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
           headers: {"Content-Type" => "application/json"},
           body: {
             "created_at_ms" => 1_728_165_355_514,
-            "money" => {"amount" => 585, "currency" => "USD", "exponent" => 2},
+            "money" => {"amount" => 100, "currency" => "USD", "exponent" => 2},
             "ride" => {
               "distance" => 1.649999976158142,
               "dropoff" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:50:42-07:00", "timestamp_ms" => 1_728_165_042_000},
-              "line_items" => [],
+              "line_items" => [{"money" => {"amount" => -100, "currency" => "USD", "exponent" => 2}, "title" => "default"}],
               "map_image_url" => nil,
               "pickup" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:40:19-07:00", "timestamp_ms" => 1_728_164_419_000},
               "request" => {"iso_timestamp" => "2024-10-05T14:40:16-07:00", "timestamp_ms" => 1_728_164_416_000},
@@ -456,6 +459,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
 
     it "errors if the lyft pass program id is not set" do
       p = Suma::Fixtures.program.create
+      Suma::Fixtures.program_pricing.create(program: p)
       expect { instance.sync_trips_from_program(p) }.to raise_error(/ lyft_pass_program_id /)
     end
 
@@ -469,26 +473,40 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   end
 
   describe "upsert_ride_as_trip" do
-    let(:ride) do
-      {
+    include Suma::SpecHelpers::Sentry
+
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
+    let(:program) { Suma::Fixtures.program.create }
+    let(:phone) { "15552223333" }
+    let!(:member) do
+      m = Suma::Fixtures.member.
+        onboarding_verified.
+        registered_as_stripe_customer.
+        with_cash_ledger.
+        create(phone:)
+      Suma::Fixtures.card.member(m).create
+      Suma::Fixtures.program_enrollment.create(program:, member: m)
+      m
+    end
+
+    def ride_json(
+      transaction_amount_cents: 100,
+      line_items: [{"money" => {"amount" => -100, "currency" => "USD", "exponent" => 2}, "title" => "default"}]
+    )
+      return {
         "created_at_ms" => 1_728_165_355_514,
-        "money" => {"amount" => 585, "currency" => "USD", "exponent" => 2},
+        "money" => {"amount" => transaction_amount_cents, "currency" => "USD", "exponent" => 2},
         "ride" => {
           "distance" => 1.649999976158142,
-          "dropoff" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:50:42-07:00", "timestamp_ms" => 1_728_165_042_000},
-          "line_items" => [
-            {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Unlock fee"},
-            {"money" => {"amount" => 385, "currency" => "USD", "exponent" => 2}, "title" => "Ebike ride ($0.35 per min for 11 min)"},
-            {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Parking fee (out of station)"},
-            {"money" => {"amount" => -585, "currency" => "USD", "exponent" => 2}, "title" => "Promo applied"},
-          ],
+          "dropoff" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:50:59-07:00", "timestamp_ms" => 1_728_165_059_000},
+          "line_items" => line_items,
           "map_image_url" => nil,
-          "pickup" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:40:19-07:00", "timestamp_ms" => 1_728_164_419_000},
+          "pickup" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:40:00-07:00", "timestamp_ms" => 1_728_164_400_000},
           "request" => {"iso_timestamp" => "2024-10-05T14:40:16-07:00", "timestamp_ms" => 1_728_164_416_000},
           "ride_id" => "2000855261394541610",
           "ride_type_description" => "E-Bike",
           "rideable_type" => "ELECTRIC_BIKE",
-          "rider" => {"email_address" => nil, "full_name" => nil, "phone_number" => "+15552223333"},
+          "rider" => {"email_address" => nil, "full_name" => nil, "phone_number" => "+#{phone}"},
           "was_canceled" => false,
         },
         "txnhub_transaction_id" => "2000859286786636076",
@@ -496,59 +514,338 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       }
     end
 
-    let(:member) do
-      Suma::Fixtures.member.
-        onboarding_verified.
-        registered_as_stripe_customer.
-        with_cash_ledger.
-        create(phone: "15552223333")
+    # Lyft Pass should NEVER generate funding transactions (all paid off-platform)
+    # or result in ledger balance changes (subsidy is always created).
+    def assert_zero_balances
+      member.payment_account.ledgers.each do |led|
+        expect(led).to have_attributes(balance: be_zero)
+      end
+      expect(member.payment_account.originated_funding_transactions).to be_empty
     end
 
-    it "inserts a trip, charge, and line items for the member" do
-      Suma::Fixtures.card.member(member).create
+    it "upserts a trip fully paid by suma's Lyft Pass" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 585,
+        line_items: [
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Unlock fee"},
+          {"money" => {"amount" => 385, "currency" => "USD", "exponent" => 2}, "title" => "Ebike ride ($0.35 per min for 11 min)"},
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Parking fee (out of station)"},
+          {"money" => {"amount" => -585, "currency" => "USD", "exponent" => 2}, "title" => "Promo applied"},
+        ],
+      )
 
-      charge = instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
-      expect(charge).to have_attributes(member:)
-      expect(charge.associated_funding_transactions).to contain_exactly(
-        have_attributes(amount: cost("$5.85")),
-      )
-      expect(charge.line_items).to contain_exactly(
-        have_attributes(amount: cost("$1")),
-        have_attributes(amount: cost("$3.85")),
-        have_attributes(amount: cost("$1")),
-        have_attributes(amount: cost("-$5.85")),
-      )
-      expect(charge.mobility_trip).to have_attributes(
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip).to have_attributes(
+        duration_minutes: 11,
         image: nil,
-        began_at: match_time("2024-10-05T14:40:19-07:00"),
+        began_at: match_time("2024-10-05T14:40:00-07:00"),
       )
+      expect(trip.charge).to have_attributes(
+        member:,
+        undiscounted_subtotal: cost("$5.85"),
+        off_platform_amount: cost("$0"),
+      )
+      expect(trip.charge.line_items.map { |li| [li.memo.en, li.amount] }).to contain_exactly(
+        ["Additional charges", cost("$1")],
+        ["Riding - $0.35/min (11 min)", cost("$3.85")],
+        ["Unlock fee", cost("$1")],
+      )
+      expect(trip.charge.contributing_book_transactions).to contain_exactly(
+        have_attributes(
+          amount: cost("$5.85"),
+          originating_ledger: have_attributes(account: be === member.payment_account),
+          receiving_ledger: have_attributes(account: be === Suma::Payment::Account.lookup_platform_account),
+        ),
+      )
+      assert_zero_balances
+    end
+
+    it "upserts a trip partially paid by suma's Lyft Pass" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 285,
+        line_items: [
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Unlock fee"},
+          {"money" => {"amount" => 385, "currency" => "USD", "exponent" => 2}, "title" => "Ebike ride ($0.35 per min for 11 min)"},
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Parking fee (out of station)"},
+          {"money" => {"amount" => -285, "currency" => "USD", "exponent" => 2}, "title" => "Promo applied"},
+        ],
+      )
+
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip.charge).to have_attributes(
+        member:,
+        undiscounted_subtotal: cost("$5.85"),
+        off_platform_amount: cost("$3"),
+      )
+      expect(trip.charge.line_items.map { |li| [li.memo.en, li.amount] }).to contain_exactly(
+        ["Additional charges", cost("$1")],
+        ["Riding - $0.35/min (11 min)", cost("$3.85")],
+        ["Unlock fee", cost("$1")],
+      )
+      assert_zero_balances
+    end
+
+    it "upserts a trip that costs more than what is calculated by suma's rate" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 600,
+        line_items: [
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Unlock fee"},
+          {"money" => {"amount" => 385, "currency" => "USD", "exponent" => 2}, "title" => "Ebike ride ($0.35 per min for 11 min)"},
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Parking fee (out of station)"},
+          {"money" => {"amount" => 15, "currency" => "USD", "exponent" => 2}, "title" => "testing charge"},
+          {"money" => {"amount" => -600, "currency" => "USD", "exponent" => 2}, "title" => "Promo applied"},
+        ],
+      )
+
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip.charge).to have_attributes(
+        member:,
+        undiscounted_subtotal: cost("$6"),
+        off_platform_amount: cost("$0"),
+      )
+      expect(trip.charge.line_items.map { |li| [li.memo.en, li.amount] }).to contain_exactly(
+        ["Additional charges", cost("$1.15")],
+        ["Riding - $0.35/min (11 min)", cost("$3.85")],
+        ["Unlock fee", cost("$1")],
+      )
+      assert_zero_balances
+    end
+
+    it "upserts a trip that costs exactly what is calculated by suma's rate" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 485,
+        line_items: [
+          {"money" => {"amount" => 100, "currency" => "USD", "exponent" => 2}, "title" => "Unlock fee"},
+          {"money" => {"amount" => 385, "currency" => "USD", "exponent" => 2}, "title" => "Ebike ride ($0.35 per min for 11 min)"},
+          {"money" => {"amount" => -485, "currency" => "USD", "exponent" => 2}, "title" => "Promo applied"},
+        ],
+      )
+
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip.charge).to have_attributes(
+        member:,
+        undiscounted_subtotal: cost("4.85"),
+        off_platform_amount: cost("$0"),
+      )
+      expect(trip.charge.line_items.map { |li| [li.memo.en, li.amount] }).to contain_exactly(
+        ["Riding - $0.35/min (11 min)", cost("$3.85")],
+        ["Unlock fee", cost("$1")],
+      )
+      assert_zero_balances
+    end
+
+    it "upserts a trip and warns in Sentry if the Lyft trip costs less than expected" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 275,
+        line_items: [
+          # Line items are not what the rate calculates, so warn.
+          {"money" => {"amount" => 90, "currency" => "USD", "exponent" => 2}, "title" => "Unlock fee"},
+          {"money" => {"amount" => 185, "currency" => "USD", "exponent" => 2}, "title" => "Ebike ride ($0.35 per min for 11 min)"},
+          {"money" => {"amount" => -275, "currency" => "USD", "exponent" => 2}, "title" => "Promo applied"},
+        ],
+      )
+      ride_created = Time.at(ride_json.fetch("created_at_ms") / 1000)
+      # Create the trigger since otherwise we call Sentry twice.
+      Suma::Fixtures.payment_trigger.
+        from_platform_category(Suma::Vendor::ServiceCategory.lookup("Mobility")).
+        create(active_during: (ride_created - 1.day)..(ride_created + 1.day))
+      expect_sentry_capture(type: :message, arg_matcher: eq("Lyft Pass charge total less than expected"))
+
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip.charge).to have_attributes(
+        member:,
+        undiscounted_subtotal: cost("4.85"),
+        off_platform_amount: cost("$0"),
+      )
+      expect(trip.charge.line_items.map { |li| [li.memo.en, li.amount] }).to contain_exactly(
+        ["Lyft discount", cost("-$2.10")],
+        ["Riding - $0.35/min (11 min)", cost("$3.85")],
+        ["Unlock fee", cost("$1")],
+      )
+      assert_zero_balances
+    end
+
+    it "creates a subsidy from the mobility ledger and warns in Sentry if there are no valid triggers" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 485,
+        line_items: [
+          {"money" => {"amount" => 485, "currency" => "USD", "exponent" => 2}, "title" => "charge"},
+          {"money" => {"amount" => -485, "currency" => "USD", "exponent" => 2}, "title" => "credit"},
+        ],
+      )
+      expect_sentry_capture(type: :message, arg_matcher: eq("Trip had off platform subsidy but no Payment Triggers"))
+      instance.upsert_ride_as_trip(ride, pricing)
+      mobility = Suma::Vendor::ServiceCategory.lookup("Mobility")
+      platform_ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility)
+      member_ledger = member.payment_account.ensure_ledger_with_category(mobility)
+      expect(platform_ledger.combined_book_transactions).to contain_exactly(
+        have_attributes(
+          amount: cost("4.85"),
+          originating_ledger: be === platform_ledger,
+          receiving_ledger: be === member_ledger,
+        ),
+        have_attributes(
+          amount: cost("4.85"),
+          originating_ledger: be === member_ledger,
+          receiving_ledger: be === platform_ledger,
+        ),
+      )
+      assert_zero_balances
+    end
+
+    it "creates a subsidy from the ledger specified by a valid trigger" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 485,
+        line_items: [
+          {"money" => {"amount" => 485, "currency" => "USD", "exponent" => 2}, "title" => "charge"},
+          {"money" => {"amount" => -485, "currency" => "USD", "exponent" => 2}, "title" => "credit"},
+        ],
+      )
+      category = Suma::Vendor::ServiceCategory.lookup("Totally Different")
+      vendor_service.add_category(category)
+      ride_created = Time.at(ride_json.fetch("created_at_ms") / 1000)
+      trigger = Suma::Fixtures.payment_trigger.
+        from_platform_category(category).
+        create(active_during: (ride_created - 1.day)..(ride_created + 1.day))
+
+      instance.upsert_ride_as_trip(ride, pricing)
+
+      platform_ledger = trigger.originating_ledger
+      member_ledger = member.payment_account.ensure_ledger_with_category(category)
+      expect(platform_ledger.combined_book_transactions).to contain_exactly(
+        have_attributes(
+          amount: cost("4.85"),
+          originating_ledger: be === platform_ledger,
+          receiving_ledger: be === member_ledger,
+        ),
+        have_attributes(
+          amount: cost("4.85"),
+          originating_ledger: be === member_ledger,
+          receiving_ledger: be === platform_ledger,
+        ),
+      )
+      assert_zero_balances
+    end
+
+    it "never uses a member's cash ledger balance" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 185,
+        line_items: [
+          {"money" => {"amount" => 485, "currency" => "USD", "exponent" => 2}, "title" => "charge"},
+          {"money" => {"amount" => -185, "currency" => "USD", "exponent" => 2}, "title" => "credit"},
+        ],
+      )
+      Suma::Fixtures.book_transaction.to(member.payment_account.cash_ledger!).create(amount: money("$5"))
+
+      instance.upsert_ride_as_trip(ride, pricing)
+
+      expect(member.payment_account.cash_ledger!).to have_attributes(balance: cost("$5"))
+    end
+
+    it "ignores duplicate line items" do
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
+      ride = ride_json(
+        transaction_amount_cents: 600,
+        line_items: [
+          {"money" => {"amount" => 500, "currency" => "USD", "exponent" => 2}, "title" => "charge1"},
+          {"money" => {"amount" => 500, "currency" => "USD", "exponent" => 2}, "title" => "charge1"},
+          {"money" => {"amount" => 500, "currency" => "USD", "exponent" => 2}, "title" => "charge2"},
+          {"money" => {"amount" => -600, "currency" => "USD", "exponent" => 2}, "title" => "credit1"},
+          {"money" => {"amount" => -600, "currency" => "USD", "exponent" => 2}, "title" => "credit1"},
+          {"money" => {"amount" => -600, "currency" => "USD", "exponent" => 2}, "title" => "credit1"},
+          {"money" => {"amount" => -100, "currency" => "USD", "exponent" => 2}, "title" => "credit2"},
+          {"money" => {"amount" => -100, "currency" => "USD", "exponent" => 2}, "title" => "credit2"},
+        ],
+      )
+
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip.charge).to have_attributes(
+        undiscounted_subtotal: cost("$10"),
+        off_platform_amount: cost("$3"),
+      )
+      expect(trip.charge.line_items.map { |li| [li.memo.en, li.amount] }).to contain_exactly(
+        ["Additional charges", cost("$5.15")],
+        ["Riding - $0.35/min (11 min)", cost("$3.85")],
+        ["Unlock fee", cost("$1")],
+        ["credit2", cost("-$1")],
+      )
+      assert_zero_balances
+    end
+
+    it "errors if the transaction amount is not present as a line item" do
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
+      ride = ride_json(
+        transaction_amount_cents: 600,
+        line_items: [
+          {"money" => {"amount" => 600, "currency" => "USD", "exponent" => 2}, "title" => "charge1"},
+          {"money" => {"amount" => -599, "currency" => "USD", "exponent" => 2}, "title" => "credit2"},
+        ],
+      )
+      expect do
+        instance.upsert_ride_as_trip(ride, pricing)
+      end.to raise_error(Suma::InvariantViolation, /transaction amount not found/)
+    end
+
+    it "errors if the suma subsidy is zero" do
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
+      ride = ride_json(
+        transaction_amount_cents: 0,
+        line_items: [
+          {"money" => {"amount" => 600, "currency" => "USD", "exponent" => 2}, "title" => "charge1"},
+          {"money" => {"amount" => -0, "currency" => "USD", "exponent" => 2}, "title" => "credit2"},
+        ],
+      )
+      expect do
+        instance.upsert_ride_as_trip(ride, pricing)
+      end.to raise_error(Suma::InvariantViolation, /transaction amount cannot be zero/)
     end
 
     it "will download and insert a map image if the url is set" do
-      Suma::Fixtures.card.member(member).create
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
+      ride = ride_json
       ride["ride"]["map_image_url"] = "https://example.com/map.png"
       stub_request(:get, "https://example.com/map.png").
         to_return(status: 200, body: Suma::SpecHelpers::PNG_1X1_BYTES, headers: {"Content-Type" => "image/png"})
 
-      charge = instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
-      expect(charge.mobility_trip).to have_attributes(
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(trip).to have_attributes(
         image: have_attributes(
           uploaded_file: have_attributes(private: true, content_type: "image/png"),
         ),
       )
     end
 
-    it "logs and noops if a trip with the external trip/ride id already exists" do
-      Suma::Fixtures.card.member(member).create
-      expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_a(Suma::Charge)
-      expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_nil
+    it "noops if a trip with the external trip/ride id already exists" do
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
+      ride = ride_json
+      trip = instance.upsert_ride_as_trip(ride, pricing)
+      expect(instance.upsert_ride_as_trip(ride, pricing)).to be_nil
+      expect(Suma::Mobility::Trip.all).to have_same_ids_as(trip)
     end
 
     it "logs and noops if a trip with the external trip/ride id already exists (constraint violation)" do
-      Suma::Fixtures.card.member(member).create
-      expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_a(Suma::Charge)
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
+      ride = ride_json
+      instance.upsert_ride_as_trip(ride, pricing)
       logs = capture_logs_from(described_class.logger, level: :debug, formatter: :json) do
-        expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:, check_dupes: false)).to be_nil
+        expect(instance.upsert_ride_as_trip(ride, pricing, check_dupes: false)).to be_nil
       end
       expect(logs).to include(
         include_json(message: eq("ride_already_exists")),
@@ -556,17 +853,22 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     end
 
     it "does not treat the trip as ongoing (to avoid unique constraint violation)" do
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
       Suma::Fixtures.mobility_trip.ongoing.create(member:)
-      Suma::Fixtures.card.member(member).create
-      expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_a(Suma::Charge)
+      ride = ride_json
+      expect(instance.upsert_ride_as_trip(ride, pricing)).to be_a(Suma::Mobility::Trip)
     end
 
-    it "logs and noops if there is no member for the email" do
+    it "logs and noops if there is no member with that phone number" do
+      pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
+      member.update(phone: "15559998765")
+      ride = ride_json
+      expect_sentry_capture(type: :message, arg_matcher: eq("No member for Lyft Pass ride"))
       logs = capture_logs_from(described_class.logger, level: :debug, formatter: :json) do
-        expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_nil
+        expect(instance.upsert_ride_as_trip(ride, pricing)).to be_nil
       end
       expect(logs).to include(
-        include_json(message: eq("no_member_for_rider")),
+        include_json(message: eq("no_member_for_lyft_pass_rider")),
       )
     end
   end

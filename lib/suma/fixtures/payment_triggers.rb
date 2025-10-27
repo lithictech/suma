@@ -54,6 +54,13 @@ module Suma::Fixtures::PaymentTriggers
     self.receiving_ledger_contribution_text = ledger.contribution_text
   end
 
+  decorator :from_platform_category do |cat|
+    ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cat)
+    self.originating_ledger = ledger
+    self.receiving_ledger_name = ledger.name
+    self.receiving_ledger_contribution_text = ledger.contribution_text
+  end
+
   decorator :with_execution, presave: true do |book_x={}|
     unless book_x.is_a?(Suma::Payment::BookTransaction)
       book_x[:originating_ledger] ||= self.originating_ledger
