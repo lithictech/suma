@@ -5,9 +5,12 @@ require "suma/http"
 class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
   class NoToken < Suma::Http::Error; end
 
-  AGREEMENT_PARAMS = {user_agreement_version: "5", user_agreement_country_code: "US"}.freeze
   USER_AGENT = "Android Lime/3.219.0; (com.limebike; build:3.219.0; Android 33) 4.12.0"
   APP_VERSION = "3.219.0"
+
+  def agreement_params
+    return {user_agreement_version: Suma::Lime.user_agreement_version, user_agreement_country_code: "US"}
+  end
 
   def request_headers
     return {
@@ -27,7 +30,7 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
     contact = self.vendor_account.ensure_anonymous_contact(:email)
     Suma::Http.post(
       "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link",
-      AGREEMENT_PARAMS.merge(email: contact.email),
+      self.agreement_params.merge(email: contact.email),
       headers: {
         "Content-Type" => "application/x-www-form-urlencoded",
         **self.request_headers,
@@ -47,7 +50,7 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
   def exchange_magic_link_token(magic_link_token)
     resp = Suma::Http.post(
       "https://web-production.lime.bike/api/rider/v2/onboarding/login",
-      AGREEMENT_PARAMS.merge(magic_link_token: magic_link_token, has_virtual_card: false),
+      self.agreement_params.merge(magic_link_token: magic_link_token, has_virtual_card: false),
       headers: {
         "Content-Type" => "application/x-www-form-urlencoded",
         **self.request_headers,

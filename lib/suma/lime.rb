@@ -9,6 +9,10 @@ module Suma::Lime
   UNCONFIGURED_AUTH_TOKEN = "get-from-lime-add-to-env"
 
   configurable(:lime) do
+    # When Lime updates its terms, we need to update this so our vendor auth
+    # accepts the right terms version.
+    setting :user_agreement_version, "5"
+
     setting :maas_auth_token, UNCONFIGURED_AUTH_TOKEN
     # Turn off the violations processor. We want to make sure we only run this on production,
     # even if other environments (like development) point towards the production email table.
