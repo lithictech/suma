@@ -24,6 +24,7 @@ module Suma::Mobility
   class UnknownVehicleType < ArgumentError; end
 
   class BeginTripResult < Suma::TypedStruct
+    requires(all: true)
   end
 
   class EndTripResult < Suma::TypedStruct
@@ -33,7 +34,12 @@ module Suma::Mobility
 
       # @return [Money]
       attr_reader :amount
+
+      requires(all: true)
     end
+
+    # @return [Time]
+    attr_reader :charge_at
 
     # The cost of the trip without discounts.
     # @return [Money]
@@ -45,7 +51,12 @@ module Suma::Mobility
 
     # If a charge was made off-platform (usually through a deeplink vendor),
     # record it here so we record it properly and do not try to charge the balance.
+    # @return [Money]
     attr_reader :charged_off_platform
+
+    requires(all: true)
+
+    def _defaults = {charged_off_platform: Money.zero}
   end
 
   def self.coord2int(c)

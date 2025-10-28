@@ -242,6 +242,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       )
       result = Suma::Mobility::EndTripResult.new(
         undiscounted_cost: money("$6"),
+        charge_at: Time.now,
         line_items: [Suma::Mobility::EndTripResult::LineItem.new(memo: "hi", amount: money("$2"))],
       )
       trip.charge_trip(result)
@@ -264,6 +265,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
     it "raises if the trip cost is negative" do
       result = Suma::Mobility::EndTripResult.new(
+        charge_at: Time.now,
         undiscounted_cost: money("$6"),
         line_items: [Suma::Mobility::EndTripResult::LineItem.new(memo: "hi", amount: money("-$2"))],
       )

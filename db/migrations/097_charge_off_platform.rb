@@ -43,6 +43,11 @@ Sequel.migration do
       drop_column :self_data_id
     end
     drop_table(:charge_line_item_self_datas)
+
+    alter_table(:mobility_trips) do
+      add_column :our_cost_cents, :integer, default: 0, null: false
+      add_column :our_cost_currency, :text, default: "USD", null: false
+    end
   end
 
   # down do

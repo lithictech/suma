@@ -30,6 +30,7 @@ class Suma::Mobility::TripProvider::Internal
     trip_amount = trip.vendor_service_rate.calculate_unit_cost(minutes)
     return Suma::Mobility::EndTripResult.new(
       undiscounted_cost: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
+      charge_at: Time.now,
       line_items: [
         Suma::Mobility::EndTripResult::LineItem.new(memo: "Unlock fee", amount: trip.vendor_service_rate.surcharge),
         Suma::Mobility::EndTripResult::LineItem.new(

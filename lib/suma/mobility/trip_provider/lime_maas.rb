@@ -44,6 +44,7 @@ class Suma::Mobility::TripProvider::LimeMaas
     minutes = trip.duration_minutes
     trip_amount = trip.vendor_service_rate.calculate_unit_cost(minutes)
     return Suma::Mobility::EndTripResult.new(
+      charge_at: Time.now,
       undiscounted_cost: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
       line_items: [
         Suma::Mobility::EndTripResult::LineItem.new(

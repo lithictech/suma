@@ -25,11 +25,6 @@ module Suma::Mobility::TripImporter
     # @return [Time]
     attr_accessor :charged_at
 
-    # Controls what ledger the trip will be associated with.
-    # Usually this is a child of the mobility ledger.
-    # @return [Suma::Vendor::ServiceCategory]
-    attr_accessor :category
-
     # The trip to be imported.
     # @return [Suma::Mobility::Trip]
     attr_reader :trip
@@ -85,16 +80,21 @@ module Suma::Mobility::TripImporter
       r = Suma::Mobility::EndTripResult.new(
         undiscounted_cost: self.undiscounted_subtotal,
         charged_off_platform: self.paid_off_platform_amount,
+        charge_at: self.charged_at,
         line_items: [],
       )
-      r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
-        amount: self.unlock_fee,
-        memo: "Unlock fee",
-      )
-      r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
-        amount: self.per_minute_fee * self.trip.duration_minutes,
-        memo: "Riding - #{self.per_minute_fee.format}/min (#{trip.duration_minutes} min)",
-      )
+      unless self.unlock_fee.nil?
+        r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
+          amount: self.unlock_fee,
+          memo: "Unlock fee",
+        )
+      end
+      unless self.per_minute_fee.nil?
+        r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
+          amount: self.per_minute_fee * self.trip.duration_minutes,
+          memo: "Riding - #{self.per_minute_fee.format}/min (#{trip.duration_minutes} min)",
+        )
+      end
       r.line_items.concat(self.misc_line_items)
       return r
     end
