@@ -13,12 +13,6 @@ RSpec.describe "Suma::I18n::StaticString", :db do
       expect(j.first).to eq({"x" => {"s1" => "there", "y" => {"s2" => "hi ${x.s1}"}}})
     end
 
-    it "does not include deprecated strings" do
-      Suma::Fixtures.static_string.text.create(deprecated: true, namespace: "n1")
-      j = described_class.load_namespace_locale(locale: "en", namespace: "n1")
-      expect(j.first).to eq({})
-    end
-
     it "uses empty string for rows with a null translated_text" do
       Suma::Fixtures.static_string.create(namespace: "n1", key: "s")
       j = described_class.load_namespace_locale(locale: "en", namespace: "n1")
@@ -43,11 +37,9 @@ RSpec.describe "Suma::I18n::StaticString", :db do
 
   describe "fetch_modified_namespaces" do
     it "fetches namespaces modified after the given time" do
-      Suma::Fixtures.static_string.create(namespace: "n1", deprecated: true)
       Suma::Fixtures.static_string.create(namespace: "n2", modified_at: 10.hours.ago)
       Suma::Fixtures.static_string.create(namespace: "n2", modified_at: 2.hours.ago)
       Suma::Fixtures.static_string.create(namespace: "n3", modified_at: 2.hours.ago)
-      Suma::Fixtures.static_string.create(namespace: "n4", modified_at: 1.hour.ago, deprecated: true)
       Suma::Fixtures.static_string.create(namespace: "n5", modified_at: 10.hours.ago)
 
       expect(described_class.fetch_modified_namespaces(3.hours.ago)).to contain_exactly("n2", "n3")

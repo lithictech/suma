@@ -849,6 +849,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "StaticStringsTrim" do
+    it "deletes static strings deprecated more than 60 days ago" do
+      undeprecated = Suma::Fixtures.static_string.create
+      old = Suma::Fixtures.static_string.deprecated(65.days.ago).create
+      deprecated_recently = Suma::Fixtures.static_string.deprecated(Time.now).create
+      Suma::Async::StaticStringsTrim.new.perform
+      expect(Suma::I18n::StaticString.all).to have_same_ids_as(undeprecated, deprecated_recently)
+    end
+  end
+
   describe "StripeRefundsBackfiller" do
     it "syncs refunds" do
       Suma::Webhookdb.stripe_refunds_dataset.insert(

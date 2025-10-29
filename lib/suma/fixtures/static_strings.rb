@@ -22,4 +22,8 @@ module Suma::Fixtures::StaticStrings
     crit = template.static_string_criteria(transport)
     self.set(crit)
   end
+
+  decorator :deprecated do |t=Time.now|
+    self.deprecated_at = t
+  end
 end

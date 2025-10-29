@@ -33,8 +33,8 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
     it "sorts deprecated strings last" do
       c = Suma::Fixtures.static_string.create(namespace: "n", key: "c")
       a = Suma::Fixtures.static_string.create(namespace: "n", key: "a")
-      d = Suma::Fixtures.static_string.create(namespace: "n", key: "d", deprecated: true)
-      b = Suma::Fixtures.static_string.create(namespace: "n", key: "b", deprecated: true)
+      d = Suma::Fixtures.static_string.deprecated.create(namespace: "n", key: "d")
+      b = Suma::Fixtures.static_string.deprecated.create(namespace: "n", key: "b")
 
       get "/v1/static_strings"
 
@@ -62,7 +62,7 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(namespace: "x", key: "y", en: "", deprecated: false)
+        that_includes(namespace: "x", key: "y", en: "", deprecated_at: nil)
 
       expect(Suma::I18n::StaticString.all).to contain_exactly(have_attributes(key: "y"))
     end
@@ -130,7 +130,7 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
       post "/v1/static_strings/#{ss.id}/deprecate"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(deprecated: true)
+      expect(last_response).to have_json_body.that_includes(deprecated_at: match_time(:now))
       expect(ss.refresh).to have_attributes(modified_at: match_time(:now))
     end
   end
@@ -139,12 +139,12 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
     it "sets the string undeprecated" do
       expect(Suma::I18n::StaticStringRebuilder).to receive(:notify_change)
 
-      ss = Suma::Fixtures.static_string.text.create(deprecated: true, modified_at: 3.hours.ago)
+      ss = Suma::Fixtures.static_string.text.deprecated.create(modified_at: 3.hours.ago)
 
       post "/v1/static_strings/#{ss.id}/undeprecate"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(deprecated: false)
+      expect(last_response).to have_json_body.that_includes(deprecated_at: nil)
       expect(ss.refresh).to have_attributes(modified_at: match_time(:now))
     end
   end
