@@ -203,7 +203,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     post :static_strings do
       check_admin_role_access!(:read, :admin_access)
       ds = Suma::I18n::StaticString.dataset
-      ds = ds.exclude(deprecated: true)
+      ds = ds.where(deprecated_at: nil)
       ds = ds_search_or_order_by(:key, ds, params)
       ds = ds.where(namespace: params[:namespace]) if params[:namespace]
       ds = ds.grep(:key, params[:prefix] + "%") if params[:prefix]

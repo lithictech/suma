@@ -63,7 +63,7 @@ module Suma::I18n::StaticStringIO
     # Use compact formatting mostly when testing.
     def export_seeds(compact: false)
       data = Suma::I18n::AutoHash.new
-      Suma::I18n::StaticString.dataset.where(deprecated: false).order(:namespace, :key).each do |ss|
+      Suma::I18n::StaticString.dataset.where(deprecated_at: nil).order(:namespace, :key).each do |ss|
         Suma::I18n.enabled_locale_codes.each do |lc|
           data[ss.namespace][lc][ss.key] = ss.text&.send(lc) || ""
         end

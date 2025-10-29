@@ -7,7 +7,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
     expose :id
     expose :namespace
     expose :key
-    expose :deprecated
+    expose :deprecated_at
     expose :needs_text?, as: :needs_text
   end
 
@@ -39,7 +39,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
         select_append(:en).
         select_append(:es).
         all
-      rows.sort_by! { |r| [r.deprecated ? 1 : 0, r.namespace, r.key] }
+      rows.sort_by! { |r| [r.deprecated? ? 1 : 0, r.namespace, r.key] }
       groups = rows.group_by(&:namespace)
       result = groups.map { |k, rows| {namespace: k, strings: rows} }
       present_collection result, with: StaticStringGroup
@@ -96,7 +96,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
 
       post :deprecate do
         row = writeable_row
-        row.update(deprecated: true, modified_at: Time.now)
+        row.update(deprecated_at: current_time, modified_at: current_time)
         notify_change
         status 200
         present row, with: StandaloneStaticStringEntity
@@ -104,7 +104,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
 
       post :undeprecate do
         row = writeable_row
-        row.update(deprecated: false, modified_at: Time.now)
+        row.update(deprecated_at: nil, modified_at: current_time)
         notify_change
         status 200
         present row, with: StandaloneStaticStringEntity

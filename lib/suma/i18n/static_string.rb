@@ -23,10 +23,9 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
     end
 
     # Return a dataset for the key and translated text of the given locale
-    # for all undeprecated rows in th enamespace.
+    # for all rows in the namespace.
     def namespace_locale_dataset(namespace:, locale:)
       ds = self.dataset.
-        exclude(deprecated: true).
         where(namespace:).
         left_join(:translated_texts, id: :text_id).
         select(:key, :modified_at, locale.to_sym)
@@ -50,7 +49,6 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
     # Return all namespaces that have been modified +since+.
     def fetch_modified_namespaces(since)
       return self.
-          exclude(deprecated: true).
           distinct(:namespace).
           where { modified_at > since }.
           select_map(:namespace)
@@ -58,6 +56,8 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
   end
 
   def fqn = "#{self.namespace}.#{self.key}"
+
+  def deprecated? = !self.deprecated_at.nil?
 
   def needs_text?
     return true if self.text_id.nil?

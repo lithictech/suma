@@ -403,7 +403,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     it "returns strings" do
       ss1 = Suma::Fixtures.static_string.create(namespace: "other", key: "mobility.rates.foo")
       ss2 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.rates.foo")
-      ss3 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.rates.foo2", deprecated: true)
+      ss3 = Suma::Fixtures.static_string.deprecated.create(namespace: "strings", key: "mobility.rates.foo2")
       ss4 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.foo")
       ss5 = Suma::Fixtures.static_string.create(namespace: "strings", key: "foo")
       ss6 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.rates.bar")
