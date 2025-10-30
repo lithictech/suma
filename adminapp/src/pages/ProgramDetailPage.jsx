@@ -63,7 +63,7 @@ export default function ProgramDetailPage() {
               {row.vendorService.internalName}
             </AdminLink>,
             <AdminLink key="rate" model={row.vendorServiceRate}>
-              {row.vendorServiceRate.name}
+              {row.vendorServiceRate.internalName}
             </AdminLink>,
           ]}
         />,

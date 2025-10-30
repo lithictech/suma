@@ -91,7 +91,7 @@ export default function VendorServiceRateForm({
         <AutocompleteSearch
           {...register("undiscountedRate")}
           label="Undiscounted Rate"
-          value={resource.undiscountedRate?.name || ""}
+          value={resource.undiscountedRate?.internalName || ""}
           fullWidth
           search={api.searchVendorServiceRates}
           style={{ flex: 1 }}

@@ -30,7 +30,7 @@ export default function VendorDetailPage() {
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink model={row} />,
-            <AdminLink model={row}>{row.name}</AdminLink>,
+            <AdminLink model={row}>{row.internalName}</AdminLink>,
           ]}
         />,
         <RelatedList
