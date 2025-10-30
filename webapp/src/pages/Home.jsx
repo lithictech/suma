@@ -28,7 +28,7 @@ export default function Home() {
             component={Button}
             href={externalLinks.sumaIntroLink}
             variant="outline-secondary"
-            className="w-75 mt-3 nowrap"
+            className="w-75 mt-3 text-nowrap"
           >
             {t("common.learn_more")}
           </ExternalLink>

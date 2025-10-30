@@ -16,7 +16,7 @@ export default function Copyable({ className, children, delay, inline, text }) {
   }
   return (
     <>
-      <div className={clsx(inline && "d-inline nowrap", className)}>
+      <div className={clsx(inline && "d-inline text-nowrap", className)}>
         {children || text}
         <Button variant="link" className={clsx(inline && "p-0 ps-2")} onClick={onCopy}>
           <i className="bi bi-clipboard2-fill"></i>

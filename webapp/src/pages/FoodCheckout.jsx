@@ -328,7 +328,7 @@ function FulfillmentOptionLabel({ description, address }) {
       {address?.oneLineAddress && (
         <ExternalLink
           href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
-          className="ms-1 nowrap"
+          className="ms-1 text-nowrap"
         >
           <i className="bi bi-geo-alt-fill me-1"></i>
           {t("food.address")}

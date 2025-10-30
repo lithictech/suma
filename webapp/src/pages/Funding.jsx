@@ -110,7 +110,7 @@ function InstrumentLine({ instrument }) {
             <Button
               variant="success"
               size="sm"
-              className="mb-2 funding-card-border-radius nowrap"
+              className="mb-2 funding-card-border-radius text-nowrap"
               href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
               as={RLink}
             >
@@ -121,7 +121,7 @@ function InstrumentLine({ instrument }) {
               variant="outline-secondary"
               size="sm"
               disabled
-              className="mb-2 funding-card-border-radius nowrap opacity-0"
+              className="mb-2 funding-card-border-radius text-nowrap opacity-0"
             >
               &nbsp;
             </Button>
