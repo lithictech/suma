@@ -30,6 +30,41 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     end
   end
 
+  describe "match multiplier math" do
+    it "can calculate a payer/match fractions for what the customer vs. platform is paying" do
+      tr = described_class.new
+
+      tr.match_multiplier = 0
+      expect(tr).to have_attributes(payer_fraction: 1, match_fraction: 0)
+      tr.match_multiplier = 1
+      expect(tr).to have_attributes(payer_fraction: 0.5, match_fraction: 0.5)
+      tr.match_multiplier = 3
+      expect(tr).to have_attributes(payer_fraction: 0.25, match_fraction: 0.75)
+      tr.match_multiplier = 9
+      expect(tr).to have_attributes(payer_fraction: 0.10, match_fraction: 0.90)
+
+      tr.match_multiplier = 0.5
+      expect(tr.payer_fraction.round(2)).to eq(0.67)
+      expect(tr.match_fraction.round(2)).to eq(0.33)
+
+      tr.match_multiplier = 0.10
+      expect(tr.payer_fraction.round(2)).to eq(0.91)
+      expect(tr.match_fraction.round(2)).to eq(0.09)
+    end
+
+    it "can set the match multiplier from a payer and match fractions" do
+      tr = described_class.new
+      tr.match_fraction = 0.2
+      expect(tr).to have_attributes(payer_fraction: 0.8, match_multiplier: 0.25)
+    end
+
+    it "can set the match multiplier from a payer fraction" do
+      tr = described_class.new
+      tr.payer_fraction = 0.8
+      expect(tr).to have_attributes(match_fraction: 0.2, match_multiplier: 0.25)
+    end
+  end
+
   describe "funding_plan" do
     let(:account) { Suma::Fixtures.payment_account.create }
     let(:active_as_of) { apply_at }
@@ -104,7 +139,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
 
     describe "when the trigger is in a program" do
       let!(:program) { Suma::Fixtures.program.create }
-      let!(:tr) { Suma::Fixtures.payment_trigger.matching.with_programs(program).create }
+      let!(:tr) { Suma::Fixtures.payment_trigger.matching.with_programs(program).no_max.create }
 
       it "excludes the trigger if the subject does not have an active enrollment in an overlapping program" do
         unenrolled = Suma::Fixtures.program_enrollment.unenrolled.create(member: account.member, program:)
@@ -120,7 +155,15 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       end
     end
 
-    describe "when max subsidy cents are set" do
+    describe "max subsidy" do
+      it "treats 0 cents as no maximum" do
+        t = Suma::Fixtures.payment_trigger.matching.up_to(money("$0")).create
+        plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$100"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$100"), trigger: t),
+        )
+      end
+
       it "will not subsidize a ledger balance above the maximum" do
         t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
         plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$100"))
@@ -162,6 +205,38 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$3.33"))
       expect(plan.steps).to contain_exactly(
         have_attributes(amount: money("$1.11"), trigger: t),
+      )
+    end
+  end
+
+  describe "Collection" do
+    let(:account) { Suma::Fixtures.payment_account.create }
+    let(:active_as_of) { apply_at }
+
+    it "knows triggers that can contribute to an item with vendor service categories" do
+      cata = Suma::Fixtures.vendor_service_category.create
+      catb = Suma::Fixtures.vendor_service_category.create(parent: cata)
+      catc = Suma::Fixtures.vendor_service_category.create(parent: catb)
+
+      vs = Suma::Fixtures.vendor_service.with_categories(catb).create
+
+      tra = Suma::Fixtures.payment_trigger.matching(1).create
+      tra.originating_ledger.add_vendor_service_category(cata)
+      trb = Suma::Fixtures.payment_trigger.matching(11).create
+      trb.originating_ledger.add_vendor_service_category(catb)
+      trc = Suma::Fixtures.payment_trigger.matching(111).create
+      trc.originating_ledger.add_vendor_service_category(catc)
+
+      coll = described_class.gather(account, active_as_of:)
+      triggers = coll.potentially_contributing_to(vs)
+      expect(triggers).to have_same_ids_as(tra, trb)
+
+      sumtr = described_class.summed(triggers)
+      expect(sumtr).to have_attributes(match_multiplier: 12)
+      expect { sumtr.save_changes }.to raise_error(/can't save frozen object/)
+
+      expect(coll.potentially_contributing_to(vs, summed: true)).to contain_exactly(
+        have_attributes(match_multiplier: 12),
       )
     end
   end

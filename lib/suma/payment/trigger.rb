@@ -35,11 +35,24 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
 
   # Gather a series of triggers applying to a payment account
   # so they can be used multiple times with different amounts.
+  #
   # @param [Suma::Payment::Account] account
+  # @param [Time] active_as_of
+  # @param [Sequel::Dataset] dataset If given, the query can be filtered to just this dataset.
+  #   Useful if wanting to limit the query to triggers for a set of certain programs only.
   # @return [Collection]
-  def self.gather(account, active_as_of:)
-    triggers = self.dataset.active_at(active_as_of).eligible_to(account.member, as_of: active_as_of).all
+  def self.gather(account, active_as_of:, dataset: self.dataset)
+    triggers = dataset.active_at(active_as_of).eligible_to(account.member, as_of: active_as_of).all
     return Collection.new(account:, triggers:)
+  end
+
+  # Return a new instance which sums the match_multiplier, but cannot be saved.
+  # This is helpful to calculate the payer/match fraction for a set of triggers.
+  def self.summed(triggers)
+    r = self.new(match_multiplier: 0)
+    triggers.each { |t| r.match_multiplier += t.match_multiplier }
+    r.freeze
+    return r
   end
 
   class Collection < Suma::TypedStruct
@@ -53,6 +66,27 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     def funding_plan(context, amount)
       steps = self.triggers.map { |t| t.funding_plan(context, self.account, amount) }
       return Plan.new(steps:)
+    end
+
+    # Returnt he triggers which can potentially be used for the purchase of the given item
+    # with vendor service categories (look at the category hierarchy of the trigger's originating ledger).
+    # Note that this should only be used for predictive/suggestive purposes,
+    # since it does NOT take into account amounts on the actual ledger.
+    #
+    # That is, it is possible to say "we will subsidize this service 20%",
+    # but this method should NOT be used to calculate the actual subsidy (use charge contributions for that).
+    #
+    # Note that the sum of all match multipliers can be used to calculate a total subsidy match.
+    # @param has_vnd_svc [Suma::Vendor::HasServiceCategories]
+    # @param summed [true,false] If true, return an array of a single trigger.
+    #   See +Suma::Payment::Trigger.summed+. This is here for convenience.
+    # @return [Array<Suma::Payment::Trigger>]
+    def potentially_contributing_to(has_vnd_svc, summed: false)
+      valid = self.triggers.select do |tr|
+        tr.originating_ledger.can_be_used_to_purchase?(has_vnd_svc)
+      end
+      return [Suma::Payment::Trigger.summed(valid)] if summed
+      return valid
     end
   end
 
@@ -69,14 +103,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       led_ids = ledgers.to_set(&:id)
       executions = self.steps.filter_map do |step|
         next unless led_ids.include?(step.receiving_ledger.id)
-        book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at: at,
-          amount: step.amount,
-          originating_ledger: step.trigger.originating_ledger,
-          receiving_ledger: step.receiving_ledger,
-          memo: step.trigger.memo,
-        )
-        Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: step.trigger)
+        step.trigger.execute(apply_at: at, amount: step.amount, receiving_ledger: step.receiving_ledger)
       end
       return executions
     end
@@ -96,6 +123,27 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     attr_accessor :trigger
   end
 
+  # What fraction is the customer paying? Matching 1-1 is 0.5,
+  # matching $3 for every $1 spent is 0.25,
+  # matching $0.50 for every $1 spent is
+  def payer_fraction = (1.0 / (self.match_multiplier + 1))
+
+  def payer_fraction=(v)
+    # payer_fraction is `pf = 1 / (mm + 1)`
+    # solve instead for mm (algebra 101 but reminders are nice):
+    #   pf * (mm + 1) = 1
+    #   mm + 1 = 1 / pf
+    #   mm = (1 / pf) - 1
+    self.match_multiplier = (1.0 / v) - 1
+  end
+
+  # Inverse of payer_fraction; matching $3 for every $1 spent is 0.75, etc.
+  def match_fraction = 1 - self.payer_fraction
+
+  def match_fraction=(v)
+    self.payer_fraction = (1 - v)
+  end
+
   # @param context [Suma::Payment::CalculationContext]
   # @param [Suma::Payment::Account] account
   # @param [Money] amount
@@ -106,7 +154,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       Money.new(amount.cents * self.match_multiplier, amount.currency).round_to_nearest_cash_value,
       amount.currency,
     )
-    if self.maximum_cumulative_subsidy_cents
+    if self.maximum_cumulative_subsidy_cents.positive?
       max_subsidy_cents = self.maximum_cumulative_subsidy_cents
       cents_received_already = context.cached_get("trigger-funded-amt-from-#{self.id}-to-#{receiving.id}") do
         Suma::Payment::Trigger::Execution.where(trigger: self).
@@ -139,6 +187,19 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       ledger.add_vendor_service_category(vsc)
     end
     return ledger
+  end
+
+  # @return [Suma::Payment::Trigger::Execution]
+  def execute(apply_at:, amount:, receiving_ledger:, **)
+    book_transaction = Suma::Payment::BookTransaction.create(
+      apply_at:,
+      amount:,
+      receiving_ledger:,
+      originating_ledger: self.originating_ledger,
+      memo: self.memo,
+      **,
+    )
+    return Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: self)
   end
 
   # Modify this instance so +active_during_end+ is +interval+ after +active_during_begin+.
