@@ -1,5 +1,5 @@
 import { Logger } from "./logger";
-import get from "lodash/get";
+import isEmpty from "lodash/isEmpty";
 import merge from "lodash/merge";
 
 const logger = new Logger("money");
@@ -16,23 +16,30 @@ const logger = new Logger("money");
  * @param {boolean=} options.rounded If true, use smart rounding.
  *   0 cents will use no extra digits (ie, $1) and nonzero cents
  *   will have 2 extra digits (ie, $1.05). Ie, you'll never get $1.00.
+ * @param {boolean=} options.noCurrency If given, strip off the leading currency symbol.
  * @returns {string}
  */
 export const formatMoney = (entity, options) => {
-  let formatterOpts = null;
-  if (get(options, "rounded")) {
+  const formatterOpts = {};
+  options = options || {};
+  if (options.rounded) {
     const hasCents = entity.cents % 100 > 0;
-    formatterOpts = { minimumFractionDigits: hasCents ? 2 : 0 };
+    formatterOpts.minimumFractionDigits = hasCents ? 2 : 0;
   }
 
   let formatter;
-  if (!formatterOpts) {
+  if (isEmpty(formatterOpts)) {
     formatter = defaultFormatters[entity.currency] || defaultFormatters.default;
   } else {
     const ctor = optionedFormatters[entity.currency] || optionedFormatters.default;
     formatter = ctor(formatterOpts);
   }
-  return formatter.format(entity.cents / 100.0);
+  let r = formatter.format(entity.cents / 100.0);
+  if (options.noCurrency) {
+    // No way to do this with Intl as far as I can tell, so strip non-number/placement chars.
+    r = r.replace(/[^\d.,\- \s]+/g, "").trim();
+  }
+  return r;
 };
 
 /**
