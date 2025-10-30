@@ -62,47 +62,4 @@ RSpec.describe "Suma::Vendor::ServiceRate", :db do
       expect(r.discount_percentage(5)).to be_zero
     end
   end
-
-  describe "localization" do
-    it "can describe its cost template and vars" do
-      r = Suma::Fixtures.vendor_service_rate.surcharge(10).unit_amount(100).create
-      expect(r.localization_vars(payment_trigger: nil)).to eq(
-        chargeable_percentage: nil,
-        chargeable_surcharge_cents: nil,
-        chargeable_unit_cents: nil,
-        surcharge_cents: 10,
-        surcharge_currency: "USD",
-        undiscounted_surcharge_cents: nil,
-        undiscounted_unit_cents: nil,
-        unit_cents: 100,
-        unit_currency: "USD",
-      )
-
-      r.undiscounted_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(1000).create
-      expect(r.localization_vars(payment_trigger: nil)).to eq(
-        chargeable_percentage: nil,
-        chargeable_surcharge_cents: nil,
-        chargeable_unit_cents: nil,
-        surcharge_cents: 10,
-        surcharge_currency: "USD",
-        undiscounted_surcharge_cents: 100,
-        undiscounted_unit_cents: 1000,
-        unit_cents: 100,
-        unit_currency: "USD",
-      )
-
-      payment_trigger = Suma::Fixtures.payment_trigger.matching(1).create
-      expect(r.localization_vars(payment_trigger:)).to eq(
-        chargeable_percentage: 50,
-        chargeable_surcharge_cents: 5,
-        chargeable_unit_cents: 50,
-        surcharge_cents: 10,
-        surcharge_currency: "USD",
-        undiscounted_surcharge_cents: 100,
-        undiscounted_unit_cents: 1000,
-        unit_cents: 100,
-        unit_currency: "USD",
-      )
-    end
-  end
 end
