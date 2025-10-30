@@ -37,6 +37,10 @@ module Suma::Fixtures::PaymentTriggers
     self.maximum_cumulative_subsidy_cents = m.cents
   end
 
+  decorator :no_max do
+    self.maximum_cumulative_subsidy_cents = 0
+  end
+
   decorator :with_programs, presave: true do |*programs|
     programs.each do |c|
       c = Suma::Fixtures.program.create(c) unless c.is_a?(Suma::Program)
