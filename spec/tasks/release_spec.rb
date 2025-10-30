@@ -25,7 +25,7 @@ RSpec.describe Suma::Tasks::Release, :db do
       expect(m.authenticate?("suma1234")).to be(false)
       admin = Suma::Fixtures.member.create(email: "admin@lithic.tech", soft_deleted_at: Time.now)
       invoke_rake_task("release:prepare_prod_db_for_testing")
-      expect(m.refresh.authenticate?("suma1234")).to be(true)
+      expect(m.refresh.authenticate?("Password1!")).to be(true)
       expect(m.stripe_customer_json).to be_nil
       expect(admin.refresh).to_not be_soft_deleted
     end

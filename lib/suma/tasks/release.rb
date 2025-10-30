@@ -26,13 +26,16 @@ class Suma::Tasks::Release < Rake::TaskLib
         # and we'll error trying to load those models.
         require "suma/member"
         m = Suma::Member.new
-        m.password = PASSWORD
+        m.password = Suma::Tasks::Bootstrap::Meta::ADMIN_PASS
         Sequel.connect(Suma::Postgres::Model.uri) do |conn|
           conn[:members].update(
             password_digest: m.password_digest,
             stripe_customer_json: nil,
           )
-          conn[:members].where(email: "admin@lithic.tech").update(soft_deleted_at: nil)
+          conn[:members].where(email: "admin@lithic.tech").update(
+            phone: Suma::Tasks::Bootstrap::Meta::ADMIN_PHONE,
+            soft_deleted_at: nil,
+          )
         end
       end
 
