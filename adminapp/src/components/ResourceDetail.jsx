@@ -63,7 +63,7 @@ export default function ResourceDetail({
     return null;
   }
   let toEdit = canWriteResource(resource) && invokeIfFunc(canEdit, state);
-  if (typeof toEdit !== "string") {
+  if (toEdit && typeof toEdit !== "string") {
     toEdit = resourceEditRoute(resource, state);
   }
 
@@ -94,7 +94,11 @@ export default function ResourceDetail({
       if (!c) {
         return;
       }
-      if (c.type.name === resourceSummaryTypeName || c.type.name === detailGridTypeName) {
+      if (
+        c.type.name === resourceSummaryTypeName ||
+        c.type.name === detailGridTypeName ||
+        c.props.isDetailGrid
+      ) {
         topCards.push(<React.Fragment key={i}>{React.cloneElement(c)}</React.Fragment>);
       } else {
         bottomComponents.push(

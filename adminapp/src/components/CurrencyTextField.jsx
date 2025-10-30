@@ -17,7 +17,7 @@ const CurrencyTextField = React.forwardRef(function CurrencyTextField(
   });
   const currency = currencies.find(({ code }) => money.currency === code);
   const [value, setValue] = React.useState(
-    money.cents ? formatMoney(money, { noCurrency: true }) : ""
+    money ? formatMoney(money, { noCurrency: true }) : ""
   );
 
   function handleChange(e) {
