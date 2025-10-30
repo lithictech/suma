@@ -63,7 +63,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
             btnClasses,
             size === "sm" && "p-1",
             size === "lg" && "p-2",
-            "nowrap"
+            "text-nowrap"
           )}
           disabled={quantity === 0}
           onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
@@ -117,7 +117,11 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       )}
       <Button
         onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
+        className={clsx(
+          btnClasses,
+          quantity === maxQuantity && "disabled",
+          "text-nowrap"
+        )}
         title={t("food.add_to_cart")}
       >
         <img src={addIcon} alt={t("food.add_to_cart")} width="32px" />
