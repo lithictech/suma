@@ -208,13 +208,15 @@ export default function Map() {
       );
     }
     if (selectedMapVehicle) {
-      drawerFooter = loadedVehicle && (
-        <div className="py-3 px-4 small text-bg-primary">
-          {t("mobility.rate_additional_savings", {
-            percentage: loadedVehicle.subsidyMatchPercentage,
-          })}
-        </div>
-      );
+      if (loadedVehicle?.subsidyMatchPercentage > 0) {
+        drawerFooter = (
+          <div className="py-3 px-4 small text-bg-primary">
+            {t("mobility.rate_additional_savings", {
+              percentage: loadedVehicle.subsidyMatchPercentage,
+            })}
+          </div>
+        );
+      }
       return (
         <PreTrip
           loading={selectedMapVehicle && !loadedVehicle}
