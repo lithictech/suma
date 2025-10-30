@@ -10,6 +10,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
   it "can be fixtured" do
     expect(Suma::Fixtures.mobility_trip.create).to be_a(described_class)
+    expect(Suma::Fixtures.mobility_trip.charged.create).to have_attributes(charge: be_a(Suma::Charge))
   end
 
   it_behaves_like "a type with a single image" do
