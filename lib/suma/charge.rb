@@ -63,6 +63,36 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   def discounted_subtotal = self.line_items.sum(Money.new(0), &:amount)
   def discount_amount = self.undiscounted_subtotal - self.discounted_subtotal
 
+  # How much of the paid amount was synchronously funded during checkout?
+  # Note that there is no crediting book transaction associated from the charge (which are all debits)
+  # to the funding transaction (which is a credit)- payments work with ledgers, not linking
+  # charges to orders, so we keep track of this additional data via associated_funding_transaction.
+  def funded_amount = self.associated_funding_transactions.sum(Money.new(0), &:amount)
+
+  # How much in cash did the user pay for this, either real-time or from a cash ledger credit.
+  # Ie, how many of the book transactions for charges came from the cash ledger?
+  def cash_paid_from_ledger = self.payment_group_amounts.fetch(:cash)
+
+  # How much did the user send from ledgers that weren't the cash ledger?
+  # This does NOT capture off-platform transactions ('self data' in charge line items),
+  # so cash_paid + noncash_paid may not equal the paid_cost.
+  def noncash_paid_from_ledger = self.payment_group_amounts.fetch(:noncash)
+
+  # Return a hash of :cash and :noncash payment amounts.
+  def payment_group_amounts
+    cash_led = self.member.payment_account&.cash_ledger
+    cash = Money.new(0)
+    noncash = Money.new(0)
+    self.contributing_book_transactions.each do |bx|
+      if bx.originating_ledger === cash_led
+        cash += bx.amount
+      else
+        noncash += bx.amount
+      end
+    end
+    return {cash:, noncash:}
+  end
+
   #
   # Use PricedItem aliases
   #

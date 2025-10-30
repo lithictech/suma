@@ -102,6 +102,7 @@ RSpec.describe Suma::Analytics, :db do
   describe "Order" do
     it "can denormalize an order" do
       o = Suma::Fixtures.order.create
+      Suma::Fixtures.charge.create(commerce_order: o)
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Order.dataset.all).to contain_exactly(
         include(order_id: o.id, member_id: o.checkout.cart.member_id, funded_cost: 0),

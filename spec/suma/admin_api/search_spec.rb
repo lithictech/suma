@@ -495,7 +495,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
 
     it "returns matching vendor service rates" do
-      rate1 = Suma::Fixtures.vendor_service_rate.create(name: "ratex")
+      rate1 = Suma::Fixtures.vendor_service_rate.create(internal_name: "ratex")
       rate2 = Suma::Fixtures.organization.create(name: "ratey")
 
       post "/v1/search/vendor_service_rates", q: "ratex"

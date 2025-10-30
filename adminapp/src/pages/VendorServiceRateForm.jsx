@@ -26,26 +26,26 @@ export default function VendorServiceRateForm({
     >
       <Stack spacing={2}>
         <TextField
-          {...register("name")}
-          label="Name"
-          name="name"
-          value={resource.name}
+          {...register("internalName")}
+          label="Internal Name"
+          name="internalName"
+          value={resource.internalName}
           required
           fullWidth
           helperText="Label for internal and administrative use."
           onChange={setFieldFromInput}
         />
+        <TextField
+          {...register("externalName")}
+          label="External Name"
+          name="externalName"
+          value={resource.externalName}
+          required
+          fullWidth
+          helperText="Label that members see."
+          onChange={setFieldFromInput}
+        />
         <ResponsiveStack>
-          <CurrencyTextField
-            {...register("unitAmount")}
-            label="Unit Amount"
-            helperText="The cost per 'unit' of the service. For example, this would be the cost per minute of a bike trip."
-            money={resource.unitAmount}
-            required
-            disabled={!isCreate}
-            style={{ flex: 1 }}
-            onMoneyChange={(v) => setField("unitAmount", v)}
-          />
           <CurrencyTextField
             {...register("surcharge")}
             label="Surcharge"
@@ -55,6 +55,16 @@ export default function VendorServiceRateForm({
             disabled={!isCreate}
             style={{ flex: 1 }}
             onMoneyChange={(v) => setField("surcharge", v)}
+          />
+          <CurrencyTextField
+            {...register("unitAmount")}
+            label="Unit Amount"
+            helperText="The cost per 'unit' of the service. For example, this would be the cost per minute of a bike trip."
+            money={resource.unitAmount}
+            required
+            disabled={!isCreate}
+            style={{ flex: 1 }}
+            onMoneyChange={(v) => setField("unitAmount", v)}
           />
         </ResponsiveStack>
         <ResponsiveStack>
@@ -78,22 +88,6 @@ export default function VendorServiceRateForm({
             onChange={setFieldFromInput}
           />
         </ResponsiveStack>
-        <AutocompleteSearch
-          {...register("localizationKey")}
-          label="Localization Key"
-          value={resource.localizationKey || ""}
-          fullWidth
-          required
-          search={(data, ...args) =>
-            api.searchStaticStrings(
-              { ...data, prefix: "rates.", namespace: "strings" },
-              ...args
-            )
-          }
-          style={{ flex: 1 }}
-          searchEmpty
-          onValueSelect={(p) => setField("localizationKey", p.stringKey)}
-        />
         <AutocompleteSearch
           {...register("undiscountedRate")}
           label="Undiscounted Rate"

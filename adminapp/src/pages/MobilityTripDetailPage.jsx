@@ -1,10 +1,9 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import DetailGrid from "../components/DetailGrid";
+import ChargeDetailGrid from "../components/ChargeDetailGrid";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
-import Money from "../shared/react/Money";
 import React from "react";
 
 export default function MobilityTripDetailPage() {
@@ -40,7 +39,7 @@ export default function MobilityTripDetailPage() {
           label: "Service Rate",
           value: (
             <AdminLink model={model.vendorServiceRate}>
-              {model.vendorServiceRate?.name}
+              {model.vendorServiceRate?.internalName}
             </AdminLink>
           ),
         },
@@ -56,33 +55,9 @@ export default function MobilityTripDetailPage() {
         { label: "Start Lng", value: model.beginLng },
         { label: "End Lat", value: model.endLat, hideEmpty: true },
         { label: "End Lng", value: model.endLng, hideEmpty: true },
-        { label: "Total Cost", value: <Money>{model.totalCost}</Money> },
-        { label: "Discount Amount", value: <Money>{model.discountAmount}</Money> },
       ]}
     >
-      {(model) => [
-        model.charge && (
-          <DetailGrid
-            title="Charge"
-            properties={[
-              { label: "ID", value: <AdminLink model={model.charge} /> },
-              {
-                label: "Created At",
-                value: formatDate(model.charge.createdAt),
-              },
-              { label: "Opaque ID", value: model.charge.opaqueId },
-              {
-                label: "Discounted Subtotal",
-                value: <Money>{model.charge.discountedSubtotal}</Money>,
-              },
-              {
-                label: "Undiscounted Subtotal",
-                value: <Money>{model.charge.undiscountedSubtotal}</Money>,
-              },
-            ]}
-          />
-        ),
-      ]}
+      {(model) => [<ChargeDetailGrid isDetailGrid model={model.charge} />]}
     </ResourceDetail>
   );
 }

@@ -470,40 +470,6 @@ export default class MapBuilder {
         }
       })
       .on("locationfound", (location) => {
-        if (!lastLoc) {
-          // Add location centering button
-          this.newLocateControl().addTo(this._map);
-          lastLoc = location.latlng;
-          movementLine = this._l.polyline([[lastLoc.lat, lastLoc.lng]]);
-          this._locationMarker = this._l.animatedMarker(movementLine.getLatLngs(), {
-            icon: this._l.divIcon({
-              className: "mobility-location-marker-icon",
-              iconSize: [16, 16],
-              iconAnchor: [8, 8],
-            }),
-            interactive: false,
-            autoStart: false,
-            duration: 250,
-            distance: 0,
-          });
-          this._locationAccuracyCircle = this._l.circle([lastLoc.lat, lastLoc.lng], {
-            className: "mobility-location-accuracy-circle-transition",
-            radius: location.accuracy,
-            color: "#0495ff",
-            fillColor: "#0495ff",
-            fillOpacity: 0.1,
-            weight: 0,
-          });
-          this._map.addLayer(this._locationAccuracyCircle);
-          this._map.addLayer(this._locationMarker);
-          this._lastLocation = location.latlng;
-          this.setLocationEventHandlers();
-          if (!this._clickedVehicle) {
-            // Prevent centering if vehicle is focused
-            this.centerLocation({ ...lastLoc, targetZoom: this._getLocationZoom() });
-          }
-          onLocationFound(location);
-        }
         if (
           this._locationMarker &&
           this._locationAccuracyCircle &&

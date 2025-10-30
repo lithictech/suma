@@ -326,33 +326,6 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     end
   end
 
-  describe "has charge helpers" do
-    it "knows how much was synchronously funded" do
-      charge = Suma::Fixtures.charge.create
-      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$12.50"))
-      charge.add_associated_funding_transaction(fx)
-      o = Suma::Fixtures.mobility_trip.create
-      expect(o.funded_amount).to cost("$0")
-      o.update(charge:)
-      expect(o.funded_amount).to cost("$12.50")
-    end
-
-    it "knows how much was paid in cash and non-cash" do
-      charge = Suma::Fixtures.charge.create
-      cash = Suma::Payment.ensure_cash_ledger(charge.member)
-      bxcash = Suma::Fixtures.book_transaction.from(cash).create(amount: money("$12.50"))
-      bxnoncash = Suma::Fixtures.book_transaction.from({account: cash.account}).create(amount: money("$5"))
-      charge.add_contributing_book_transaction(bxcash)
-      charge.add_contributing_book_transaction(bxnoncash)
-      Suma::Fixtures.charge_line_item.create(amount: money("$17.75"), charge:)
-      o = Suma::Fixtures.mobility_trip(member: charge.member).create
-      o.update(charge:)
-      expect(o.paid_cost).to cost("$17.75") # Set by line items
-      expect(o.cash_paid).to cost("$12.50") # 12.50 bookx from cash
-      expect(o.noncash_paid).to cost("$5") # 5 from non-book. 3 self/offplatform is not noncash paid.
-    end
-  end
-
   describe "validations" do
     it "fails if the member has multiple ongoing trips" do
       Suma::Fixtures.mobility_trip(member:).ended.create

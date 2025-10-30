@@ -43,4 +43,8 @@ module Suma::Fixtures::MobilityTrips
     self.end_lng ||= self.begin_lng + 0.5
     self.ended_at ||= Time.now
   end
+
+  decorator :charged, presave: true do |opts={}|
+    self.charge = Suma::Fixtures.charge.create(member: self.member, **opts)
+  end
 end

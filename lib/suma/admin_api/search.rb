@@ -230,7 +230,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     post :vendor_service_rates do
       check_admin_role_access!(:read, Suma::Vendor::ServiceRate)
       ds = Suma::Vendor::ServiceRate.dataset
-      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds_search_or_order_by(:internal_name, ds, params)
       ds = ds.limit(15)
       status 200
       present_collection ds, with: SearchVendorServiceRateEntity
@@ -364,8 +364,8 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
-    expose :name
-    expose :name, as: :label
+    expose :internal_name
+    expose :internal_name, as: :label
   end
 
   class SearchCommerceOfferingEntity < BaseEntity

@@ -2,13 +2,11 @@
 
 require "suma/admin_linked"
 require "suma/charge/charger"
-require "suma/charge/has"
 require "suma/mobility"
 require "suma/postgres/model"
 
 class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   include Suma::AdminLinked
-  include Suma::Charge::Has
   include Suma::Image::SingleAssociatedMixin
   include Suma::Postgres::HybridSearch
 

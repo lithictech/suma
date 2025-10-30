@@ -16,7 +16,7 @@ class Suma::Analytics::Trip < Suma::Analytics::Model(Sequel[:analytics][:trips])
     [:vendor_id, [:vendor_service, :vendor_id]],
     [:vendor_name, [:vendor_service, :vendor, :name]],
     :vendor_service_rate_id,
-    [:vendor_service_rate_name, [:vendor_service_rate, :name]],
+    [:vendor_service_rate_name, [:vendor_service_rate, :internal_name]],
 
     :began_at,
     :begin_lat,
@@ -28,9 +28,10 @@ class Suma::Analytics::Trip < Suma::Analytics::Model(Sequel[:analytics][:trips])
     [:undiscounted_cost, [:charge, :undiscounted_cost]],
     [:customer_cost, [:charge, :customer_cost]],
     [:savings, [:charge, :savings]],
-    :funded_cost,
-    :paid_cost,
-    :cash_paid,
-    :noncash_paid,
+
+    [:funded_cost, [:charge, :funded_amount]],
+    [:cash_paid, [:charge, :cash_paid_from_ledger]],
+    [:noncash_paid, [:charge, :noncash_paid_from_ledger]],
+    [:paid_off_platform, [:charge, :off_platform_amount]],
   ]
 end

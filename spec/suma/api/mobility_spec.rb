@@ -280,7 +280,7 @@ RSpec.describe Suma::API::Mobility, :db do
           vendor_service: include(:name, :vendor_name, id: vendor_service.id),
           vehicle_id: b1.vehicle_id,
           loc: [5_000_000, 1_795_000_000],
-          rate_id: program_pricing.vendor_service_rate_id,
+          rate: include(id: program_pricing.vendor_service_rate_id),
           deeplink: nil,
         )
     end
@@ -312,7 +312,6 @@ RSpec.describe Suma::API::Mobility, :db do
     it "returns undiscounted and subsidized pricing info if available" do
       vehicle_fac.loc(0.5, 179.5).ebike.create
       program_pricing.vendor_service_rate.update(
-        localization_key: "hi",
         unit_amount_cents: 50,
         surcharge_cents: 100,
         undiscounted_rate: Suma::Fixtures.vendor_service_rate.unit_amount(100).surcharge(200).create,
@@ -329,19 +328,13 @@ RSpec.describe Suma::API::Mobility, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        rate_id: program_pricing.vendor_service_rate_id,
-        rate_localization_key: "hi",
-        rate_localization_vars: {
-          unit_currency: "USD",
-          surcharge_currency: "USD",
-          unit_cents: 50,
-          surcharge_cents: 100,
-          undiscounted_unit_cents: 100,
-          undiscounted_surcharge_cents: 200,
-          chargeable_percentage: 50,
-          chargeable_unit_cents: 25,
-          chargeable_surcharge_cents: 50,
-        },
+        rate: include(
+          id: program_pricing.vendor_service_rate_id,
+          surcharge: include(cents: 100),
+          unit_amount: include(cents: 50),
+          undiscounted_rate: include(surcharge: include(cents: 200)),
+        ),
+        subsidy_match_percentage: 50,
       )
     end
 

@@ -110,18 +110,18 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         image: self.create_uploaded_file("rayse.png", "image/png"),
       )
 
-      bike_rate = Suma::Vendor::ServiceRate.create(name: "Rayse Bike Rate") do |r|
+      bike_rate = Suma::Vendor::ServiceRate.create(external_name: "Rayse Bike Rate") do |r|
+        r.internal_name = "rayse_bike_rate"
         r.surcharge = Money.new(50)
         r.unit_amount = Money.new(10)
-        r.localization_key = "rates.unlock_and_per_minute"
       end
       bike_vs = Suma::Vendor::Service[internal_name: "rayse_mobility_deeplink"]
       self.bike_program.add_pricing({vendor_service: bike_vs, vendor_service_rate: bike_rate})
 
-      scooter_rate = Suma::Vendor::ServiceRate.create(name: "Lemon Scooter Rate") do |r|
+      scooter_rate = Suma::Vendor::ServiceRate.create(external_name: "Lemon Scooter Rate") do |r|
+        r.internal_name = "lemon_scooter_rate"
         r.surcharge = Money.new(0)
         r.unit_amount = Money.new(7)
-        r.localization_key = "rates.unlock_and_per_minute"
       end
       scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
       self.scooter_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})

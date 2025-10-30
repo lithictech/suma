@@ -48,15 +48,24 @@ Sequel.migration do
       add_column :our_cost_cents, :integer, default: 0, null: false
       add_column :our_cost_currency, :text, default: "USD", null: false
     end
-  end
 
-  # down do
-  #   alter_table(:charges) do
-  #     drop_column :off_platform_amount_cents
-  #     drop_column :off_platform_amount_currency
-  #   end
-  #   create_table(:charge_line_item_self_datas) do
-  #     primary_key :id
-  #   end
-  # end
+    alter_table(:vendor_service_rates) do
+      drop_column :localization_key
+      rename_column :name, :internal_name
+      add_column :external_name, :text, null: true
+    end
+    from(:vendor_service_rates).update(external_name: :internal_name)
+    alter_table(:vendor_service_rates) do
+      set_column_not_null :external_name
+    end
+
+    alter_table(Sequel[:analytics][:trips]) do
+      drop_column :paid_cost
+      add_column :paid_off_platform, :decimal
+    end
+    alter_table(Sequel[:analytics][:orders]) do
+      drop_column :paid_cost
+      add_column :paid_off_platform, :decimal
+    end
+  end
 end

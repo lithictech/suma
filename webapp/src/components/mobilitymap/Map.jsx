@@ -11,6 +11,7 @@ import { MdLink } from "../SumaMarkdown";
 import Drawer from "./Drawer";
 import DrawerContents from "./DrawerContents.jsx";
 import DrawerTitle from "./DrawerTitle.jsx";
+import MicromobilityRate from "./MicromobilityRate.jsx";
 import PreTrip from "./PreTrip";
 import Trip from "./Trip";
 import React from "react";
@@ -182,27 +183,16 @@ export default function Map() {
 
   const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
 
+  let drawerFooter = null;
   const drawerContent = (() => {
     if (error && !selectedMapVehicle) {
       return <FormError error={error} noMargin component="div" />;
     } else if (error) {
       const { provider } = selectedMapVehicle;
-      const locVars = provider.rate.localizationVars;
       return (
         <DrawerContents>
           <DrawerTitle>{provider.name}</DrawerTitle>
-          <p className="text-muted">
-            {t(provider.rate.localizationKey, {
-              surchargeCents: {
-                cents: locVars.surchargeCents,
-                currency: locVars.surchargeCurrency,
-              },
-              unitCents: {
-                cents: locVars.unitCents,
-                currency: locVars.unitCurrency,
-              },
-            })}
-          </p>
+          <MicromobilityRate rate={provider.rate} />
           <FormError error={error} />
         </DrawerContents>
       );
@@ -218,6 +208,13 @@ export default function Map() {
       );
     }
     if (selectedMapVehicle) {
+      drawerFooter = loadedVehicle && (
+        <div className="py-3 px-4 small text-bg-primary">
+          {t("mobility.rate_additional_savings", {
+            percentage: loadedVehicle.subsidyMatchPercentage,
+          })}
+        </div>
+      );
       return (
         <PreTrip
           loading={selectedMapVehicle && !loadedVehicle}
@@ -235,7 +232,7 @@ export default function Map() {
 
   return (
     <div className="position-relative">
-      <Drawer>{drawerContent}</Drawer>
+      <Drawer footer={drawerFooter}>{drawerContent}</Drawer>
       <div ref={mapRef} style={{ height: `calc(100vh - ${navsHeight}px` }} />
     </div>
   );
