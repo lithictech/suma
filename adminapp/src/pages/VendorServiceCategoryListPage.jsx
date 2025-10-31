@@ -1,8 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import Money from "../shared/react/Money";
-import VendorServiceCategoryDetailPage from "./VendorServiceCategoryDetailPage";
 import React from "react";
 
 export default function VendorServiceCategoryListPage() {

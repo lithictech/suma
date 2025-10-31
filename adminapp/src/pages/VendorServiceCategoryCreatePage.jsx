@@ -1,9 +1,6 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
-import config from "../config";
-import VendorServiceCategoryDetailPage from "./VendorServiceCategoryDetailPage";
 import VendorServiceCategoryForm from "./VendorServiceCategoryForm";
-import VendorServiceRateForm from "./VendorServiceRateForm.jsx";
 import React from "react";
 
 export default function VendorServiceCategoryCreatePage() {

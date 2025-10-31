@@ -1,10 +1,5 @@
-import api from "../api";
-import AutocompleteSearch from "../components/AutocompleteSearch";
-import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
-import ResponsiveStack from "../components/ResponsiveStack";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
-import VendorServiceCategoryDetailPage from "./VendorServiceCategoryDetailPage";
 import { Stack, TextField } from "@mui/material";
 import get from "lodash/get";
 import React from "react";

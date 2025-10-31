@@ -1,9 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
-import Money from "../shared/react/Money";
 import React from "react";
 
 export default function VendorServiceCategoryDetailPage() {
