@@ -69,7 +69,7 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
       end
       it = parent
     end
-    return arr if block
+    return arr unless block
   end
 
   def ancestor_of?(other)

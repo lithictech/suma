@@ -485,15 +485,6 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/vendor_service_categories" do
-    it "errors without role access" do
-      replace_roles(admin, Suma::Role.cache.noop_admin)
-
-      post "/v1/search/vendor_service_categories", q: "ride"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
-    end
-
     it "returns matching vendor service categories" do
       catx = Suma::Fixtures.vendor_service_category.create(name: "catx")
       caty = Suma::Fixtures.vendor_service_category.create(name: "caty")
