@@ -44,11 +44,14 @@ Sequel.migration do
     end
     drop_table(:charge_line_item_self_datas)
 
+    # Trips keep track of what we paid, like products.
+    # Only applies to trips we get invoiced for (Lime).
     alter_table(:mobility_trips) do
       add_column :our_cost_cents, :integer, default: 0, null: false
       add_column :our_cost_currency, :text, default: "USD", null: false
     end
 
+    # Rates have names, not localization info.
     alter_table(:vendor_service_rates) do
       drop_column :localization_key
       rename_column :name, :internal_name
@@ -59,13 +62,21 @@ Sequel.migration do
       set_column_not_null :external_name
     end
 
+    # Remove this ambiguous column, and add the new columns.
     alter_table(Sequel[:analytics][:trips]) do
       drop_column :paid_cost
       add_column :paid_off_platform, :decimal
+      add_column :our_cost, :decimal
     end
     alter_table(Sequel[:analytics][:orders]) do
       drop_column :paid_cost
       add_column :paid_off_platform, :decimal
+    end
+
+    # Funding transactions MUST have a book transaction when created,
+    # or we are at risk of creating many conflicting charges while they are processing.
+    alter_table(:payment_funding_transactions) do
+      set_column_not_null :originated_book_transaction_id
     end
   end
 end

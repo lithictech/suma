@@ -46,17 +46,24 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
 
   describe "initiate_refund" do
     let(:member) { Suma::Fixtures.member.create }
-    let(:ledger) { Suma::Payment.ensure_cash_ledger(member) }
-    let(:category) { Suma::Vendor::ServiceCategory.find_or_create(name: "Cash") }
-    let(:fx) do
-      ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
-      fx = Suma::Fixtures.funding_transaction(amount_cents: 750).with_fake_strategy.create
-      fx.strategy.set_response(:originating_instrument_label, ba.simple_label)
-      fx
-    end
+    let!(:ledger) { Suma::Payment.ensure_cash_ledger(member) }
+    let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
     let(:now) { Time.now }
 
+    def create_fake_funding_and_spending(amount:)
+      ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
+      fx = Suma::Fixtures.funding_transaction(amount:, originating_payment_account: member.payment_account).
+        with_fake_strategy.
+        create
+      fx.strategy.set_response(:originating_instrument_label, ba.simple_label)
+      # Create a book transaction simulating the user spending the money they funded
+      Suma::Fixtures.book_transaction.from(ledger).to(platform_ledger).create(amount:)
+      fx
+    end
+
     it "creates a new payout, book transactions, and sets fields" do
+      fx = create_fake_funding_and_spending(amount: money("$7.50"))
+      expect(member.payment_account).to have_attributes(total_balance: cost("$0"))
       px = described_class.initiate_refund(
         fx,
         amount: Money.new(500, "USD"),
@@ -85,12 +92,12 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         receiving_ledger: px.platform_ledger,
       )
       # Balance is $0 because $5 from platform->member->platform.
-      expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$0"))
+      expect(member.payment_account).to have_attributes(total_balance: cost("$0"))
       expect(px.platform_ledger.account).to have_attributes(total_balance: cost("$0"))
     end
 
     it "errors if the amount is greater than the refundable amount" do
-      fx.update(amount: money("$100"))
+      fx = create_fake_funding_and_spending(amount: money("$100"))
       Suma::Fixtures::PayoutTransactions.refund_of(fx, Suma::Fixtures.card.create, amount: money("$5"))
       expect do
         described_class.initiate_refund(
@@ -109,6 +116,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
           originating_card:,
           charge_json: {"id" => "ch123"},
         )
+        fx = create_fake_funding_and_spending(amount: money("7.50"))
         fx.update(fake_strategy: nil, stripe_card_strategy:)
 
         req = stub_request(:post, "https://api.stripe.com/v1/refunds").

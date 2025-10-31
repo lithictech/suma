@@ -68,7 +68,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       transition (any - :needs_review) => :needs_review
     end
 
-    after_transition to: :collecting, do: :after_collecting
     after_transition to: :canceled, do: :after_canceled
 
     after_transition(&:commit_audit_log)
@@ -163,6 +162,17 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # :section: State Machine methods
   #
 
+  # Create the transaction from platform->member immediately on create.
+  # If we don't do this, we would have a cash ledger with a balance
+  # that doesn't reflect what is in-flight, potentially causing additional charges.
+  def before_create
+    self._originate_book_transaction(
+      originating_ledger: self.platform_ledger,
+      receiving_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
+    )
+    super
+  end
+
   # Collect funds if the strategy is ready to collect them.
   # If the collection fails, put this payment into review.
   def collect_funds
@@ -175,23 +185,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       return self.put_into_review("Error collecting funds", exception: e)
     end
     return super
-  end
-
-  # If the collection succeeds, originate a book transaction from the platform cash ledger
-  # into the payment account cash ledger, so these funds are available for use.
-  def after_collecting
-    return unless self.originated_book_transaction.nil?
-    if (member = self.originating_payment_account.member)
-      self.audit_activity(
-        "fundscollecting",
-        actor: member,
-        summary: "FundingTransaction[#{self.id}] started collecting funds",
-      )
-    end
-    self._originate_book_transaction(
-      originating_ledger: self.platform_ledger,
-      receiving_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
-    )
   end
 
   # Whenever we transition to canceled, ensure we reverse any originated book transaction.

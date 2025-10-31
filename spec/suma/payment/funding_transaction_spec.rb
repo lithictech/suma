@@ -10,6 +10,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
     let(:amount) { Money.new(500) }
 
     it "creates a new transaction to the platform ledger" do
+      platform_cash = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])
       xaction = described_class.start_new(pacct, amount:, strategy:, originating_ip: "1.2.3.4", collect: false)
@@ -18,8 +19,11 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         amount: cost("$5"),
         memo: have_attributes(en: "Transfer to suma"),
         originating_payment_account: be === pacct,
-        platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
-        originated_book_transaction: nil,
+        platform_ledger: be === platform_cash,
+        originated_book_transaction: have_attributes(
+          originating_ledger: be === platform_cash,
+          receiving_ledger: be === pacct.cash_ledger!,
+        ),
         strategy: be_a(Suma::Payment::FakeStrategy),
         originating_ip: IPAddr.new("1.2.3.4"),
       )
@@ -153,19 +157,6 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(payment).to transition_on(:collect_funds).to("cleared")
       end
 
-      it "creates an activity if one is not set" do
-        strategy.set_response(:ready_to_collect_funds?, true)
-        strategy.set_response(:collect_funds, nil)
-        strategy.set_response(:funds_cleared?, false)
-        strategy.set_response(:funds_canceled?, false)
-        expect(payment).to transition_on(:collect_funds).to("collecting")
-        expect(member.refresh.activities).to have_length(1)
-
-        payment.status = "created"
-        expect(payment).to transition_on(:collect_funds).to("collecting")
-        expect(member.refresh.activities).to have_length(1)
-      end
-
       it "originates a book transaction when funds are collected" do
         strategy.set_response(:ready_to_collect_funds?, true)
         strategy.set_response(:collect_funds, nil)
@@ -217,15 +208,6 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
             receiving_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
           )
         end
-
-        it "does not reverse a book transaction if none originated" do
-          payment.status = "collecting"
-          expect(payment).to transition_on(:collect_funds).to("canceled")
-          expect(payment).to have_attributes(
-            originated_book_transaction: nil,
-            reversal_book_transaction: nil,
-          )
-        end
       end
     end
 
@@ -238,16 +220,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(payment).to transition_on(:cancel).to("canceled")
       end
 
-      it "does not reverse a book transaction if none originated" do
-        expect(payment).to transition_on(:put_into_review).with("oops").to("needs_review")
-        expect(payment).to transition_on(:cancel).to("canceled")
-        expect(payment).to have_attributes(
-          originated_book_transaction: nil,
-          reversal_book_transaction: nil,
-        )
-      end
-
-      it "reverses an originated book transaction" do
+      it "reverses the originated book transaction" do
         strategy.set_response(:ready_to_collect_funds?, true)
         strategy.set_response(:collect_funds, nil)
         expect(payment).to transition_on(:collect_funds).to("collecting")
