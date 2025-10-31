@@ -385,6 +385,19 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "LedgerCreateForCategory" do
+    it "creates a platform ledger" do
+      expect do
+        Suma::Fixtures.vendor_service_category.create(name: "foo test ledger")
+      end.to perform_async_job(Suma::Async::LedgerCreateForCategory)
+
+      cat = Suma::Vendor::ServiceCategory.find!(name: "foo test ledger")
+      acct = Suma::Payment::Account.lookup_platform_account
+      led = acct.ledgers.find { |led| led.vendor_service_categories.any? { |c| c === cat } }
+      expect(led).to have_attributes(name: "foo test ledger")
+    end
+  end
+
   describe "LimeTripSync", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Lime.trip_email_sync_enabled = true
