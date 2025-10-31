@@ -42,6 +42,17 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
     expect(d1_c2).to be_descendant_of(d1_c2)
   end
 
+  it "can tsort all" do
+    a1 = Suma::Fixtures.vendor_service_category.create(name: "a1")
+    b1_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1, name: "b1")
+    b2_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1, name: "b2")
+    c1_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1, name: "c3")
+    z1 = Suma::Fixtures.vendor_service_category.create(name: "z1")
+    y1_x1 = Suma::Fixtures.vendor_service_category.create(parent: z1, name: "y1")
+
+    expect(described_class.tsort_all).to have_same_ids_as(a1, b1_a1, c1_b1, b2_a1, z1, y1_x1).ordered
+  end
+
   describe "hierarchy_depth" do
     it "is correct" do
       a1 = Suma::Fixtures.vendor_service_category.create(name: "a")
@@ -57,14 +68,16 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
     end
   end
 
-  describe "full_label" do
+  describe "labels" do
     it "renders hierarchical" do
       a = Suma::Fixtures.vendor_service_category(name: "A").create
       b = Suma::Fixtures.vendor_service_category.create(name: "B", parent: a)
       c = Suma::Fixtures.vendor_service_category.create(name: "C", parent: b)
-      expect(a).to have_attributes(full_label: "A")
-      expect(b).to have_attributes(full_label: "A - B")
-      expect(c).to have_attributes(full_label: "A - B - C")
+      d = Suma::Fixtures.vendor_service_category.create(name: "D", parent: c)
+      expect(a).to have_attributes(full_label: "A", hierarchical_label: "A")
+      expect(b).to have_attributes(full_label: "A - B", hierarchical_label: "└ B")
+      expect(c).to have_attributes(full_label: "A - B - C", hierarchical_label: "└─ C")
+      expect(d).to have_attributes(hierarchical_label: "└── D")
     end
   end
 end

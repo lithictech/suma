@@ -30,8 +30,8 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
 
     get :vendor_service_categories do
       check_admin_role_access!(:read, :admin_access)
-      sc = Suma::Vendor::ServiceCategory.dataset.order(:name).all
-      present_collection sc, with: HierarchicalCategoryEntity
+      categories = Suma::Vendor::ServiceCategory.tsort_all
+      present_collection categories, with: HierarchicalCategoryEntity
     end
 
     get :programs do
@@ -73,7 +73,7 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     expose :id
     expose :slug
     expose :name
-    expose :full_label, as: :label
+    expose :hierarchical_label, as: :label
   end
 
   class SlimProgramEntity < BaseEntity

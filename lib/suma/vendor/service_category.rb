@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/postgres/model"
 
 class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_categories)
+  include Suma::AdminLinked
   include TSort
 
   # Because a service category can point to many services and many products,
@@ -21,6 +23,13 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
     end
 
     def cash = self.lookup("Cash")
+
+    def tsort_all
+      roots = self.where(parent_id: nil).all
+      roots.sort_by!(&:name)
+      result = roots.inject([]) { |memo, r| memo.concat(r.tsort.reverse) }
+      return result
+    end
   end
 
   # TSort API: Iterate self and children to go through entire graph.
@@ -32,7 +41,7 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
   end
 
   def tsort_each_child(node, &)
-    return node.children.each(&)
+    return node.children.sort_by(&:name).reverse.each(&)
   end
 
   def hierarchy_depth
@@ -80,6 +89,18 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
     end
     return self.name
   end
+
+  def hierarchical_label
+    depth = self.hierarchy_depth
+    return self.name if depth.zero?
+    chars = +"└"
+    (0..(depth - 2)).each { chars << "─" } if depth > 1
+    chars << " "
+    chars << self.name
+    return chars
+  end
+
+  def rel_admin_link = "/vendor-service-category/#{self.id}"
 
   def before_create
     self.slug ||= Suma.to_slug(self.name)

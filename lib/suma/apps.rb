@@ -70,6 +70,7 @@ require "suma/admin_api/search"
 require "suma/admin_api/static_strings"
 require "suma/admin_api/vendors"
 require "suma/admin_api/vendor_services"
+require "suma/admin_api/vendor_service_categories"
 require "suma/admin_api/vendor_service_rates"
 
 require "suma/sse/middleware"
@@ -134,6 +135,7 @@ module Suma::Apps
     mount Suma::AdminAPI::StaticStrings
     mount Suma::AdminAPI::Vendors
     mount Suma::AdminAPI::VendorServices
+    mount Suma::AdminAPI::VendorServiceCategories
     mount Suma::AdminAPI::VendorServiceRates
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma Admin API"}) if
       Suma::Service.swagger_enabled

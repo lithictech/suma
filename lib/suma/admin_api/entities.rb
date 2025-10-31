@@ -190,7 +190,7 @@ module Suma::AdminAPI::Entities
   end
 
   class VendorServiceCategoryEntity < BaseEntity
-    expose :id
+    include AutoExposeBase
     expose :name
     expose :slug
   end
