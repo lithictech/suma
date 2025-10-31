@@ -517,10 +517,13 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     # Lyft Pass should NEVER generate funding transactions (all paid off-platform)
     # or result in ledger balance changes (subsidy is always created).
     def assert_zero_balances
+      expect(member.payment_account.originated_funding_transactions).to be_empty
       member.payment_account.ledgers.each do |led|
         expect(led).to have_attributes(balance: be_zero)
       end
-      expect(member.payment_account.originated_funding_transactions).to be_empty
+      Suma::Payment::Account.lookup_platform_account.ledgers.each do |led|
+        expect(led).to have_attributes(balance: be_zero)
+      end
     end
 
     it "upserts a trip fully paid by suma's Lyft Pass" do
@@ -675,7 +678,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "creates a subsidy from the mobility ledger and warns in Sentry if there are no valid triggers" do
+    it "creates a subsidy from the fallback ledger and warns in Sentry if there are no valid triggers" do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -687,22 +690,30 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
       expect_sentry_capture(type: :message, arg_matcher: eq("Trip had off platform subsidy but no Payment Triggers"))
       instance.upsert_ride_as_trip(ride, pricing)
+      assert_zero_balances
       mobility = Suma::Vendor::ServiceCategory.lookup("Mobility")
-      platform_ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility)
-      member_ledger = member.payment_account.ensure_ledger_with_category(mobility)
-      expect(platform_ledger.combined_book_transactions).to contain_exactly(
+      child = mobility.children.first
+      uncategorized_subsidy_ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(child)
+      platform_mobility_ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility)
+      member_mobility_ledger = member.payment_account.ensure_ledger_with_category(mobility)
+      # See docs for explanation.
+      expect(Suma::Payment::BookTransaction.all).to contain_exactly(
         have_attributes(
           amount: cost("4.85"),
-          originating_ledger: be === platform_ledger,
-          receiving_ledger: be === member_ledger,
+          originating_ledger: be === platform_mobility_ledger,
+          receiving_ledger: be === uncategorized_subsidy_ledger,
         ),
         have_attributes(
           amount: cost("4.85"),
-          originating_ledger: be === member_ledger,
-          receiving_ledger: be === platform_ledger,
+          originating_ledger: be === uncategorized_subsidy_ledger,
+          receiving_ledger: be === member_mobility_ledger,
+        ),
+        have_attributes(
+          amount: cost("4.85"),
+          originating_ledger: be === member_mobility_ledger,
+          receiving_ledger: be === platform_mobility_ledger,
         ),
       )
-      assert_zero_balances
     end
 
     it "creates a subsidy from the ledger specified by a valid trigger" do

@@ -45,14 +45,33 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
     return d
   end
 
-  def hierarchy_up
+  def hierarchy_up(&block)
     it = self
-    arr = [self]
+    if block
+      yield(self)
+    else
+      arr = [self]
+    end
     while (parent = it.parent)
-      arr << parent
+      if block
+        yield(parent)
+      else
+        arr << parent
+      end
       it = parent
     end
-    return arr
+    return arr if block
+  end
+
+  def ancestor_of?(other)
+    other.hierarchy_up do |h|
+      return true if h === self
+    end
+    return false
+  end
+
+  def descendant_of?(other)
+    return other.ancestor_of?(self)
   end
 
   def full_label

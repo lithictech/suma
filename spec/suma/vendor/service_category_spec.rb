@@ -30,6 +30,16 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
     expect(a1.tsort).to have_same_ids_as(c1_b1, d1_c2, c2_b1, b1_a1, c1_b2, b2_a1, a1).ordered
     expect(b2_a1.tsort).to have_same_ids_as(c1_b2, b2_a1).ordered
     expect(d1_c2.tsort).to have_same_ids_as(d1_c2).ordered
+
+    expect(a1).to be_ancestor_of(a1)
+    expect(a1).to be_ancestor_of(d1_c2)
+    expect(d1_c2).to be_ancestor_of(d1_c2)
+    expect(d1_c2).to_not be_ancestor_of(b2_a1)
+
+    expect(a1).to be_descendant_of(a1)
+    expect(d1_c2).to_not be_descendant_of(c1_b1)
+    expect(d1_c2).to be_descendant_of(c2_b1)
+    expect(d1_c2).to be_descendant_of(d1_c2)
   end
 
   describe "hierarchy_depth" do

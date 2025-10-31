@@ -100,6 +100,21 @@ module Suma::Mobility::TripImporter
     end
   end
 
+  # Return the vendor service category used for fallback subsidies,
+  # where no payment trigger applies but we need to create a subsidy.
+  # We originate subsidies from a dedicated 'uncategorized' category/ledger
+  # under whatever category the actual service uses.
+  def self.create_fallback_subsidy_category(cat)
+    return Suma.cached_get("trip-importer-fallback-category-#{cat.id}") do
+      slug = "uncategorized_subsidy_#{cat.slug}"
+      child = Suma::Vendor::ServiceCategory.find_or_create(slug:) do |sc|
+        sc.parent = cat
+        sc.name = "Uncategorized Subsidy for #{cat.name}"
+      end
+      child
+    end
+  end
+
   # @param receipt [Receipt]
   def self.import(receipt:, program:, logger:)
     trip = receipt.trip
@@ -137,9 +152,10 @@ module Suma::Mobility::TripImporter
   # 'back into' the right subsidy numbers based on how much we subsidized
   # (we only do this to find subsidy based on how much we paid).
   #
-  # If there are no potential triggers, we fall back to creating a subsidy from the mobility ledger,
+  # If there are no potential triggers, we fall back to creating a subsidy from a fallback ledger,
   # without a trigger, since we MUST have a subsidy of the right amount
-  # to avoid charging the member.
+  # to avoid charging the member. See code comments for explanation.
+  #
   # We prefer triggers because this allows more precise control of ledgers,
   # and also shows predictive ride pricing properly.
   #
@@ -160,14 +176,42 @@ module Suma::Mobility::TripImporter
       return
     end
 
-    category = Suma::Vendor::ServiceCategory.lookup("Mobility")
-    originating_ledger = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(category)
-    receiving_ledger = receipt.trip.member.payment_account.ensure_ledger_with_category(category)
+    # We know that the service has a category at this point (or we'd have already errored).
+    # When we pay, charging the trip moves money from a ledger member which can pay for the service,
+    # to a corresponding platform ledger.
+    # However, we want to always send the fallback from a special "subsidy" category ledger
+    # so we can easily keep track of what was categorized.
+    # We don't want to create a corresponding member for the ledger,
+    # both because it looks bad, and also because as a sub-category,
+    # it can't be used to pay for the parent.
+    # So, we create an extra transaction from the platform 'base' ledger (say, "mobility")
+    # to a platform subsidy ledger ("fallback - mobility").
+    # This sets 'mobility' negative and 'fallback - mobility' positive.
+    # Then we create a transaction from the platform 'fallback - mobility' ledger,
+    # to the member's 'mobility' ledger.
+    # So when this fallback logic runs:
+    # - platform 'mobility' is negative.
+    # - platform 'fallback - mobility' is zero.
+    # - member 'mobility' is positive.
+    # When we pay for the trip, money is moved from member to platform 'mobility',
+    # and everything is zero.
+    fallback_cat = self.create_fallback_subsidy_category(receipt.trip.vendor_service.categories.first)
+    parent_cat = fallback_cat.parent
+    platform_fallback = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(fallback_cat)
+    platform_parent = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(parent_cat)
+    member_parent = receipt.trip.member.payment_account.ensure_ledger_with_category(parent_cat)
     Suma::Payment::BookTransaction.create(
       apply_at: receipt.charged_at,
       amount: receipt.subsidized_off_platform_amount,
-      originating_ledger:,
-      receiving_ledger:,
+      originating_ledger: platform_parent,
+      receiving_ledger: platform_fallback,
+      memo: Suma::TranslatedText.create(all: "Rebalancing uncategorized subsidy"),
+    )
+    Suma::Payment::BookTransaction.create(
+      apply_at: receipt.charged_at,
+      amount: receipt.subsidized_off_platform_amount,
+      originating_ledger: platform_fallback,
+      receiving_ledger: member_parent,
       memo: Suma::TranslatedText.create(all: "Subsidy from local funders"),
     )
     Sentry.capture_message("Trip had off platform subsidy but no Payment Triggers") do |scope|
