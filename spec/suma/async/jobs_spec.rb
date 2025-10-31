@@ -684,10 +684,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
 
     def prepare_stripe_req
-      cust = load_fixture_data("stripe/customer")
-      cust["sources"]["data"] << expiring_card.stripe_json.dup
-      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-          to_return(json_response(cust))
+      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner/sources/card_1LxbQmAqRmWQecssc7Yf9Wr7").
+          to_return(json_response(expiring_card.stripe_json))
     end
 
     it "syncs external and dispatches a message to the member" do
