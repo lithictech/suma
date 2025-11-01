@@ -139,6 +139,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.lemon_scooter_category),
         receiving_ledger_name: "Lemon Scooters Ride Subsidies",
         receiving_ledger_contribution_text: self.ttext("Lemon Scooters"),
+        maximum_cumulative_subsidy_cents: 0,
       )
 
       Suma::Mobility::GbfsFeed.create(

@@ -59,6 +59,7 @@ RSpec.describe Suma::Tasks::Mobility, :db do
       Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       va.add_registration(external_program_id: mc.email)
       va.configuration.add_program(program)
+      import_localized_backend_seeds
     end
 
     it "runs the sync using ARGF" do

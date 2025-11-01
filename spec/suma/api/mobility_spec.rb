@@ -448,6 +448,10 @@ RSpec.describe Suma::API::Mobility, :db do
   describe "POST /v1/mobility/end_trip" do
     let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
 
+    before(:each) do
+      import_localized_backend_seeds
+    end
+
     it "ends the active trip for the resident" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(member:)
       expect(trip).to_not be_ended

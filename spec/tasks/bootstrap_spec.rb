@@ -7,6 +7,7 @@ RSpec.describe Suma::Tasks::Bootstrap, :db do
   include Suma::SpecHelpers::Rake
 
   it "runs successfully" do
+    import_localized_backend_seeds
     stub_const("Suma::RACK_ENV", "development")
     req_ip = stub_request(:get, "http://whatismyip.akamai.com/").
       to_return(status: 200, body: "1.1.1.1")

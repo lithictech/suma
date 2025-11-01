@@ -404,6 +404,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lime.trip_report_sync_enabled = true
       Suma::Lime.trip_report_from_email = "from@mysuma.org"
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
+      import_localized_backend_seeds
     end
 
     it "syncs trips from receipt emails and reports" do
