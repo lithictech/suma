@@ -353,8 +353,6 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       post "/v1/members/#{member.id}/notes/#{note.id}", content: "hello"
 
       expect(last_response).to have_status(200)
-      puts admin.values
-      puts last_response_json_body
       expect(last_response).to have_json_body.
         that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
     end
