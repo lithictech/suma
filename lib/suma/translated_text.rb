@@ -8,10 +8,9 @@ class Suma::TranslatedText < Suma::Postgres::Model(:translated_texts)
 
   class << self
     def empty
-      @empty ||= Suma.cached_get("translated_text_empty") do
+      return Suma.cached_get("translated_text_empty") do
         self.find_or_create(en: "", es: "")
       end
-      return @empty
     end
   end
 

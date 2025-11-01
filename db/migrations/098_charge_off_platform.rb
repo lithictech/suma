@@ -73,10 +73,43 @@ Sequel.migration do
       add_column :paid_off_platform, :decimal
     end
 
+    # Only off-platform fundings can fail to originate a book transaction.
+    # But we have some funding transactions without them as a result of previous bugs.
+    # Run this in a console before the migration:
+    from(:payment_funding_transactions).
+      where(originated_book_transaction_id: nil, off_platform_strategy_id: nil).
+      each do |row|
+      associated_vendor_service_category = from(:vendor_service_categories).
+        where(slug: "cash").
+        first
+      receiving_ledger = from(:payment_ledgers).
+        where(name: "Cash", account_id: row[:originating_payment_account_id]).
+        first
+      require "suma/secureid"
+      bx_params = {
+        amount_cents: row[:amount_cents],
+        amount_currency: row[:amount_currency],
+        apply_at: row[:created_at],
+        originating_ledger_id: row[:platform_ledger_id],
+        receiving_ledger_id: receiving_ledger.fetch(:id),
+        associated_vendor_service_category_id: associated_vendor_service_category.fetch(:id),
+        memo_id: row[:memo_id],
+        opaque_id: Suma::Secureid.new_opaque_id("bx"),
+      }
+      bx_id = from(:payment_book_transactions).insert(bx_params)
+      from(:payment_funding_transactions).where(id: row[:id]).update(
+        originated_book_transaction_id: bx_id,
+      )
+    end
+
     # Funding transactions MUST have a book transaction when created,
     # or we are at risk of creating many conflicting charges while they are processing.
     alter_table(:payment_funding_transactions) do
-      set_column_not_null :originated_book_transaction_id
+      add_constraint(
+        :originated_book_transaction_off_platform_consistency,
+        ((Sequel[:off_platform_strategy_id] =~ nil) & (Sequel[:originated_book_transaction_id] !~ nil)) |
+        ((Sequel[:off_platform_strategy_id] !~ nil) & (Sequel[:originated_book_transaction_id] =~ nil)),
+      )
     end
   end
 end

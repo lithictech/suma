@@ -321,9 +321,29 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
 
   describe "validations" do
     it "requires a strategy" do
-      payment = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      expect { payment.save_changes }.to_not raise_error
-      expect { payment.update(fake_strategy: nil) }.to raise_error(/strategy is not available/i)
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      expect { fx.save_changes }.to_not raise_error
+      expect { fx.update(fake_strategy: nil) }.to raise_error(/strategy is not available/i)
+    end
+
+    it "requires an originated book transaction if not using an off platform strategy" do
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+
+      fx.originated_book_transaction = nil
+      expect do
+        fx.save_changes
+      end.to raise_error(Sequel::CheckConstraintViolation, /originated_book_transaction_off_platform_consistency/)
+
+      fx.refresh
+      fx.fake_strategy = nil
+      fx.off_platform_strategy = Suma::Fixtures.off_platform_payment_strategy.create
+      fx.originated_book_transaction = nil
+      expect { fx.save_changes }.to_not raise_error
+
+      fx.originated_book_transaction = Suma::Fixtures.book_transaction.create
+      expect do
+        fx.save_changes
+      end.to raise_error(Sequel::CheckConstraintViolation, /originated_book_transaction_off_platform_consistency/)
     end
   end
 

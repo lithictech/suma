@@ -8,7 +8,7 @@ RSpec.describe "Suma::TranslatedText", :db do
       e1 = described_class.empty
       expect(e1).to_not be_new
       e2 = described_class.empty
-      expect(e1).to be(e2)
+      expect(e1).to be === e2
     end
   end
 

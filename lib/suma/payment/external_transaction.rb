@@ -49,7 +49,7 @@ module Suma::Payment::ExternalTransaction
         type_match = details[:class_name] == strat.class.name
         next unless type_match
         self.associations[details[:name]] = strat
-        self["#{details[:name]}_id"] = strat.id
+        self.send("#{details[:name]}_id=", strat.id)
         strat.associations[:payment] = self
         # rubocop:disable Lint/NonLocalExitFromIterator
         return

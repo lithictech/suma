@@ -166,10 +166,12 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # If we don't do this, we would have a cash ledger with a balance
   # that doesn't reflect what is in-flight, potentially causing additional charges.
   def before_create
-    self._originate_book_transaction(
-      originating_ledger: self.platform_ledger,
-      receiving_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
-    )
+    if self.off_platform_strategy_id.nil?
+      self._originate_book_transaction(
+        originating_ledger: self.platform_ledger,
+        receiving_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
+      )
+    end
     super
   end
 
