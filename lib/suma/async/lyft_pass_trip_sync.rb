@@ -10,6 +10,7 @@ class Suma::Async::LyftPassTripSync
   splay 5.seconds
 
   def _perform
+    return unless Suma::Lyft.pass_sync_enabled
     return if Suma::Lyft.pass_email.blank?
     lp = Suma::Lyft::Pass.from_config
     lp.authenticate

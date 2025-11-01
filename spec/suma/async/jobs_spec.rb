@@ -472,6 +472,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "LyftPassTripSync", reset_configuration: Suma::Lyft do
     it "syncs trips" do
+      Suma::Lyft.pass_sync_enabled = true
       Suma::Lyft.pass_authorization = "Basic xyz"
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
