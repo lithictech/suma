@@ -122,6 +122,10 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     let!(:cash) { Suma::Fixtures.vendor_service_category.cash.create }
     let!(:mobility) { Suma::Fixtures.vendor_service_category.mobility.create }
 
+    before(:each) do
+      import_localized_backend_seeds
+    end
+
     it "ends the trip and creates a charge using the returned cost" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(member:, vendor_service:)
       trip.end_trip(lat: 1, lng: 2, now: Time.now)
@@ -244,7 +248,10 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       result = Suma::Mobility::EndTripResult.new(
         undiscounted_cost: money("$6"),
         charge_at: Time.now,
-        line_items: [Suma::Mobility::EndTripResult::LineItem.new(memo: "hi", amount: money("$2"))],
+        line_items: [Suma::Mobility::EndTripResult::LineItem.new(
+          memo: Suma::Fixtures.translated_text.create(en: "hi", es: "hola"),
+          amount: money("$2"),
+        )],
       )
       trip.charge_trip(result)
       expect(trip).to be_saved
@@ -253,7 +260,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$6"),
       )
       expect(trip.charge.line_items).to contain_exactly(
-        have_attributes(amount: cost("$2"), memo: have_attributes(en: "hi")),
+        have_attributes(amount: cost("$2"), memo: have_attributes(en: "hi", es: "hola")),
       )
       expect(trip.charge.contributing_book_transactions).to contain_exactly(
         have_attributes(

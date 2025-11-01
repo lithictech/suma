@@ -29,7 +29,7 @@ module Suma::Mobility
 
   class EndTripResult < Suma::TypedStruct
     class LineItem < Suma::TypedStruct
-      # @return [String]
+      # @return [Suma::TranslatedText]
       attr_reader :memo
 
       # @return [Money]

@@ -120,7 +120,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     )
     charge = charger.charge
     result.line_items.each do |li|
-      charge.add_line_item(amount: li.amount, memo: Suma::TranslatedText.create(all: li.memo))
+      li.memo.save_changes # In case memo is a new instance, save it.
+      charge.add_line_item(amount: li.amount, memo: li.memo)
     end
   end
 

@@ -332,6 +332,10 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     let(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create }
     let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
 
+    before(:each) do
+      import_localized_backend_seeds
+    end
+
     it "fetches and upserts rides" do
       insert_valid_credential
       program_req = stub_request(:post, "https://www.lyft.com/api/rideprograms/ride-program").
@@ -487,6 +491,10 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       Suma::Fixtures.card.member(m).create
       Suma::Fixtures.program_enrollment.create(program:, member: m)
       m
+    end
+
+    before(:each) do
+      import_localized_backend_seeds
     end
 
     def ride_json(

@@ -24,6 +24,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       va.add_registration(external_program_id: mc.email)
       va.configuration.add_program(program)
+      import_localized_backend_seeds
     end
 
     it "creates trips from csv rows" do
@@ -266,6 +267,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       Suma::Lime.trip_report_vendor_configuration_id = va.configuration_id
       Suma::Lime.trip_report_from_email = "from@mysuma.org"
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
+      import_localized_backend_seeds
     end
 
     after(:each) do

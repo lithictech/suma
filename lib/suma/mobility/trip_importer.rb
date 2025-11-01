@@ -86,13 +86,14 @@ module Suma::Mobility::TripImporter
       unless self.unlock_fee.nil?
         r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
           amount: self.unlock_fee,
-          memo: "Unlock fee",
+          memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_unlock_fee"),
         )
       end
       unless self.per_minute_fee.nil?
         r.line_items << Suma::Mobility::EndTripResult::LineItem.new(
           amount: self.per_minute_fee * self.trip.duration_minutes,
-          memo: "Riding - #{self.per_minute_fee.format}/min (#{trip.duration_minutes} min)",
+          memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_ride_cost_alt").
+            format(unit_amount: self.per_minute_fee.format, minutes: trip.duration_minutes),
         )
       end
       r.line_items.concat(self.misc_line_items)
@@ -205,14 +206,14 @@ module Suma::Mobility::TripImporter
       amount: receipt.subsidized_off_platform_amount,
       originating_ledger: platform_parent,
       receiving_ledger: platform_fallback,
-      memo: Suma::TranslatedText.create(all: "Rebalancing uncategorized subsidy"),
+      memo: Suma::I18n::StaticString.find_text("backend", "subsidy_rebalancing_uncategorized"),
     )
     Suma::Payment::BookTransaction.create(
       apply_at: receipt.charged_at,
       amount: receipt.subsidized_off_platform_amount,
       originating_ledger: platform_fallback,
       receiving_ledger: member_parent,
-      memo: Suma::TranslatedText.create(all: "Subsidy from local funders"),
+      memo: Suma::I18n::StaticString.find_text("backend", "subsidy_default"),
     )
     Sentry.capture_message("Trip had off platform subsidy but no Payment Triggers") do |scope|
       scope.set_extras(

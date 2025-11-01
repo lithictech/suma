@@ -53,6 +53,11 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
           where { modified_at > since }.
           select_map(:namespace)
     end
+
+    def find_text(namespace, key)
+      ss = self.find!(namespace:, key:)
+      return ss.text
+    end
   end
 
   def fqn = "#{self.namespace}.#{self.key}"

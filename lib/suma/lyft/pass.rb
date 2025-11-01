@@ -413,7 +413,8 @@ class Suma::Lyft::Pass
         # but we CAN itemize credits, since we aren't adding any of our own
         # (the lyft pass portion is handled as a subsidy).
         receipt.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
-          amount:, memo: li.fetch("title"),
+          amount:,
+          memo: Suma::TranslatedText.new(all: li.fetch("title")),
         )
       end
     end
@@ -429,7 +430,8 @@ class Suma::Lyft::Pass
       # The ride cost exactly what we expect, do not create an additional line item.
     elsif additional_charges.positive?
       receipt.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
-        amount: additional_charges, memo: "Additional charges",
+        amount: additional_charges,
+        memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_additional_charges"),
       )
     else
       Sentry.capture_message("Lyft Pass charge total less than expected") do |scope|
@@ -442,7 +444,9 @@ class Suma::Lyft::Pass
         )
       end
       receipt.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
-        amount: additional_charges, memo: "Lyft discount",
+        amount: additional_charges,
+        memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_additional_discount").
+          format(vendor: "Lyft"),
       )
     end
 

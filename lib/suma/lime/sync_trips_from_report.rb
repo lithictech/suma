@@ -103,7 +103,7 @@ class Suma::Lime::SyncTripsFromReport
       # We do NOT want to charge, or claim we charged, the user anything in this case.
       r.undiscounted_subtotal = Money.zero
       r.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
-        memo: "Ride cancelled",
+        memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_ride_canceled"),
         amount: Money.zero,
       )
     else

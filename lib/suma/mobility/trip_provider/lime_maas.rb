@@ -48,11 +48,12 @@ class Suma::Mobility::TripProvider::LimeMaas
       undiscounted_cost: trip.vendor_service_rate.calculate_undiscounted_total(minutes),
       line_items: [
         Suma::Mobility::EndTripResult::LineItem.new(
-          memo: "Unlock fee",
+          memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_unlock_fee"),
           amount: trip.vendor_service_rate.surcharge,
         ),
         Suma::Mobility::EndTripResult::LineItem.new(
-          memo: "Ride cost (#{trip.vendor_service_rate.unit_amount}/min for #{minutes} min)",
+          memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_ride_cost").
+            format(unit_amount: trip.vendor_service_rate.unit_amount, minutes:),
           amount: trip_amount,
         ),
       ],

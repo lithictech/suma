@@ -63,6 +63,7 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
   end
 
   it "can stop an ongoing trip" do
+    import_localized_backend_seeds
     member.update(lime_user_id: "myuser")
     rate = Suma::Fixtures.vendor_service_rate.surcharge(100).discounted_by(0.5).create
     fake_end = Time.parse("2025-09-17T09:43:05Z")
@@ -87,8 +88,8 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
     expect(instance.end_trip(trip)).to have_attributes(
       undiscounted_cost: cost("$2"),
       line_items: contain_exactly(
-        have_attributes(memo: "Unlock fee", amount: cost("$1")),
-        have_attributes(memo: "Ride cost (0.00/min for 5 min)", amount: cost("$0")),
+        have_attributes(memo: have_attributes(en: "Unlock fee"), amount: cost("$1")),
+        have_attributes(memo: have_attributes(en: "Ride cost (0.00/min for 5 min)"), amount: cost("$0")),
       ),
     )
     expect(stop_req).to have_been_made
