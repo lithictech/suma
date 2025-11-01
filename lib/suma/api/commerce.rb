@@ -456,11 +456,8 @@ class Suma::API::Commerce < Suma::API::V1
     expose :handling, with: MoneyEntity, &self.delegate_to(:checkout, :handling)
     expose :taxable_cost, with: MoneyEntity, &self.delegate_to(:checkout, :taxable_cost)
     expose :tax, with: MoneyEntity, &self.delegate_to(:checkout, :tax)
-    expose :funded_amount, with: MoneyEntity
-    expose :paid_amount, with: MoneyEntity
-    expose :funding_transactions, with: OrderHistoryFundingTransactionEntity do |inst|
-      inst.charges.map(&:associated_funding_transactions).flatten
-    end
+    expose :funding_transactions, with: OrderHistoryFundingTransactionEntity,
+           &self.delegate_to(:charge, :associated_funding_transactions, safe_with_default: [])
   end
 
   # We can assume the user is going to most often view their very recent history,

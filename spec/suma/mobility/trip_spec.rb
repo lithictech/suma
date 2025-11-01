@@ -10,6 +10,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
   it "can be fixtured" do
     expect(Suma::Fixtures.mobility_trip.create).to be_a(described_class)
+    expect(Suma::Fixtures.mobility_trip.charged.create).to have_attributes(charge: be_a(Suma::Charge))
   end
 
   it_behaves_like "a type with a single image" do
@@ -118,8 +119,12 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   describe "end_trip" do
     let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_maas.create(external_name: "Super Scoot") }
     let!(:mobility_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
-    let!(:cash) { Suma::Vendor::ServiceCategory.find!(slug: "cash") }
-    let!(:mobility) { Suma::Vendor::ServiceCategory.find!(slug: "mobility") }
+    let!(:cash) { Suma::Fixtures.vendor_service_category.cash.create }
+    let!(:mobility) { Suma::Fixtures.vendor_service_category.mobility.create }
+
+    before(:each) do
+      import_localized_backend_seeds
+    end
 
     it "ends the trip and creates a charge using the returned cost" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(member:, vendor_service:)
@@ -128,49 +133,47 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip.charge).to have_attributes(
         undiscounted_subtotal: cost("$0"),
         discounted_subtotal: cost("$0"),
+        contributing_book_transactions: [],
       )
-      expect(trip.charge.line_items).to be_empty
+      expect(trip.charge.line_items).to contain_exactly(
+        have_attributes(amount: cost("$0"), memo: have_attributes(en: "Unlock fee")),
+        have_attributes(amount: cost("$0"), memo: have_attributes(en: "Ride cost (0.00/min for 1 min)")),
+      )
     end
 
-    it "charges the mobility ledger if there is a balance" do
-      rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
-      Suma::Fixtures.book_transaction.to(member.payment_account.mobility_ledger!).create(amount: money("$1"))
+    it "charges the service's category ledgers if there is a balance" do
+      rate = Suma::Fixtures.vendor_service_rate.surcharge(200).unit_amount(20).discounted_by(0.5).create
+      member_mobility_ledger = member.payment_account.ensure_ledger_with_category(mobility)
+      Suma::Fixtures.book_transaction.to(member_mobility_ledger).create(amount: money("$1"))
       trip = Suma::Fixtures.mobility_trip(vendor_service:).
         ongoing.
         create(began_at: t - 211.seconds, vendor_service_rate: rate, member:)
       trip.end_trip(lat: 1, lng: 2, now: t)
       expect(trip.refresh).to have_attributes(end_lat: 1, end_lng: 2)
       expect(trip.charge).to have_attributes(
-        undiscounted_subtotal: cost("$0.80"),
-        discounted_subtotal: cost("$0.80"),
+        discounted_subtotal: cost("$2.80"),
+        undiscounted_subtotal: cost("$5.60"),
       )
-      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
+      expect(trip.charge.line_items).to contain_exactly(
+        have_attributes(amount: cost("$2"), memo: have_attributes(en: "Unlock fee")),
+        have_attributes(amount: cost("$0.80"), memo: have_attributes(en: "Ride cost (0.20/min for 4 min)")),
+      )
+      expect(trip.charge.contributing_book_transactions).to contain_exactly(
         have_attributes(
-          originating_ledger: member.payment_account.mobility_ledger!,
+          originating_ledger: member_mobility_ledger,
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility),
-          amount: cost("$0.80"),
+          amount: cost("$1.00"),
           memo: have_attributes(en: start_with("Super Scoot - trp_")),
           associated_vendor_service_category: be === mobility,
         ),
-      )
-    end
-
-    it "charges the cash ledger if the mobility ledger cannot cover the full amount" do
-      rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
-      trip = Suma::Fixtures.mobility_trip(vendor_service:).
-        ongoing.
-        create(began_at: t - 211.seconds, vendor_service_rate: rate, member:)
-      trip.end_trip(lat: 1, lng: 2, now: t)
-      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
         have_attributes(
           originating_ledger: member.payment_account.cash_ledger!,
-          receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
-          amount: cost("$0.80"),
+          receiving_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+          amount: cost("$1.80"),
           memo: have_attributes(en: start_with("Super Scoot - trp_")),
           associated_vendor_service_category: be === cash,
         ),
       )
-      expect(trip.charge.associated_funding_transactions).to be_empty
     end
 
     describe "when there is a remaining cost to charge the member" do
@@ -187,21 +190,25 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
         trip.end_trip(lat: 1, lng: 2, now: t)
         expect(trip.charge.associated_funding_transactions).to contain_exactly(
-          have_attributes(amount: cost("$185")),
+          have_attributes(status: "created", amount: cost("$185")),
         )
-        expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
+        expect(trip.charge.contributing_book_transactions).to contain_exactly(
           have_attributes(
             originating_ledger: member.payment_account.cash_ledger!,
             receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
-            amount: cost("$15"),
+            amount: cost("$200"),
             memo: have_attributes(en: start_with("Super Scoot - trp_")),
             associated_vendor_service_category: be === cash,
           ),
         )
       end
 
-      it "errors if there is no payment instrument" do
-        expect { trip.end_trip(lat: 1, lng: 2, now: Time.now) }.to raise_error(/has no payment instrument/)
+      it "creates a support ticket if money is required and there is no payment instrument" do
+        trip.end_trip(lat: 1, lng: 2, now: Time.now)
+        expect(trip.charge).to be_a(Suma::Charge)
+        expect(Suma::Support::Ticket.all).to contain_exactly(
+          have_attributes(body: /could not be charged/),
+        )
       end
     end
 
@@ -214,15 +221,17 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         create(began_at: 6.minutes.ago, vendor_service:, vendor_service_rate: rate, member:)
       trip.end_trip(lat: 1, lng: 2, now: Time.now)
       expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-      expect(trip.charge.line_items).to be_empty
+      expect(trip.charge.contributing_book_transactions).to be_empty
+      expect(trip.charge.associated_funding_transactions).to be_empty
+      expect(trip.charge.line_items).to have_length(2)
     end
   end
 
-  describe "import_trip" do
+  describe "charge_trip" do
     let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
     let(:began_at) { 30.minutes.ago }
 
-    it "imports and charges the given trip" do
+    it "charges the trip" do
       trip = described_class.new(
         member:,
         vehicle_id: "abcd",
@@ -236,11 +245,41 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         end_lng: 4,
         ended_at: Time.now,
       )
-      charge = described_class.import_trip(trip, cost: money("$0"), undiscounted_subtotal: money("$6"))
+      result = Suma::Mobility::EndTripResult.new(
+        undiscounted_cost: money("$6"),
+        charge_at: Time.now,
+        line_items: [Suma::Mobility::EndTripResult::LineItem.new(
+          memo: Suma::Fixtures.translated_text.create(en: "hi", es: "hola"),
+          amount: money("$2"),
+        )],
+      )
+      trip.charge_trip(result)
       expect(trip).to be_saved
-      expect(charge).to have_attributes(
+      expect(trip.charge).to have_attributes(
+        discounted_subtotal: cost("$2"),
         undiscounted_subtotal: cost("$6"),
       )
+      expect(trip.charge.line_items).to contain_exactly(
+        have_attributes(amount: cost("$2"), memo: have_attributes(en: "hi", es: "hola")),
+      )
+      expect(trip.charge.contributing_book_transactions).to contain_exactly(
+        have_attributes(
+          originating_ledger: member.payment_account.cash_ledger!,
+          receiving_ledger: Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+          amount: cost("$2"),
+        ),
+      )
+    end
+
+    it "raises if the trip cost is negative" do
+      result = Suma::Mobility::EndTripResult.new(
+        charge_at: Time.now,
+        undiscounted_cost: money("$6"),
+        line_items: [Suma::Mobility::EndTripResult::LineItem.new(memo: "hi", amount: money("-$2"))],
+      )
+      expect do
+        described_class.new.charge_trip(result)
+      end.to raise_error(Suma::InvalidPrecondition, /negative trip cost/)
     end
   end
 
@@ -292,33 +331,6 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip).to have_attributes(duration: 120, duration_minutes: 2)
       trip.ended_at = trip.began_at + 121
       expect(trip).to have_attributes(duration: 121, duration_minutes: 3)
-    end
-  end
-
-  describe "has charge helpers" do
-    it "knows how much was synchronously funded" do
-      charge = Suma::Fixtures.charge.create
-      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$12.50"))
-      charge.add_associated_funding_transaction(fx)
-      o = Suma::Fixtures.mobility_trip.create
-      expect(o.funded_amount).to cost("$0")
-      o.update(charge:)
-      expect(o.funded_amount).to cost("$12.50")
-    end
-
-    it "knows how much was paid in cash and non-cash" do
-      charge = Suma::Fixtures.charge.create
-      cash = Suma::Payment.ensure_cash_ledger(charge.member)
-      bxcash = Suma::Fixtures.book_transaction.from(cash).create(amount: money("$12.50"))
-      bxnoncash = Suma::Fixtures.book_transaction.from({account: cash.account}).create(amount: money("$5"))
-      charge.add_line_item(book_transaction: bxcash)
-      charge.add_line_item(book_transaction: bxnoncash)
-      Suma::Fixtures.charge_line_item.self_data(amount: money("$3")).create(charge:)
-      o = Suma::Fixtures.mobility_trip(member: charge.member).create
-      o.update(charge:)
-      expect(o.paid_cost).to cost("$20.50") # 12.50 + 5 + 3
-      expect(o.cash_paid).to cost("$12.50") # 12.50 bookx from cash
-      expect(o.noncash_paid).to cost("$5") # 5 from non-book. 3 self/offplatform is not noncash paid.
     end
   end
 

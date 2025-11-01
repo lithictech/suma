@@ -42,6 +42,7 @@ export default function PaymentTriggerDetailPage() {
           ),
         },
         { label: "Match Multiplier", value: model.matchMultiplier },
+        { label: "Match Percentage", value: Math.round(model.matchFraction * 100) + "%" },
         {
           label: "Max Subsidy",
           value: formatMoney(intToMoney(model.maximumCumulativeSubsidyCents)),

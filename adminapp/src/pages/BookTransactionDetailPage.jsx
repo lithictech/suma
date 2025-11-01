@@ -68,7 +68,7 @@ export default function BookTransactionDetailPage() {
         <RelatedList
           title="Charges"
           headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
-          rows={model.charges}
+          rows={[model.chargeContributedTo].filter(Boolean)}
           toCells={(row) => [
             <AdminLink model={row} />,
             formatDate(row.createdAt),

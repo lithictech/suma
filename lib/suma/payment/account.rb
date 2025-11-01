@@ -27,9 +27,6 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
     ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "cash"))
   end
-  one_to_one :mobility_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
-    ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "mobility"))
-  end
   many_through_many :all_book_transactions,
                     [
                       [:payment_ledgers, :account_id, :id],
@@ -54,11 +51,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   def self.lookup_platform_vendor_service_category_ledger(cat)
     return Suma.cached_get("platform_payment_ledger_for_category_#{cat.id}") do
       pa = self.lookup_platform_account
-      pa.lock!
-      unless (led = pa.ledgers_dataset[vendor_service_categories: cat])
-        led = pa.add_ledger({currency: Suma.default_currency, name: cat.name})
-        led.add_vendor_service_category(cat)
-      end
+      led = pa.ensure_ledger_with_category(cat)
       led
     end
   end
@@ -97,9 +90,15 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     end
   end
 
-  def mobility_ledger!
-    return self.mobility_ledger if self.mobility_ledger
-    raise "PaymentAccount[#{self.id}] has no mobility ledger"
+  def ensure_ledger_with_category(cat)
+    led = self.ledgers.find { |led| led.vendor_service_categories.any? { |c| c === cat } }
+    return led if led
+    self.db.transaction do
+      self.lock!
+      led = self.add_ledger({currency: Suma.default_currency, name: cat.name})
+      led.add_vendor_service_category(cat)
+    end
+    return led
   end
 
   # Find ledgers that have overlapping categories, and their contributions towards the charge amount.

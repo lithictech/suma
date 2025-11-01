@@ -3,44 +3,40 @@
 RSpec.describe "Suma::Charge", :db do
   let(:described_class) { Suma::Charge }
 
-  describe "line items" do
-    it "returns line items with book transactions" do
-      charge = Suma::Fixtures.charge.create
-      li1 = charge.add_line_item(book_transaction: Suma::Fixtures.book_transaction.create)
-      li2 = charge.add_line_item(book_transaction: Suma::Fixtures.book_transaction.create)
-      amount = Money.new(350)
-      memo = Suma::Fixtures.translated_text.create
-      li3 = Suma::Charge::LineItem.create_self(charge:, amount:, memo:)
-      li4 = Suma::Charge::LineItem.create_self(charge:, amount:, memo:)
-      expect(charge.line_items).to have_length(4)
-      expect(charge.on_platform_line_items).to contain_exactly(be === li1, be === li2)
-      expect(charge.off_platform_line_items).to contain_exactly(be === li3, be === li4)
+  describe "associations" do
+    it "is associated with book transactions" do
+      ch = Suma::Fixtures.charge.create
+      bx = Suma::Fixtures.book_transaction.create
+      ch.add_contributing_book_transaction(bx)
+      expect(ch.contributing_book_transactions).to have_same_ids_as(bx)
+      expect(bx.charge_contributed_to).to be === ch
     end
   end
 
-  describe "Suma::Charge::LineItem" do
-    let(:described_class) { Suma::Charge::LineItem }
+  it "knows how much was paid" do
+    charge = Suma::Fixtures.charge.create
+    Suma::Fixtures.charge_line_item.create(amount: money("$12.75"), charge:)
+    expect(charge.discounted_subtotal).to cost("$12.75")
+  end
 
-    let(:charge) { Suma::Fixtures.charge.create }
-    let(:book_transaction) { Suma::Fixtures.book_transaction.create }
-    let(:memo) { Suma::Fixtures.translated_text.create }
+  it "knows how much was synchronously funded" do
+    charge = Suma::Fixtures.charge.create
+    fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$12.50"))
+    charge.add_associated_funding_transaction(fx)
+    expect(charge.funded_amount).to cost("$12.50")
+  end
 
-    it "requires self data to be set if not using a book transaction" do
-      li = described_class.create_self(charge:, amount: Money.new(500), memo:)
-      expect { li.update(book_transaction:) }.to raise_error(Sequel::CheckConstraintViolation)
-      described_class.create(charge:, book_transaction:)
-    end
-
-    it "has an association from SelfData to LineItem" do
-      li = described_class.create_self(charge:, amount: Money.new(500), memo:)
-      expect(li.self_data.line_item).to be === li
-    end
-
-    it "can be fixtured" do
-      Suma::Fixtures.charge_line_item.create
-      Suma::Fixtures.charge_line_item.self_data.create
-      Suma::Fixtures.charge_line_item.book_transaction.create
-    end
+  it "knows how much was paid in cash and non-cash" do
+    charge = Suma::Fixtures.charge.create
+    cash = Suma::Payment.ensure_cash_ledger(charge.member)
+    bxcash = Suma::Fixtures.book_transaction.from(cash).create(amount: money("$12.50"))
+    bxnoncash = Suma::Fixtures.book_transaction.from({account: cash.account}).create(amount: money("$5"))
+    charge.add_contributing_book_transaction(bxcash)
+    charge.add_contributing_book_transaction(bxnoncash)
+    Suma::Fixtures.charge_line_item.create(amount: money("$17.75"), charge:)
+    expect(charge.discounted_subtotal).to cost("$17.75") # Set by line items
+    expect(charge.cash_paid_from_ledger).to cost("$12.50") # 12.50 bookx from cash
+    expect(charge.noncash_paid_from_ledger).to cost("$5") # 5 from non-book. 3 self/offplatform is not noncash paid.
   end
 
   describe "validations" do

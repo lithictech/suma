@@ -36,6 +36,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     def holidays_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Holiday Demo", parent: food_category)
     def farmers_market_intro_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Farmers Market Demo", parent: cash_category)
     def farmers_market_match_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Farmers Market Match Demo", parent: cash_category)
+    def lemon_scooter_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Lemon Scooters", parent: mobility_category)
 
     def scooter_program(&) = Suma::Program.find_or_create(name: ttext("Scooters"), &)
     def bike_program(&) = Suma::Program.find_or_create(name: ttext("Bikes"), &)
@@ -110,21 +111,36 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         image: self.create_uploaded_file("rayse.png", "image/png"),
       )
 
-      bike_rate = Suma::Vendor::ServiceRate.create(name: "Rayse Bike Rate") do |r|
+      bike_rate = Suma::Vendor::ServiceRate.create(external_name: "Rayse Bike Rate") do |r|
+        r.internal_name = "rayse_bike_rate"
         r.surcharge = Money.new(50)
         r.unit_amount = Money.new(10)
-        r.localization_key = "rates.unlock_and_per_minute"
       end
       bike_vs = Suma::Vendor::Service[internal_name: "rayse_mobility_deeplink"]
       self.bike_program.add_pricing({vendor_service: bike_vs, vendor_service_rate: bike_rate})
 
-      scooter_rate = Suma::Vendor::ServiceRate.create(name: "Lemon Scooter Rate") do |r|
+      scooter_rate = Suma::Vendor::ServiceRate.create(external_name: "Lemon Access") do |r|
+        r.internal_name = "lemon_scooter_access_rate"
         r.surcharge = Money.new(0)
         r.unit_amount = Money.new(7)
-        r.localization_key = "rates.unlock_and_per_minute"
+        r.undiscounted_rate = Suma::Vendor::ServiceRate.create(external_name: "Lemon Mobility") do |r|
+          r.internal_name = "lemon_scooter_retail_rate"
+          r.surcharge = Money.new(100)
+          r.unit_amount = Money.new(35)
+        end
       end
       scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
       self.scooter_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})
+      Suma::Payment::Trigger.create(
+        label: "Lemon Scooter 20% Discount",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 0.25,
+        memo: Suma::TranslatedText.create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.lemon_scooter_category),
+        receiving_ledger_name: "Lemon Scooters Ride Subsidies",
+        receiving_ledger_contribution_text: self.ttext("Lemon Scooters"),
+        maximum_cumulative_subsidy_cents: 0,
+      )
 
       Suma::Mobility::GbfsFeed.create(
         feed_root_url: "https://gbfs.lyft.com/gbfs/2.3/pdx/en",

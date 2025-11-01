@@ -14,7 +14,7 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
     helpers do
       def modelrepr(m)
         prefix = Suma::HasActivityAudit.model_repr(m)
-        "#{prefix}(service: '#{m.vendor_service.internal_name}', rate: '#{m.vendor_service_rate.name}')"
+        "#{prefix}(service: '#{m.vendor_service.internal_name}', rate: '#{m.vendor_service_rate.internal_name}')"
       end
     end
 

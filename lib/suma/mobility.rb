@@ -23,6 +23,42 @@ module Suma::Mobility
 
   class UnknownVehicleType < ArgumentError; end
 
+  class BeginTripResult < Suma::TypedStruct
+    requires(all: true)
+  end
+
+  class EndTripResult < Suma::TypedStruct
+    class LineItem < Suma::TypedStruct
+      # @return [Suma::TranslatedText]
+      attr_reader :memo
+
+      # @return [Money]
+      attr_reader :amount
+
+      requires(all: true)
+    end
+
+    # @return [Time]
+    attr_reader :charge_at
+
+    # The cost of the trip without discounts.
+    # @return [Money]
+    attr_reader :undiscounted_cost
+
+    # Line items for components of the trip, including unlock fee, trip cost, parking violations, etc.
+    # @return [Array<LineItem>]
+    attr_reader :line_items
+
+    # If a charge was made off-platform (usually through a deeplink vendor),
+    # record it here so we record it properly and do not try to charge the balance.
+    # @return [Money]
+    attr_reader :charged_off_platform
+
+    requires(all: true)
+
+    def _defaults = {charged_off_platform: Money.zero}
+  end
+
   def self.coord2int(c)
     raise OutOfBounds, "#{c} must be between -180 and 180" unless COORD_RANGE.cover?(c)
     return (c * COORD2INT_FACTOR).to_i

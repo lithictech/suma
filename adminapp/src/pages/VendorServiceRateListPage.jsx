@@ -22,7 +22,7 @@ export default function VendorServiceRateListPage() {
           id: "name",
           label: "Name",
           align: "left",
-          render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
+          render: (c) => <AdminLink model={c}>{c.internalName}</AdminLink>,
         },
         {
           id: "unit",

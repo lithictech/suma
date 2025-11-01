@@ -57,37 +57,14 @@ RSpec.describe "Suma::Payment::Card", :db do
     let(:card) { Suma::Fixtures.card.create }
 
     it "fetches and sets the card info from the customer" do
-      cust = load_fixture_data("stripe/customer")
-      cust["sources"]["data"] << card.stripe_json.merge("exp_year" => 2100)
-
-      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-        to_return(json_response(cust))
+      cardjson = load_fixture_data("stripe/card")
+      cardjson["exp_year"] = 2100
+      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner/sources/card_1LxbQmAqRmWQecssc7Yf9Wr7").
+        to_return(json_response(cardjson))
 
       card.refetch_remote_data
       expect(req).to have_been_made
       expect(card.stripe_json.to_h).to include("exp_year" => 2100)
-    end
-
-    it "errors if the card is not on the customer" do
-      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-        to_return(json_response(load_fixture_data("stripe/customer")))
-
-      expect do
-        card.refetch_remote_data
-      end.to raise_error(Suma::InvariantViolation, /has no source/)
-      expect(req).to have_been_made
-    end
-
-    it "handles a nil sources" do
-      cust = load_fixture_data("stripe/customer")
-      cust.delete("sources")
-      req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-        to_return(json_response(cust))
-
-      expect do
-        card.refetch_remote_data
-      end.to raise_error(Suma::InvariantViolation, /has no source/)
-      expect(req).to have_been_made
     end
   end
 

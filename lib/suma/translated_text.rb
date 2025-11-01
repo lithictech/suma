@@ -8,10 +8,9 @@ class Suma::TranslatedText < Suma::Postgres::Model(:translated_texts)
 
   class << self
     def empty
-      @empty ||= Suma.cached_get("translated_text_empty") do
+      return Suma.cached_get("translated_text_empty") do
         self.find_or_create(en: "", es: "")
       end
-      return @empty
     end
   end
 
@@ -43,6 +42,28 @@ class Suma::TranslatedText < Suma::Postgres::Model(:translated_texts)
       all_unique = Suma::TranslatedText.dataset.distinct(col)
       return self.where(id: all_unique.select(:id)).search(col, q)
     end
+  end
+
+  # Return a new instance, with all string fields formatted with the given kwargs.
+  # Formatting is done on simple replacements, like '{{ x }}' is replaced with an 'x' kwarg.
+  # This is a subset of the behavior in `i18n.js` on the frontend,
+  # as this does not work with functions or references.
+  def format(**kwargs)
+    en = self.en
+    es = self.es
+    kwargs.each do |k, v|
+      en = en.gsub(/\{\{(\s*#{k}\s*)}}/) { v }
+      es = es.gsub(/\{\{(\s*#{k}\s*)}}/) { v }
+    end
+    return self.class.new(en:, es:)
+  end
+
+  # Like +format+, but save the instance, or return an existing one with the same text.
+  def format!(**)
+    o2 = self.format(**)
+    existing = self.class[en: o2.en, es: o2.es]
+    return existing if existing
+    return o2.save_changes
   end
 end
 

@@ -4,6 +4,7 @@ import RLink from "../RLink";
 import DrawerContents from "./DrawerContents";
 import DrawerLoading from "./DrawerLoading";
 import DrawerTitle from "./DrawerTitle";
+import MicromobilityRate from "./MicromobilityRate.jsx";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
@@ -19,8 +20,6 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
   if (loading) {
     return <DrawerLoading />;
   }
-  const { rate, vendorService } = vehicle;
-  const { localizationVars: locVars } = rate;
   const handleReserve = (e) => {
     e.preventDefault();
     onReserve(vehicle);
@@ -51,8 +50,10 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
   } else if (vehicle.deeplink) {
     action = (
       <>
-        <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
-          {t("common.open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
+        <hr />
+        <Button className="p-1 ps-0" variant="link" href={vehicle.deeplink}>
+          {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
+          <i className="ms-2 bi bi-box-arrow-right"></i>
         </Button>
         <div className="mt-2">
           {t("mobility.relink_private_account_with_vendor", {
@@ -71,19 +72,8 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
 
   return (
     <DrawerContents>
-      <DrawerTitle>{vendorService.name}</DrawerTitle>
-      <p className="text-muted">
-        {t(rate.localizationKey, {
-          surchargeCents: {
-            cents: locVars.surchargeCents,
-            currency: locVars.surchargeCurrency,
-          },
-          unitCents: {
-            cents: locVars.unitCents,
-            currency: locVars.unitCurrency,
-          },
-        })}
-      </p>
+      <DrawerTitle>{vehicle.vendorService.name}</DrawerTitle>
+      <MicromobilityRate rate={vehicle.rate} />
       <FormError error={reserveError} />
       {action}
     </DrawerContents>

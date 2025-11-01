@@ -12,8 +12,8 @@ module Suma::Fixtures::VendorServiceRates
   base :vendor_service_rate do
     self.unit_amount_cents.nil? && (self.unit_amount = 0)
     self.surcharge_cents.nil? && (self.surcharge = 0)
-    self.name ||= Faker::Lorem.word
-    self.localization_key ||= self.name.downcase
+    self.external_name ||= Faker::Lorem.word
+    self.internal_name ||= self.external_name.upcase
   end
 
   decorator :unit_amount do |cents|

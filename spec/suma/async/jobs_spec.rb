@@ -385,12 +385,26 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "LedgerCreateForCategory" do
+    it "creates a platform ledger" do
+      expect do
+        Suma::Fixtures.vendor_service_category.create(name: "foo test ledger")
+      end.to perform_async_job(Suma::Async::LedgerCreateForCategory)
+
+      cat = Suma::Vendor::ServiceCategory.find!(name: "foo test ledger")
+      acct = Suma::Payment::Account.lookup_platform_account
+      led = acct.ledgers.find { |led| led.vendor_service_categories.any? { |c| c === cat } }
+      expect(led).to have_attributes(name: "foo test ledger")
+    end
+  end
+
   describe "LimeTripSync", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Lime.trip_email_sync_enabled = true
       Suma::Lime.trip_report_sync_enabled = true
       Suma::Lime.trip_report_from_email = "from@mysuma.org"
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
+      import_localized_backend_seeds
     end
 
     it "syncs trips from receipt emails and reports" do
@@ -441,7 +455,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Async::LimeTripSync.new.perform
 
       expect(Suma::Mobility::Trip.all).to contain_exactly(
-        have_attributes(vehicle_id: "valid-receipt"),
         have_attributes(vehicle_id: "RTOKEN1"),
       )
     end
@@ -449,7 +462,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     it "does not sync trips if not enabled" do
       Suma::Lime.trip_email_sync_enabled = false
       Suma::Lime.trip_report_sync_enabled = false
-      expect(Suma::Lime::SyncTripsFromEmail).to_not receive(:new)
       expect(Suma::Lime::SyncTripsFromReport).to_not receive(:new)
 
       Suma::Async::LimeTripSync.new.perform
@@ -460,6 +472,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "LyftPassTripSync", reset_configuration: Suma::Lyft do
     it "syncs trips" do
+      Suma::Lyft.pass_sync_enabled = true
       Suma::Lyft.pass_authorization = "Basic xyz"
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
@@ -673,10 +686,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
 
     def prepare_stripe_req
-      cust = load_fixture_data("stripe/customer")
-      cust["sources"]["data"] << expiring_card.stripe_json.dup
-      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-          to_return(json_response(cust))
+      return stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner/sources/card_1LxbQmAqRmWQecssc7Yf9Wr7").
+          to_return(json_response(expiring_card.stripe_json))
     end
 
     it "syncs external and dispatches a message to the member" do

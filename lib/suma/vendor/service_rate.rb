@@ -47,15 +47,6 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
     return (f * 100).to_i
   end
 
-  def localization_vars
-    return {
-      unit_cents: self.unit_amount.cents,
-      unit_currency: self.unit_amount.currency.to_s,
-      surcharge_cents: self.surcharge.cents,
-      surcharge_currency: self.surcharge.currency.to_s,
-    }
-  end
-
   def rel_admin_link = "/vendor-service-rate/#{self.id}"
 end
 

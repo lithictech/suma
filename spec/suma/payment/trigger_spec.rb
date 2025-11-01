@@ -6,8 +6,8 @@ RSpec.describe "Suma::Payment::Trigger", :db do
   let(:context) { Suma::Payment::CalculationContext.new(apply_at) }
 
   it "can be fixtured" do
-    pa = Suma::Fixtures.payment_trigger.create
-    expect(pa).to be_a(described_class)
+    expect(Suma::Fixtures.payment_trigger.create).to be_a(described_class)
+    expect(Suma::Fixtures.payment_trigger.memo("hi").create).to have_attributes(memo: have_attributes(en: "hi"))
   end
 
   it "knows its programs" do

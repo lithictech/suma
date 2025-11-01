@@ -103,6 +103,10 @@ import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
+import VendorServiceCategoryCreatePage from "./pages/VendorServiceCategoryCreatePage";
+import VendorServiceCategoryDetailPage from "./pages/VendorServiceCategoryDetailPage";
+import VendorServiceCategoryEditPage from "./pages/VendorServiceCategoryEditPage";
+import VendorServiceCategoryListPage from "./pages/VendorServiceCategoryListPage";
 import VendorServiceCreatePage from "./pages/VendorServiceCreatePage";
 import VendorServiceDetailPage from "./pages/VendorServiceDetailPage";
 import VendorServiceEditPage from "./pages/VendorServiceEditPage";
@@ -691,6 +695,42 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           VendorServiceRateEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-categories"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceCategoryListPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-category/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceCategoryCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-category/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceCategoryDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-category/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceCategoryEditPage
         )}
       />
       <Route

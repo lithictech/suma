@@ -20,6 +20,30 @@ export default function PaymentTriggerForm({
   isBusy,
   onSubmit,
 }) {
+  // Get this logic from payment_trigger.rb
+  function setPayerFraction(v) {
+    setField("matchMultiplier", 1.0 / v - 1);
+  }
+  const payerFraction = 1.0 / (resource.matchMultiplier + 1);
+  function setMatchFraction(v) {
+    setPayerFraction(1 - v);
+  }
+  const matchFraction = 1 - payerFraction;
+
+  // UI-specific massage.
+  let payerPercent = Math.round(payerFraction * 100);
+  let matchPercent = Math.round(matchFraction * 100);
+  if (!resource.matchMultiplier) {
+    payerPercent = "";
+    matchPercent = "";
+  }
+  const setPayerPercent = (e) => {
+    setPayerFraction(Number(e.target.value) / 100.0);
+  };
+  const setMatchPercent = (e) => {
+    setMatchFraction(Number(e.target.value) / 100.0);
+  };
+
   return (
     <FormLayout
       title={isCreate ? "Create a Payment Trigger" : "Update Payment Trigger"}
@@ -59,11 +83,36 @@ export default function PaymentTriggerForm({
             value={resource.matchMultiplier}
             type="number"
             variant="outlined"
-            fullWidth
             required
             style={{ flex: 1 }}
             onChange={setFieldFromInput}
           />
+          <TextField
+            {...register("matchPercentage")}
+            label="Match Percentage"
+            helperText="For each dollar of cost, how much we we subsidize?"
+            name="matchPercentage"
+            value={matchPercent}
+            type="number"
+            variant="outlined"
+            required
+            style={{ flex: 1 }}
+            onChange={setMatchPercent}
+          />
+          <TextField
+            {...register("payerPercentage")}
+            label="Payer Percentage"
+            helperText="For each dollar of cost, how much does the member pay?"
+            name="payerPercentage"
+            value={payerPercent}
+            type="number"
+            variant="outlined"
+            required
+            style={{ flex: 1 }}
+            onChange={setPayerPercent}
+          />
+        </ResponsiveStack>
+        <ResponsiveStack>
           <CurrencyTextField
             {...register("maximumCumulativeSubsidyCents")}
             label="Max Subsidy"

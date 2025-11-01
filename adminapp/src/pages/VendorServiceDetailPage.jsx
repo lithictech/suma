@@ -42,7 +42,7 @@ export default function VendorServiceDetailPage() {
             <AdminLink model={row}>{row.id}</AdminLink>,
             <AdminLink model={row.program}>{row.program.name.en}</AdminLink>,
             <AdminLink model={row.vendorServiceRate}>
-              {row.vendorServiceRate.name}
+              {row.vendorServiceRate.internalName}
             </AdminLink>,
           ]}
         />,

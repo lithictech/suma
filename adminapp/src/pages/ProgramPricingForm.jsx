@@ -55,7 +55,7 @@ export default function ProgramPricingForm({
           value={
             isCreate
               ? resource.vendorServiceRate.label || ""
-              : resource.vendorServiceRate.name
+              : resource.vendorServiceRate.internalName
           }
           fullWidth
           search={api.searchVendorServiceRates}

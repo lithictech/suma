@@ -1,0 +1,10 @@
+{
+  "subsidy_default": "Apoyo de financiadores locales",
+  "subsidy_rebalancing_uncategorized": "Rebalancing uncategorized subsidy",
+  "trip_receipt_additional_charges": "Cargos adicionales",
+  "trip_receipt_additional_discount": "Descuento de {{vendor}}",
+  "trip_receipt_ride_canceled": "Viaje cancelado",
+  "trip_receipt_ride_cost": "Costo del viaje ({{unit_amount}}/min por {{minutes}} min)",
+  "trip_receipt_ride_cost_alt": "Viaje - {{unit_amount}}/min ({{minutes}} min)",
+  "trip_receipt_unlock_fee": "Tarifa de desbloqueo"
+}

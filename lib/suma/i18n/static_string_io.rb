@@ -13,8 +13,11 @@ module Suma::I18n::StaticStringIO
     # insert them into the database.
     # To first delete seeds, use +replace_seeds+ instead.
     # This method is called as part of the release process. See localization.md for more info.
-    def import_seeds(namespaces: nil)
+    #
+    # Importing can also be limited to just a set of keys; generally this is used during unit tests.
+    def import_seeds(namespaces: nil, keys: nil)
       namespaces = Array(namespaces) if namespaces
+      keys = Array(keys) if keys
       modified_at = Time.now
       data = Suma::I18n::AutoHash.new
       SEEDS_DIR.glob("*").each do |locale_dir|
@@ -25,6 +28,7 @@ module Suma::I18n::StaticStringIO
           j = Suma::I18n.flatten_hash(j)
           locale = locale_dir.basename(".*").to_s
           j.each do |key, text|
+            next if keys && !keys.include?(key)
             data[namespace][key][locale] = text
           end
         end

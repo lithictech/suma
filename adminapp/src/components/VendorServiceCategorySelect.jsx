@@ -10,7 +10,7 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
   ref
 ) {
   const categories = useGlobalApiState(
-    api.getVendorServiceCategories,
+    api.getVendorServiceCategoriesMeta,
     [{ slug: "cash", label: "Cash" }],
     { pick: (r) => r.data.items }
   );
@@ -40,9 +40,9 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
         onChange={(e) => handleChange(e.target.value)}
         {...rest}
       >
-        {categories.map(({ name, slug }) => (
+        {categories.map(({ label, slug }) => (
           <MenuItem key={slug} value={slug}>
-            {name}
+            {label}
           </MenuItem>
         ))}
       </Select>

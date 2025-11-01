@@ -19,10 +19,12 @@ class Suma::Analytics::Order < Suma::Analytics::Model(Sequel[:analytics][:orders
     :taxable_cost,
     :tax,
     :total,
-    :funded_cost,
-    :paid_cost,
-    :cash_paid,
-    :noncash_paid,
+
+    [:funded_cost, [:charge, :funded_amount]],
+    [:cash_paid, [:charge, :cash_paid_from_ledger]],
+    [:noncash_paid, [:charge, :noncash_paid_from_ledger]],
+    [:paid_off_platform, [:charge, :off_platform_amount]],
+
     [:offering_id, [:checkout, :cart, :offering_id]],
     [:offering_name, [:checkout, :cart, :offering, :description, :en]],
     [:offering_begin, [:checkout, :cart, :offering, :period, :begin]],

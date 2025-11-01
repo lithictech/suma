@@ -484,6 +484,18 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
   end
 
+  describe "POST /v1/search/vendor_service_categories" do
+    it "returns matching vendor service categories" do
+      catx = Suma::Fixtures.vendor_service_category.create(name: "catx")
+      caty = Suma::Fixtures.vendor_service_category.create(name: "caty")
+
+      post "/v1/search/vendor_service_categories", q: "catx"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(catx))
+    end
+  end
+
   describe "POST /v1/search/vendor_service_rates" do
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
@@ -495,8 +507,8 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
 
     it "returns matching vendor service rates" do
-      rate1 = Suma::Fixtures.vendor_service_rate.create(name: "ratex")
-      rate2 = Suma::Fixtures.organization.create(name: "ratey")
+      rate1 = Suma::Fixtures.vendor_service_rate.create(internal_name: "ratex")
+      rate2 = Suma::Fixtures.vendor_service_rate.create(internal_name: "ratey")
 
       post "/v1/search/vendor_service_rates", q: "ratex"
 

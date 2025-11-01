@@ -15,7 +15,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
     expose :originating_funding_transaction, with: FundingTransactionEntity
     expose :originating_payout_transaction, with: PayoutTransactionEntity
     expose :credited_payout_transaction, with: PayoutTransactionEntity
-    expose :charge_line_item, with: ChargeLineItemEntity
+    expose :charge_contributed_to, with: ChargeEntity
     expose :triggered_by,
            with: PaymentTriggerEntity,
            &self.delegate_to(:triggered_by, :trigger, safe: true)

@@ -64,7 +64,6 @@ RSpec.describe SequelTranslatedText, :db do
       y = cls.create(text: TranslatedTextEx.create(en: "y"))
       q = cls.dataset.translation_join(:text, [:en, :fr])
       expect(q.where(text_en: "x").all).to contain_exactly(be === x)
-      puts q.sql
       expect(q.sql).to eq(
         'SELECT * FROM (SELECT "test_articles".*, "text"."en" AS "text_en", "text"."fr" AS "text_fr" ' \
         'FROM "test_articles" INNER JOIN "test_translated_texts" AS "text" ' \
@@ -81,7 +80,6 @@ RSpec.describe SequelTranslatedText, :db do
       x = cls.create(text: TranslatedTextEx.create(en: "x"))
       q = cls.dataset.translation_join(:text, [:en])
       expect(q.where(text_en: "x").all).to contain_exactly(be === x)
-      puts q.sql
       expect(q.sql).to eq(
         'SELECT "test_articles"."id", "test_articles"."title_id", "test_articles"."text_id" FROM ' \
         '(SELECT "test_articles"."id", "test_articles"."title_id", "test_articles"."text_id", ' \

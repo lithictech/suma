@@ -190,14 +190,15 @@ module Suma::AdminAPI::Entities
   end
 
   class VendorServiceCategoryEntity < BaseEntity
-    expose :id
+    include AutoExposeBase
     expose :name
     expose :slug
   end
 
   class VendorServiceRateEntity < BaseEntity
     include AutoExposeBase
-    expose :name
+    expose :internal_name
+    expose :external_name
     expose :unit_amount, with: MoneyEntity
     expose :surcharge, with: MoneyEntity
   end
@@ -244,6 +245,12 @@ module Suma::AdminAPI::Entities
     expose :opaque_id
     expose :discounted_subtotal, with: MoneyEntity
     expose :undiscounted_subtotal, with: MoneyEntity
+  end
+
+  class ChargeWithPricesEntity < ChargeEntity
+    expose :off_platform_amount, with: MoneyEntity
+    expose :cash_paid_from_ledger, with: MoneyEntity
+    expose :noncash_paid_from_ledger, with: MoneyEntity
   end
 
   class MobilityTripEntity < BaseEntity
@@ -410,7 +417,6 @@ module Suma::AdminAPI::Entities
     expose :charge_id
     expose :amount, with: MoneyEntity
     expose :memo, with: TranslatedTextEntity
-    expose :book_transaction, with: BookTransactionEntity
   end
 
   class MarketingMemberEntity < MemberEntity

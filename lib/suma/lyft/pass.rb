@@ -297,17 +297,13 @@ class Suma::Lyft::Pass
   end
 
   def sync_trips_from_program(program)
-    program_id = program.lyft_pass_program_id
-    raise Suma::InvalidPrecondition, "program must have lyft_pass_program_id set" if program_id.blank?
     pricing = Suma::Enumerable.one!(program.pricings)
-    self.sync_trips(
-      program_id:,
-      vendor_service: pricing.vendor_service,
-      vendor_service_rate: pricing.vendor_service_rate,
-    )
+    self.sync_trips(pricing)
   end
 
-  def sync_trips(program_id:, vendor_service:, vendor_service_rate:)
+  def sync_trips(pricing)
+    program_id = pricing.program.lyft_pass_program_id
+    raise Suma::InvalidPrecondition, "program must have lyft_pass_program_id set" if program_id.blank?
     self.with_log_tags(lyft_program_id: program_id) do
       account_id = self.fetch_account_id_for_program_id(program_id)
       self.with_log_tags(lyft_account_id: account_id) do
@@ -316,7 +312,7 @@ class Suma::Lyft::Pass
         tx_ids.each do |txid|
           self.with_log_tags(lyft_transaction_id: txid) do
             ride = self.fetch_ride(txid)
-            self.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
+            self.upsert_ride_as_trip(ride, pricing)
           end
         end
       end
@@ -328,29 +324,16 @@ class Suma::Lyft::Pass
     "ELECTRIC_SCOOTER" => Suma::Mobility::ESCOOTER,
   }.freeze
 
-  def upsert_ride_as_trip(ride_resp, vendor_service:, vendor_service_rate:, check_dupes: true)
+  def upsert_ride_as_trip(ride_resp, pricing, check_dupes: true)
+    vendor_service = pricing.vendor_service
+    vendor_service_rate = pricing.vendor_service_rate
     ride = ride_resp.fetch("ride")
     rider_phone = ride.fetch("rider").fetch("phone_number")
     ride_id = ride.fetch("ride_id")
-    if (member = Suma::Member.with_normalized_phone(rider_phone.delete_prefix("+"))).nil?
-      self.logger.warn("no_member_for_rider", ride_id:, rider_phone:)
-      return nil
-    end
-    return nil if check_dupes && !Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
-
-    ride_total = ride_resp.fetch("money")
-    zero_money = Money.new(0, ride_total.fetch("currency"))
-    total_of_non_promo_items = ride.fetch("line_items").sum(zero_money) do |li|
-      next Money.new(0) if li.fetch("title") == "Promo applied"
-      Money.new(li.fetch("money").fetch("amount"), li.fetch("money").fetch("currency"))
-    end
-    receipt = Suma::Mobility::TripImporter::Receipt.new(
-      total: total_of_non_promo_items,
-      discount: Money.new(ride_total.fetch("amount"), ride_total.fetch("currency")) - total_of_non_promo_items,
-      image_url: ride.fetch("map_image_url"),
-    )
+    receipt = Suma::Mobility::TripImporter::Receipt.new
+    receipt.charged_at = Time.at(ride_resp.fetch("created_at_ms") / 1000)
+    receipt.image_url = ride.fetch("map_image_url")
     receipt.trip.set(
-      member:,
       vehicle_id: ride_id,
       external_trip_id: ride_id,
       vehicle_type: VEHICLE_TYPES_FOR_RIDEABLE_TYPES.fetch(ride.fetch("rideable_type")),
@@ -361,14 +344,122 @@ class Suma::Lyft::Pass
       begin_address: ride.fetch("pickup").fetch("address"),
       end_address: ride.fetch("dropoff").fetch("address"),
     )
+
+    if (member = Suma::Member.with_normalized_phone(rider_phone.delete_prefix("+"))).nil?
+      self.logger.warn("no_member_for_lyft_pass_rider", ride_id:, rider_phone:)
+      Sentry.capture_message("No member for Lyft Pass ride") do |scope|
+        scope.set_extras(
+          rider_phone:,
+          ride_id:,
+          ride_resp: ride_resp.to_json,
+        )
+      end
+      return nil
+    end
+    return nil if check_dupes && !Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
+
+    receipt.trip.member = member
+
+    # The "transaction amount". Will never be zero, since otherwise we wouldn't see it in our Lyft Pass.
+    receipt.subsidized_off_platform_amount = _money2money(ride_resp)
+
+    if receipt.subsidized_off_platform_amount.zero?
+      msg = "transaction amount cannot be zero: #{ride_resp.to_json}"
+      raise Suma::InvariantViolation, msg
+    end
+
+    # We cannot get useful information from the receipt line items,
+    # since their memo/title can be in any language.
+    #
+    # Instead, let's make our own line items for the unlock fee, ride cost,
+    # and a potential single item for other charges.
+    #
+    # Because suma's part of the ride cost is added as a subsidy,
+    # we do NOT want to include it as a line item.
+    # Instead, just ignore it entirely, so the outstanding balance on the receipt
+    # is what suma paid via Lyft Pass PLUS what the member paid Lyft directly.
+    #
+    # If the of the non-promo line items EQUALS what we should charge based on rate alone,
+    # no additional charges are needed.
+    # If it is MORE than what we should charge based on rate alone,
+    # add a single additional line item.
+    #
+    # If the of the non-promo line items is LESS than what we think we should charge based on rate alone,
+    # alert in Sentry because something is wrong.
+    # We can still create the receipt though, using a 'Lyft discount'
+    # line item to match the difference adjustment.
+    #
+    receipt.unlock_fee = vendor_service_rate.surcharge
+    receipt.per_minute_fee = vendor_service_rate.unit_amount
+    credits_total = Money.new(0, receipt.subsidized_off_platform_amount.currency)
+    debits_total = Money.new(0, receipt.subsidized_off_platform_amount.currency)
+    seen_items = Set.new([])
+    found_subsidy = false
     ride.fetch("line_items").each do |li|
-      receipt.line_items << receipt.line_item(
-        amount: self._money2money(li),
-        memo: li.fetch("title"),
+      next if seen_items.include?(li)
+      seen_items << li
+      amount = _money2money(li)
+      if -amount == receipt.subsidized_off_platform_amount
+        found_subsidy = true
+        next
+      end
+      if amount.positive?
+        debits_total += amount
+      else
+        credits_total += -amount
+        # Additional credits MUST show up as line items so we don't try to charge the user
+        # the difference between our subsidy and what they paid.
+        # We cannot itemize charges (since we don't know how to find the ride/unlock charge to replace with our own),
+        # but we CAN itemize credits, since we aren't adding any of our own
+        # (the lyft pass portion is handled as a subsidy).
+        receipt.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
+          amount:,
+          memo: Suma::TranslatedText.new(all: li.fetch("title")),
+        )
+      end
+    end
+    unless found_subsidy
+      msg = "transaction amount not found in Lyft Pass line items: #{ride_resp.to_json}"
+      raise Suma::InvariantViolation, msg
+    end
+
+    receipt.paid_off_platform_amount = debits_total - credits_total - receipt.subsidized_off_platform_amount
+    calculated_cost = vendor_service_rate.calculate_total(receipt.trip.duration_minutes)
+    additional_charges = debits_total - calculated_cost
+    if additional_charges.zero?
+      # The ride cost exactly what we expect, do not create an additional line item.
+    elsif additional_charges.positive?
+      receipt.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
+        amount: additional_charges,
+        memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_additional_charges"),
+      )
+    else
+      Sentry.capture_message("Lyft Pass charge total less than expected") do |scope|
+        scope.set_extras(
+          member_id: receipt.trip.member_id,
+          member_name: receipt.trip.member.name,
+          external_trip_id: receipt.trip.external_trip_id,
+          rate_id: receipt.trip.vendor_service_rate.id,
+          ride_resp: ride_resp.to_json,
+        )
+      end
+      receipt.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
+        amount: additional_charges,
+        memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_additional_discount").
+          format(vendor: "Lyft"),
       )
     end
-    Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
-    return receipt.trip.charge
+
+    # Undiscounted subtotal is calculated by us, PLUS any uncategorized items like parking fees.
+    # Do NOT include credits in the undiscounted amount- it's not sure what they are,
+    # and we err on the side of more savings.
+    receipt.undiscounted_subtotal = vendor_service_rate.calculate_undiscounted_total(receipt.trip.duration_minutes)
+    receipt.misc_line_items.each do |li|
+      receipt.undiscounted_subtotal += li.amount if li.amount.positive?
+    end
+
+    Suma::Mobility::TripImporter.import(receipt:, program: pricing.program, logger: self.logger)
+    return receipt.trip.new? ? nil : receipt.trip
   end
 
   def invite_member(member, program_id:)

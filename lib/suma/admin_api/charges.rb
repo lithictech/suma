@@ -6,7 +6,7 @@ require "suma/admin_api"
 class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class DetailedChargeEntity < ChargeEntity
+  class DetailedChargeEntity < ChargeWithPricesEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :member, with: MemberEntity
@@ -14,6 +14,7 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
     expose :commerce_order, with: OrderEntity
     expose :line_items, with: ChargeLineItemEntity
     expose :associated_funding_transactions, with: FundingTransactionEntity
+    expose :contributing_book_transactions, with: BookTransactionEntity
   end
 
   class ChargeEntityWithMember < ChargeEntity

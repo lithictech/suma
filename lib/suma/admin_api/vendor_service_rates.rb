@@ -9,7 +9,6 @@ class Suma::AdminAPI::VendorServiceRates < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :unit_offset
-    expose :localization_key
     expose :ordinal
     expose :undiscounted_rate, with: VendorServiceRateEntity
     expose :program_pricings, with: ProgramPricingEntity
@@ -27,12 +26,12 @@ class Suma::AdminAPI::VendorServiceRates < Suma::AdminAPI::V1
       DetailedVendorServiceRateEntity,
     ) do
       params do
-        requires :name, type: String
+        requires :internal_name, type: String
+        requires :external_name, type: String
         requires(:unit_amount, type: JSON) { use :money }
         requires(:surcharge, type: JSON) { use :money }
         requires :unit_offset, type: Integer
         optional(:undiscounted_rate, type: JSON) { use :model_with_id }
-        requires :localization_key, type: String
         optional :ordinal, type: Float, default: 0
       end
     end
@@ -47,9 +46,9 @@ class Suma::AdminAPI::VendorServiceRates < Suma::AdminAPI::V1
       DetailedVendorServiceRateEntity,
     ) do
       params do
-        optional :name, type: String
+        optional :internal_name, type: String
+        optional :external_name, type: String
         optional(:undiscounted_rate, type: JSON) { use :model_with_id }
-        optional :localization_key, type: String
         optional :ordinal, type: Float, default: 0
       end
     end

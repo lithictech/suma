@@ -16,6 +16,7 @@ RSpec.describe "Suma::Member", :db do
       expect(c.ongoing_trip).to be_nil
       t = Suma::Fixtures.mobility_trip.ongoing.create(member: c)
       expect(c.refresh.ongoing_trip).to be === t
+      import_localized_backend_seeds
       t.end_trip(lat: 1, lng: 2, now: Time.now)
       expect(c.refresh.ongoing_trip).to be_nil
     end

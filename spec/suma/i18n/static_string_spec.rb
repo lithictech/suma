@@ -79,4 +79,18 @@ RSpec.describe "Suma::I18n::StaticString", :db do
       expect(s).to_not be_needs_text
     end
   end
+
+  describe "::find_text" do
+    it "returns the translated text with the given namespace and key" do
+      text = Suma::Fixtures.translated_text.create
+      Suma::Fixtures.static_string.create(namespace: "ns", key: "k", text:)
+      expect(described_class.find_text("ns", "k")).to be === text
+    end
+
+    it "errors if not present" do
+      expect do
+        described_class.find_text("ns", "k")
+      end.to raise_error(Suma::Postgres::NoMatchingRow)
+    end
+  end
 end

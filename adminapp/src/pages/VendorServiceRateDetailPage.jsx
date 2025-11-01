@@ -15,17 +15,17 @@ export default function VendorServiceRateDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Name", value: model.name },
+        { label: "Internal Name", value: model.internalName },
+        { label: "External Name", value: model.externalName },
+        { label: "Surcharge", value: <Money>{model.surcharge}</Money> },
         { label: "Unit Amount", value: <Money>{model.unitAmount}</Money> },
-        { label: "Surcharge", value: <Money>{model.unitAmount}</Money> },
         { label: "Unit Offset", value: model.unitOffset },
         { label: "Ordinal", value: model.ordinal },
-        { label: "Localization Key", value: model.localizationKey },
         {
           label: "Undiscounted Rate",
           value: (
             <AdminLink model={model.undiscountedRate}>
-              {model.undiscountedRate?.name}
+              {model.undiscountedRate?.internalName}
             </AdminLink>
           ),
         },

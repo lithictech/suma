@@ -309,6 +309,35 @@ RSpec.describe Suma::API::Mobility, :db do
         that_includes(usage_prohibited_reason: "usage_prohibited_instrument_required")
     end
 
+    it "returns undiscounted and subsidized pricing info if available" do
+      vehicle_fac.loc(0.5, 179.5).ebike.create
+      program_pricing.vendor_service_rate.update(
+        unit_amount_cents: 50,
+        surcharge_cents: 100,
+        undiscounted_rate: Suma::Fixtures.vendor_service_rate.unit_amount(100).surcharge(200).create,
+      )
+      subsidizing_ledger = Suma::Payment::Account.lookup_platform_account.
+        ensure_ledger_with_category(vendor_service.categories.first)
+      Suma::Fixtures.payment_trigger.
+        matching.
+        with_programs(program_pricing.program).
+        from(subsidizing_ledger).
+        create
+
+      get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: program_pricing.id, type: "ebike"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        rate: include(
+          id: program_pricing.vendor_service_rate_id,
+          surcharge: include(cents: 100),
+          unit_amount: include(cents: 50),
+          undiscounted_rate: include(surcharge: include(cents: 200)),
+        ),
+        subsidy_match_percentage: 50,
+      )
+    end
+
     it "403s if no vehicle is found" do
       vehicle_fac.ebike.create
 
@@ -418,6 +447,10 @@ RSpec.describe Suma::API::Mobility, :db do
 
   describe "POST /v1/mobility/end_trip" do
     let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
+
+    before(:each) do
+      import_localized_backend_seeds
+    end
 
     it "ends the active trip for the resident" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(member:)

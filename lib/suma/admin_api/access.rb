@@ -45,6 +45,7 @@ class Suma::AdminAPI::Access
     Suma::TranslatedText => [:role, ALL, MANAGEMENT],
     Suma::Vendor::Service => [:vendor_service, COMMERCE, COMMERCE],
     Suma::Vendor::ServiceRate => [:vendor_service_rate, COMMERCE, COMMERCE],
+    Suma::Vendor::ServiceCategory => [:vendor_service_category, ALL, MANAGEMENT],
     Suma::Vendor => [:vendor, COMMERCE, MANAGEMENT],
   }.freeze
 

@@ -43,4 +43,8 @@ module Suma::SpecHelpers::I18n
     end
     return Suma::TranslatedText.create(params)
   end
+
+  module_function def import_localized_backend_seeds
+    Suma::I18n::StaticStringIO.import_seeds(namespaces: "backend")
+  end
 end

@@ -6,11 +6,11 @@ import React from "react";
 
 export default function VendorServiceRateCreatePage() {
   const empty = {
-    name: "",
+    internalName: "",
+    externalName: "",
     unitAmount: config.defaultZeroMoney,
     surcharge: config.defaultZeroMoney,
     unitOffset: 0,
-    localizationKey: "",
     ordinal: 0,
     undiscountedRate: null,
   };

@@ -156,16 +156,16 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
 
       it "returns the existing card (with updated data)" do
         token_req = stub_token_req
-        cust = load_fixture_data("stripe/customer")
-        cust["sources"]["data"] << existing_card.stripe_json.merge("exp_year" => 2100)
-        cust_req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner").
-          to_return(json_response(cust))
+        cardjson = load_fixture_data("stripe/card")
+        cardjson["exp_year"] = 2100
+        card_req = stub_request(:get, "https://api.stripe.com/v1/customers/cus_cardowner/sources/card_1LxbQmAqRmWQecssc7Yf9Wr7").
+          to_return(json_response(cardjson))
 
         post "/v1/payment_instruments/cards/create_stripe", token: token_param
 
         expect(last_response).to have_status(200)
         expect(token_req).to have_been_made
-        expect(cust_req).to have_been_made
+        expect(card_req).to have_been_made
         expect(existing_card.refresh).to have_attributes(exp_year: 2100)
       end
 

@@ -39,8 +39,7 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :fulfillment_status
     expose :admin_status_label, as: :status_label
     expose :serial
-    expose :paid_amount, with: MoneyEntity
-    expose :funded_amount, with: MoneyEntity
+    expose :charge, with: ChargeWithPricesEntity
     expose :audit_logs, with: AuditLogEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
     expose :checkout, with: CheckoutEntity

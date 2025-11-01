@@ -121,12 +121,6 @@ export default function ProgramForm({
           onChange={setFieldFromInput}
         />
         <ModelItems
-          title="Vendor Service"
-          items={resource.vendorServices}
-          setItems={(vs) => setField("vendorServices", vs)}
-          apiItemSearch={api.searchVendorServices}
-        />
-        <ModelItems
           title="Commerce Offering"
           items={resource.commerceOfferings}
           setItems={(o) => setField("commerceOfferings", o)}
