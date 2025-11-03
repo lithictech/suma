@@ -203,7 +203,9 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         vendor_account.update(pending_closure: true)
       end
 
-      it "logs in the user if the vendor account has a pending closure" do
+      it "logs in the user and deletes the contact" do
+        expect(vendor_account).to have_attributes(contact: be_present)
+
         req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/login").
           with(
             body: {
@@ -220,7 +222,11 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
         expect(req).to have_been_made
         expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
-        expect(vendor_account.refresh).to have_attributes(latest_access_code: nil, pending_closure: false)
+        expect(vendor_account.refresh).to have_attributes(
+          latest_access_code: nil,
+          pending_closure: false,
+          contact: nil,
+        )
       end
 
       it "ignores NoToken errors" do

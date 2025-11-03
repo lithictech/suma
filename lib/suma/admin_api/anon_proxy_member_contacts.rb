@@ -24,11 +24,7 @@ class Suma::AdminAPI::AnonProxyMemberContacts < Suma::AdminAPI::V1
     post :provision do
       check_admin_role_access!(:read, Suma::AnonProxy::MemberContact)
       (member = Suma::Member[params[:member][:id]]) or forbidden!
-      contact, created = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(member, params[:type])
-      unless created
-        msg = "Member #{member.name} already has a contact for #{params[:type]}. Delete it first and try again."
-        adminerror!(409, msg)
-      end
+      contact = Suma::AnonProxy::MemberContact.provision_anonymous_contact(member, params[:type])
       created_resource_headers(contact.id, contact.admin_link)
       status 200
       present contact, with: DetailedMemberContactEntity
