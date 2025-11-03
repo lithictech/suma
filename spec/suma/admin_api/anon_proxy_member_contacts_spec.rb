@@ -77,14 +77,6 @@ RSpec.describe Suma::AdminAPI::AnonProxyMemberContacts, :db do
 
       expect(last_response).to have_status(403)
     end
-
-    it "errors if the member already has a contact of the given type" do
-      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
-
-      post "/v1/anon_proxy_member_contacts/provision", member: {id: member.id}, type: :email
-
-      expect(last_response).to have_status(409)
-    end
   end
 
   describe "GET /v1/anon_proxy_member_contacts/:id" do

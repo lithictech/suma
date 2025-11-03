@@ -44,7 +44,9 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
         # that is good enough (we think).
         nil
       end
-      vendor_account.update(pending_closure: false)
+      # This email is now trashed for 90 days; clear it out so the next time
+      # the account is linked, a new contact is generated.
+      vendor_account.update(pending_closure: false, contact: nil)
       result.handled = true
       return result
     elsif Suma::Payment.service_usage_prohibited_reason(vendor_account.member.payment_account)

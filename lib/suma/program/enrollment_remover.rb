@@ -29,12 +29,16 @@ class Suma::Program::EnrollmentRemover
     return self
   end
 
-  def process
-    raise LocalJumpError, "must first call reenroll with a block" unless @reenroll_block
+  private def check_transaction!
     Suma::Postgres.check_transaction(
       @member.db,
       "Removal has side effects, and should be idempotent, so cannot use a transaction.",
     )
+  end
+
+  def process
+    raise LocalJumpError, "must first call reenroll with a block" unless @reenroll_block
+    check_transaction!
     @member.db.transaction(rollback: :always) do
       m2 = Suma::Member[@member.id]
       @reenroll_block.call(m2)
@@ -55,13 +59,35 @@ class Suma::Program::EnrollmentRemover
     was_in_lime = @before_configs.any? { |vc| vc.auth_to_vendor_key == "lime" }
     still_in_lime = @after_configs.any? { |vc| vc.auth_to_vendor_key == "lime" }
     return unless was_in_lime && !still_in_lime
-    lime_config = @before_configs.find { |vc| vc.auth_to_vendor_key == "lime" }
-    vas_ds = @member.anon_proxy_vendor_accounts_dataset.where(configuration: lime_config)
-    vas = vas_ds.all
-    return if vas.empty?
-    vas_ds.update(pending_closure: true)
-    vas.each do |va|
-      # Request a new magic link, then log in, which will sign the account out of all other devices.
+    self.close_lime_accounts
+  end
+
+  # Remove member access to all Lime AnonProxy accounts in suma (generally just one).
+  # This sets the account as pending closure, then requests a new magic link.
+  # When the link is received (see +Suma::AnonProxy::MessageHandler::Lime+),
+  # we exchange the token, which logs the user out of all other devices,
+  # and un-mark the account as pending closure.
+  #
+  # It also trashes the existing member contact tied to the vendor account,
+  # so the user can log in with a new valid account (since the old account
+  # is logged out of the device for 90 days as per Lime).
+  #
+  # This method is idempotent:
+  # - vendor accounts pending closure re-request a magic link (processing this is also idempotent);
+  # - vendor accounts already closed no longer have a member contact so are skipped.
+  #
+  def close_lime_accounts
+    check_transaction!
+    lime_configs = Suma::AnonProxy::VendorConfiguration.where(auth_to_vendor_key: "lime").all
+    vendor_accounts = @member.anon_proxy_vendor_accounts_dataset.
+      where(configuration: lime_configs).
+      exclude(contact_id: nil).
+      all
+    return if vendor_accounts.empty?
+    # Update accounts by ID to make sure we're looking at a consistent set of rows.
+    Suma::AnonProxy::VendorAccount.where(id: vendor_accounts.map(&:id)).update(pending_closure: true)
+    # Request a new magic link for each account. See method doc for explanation.
+    vendor_accounts.each do |va|
       Suma::AnonProxy::AuthToVendor::Lime.new(va).auth
     end
   end
@@ -87,10 +113,38 @@ class Suma::Program::EnrollmentRemover
         configuration: Suma::AnonProxy::VendorConfiguration.where(auth_to_vendor_key: "lyft_pass"),
       ),
     ).all
+    self.revoke_lyft_passes(registrations)
+  end
+
+  # Revoke access to all Lyft Pass programs.
+  # Generally this is only used for global changes,
+  # like when a user loses access to services due to a negative ledger.
+  def revoke_all_lyft_passes
+    registrations = Suma::AnonProxy::VendorAccountRegistration.where(
+      account: @member.anon_proxy_vendor_accounts_dataset.where(
+        configuration: Suma::AnonProxy::VendorConfiguration.where(auth_to_vendor_key: "lyft_pass"),
+      ),
+    ).all
+    self.revoke_lyft_passes(registrations)
+  end
+
+  # Revoke the member's access to the Lyft Pass programs represented by
+  # the registrations. Registrations are destroyed when revoked,
+  # so the member can be granted access to the program again when the suma app allows it.
+  #
+  # This method is idempotent:
+  # - After revoking registration in a program, the registration is destroyed.
+  #   At this point, we won't try to re-revoke it.
+  #
+  # @param [Array<Suma::AnonProxy::VendorAccountRegistration>] registrations
+  def revoke_lyft_passes(registrations)
+    check_transaction!
+    return if registrations.empty?
     lp = Suma::Lyft::Pass.from_config
     lp.authenticate
     registrations.each do |r|
       member = r.account.member
+      # If we're running this after member deletion, use their previous phone as what was previous valid.
       phone = member.soft_deleted? ? member.previous_phones.first : member.phone
       lp.revoke_member(r.account.member, program_id: r.external_program_id, phone:) if phone
       r.destroy
