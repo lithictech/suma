@@ -23,7 +23,7 @@ export default function MicromobilityRate({ rate }) {
     );
   }
   return (
-    <div className="d-flex flex-column gap-1">
+    <div className="d-flex flex-column gap-2">
       {disc}
       <p className="mb-0">
         {t("mobility.rate_micromobility", {
