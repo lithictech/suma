@@ -58,7 +58,7 @@ class Suma::Member::Dashboard
     elsif cash_balance.negative?
       r << Alert.new("dashboard.negative_cash_balance", "danger")
     elsif expiring_instruments?
-      r << Alert.new("dashboard.expiring_instruments", "warning")
+      r << Alert.new("dashboard.payment_methods_expiring", "warning")
     end
     return r
   end
