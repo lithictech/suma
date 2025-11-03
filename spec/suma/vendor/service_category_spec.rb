@@ -19,17 +19,38 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
   end
 
   it "knows its ancestry and can tsort" do
-    a1 = Suma::Fixtures.vendor_service_category.create
-    b1_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1)
-    b2_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1)
-    c1_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1)
-    c2_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1)
-    c1_b2 = Suma::Fixtures.vendor_service_category.create(parent: b2_a1)
-    d1_c2 = Suma::Fixtures.vendor_service_category.create(parent: c2_b1)
+    a1 = Suma::Fixtures.vendor_service_category.create(name: "a1")
+    b1_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1, name: "b1_a1")
+    b2_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1, name: "b2_a1")
+    c1_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1, name: "c1_b1")
+    c2_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1, name: "c2_b1")
+    c1_b2 = Suma::Fixtures.vendor_service_category.create(parent: b2_a1, name: "c1_b2")
+    d1_c2 = Suma::Fixtures.vendor_service_category.create(parent: c2_b1, name: "d1_c2")
     expect(a1.children).to have_same_ids_as(b1_a1, b2_a1)
-    expect(a1.tsort).to have_same_ids_as(c1_b1, d1_c2, c2_b1, b1_a1, c1_b2, b2_a1, a1).ordered
+    expect(a1.tsort).to have_same_ids_as(c1_b2, b2_a1, d1_c2, c2_b1, c1_b1, b1_a1, a1).ordered
     expect(b2_a1.tsort).to have_same_ids_as(c1_b2, b2_a1).ordered
     expect(d1_c2.tsort).to have_same_ids_as(d1_c2).ordered
+
+    expect(a1).to be_ancestor_of(a1)
+    expect(a1).to be_ancestor_of(d1_c2)
+    expect(d1_c2).to be_ancestor_of(d1_c2)
+    expect(d1_c2).to_not be_ancestor_of(b2_a1)
+
+    expect(a1).to be_descendant_of(a1)
+    expect(d1_c2).to_not be_descendant_of(c1_b1)
+    expect(d1_c2).to be_descendant_of(c2_b1)
+    expect(d1_c2).to be_descendant_of(d1_c2)
+  end
+
+  it "can tsort all" do
+    a1 = Suma::Fixtures.vendor_service_category.create(name: "a1")
+    b1_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1, name: "b1")
+    b2_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1, name: "b2")
+    c1_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1, name: "c3")
+    z1 = Suma::Fixtures.vendor_service_category.create(name: "z1")
+    y1_x1 = Suma::Fixtures.vendor_service_category.create(parent: z1, name: "y1")
+
+    expect(described_class.tsort_all).to have_same_ids_as(a1, b1_a1, c1_b1, b2_a1, z1, y1_x1).ordered
   end
 
   describe "hierarchy_depth" do
@@ -47,14 +68,16 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
     end
   end
 
-  describe "full_label" do
+  describe "labels" do
     it "renders hierarchical" do
       a = Suma::Fixtures.vendor_service_category(name: "A").create
       b = Suma::Fixtures.vendor_service_category.create(name: "B", parent: a)
       c = Suma::Fixtures.vendor_service_category.create(name: "C", parent: b)
-      expect(a).to have_attributes(full_label: "A")
-      expect(b).to have_attributes(full_label: "A - B")
-      expect(c).to have_attributes(full_label: "A - B - C")
+      d = Suma::Fixtures.vendor_service_category.create(name: "D", parent: c)
+      expect(a).to have_attributes(full_label: "A", hierarchical_label: "A")
+      expect(b).to have_attributes(full_label: "A - B", hierarchical_label: "└ B")
+      expect(c).to have_attributes(full_label: "A - B - C", hierarchical_label: "└─ C")
+      expect(d).to have_attributes(hierarchical_label: "└── D")
     end
   end
 end

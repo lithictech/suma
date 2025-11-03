@@ -70,7 +70,8 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       trip.vendor_service.update(external_name: "Suma Bikes")
       charge = Suma::Fixtures.charge(mobility_trip: trip, member:, undiscounted_subtotal: money("$12.50")).create
       bx = Suma::Fixtures.book_transaction(amount: "$10.25").from(ledger).create
-      charge.add_line_item(book_transaction: bx)
+      charge.add_contributing_book_transaction(bx)
+      charge.add_line_item_from(bx)
       expect(bx).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "mobility_trip", args: {discount_amount: cost("$2.25"), service_name: "Suma Bikes"}),
@@ -85,7 +86,8 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
         order.checkout.cart.offering.description.update(string: "Suma Food")
         charge = Suma::Fixtures.charge(commerce_order: order, member:, undiscounted_subtotal: money("$12.50")).create
         bx = Suma::Fixtures.book_transaction(amount: "$10.25").from(ledger).create
-        charge.add_line_item(book_transaction: bx)
+        charge.add_contributing_book_transaction(bx)
+        charge.add_line_item_from(bx)
         expect(bx).to have_attributes(
           usage_details: contain_exactly(
             have_attributes(code: "commerce_order", args: {discount_amount: cost("$2.25"), service_name: "Suma Food"}),
@@ -97,9 +99,10 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
     it "uses 'misc' if receiver has a charge without a mobility trip", lang: :en do
       ledger = Suma::Fixtures.ledger.member(member).create
       charge = Suma::Fixtures.charge(member:, undiscounted_subtotal: money("$12.50")).create
-      charge.mobility_trip = nil # Cannot be saved due to constraint but keep here to test fallback
       bx = Suma::Fixtures.book_transaction(amount: "$12.50", memo: translated_text(en: "Hello")).from(ledger).create
-      charge.add_line_item(book_transaction: bx)
+      charge.add_contributing_book_transaction(bx)
+      charge.add_line_item_from(bx)
+      bx.charge_contributed_to.mobility_trip = nil # Cannot be saved due to constraint but keep here to test fallback
       expect(bx).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "misc", args: {discount_amount: cost("$0"), service_name: "Hello"}),

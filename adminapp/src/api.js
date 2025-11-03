@@ -89,7 +89,7 @@ export default {
   getCurrencies: (data, ...args) => get(`/adminapi/v1/meta/currencies`, data, ...args),
   getSupportedGeographies: (data, ...args) =>
     get(`/adminapi/v1/meta/geographies`, data, ...args),
-  getVendorServiceCategories: (data, ...args) =>
+  getVendorServiceCategoriesMeta: (data, ...args) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data, ...args),
   getProgramsMeta: (data, ...args) => get(`/adminapi/v1/meta/programs`, data, ...args),
   getResourceAccessMeta: (data, ...args) =>
@@ -269,6 +269,15 @@ export default {
   updateVendorServiceRate: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/vendor_service_rates/${id}`, data, ...args),
 
+  getVendorServiceCategories: (data, ...args) =>
+    get(`/adminapi/v1/vendor_service_categories`, data, ...args),
+  getVendorServiceCategory: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/vendor_service_categories/${id}`, data, ...args),
+  createVendorServiceCategory: (data, ...args) =>
+    post(`/adminapi/v1/vendor_service_categories/create`, data, ...args),
+  updateVendorServiceCategory: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/vendor_service_categories/${id}`, data, ...args),
+
   getVendorAccounts: (data, ...args) =>
     get("/adminapi/v1/anon_proxy_vendor_accounts", data, ...args),
   getVendorAccount: ({ id, ...data }, ...args) =>
@@ -413,6 +422,8 @@ export default {
   searchRoles: (data, ...args) => post(`/adminapi/v1/search/roles`, data, ...args),
   searchVendorServices: (data, ...args) =>
     post(`/adminapi/v1/search/vendor_services`, data, ...args),
+  searchVendorServiceCategories: (data, ...args) =>
+    post(`/adminapi/v1/search/vendor_service_categories`, data, ...args),
   searchVendorServiceRates: (data, ...args) =>
     post(`/adminapi/v1/search/vendor_service_rates`, data, ...args),
   searchCommerceOffering: (data, ...args) =>

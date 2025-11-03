@@ -190,8 +190,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     it "creates a charge for the customer cost" do
       order = create_order
       expect(order).to be_a(Suma::Commerce::Order)
-      expect(order.charges).to have_length(1)
-      expect(order.charges.first).to have_attributes(
+      expect(order.charge).to have_attributes(
         undiscounted_subtotal: cost("$60"), discounted_subtotal: cost("$40"),
       )
     end
@@ -202,7 +201,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
         have_attributes(amount: cost("$35"), status: "collecting"),
       )
-      expect(order.charges.first.associated_funding_transactions).to contain_exactly(
+      expect(order.charge.associated_funding_transactions).to contain_exactly(
         be === member.payment_account.originated_funding_transactions.first,
       )
     end
@@ -235,7 +234,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
       # $16 cash should generate $24 in subsidy ($16 from 1-to-1 and $8 from 0.5 match)
       order = create_order(money("16"))
-      expect(order.charges.first.associated_funding_transactions).to contain_exactly(
+      expect(order.charge.associated_funding_transactions).to contain_exactly(
         have_attributes(amount: cost("$16")),
       )
       expect(matched_trigger1.executions).to contain_exactly(
@@ -294,12 +293,11 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         customer_cost = money("$1244")
         chargeable_total = customer_cost - book_cash.amount - book_food.amount - book_holiday.amount
         order = create_order(chargeable_total, checkout_: checkout)
-        expect(order.charges).to have_length(1)
-        expect(order.charges.first).to have_attributes(
+        expect(order.charge).to have_attributes(
           discounted_subtotal: customer_cost,
           undiscounted_subtotal: cost("$1555"),
         )
-        expect(order.charges.first.line_items.map(&:book_transaction)).to contain_exactly(
+        expect(order.charge.contributing_book_transactions).to contain_exactly(
           have_attributes(amount: cost("$3"), originating_ledger: be === food_ledger),
           have_attributes(amount: cost("$0.30"), originating_ledger: be === holidaymeal_ledger),
           have_attributes(amount: cost("$1240.70"), originating_ledger: be === cash_ledger),
@@ -359,8 +357,13 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         # $54 total = $30 in match vouchers + $24 in intro vouchers
         # $20 charge = $15 match voucher cash cost + $5 into voucher cash cost
         order = create_order(money("$20"), checkout_: checkout)
-        expect(order.charges).to contain_exactly(have_attributes(discounted_subtotal: cost("$54")))
-        expect(order.charges.first.line_items.map(&:book_transaction)).to contain_exactly(
+        expect(order.charge).to have_attributes(discounted_subtotal: cost("$54"))
+        expect(order.charge.line_items).to contain_exactly(
+          have_attributes(amount: cost("$20")),
+          have_attributes(amount: cost("$19")),
+          have_attributes(amount: cost("$15")),
+        )
+        expect(order.charge.contributing_book_transactions).to contain_exactly(
           have_attributes(amount: cost("$20"), originating_ledger: be === cash_ledger),
           have_attributes(amount: cost("$19"), originating_ledger: be === intro_ledger),
           have_attributes(amount: cost("$15"), originating_ledger: be === match_ledger),
@@ -391,12 +394,11 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           create
 
         order = create_order(checkout_: checkout)
-        expect(order.charges).to have_length(1)
-        expect(order.charges.first).to have_attributes(
+        expect(order.charge).to have_attributes(
           discounted_subtotal: cost("40"),
           undiscounted_subtotal: cost("$50"),
         )
-        expect(order.charges.first.line_items.map(&:book_transaction)).to contain_exactly(
+        expect(order.charge.contributing_book_transactions).to contain_exactly(
           have_attributes(originating_ledger: be === cash_ledger, amount: cost("$40")),
         )
         expect(member.payment_account.all_book_transactions(reload: true)).to contain_exactly(

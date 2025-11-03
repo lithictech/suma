@@ -77,40 +77,6 @@ function Week({ items, beginAt, endAt, beginIndex, endIndex }) {
 function Trip({ trip }) {
   const { marshalToUrl } = useUrlMarshal();
   const { id, vehicleType, provider, beganAt, charge } = trip;
-  // const trip = {
-  //   id: 4,
-  //   vehicle_id: "suma-9f3dd8119caa5745e4cf439e3bd3b16a",
-  //   vehicle_type: "ebike",
-  //   provider: {
-  //     id: 37,
-  //     name: "Suma Testing",
-  //     slug: "suma_testing",
-  //     vendor_name: "Suma Testing",
-  //     vendor_slug: "suma_testing",
-  //   },
-  //   rate: {
-  //     id: 38,
-  //     localization_key: "ut",
-  //     localization_vars: {
-  //       unit_cents: 0,
-  //       unit_currency: "USD",
-  //       surcharge_cents: 0,
-  //       surcharge_currency: "USD",
-  //     },
-  //   },
-  //   begin_lat: "45.5157855",
-  //   begin_lng: "-122.601258",
-  //   began_at: "2025-04-04T16:09:44.154+00:00",
-  //   end_lat: "45.51454326700422",
-  //   end_lng: "-122.6019944355803",
-  //   ended_at: "2025-04-04T16:09:50.652+00:00",
-  //   ongoing: false,
-  //   charge: {
-  //     undiscounted_cost: { cents: 0, currency: "USD" },
-  //     customer_cost: { cents: 0, currency: "USD" },
-  //     savings: { cents: 0, currency: "USD" },
-  //   },
-  // };
   return (
     <Link to={`/trip/${id}?${marshalToUrl("trip", trip)}`} className="link-unstyled">
       <Stack direction="horizontal" className="justify-content-between p-3">

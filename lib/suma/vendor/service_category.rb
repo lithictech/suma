@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/postgres/model"
 
 class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_categories)
+  include Suma::AdminLinked
   include TSort
 
   # Because a service category can point to many services and many products,
@@ -13,9 +15,20 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
   many_to_one :parent, class: self
   one_to_many :children, class: self, key: :parent_id
 
-  def self.cash
-    return Suma.cached_get("vendor_service_category_cash") do
-      self.find_or_create_or_find(name: "Cash")
+  class << self
+    def lookup(name)
+      return Suma.cached_get("vendor_service_category_#{name}") do
+        self.find_or_create_or_find(name:)
+      end
+    end
+
+    def cash = self.lookup("Cash")
+
+    def tsort_all
+      roots = self.where(parent_id: nil).all
+      roots.sort_by!(&:name)
+      result = roots.inject([]) { |memo, r| memo.concat(r.tsort.reverse) }
+      return result
     end
   end
 
@@ -28,7 +41,7 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
   end
 
   def tsort_each_child(node, &)
-    return node.children.each(&)
+    return node.children.sort_by(&:name).reverse.each(&)
   end
 
   def hierarchy_depth
@@ -41,14 +54,33 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
     return d
   end
 
-  def hierarchy_up
+  def hierarchy_up(&block)
     it = self
-    arr = [self]
+    if block
+      yield(self)
+    else
+      arr = [self]
+    end
     while (parent = it.parent)
-      arr << parent
+      if block
+        yield(parent)
+      else
+        arr << parent
+      end
       it = parent
     end
-    return arr
+    return arr unless block
+  end
+
+  def ancestor_of?(other)
+    other.hierarchy_up do |h|
+      return true if h === self
+    end
+    return false
+  end
+
+  def descendant_of?(other)
+    return other.ancestor_of?(self)
   end
 
   def full_label
@@ -57,6 +89,18 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
     end
     return self.name
   end
+
+  def hierarchical_label
+    depth = self.hierarchy_depth
+    return self.name if depth.zero?
+    chars = +"└"
+    (0..(depth - 2)).each { chars << "─" } if depth > 1
+    chars << " "
+    chars << self.name
+    return chars
+  end
+
+  def rel_admin_link = "/vendor-service-category/#{self.id}"
 
   def before_create
     self.slug ||= Suma.to_slug(self.name)

@@ -28,22 +28,20 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
 
   plugin :hybrid_search
   plugin :timestamps
-  plugin :money_fields, :undiscounted_subtotal
+  plugin :money_fields, :undiscounted_subtotal, :off_platform_amount
 
   many_to_one :member, class: "Suma::Member"
   many_to_one :mobility_trip, class: "Suma::Mobility::Trip"
   many_to_one :commerce_order, class: "Suma::Commerce::Order"
   one_to_many :line_items, class: "Suma::Charge::LineItem", order: order_assoc(:asc)
-  one_to_many :on_platform_line_items,
-              class: "Suma::Charge::LineItem",
-              order: order_assoc(:asc),
-              conditions: Sequel[:book_transaction_id] !~ nil,
-              read_only: true
-  one_to_many :off_platform_line_items,
-              class: "Suma::Charge::LineItem",
-              order: order_assoc(:asc),
-              conditions: Sequel[:book_transaction_id] =~ nil,
-              read_only: true
+  # Contributing book transactions are those which helped pay for the charge.
+  # They should all originate from ledgers belonging to the charge's member.
+  many_to_many :contributing_book_transactions,
+               class: "Suma::Payment::BookTransaction",
+               join_table: :charges_contributing_book_transactions,
+               left_key: :charge_id,
+               right_key: :book_transaction_id,
+               order: order_desc
   # Keep track of any synchronous funding transactions
   # that were caused due to this charge. There is NOT a direct linkage
   # in ledgering terms- this is rather modeling the user experience
@@ -65,6 +63,36 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   def discounted_subtotal = self.line_items.sum(Money.new(0), &:amount)
   def discount_amount = self.undiscounted_subtotal - self.discounted_subtotal
 
+  # How much of the paid amount was synchronously funded during checkout?
+  # Note that there is no crediting book transaction associated from the charge (which are all debits)
+  # to the funding transaction (which is a credit)- payments work with ledgers, not linking
+  # charges to orders, so we keep track of this additional data via associated_funding_transaction.
+  def funded_amount = self.associated_funding_transactions.sum(Money.new(0), &:amount)
+
+  # How much in cash did the user pay for this, either real-time or from a cash ledger credit.
+  # Ie, how many of the book transactions for charges came from the cash ledger?
+  def cash_paid_from_ledger = self.payment_group_amounts.fetch(:cash)
+
+  # How much did the user send from ledgers that weren't the cash ledger?
+  # This does NOT capture off-platform transactions ('self data' in charge line items),
+  # so cash_paid + noncash_paid may not equal the paid_cost.
+  def noncash_paid_from_ledger = self.payment_group_amounts.fetch(:noncash)
+
+  # Return a hash of :cash and :noncash payment amounts.
+  def payment_group_amounts
+    cash_led = self.member.payment_account&.cash_ledger
+    cash = Money.new(0)
+    noncash = Money.new(0)
+    self.contributing_book_transactions.each do |bx|
+      if bx.originating_ledger === cash_led
+        cash += bx.amount
+      else
+        noncash += bx.amount
+      end
+    end
+    return {cash:, noncash:}
+  end
+
   #
   # Use PricedItem aliases
   #
@@ -75,10 +103,8 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
 
   def rel_admin_link = "/charge/#{self.id}"
 
-  def add_off_platform_line_item(amount:, memo:, **kw)
-    li = Suma::Charge::LineItem.create_self(charge: self, amount:, memo:, **kw)
-    self.associations.delete(:off_platform_line_items)
-    return li
+  def add_line_item_from(has_amount_and_memo)
+    self.add_line_item(amount: has_amount_and_memo.amount, memo: has_amount_and_memo.memo)
   end
 
   def hybrid_search_fields

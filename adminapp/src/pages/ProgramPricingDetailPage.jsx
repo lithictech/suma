@@ -8,6 +8,7 @@ export default function ProgramPricingDetailPage() {
   return (
     <ResourceDetail
       resource="program_pricing"
+      canEdit={true}
       backTo={(m) => m.program?.adminLink}
       apiGet={api.getProgramPricing}
       apiDelete={api.destroyProgramPricing}
@@ -31,7 +32,7 @@ export default function ProgramPricingDetailPage() {
           label: "Rate",
           value: (
             <AdminLink model={model.vendorServiceRate}>
-              {model.vendorServiceRate.name}
+              {model.vendorServiceRate.internalName}
             </AdminLink>
           ),
         },

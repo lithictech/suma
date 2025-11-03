@@ -17,8 +17,8 @@ class Suma::Analytics::Charge < Suma::Analytics::Model(Sequel[:analytics][:charg
     :undiscounted_subtotal,
     :discounted_subtotal,
     :discount_amount,
-    [:cash_paid, [:commerce_order, :cash_paid]],
-    [:noncash_paid, [:commerce_order, :noncash_paid]],
+    [:cash_paid, [:commerce_order, :cash_paid_from_ledger]],
+    [:noncash_paid, [:commerce_order, :noncash_paid_from_ledger]],
   ]
 end
 

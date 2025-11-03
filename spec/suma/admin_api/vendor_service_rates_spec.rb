@@ -47,17 +47,17 @@ RSpec.describe Suma::AdminAPI::VendorServiceRates, :db do
     it "creates a model" do
       rate2 = Suma::Fixtures.vendor_service_rate.create
       post "/v1/vendor_service_rates/create",
-           name: "ratename",
+           internal_name: "ratename",
+           external_name: "ratename",
            unit_amount: {cents: 7},
            surcharge: {cents: 100},
            unit_offset: 1,
            undiscounted_rate: rate2,
-           localization_key: "lockey",
            ordinal: 1
 
       expect(last_response).to have_status(200)
       expect(Suma::Vendor::ServiceRate.all).to have_length(2)
-      expect(last_response).to have_json_body.that_includes(localization_key: "lockey")
+      expect(last_response).to have_json_body.that_includes(external_name: "ratename")
     end
   end
 
@@ -86,10 +86,10 @@ RSpec.describe Suma::AdminAPI::VendorServiceRates, :db do
     it "updates the model" do
       v = Suma::Fixtures.vendor_service_rate.create
 
-      post "/v1/vendor_service_rates/#{v.id}", name: "foo"
+      post "/v1/vendor_service_rates/#{v.id}", internal_name: "foo"
 
       expect(last_response).to have_status(200)
-      expect(v.refresh).to have_attributes(name: "foo")
+      expect(v.refresh).to have_attributes(internal_name: "foo")
     end
   end
 end

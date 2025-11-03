@@ -102,6 +102,7 @@ RSpec.describe Suma::Analytics, :db do
   describe "Order" do
     it "can denormalize an order" do
       o = Suma::Fixtures.order.create
+      Suma::Fixtures.charge.create(commerce_order: o)
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Order.dataset.all).to contain_exactly(
         include(order_id: o.id, member_id: o.checkout.cart.member_id, funded_cost: 0),
@@ -150,16 +151,6 @@ RSpec.describe Suma::Analytics, :db do
   describe "FundingTransaction" do
     it "denormalizes from funding transactions" do
       o = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      o.strategy.set_response(:originating_instrument_label, "x-1234")
-      Suma::Analytics.upsert_from_transactional_model(o)
-      expect(Suma::Analytics::FundingTransaction.dataset.all).to contain_exactly(
-        include(funding_transaction_id: o.id),
-      )
-    end
-
-    it "works without an originated book transaction" do
-      o = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      o.update(originated_book_transaction: nil)
       o.strategy.set_response(:originating_instrument_label, "x-1234")
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::FundingTransaction.dataset.all).to contain_exactly(

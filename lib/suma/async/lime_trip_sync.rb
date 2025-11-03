@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "amigo/scheduled_job"
-require "suma/lime/sync_trips_from_email"
 require "suma/lime/sync_trips_from_report"
 
 class Suma::Async::LimeTripSync
@@ -12,7 +11,6 @@ class Suma::Async::LimeTripSync
   splay 5.seconds
 
   def _perform
-    Suma::Lime::SyncTripsFromEmail.new.run if Suma::Lime.trip_email_sync_enabled
     Suma::Lime::SyncTripsFromReport.new.run if Suma::Lime.trip_report_sync_enabled
   end
 end

@@ -21,7 +21,6 @@ class Suma::Lime::SyncTripsFromReport
   INTERNAL_COST = "INTERNAL_COST"
   NORMAL_COST = "NORMAL_COST"
   USER_EMAIL = "USER_EMAIL"
-  PRICE_PER_MINUTE = "Price per minute"
 
   def row_iterator = Suma::Webhookdb::RowIterator.new("lime/synctripsreport/pk")
 
@@ -51,9 +50,11 @@ class Suma::Lime::SyncTripsFromReport
         external_program_id: row.fetch(USER_EMAIL),
       )
       if reg_ds.empty?
-        self.logger.warn("lime_report_missing_member",
-                         member_contact_email: row.fetch(USER_EMAIL),
-                         trip_token: row.fetch(TRIP_TOKEN),)
+        args = {member_contact_email: row.fetch(USER_EMAIL), trip_token: row.fetch(TRIP_TOKEN)}
+        self.logger.warn("lime_report_missing_member", args)
+        Sentry.capture_message("Lime trip taken by unknown user") do |scope|
+          scope.set_extras(args)
+        end
         next
       end
       ride_id = row.fetch(TRIP_TOKEN)
@@ -73,9 +74,16 @@ class Suma::Lime::SyncTripsFromReport
       vendor_service: pricing.vendor_service,
       vendor_service_rate: pricing.vendor_service_rate,
     )
-    Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
+    Suma::Mobility::TripImporter.import(receipt:, program:, logger: self.logger)
   end
 
+  # Convert a CSV row into a receipt for trip import.
+  # Note that we use our own rates for all Lime pricing;
+  # using anonymous accounts means we resemble a flow much more like
+  # suma retailing Lime trips.
+  #
+  # The only price column we keep track of is ACTUAL_COST;
+  # this is what Lime charges suma.
   def parse_row_to_receipt(row, rate:)
     r = Suma::Mobility::TripImporter::Receipt.new
     r.trip.set(
@@ -84,28 +92,25 @@ class Suma::Lime::SyncTripsFromReport
       began_at: parsetime(row.fetch(START_TIME)),
       ended_at: parsetime(row.fetch(END_TIME)),
       external_trip_id: row.fetch(TRIP_TOKEN),
+      our_cost: Monetize.parse(row.fetch(ACTUAL_COST)),
     )
-    r.total = Monetize.parse(row.fetch(ACTUAL_COST))
-    minutes = r.trip.duration_minutes
-    # Unfortunately the cost columns in this report are not correct.
-    # INTERNAL_COST should be the Lime Access cost,
-    # but it cannot be derived from PRICE_PER_MINUTE and TRIP_DURATION_MINUTES.
-    # PRICE_PER_MINUTE is wrong, no idea why it's not consistent.
-    # TRIP_DURATION_MINUTES is wrong. 'end - begin in minutes inclusive' gives a more accurate trip length,
-    # as verified by comparing it to the trip price.
-    # NORMAL_COST may give us the correct full retail cost (if we use proper minute calculation),
-    # but we can't get any line item information at that point since we don't know per-minute pricing.
-    # So, in the end: use the actual cost they give us,
-    # and then use the vendor service to figure out discount.
-    Suma.assert do
-      r.total == rate.calculate_total(minutes)
+    r.charged_at = r.trip.began_at
+    r.paid_off_platform_amount = Money.zero
+    r.subsidized_off_platform_amount = Money.zero
+
+    if Monetize.parse(row.fetch(INTERNAL_COST)).zero?
+      # If Lime wrote off the charge, it's because the ride was canceled (too short, didn't move, etc.).
+      # We do NOT want to charge, or claim we charged, the user anything in this case.
+      r.undiscounted_subtotal = Money.zero
+      r.misc_line_items << Suma::Mobility::EndTripResult::LineItem.new(
+        memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_ride_canceled"),
+        amount: Money.zero,
+      )
+    else
+      r.undiscounted_subtotal = rate.calculate_undiscounted_total(r.trip.duration_minutes)
+      r.unlock_fee = rate.surcharge
+      r.per_minute_fee = rate.unit_amount
     end
-    r.discount = rate.discount(minutes)
-    r.line_items << r.line_item(amount: rate.surcharge, memo: "Start Fee")
-    r.line_items << r.line_item(
-      amount: rate.calculate_unit_cost(minutes),
-      memo: "Riding - #{rate.unit_amount.format}/min (#{minutes} min)",
-    )
     return r
   end
 

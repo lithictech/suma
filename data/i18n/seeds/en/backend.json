@@ -1,0 +1,10 @@
+{
+  "subsidy_default": "Subsidy from local funders",
+  "subsidy_rebalancing_uncategorized": "Rebalancing uncategorized subsidy",
+  "trip_receipt_additional_charges": "Additional charges",
+  "trip_receipt_additional_discount": "{{vendor}} discount",
+  "trip_receipt_ride_canceled": "Ride cancelled",
+  "trip_receipt_ride_cost": "Ride cost ({{unit_amount}}/min for {{minutes}} min)",
+  "trip_receipt_ride_cost_alt": "Riding - {{unit_amount}}/min ({{minutes}} min)",
+  "trip_receipt_unlock_fee": "Unlock fee"
+}

@@ -24,8 +24,12 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   one_to_one :credited_payout_transaction,
              class: "Suma::Payment::PayoutTransaction",
              key: :crediting_book_transaction_id
-  one_to_one :charge_line_item,
-             class: "Suma::Charge::LineItem"
+  one_through_one :charge_contributed_to,
+                  class: "Suma::Charge",
+                  join_table: :charges_contributing_book_transactions,
+                  right_key: :charge_id,
+                  left_key: :book_transaction_id
+
   one_to_one :triggered_by,
              class: "Suma::Payment::Trigger::Execution"
   many_to_one :actor, class: "Suma::Member"
@@ -77,7 +81,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   # @return [Array<UsageDetails>]
   def usage_details
     result = []
-    if (ch = self.charge_line_item&.charge)
+    if (ch = self.charge_contributed_to)
       code = "misc"
       service_name = self.memo.string
       if ch.mobility_trip

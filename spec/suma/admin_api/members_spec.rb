@@ -100,8 +100,8 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
     it "represents detailed info" do
       cash_ledger = Suma::Fixtures.ledger.member(admin).category(:cash).create
-      charge1 = Suma::Fixtures.charge(member: admin).create
-      charge1.add_line_item(book_transaction: Suma::Fixtures.book_transaction.from(cash_ledger).create)
+      Suma::Fixtures.charge(member: admin).create
+      Suma::Fixtures.book_transaction.from(cash_ledger).create
       Suma::Fixtures.card.member(admin).create
       Suma::Fixtures.bank_account.member(admin).create
       admin.preferences!.update(preferred_language: "es")
@@ -353,8 +353,6 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       post "/v1/members/#{member.id}/notes/#{note.id}", content: "hello"
 
       expect(last_response).to have_status(200)
-      puts admin.values
-      puts last_response_json_body
       expect(last_response).to have_json_body.
         that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
     end

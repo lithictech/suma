@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 require "suma/admin_linked"
-require "suma/charge/has"
 require "suma/commerce"
 require "suma/postgres/model"
 
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   include Suma::AdminLinked
-  include Suma::Charge::Has
   include Suma::Postgres::HybridSearch
 
   FULFILLABLE_ORDER_STATUSES = ["open", "completed"].freeze
@@ -18,7 +16,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   one_to_many :audit_logs, class: "Suma::Commerce::OrderAuditLog", order: order_desc(:at)
   many_to_one :checkout, class: "Suma::Commerce::Checkout"
-  one_to_many :charges, class: "Suma::Charge", key: :commerce_order_id, order: order_desc
+  one_to_one :charge, key: :commerce_order_id, class: "Suma::Charge"
 
   many_to_one :total_item_count,
               read_only: true,

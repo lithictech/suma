@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/commerce"
+require "suma/charge/charger"
 require "suma/postgres/model"
 
 class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
@@ -186,62 +187,58 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       self.cart.associations.delete(:items)
       self.complete.save_changes
 
-      # Record the charge for the full, undiscounted amount.
-      charge = Suma::Charge.create(
+      charger = Charger.new(
+        order:,
+        expected_charge_amount: cash_charge_amount,
         member: self.cart.member,
-        commerce_order: order,
+        apply_at:,
         undiscounted_subtotal: self.undiscounted_cost + self.handling + self.tax,
+        charge_kwargs: {commerce_order: order},
       )
 
-      # We need to re-calculate how much to charge the member
-      # so we can add triggered subsidy payments onto the ledger before charging.
-      predicted_contrib = self.predicted_charge_contributions(apply_at:)
-      # If what we plan to charge them does not match what they see and pass in,
-      # raise an error since some data is out of date.
-      if predicted_contrib.cash.outstanding != cash_charge_amount
-        msg = "Checkout[#{self.id}] desired charge of #{cash_charge_amount.format} and calculated charge " \
-              "of #{predicted_contrib.cash.outstanding.format} differ, please refresh and try again."
-        raise Prohibited.new(msg, reason: :charge_amount_mismatch)
+      charge = charger.charge
+      # Instead of an itemized charge receipt, just add each transaction as an item.
+      # We will use the order itself to create an itemized receipt.
+      charge.contributing_book_transactions.each do |x|
+        charge.add_line_item(amount: x.amount, memo: x.memo)
       end
-
-      # This will make member subledgers have a positive balance.
-      # It will not debit the subledgers or cash ledger.
-      Suma::Payment::Trigger::Plan.new(steps: predicted_contrib.relevant_trigger_steps).
-        execute(ledgers: predicted_contrib.all.map(&:ledger), at: apply_at)
-
-      # See how much the member needs to pay across cash and noncash ledgers,
-      # and what is not covered by existing balances.
-      contrib_collection = self.actual_charge_contributions(apply_at:)
-      if contrib_collection.remainder?
-        contrib_collection.cash.mutate_amount(contrib_collection.cash.amount + contrib_collection.remainder)
-      end
-      debitable = contrib_collection.all.select(&:amount?)
-      # Create ledger debits for all positive contributions.
-      # This will probably make our cash ledger balance negative;
-      # the funding transaction will bring it back to zero.
-      book_xactions = self.cart.member.payment_account.debit_contributions(
-        debitable,
-        memo: Suma::TranslatedText.create(
-          en: "Suma Order %04d - %s" % [order.id, self.cart.offering.description.en],
-          es: "Suma Pedido %04d - %s" % [order.id, self.cart.offering.description.es],
-        ),
-      )
-      book_xactions.each { |x| charge.add_line_item(book_transaction: x) }
-
-      # If there are any remainder contributions, we need to fund them against the cash ledger.
-      if contrib_collection.remainder?
-        funding = Suma::Payment::FundingTransaction.start_new(
-          self.card.member.payment_account,
-          amount: contrib_collection.remainder,
-          instrument: self.payment_instrument,
-          # Once we have asynchronous instruments (bank accounts, etc.),
-          # we can set this to true and figure out how to handle later failures.
-          collect: :must,
-        )
-        charge.add_associated_funding_transaction(funding)
-      end
-
       return order
+    end
+  end
+
+  class Charger < Suma::Charge::Charger
+    def initialize(order:, expected_charge_amount:, **)
+      @order = order
+      @expected_charge_amount = expected_charge_amount
+      super(**)
+    end
+
+    def predicted_charge_contributions = @order.checkout.predicted_charge_contributions(apply_at: self.apply_at)
+    def actual_charge_contributions = @order.checkout.actual_charge_contributions(apply_at: self.apply_at)
+
+    def verify_predicted_contribution(contrib)
+      return unless contrib.cash.outstanding != @expected_charge_amount
+      msg = "Checkout[#{@order.id}] desired charge of #{@expected_charge_amount.format} and calculated charge " \
+            "of #{contrib.cash.outstanding.format} differ, please refresh and try again."
+      raise Prohibited.new(msg, reason: :charge_amount_mismatch)
+    end
+
+    def contribution_memo
+      return Suma::TranslatedText.create(
+        en: "Suma Order %04d - %s" % [@order.id, @order.checkout.cart.offering.description.en],
+        es: "Suma Pedido %04d - %s" % [@order.id, @order.checkout.cart.offering.description.es],
+      )
+    end
+
+    def start_funding_transaction(amount:)
+      return Suma::Payment::FundingTransaction.start_new(
+        self.member.payment_account,
+        amount:,
+        instrument: @order.checkout.payment_instrument,
+        # Once we have asynchronous instruments (bank accounts, etc.),
+        # we can set this to true and figure out how to handle later failures.
+        collect: :must,
+      )
     end
   end
 

@@ -5,6 +5,7 @@ import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import BikeScooterIcon from "@mui/icons-material/BikeScooter";
+import CategoryIcon from "@mui/icons-material/Category";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
@@ -189,6 +190,11 @@ export default function useNavLinks() {
             label: "Program Enrollments",
             href: "/program-enrollments",
             icon: <HowToRegIcon />,
+          },
+          management && {
+            label: "Categories",
+            href: "/vendor-service-categories",
+            icon: <CategoryIcon />,
           },
           members && {
             label: "Messages",

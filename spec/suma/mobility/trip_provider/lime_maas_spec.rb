@@ -45,7 +45,7 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
         }.to_json,
       ).to_return(fixture_response("lime/start_trip"))
 
-    expect(instance.begin_trip(trip)).to be_a(described_class::BeginTripResult)
+    expect(instance.begin_trip(trip)).to be_a(Suma::Mobility::BeginTripResult)
     expect(register_user_req).to have_been_made
     expect(start_trip_req).to have_been_made
     expect(trip).to have_attributes(external_trip_id: "fa03adb1-7755-429f-a80f-ad6836a960ee")
@@ -57,12 +57,13 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
       to_return(fixture_response("lime/start_trip"))
 
     member.update(lime_user_id: "limeuser")
-    expect(instance.begin_trip(trip)).to be_a(described_class::BeginTripResult)
+    expect(instance.begin_trip(trip)).to be_a(Suma::Mobility::BeginTripResult)
     expect(start_trip_req).to have_been_made
     expect(trip).to have_attributes(external_trip_id: "fa03adb1-7755-429f-a80f-ad6836a960ee")
   end
 
   it "can stop an ongoing trip" do
+    import_localized_backend_seeds
     member.update(lime_user_id: "myuser")
     rate = Suma::Fixtures.vendor_service_rate.surcharge(100).discounted_by(0.5).create
     fake_end = Time.parse("2025-09-17T09:43:05Z")
@@ -85,8 +86,11 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
         }.to_json,
       ).to_return(fixture_response("lime/complete_trip"))
     expect(instance.end_trip(trip)).to have_attributes(
-      cost: cost("$1"),
-      undiscounted: cost("$2"),
+      undiscounted_cost: cost("$2"),
+      line_items: contain_exactly(
+        have_attributes(memo: have_attributes(en: "Unlock fee"), amount: cost("$1")),
+        have_attributes(memo: have_attributes(en: "Ride cost (0.00/min for 5 min)"), amount: cost("$0")),
+      ),
     )
     expect(stop_req).to have_been_made
   end

@@ -63,7 +63,6 @@ module Suma::Postgres
     "suma/anon_proxy/vendor_configuration",
     "suma/charge",
     "suma/charge/line_item",
-    "suma/charge/line_item_self_data",
     "suma/commerce/cart",
     "suma/commerce/cart_item",
     "suma/commerce/checkout",

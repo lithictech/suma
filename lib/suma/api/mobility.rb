@@ -76,7 +76,7 @@ class Suma::API::Mobility < Suma::API::V1
         arr << vhash
       end
       Suma::Mobility.offset_disambiguated_vehicles(map_obj)
-      map_obj[:providers] = program_pricings
+      map_obj[:program_pricings] = program_pricings
       present map_obj, with: MobilityMapEntity
     end
 
@@ -102,7 +102,7 @@ class Suma::API::Mobility < Suma::API::V1
       optional :disambiguator, type: String
     end
     get :vehicle do
-      current_member
+      member = current_member
       pricing, vehicles = find_pricing_and_vehicles(
         params[:provider_id],
         lat_int: params[:loc][0],
@@ -119,7 +119,16 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = vehicles[0]
       end
-      present vehicle, with: MobilityVehicleEntity, request:, rate: pricing.vendor_service_rate
+      payment_trigger = Suma::Payment::Trigger.gather(member.payment_account!, active_as_of: current_time).
+        potentially_contributing_to(vehicle.vendor_service, summed: true).
+        first
+      present(
+        vehicle,
+        with: MobilityDetailedVehicleEntity,
+        request:,
+        rate: pricing.vendor_service_rate,
+        payment_trigger:,
+      )
     end
 
     params do
@@ -196,6 +205,18 @@ class Suma::API::Mobility < Suma::API::V1
     expose :o, expose_nil: false
   end
 
+  class SimpleRateEntity < BaseEntity
+    include Suma::API::Entities
+    expose :id
+    expose :surcharge, with: MoneyEntity
+    expose :unit_amount, with: MoneyEntity
+  end
+
+  class RateEntity < SimpleRateEntity
+    expose :external_name, as: :name
+    expose :undiscounted_rate, with: SimpleRateEntity
+  end
+
   class MobilityMapProviderEntity < BaseEntity
     include Suma::API::Entities
     expose :id
@@ -203,7 +224,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :slug, &self.delegate_to(:vendor_service, :internal_name)
     expose :vendor_name, &self.delegate_to(:vendor_service, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor_service, :vendor, :slug)
-    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :vendor_service_rate, as: :rate, with: SimpleRateEntity
     expose :usage_prohibited_reason do |pricing|
       pricing.vendor_service.usage_prohibited_reason(
         current_member, rate: pricing.vendor_service_rate, now: current_time,
@@ -219,7 +240,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :refresh do |_|
       30_000
     end
-    expose :providers, with: MobilityMapProviderEntity
+    expose :program_pricings, as: :providers, with: MobilityMapProviderEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
@@ -234,7 +255,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :restrictions, with: MobilityMapRestrictionEntity
   end
 
-  class MobilityVehicleEntity < BaseEntity
+  class MobilityDetailedVehicleEntity < BaseEntity
     include Suma::API::Entities
     expose :precision do |_|
       Suma::Mobility::COORD2INT_FACTOR
@@ -242,8 +263,12 @@ class Suma::API::Mobility < Suma::API::V1
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
-    expose :rate, with: VendorServiceRateEntity do |_v, options|
+    expose :rate, with: RateEntity do |_v, options|
       options.fetch(:rate)
+    end
+    expose :subsidy_match_percentage do |_v, options|
+      x = options.fetch(:payment_trigger, nil)&.match_fraction || 0
+      (x * 100).round
     end
     expose :deeplink do |vehicle, options|
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)

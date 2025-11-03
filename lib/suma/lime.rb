@@ -18,7 +18,7 @@ module Suma::Lime
     # even if other environments (like development) point towards the production email table.
     setting :violations_processor_enabled, false
 
-    # Sync trips via email. In general, enable this OR the lime report sync;
+    # Sync trips via csv . In general, enable this OR the lime report sync;
     # do not do both, or we could double-charge members for trips.
     setting :trip_email_sync_enabled, false
     # See +trip_email_sync_enabled+.

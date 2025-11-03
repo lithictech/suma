@@ -49,7 +49,7 @@ module Suma::Payment::ExternalTransaction
         type_match = details[:class_name] == strat.class.name
         next unless type_match
         self.associations[details[:name]] = strat
-        self["#{details[:name]}_id"] = strat.id
+        self.send("#{details[:name]}_id=", strat.id)
         strat.associations[:payment] = self
         # rubocop:disable Lint/NonLocalExitFromIterator
         return
@@ -82,18 +82,16 @@ module Suma::Payment::ExternalTransaction
     protected def _originate_book_transaction(originating_ledger:, receiving_ledger:)
       return unless self.originated_book_transaction.nil?
       associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
-      self.db.transaction do
-        originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at: Suma.request_now,
-          amount: self.amount,
-          originating_ledger:,
-          receiving_ledger:,
-          associated_vendor_service_category:,
-          memo: self.memo,
-        )
-        # If the transaction fails, this gets reversed (adds a new inverted 'reversal book transaction')
-        self.update(originated_book_transaction:)
-      end
+      originated_book_transaction = Suma::Payment::BookTransaction.create(
+        apply_at: Suma.request_now,
+        amount: self.amount,
+        originating_ledger:,
+        receiving_ledger:,
+        associated_vendor_service_category:,
+        memo: self.memo,
+      )
+      # If the transaction fails, this gets reversed (adds a new inverted 'reversal book transaction')
+      self.originated_book_transaction = originated_book_transaction
     end
 
     protected def _reverse_originated_book_transaction

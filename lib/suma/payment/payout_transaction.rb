@@ -234,16 +234,16 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     return super
   end
 
-  # Create the transaction from platform->member immediately on create.
+  # Create the transaction from member->platform immediately on create.
   # We do not want to do it only after sending funds; since a payout could be coupled with a credit
   # (see +initiate_refund+), we need to make we don't provide a credit, then the user could pay it down,
   # then we'd try to move money off-platform (originated book transaction).
-  def after_create
-    super
+  def before_create
     self._originate_book_transaction(
       originating_ledger: Suma::Payment.ensure_cash_ledger(self.originating_payment_account),
       receiving_ledger: self.platform_ledger,
     )
+    super
   end
 
   def after_sending

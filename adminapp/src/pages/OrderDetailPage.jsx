@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
+import ChargeDetailGrid from "../components/ChargeDetailGrid";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
@@ -14,6 +15,7 @@ export default function OrderDetailPage() {
       resource="order"
       title={(model) => `Order ${model.serial}`}
       apiGet={api.getCommerceOrder}
+      canEdit={false}
       properties={(model) => [
         { label: "ID", value: model.id },
         {
@@ -29,8 +31,6 @@ export default function OrderDetailPage() {
           label: "Status",
           value: model.statusLabel,
         },
-        { label: "Total Paid", value: <Money>{model.paidAmount}</Money> },
-        { label: "Total Charged", value: <Money>{model.fundedAmount}</Money> },
       ]}
     >
       {(model) => [
@@ -62,6 +62,7 @@ export default function OrderDetailPage() {
             },
           ]}
         />,
+        <ChargeDetailGrid isDetailGrid model={model.charge} />,
         <RelatedList
           title="Items"
           rows={model.items}
