@@ -80,7 +80,7 @@ RSpec.describe Suma::Member::Dashboard, :db do
     it "tells the user about expiring payment instruments" do
       make_eligible_for_expiring_card_warning
       expect(dashboard.alerts).to contain_exactly(
-        have_attributes(localization_key: "dashboard.expiring_instruments", variant: "warning"),
+        have_attributes(localization_key: "dashboard.payment_methods_expiring", variant: "warning"),
       )
     end
   end
