@@ -193,7 +193,7 @@ export default function Map() {
         <DrawerContents>
           <DrawerTitle>{provider.name}</DrawerTitle>
           <MicromobilityRate rate={provider.rate} />
-          <FormError error={error} />
+          <FormError className="my-0" error={error} />
         </DrawerContents>
       );
     }

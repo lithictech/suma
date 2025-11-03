@@ -27,11 +27,11 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
 
   let action;
   if (vehicle.usageProhibitedReason) {
-    action = <p>{t(vehicle.usageProhibitedReason)}</p>;
+    action = <p className="mb-0">{t(vehicle.usageProhibitedReason)}</p>;
   } else if (vehicle.gotoPrivateAccount) {
     action = (
       <>
-        <p>
+        <p className="mb-0">
           {t("mobility.setup_private_account_with_vendor", {
             vendorName: vehicle.vendorService.vendorName,
           })}
@@ -50,12 +50,16 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
   } else if (vehicle.deeplink) {
     action = (
       <>
-        <hr />
-        <Button className="p-1 ps-0" variant="link" href={vehicle.deeplink}>
+        <hr className="my-0" />
+        <Button
+          className="p-1 ps-0 align-self-start"
+          variant="link"
+          href={vehicle.deeplink}
+        >
           {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
           <i className="ms-2 bi bi-box-arrow-right"></i>
         </Button>
-        <div className="mt-2">
+        <div>
           {t("mobility.relink_private_account_with_vendor", {
             vendorName: vehicle.vendorService.vendorName,
           })}
