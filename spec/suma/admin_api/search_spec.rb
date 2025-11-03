@@ -92,6 +92,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/payment_instruments", :hybrid_search do
+    def debug_extra_rows(*expected_items)
+      if last_response_json_body[:items].length != expected_items.length
+        puts Suma::Payment::Instrument.naked.all
+        puts Suma::Payment::Card.naked.all
+        puts Suma::Payment::BankAccount.naked.all
+      end
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(*expected_items))
+    end
+
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
 
@@ -115,7 +124,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       post "/v1/search/payment_instruments", q: "abc", purpose: :funding
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba_abc, card_abc))
+      debug_extra_rows(ba_abc, card_abc)
     end
 
     it "can filter on payment method type" do
@@ -127,7 +136,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       post "/v1/search/payment_instruments", q: "myaccount", types: ["card"], purpose: :funding
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(card))
+      debug_extra_rows(card)
     end
 
     it "can filter on purpose" do
@@ -139,7 +148,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       post "/v1/search/payment_instruments", q: "*", purpose: :payout
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba))
+      debug_extra_rows(ba)
     end
   end
 
