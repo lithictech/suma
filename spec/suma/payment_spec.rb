@@ -26,12 +26,18 @@ RSpec.describe Suma::Payment, :db do
     let(:ledger) { described_class.ensure_cash_ledger(member) }
     let(:account) { ledger.account }
 
-    it "is false if payment account is nil" do
+    it "is unhandled_error if payment account is nil" do
       described_class.minimum_cash_balance_for_services_cents = 0
       expect(described_class.service_usage_prohibited_reason(nil)).to eq("unhandled_error")
     end
 
-    it "is true when the cash balance is >= minimum amount" do
+    it "is non_member_account if payment account does not belong to a member" do
+      described_class.minimum_cash_balance_for_services_cents = 0
+      acct = Suma::Fixtures.vendor.create.payment_account
+      expect(described_class.service_usage_prohibited_reason(acct)).to eq("non_member_account")
+    end
+
+    it "is cash_balance when the cash balance is >= minimum amount" do
       described_class.minimum_cash_balance_for_services_cents = 0
       expect(described_class.service_usage_prohibited_reason(account)).to be_nil
       described_class.minimum_cash_balance_for_services_cents = -5
@@ -40,7 +46,7 @@ RSpec.describe Suma::Payment, :db do
       expect(described_class.service_usage_prohibited_reason(account)).to eq("usage_prohibited_cash_balance")
     end
 
-    it "is false when the cash balance is negative, but greater than minimum amount, but the grace period expired" do
+    it "is cash_balance when the cash balance is negative, but greater than min amount, but the grace period expired" do
       described_class.minimum_cash_balance_for_services_cents = -20_00
       described_class.negative_cash_balance_grace_period = 10.hours
       expect(described_class.service_usage_prohibited_reason(account)).to be_nil

@@ -108,6 +108,7 @@ module Suma::Payment
     # @return [String,nil] The error code, like "usage_prohibited_instrument_required", or nil.
     def service_usage_prohibited_reason(payment_account, now: Time.now)
       return "unhandled_error" if payment_account.nil?
+      return "non_member_account" if payment_account.member_id.nil?
       ledger = payment_account.cash_ledger!
       # We're below the minimum, so this is never ok.
       return "usage_prohibited_cash_balance" if ledger.balance < self.minimum_cash_balance_for_services

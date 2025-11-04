@@ -37,6 +37,7 @@ RSpec.describe "Suma::Payment::Ledger", :db do
         count_credits: 0,
         balance: cost("$0"),
       )
+      expect(ledger.balance_view).to have_attributes(balance: cost("$0"))
       Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$5"))
       Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$10"))
       expect(ledger).to have_attributes(balance: cost("$15"))
@@ -50,6 +51,7 @@ RSpec.describe "Suma::Payment::Ledger", :db do
         count_credits: 2,
         balance: cost("$12.25"),
       )
+      expect(ledger.balance_view.refresh).to have_attributes(balance: cost("$12.25"))
       eagered = described_class.where(id: ledger.id).all.first
       expect(eagered).to have_attributes(
         total_debits: cost("$2.75"),
