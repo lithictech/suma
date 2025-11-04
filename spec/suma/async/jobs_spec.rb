@@ -826,6 +826,23 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "ServiceRevokerScheduler" do
+    it "runs the revoker" do
+      expect(Suma::Program::ServiceRevoker).to receive(:run)
+      Suma::Async::ServiceRevokerScheduler.new.perform(true)
+    end
+  end
+
+  describe "ServiceRevokerRunner" do
+    it "runs the revoker on the originating ledger when a book transaction is created" do
+      orig = Suma::Fixtures.ledger.create(name: "cash")
+      expect(Suma::Program::ServiceRevoker).to receive(:run_for).with(orig)
+      expect do
+        Suma::Fixtures.book_transaction.from(orig).create
+      end.to perform_async_job(Suma::Async::ServiceRevokerRunner)
+    end
+  end
+
   describe "SignalwireProcessOptouts", reset_configuration: Suma::Signalwire do
     it "syncs refunds" do
       import_localized_message_seeds

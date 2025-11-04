@@ -20,6 +20,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   end
 
   many_to_one :account, class: "Suma::Payment::Account"
+  one_to_one :balance_view, class: "Suma::Payment::Ledger::Balance", key: :ledger_id
   many_to_many :vendor_service_categories,
                class: "Suma::Vendor::ServiceCategory",
                join_table: :vendor_service_categories_payment_ledgers,

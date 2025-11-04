@@ -13,7 +13,9 @@ module Suma::Fixtures::PaymentAccounts
   end
 
   before_saving do |instance|
-    instance.member ||= Suma::Fixtures.member.create
+    if instance.member_id.nil? && instance.vendor_id.nil? && !instance.is_platform_account
+      instance.member = Suma::Fixtures.member.create
+    end
     instance
   end
 

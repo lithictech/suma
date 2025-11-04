@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "sequel/all_or_none_constraint"
-
 Sequel.migration do
   up do
     alter_table(:charges) do

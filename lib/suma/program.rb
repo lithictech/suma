@@ -6,10 +6,21 @@ require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Program < Suma::Postgres::Model(:programs)
+  include Appydays::Configurable
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::HasActivityAudit
   include Suma::Image::SingleAssociatedMixin
+
+  configurable(:program) do
+    # False to perform real service revocation.
+    setting :service_revoker_dry_run, true
+    # The lookback period for which to select ledgers with 'recent' activity
+    # for potential revocation. The only reason to change this is
+    # if turning off dry run, and desiring to the revoker across
+    # a larger selection of ledgers.
+    setting :service_revoker_lookback, 4.days.to_i
+  end
 
   # True if +Suma::Program::Has+ types should be available to everyone when they have no programs (value of +true+),
   # or available to no one until they are associated with a program (value of +false+).
