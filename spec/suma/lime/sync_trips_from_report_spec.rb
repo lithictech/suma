@@ -310,7 +310,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       }
     end
 
-    it "syncs all reports in the dataset" do
+    it "syncs all rows in the dataset" do
       txt = <<~CSV
         TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
@@ -329,6 +329,43 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
         have_attributes(
           vehicle_id: "RTOKEN1",
         ),
+      )
+    end
+
+    it "syncs all CSV attachments" do
+      txt1 = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
+        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+      CSV
+      txt2 = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
+        RTOKEN2,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+      CSV
+
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid",
+        from_email: "from@mysuma.org",
+        to_email: "to@mysuma.org",
+        timestamp: Time.now,
+        data: {
+          Attachments: [
+            csv_attachment(txt1),
+            {
+              Name: "Report.pdf",
+              Content: "pdf bytes",
+              ContentID: "f_mg5b72r40",
+              ContentType: "application/pdf",
+              ContentLength: 5,
+            },
+            csv_attachment(txt2),
+          ],
+        }.to_json,
+      )
+
+      described_class.new.run
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(vehicle_id: "RTOKEN1"),
+        have_attributes(vehicle_id: "RTOKEN2"),
       )
     end
   end
