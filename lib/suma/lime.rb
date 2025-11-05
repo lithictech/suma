@@ -29,7 +29,8 @@ module Suma::Lime
     # matching those, *and* belonging to this vendor accounts pointing to this configuration, are used.
     setting :trip_report_vendor_configuration_id, 0
     # Email where trip reports are sent from.
-    # This can be an ILIKE statement, allowing multiple people to send emails during testing.
+    # This is used in a SIMILAR TO statement, allowing multiple people to send emails during testing.
+    # For example: "(%@bar.org|%@foo.org)" would match emails sent from bar.org or foo.org domains.
     setting :trip_report_from_email, "lime-trip-report-from-email@example.org"
     # Email where trip reports are sent to.
     setting :trip_report_to_email, "lime-trip-report-to-email@example.org"
