@@ -19,10 +19,16 @@ export default function VendorServiceRateListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "name",
-          label: "Name",
+          id: "internalName",
+          label: "internalName",
           align: "left",
           render: (c) => <AdminLink model={c}>{c.internalName}</AdminLink>,
+        },
+        {
+          id: "externalName",
+          label: "External Name",
+          align: "left",
+          render: (c) => <AdminLink model={c}>{c.externalName}</AdminLink>,
         },
         {
           id: "unit",
@@ -35,6 +41,16 @@ export default function VendorServiceRateListPage() {
           label: "Surcharge",
           align: "center",
           render: (c) => <Money>{c.surcharge}</Money>,
+        },
+        {
+          id: "undiscounted",
+          label: "Undiscounted",
+          align: "left",
+          render: (c) => (
+            <AdminLink model={c.undiscountedRate}>
+              {c.undiscountedRate?.internalName}
+            </AdminLink>
+          ),
         },
       ]}
     />

@@ -195,12 +195,18 @@ module Suma::AdminAPI::Entities
     expose :slug
   end
 
+  class VendorServiceRateUndiscountedrateEntity < BaseEntity
+    expose :id
+    expose :internal_name
+  end
+
   class VendorServiceRateEntity < BaseEntity
     include AutoExposeBase
     expose :internal_name
     expose :external_name
     expose :unit_amount, with: MoneyEntity
     expose :surcharge, with: MoneyEntity
+    expose :undiscounted_rate, with: VendorServiceRateUndiscountedrateEntity
   end
 
   class ProgramPricingEntity < BaseEntity
