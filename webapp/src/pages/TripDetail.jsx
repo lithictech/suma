@@ -81,10 +81,12 @@ export default function TripDetail() {
 function StartEnd({ t, address, label }) {
   return (
     <Stack direction="horizontal" gap={2}>
-      <Stack direction="vertical" gap={0.5}>
-        <div>{address.part1}</div>
-        <div className="small text-muted">{address.part2}</div>
-      </Stack>
+      {address && (
+        <Stack direction="vertical" gap={0.5}>
+          <div>{address.part1}</div>
+          <div className="small text-muted">{address.part2}</div>
+        </Stack>
+      )}
       <Stack direction="vertical" gap={0.5}>
         <div className="small text-muted text-end">{label}</div>{" "}
         <div className="small text-muted text-end">{dayjs(t).format("LT")}</div>{" "}
