@@ -449,7 +449,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         from_email: "from@mysuma.org",
         to_email: "to@mysuma.org",
         timestamp: Time.now,
-        data: {Attachments: [{Content: Base64.encode64(report_txt)}]}.to_json,
+        data: {Attachments: [{ContentType: "text/csv", Content: Base64.encode64(report_txt)}]}.to_json,
       )
 
       Suma::Async::LimeTripSync.new.perform

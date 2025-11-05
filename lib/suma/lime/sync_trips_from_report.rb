@@ -26,11 +26,15 @@ class Suma::Lime::SyncTripsFromReport
 
   def run
     ds = self.dataset
-    ds = ds.select(:pk, Sequel.pg_jsonb(:data).get("Attachments").get(0).get_text("Content").as(:content))
+    ds = ds.select(:pk, Sequel.pg_jsonb(:data).get("Attachments").as(:attachments))
     self.row_iterator.each(ds) do |row|
-      b64content = row.fetch(:content)
-      content = Base64.decode64(b64content)
-      self.run_for_report(content)
+      row.fetch(:attachments).each do |attachment|
+        content_type = attachment.fetch("ContentType")
+        next unless content_type == "text/csv"
+        b64content = attachment.fetch("Content")
+        content = Base64.decode64(b64content)
+        self.run_for_report(content)
+      end
     end
   end
 
