@@ -75,7 +75,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
               class: "Suma::Payment::Instrument",
               key: :legal_entity_id,
               primary_key: :legal_entity_id,
-              order: [:payment_method_type, Sequel.desc(:id)],
+              order: [:payment_method_type, Sequel.desc(:instrument_id)],
               read_only: true
   one_to_many :charges, class: "Suma::Charge", order: order_desc
   many_to_one :legal_entity, class: "Suma::LegalEntity"

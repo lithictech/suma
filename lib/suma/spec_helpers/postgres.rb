@@ -157,6 +157,15 @@ module Suma::SpecHelpers::Postgres
     roles.each { |r| m.add_role(r) }
   end
 
+  # Reset the primary key generated column.
+  # Only use this for tests that could potentially have ambiguous IDs,
+  # like the payment instruments view.
+  module_function def reset_pk_sequence(m)
+    m.db << "ALTER TABLE #{m.table_name}
+ALTER COLUMN #{m.primary_key}
+RESTART WITH 1;"
+  end
+
   #
   # Custom matchers
   #
