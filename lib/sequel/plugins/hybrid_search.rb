@@ -182,7 +182,7 @@ module Sequel::Plugins::HybridSearch
       # to limit rows.
       ds = ds.join(kw_search.as(:kw_search), id: pk)
       # We want to return rows that don't match any in the semantic search, so use a left_join.
-      ds = ds.left_join(semantic_search.as(:semantic_search), id: pk)
+      ds = ds.left_join(semantic_search.as(:semantic_search), id: :id)
       # Unfortunately the left_join messes up columns, so reselect them
       ds = ds.select(Sequel[self.model.table_name][Sequel.lit("*")])
       # Select the total rank as a field and then order by it

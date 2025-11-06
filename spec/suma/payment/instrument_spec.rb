@@ -16,8 +16,8 @@ RSpec.describe "Suma::Payment::Instrument", :db do
     ba = Suma::Fixtures.bank_account.create
     card = Suma::Fixtures.card.create
     expect(described_class.all).to contain_exactly(
-      have_attributes(id: ba.id, payment_method_type: "bank_account"),
-      have_attributes(id: card.id, payment_method_type: "card"),
+      have_attributes(instrument_id: ba.id, payment_method_type: "bank_account"),
+      have_attributes(instrument_id: card.id, payment_method_type: "card"),
     )
   end
 
@@ -25,8 +25,13 @@ RSpec.describe "Suma::Payment::Instrument", :db do
     exp = Suma::Fixtures.card.expired.create
     c = Suma::Fixtures.card.create
     ba = Suma::Fixtures.bank_account.create
-    expect(described_class.dataset.expired_as_of(Time.now).all).to have_same_ids_as(exp)
-    expect(described_class.dataset.unexpired_as_of(Time.now).all).to have_same_ids_as(c, ba)
+    expect(described_class.dataset.expired_as_of(Time.now).all).to contain_exactly(
+      have_attributes(instrument_id: exp.id, payment_method_type: "card"),
+    )
+    expect(described_class.dataset.unexpired_as_of(Time.now).all).to contain_exactly(
+      have_attributes(instrument_id: c.id, payment_method_type: "card"),
+      have_attributes(instrument_id: ba.id, payment_method_type: "bank_account"),
+    )
   end
 
   it "can reify into concrete types" do
@@ -42,7 +47,7 @@ RSpec.describe "Suma::Payment::Instrument", :db do
   it "can query concrete types" do
     ba = Suma::Fixtures.bank_account.create
     expect(described_class.for("bank_account", ba.id).first).to have_attributes(
-      payment_method_type: "bank_account", id: ba.id,
+      payment_method_type: "bank_account", instrument_id: ba.id,
     )
     expect(described_class.for("card", ba.id).first).to be_nil
   end

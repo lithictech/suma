@@ -35,7 +35,12 @@ RSpec.describe "Suma::Member", :db do
       card = Suma::Fixtures.card.member(member).create
       expect(member.bank_accounts).to have_same_ids_as(ba)
       expect(member.cards).to have_same_ids_as(card)
-      expect(member.payment_instruments).to have_same_ids_as(ba, card)
+      expect(member.payment_instruments).to match(
+        [
+          have_attributes(instrument_id: ba.id, payment_method_type: "bank_account"),
+          have_attributes(instrument_id: card.id, payment_method_type: "card"),
+        ],
+      )
       expect(member.payment_instruments).to all(be_a(Suma::Payment::Instrument))
     end
   end

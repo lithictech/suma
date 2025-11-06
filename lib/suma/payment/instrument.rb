@@ -69,7 +69,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def usable_for_payout = self.where(usable_for_payout: true)
     def unexpired_as_of(t) = self.where((Sequel[:expires_at] =~ nil) | (Sequel[:expires_at] > Sequel[t]))
     def expired_as_of(t) = self.where { expires_at <= Sequel[t] }
-    def for(type, id) = self.where(payment_method_type: type, id:)
+    def for(type, id) = self.where(payment_method_type: type, instrument_id: id)
   end
 
   def payment_method_type = self[:payment_method_type]
@@ -83,7 +83,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
 
   class << self
     def read_only? = true
-    def primary_key = :id
+    def primary_key = :pk
 
     def type_strings_to_types
       return @type_strings_to_types ||= {
@@ -98,14 +98,14 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
       ids_by_type = {}
       rows.each do |r|
         ids = (ids_by_type[r.payment_method_type] ||= [])
-        ids << r.id
+        ids << r.instrument_id
       end
       instances_by_type = {}
       ids_by_type.each do |t, ids|
         type = self.type_strings_to_types.fetch(t)
         instances_by_type[t] = type.dataset.where(type.primary_key => ids).all.index_by(&type.primary_key)
       end
-      result = rows.map { |r| instances_by_type[r.payment_method_type].fetch(r.id) }
+      result = rows.map { |r| instances_by_type[r.payment_method_type].fetch(r.instrument_id) }
       return result
     end
 
