@@ -79,6 +79,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           if existing_card
             existing_card.refetch_remote_data
             existing_card.save_changes
+            existing_card
           else
             stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
             Suma::Payment::Card.create(
