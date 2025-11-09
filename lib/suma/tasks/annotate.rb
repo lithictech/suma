@@ -15,8 +15,15 @@ class Suma::Tasks::Annotate < Rake::TaskLib
         next Kernel.exit(1)
       end
 
-      require "suma"
-      Suma.load_app?
+      # See https://github.com/jeremyevans/sequel-annotate/discussions/24
+      # for why we have this (temporary?) workaround.
+      ENV["SEQUEL_ANNOTATE_HACK"] = "1"
+      begin
+        require "suma"
+        Suma.load_app?
+      ensure
+        ENV.delete("SEQUEL_ANNOTATE_HACK")
+      end
       files = []
       Suma::Postgres.each_model_class do |cls|
         next if cls.anonymous?
