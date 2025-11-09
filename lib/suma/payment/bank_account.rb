@@ -101,10 +101,15 @@ end
 #  name                 | text                     | NOT NULL
 #  account_type         | text                     | NOT NULL
 #  identity             | text                     | NOT NULL
+#  search_content       | text                     |
+#  search_embedding     | vector(384)              |
+#  search_hash          | text                     |
 # Indexes:
-#  bank_accounts_pkey                          | PRIMARY KEY btree (id)
-#  unique_undeleted_bank_account_identity_key  | UNIQUE btree (identity) WHERE soft_deleted_at IS NULL
-#  payment_bank_accounts_legal_entity_id_index | btree (legal_entity_id)
+#  bank_accounts_pkey                                  | PRIMARY KEY btree (id)
+#  unique_undeleted_bank_account_identity_key          | UNIQUE btree (identity) WHERE soft_deleted_at IS NULL
+#  payment_bank_accounts_legal_entity_id_index         | btree (legal_entity_id)
+#  payment_bank_accounts_search_content_trigram_index  | gist (search_content)
+#  payment_bank_accounts_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  bank_accounts_legal_entity_id_fkey      | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
 #  bank_accounts_plaid_institution_id_fkey | (plaid_institution_id) REFERENCES plaid_institutions(pk) ON DELETE SET NULL

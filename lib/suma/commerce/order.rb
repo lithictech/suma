@@ -237,6 +237,7 @@ end
 # Indexes:
 #  commerce_orders_pkey                          | PRIMARY KEY btree (id)
 #  commerce_orders_checkout_id_key               | UNIQUE btree (checkout_id)
+#  commerce_orders_search_content_trigram_index  | gist (search_content)
 #  commerce_orders_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  commerce_orders_checkout_id_fkey | (checkout_id) REFERENCES commerce_checkouts(id)

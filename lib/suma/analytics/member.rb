@@ -49,6 +49,7 @@ end
 #  preferred_language         | text                     |
 #  account_updates_sms_optout | boolean                  |
 #  marketing_sms_optout       | boolean                  |
+#  roles                      | text[]                   |
 # Indexes:
 #  members_pkey          | PRIMARY KEY btree (pk)
 #  members_member_id_key | UNIQUE btree (member_id)

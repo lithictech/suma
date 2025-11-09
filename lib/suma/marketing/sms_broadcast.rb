@@ -233,9 +233,13 @@ end
 #  search_content   | text                     |
 #  search_embedding | vector(384)              |
 #  search_hash      | text                     |
+#  sending_number   | text                     | NOT NULL DEFAULT ''::text
 # Indexes:
 #  marketing_sms_broadcasts_pkey                          | PRIMARY KEY btree (id)
+#  marketing_sms_broadcasts_search_content_trigram_index  | gist (search_content)
 #  marketing_sms_broadcasts_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
+# Check constraints:
+#  numeric_phone | (sending_number ~ '^[0-9]{11,15}$'::text OR sending_number = ''::text)
 # Foreign key constraints:
 #  marketing_sms_broadcasts_body_id_fkey       | (body_id) REFERENCES translated_texts(id)
 #  marketing_sms_broadcasts_created_by_id_fkey | (created_by_id) REFERENCES members(id) ON DELETE SET NULL

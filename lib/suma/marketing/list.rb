@@ -129,6 +129,7 @@ end
 #  search_hash      | text                     |
 # Indexes:
 #  marketing_lists_pkey                          | PRIMARY KEY btree (id)
+#  marketing_lists_search_content_trigram_index  | gist (search_content)
 #  marketing_lists_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Referenced By:
 #  marketing_lists_members        | marketing_lists_members_marketing_list_id_fkey | (marketing_list_id) REFERENCES marketing_lists(id) ON DELETE CASCADE

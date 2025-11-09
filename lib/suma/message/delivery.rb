@@ -173,6 +173,7 @@ end
 #  message_deliveries_pkey                          | PRIMARY KEY btree (id)
 #  message_deliveries_transport_message_id_key      | UNIQUE btree (transport_message_id)
 #  message_deliveries_recipient_id_index            | btree (recipient_id)
+#  message_deliveries_search_content_trigram_index  | gist (search_content)
 #  message_deliveries_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 #  message_deliveries_sent_at_index                 | btree (sent_at)
 # Foreign key constraints:

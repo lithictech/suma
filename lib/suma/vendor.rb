@@ -50,6 +50,7 @@ end
 # Indexes:
 #  vendors_pkey                          | PRIMARY KEY btree (id)
 #  vendors_slug_index                    | UNIQUE btree (slug)
+#  vendors_search_content_trigram_index  | gist (search_content)
 #  vendors_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Referenced By:
 #  anon_proxy_vendor_configurations | anon_proxy_vendor_configurations_vendor_id_fkey | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
@@ -57,5 +58,6 @@ end
 #  images                           | images_vendor_id_fkey                           | (vendor_id) REFERENCES vendors(id)
 #  mobility_gbfs_feeds              | mobility_gbfs_feeds_vendor_id_fkey              | (vendor_id) REFERENCES vendors(id)
 #  payment_accounts                 | payment_accounts_vendor_id_fkey                 | (vendor_id) REFERENCES vendors(id)
+#  payment_off_platform_strategies  | payment_off_platform_strategies_vendor_id_fkey  | (vendor_id) REFERENCES vendors(id)
 #  vendor_services                  | vendor_services_vendor_id_fkey                  | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 # ------------------------------------------------------------------------------------------------------------------------------------------

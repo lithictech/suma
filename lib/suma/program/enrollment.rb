@@ -165,6 +165,7 @@ end
 #  program_enrollments_organization_id_index         | btree (organization_id)
 #  program_enrollments_program_id_index              | btree (program_id)
 #  program_enrollments_role_id_index                 | btree (role_id)
+#  program_enrollments_search_content_trigram_index  | gist (search_content)
 #  program_enrollments_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 #  program_enrollments_unenrolled_at_index           | btree (unenrolled_at)
 # Check constraints:

@@ -258,12 +258,15 @@ end
 #  vehicle_type           | text                     | NOT NULL
 #  begin_address          | text                     |
 #  end_address            | text                     |
+#  our_cost_cents         | integer                  | NOT NULL DEFAULT 0
+#  our_cost_currency      | text                     | NOT NULL DEFAULT 'USD'::text
 # Indexes:
 #  mobility_trips_pkey                               | PRIMARY KEY btree (id)
 #  mobility_trips_external_trip_id_key               | UNIQUE btree (external_trip_id)
 #  mobility_trips_opaque_id_key                      | UNIQUE btree (opaque_id)
 #  one_active_ride_per_member                        | UNIQUE btree (member_id) WHERE ended_at IS NULL
 #  mobility_trips_member_id_index                    | btree (member_id)
+#  mobility_trips_search_content_trigram_index       | gist (search_content)
 #  mobility_trips_search_content_tsvector_index      | gin (to_tsvector('english'::regconfig, search_content))
 #  mobility_trips_vehicle_id_vendor_service_id_index | btree (vehicle_id, vendor_service_id)
 # Check constraints:

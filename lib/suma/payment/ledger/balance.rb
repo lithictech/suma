@@ -18,3 +18,13 @@ class Suma::Payment::Ledger::Balance < Suma::Postgres::Model(:payment_ledger_bal
     def read_only? = true
   end
 end
+
+# Table: payment_ledger_balances
+# ---------------------------------------------------
+# Columns:
+#  ledger_id             | integer                  |
+#  ledger_name           | text                     |
+#  balance_cents         | bigint                   |
+#  balance_currency      | text                     |
+#  latest_transaction_at | timestamp with time zone |
+# ---------------------------------------------------

@@ -140,12 +140,17 @@ end
 #  search_content                 | text                     |
 #  search_embedding               | vector(384)              |
 #  search_hash                    | text                     |
+#  off_platform_amount_cents      | integer                  | NOT NULL DEFAULT 0
+#  off_platform_amount_currency   | text                     | NOT NULL DEFAULT 'USD'::text
 # Indexes:
 #  charges_pkey                          | PRIMARY KEY btree (id)
-#  charges_commerce_order_id_index       | btree (commerce_order_id)
+#  charges_commerce_order_id_index       | UNIQUE btree (commerce_order_id) WHERE commerce_order_id IS NOT NULL
+#  charges_mobility_trip_id_index        | UNIQUE btree (mobility_trip_id) WHERE mobility_trip_id IS NOT NULL
 #  charges_member_id_index               | btree (member_id)
-#  charges_mobility_trip_id_index        | btree (mobility_trip_id)
+#  charges_search_content_trigram_index  | gist (search_content)
 #  charges_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
+# Check constraints:
+#  associated_object_set | (commerce_order_id IS NOT NULL OR mobility_trip_id IS NOT NULL)
 # Foreign key constraints:
 #  charges_commerce_order_id_fkey | (commerce_order_id) REFERENCES commerce_orders(id) ON DELETE SET NULL
 #  charges_member_id_fkey         | (member_id) REFERENCES members(id)
@@ -153,4 +158,5 @@ end
 # Referenced By:
 #  charge_line_items                       | charge_line_items_charge_id_fkey                       | (charge_id) REFERENCES charges(id) ON DELETE CASCADE
 #  charges_associated_funding_transactions | charges_associated_funding_transactions_charge_id_fkey | (charge_id) REFERENCES charges(id)
+#  charges_contributing_book_transactions  | charges_contributing_book_transactions_charge_id_fkey  | (charge_id) REFERENCES charges(id)
 # --------------------------------------------------------------------------------------------------------------------------------------------------------

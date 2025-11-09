@@ -568,7 +568,7 @@ require "suma/member/stripe_attributes"
 #  email                  | citext                   |
 #  phone                  | text                     | NOT NULL
 #  name                   | text                     | NOT NULL DEFAULT ''::text
-#  note                   | text                     | NOT NULL DEFAULT ''::text
+#  legacy_note            | text                     | NOT NULL DEFAULT ''::text
 #  timezone               | text                     | NOT NULL DEFAULT 'America/Los_Angeles'::text
 #  onboarding_verified_at | timestamp with time zone |
 #  legal_entity_id        | integer                  | NOT NULL
@@ -578,10 +578,13 @@ require "suma/member/stripe_attributes"
 #  search_content         | text                     |
 #  search_embedding       | vector(384)              |
 #  search_hash            | text                     |
+#  previous_phones        | text[]                   | NOT NULL DEFAULT '{}'::text[]
+#  previous_emails        | text[]                   | NOT NULL DEFAULT '{}'::text[]
 # Indexes:
 #  members_pkey                          | PRIMARY KEY btree (id)
 #  members_email_key                     | UNIQUE btree (email)
 #  members_phone_key                     | UNIQUE btree (phone)
+#  members_search_content_trigram_index  | gist (search_content)
 #  members_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  email_present           | (email IS NULL OR length(email::text) > 0)
@@ -595,9 +598,6 @@ require "suma/member/stripe_attributes"
 #  charges                                         | charges_member_id_fkey                                        | (member_id) REFERENCES members(id)
 #  commerce_carts                                  | commerce_carts_member_id_fkey                                 | (member_id) REFERENCES members(id)
 #  commerce_order_audit_logs                       | commerce_order_audit_logs_actor_id_fkey                       | (actor_id) REFERENCES members(id) ON DELETE SET NULL
-#  eligibility_member_associations                 | eligibility_member_associations_pending_member_id_fkey        | (pending_member_id) REFERENCES members(id)
-#  eligibility_member_associations                 | eligibility_member_associations_rejected_member_id_fkey       | (rejected_member_id) REFERENCES members(id)
-#  eligibility_member_associations                 | eligibility_member_associations_verified_member_id_fkey       | (verified_member_id) REFERENCES members(id)
 #  marketing_lists_members                         | marketing_lists_members_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  marketing_sms_broadcasts                        | marketing_sms_broadcasts_created_by_id_fkey                   | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  marketing_sms_dispatches                        | marketing_sms_dispatches_member_id_fkey                       | (member_id) REFERENCES members(id)
@@ -613,16 +613,21 @@ require "suma/member/stripe_attributes"
 #  mobility_trips                                  | mobility_trips_member_id_fkey                                 | (member_id) REFERENCES members(id)
 #  organization_memberships                        | organization_memberships_member_id_fkey                       | (member_id) REFERENCES members(id)
 #  organization_membership_verification_audit_logs | organization_membership_verification_audit_logs_actor_id_fkey | (actor_id) REFERENCES members(id) ON DELETE SET NULL
-#  organization_membership_verification_notes      | organization_membership_verification_notes_creator_id_fkey    | (creator_id) REFERENCES members(id) ON DELETE SET NULL
-#  organization_membership_verification_notes      | organization_membership_verification_notes_editor_id_fkey     | (editor_id) REFERENCES members(id) ON DELETE SET NULL
 #  organization_membership_verifications           | organization_membership_verifications_owner_id_fkey           | (owner_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_accounts                                | payment_accounts_member_id_fkey                               | (member_id) REFERENCES members(id)
 #  payment_book_transactions                       | payment_book_transactions_actor_id_fkey                       | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_funding_transaction_audit_logs          | payment_funding_transaction_audit_logs_actor_id_fkey          | (actor_id) REFERENCES members(id) ON DELETE SET NULL
+#  payment_off_platform_strategies                 | payment_off_platform_strategies_created_by_id_fkey            | (created_by_id) REFERENCES members(id)
 #  payment_payout_transaction_audit_logs           | payment_payout_transaction_audit_logs_actor_id_fkey           | (actor_id) REFERENCES members(id) ON DELETE SET NULL
+#  program_enrollment_exclusions                   | program_enrollment_exclusions_created_by_id_fkey              | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
+#  program_enrollment_exclusions                   | program_enrollment_exclusions_member_id_fkey                  | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  program_enrollments                             | program_enrollments_approved_by_id_fkey                       | (approved_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  program_enrollments                             | program_enrollments_member_id_fkey                            | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  program_enrollments                             | program_enrollments_unenrolled_by_id_fkey                     | (unenrolled_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  roles_members                                   | roles_members_member_id_fkey                                  | (member_id) REFERENCES members(id)
+#  support_notes                                   | organization_membership_verification_notes_creator_id_fkey    | (creator_id) REFERENCES members(id) ON DELETE SET NULL
+#  support_notes                                   | organization_membership_verification_notes_editor_id_fkey     | (editor_id) REFERENCES members(id) ON DELETE SET NULL
+#  support_notes_members                           | support_notes_members_member_id_fkey                          | (member_id) REFERENCES members(id)
+#  support_tickets                                 | support_tickets_sender_id_fkey                                | (sender_id) REFERENCES members(id) ON DELETE SET NULL
 #  uploaded_files                                  | uploaded_files_created_by_id_fkey                             | (created_by_id) REFERENCES members(id)
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
