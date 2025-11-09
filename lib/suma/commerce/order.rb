@@ -3,6 +3,7 @@
 require "suma/admin_linked"
 require "suma/commerce"
 require "suma/postgres/model"
+require "suma/state_machine"
 
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   include Suma::AdminLinked

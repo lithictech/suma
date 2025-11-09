@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "state_machines"
-
 require "suma/admin_linked"
 require "suma/state_machine"
 require "suma/has_activity_audit"
