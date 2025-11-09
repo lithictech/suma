@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "state_machines/error"
+require "state_machines"
+
 require "suma"
 
 class Suma::StateMachine

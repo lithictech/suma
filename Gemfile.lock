@@ -357,7 +357,7 @@ GEM
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
     smstools (0.2.2)
-    state_machines (0.30.0)
+    state_machines (0.100.4)
     statsd-ruby (1.5.0)
     stripe (15.2.1)
     strscan (3.1.5)
