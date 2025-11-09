@@ -53,7 +53,8 @@ module Sequel::Plugins::HybridSearch
     # but this will run relatively rarely as compared to fetching data,
     # so it's better to make an additional database call for these fields on update
     # (which is already relatively slower, so an additional read is ok given the fact we just wrote).
-    model.plugin :lazy_attributes, opts[:content_column], opts[:hash_column], opts[:vector_column]
+    model.plugin :lazy_attributes, opts[:content_column], opts[:hash_column], opts[:vector_column] unless
+      ENV["SEQUEL_ANNOTATE_HACK"]
     model.plugin :insert_returning_select
     model.plugin :pgvector, opts[:vector_column]
   end
