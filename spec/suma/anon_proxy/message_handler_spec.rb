@@ -83,7 +83,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     end
   end
 
-  describe Suma::AnonProxy::MessageHandler::Lime do
+  describe Suma::AnonProxy::MessageHandler::Lime, reset_configuration: Suma::Payment do
     include Suma::SpecHelpers::Sentry
 
     let(:lime) { Suma::AnonProxy::MessageHandler.registry_create!(described_class.new.key) }
