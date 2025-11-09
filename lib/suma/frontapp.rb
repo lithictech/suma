@@ -62,21 +62,53 @@ end
 
 class Frontapp::Client
   def create(path, body)
-    body_key = self.multipart?(body) ? :form : :json
-    res = @headers.post("#{base_url}#{path}", body_key => body)
+    params = self.post_request_params(body)
+    res = @headers.post("#{base_url}#{path}", **params)
     raise Frontapp::Error.from_response(res) unless res.status.success?
     JSON.parse(res.to_s)
   end
 
-  # True if the hash is a multipart request.
-  # Copied from HTTP::FormData#multipart?, but also check for keys like 'xyz[abc]'
-  # which are only valid in a multipart setting.
-  def multipart?(data)
-    data.any? do |k, v|
-      next true if v.is_a? ::HTTP::FormData::Part
-      next true if k.is_a?(String) && k.include?("[")
-      v.respond_to?(:to_ary) && v.to_ary.any?(::HTTP::FormData::Part)
+  # Front's attachment handling is a mess; if a request includes attachments,
+  # it needs to be a multipart form, and nested keys are as document here:
+  # https://dev.frontapp.com/docs/attachments-1
+  #
+  # However, this is simpler said than done, because this makes many assumptions
+  # about how clients treated nested keys and forms.
+  # For example, a body of `{x: {y: 1}, attachments: [(multipart)]}`
+  # is not serialized in the way Front wants via the HTTP gem.
+  #
+  # (This is a good example of the risk associated with SDK wrappers,
+  # even first-party ones, though the one we use is third-party and we should not be using it).
+  #
+  # Callers who MAY be using multipart requests MUST pass nested params
+  # using the keys `{'x[y]' => 1}`, not `{x: {y: 1}}`,
+  # because the latter is not serialized correctly into a multipart.
+  #
+  # To avoid callers having to contain custom logic around which form to use
+  # depending on if they have a multipart request (which is very error prone),
+  # we try to handle this intelligently:
+  #
+  # - If the body is a true multipart body, pass it through to the HTTP gem;
+  #   assume the caller passes `x[y]` keys if needed, as the caveat above.
+  # - If any key is of the form `x[y]` (contains a bracket),
+  #   assume the caller wants multipart behavior, and make our own multipart body
+  #   (since this is not a multipart request, the HTTP library would use form encoding,
+  #   but that doesn't work right so we never want to use it).
+  # - The body can be treated as JSON, pass it through, as it serializes JSON right.
+  #
+  def post_request_params(data)
+    hasform = false
+    data.each do |k, v|
+      # If we have a multipart, let the library handle it always.
+      return {form: data} if v.is_a? ::HTTP::FormData::Part
+      return {form: data} if v.respond_to?(:to_ary) && v.to_ary.any?(::HTTP::FormData::Part)
+      hasform = true if k.is_a?(String) && k.include?("[")
     end
+    # No special handling required for json
+    return {json: data} unless hasform
+    # This is a simple form, but we cannot use form encoding due to Front inconsistencies.
+    # So let's use multipart, as explained above.
+    return {form: HTTP::FormData::Multipart.new(data)}
   end
 end
 
