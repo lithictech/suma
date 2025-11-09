@@ -98,7 +98,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
   end
 
-  describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request" do
+  describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request", reset_configuration: Suma::Payment do
     let!(:va) do
       Suma::Fixtures.anon_proxy_vendor_account.
         with_configuration(auth_to_vendor_key: "fake").
