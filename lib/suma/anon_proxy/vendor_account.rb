@@ -143,6 +143,7 @@ end
 #  anon_proxy_vendor_accounts_configuration_id_index           | btree (configuration_id)
 #  anon_proxy_vendor_accounts_contact_id_index                 | btree (contact_id)
 #  anon_proxy_vendor_accounts_member_id_index                  | btree (member_id)
+#  anon_proxy_vendor_accounts_search_content_trigram_index     | gist (search_content)
 #  anon_proxy_vendor_accounts_search_content_tsvector_index    | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  consistent_latest_access_code      | (latest_access_code IS NULL AND latest_access_code_set_at IS NULL OR latest_access_code IS NOT NULL AND latest_access_code_set_at IS NOT NULL)

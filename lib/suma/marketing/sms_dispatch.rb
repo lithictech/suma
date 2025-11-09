@@ -129,6 +129,7 @@ end
 # Indexes:
 #  marketing_sms_dispatches_pkey                           | PRIMARY KEY btree (id)
 #  marketing_sms_dispatches_member_id_sms_broadcast_id_key | UNIQUE btree (member_id, sms_broadcast_id)
+#  marketing_sms_dispatches_search_content_trigram_index   | gist (search_content)
 #  marketing_sms_dispatches_search_content_tsvector_index  | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  sent_at_transport_message_id_set_together | (sent_at IS NULL AND transport_message_id IS NULL OR sent_at IS NOT NULL AND transport_message_id IS NOT NULL)

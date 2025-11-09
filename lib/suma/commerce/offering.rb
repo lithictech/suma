@@ -224,6 +224,7 @@ require "suma/commerce/offering_picklist"
 # Indexes:
 #  commerce_offerings_pkey                          | PRIMARY KEY btree (id)
 #  commerce_offerings_begin_fulfillment_at_index    | btree (begin_fulfillment_at)
+#  commerce_offerings_search_content_trigram_index  | gist (search_content)
 #  commerce_offerings_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  commerce_offerings_description_id_fkey              | (description_id) REFERENCES translated_texts(id)
@@ -234,8 +235,6 @@ require "suma/commerce/offering_picklist"
 #  commerce_carts                        | commerce_carts_offering_id_fkey                        | (offering_id) REFERENCES commerce_offerings(id)
 #  commerce_offering_fulfillment_options | commerce_offering_fulfillment_options_offering_id_fkey | (offering_id) REFERENCES commerce_offerings(id)
 #  commerce_offering_products            | commerce_offering_products_offering_id_fkey            | (offering_id) REFERENCES commerce_offerings(id)
-#  eligibility_offering_associations     | eligibility_offering_associations_offering_id_fkey     | (offering_id) REFERENCES commerce_offerings(id)
 #  images                                | images_commerce_offering_id_fkey                       | (commerce_offering_id) REFERENCES commerce_offerings(id)
 #  programs_commerce_offerings           | programs_commerce_offerings_offering_id_fkey           | (offering_id) REFERENCES commerce_offerings(id)
-#  vendible_groups_commerce_offerings    | vendible_groups_commerce_offerings_offering_id_fkey    | (offering_id) REFERENCES commerce_offerings(id)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------

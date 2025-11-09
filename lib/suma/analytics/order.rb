@@ -49,13 +49,13 @@ end
 #  tax                | numeric                  |
 #  total              | numeric                  |
 #  funded_cost        | numeric                  |
-#  paid_cost          | numeric                  |
 #  cash_paid          | numeric                  |
 #  noncash_paid       | numeric                  |
 #  offering_id        | integer                  |
 #  offering_name      | text                     |
 #  offering_begin     | timestamp with time zone |
 #  offering_end       | timestamp with time zone |
+#  paid_off_platform  | numeric                  |
 # Indexes:
 #  orders_pkey         | PRIMARY KEY btree (pk)
 #  orders_order_id_key | UNIQUE btree (order_id)

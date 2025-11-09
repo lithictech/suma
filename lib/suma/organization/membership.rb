@@ -125,6 +125,7 @@ end
 #  unique_member_membership_in_verified_organization       | UNIQUE btree (member_id, verified_organization_id)
 #  organization_memberships_former_organization_id_index   | btree (former_organization_id)
 #  organization_memberships_member_id_index                | btree (member_id)
+#  organization_memberships_search_content_trigram_index   | gist (search_content)
 #  organization_memberships_search_content_tsvector_index  | gin (to_tsvector('english'::regconfig, search_content))
 #  organization_memberships_verified_organization_id_index | btree (verified_organization_id)
 # Check constraints:

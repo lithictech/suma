@@ -82,6 +82,7 @@ end
 #  search_hash       | text                     |
 # Indexes:
 #  commerce_products_pkey                          | PRIMARY KEY btree (id)
+#  commerce_products_search_content_trigram_index  | gist (search_content)
 #  commerce_products_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 #  commerce_products_vendor_id_index               | btree (vendor_id)
 # Foreign key constraints:

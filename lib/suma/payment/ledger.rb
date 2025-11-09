@@ -292,6 +292,7 @@ end
 #  payment_ledgers_pkey                          | PRIMARY KEY btree (id)
 #  payment_ledgers_account_id_name_key           | UNIQUE btree (account_id, name)
 #  payment_ledgers_account_id_index              | btree (account_id)
+#  payment_ledgers_search_content_trigram_index  | gist (search_content)
 #  payment_ledgers_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  payment_ledgers_account_id_fkey           | (account_id) REFERENCES payment_accounts(id)

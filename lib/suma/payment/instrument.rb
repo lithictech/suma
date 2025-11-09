@@ -114,3 +114,22 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     end
   end
 end
+
+# Table: payment_instruments
+# -------------------------------------------------
+# Columns:
+#  pk                  | text                     |
+#  instrument_id       | integer                  |
+#  payment_method_type | text                     |
+#  name                | text                     |
+#  institution_name    | text                     |
+#  legal_entity_id     | integer                  |
+#  usable_for_funding  | boolean                  |
+#  usable_for_payout   | boolean                  |
+#  expires_at          | timestamp with time zone |
+#  verified            | boolean                  |
+#  soft_deleted_at     | timestamp with time zone |
+#  search_content      | text                     |
+#  search_embedding    | vector(384)              |
+#  search_hash         | text                     |
+# -------------------------------------------------

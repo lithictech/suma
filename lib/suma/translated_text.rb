@@ -83,7 +83,7 @@ end
 # Referenced By:
 #  anon_proxy_vendor_configurations      | anon_proxy_vendor_configurati_linked_success_instructions__fkey | (linked_success_instructions_id) REFERENCES translated_texts(id)
 #  anon_proxy_vendor_configurations      | anon_proxy_vendor_configurations_instructions_id_fkey           | (instructions_id) REFERENCES translated_texts(id)
-#  charge_line_item_self_datas           | charge_line_item_self_datas_memo_id_fkey                        | (memo_id) REFERENCES translated_texts(id)
+#  charge_line_items                     | charge_line_items_memo_id_fkey                                  | (memo_id) REFERENCES translated_texts(id)
 #  commerce_offering_fulfillment_options | commerce_offering_fulfillment_options_description_id_fkey       | (description_id) REFERENCES translated_texts(id)
 #  commerce_offerings                    | commerce_offerings_description_id_fkey                          | (description_id) REFERENCES translated_texts(id)
 #  commerce_offerings                    | commerce_offerings_fulfillment_confirmation_id_fkey             | (fulfillment_confirmation_id) REFERENCES translated_texts(id)
@@ -104,5 +104,4 @@ end
 #  programs                              | programs_app_link_text_id_fkey                                  | (app_link_text_id) REFERENCES translated_texts(id)
 #  programs                              | programs_description_id_fkey                                    | (description_id) REFERENCES translated_texts(id)
 #  programs                              | programs_name_id_fkey                                           | (name_id) REFERENCES translated_texts(id)
-#  vendible_groups                       | vendible_groups_name_id_fkey                                    | (name_id) REFERENCES translated_texts(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
