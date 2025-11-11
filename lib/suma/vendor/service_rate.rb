@@ -15,6 +15,12 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
               key: :vendor_service_rate_id,
               order: order_desc
 
+  dataset_module do
+    def nonzero
+      return self.where((Sequel[:surcharge_cents] > 0) | (Sequel[:unit_amount_cents] > 0))
+    end
+  end
+
   def calculate_unit_cost(units)
     offset_units = [units - self.unit_offset, 0].max
     t = self.unit_amount * offset_units

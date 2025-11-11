@@ -43,16 +43,43 @@ export default function VendorConfigurationForm({
           checked={resource.enabled}
           onChange={setFieldFromInput}
         />
-        <FormLabel>Setup Instructions</FormLabel>
+        <FormLabel>Description</FormLabel>
         <ResponsiveStack>
           <MultiLingualText
-            {...register("instructions")}
+            {...register("descriptionText")}
             label=""
             fullWidth
-            value={resource.instructions}
+            value={resource.descriptionText}
             multiline
             required
-            onChange={(v) => setField("instructions", v)}
+            helperText="Shown to users on the Private Accounts list page."
+            onChange={(v) => setField("descriptionText", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>Help Text</FormLabel>
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("helpText")}
+            label=""
+            fullWidth
+            value={resource.helpText}
+            multiline
+            required
+            helperText="Shown the 'help' modal on the list page."
+            onChange={(v) => setField("helpText", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>Terms</FormLabel>
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("termsText")}
+            label=""
+            fullWidth
+            value={resource.termsText}
+            multiline
+            required
+            helperText="Terms of use users must agree to to link an account."
+            onChange={(v) => setField("termsText", v)}
           />
         </ResponsiveStack>
         <FormLabel>Linked Success Instructions</FormLabel>

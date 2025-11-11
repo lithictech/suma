@@ -31,5 +31,5 @@ class Suma::AnonProxy::AuthToVendor::Fake < Suma::AnonProxy::AuthToVendor
   end
 
   def needs_polling? = self.class.needs_polling
-  def needs_attention?(*) = self.vendor_account.contact.nil?
+  def needs_linking?(*) = self.vendor_account.contact.nil?
 end

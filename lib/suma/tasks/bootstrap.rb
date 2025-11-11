@@ -191,23 +191,30 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_private_accounts
-      instructions = Suma::TranslatedText.create(
-        en: <<~MD,
-          1. Step 1 en
-          1. Step 2 en
-          1. Step 3 en
-          1. Step 4 en
+      require "faker"
+      help_text = Suma::TranslatedText.create(
+        all: <<~MD,
+          1. #{Faker::Lorem.sentence}
+          1. #{Faker::Lorem.sentence}
+          1. #{Faker::Lorem.sentence}
+          1. #{Faker::Lorem.sentence}
         MD
-        es: <<~MD,
-          1. Step 1 es
-          1. Step 2 es
-          1. Step 3 es
-          1. Step 4 es
-        MD
+      )
+      terms_text = Suma::TranslatedText.create(
+        all: Faker::Lorem.paragraphs(number: 5).join("\n\n"),
+      )
+      description_text = Suma::TranslatedText.create(
+        all: Faker::Lorem.sentence,
+      )
+      linked_success_instructions = Suma::TranslatedText.create(
+        all: Faker::Lorem.sentence,
       )
       lemon_vc = Suma::AnonProxy::VendorConfiguration.create(
         vendor: self.lemon_vendor,
-        instructions:,
+        help_text:,
+        terms_text:,
+        description_text:,
+        linked_success_instructions:,
         enabled: true,
         auth_to_vendor_key: "fake",
         message_handler_key: "fake",
@@ -217,7 +224,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       rayse_vc = Suma::AnonProxy::VendorConfiguration.create(
         vendor: self.rayse_vendor,
-        instructions:,
+        help_text:,
+        terms_text:,
+        description_text:,
+        linked_success_instructions:,
         enabled: true,
         auth_to_vendor_key: "fake",
         message_handler_key: "fake",

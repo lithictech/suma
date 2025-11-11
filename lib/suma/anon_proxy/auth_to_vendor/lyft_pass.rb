@@ -16,7 +16,7 @@ class Suma::AnonProxy::AuthToVendor::LyftPass < Suma::AnonProxy::AuthToVendor
   end
 
   def needs_polling? = false
-  def needs_attention?(now:) = !self.enrollments_requiring_attention_dataset(now:).empty?
+  def needs_linking?(now:) = !self.enrollments_requiring_attention_dataset(now:).empty?
 
   # Return a dataset of program enrollments where:
   # - There is a lyft program id on its program

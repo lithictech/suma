@@ -127,8 +127,8 @@ export default {
 
   getPrivateAccounts: (data, ...args) =>
     get(`/api/v1/anon_proxy/vendor_accounts`, data, ...args),
-  configurePrivateAccount: (data, ...args) =>
-    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/configure`, data, ...args),
+  processPrivateAccountDetail: ({ id, ...data }, ...args) =>
+    post(`/api/v1/anon_proxy/vendor_accounts/${id}/process`, data, ...args),
   makePrivateAccountAuthRequest: (data, ...args) =>
     post(
       `/api/v1/anon_proxy/vendor_accounts/${data.id}/make_auth_request`,

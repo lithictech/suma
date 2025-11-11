@@ -19,18 +19,35 @@ import React from "react";
  * placement.
  * @param {boolean} buffered
  * @param {boolean} overlay
+ * @param {string} containerClass
  * @param {string} className
+ * @param {number=} height
+ * @param {number=} width
  * @returns {JSX.Element}
  */
-export default function PageLoader({ overlay, buffered, className }) {
+export default function PageLoader({
+  overlay,
+  buffered,
+  width,
+  height,
+  containerClass,
+  className,
+}) {
   const cls = clsx(
     overlay && "position-absolute top-0 start-50 translate-middle-x",
     buffered && "my-5",
     className
   );
   return (
-    <div className={clsx("text-center")}>
-      <img src={loaderRing} alt="" className={cls} style={{ maxWidth: 150 }} />
+    <div className={clsx("text-center", containerClass)}>
+      <img
+        src={loaderRing}
+        width={width}
+        height={height}
+        alt=""
+        className={cls}
+        style={{ maxWidth: 150 }}
+      />
     </div>
   );
 }

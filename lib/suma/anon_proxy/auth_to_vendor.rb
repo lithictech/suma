@@ -34,7 +34,6 @@ class Suma::AnonProxy::AuthToVendor
   # @return [true,false]
   def needs_polling? = raise NotImplementedError
 
-  # True if the vendor account needs attention; like if it needs to be created
-  # or relinked.
-  def needs_attention?(now:) = raise NotImplementedError
+  # True if the vendor account needs to be linked/relinked.
+  def needs_linking?(now:) = raise NotImplementedError
 end

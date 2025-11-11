@@ -15,7 +15,9 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   plugin :association_pks
   plugin :hybrid_search
   plugin :timestamps
-  plugin :translated_text, :instructions, Suma::TranslatedText
+  plugin :translated_text, :description_text, Suma::TranslatedText
+  plugin :translated_text, :help_text, Suma::TranslatedText
+  plugin :translated_text, :terms_text, Suma::TranslatedText
   plugin :translated_text, :linked_success_instructions, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"

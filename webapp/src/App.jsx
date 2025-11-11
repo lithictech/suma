@@ -39,6 +39,7 @@ import OrderHistoryList from "./pages/OrderHistoryList";
 import PreferencesAuthed from "./pages/PreferencesAuthed";
 import PreferencesPublic from "./pages/PreferencesPublic";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import PrivateAccountDetail from "./pages/PrivateAccountDetail.jsx";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess.jsx";
 import Start from "./pages/Start";
@@ -464,6 +465,18 @@ function AppRoutes() {
             withMetatags({ title: t("titles.private_accounts") }),
             withPageLayout(),
             PrivateAccountsList
+          )}
+        />
+        <Route
+          path="/private-account/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles.private_accounts") }),
+            withPageLayout(),
+            PrivateAccountDetail
           )}
         />
         <Route
