@@ -1,11 +1,12 @@
 import { t } from "../localization";
 import clsx from "clsx";
+import isUndefined from "lodash/isUndefined";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 
 const FormButtons = React.forwardRef(
-  ({ primaryProps, secondaryProps, variant, back, className, style }, ref) => {
+  ({ primaryProps, secondaryProps, variant, margin, back, className, style }, ref) => {
     const defaultBack = React.useCallback(() => window.history.back(), []);
     if (back) {
       secondaryProps = {
@@ -13,13 +14,16 @@ const FormButtons = React.forwardRef(
         onClick: defaultBack,
       };
     }
+    if (isUndefined(margin)) {
+      margin = 4;
+    }
     // Each button should be at least 1/3 of the width, leading some nice room to the sides,
     // or allowing wide button content to grow. We could move this to justify-end in some cases
     // if it looks nicer.
     const btnStyle = { minWidth: "33%" };
     variant = variant || "outline-primary";
     return (
-      <div ref={ref} className={clsx("mt-4", className)} style={style}>
+      <div ref={ref} className={clsx(`mt-${margin}`, className)} style={style}>
         <Stack gap={2} direction="horizontal" className="justify-content-center">
           {secondaryProps && (
             <Button

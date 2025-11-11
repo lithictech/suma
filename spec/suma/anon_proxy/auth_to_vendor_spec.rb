@@ -12,7 +12,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     it "responds to the necessary methods" do
       atv = va.auth_to_vendor
       expect { atv.needs_polling? }.to_not raise_error
-      expect { atv.needs_attention?(now: Time.now) }.to_not raise_error
+      expect { atv.needs_linking?(now: Time.now) }.to_not raise_error
     end
   end
 
@@ -35,9 +35,9 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     end
 
     it "needs attention if there is no member contact" do
-      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to be_needs_linking(now: Time.now)
       va.ensure_anonymous_contact(:email)
-      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to_not be_needs_linking(now: Time.now)
     end
   end
 
@@ -74,9 +74,9 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     end
 
     it "needs attention if there is no member contact" do
-      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to be_needs_linking(now: Time.now)
       va.ensure_anonymous_contact(:email)
-      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to_not be_needs_linking(now: Time.now)
     end
 
     describe "exchange_magic_link_token" do
@@ -188,15 +188,15 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     end
 
     it "needs attention if the user is not registered in an available program" do
-      expect(va.auth_to_vendor).to_not be_needs_attention(now:)
+      expect(va.auth_to_vendor).to_not be_needs_linking(now:)
 
       Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "5678").create
-      expect(va.auth_to_vendor).to be_needs_attention(now:)
+      expect(va.auth_to_vendor).to be_needs_linking(now:)
       va.add_registration(external_program_id: "5678")
-      expect(va.auth_to_vendor).to_not be_needs_attention(now:)
+      expect(va.auth_to_vendor).to_not be_needs_linking(now:)
 
       Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "1234").create
-      expect(va.auth_to_vendor).to be_needs_attention(now:)
+      expect(va.auth_to_vendor).to be_needs_linking(now:)
     end
   end
 end

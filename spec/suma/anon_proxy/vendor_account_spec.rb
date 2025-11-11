@@ -130,4 +130,79 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       expect(va.contact).to be === contact
     end
   end
+
+  describe "ui state helpers" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:vendor) { Suma::Fixtures.vendor.create }
+    let!(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create(surcharge_cents: 200) }
+    let!(:vendor_service) { Suma::Fixtures.vendor_service.create(vendor:) }
+    let!(:vc) { Suma::Fixtures.anon_proxy_vendor_configuration.create(vendor:) }
+    let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(configuration: vc, member:).create }
+    let!(:program) { Suma::Fixtures.program.with_(vc).create }
+    let!(:enrollment) { Suma::Fixtures.program_enrollment.create(program:, member:) }
+    let!(:pricing) { Suma::Fixtures.program_pricing.create(program:, vendor_service_rate:, vendor_service:) }
+    let(:as_of) { Time.now }
+
+    describe "require_payment_instrument?" do
+      it "is true if the configuration vendor has a program pricing with a nonzero rate" do
+        expect(va).to be_require_payment_instrument(as_of:)
+      end
+
+      describe "is false when" do
+        it "the rate is zero" do
+          vendor_service_rate.update(surcharge_cents: 0)
+          expect(va).to_not be_require_payment_instrument(as_of:)
+        end
+
+        it "the program is inactive" do
+          program.update(period_begin: 1.year.ago, period_end: 1.day.ago)
+          expect(va).to_not be_require_payment_instrument(as_of:)
+        end
+
+        it "there are no same-vendor services linked to pricings in the vendor config programs" do
+          vendor_service.update(vendor: Suma::Fixtures.vendor.create)
+          expect(va).to_not be_require_payment_instrument(as_of:)
+        end
+
+        it "the member cannot access the programs with pricings" do
+          enrollment.update(unenrolled: true)
+          expect(va).to_not be_require_payment_instrument(as_of:)
+        end
+      end
+    end
+
+    describe "ui_state_v1" do
+      let!(:card) { Suma::Fixtures.card.member(member).create }
+
+      it "represents the link state" do
+        expect(va.ui_state_v1(now: as_of)).to have_attributes(
+          index_card_mode: :link,
+          needs_linking: true,
+          requires_payment_method: true,
+          has_payment_method: true,
+        )
+      end
+
+      it "represents the relink state" do
+        va.auth_to_vendor.auth
+        expect(va.ui_state_v1(now: as_of)).to have_attributes(
+          index_card_mode: :relink,
+          needs_linking: false,
+          requires_payment_method: true,
+          has_payment_method: true,
+        )
+      end
+
+      it "represents the payment state" do
+        va.auth_to_vendor.auth
+        card.soft_delete
+        expect(va.ui_state_v1(now: as_of)).to have_attributes(
+          index_card_mode: :payment,
+          needs_linking: false,
+          requires_payment_method: true,
+          has_payment_method: false,
+        )
+      end
+    end
+  end
 end

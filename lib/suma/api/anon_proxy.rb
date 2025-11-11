@@ -29,6 +29,16 @@ class Suma::API::AnonProxy < Suma::API::V1
           end
         end
 
+        params do
+          optional :terms_agreed, type: Boolean
+        end
+        post :process do
+          apva = lookup
+          apva.auth_to_vendor.auth(now: current_time) if params[:terms_agreed]
+          status 200
+          present apva, with: AnonProxyVendorAccountEntity
+        end
+
         post :make_auth_request do
           apva = lookup
           if (code = Suma::Payment.service_usage_prohibited_reason(apva.member.payment_account))
@@ -138,19 +148,29 @@ class Suma::API::AnonProxy < Suma::API::V1
     end
   end
 
+  class AnonProxyVendorAccountUIStateEntity < BaseEntity
+    expose :index_card_mode
+    expose :needs_linking
+    expose :requires_payment_method
+    expose :has_payment_method
+    expose :prompt_for_payment_method
+    expose_translated :description_text
+    expose_translated :terms_text
+    expose_translated :help_text
+  end
+
   class AnonProxyVendorAccountEntity < BaseEntity
     include Suma::API::Entities
     expose :id
-    expose_translated :instructions, &self.delegate_to(:configuration, :instructions)
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
-    end
-    expose :needs_attention do |instance|
-      instance.needs_attention?(now: self.current_time)
     end
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
+    expose :ui_state_v1, with: AnonProxyVendorAccountUIStateEntity do |inst|
+      inst.ui_state_v1(now: self.current_time)
+    end
   end
 
   class AnonProxyVendorAccountPollResultEntity < BaseEntity

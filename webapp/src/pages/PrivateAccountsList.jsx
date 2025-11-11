@@ -1,23 +1,17 @@
 import api from "../api";
-import loaderRing from "../assets/images/loader-ring.svg";
 import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
-import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink.jsx";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
-import useUnmountEffect from "../shared/react/useUnmountEffect";
-import { useError } from "../state/useError";
-import { CanceledError } from "axios";
-import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
@@ -71,7 +65,7 @@ export default function PrivateAccountsList() {
       <Modal show={!!modalAccount} onHide={() => setModalAccount(null)}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {t("private_accounts.vendor_private_accounts", {
+            {t("private_accounts.help_title", {
               vendorName: modalAccount?.vendorName,
             })}
           </Modal.Title>
@@ -79,7 +73,7 @@ export default function PrivateAccountsList() {
         <Modal.Body>
           <div className="d-flex justify-content-center align-items-center flex-column m-2">
             <ScrollTopOnMount />
-            {dt(modalAccount?.instructions)}
+            {dt(modalAccount?.uiStateV1.helpText)}
             <div className="d-flex justify-content-end mt-2">
               <Button variant="outline-secondary" onClick={() => setModalAccount(null)}>
                 {t("common.close")}
@@ -109,98 +103,29 @@ export default function PrivateAccountsList() {
   );
 }
 
+/**
+ * @param {AnonProxyVendorAccount} account
+ * @param onHelp
+ */
 function PrivateAccount({ account, onHelp }) {
-  const { needsAttention, vendorImage } = account;
-  const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
-  const pollingController = React.useRef(new AbortController());
-  const [error, setError] = useError(null);
-  const [pollingSuccess, setPollingSuccess] = React.useState(null);
-  const isLinked = pollingSuccess || !needsAttention;
-
-  useUnmountEffect(() => {
-    pollingController.current.abort();
-  });
-
-  const pollingCallback = React.useCallback(() => {
-    pollingController.current.abort();
-    pollingController.current = new AbortController();
-    function pollAndReplace() {
-      return (
-        api
-          // Poll with a timeout, in case the server stops responding we want to try again.
-          .pollForNewPrivateAccountMagicLink(
-            { id: account.id },
-            { timeout: 30000, signal: pollingController.current.signal }
-          )
-          .then((r) => {
-            if (r.data.foundChange) {
-              // Turn this off before navigating in case promise callbacks don't run.
-              window.setTimeout(() => setButtonStatus(INITIAL), 100);
-              setPollingSuccess(r.data);
-            } else {
-              pollAndReplace();
-            }
-          })
-          .catch((r) => {
-            // If the request was aborted (due to unmount), don't restart it.
-            // Otherwise, do restart it, since it is some unexpected type of error.
-            if (r instanceof CanceledError) {
-              setButtonStatus(INITIAL);
-              return;
-            }
-            pollAndReplace();
-          })
-      );
-    }
-    pollAndReplace();
-  }, [account.id]);
-
-  function handleInitialClick(e) {
-    e.preventDefault();
-    setPollingSuccess(null);
-    setError(null);
-    setButtonStatus(POLLING);
-    api
-      .makePrivateAccountAuthRequest({ id: account.id })
-      .then(() => {
-        pollingCallback();
-      })
-      .catch((e) => {
-        console.error(get(e, "response.data") || e);
-        setError(<span>{t("private_accounts.auth_error")}</span>);
-        setButtonStatus(INITIAL);
-      });
-  }
-
-  let content;
-  if (buttonStatus === INITIAL) {
-    content = (
-      <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
-        <Button variant={isLinked ? "secondary" : "primary"} onClick={handleInitialClick}>
-          {isLinked ? t("private_accounts.relink_app") : t("private_accounts.link_app")}
-        </Button>
-        <Button variant="outline-primary" onClick={() => onHelp()}>
-          {t("common.help")}
-        </Button>
-      </Stack>
-    );
+  let actionLocKey, ctaVariant, showHelp;
+  if (account.uiStateV1.indexCardMode === "link") {
+    actionLocKey = "private_accounts.action_link_app";
+    ctaVariant = "primary";
+    showHelp = false;
+  } else if (account.uiStateV1.indexCardMode === "relink") {
+    actionLocKey = "private_accounts.action_relink_app";
+    ctaVariant = "outline-primary";
+    showHelp = true;
   } else {
-    content = (
-      <Alert variant="info" className="w-100 mb-0">
-        <Stack direction="horizontal" gap={3}>
-          <div className="me-auto">
-            <h5>{t("private_accounts.polling")}</h5>
-            <p>{t("private_accounts.polling_detail")}</p>
-          </div>
-          <img src={loaderRing} width="80" height="80" alt="" />
-        </Stack>
-      </Alert>
-    );
+    actionLocKey = "private_accounts.action_setup_payment";
+    ctaVariant = "primary";
+    showHelp = false;
   }
   return (
     <Stack direction="vertical" className="align-items-center">
       <SumaImage
-        image={vendorImage}
+        image={account.vendorImage}
         h={80}
         placeholderHeight={80}
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
@@ -208,22 +133,22 @@ function PrivateAccount({ account, onHelp }) {
         className="mb-4"
         style={{ maxWidth: "100%" }}
       />
-      <Alert
-        variant="success"
-        show={!!pollingSuccess}
-        onClose={() => setPollingSuccess(null)}
-        dismissible
-      >
-        <span>
-          <i className="bi bi-phone-vibrate d-inline me-2"></i>
-          {pollingSuccess?.successInstructions}
-        </span>
-      </Alert>
-      {content}
-      <FormError error={error} className="mt-3" />
+      <p>{account.uiStateV1.descriptionText}</p>
+      <Stack direction="horizontal" gap={2}>
+        {showHelp && (
+          <Button variant="link" className="flex-grow-1" onClick={() => onHelp()}>
+            {t("common.help")}
+          </Button>
+        )}
+        <Button
+          variant={ctaVariant}
+          as={RLink}
+          to={`/private-account/${account.id}`}
+          className={"flex-grow-1"}
+        >
+          {t(actionLocKey)}
+        </Button>
+      </Stack>
     </Stack>
   );
 }
-
-const INITIAL = 1;
-const POLLING = 2;

@@ -32,6 +32,25 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
   end
 
+  describe "POST /v1/anon_proxy/vendor_accounts/:id/process" do
+    it "auths to vendor if terms_agreed" do
+      va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/process", terms_agreed: true
+
+      expect(last_response).to have_status(200)
+      expect(va.refresh).to have_attributes(contact: be_a(Suma::AnonProxy::MemberContact))
+    end
+
+    it "errors if the member cannot access the account" do
+      va = Suma::Fixtures.anon_proxy_vendor_account.create
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/process", terms_agreed: true
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
   describe "POST /v1/anon_proxy/vendor_accounts/:id/poll_for_new_magic_link" do
     before(:each) do
       # If any test is slow, it's because we're hitting this unexpectedly

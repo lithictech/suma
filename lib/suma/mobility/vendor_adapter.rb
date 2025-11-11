@@ -51,7 +51,7 @@ class Suma::Mobility::VendorAdapter < Suma::Postgres::Model(:mobility_vendor_ada
     return false unless self.uses_deep_linking?
     account = self.find_anon_proxy_vendor_account(member)
     return true if account.nil?
-    return account.auth_to_vendor.needs_attention?(now:)
+    return account.auth_to_vendor.needs_linking?(now:)
   end
 
   # Find the anonymous proxy vendor account for the member

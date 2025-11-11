@@ -17,7 +17,9 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
 
   before_saving do |instance|
     instance.vendor ||= Suma::Fixtures.vendor.create
-    instance.instructions ||= Suma::Fixtures.translated_text.create
+    instance.description_text ||= Suma::Fixtures.translated_text.create
+    instance.help_text ||= Suma::Fixtures.translated_text.create
+    instance.terms_text ||= Suma::Fixtures.translated_text.create
     instance.linked_success_instructions ||= Suma::Fixtures.translated_text.create
     instance
   end
