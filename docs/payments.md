@@ -396,6 +396,7 @@ Suma has also secured a grant from a government to cover $30 of the cost for eac
   $30 in our example (`$60 retail price - $30 subsidy`).
 - **Customer price**: See *discounted price*.
 - **Discount**: See *savings*.
+- **Discounted cost**: See *discounted price*.
 - **Discounted price**: What a customer pays for a product, without any subsidy.
   $60 in our example.
 - **Funded amount:** How much of a payment (which is usually the *discounted price*) comes from funding transactions
@@ -412,6 +413,7 @@ Suma has also secured a grant from a government to cover $30 of the cost for eac
   $40 in our example (`$100 retail - $60 discounted price`).
 - **Subsidy**: Contributions to the *discounted price* that do not come from the *cash ledger*.
 - **Total**: The *discounted price* plus tax and handling.
+- **Undiscounted cost**: See *undiscounted price*. 
 - **Undiscounted price**: What something is normally sold for.
   $100 in our example.
   This number is purely informational- it is used to calculate the savings customers achieve purchasing through Suma.
@@ -419,8 +421,19 @@ Suma has also secured a grant from a government to cover $30 of the cost for eac
   $40 in our example.
   This number is purely informational- it is used to calculate the Cost of Goods Sold (COGS) and similar metrics.
 
+There are a few terms that are mostly relevant for a technical understanding of the ledgering system
+rather than the general payment system:
 
-
-
-- **Undiscounted cost:** the full price someone would pay, without any discounts.
-- **Discounted cost:** the price someone pays after markdowns/discounts.
+- **Book transactions**: Represent transactions in the internal ledgering system. They are not explicitly tied to external money movements;
+  every movement of money between ledgers has a book transaction.
+- **Funding transaction**: An external transaction that represents money being moved into suma's financial accounts.
+  This could be from a user's credit card, represent a grant, etc.
+  Funding transactions are stateful, in that they can be cancelled and/or refunded.
+- **Payout transaction**: An external transaction that represents money beign moved out of suma's financial accounts.
+  This could be a payment for an invoice, or the refund of a funding transaction, etc.
+- **Category**: The payment system figures out what ledgers can be used for what purchases based on the category
+  of each ledger and thing being purchased, as explained above.
+- **Charge**: High-level concept of a transaction or "payment" as a colloqial term.
+  Charges tie together the thing being purchased (trip, order)
+  to one or more book transactions (and potentially a funding transaction, if a funding transaction
+  was created when the charge was made).
