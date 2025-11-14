@@ -34,6 +34,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     params do
       use :payment_instrument
       requires(:amount, allow_blank: false, type: JSON) { use :money }
+      requires(:memo, type: JSON) { use :translated_text }
     end
     post :create_for_self do
       check_admin_role_access!(:write, Suma::Payment::FundingTransaction)
@@ -42,10 +43,12 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       ).first&.reify) or forbidden!
       c = instrument.member
       begin
+        memo = Suma::TranslatedText.find_or_create(params[:memo])
         fx = Suma::Payment::FundingTransaction.start_new(
           c.payment_account,
           amount: params[:amount],
           instrument:,
+          memo:,
           collect: true,
         )
       rescue Suma::Payment::Invalid => e

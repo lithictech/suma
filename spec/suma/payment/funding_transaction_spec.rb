@@ -8,16 +8,17 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }
     let(:amount) { Money.new(500) }
+    let(:memo) { Suma::Fixtures.translated_text.create }
 
     it "creates a new transaction to the platform ledger" do
       platform_cash = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])
-      xaction = described_class.start_new(pacct, amount:, strategy:, originating_ip: "1.2.3.4", collect: false)
+      xaction = described_class.start_new(pacct, amount:, memo:, strategy:, originating_ip: "1.2.3.4", collect: false)
       expect(xaction).to have_attributes(
         status: "created",
         amount: cost("$5"),
-        memo: have_attributes(en: "Transfer to suma"),
+        memo: be === memo,
         originating_payment_account: be === pacct,
         platform_ledger: be === platform_cash,
         originated_book_transaction: have_attributes(

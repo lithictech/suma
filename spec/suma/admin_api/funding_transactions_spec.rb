@@ -87,6 +87,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
         post "/v1/funding_transactions/create_for_self",
              amount: {cents: 500, currency: "USD"},
+             memo: {en: "xfer", es: "xfer"},
              payment_instrument_id: ba.id,
              payment_method_type: ba.payment_method_type
       end
@@ -94,7 +95,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
-        have_attributes(status: "created"),
+        have_attributes(status: "created", memo: have_attributes(en: "xfer")),
       )
     end
 
@@ -104,6 +105,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
         post "/v1/funding_transactions/create_for_self",
              amount: {cents: 500, currency: "USD"},
+             memo: {en: "xfer", es: "xfer"},
              payment_instrument_id: card.id,
              payment_method_type: card.payment_method_type
       end
@@ -121,6 +123,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.invalid) do
         post "/v1/funding_transactions/create_for_self",
              amount: {cents: 500, currency: "USD"},
+             memo: {en: "xfer", es: "xfer"},
              payment_instrument_id: card.id,
              payment_method_type: card.payment_method_type
       end
@@ -133,6 +136,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
 
       post "/v1/funding_transactions/create_for_self",
            amount: {cents: 500, currency: "USD"},
+           memo: {en: "xfer", es: "xfer"},
            payment_instrument_id: 1,
            payment_method_type: "card"
 

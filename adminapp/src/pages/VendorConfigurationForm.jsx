@@ -17,8 +17,8 @@ export default function VendorConfigurationForm({
     <FormLayout
       title={
         isCreate
-          ? "Create an External Account Vendor Configuration"
-          : "Updaten External Account Vendor Configuration"
+          ? "Create External Account Vendor Configuration"
+          : "Update External Account Vendor Configuration"
       }
       subtitle="External Account Vendor Configurations are available on
       the 'External Accounts' area of the application,

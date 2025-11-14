@@ -2,10 +2,12 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
+import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import { FormLabel } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +17,7 @@ export default function FundingTransactionCreatePage() {
   const navigate = useNavigate();
   const [paymentInstrument, setPaymentInstrument] = React.useState(null);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
+  const [memo, setMemo] = React.useState(defaultMemo);
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
 
@@ -25,6 +28,7 @@ export default function FundingTransactionCreatePage() {
         paymentInstrumentId: paymentInstrument.id,
         paymentMethodType: paymentInstrument.paymentMethodType,
         amount,
+        memo,
       })
       .then(api.followRedirect(navigate))
       .tapCatch(notBusy)
@@ -63,6 +67,24 @@ export default function FundingTransactionCreatePage() {
           onValueSelect={(o) => setPaymentInstrument(o)}
         />
       </ResponsiveStack>
+      <FormLabel>Memo</FormLabel>
+      <ResponsiveStack>
+        <MultiLingualText
+          {...register("memo")}
+          label=""
+          fullWidth
+          value={memo}
+          multiline
+          required
+          helperText="Terms of use users must agree to to link an account."
+          onChange={(v) => setMemo(v)}
+        />
+      </ResponsiveStack>
     </FormLayout>
   );
 }
+
+const defaultMemo = {
+  en: "Transfer to suma",
+  es: "Transferencia a suma",
+};
