@@ -126,11 +126,11 @@ function TermsView({ account, setView }) {
       <FormButtons
         margin={0}
         secondaryProps={{
-          children: "Back",
+          children: t("common.back"),
           onClick: () => setView(VIEW_STEPS),
         }}
         primaryProps={{
-          children: "Agree",
+          children: t("common.agree"),
           variant: "primary",
           onClick: () => setView(VIEW_LINK),
         }}
