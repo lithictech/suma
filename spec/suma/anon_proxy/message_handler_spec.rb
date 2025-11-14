@@ -48,6 +48,18 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(logs).to include(include_json(message: eq("no_vendor_account_for_message")))
     end
 
+    it "logs a warning and returns nil if the member cannot access the vendor configuration" do
+      stub_const("Suma::Program::UNPROGRAMMED_ACCESSIBLE", false)
+      vendor_account = Suma::Fixtures.anon_proxy_vendor_account.with_contact.create
+      fake_handler.class.can_handle_callback = proc { true }
+      msg = relay.parse_message({from: "fake-email-relay", timestamp: Time.now, to: vendor_account.contact.email})
+      logs = capture_logs_from(described_class.logger, level: :warn, formatter: :json) do
+        expect(described_class.handle(relay, msg)).to be_nil
+      end
+      expect(fake_handler.class.handled).to be_empty
+      expect(logs).to include(include_json(message: eq("member_cannot_access_configuration")))
+    end
+
     describe "with a handleable message" do
       let(:vendor_account) { Suma::Fixtures.anon_proxy_vendor_account.with_contact.create }
       let(:message) do
