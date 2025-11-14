@@ -87,6 +87,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     #
     # @param [Suma::Payment::Account] payment_account
     # @param [Money] amount
+    # @param [Suma::TranslatedText] memo
     # @param [Suma::Payment::Instrument::Interface] instrument The payment instrument to use.
     #   Use an ACH strategy for bank accounts, Card strategy for cards, etc.
     # @param [String] originating_ip The IP of the user starting this transaction.
@@ -98,7 +99,9 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     #   If false, do not even try to collect.
     #   Note that this will also create a book transaction on success.
     # @return [Suma::Payment::FundingTransaction]
-    def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil, collect: :must)
+    def start_new(
+      payment_account, amount:, memo: nil, instrument: nil, originating_ip: nil, strategy: nil, collect: :must
+    )
       Suma.assert { [payment_account.is_a?(Suma::Payment::Account), payment_account.inspect] }
       if strategy.nil?
         strategy = @fake_strategy.respond_to?(:call) ? @fake_strategy.call : @fake_strategy
@@ -119,12 +122,13 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           end
         end
         strategy.check_validity!
+        memo ||= Suma::TranslatedText.find_or_create(
+          en: "Transfer to suma",
+          es: "Transferencia a suma",
+        )
         xaction = self.new(
           amount:,
-          memo: Suma::TranslatedText.create(
-            en: "Transfer to suma",
-            es: "Transferencia a suma",
-          ),
+          memo:,
           originating_payment_account: payment_account,
           platform_ledger:,
           originating_ip:,
