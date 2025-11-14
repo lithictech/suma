@@ -62,6 +62,20 @@ class Suma::AnonProxy::MessageHandler
       self.logger.warn("no_vendor_account_for_message", message:, relay: relay.key)
       return nil
     end
+    unless vendor_account.configuration.eligible_to?(vendor_account.member, as_of: message.timestamp)
+      # Do not handle messages we get where the user is not eligble.
+      # Users can often request auth messages themselves, like a forgot password/magic link
+      # using their anonymous contact info, in which case it'd come to us.
+      # We want to ignore it; not send it onto the user.
+      # NOTE: There is similar code in the lime handler;
+      # maybe that should be generalized too.
+      self.logger.warn("member_cannot_access_configuration",
+                       message:,
+                       relay: relay.key,
+                       member: vendor_account.member.name,
+                       vendor_account_id: vendor_account.id,)
+      return nil
+    end
 
     vendor_account.db.transaction do
       vam = Suma::AnonProxy::VendorAccountMessage.new(
