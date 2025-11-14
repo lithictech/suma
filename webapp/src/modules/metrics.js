@@ -27,7 +27,7 @@ export function countMetric(vars) {
   if (!url) {
     return warn("not counting because path path is empty");
   }
-  fetch(url, { method: "POST", keepalive: true }).catch((r) => warn(r));
+  fetch(url, { method: "POST", keepalive: true, mode: "no-cors" }).catch((r) => warn(r));
 }
 
 function shouldFilter() {
