@@ -14,6 +14,7 @@
   "auth.sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages.",
   "common.add_to_homescreen": "Add to homescreen",
   "common.add_to_homescreen_intro": "Install suma to your homescreen for an optimized experience.",
+  "common.agree": "Agree",
   "common.app": "App",
   "common.app_name": "Suma",
   "common.back": "Back",
