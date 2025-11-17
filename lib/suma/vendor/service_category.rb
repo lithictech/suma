@@ -13,7 +13,10 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
   # many_to_many :products
 
   many_to_one :parent, class: self
-  one_to_many :children, class: self, key: :parent_id
+  one_to_many :children,
+              class: self,
+              key: :parent_id,
+              order: :id
 
   class << self
     def lookup(name)

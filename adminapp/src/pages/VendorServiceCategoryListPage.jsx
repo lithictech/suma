@@ -21,12 +21,14 @@ export default function VendorServiceCategoryListPage() {
           id: "name",
           label: "Name",
           align: "left",
+          sortable: true,
           render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
         },
         {
           id: "slug",
           label: "Slug",
           align: "center",
+          sortable: true,
           render: (c) => <AdminLink model={c}>{c.slug}</AdminLink>,
         },
         {
