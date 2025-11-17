@@ -61,14 +61,17 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     # Figure out what transactions are going to be created based on a funding transaction
     # of the given +amount+ to the +account+ (ie, if I pay in cash, what subsidy do I get).
     # @param context [Suma::Payment::CalculationContext]
-    # @param [Money] amount
+    # @param [Money] amount The amount of cash potentially being put in.
+    # @param [Money] up_to The max amount of the charge. When calculating potential contributions,
+    #   the amount may be the hypothetical cash contribution, which could be $0;
+    #   so 'up to' defines the maximum potential subsidy, which is used when the trigger acts as a credit.
     # @return [Plan]
-    def funding_plan(context, amount)
-      steps = self.triggers.map { |t| t.funding_plan(context, self.account, amount) }
+    def funding_plan(context, amount:, up_to:)
+      steps = self.triggers.map { |t| t.funding_plan(context, self.account, amount:, up_to:) }
       return Plan.new(steps:)
     end
 
-    # Returnt he triggers which can potentially be used for the purchase of the given item
+    # Return the triggers which can potentially be used for the purchase of the given item
     # with vendor service categories (look at the category hierarchy of the trigger's originating ledger).
     # Note that this should only be used for predictive/suggestive purposes,
     # since it does NOT take into account amounts on the actual ledger.
@@ -147,11 +150,23 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # @param context [Suma::Payment::CalculationContext]
   # @param [Suma::Payment::Account] account
   # @param [Money] amount
+  # @param [Money] up_to
   # @return [PlanStep]
-  def funding_plan(context, account, amount)
+  def funding_plan(context, account, amount:, up_to:)
     receiving = self.ensure_receiving_ledger(account)
+    subsidy_cents = if self.act_as_credit && self.maximum_cumulative_subsidy_cents.zero?
+                      # act_as_credit with no max covers the ENTIRE cost, ALWAYS (there is no max subsidy).
+                      up_to.cents
+                    elsif self.act_as_credit
+                      # act_as_credit should put as much as possible towards the total;
+                      # note that this will still be limited if max_subsidy is set.
+                      [up_to.cents, self.maximum_cumulative_subsidy_cents].min
+                    else
+                      # The subsidized amount should be based on the match multiplier.
+                      amount.cents * self.match_multiplier
+                    end
     subsidy = Money.new(
-      Money.new(amount.cents * self.match_multiplier, amount.currency).round_to_nearest_cash_value,
+      Money.new(subsidy_cents, amount.currency).round_to_nearest_cash_value,
       amount.currency,
     )
     if self.maximum_cumulative_subsidy_cents.positive?

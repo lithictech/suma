@@ -248,7 +248,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     candidate = amount
     loop_number = 1
     loop do
-      subsidy_plan = triggers.funding_plan(context, candidate)
+      subsidy_plan = triggers.funding_plan(context, amount: candidate, up_to: amount)
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
           {ledger: cash, amount: candidate + -original_cash_balance},

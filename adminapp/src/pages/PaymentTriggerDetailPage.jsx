@@ -47,6 +47,7 @@ export default function PaymentTriggerDetailPage() {
           label: "Max Subsidy",
           value: formatMoney(intToMoney(model.maximumCumulativeSubsidyCents)),
         },
+        { label: "Act as Credit", value: model.actAsCredit },
         { label: "Memo (En)", value: model.memo.en },
         { label: "Memo (Es)", value: model.memo.es },
         {
