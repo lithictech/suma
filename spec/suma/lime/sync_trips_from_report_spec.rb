@@ -186,6 +186,16 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to have_length(1)
     end
+
+    it "ignores rows without a trip token" do
+      txt = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
+        ,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+      CSV
+      expect(Sentry).to_not receive(:capture_message)
+      described_class.new.run_for_report(txt)
+      expect(Suma::Mobility::Trip.all).to be_empty
+    end
   end
 
   describe "dataset" do
