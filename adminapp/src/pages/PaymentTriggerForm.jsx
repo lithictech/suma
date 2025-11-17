@@ -8,7 +8,14 @@ import SafeDateTimePicker from "../components/SafeDateTimePicker";
 import config from "../config";
 import { formatOrNull } from "../modules/dayConfig";
 import { intToMoney } from "../shared/money";
-import { TextField, Stack, FormHelperText } from "@mui/material";
+import {
+  TextField,
+  Stack,
+  FormHelperText,
+  Switch,
+  FormControlLabel,
+  FormControl,
+} from "@mui/material";
 import React from "react";
 
 export default function PaymentTriggerForm({
@@ -84,6 +91,7 @@ export default function PaymentTriggerForm({
             type="number"
             variant="outlined"
             required
+            disabled={resource.actAsCredit}
             style={{ flex: 1 }}
             inputProps={{ step: 0.01 }}
             onChange={setFieldFromInput}
@@ -97,6 +105,7 @@ export default function PaymentTriggerForm({
             type="number"
             variant="outlined"
             required
+            disabled={resource.actAsCredit}
             style={{ flex: 1 }}
             onChange={setMatchPercent}
           />
@@ -109,6 +118,7 @@ export default function PaymentTriggerForm({
             type="number"
             variant="outlined"
             required
+            disabled={resource.actAsCredit}
             style={{ flex: 1 }}
             onChange={setPayerPercent}
           />
@@ -126,6 +136,20 @@ export default function PaymentTriggerForm({
             style={{ flex: 1 }}
             onMoneyChange={(v) => setField("maximumCumulativeSubsidyCents", v.cents)}
           />
+          <FormControl style={{ flex: 2 }}>
+            <FormControlLabel
+              control={<Switch />}
+              label="Act as Credit"
+              name="actAsCredit"
+              checked={resource.actAsCredit}
+              onChange={setFieldFromInput}
+            />
+            <FormHelperText>
+              Triggers that act as credits do not respect Match Multiplier. Instead, they
+              contribute up to the maximum subsidy (unlimited if $0), without requiring
+              the member to put in any cash to match.
+            </FormHelperText>
+          </FormControl>
         </ResponsiveStack>
         <ResponsiveStack>
           <MultiLingualText
@@ -154,7 +178,7 @@ export default function PaymentTriggerForm({
           value={resource.originatingLedger?.adminLabel || ""}
           required
           search={api.searchLedgers}
-          style={{ flex: 1 }}
+          style={{ flex: 1, width: "100%" }}
           searchEmpty
           onValueSelect={(v) => setField("originatingLedger.id", v.id)}
         />

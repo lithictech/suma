@@ -306,6 +306,22 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
         expect(got.remainder).to cost("$0")
         expect(got.rest).to contain_exactly(have_attributes(amount: cost("$2.54")))
       end
+
+      it "can work with act_as_credit triggers covering the full amount" do
+        Suma::Fixtures.payment_trigger.up_to(money("$100")).from(subsidizing_food_ledger).create(act_as_credit: true)
+        got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$10"))
+        expect(got.cash).to have_attributes(amount: cost("$0"))
+        expect(got.remainder).to cost("$0")
+        expect(got.rest).to contain_exactly(have_attributes(amount: cost("$10")))
+      end
+
+      it "can work with act_as_credit triggers covering less than the full amount" do
+        Suma::Fixtures.payment_trigger.up_to(money("$7")).from(subsidizing_food_ledger).create(act_as_credit: true)
+        got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$10"))
+        expect(got.cash).to have_attributes(amount: cost("$3"))
+        expect(got.remainder).to cost("$0")
+        expect(got.rest).to contain_exactly(have_attributes(amount: cost("$7")))
+      end
     end
   end
 end
