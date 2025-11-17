@@ -72,7 +72,8 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
           Sequel[program_id: :program_id] &
           (
             Sequel[member_id: coalesce_member_id] |
-            Sequel[role_id: self.db[:roles_members].where(member_id: coalesce_member_id).select(:role_id)]
+            Sequel[role_id: self.db[:roles_members].where(member_id: coalesce_member_id).select(:role_id)] |
+            Sequel[role_id: self.db[:roles_organizations].where(organization_id: verified_org_ids).select(:role_id)]
           ),
         ).exists,
       )

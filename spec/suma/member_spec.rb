@@ -532,7 +532,7 @@ RSpec.describe "Suma::Member", :db do
       )
     end
 
-    it "it excludes overridden direct enrollments from the combined dataset" do
+    it "excludes overridden direct enrollments from the combined dataset" do
       role = Suma::Role.create(name: "test")
       organization.add_role(role)
       Suma::Fixtures.organization_membership(member:).verified(organization).create
@@ -548,11 +548,39 @@ RSpec.describe "Suma::Member", :db do
       expect(member.program_enrollments_via_organization_roles_dataset.all).to have_same_ids_as(e)
     end
 
-    it "it excludes overridden role enrollments from the combined dataset" do
+    it "excludes overridden role enrollments from the combined dataset" do
       role = Suma::Fixtures.role.create
       member.add_role(role)
       e = Suma::Fixtures.program_enrollment(member:).create
 
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(e)
+      Suma::Fixtures.program_enrollment_exclusion.create(program: e.program, role:)
+      expect(member.combined_program_enrollments_dataset.all).to be_empty
+
+      eagered_member = Suma::Member.all.first
+      expect(eagered_member.combined_program_enrollments).to be_empty
+    end
+
+    it "excludes overridden organization role enrollments from the combined dataset" do
+      role = Suma::Role.create(name: "test")
+      organization.add_role(role)
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      # Enroll the ROLE, and then exclude it.
+      e = Suma::Fixtures.program_enrollment(role:).create
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(e)
+      Suma::Fixtures.program_enrollment_exclusion.create(program: e.program, role:)
+      expect(member.combined_program_enrollments_dataset.all).to be_empty
+
+      eagered_member = Suma::Member.all.first
+      expect(eagered_member.combined_program_enrollments).to be_empty
+    end
+
+    it "excludes overridden organization enrollments with an excluded role" do
+      role = Suma::Role.create(name: "test")
+      organization.add_role(role)
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      # Enroll the ORGANIZATION, and then exclude the org's role.
+      e = Suma::Fixtures.program_enrollment(organization:).create
       expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(e)
       Suma::Fixtures.program_enrollment_exclusion.create(program: e.program, role:)
       expect(member.combined_program_enrollments_dataset.all).to be_empty
