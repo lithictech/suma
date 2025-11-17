@@ -457,6 +457,10 @@ RSpec.describe "sequel-hybrid-searchable" do
       WebMock.allow_net_connect!
     end
 
+    after(:each) do
+      WebMock.disable_net_connect!
+    end
+
     it "calls the service" do
       gen = SequelHybridSearch::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: @apikey)
       got = gen.get_embedding("hello")
