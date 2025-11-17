@@ -20,9 +20,9 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :audit_activities, with: ActivityEntity
-    expose :match_multiplier
-    expose :match_fraction
-    expose :payer_fraction
+    expose :match_multiplier, &self.delegate_to(:match_multiplier, :to_f)
+    expose :match_fraction, &self.delegate_to(:match_fraction, :to_f)
+    expose :payer_fraction, &self.delegate_to(:payer_fraction, :to_f)
     expose :maximum_cumulative_subsidy_cents
     expose :memo, with: TranslatedTextEntity
     expose :originating_ledger, with: SimpleLedgerEntity

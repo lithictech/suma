@@ -85,6 +85,7 @@ export default function PaymentTriggerForm({
             variant="outlined"
             required
             style={{ flex: 1 }}
+            inputProps={{ step: 0.01 }}
             onChange={setFieldFromInput}
           />
           <TextField
@@ -137,7 +138,14 @@ export default function PaymentTriggerForm({
           />
         </ResponsiveStack>
         <FormHelperText>
-          This memo is used for all triggered subsidy transactions.
+          This Memo appears on all subsidy transactions between the originated and
+          receiving ledgers specified below. Sometimes this is the same as the
+          Contribution Text below, but more often it should be focused on the Originating
+          Ledger. For example, a holiday meal subsidy could originate from the "Holiday
+          Meal 2020" ledger, have a Memo of "Subsidy from local funders", and have a
+          Contribution Text of "Food". To the user, this would appear as a transaction on
+          their Food ledger; to the platform, it would track the subsidy came from a
+          dedicated ledger.
         </FormHelperText>
         <AutocompleteSearch
           {...register("originatingLedger")}
@@ -153,7 +161,7 @@ export default function PaymentTriggerForm({
         <TextField
           {...register("receivingLedgerName")}
           label="Receiving Ledger"
-          helperText="The name of the ledger created for the member. Not shown to members."
+          helperText="The internal name of the ledger created for the member. Not shown to members."
           name="receivingLedgerName"
           value={resource.receivingLedgerName}
           variant="outlined"
@@ -172,8 +180,9 @@ export default function PaymentTriggerForm({
           />
         </ResponsiveStack>
         <FormHelperText>
-          The ledger 'name' shown to the member. Explain where this subledger money is
-          used for.
+          The 'ledger name' shown to the member. This appears when viewing their
+          transaction history for a specific ledger, or as a description along with the
+          Memo specified above. See Memo helper text for more info.
         </FormHelperText>
       </Stack>
     </FormLayout>

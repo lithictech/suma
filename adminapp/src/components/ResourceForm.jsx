@@ -41,6 +41,8 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
     (e) => {
       if (e.target.type === "checkbox") {
         setField(e.target.name, e.target.checked);
+      } else if (e.target.type === "number") {
+        setField(e.target.name, Number(e.target.value));
       } else {
         setField(e.target.name, e.target.value);
       }
