@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import React from "react";
 
@@ -18,6 +19,20 @@ export default function VendorServiceCategoryDetailPage() {
           value: <AdminLink model={model.parent}>{model.parent?.name}</AdminLink>,
         },
       ]}
-    />
+    >
+      {(model) => [
+        <RelatedList
+          title="Children"
+          rows={model.children}
+          headers={["Id", "Name", "Slug"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row}>{row.id}</AdminLink>,
+            <AdminLink model={row.name}>{row.name}</AdminLink>,
+            <AdminLink model={row.slug}>{row.slug}</AdminLink>,
+          ]}
+        />,
+      ]}
+    </ResourceDetail>
   );
 }

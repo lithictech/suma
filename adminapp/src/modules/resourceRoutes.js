@@ -2,13 +2,20 @@ import camelCase from "lodash/camelCase";
 import kebabCase from "lodash/kebabCase";
 
 const mapping = {
+  ledger: "payment-ledger",
   organizationMembership: "membership",
   organizationMembershipVerification: "membership-verification",
-  ledger: "payment-ledger",
+};
+
+const plurals = {
+  vendorServiceCategory: "vendor-service-categories",
 };
 
 export function resourceRoute(resource, { plural } = {}) {
   resource = camelCase(resource);
+  if (plural && plurals[resource]) {
+    return plurals[resource];
+  }
   let p = mapping[resource] || kebabCase(resource);
   if (plural) {
     p = pluralize(p);
