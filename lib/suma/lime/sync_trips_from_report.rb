@@ -61,7 +61,8 @@ class Suma::Lime::SyncTripsFromReport
         Sentry.capture_message("Lime trip report with invalid headers") do |scope|
           scope.set_extras(filename:, headers: row.headers)
         end
-        next
+        # Break instead of processing the next row.
+        break
       end
       reg_ds = Suma::AnonProxy::VendorAccountRegistration.where(
         account: Suma::AnonProxy::VendorAccount.where(configuration_id: Suma::Lime.trip_report_vendor_configuration_id),
