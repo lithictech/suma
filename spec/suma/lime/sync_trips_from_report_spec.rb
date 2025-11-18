@@ -126,6 +126,48 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       )
     end
 
+    [
+      # Represent 00, 5, 12, and 23 in each possible known form:
+      # - 12 hour AM/PM, 24 hour AM/PM, 24 hour
+      # - seconds and not, for each form.
+      # For a max of 6 options, and a minimum of 4, if 12/24 hour representations are the same
+      # (5am and 12pm).
+      ["09/16/2025 12:01 AM", "2025-09-16T00:01:00-0700"],
+      ["09/16/2025 12:01:30 AM", "2025-09-16T00:01:00-0700"],
+      ["09/16/2025 00:01 AM", "2025-09-16T00:01:00-0700"],
+      ["09/16/2025 00:01:30 AM", "2025-09-16T00:01:00-0700"],
+      ["09/16/2025 00:01", "2025-09-16T00:01:00-0700"],
+      ["09/16/2025 00:01:30", "2025-09-16T00:01:00-0700"],
+
+      ["09/16/2025 05:01 AM", "2025-09-16T05:01:00-0700"],
+      ["09/16/2025 05:01:30 AM", "2025-09-16T05:01:00-0700"],
+      ["09/16/2025 05:01", "2025-09-16T05:01:00-0700"],
+      ["09/16/2025 05:01:30", "2025-09-16T05:01:00-0700"],
+
+      ["09/16/2025 12:01 PM", "2025-09-16T12:01:00-0700"],
+      ["09/16/2025 12:01:30 PM", "2025-09-16T12:01:00-0700"],
+      ["09/16/2025 12:01", "2025-09-16T12:01:00-0700"],
+      ["09/16/2025 12:01:30", "2025-09-16T12:01:00-0700"],
+
+      ["09/16/2025 11:01 PM", "2025-09-16T23:01:00-0700"],
+      ["09/16/2025 11:01:30 PM", "2025-09-16T23:01:00-0700"],
+      ["09/16/2025 23:01 PM", "2025-09-16T23:01:00-0700"],
+      ["09/16/2025 23:01:30 PM", "2025-09-16T23:01:00-0700"],
+      ["09/16/2025 23:01", "2025-09-16T23:01:00-0700"],
+      ["09/16/2025 23:01:30", "2025-09-16T23:01:00-0700"],
+    ].each do |(t, expected)|
+      it "parses time formats properly: #{t}" do
+        txt = <<~CSV
+          TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+          RTOKEN1,,#{t},09/16/2025 23:59 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
+        CSV
+        described_class.new.run_for_report(txt)
+        expect(Suma::Mobility::Trip.all).to contain_exactly(
+          have_attributes(began_at: match_time(expected)),
+        )
+      end
+    end
+
     it "parses the absurd time formats properly" do
       txt = <<~CSV
         TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
