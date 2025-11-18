@@ -243,6 +243,7 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       txt = <<~CSV
         TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
         RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1.00,$3.44,$19.06,m1@in.mysuma.org
+        RTOKEN2,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1.00,$3.44,$19.06,m1@in.mysuma.org
       CSV
       expect_sentry_capture(type: :message, arg_matcher: eq("Lime trip report with invalid headers"))
       described_class.new.run_for_report(txt)
