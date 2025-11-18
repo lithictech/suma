@@ -156,5 +156,21 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(mobility_adapter_setting: "deep_linking_suma_receipts")
     end
+
+    it "adds and removes categories" do
+      v = Suma::Fixtures.vendor_service.create
+      cat1 = Suma::Fixtures.vendor_service_category.create
+      cat2 = Suma::Fixtures.vendor_service_category.create
+
+      post "/v1/vendor_services/#{v.id}", categories: {0 => {id: cat1.id}, 1 => {id: cat2.id}}
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh.categories).to have_same_ids_as(cat1, cat2)
+
+      post "/v1/vendor_services/#{v.id}", categories: {0 => {id: cat2.id}}
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh.categories).to have_same_ids_as(cat2)
+    end
   end
 end

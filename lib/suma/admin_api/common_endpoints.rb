@@ -123,7 +123,8 @@ module Suma::AdminAPI::CommonEndpoints
         m.update(assoc[:name] => fk_model)
       end
       to_many_assocs_and_args.each do |(assoc, args)|
-        unseen_children = m.send(assoc[:name]).to_h { |am| [am.id, am] }
+        existing_instances_by_id = m.send(assoc[:name]).to_h { |am| [am.id, am] }
+        unseen_children = existing_instances_by_id.dup
         args.each do |mparams|
           assoc_model = if (assoc_model_id = mparams.delete(:id))
                           # Submitting as form encoding, like when using an image, turns everything into a string
@@ -134,14 +135,19 @@ module Suma::AdminAPI::CommonEndpoints
             association_class(assoc).new
           end
           update_model(assoc_model, mparams, save: false)
-          m.send(assoc[:add_method], assoc_model)
+          needs_add = !existing_instances_by_id.key?(assoc_model.id)
+          needs_add ? m.send(assoc[:add_method], assoc_model) : assoc_model.save_changes
         end
-        begin
-          unseen_children.each_value(&:destroy)
-        rescue Sequel::ForeignKeyConstraintViolation => e
-          msg = "One of these resources could not be removed because it is used elsewhere. " \
-                "Please modify it instead. If you need more help, please contact a developer."
-          merror!(409, msg, code: "fk_violation", more: {exception: e.message}, skip_loc_check: true)
+        if assoc[:type] == :many_to_many
+          unseen_children.each_value { |c| m.send(assoc[:remove_method], c) }
+        else
+          begin
+            unseen_children.each_value(&:destroy)
+          rescue Sequel::ForeignKeyConstraintViolation => e
+            msg = "One of these resources could not be removed because it is used elsewhere. " \
+                  "Please modify it instead. If you need more help, please contact a developer."
+            merror!(409, msg, code: "fk_violation", more: {exception: e.message}, skip_loc_check: true)
+          end
         end
       end
       caption_params.each do |(field, caption)|
