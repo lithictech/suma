@@ -23,6 +23,10 @@ module Suma::Lime
     setting :trip_email_sync_enabled, false
     # See +trip_email_sync_enabled+.
     setting :trip_report_sync_enabled, false
+    # If false, trip importer will insert trips and ignore conflicts on external id.
+    # If true, upsert to overwrite existing rows.
+    # Needed when updating trips with new, better source data.
+    setting :trip_report_overwrite, false
 
     # The ID of the vendor configuration used to 'namespace' vendor accounts for trip reports.
     # That is, for emails appearing in the Lime trip report, only those VendorAccountRegistrations with emails

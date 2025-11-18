@@ -29,20 +29,20 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "creates trips from csv rows" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1.00,$3.44,$19.06,m1@in.mysuma.org
-        RTOKEN2,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
+        RTOKEN2,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to contain_exactly(
         have_attributes(
           vehicle_id: "RTOKEN1",
           vendor_service: be === program.pricings.first.vendor_service,
-          begin_lat: 0.0,
-          begin_lng: 0.0,
+          begin_lat: 45.464916,
+          begin_lng: -122.647268,
           began_at: match_time("2025-09-16T00:01:00-0700"),
-          end_lat: 0.0,
-          end_lng: 0.0,
+          end_lat: 45.465336,
+          end_lng: -122.647118,
           ended_at: match_time("2025-09-16T00:43:00-0700"),
           vendor_service_rate: be === program.pricings.first.vendor_service_rate,
           member: be === member,
@@ -61,8 +61,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     it "only looks at the configured vendor configuration" do
       Suma::Lime.trip_report_vendor_configuration_id = 0
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to be_empty
@@ -71,8 +71,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     it "calculates and charges the cost based on rate" do
       card = Suma::Fixtures.card.member(member).create
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       rate.update(surcharge_cents: 50, unit_amount_cents: 7)
       rate.update(undiscounted_rate: Suma::Fixtures.vendor_service_rate.unit_amount(35).surcharge(100).create)
@@ -91,10 +91,10 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       )
     end
 
-    it "does not charge the user if the Lime ACTUAL_COST is $0" do
+    it "does not charge the user if the Lime LIME_ACCESS_COST is $0" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0,$0,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$0.00,$6.88,77,N,,,,,,
       CSV
       rate.update(surcharge_cents: 50, unit_amount_cents: 7)
       rate.update(undiscounted_rate: Suma::Fixtures.vendor_service_rate.unit_amount(35).surcharge(100).create)
@@ -110,8 +110,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "will use payment triggers for subsidy" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
       CSV
       Suma::Fixtures.card.member(member).create
       rate.update(surcharge_cents: 50, unit_amount_cents: 7)
@@ -128,11 +128,11 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "parses the absurd time formats properly" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
-        RTOKEN2,09/16/2025 01:01 AM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
-        RTOKEN3,09/16/2025 12:01 PM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
-        RTOKEN4,09/16/2025 13:01 PM,09/16/2025 23:59 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 23:59 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
+        RTOKEN2,,09/16/2025 01:01 AM,09/16/2025 23:59 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
+        RTOKEN3,,09/16/2025 12:01 PM,09/16/2025 23:59 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
+        RTOKEN4,,09/16/2025 13:01 PM,09/16/2025 23:59 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
       CSV
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to contain_exactly(
@@ -146,8 +146,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     it "warns if no program registration with the email exists" do
       va.registrations.first.destroy
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,#N/A
       CSV
       expect_sentry_capture(type: :message, arg_matcher: eq("Lime trip taken by unknown user"))
       described_class.new.run_for_report(txt)
@@ -157,8 +157,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     it "errors if there is not only 1 program for the configuration, so we cannot figure out which one to use" do
       va.configuration.add_program(Suma::Fixtures.program.create)
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       expect do
         described_class.new.run_for_report(txt)
@@ -168,8 +168,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
     it "errors if the associated program does not have pricing" do
       program.pricings.first.destroy
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       expect do
         described_class.new.run_for_report(txt)
@@ -178,8 +178,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "does not create duplicate trips" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to have_length(1)
@@ -189,12 +189,49 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "ignores rows without a trip token" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        ,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        ,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       expect(Sentry).to_not receive(:capture_message)
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to be_empty
+    end
+
+    it "noops for csvs missing expected headers" do
+      txt = <<~CSV
+        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
+        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$1.00,$3.44,$19.06,m1@in.mysuma.org
+      CSV
+      expect_sentry_capture(type: :message, arg_matcher: eq("Lime trip report with invalid headers"))
+      described_class.new.run_for_report(txt)
+      expect(Suma::Mobility::Trip.all).to be_empty
+    end
+
+    it "can replace existing trips if enabled" do
+      txt1 = <<~CSV
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
+      CSV
+      txt2 = <<~CSV
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,10/16/2025 12:01 AM,10/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
+      CSV
+      described_class.new.run_for_report(txt1)
+      described_class.new.run_for_report(txt2)
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(
+          vehicle_id: "RTOKEN1",
+          began_at: match_time("2025-09-16T00:01:00-0700"),
+        ),
+      )
+      Suma::Lime.trip_report_overwrite = true
+      described_class.new.run_for_report(txt2)
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(
+          vehicle_id: "RTOKEN1",
+          began_at: match_time("2025-10-16T00:01:00-0700"),
+        ),
+      )
     end
   end
 
@@ -322,8 +359,8 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "syncs all rows in the dataset" do
       txt = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
@@ -344,12 +381,12 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
 
     it "syncs all CSV attachments" do
       txt1 = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN1,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       txt2 = <<~CSV
-        TRIP_TOKEN,START_TIME,END_TIME,REGION_NAME,USER_TOKEN,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,ACTUAL_COST,INTERNAL_COST,NORMAL_COST,USER_EMAIL
-        RTOKEN2,09/16/2025 12:01 AM,09/16/2025 12:43 AM,Portland,UTOKEN1,43,1.53,$0.00,$3.44,$19.06,m1@in.mysuma.org
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN2,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
