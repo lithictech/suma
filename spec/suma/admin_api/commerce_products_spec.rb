@@ -131,6 +131,22 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       expect(product.inventory.refresh).to have_attributes(quantity_on_hand: 201)
     end
 
+    it "adds and removes categories" do
+      product = Suma::Fixtures.product.create
+      cat1 = Suma::Fixtures.vendor_service_category.create
+      cat2 = Suma::Fixtures.vendor_service_category.create
+
+      post "/v1/commerce_products/#{product.id}", vendor_service_categories: {0 => {id: cat1.id}, 1 => {id: cat2.id}}
+
+      expect(last_response).to have_status(200)
+      expect(product.refresh.vendor_service_categories).to have_same_ids_as(cat1, cat2)
+
+      post "/v1/commerce_products/#{product.id}", vendor_service_categories: {0 => {id: cat2.id}}
+
+      expect(last_response).to have_status(200)
+      expect(product.refresh.vendor_service_categories).to have_same_ids_as(cat2)
+    end
+
     it "does not update undeclared params" do
       product = Suma::Fixtures.product.create
       v2 = Suma::Fixtures.vendor.create
