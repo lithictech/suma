@@ -149,11 +149,28 @@ class Suma::Lime::SyncTripsFromReport
     return r
   end
 
+  # Lime's time formats are ridiculous.
+  # We perform our own time parsing, since the alternatives around being clever
+  # or making assumptions are even worse.
+  # We see a mixture of AM/PM, 12 hour clock, seconds, date formats, etc.
+  # See specs for examples of all the formats we've seen.
   def parsetime(t)
-    date, time, ampm = t.split
-    hr, min = time.split(":")
-    # Turn 12 AM into 00 AM
-    hr = "00" if hr == "12" && ampm == "AM"
-    return Time.strptime("#{date} #{hr}:#{min} -0700", "%m/%d/%Y %H:%M %Z")
+    datepart, timepart = t.split(" ", 2)
+    # Handle 01/31/2020 and 2020/01/31.
+    datefmt = /\d\d\d\d$/.match?(datepart) ? "%m/%d/%Y" : "%Y/%m/%d"
+
+    timeparts = timepart.split(/[: ]/)
+    hr = timeparts[0].to_i
+    min = timeparts[1].to_i
+    if timeparts.last == "AM"
+      # AM has the same hours as a 24-hour clock, except if the hour is 12, in which case that's zero.
+      hr = 0 if hr == 12
+    elsif timeparts.last == "PM"
+      # PM could be 12 or 24-hour clock.
+      hr += 12 if hr < 12
+    end
+    hr = hr.to_s.rjust(2, "0")
+    min = min.to_s.rjust(2, "0")
+    return Time.strptime("#{datepart} #{hr}:#{min} -0700", "#{datefmt} %H:%M %Z")
   end
 end
