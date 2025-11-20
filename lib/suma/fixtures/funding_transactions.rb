@@ -32,4 +32,11 @@ module Suma::Fixtures::FundingTransactions
     strategy = Suma::Payment::FakeStrategy.create(**strategy) unless strategy.is_a?(Suma::Payment::FakeStrategy)
     self.fake_strategy = strategy
   end
+
+  decorator :off_platform do |strategy={}|
+    strategy = Suma::Fixtures.off_platform_payment_strategy.create(**strategy) unless
+      strategy.is_a?(Suma::Payment::OffPlatformStrategy)
+    self.off_platform_strategy = strategy
+    self.originated_book_transaction = nil
+  end
 end
