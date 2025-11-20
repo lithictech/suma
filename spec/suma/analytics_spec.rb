@@ -174,6 +174,15 @@ RSpec.describe Suma::Analytics, :db do
         include(funding_transaction_id: o.id),
       )
     end
+
+    it "handles off platform book transaction" do
+      o = Suma::Fixtures.funding_transaction.off_platform.create
+      expect(o.originated_book_transaction).to be_nil
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::FundingTransaction.dataset.all).to contain_exactly(
+        include(funding_transaction_id: o.id),
+      )
+    end
   end
 
   describe "PayoutTransaction" do

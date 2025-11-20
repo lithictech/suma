@@ -18,7 +18,7 @@ class Suma::Analytics::FundingTransaction < Suma::Analytics::Model(Sequel[:analy
     [:originating_member_id, [:originating_payment_account, :member_id]],
     :platform_ledger_id,
     :originated_book_transaction_id,
-    [:usage_codes, ->(m) { m.originated_book_transaction.usage_details.map(&:code).sort || [] }],
+    [:usage_codes, ->(m) { m.originated_book_transaction&.usage_details&.map(&:code)&.sort || [] }],
     [:strategy_name, [:strategy, :short_name]],
   ]
 end
