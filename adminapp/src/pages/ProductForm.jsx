@@ -5,7 +5,7 @@ import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
-import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
+import VendorServiceCategoryMultiSelect from "../components/VendorServiceCategoryMultiSelect";
 import theme from "../theme";
 import {
   FormControlLabel,
@@ -15,7 +15,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import get from "lodash/get";
 import React from "react";
 
 export default function ProductForm({
@@ -91,16 +90,15 @@ export default function ProductForm({
             searchEmpty
             onValueSelect={(v) => setField("vendor", v)}
           />
-          <VendorServiceCategorySelect
-            {...register("category")}
-            label="Category"
-            helperText="What ledger funds can be used to purchase this product?"
-            value={get(resource, "vendorServiceCategories.0.slug") || ""}
-            style={{ flex: 1 }}
-            onChange={(_, c) => setField("vendorServiceCategories.0", c)}
-            required
-          />
         </ResponsiveStack>
+        <VendorServiceCategoryMultiSelect
+          {...register("category")}
+          label="Category"
+          helperText="What ledger funds can be used to purchase this product?"
+          value={resource.vendorServiceCategories}
+          style={{ flex: 1 }}
+          onChange={(_, c) => setField("vendorServiceCategories", c)}
+        />
         <Typography variant="h6">Inventory</Typography>
         <ResponsiveStack>
           <TextField
