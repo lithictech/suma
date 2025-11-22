@@ -212,6 +212,36 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       )
     end
 
+    describe "unmatched_amount_cents" do
+      it "applies the match to cash above the subsided_above amount" do
+        t = Suma::Fixtures.payment_trigger.matching(0.5).create(unmatched_amount_cents: 500)
+        plan = gather(money("$15"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$5"), trigger: t),
+        )
+      end
+
+      it "works with act_as_credit to cover the full cost above the subsided_above amount" do
+        t = Suma::Fixtures.payment_trigger.matching(0.5).create(unmatched_amount_cents: 600, act_as_credit: true)
+        plan = gather(money("$15"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$9"), trigger: t),
+        )
+      end
+
+      it "does not subsidize amounts below the subsided_above amount" do
+        t = Suma::Fixtures.payment_trigger.matching(0.5).create(unmatched_amount_cents: 1000, act_as_credit: true)
+        plan = gather(money("$10"), up_to: money("$90"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$80"), trigger: t),
+        )
+        plan = gather(money("$9.99"), up_to: money("$90"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$0"), trigger: t),
+        )
+      end
+    end
+
     describe "with act_as_credit" do
       it "provides a subsidy up to the max" do
         t = Suma::Fixtures.payment_trigger.matching(0).up_to(money("$20")).create(act_as_credit: true)

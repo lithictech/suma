@@ -247,7 +247,9 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     # and no leftover cash.
     candidate = amount
     loop_number = 1
+    candidates = []
     loop do
+      candidates << candidate
       subsidy_plan = triggers.funding_plan(context, amount: candidate, up_to: amount)
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
@@ -286,8 +288,9 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
           Cash ledger: #{cash.inspect}
           Balance: #{context.balance(cash)}
           Target amount: #{amount}
-          Loops: #{loop_number}
           Subsidy plan: #{subsidy_plan.inspect}
+          Loops: #{loop_number}
+          Amounts checked: #{candidates.map(&:cents)}
         MSG
         raise InvalidCalculation, msg
       end

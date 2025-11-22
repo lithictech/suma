@@ -19,6 +19,7 @@ export default function PaymentTriggerCreatePage() {
     activeDuringEnd: dayjs().add(1, "day").format(),
     matchMultiplier: 1,
     maximumCumulativeSubsidyCents: 100_00,
+    unmatchedAmountCents: 0,
   };
 
   return (
