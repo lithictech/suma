@@ -9,6 +9,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
+import SumaMarkdown from "../components/SumaMarkdown.jsx";
 import { t } from "../localization";
 import idempotency from "../modules/idempotency";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
@@ -304,10 +305,14 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
   return (
     <>
       {checkout.offering.fulfillmentPrompt && (
-        <h5>{checkout.offering.fulfillmentPrompt}</h5>
+        <h5>
+          <SumaMarkdown>{checkout.offering.fulfillmentPrompt}</SumaMarkdown>
+        </h5>
       )}
       {checkout.offering.fulfillmentInstructions && (
-        <p className="mb-2">{checkout.offering.fulfillmentInstructions}</p>
+        <p className="mb-2">
+          <SumaMarkdown>{checkout.offering.fulfillmentInstructions}</SumaMarkdown>
+        </p>
       )}
       <FormRadioInputs
         inputs={inputs}
@@ -324,7 +329,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
 function FulfillmentOptionLabel({ description, address }) {
   return (
     <>
-      {description}
+      <SumaMarkdown>{description}</SumaMarkdown>
       {address?.oneLineAddress && (
         <ExternalLink
           href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
