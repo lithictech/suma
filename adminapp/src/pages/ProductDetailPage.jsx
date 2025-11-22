@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import CategoriesRelatedList from "../components/CategoriesRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
@@ -45,6 +46,7 @@ export default function ProductDetailPage() {
       ]}
     >
       {(model) => [
+        <CategoriesRelatedList categories={model.vendorServiceCategories} />,
         <RelatedList
           title={`Offering Products (${model.offeringProducts?.length})`}
           addNewLabel="Create Offering Product"

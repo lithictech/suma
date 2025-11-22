@@ -189,10 +189,14 @@ module Suma::AdminAPI::Entities
     expose :period_end
   end
 
-  class VendorServiceCategoryEntity < BaseEntity
+  class VendorServiceCategoryTerminalEntity < BaseEntity
     include AutoExposeBase
     expose :name
     expose :slug
+  end
+
+  class VendorServiceCategoryEntity < VendorServiceCategoryTerminalEntity
+    expose :parent, with: VendorServiceCategoryTerminalEntity
   end
 
   class VendorServiceRateUndiscountedrateEntity < BaseEntity
