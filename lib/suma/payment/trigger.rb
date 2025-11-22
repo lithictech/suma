@@ -147,6 +147,9 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     self.payer_fraction = (1 - v)
   end
 
+  # Figure out how much to contribute for the cash amount.
+  # There are a number of interactions to consider; read the code comments for details.
+  #
   # @param context [Suma::Payment::CalculationContext]
   # @param [Suma::Payment::Account] account
   # @param [Money] amount
@@ -154,17 +157,20 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # @return [PlanStep]
   def funding_plan(context, account, amount:, up_to:)
     receiving = self.ensure_receiving_ledger(account)
-    subsidy_cents = if self.act_as_credit && self.maximum_cumulative_subsidy_cents.zero?
-                      # act_as_credit with no max covers the ENTIRE cost, ALWAYS (there is no max subsidy).
-                      up_to.cents
-                    elsif self.act_as_credit
-                      # act_as_credit should put as much as possible towards the total;
-                      # note that this will still be limited if max_subsidy is set.
-                      [up_to.cents, self.maximum_cumulative_subsidy_cents].min
-                    else
-                      # The subsidized amount should be based on the match multiplier.
-                      amount.cents * self.match_multiplier
-                    end
+    # The basic trigger behavior is to match a certain cash amount using the match_multiplier.
+    # But there are other fields that contribute:
+    # - If there is a nonzero maximum_cumulative_subsidy_cents,
+    #   we never want to add an amount more than this.
+    # - If act_as_credit is true, we ignore match_multiplier and cover the entire amount
+    #   (up to the max subsidy, if nonzero).
+    # - If unmatched_amount_cents is nonzero, we want to apply the above algorithms but *only* to the part
+    #   of the amount greater than unmatched_amount_cents.
+    #   - That is, if we subsidize at 0.5 at amounts above $1 with an amount of $2,
+    #     we'd subsidize $0.50.
+    #   - If we use act_as_credit for amounts above $1 with an amount of $1,
+    #     we'd subsidize $1 (ie this could be used to provide a $10 customer cash cost to products of different prices
+    #     within an offering, like the holiday special often does).
+    subsidy_cents = _calculate_subsidy_cents(amount:, up_to:)
     subsidy = Money.new(
       Money.new(subsidy_cents, amount.currency).round_to_nearest_cash_value,
       amount.currency,
@@ -188,6 +194,23 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       apply_at: context.apply_at,
       trigger: self,
     )
+  end
+
+  private def _calculate_subsidy_cents(amount:, up_to:, skip_subsidy_min_check: false)
+    if !skip_subsidy_min_check && self.unmatched_amount_cents.positive?
+      return 0 if amount.cents < self.unmatched_amount_cents
+      min = Money.new(self.unmatched_amount_cents, amount.currency)
+      return self._calculate_subsidy_cents(amount: amount - min, up_to: up_to - min, skip_subsidy_min_check: true)
+    end
+    # act_as_credit with no max covers the ENTIRE cost, ALWAYS (there is no max subsidy).
+    return up_to.cents if self.act_as_credit && self.maximum_cumulative_subsidy_cents.zero?
+
+    # act_as_credit should put as much as possible towards the total;
+    # note that this will still be limited if max_subsidy is set.
+    return [up_to.cents, self.maximum_cumulative_subsidy_cents].min if self.act_as_credit
+
+    # The subsidized amount should be based on the match multiplier.
+    return amount.cents * self.match_multiplier
   end
 
   def ensure_receiving_ledger(account)

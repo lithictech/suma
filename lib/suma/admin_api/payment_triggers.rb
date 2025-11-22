@@ -24,6 +24,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     expose :match_fraction, &self.delegate_to(:match_fraction, :to_f)
     expose :payer_fraction, &self.delegate_to(:payer_fraction, :to_f)
     expose :maximum_cumulative_subsidy_cents
+    expose :unmatched_amount_cents
     expose :act_as_credit
     expose :memo, with: TranslatedTextEntity
     expose :originating_ledger, with: SimpleLedgerEntity
@@ -57,6 +58,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         requires :active_during_end, type: Time
         requires :match_multiplier, type: Float
         requires :maximum_cumulative_subsidy_cents, type: Integer
+        requires :unmatched_amount_cents, type: Integer
         optional :act_as_credit, type: Boolean
         requires(:memo, type: JSON) { use :translated_text }
         requires(:originating_ledger, type: JSON) { use :model_with_id }
@@ -76,6 +78,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         optional :active_during_end, type: Time
         optional :match_multiplier, type: Float
         optional :maximum_cumulative_subsidy_cents, type: Integer
+        optional :unmatched_amount_cents, type: Integer
         optional :act_as_credit, type: Boolean
         optional(:memo, type: JSON) { use :translated_text }
         optional(:originating_ledger, type: JSON) { use :model_with_id }

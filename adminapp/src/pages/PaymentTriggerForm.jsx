@@ -125,9 +125,20 @@ export default function PaymentTriggerForm({
         </ResponsiveStack>
         <ResponsiveStack>
           <CurrencyTextField
+            {...register("unmatchedAmountCents")}
+            label="Unmatched Amount"
+            helperText="How much of a member's payment is unmatched?
+            For example, using $10 as unmatched, and setting Act As Credit true,
+            would subsidize everything above $10."
+            money={intToMoney(resource.unmatchedAmountCents, config.defaultCurrency.code)}
+            required
+            style={{ flex: 1 }}
+            onMoneyChange={(v) => setField("unmatchedAmountCents", v.cents)}
+          />
+          <CurrencyTextField
             {...register("maximumCumulativeSubsidyCents")}
             label="Max Subsidy"
-            helperText="What is the total amount that can be given to a member from this trigger?"
+            helperText="What is the total amount that can be given to a member from this trigger? $0 is unlimited."
             money={intToMoney(
               resource.maximumCumulativeSubsidyCents,
               config.defaultCurrency.code
@@ -136,21 +147,21 @@ export default function PaymentTriggerForm({
             style={{ flex: 1 }}
             onMoneyChange={(v) => setField("maximumCumulativeSubsidyCents", v.cents)}
           />
-          <FormControl style={{ flex: 2 }}>
-            <FormControlLabel
-              control={<Switch />}
-              label="Act as Credit"
-              name="actAsCredit"
-              checked={resource.actAsCredit}
-              onChange={setFieldFromInput}
-            />
-            <FormHelperText>
-              Triggers that act as credits do not respect Match Multiplier. Instead, they
-              contribute up to the maximum subsidy (unlimited if $0), without requiring
-              the member to put in any cash to match.
-            </FormHelperText>
-          </FormControl>
         </ResponsiveStack>
+        <FormControl style={{ flex: 2 }}>
+          <FormControlLabel
+            control={<Switch />}
+            label="Act as Credit"
+            name="actAsCredit"
+            checked={resource.actAsCredit}
+            onChange={setFieldFromInput}
+          />
+          <FormHelperText>
+            Triggers that act as credits do not respect Match Multiplier. Instead, they
+            contribute up to the maximum subsidy (unlimited if $0), without requiring the
+            member to put in any cash to match.
+          </FormHelperText>
+        </FormControl>
         <ResponsiveStack>
           <MultiLingualText
             {...register("memo")}
