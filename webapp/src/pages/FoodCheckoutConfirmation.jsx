@@ -4,6 +4,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
+import SumaMarkdown from "../components/SumaMarkdown.jsx";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
@@ -62,15 +63,21 @@ export default function FoodCheckoutConfirmation() {
           </div>
         )}
         {offering.fulfillmentInstructions && (
-          <p className="lead">{offering.fulfillmentInstructions}</p>
+          <p className="lead">
+            <SumaMarkdown>{offering.fulfillmentInstructions}</SumaMarkdown>
+          </p>
         )}
       </LayoutContainer>
       <hr className="my-4" />
       {fulfillmentOption && (
         <>
           <LayoutContainer gutters>
-            <h4>{offering.fulfillmentConfirmation}</h4>
-            <p>{fulfillmentOption.description}</p>
+            <h4>
+              <SumaMarkdown>{offering.fulfillmentConfirmation}</SumaMarkdown>
+            </h4>
+            <p>
+              <SumaMarkdown>{fulfillmentOption.description}</SumaMarkdown>
+            </p>
           </LayoutContainer>
           <hr className="my-4" />
         </>
