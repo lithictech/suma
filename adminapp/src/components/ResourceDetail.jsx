@@ -28,28 +28,64 @@ import startCase from "lodash/startCase";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+/**
+ * @param {string} resource Name of the resource type.
+ * @param {function} apiGet Api method to get the resource.
+ * @param {boolean|function} canEdit If true, or evaluates to true (called with resource state),
+ *   show an edit icon.
+ * @param {function=} apiDelete Api method to delete the resource.
+ *   If given, show a 'delete' icon unless canDelete is false.
+ *   Navigate back to the created-resource-admin header or the list for the resource type.
+ * @param {function=} apiSoftDelete Api method to soft delete the resource.
+ *   Stays on the page and use the response as the new resource version.
+ * @param {boolean|function} canDelete If true, or evaluates to true (called with resource state),
+ *   show the delete icon.
+ * @param {function|string} title
+ * @param {function} properties Called with the resource state and returns the property pairs (label/value).
+ * @param {function|string} backTo Where the 'back' icon goes.
+ * @param children
+ * @constructor
+ */
 export default function ResourceDetail({
   resource,
   apiDelete,
+  apiSoftDelete,
   apiGet,
   title,
   properties,
   canEdit,
+  canDelete,
   backTo,
   children,
 }) {
+  const [rerenderKey, setRerenderKey] = React.useState(Date.now());
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { canWriteResource } = useRoleAccess();
   const navigate = useNavigate();
   let { id } = useParams();
   id = Number(id);
+
   const getResource = React.useCallback(() => {
     return apiGet({ id }).catch(enqueueErrorSnackbar);
   }, [apiGet, id, enqueueErrorSnackbar]);
+
   const { state, loading, replaceState } = useAsyncFetch(getResource, {
     default: {},
     pickData: true,
   });
+
+  const handleDelete = React.useCallback(() => {
+    if (apiDelete) {
+      return apiDelete({ id })
+        .then(api.followRedirect(navigate))
+        .then((r) => r !== null && navigate(resourceListRoute(resource)));
+    }
+    return apiSoftDelete({ id }).then((r) => {
+      replaceState(r.data);
+      setRerenderKey(Date.now());
+    });
+  }, [apiDelete, navigate, apiSoftDelete, replaceState, id, resource]);
+
   if (children && !isFunction(children)) {
     console.error("ResourceDetail children must be a function");
     return null;
@@ -66,21 +102,13 @@ export default function ResourceDetail({
   if (toEdit && typeof toEdit !== "string") {
     toEdit = resourceEditRoute(resource, state);
   }
+  canDelete = canDelete ? invokeIfFunc(canDelete, state) : Boolean(apiDelete);
 
   const topCards = [
     <DetailGrid
       key={-1}
       title={
-        <Title
-          onDelete={
-            apiDelete &&
-            (() =>
-              apiDelete({ id })
-                .then(api.followRedirect(navigate))
-                .then((r) => r !== null && navigate(resourceListRoute(resource))))
-          }
-          toEdit={toEdit}
-        >
+        <Title onDelete={canDelete && handleDelete} toEdit={toEdit}>
           <BackTo to={invokeIfFunc(backTo, state) || resourceListRoute(resource)} />
           {title(state)}
         </Title>
@@ -109,7 +137,7 @@ export default function ResourceDetail({
   }
 
   return (
-    <Stack gap={3}>
+    <Stack key={rerenderKey} gap={3}>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>{topCards}</Box>
       {bottomComponents}
     </Stack>

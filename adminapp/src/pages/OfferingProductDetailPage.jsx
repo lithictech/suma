@@ -13,9 +13,12 @@ export default function OfferingProductDetailPage() {
       resource="offering_product"
       apiGet={api.getCommerceOfferingProduct}
       canEdit
+      apiSoftDelete={api.closeCommerceOfferingProduct}
+      canDelete={(m) => !m.closedAt}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
+        { label: "Closed At", value: model.closedAt && dayjs(model.closedAt) },
         {
           label: "Offering",
           value: (

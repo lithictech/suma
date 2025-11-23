@@ -14,6 +14,7 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
     expose :product, with: ProductEntity
     expose :customer_price, with: MoneyEntity
     expose :undiscounted_price, with: MoneyEntity
+    expose :closed_at
 
     expose :orders, with: OrderEntity
   end
@@ -54,6 +55,17 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
           created_resource_headers(new_op.id, new_op.admin_link)
           status 200
           present new_op, with: DetailedCommerceOfferingProductEntity
+        end
+      end
+
+      post :close do
+        check_admin_role_access!(:write, Suma::Commerce::OfferingProduct)
+        Suma::Commerce::OfferingProduct.db.transaction do
+          (m = Suma::Commerce::OfferingProduct[params[:id]]) or forbidden!
+          m.update(closed_at: Time.now) unless m.closed?
+          created_resource_headers(m.id, m.admin_link)
+          status 200
+          present m, with: DetailedCommerceOfferingProductEntity
         end
       end
     end
