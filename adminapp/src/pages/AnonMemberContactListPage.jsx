@@ -6,7 +6,7 @@ import React from "react";
 export default function AnonMemberContactListPage() {
   return (
     <ResourceList
-      resource="anon_member_contact"
+      resource="member_contact"
       apiList={api.getAnonMemberContacts}
       canCreate
       canSearch

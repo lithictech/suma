@@ -71,4 +71,38 @@ RSpec.describe Suma::AdminAPI::CommerceOfferingProducts, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
+
+  describe "POST /v1/commerce_offering_products/:id/close" do
+    it "closes the offering product" do
+      op = Suma::Fixtures.offering_product.create
+
+      post "/v1/commerce_offering_products/#{op.id}/close"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(last_response).to have_json_body.that_includes(id: op.id)
+      expect(op.refresh).to have_attributes(closed_at: match_time(:now))
+    end
+
+    it "noops if already closed" do
+      t = 4.hours.ago
+      op = Suma::Fixtures.offering_product.create(closed_at: t)
+
+      post "/v1/commerce_offering_products/#{op.id}/close"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(last_response).to have_json_body.that_includes(id: op.id)
+      expect(op.refresh).to have_attributes(closed_at: match_time(t))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      post "/v1/commerce_offering_products/1/close"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
 end

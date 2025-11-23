@@ -179,6 +179,8 @@ export default {
     get(`/adminapi/v1/commerce_offering_products/${id}`, data, ...args),
   updateCommerceOfferingProduct: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/commerce_offering_products/${id}`, data, ...args),
+  closeCommerceOfferingProduct: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/commerce_offering_products/${id}/close`, data, ...args),
 
   getVendors: (data, ...args) => get(`/adminapi/v1/vendors`, data, ...args),
   createVendor: (data, ...args) => postForm("/adminapi/v1/vendors/create", data, ...args),

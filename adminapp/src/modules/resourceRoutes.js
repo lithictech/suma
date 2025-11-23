@@ -5,6 +5,7 @@ const mapping = {
   ledger: "payment-ledger",
   organizationMembership: "membership",
   organizationMembershipVerification: "membership-verification",
+  memberContact: "anon-member-contact",
 };
 
 const plurals = {

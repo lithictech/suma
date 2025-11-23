@@ -10,7 +10,7 @@ import React from "react";
 export default function AnonMemberContactDetailPage() {
   return (
     <ResourceDetail
-      resource="anon_member_contact"
+      resource="member_contact"
       apiGet={api.getAnonMemberContact}
       apiDelete={api.destroyMemberContact}
       canEdit
