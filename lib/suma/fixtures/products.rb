@@ -9,8 +9,6 @@ module Suma::Fixtures::Products
   fixtured_class Suma::Commerce::Product
 
   base :product do
-    self.our_cost_cents ||= Faker::Number.between(from: 700, to: 1000)
-    self.our_cost_currency ||= "USD"
   end
 
   before_saving do |instance|

@@ -72,7 +72,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
            image:,
            name: {en: "EN name", es: "ES name"},
            description: {en: "EN description", es: "ES description"},
-           our_cost: {cents: 2400},
+           ordinal: 1,
            # Include 'name' to represent how this comes through on create better.
            # We make sure the name doesn't get set, as it isn't a declared parameter.
            vendor: {id: vs.vendor.id, name: "X"},
@@ -82,7 +82,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       p = Suma::Commerce::Product.first
       expect(Suma::Commerce::Product.all).to have_length(1)
-      expect(p).to have_attributes(our_cost: cost("$24"))
+      expect(p).to have_attributes(ordinal: 1)
       expect(vs.vendor.refresh).to_not have_attributes(name: "X")
     end
   end
@@ -112,12 +112,12 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
 
       post "/v1/commerce_products/#{product.id}",
            image:,
-           our_cost: {cents: 2400},
+           ordinal: 3,
            inventory: {quantity_on_hand: 2}
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: product.id)
-      expect(product.refresh).to have_attributes(our_cost: cost("$24"))
+      expect(product.refresh).to have_attributes(ordinal: 3)
       expect(product.inventory).to have_attributes(quantity_on_hand: 2)
     end
 
