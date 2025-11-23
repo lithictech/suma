@@ -140,6 +140,20 @@ export default function MemberDetailPage() {
           <ResourceSummary>
             <LegalEntity {...model.legalEntity} />
           </ResourceSummary>,
+          model.referral && (
+            <ResourceSummary>
+              <DetailGrid
+                title="Referral"
+                properties={[
+                  { label: "ID", value: model.referral.id },
+                  { label: "Created At", value: dayjs(model.referral.createdAt) },
+                  { label: "Source", value: model.referral.source },
+                  { label: "Campaign", value: model.referral.campaign },
+                  { label: "Medium", value: model.referral.medium },
+                ]}
+              />
+            </ResourceSummary>
+          ),
           <Notes notes={model.notes} model={model} setModel={setModel} />,
           <OrganizationMemberships
             memberships={model.organizationMemberships}

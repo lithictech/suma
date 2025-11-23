@@ -71,6 +71,15 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         expect(last_response).to have_status(200)
         expect(Suma::Member.last.message_preferences!).to have_attributes(preferred_language: "es")
       end
+
+      it "creates a referral if relevant" do
+        rack_mock_session.cookie_jar["utm_source"] = "foo"
+
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Member.last.referral).to have_attributes(source: "foo")
+      end
     end
 
     describe "when the phone number belongs to a member" do
@@ -113,6 +122,16 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
         expect(last_response).to have_status(200)
         expect(c.refresh.message_preferences!).to have_attributes(preferred_language: "es")
+      end
+
+      it "does not try to create a referral" do
+        c = Suma::Fixtures.member(phone: full_phone).create
+        rack_mock_session.cookie_jar["utm_source"] = "foo"
+
+        post("/v1/auth/start", phone:, timezone:)
+
+        expect(last_response).to have_status(200)
+        expect(c.refresh.referral).to be_nil
       end
     end
 
@@ -295,7 +314,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       c = Suma::Fixtures.member.create
       login_as(c)
 
-      post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
+      post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram")
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
@@ -304,8 +323,8 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
     describe "when the phone number does not exist" do
       it "creates a member and referral with the given phone number and parameters" do
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      event_name: "marketplace_event_123",)
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram",
+                                      campaign: "marketplace_event_123",)
 
         expect(last_response).to have_status(200)
         expect(Suma::Member.all).to contain_exactly(have_attributes(name: "Obama", phone: "12223334444"))
@@ -314,7 +333,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
 
       it "sets the language" do
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram",
                                       language: "es",)
 
         expect(last_response).to have_status(200)
@@ -325,16 +344,16 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
     describe "when phone number exists" do
       it "creates a member activity for contact list sign up" do
         m = Suma::Fixtures.member.create(phone: 12_223_334_444)
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      event_name: "marketplace_event_123",)
-        summary = "Added to contact list (channel: instagram, event_name: marketplace_event_123)"
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram",
+                                      campaign: "marketplace_event_123",)
+        summary = "Added to contact list (source: instagram, campaign: marketplace_event_123)"
         expect(m.activities.last).to have_attributes(summary:)
         expect(last_response).to have_status(200)
       end
 
       it "does not update member" do
         m = Suma::Fixtures.member.create(phone: 12_223_334_455, name: "Amabo")
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram")
 
         expect(last_response).to have_status(200)
         expect(m).to have_attributes(phone: "12223334455", name: "Amabo")
@@ -342,7 +361,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       it "does not create new member referral" do
         Suma::Fixtures.member.create(phone: 12_223_334_444)
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram")
 
         expect(last_response).to have_status(200)
         expect(Suma::Member::Referral.all.count).to be(0)
@@ -352,7 +371,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
     describe "with an organization name" do
       it "adds a membership" do
         org = Suma::Fixtures.organization.create
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, source: "instagram",
                                       organization_name: org.name,)
 
         expect(last_response).to have_status(200)

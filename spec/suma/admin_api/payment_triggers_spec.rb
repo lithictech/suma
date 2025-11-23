@@ -95,6 +95,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
            active_during_begin: period.begin,
            active_during_end: period.end,
            match_multiplier: 2.5,
+           unmatched_amount_cents: 500,
            maximum_cumulative_subsidy_cents: 500,
            memo: {en: "hello", es: "hola"},
            originating_ledger: {id: orig.id},

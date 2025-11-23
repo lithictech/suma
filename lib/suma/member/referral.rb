@@ -7,6 +7,26 @@ class Suma::Member::Referral < Suma::Postgres::Model(:member_referrals)
   plugin :timestamps
 
   many_to_one :member, class: Suma::Member
+
+  class << self
+    # Return an unsaved instance from a cookie or param hash.
+    # Return nil if no utm are present.
+    def from_params(h)
+      h = h.symbolize_keys
+      opts = {}
+      {
+        source: :utm_source,
+        campaign: :utm_campaign,
+        medium: :utm_medium,
+      }.each do |attr, key|
+        next unless h[key]
+        opts[attr] = h[key]
+      end
+      return nil if opts.empty?
+      opts[:source] ||= ""
+      return self.new(opts)
+    end
+  end
 end
 
 # Table: member_referrals

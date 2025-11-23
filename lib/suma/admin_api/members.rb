@@ -64,6 +64,14 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :preferred_language_name
   end
 
+  class ReferralEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :source
+    expose :campaign
+    expose :medium
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -82,6 +90,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :charges, with: ChargeEntity
     expose :direct_program_enrollments, with: ProgramEnrollmentEntity
     expose :program_enrollment_exclusions, with: ProgramEnrollmentExclusionEntity
+    expose :referral, with: ReferralEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity

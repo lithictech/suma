@@ -8,8 +8,8 @@ module Suma::Fixtures::Referrals
   fixtured_class Suma::Member::Referral
 
   base :referral do
-    self.channel ||= Faker::Lorem.word
-    self.event_name ||= ["", Faker::Lorem.word].sample
+    self.source ||= Faker::Lorem.word
+    self.campaign ||= ["", Faker::Lorem.word].sample
   end
 
   before_saving do |instance|
