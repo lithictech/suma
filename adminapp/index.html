@@ -27,7 +27,7 @@
 <script type="text/javascript" data-csp="ok">
   // See commit this code was added in for an explanation.
   (function() {
-    const hashedIndexJs = (window.sumaDynamicEnv || {}).VITE_HASHED_INDEX_JS;
+    const hashedIndexJs = (document.querySelector('script[src*="assets/index"]') || {}).src
     if (!hashedIndexJs) {
       return;
     }
