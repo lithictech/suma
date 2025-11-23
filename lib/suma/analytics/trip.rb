@@ -28,7 +28,6 @@ class Suma::Analytics::Trip < Suma::Analytics::Model(Sequel[:analytics][:trips])
     [:undiscounted_cost, [:charge, :undiscounted_cost]],
     [:customer_cost, [:charge, :customer_cost]],
     [:savings, [:charge, :savings]],
-    :our_cost,
 
     [:funded_cost, [:charge, :funded_amount]],
     [:cash_paid, [:charge, :cash_paid_from_ledger]],

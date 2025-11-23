@@ -13,7 +13,6 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
 
   plugin :hybrid_search
   plugin :timestamps
-  plugin :money_fields, :our_cost
   plugin :translated_text, :name, Suma::TranslatedText
   plugin :translated_text, :description, Suma::TranslatedText
 
@@ -61,7 +60,6 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
     return [
       :name,
       :description,
-      :our_cost,
     ]
   end
 end

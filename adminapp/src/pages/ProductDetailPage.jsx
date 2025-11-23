@@ -33,7 +33,6 @@ export default function ProductDetailPage() {
           label: "Category",
           value: model.vendorServiceCategories[0]?.name,
         },
-        { label: "Our Cost", value: <Money>{model.ourCost}</Money> },
         {
           label: "Max Per Member/Offering",
           value: model.inventory.maxQuantityPerMemberPerOffering,

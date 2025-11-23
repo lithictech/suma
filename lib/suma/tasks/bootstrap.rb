@@ -319,7 +319,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           description_es: ps[:desc_es],
           vendor:,
           vendor_service_categories: [self.holidays_category],
-          our_cost: Money.new(90_00),
           image: self.create_uploaded_file(ps[:image], "image/jpeg"),
           max_quantity_per_member_per_offering: 1,
           offering:,
@@ -407,7 +406,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         vendor:,
         description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. First-time buyers load $5 and get $24 in vouchers (a $19 match from suma). You cannot use these vouchers for alcohol or hot prepared foods.",
         description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
-        our_cost: Money.new(2400),
         vendor_service_categories: [farmers_market_intro_category],
         image: first_time_buyers_logo,
         max_quantity_per_member_per_offering: 1,
@@ -421,7 +419,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         name_es: "#{market_name} 1 a 1 de Cupones Igualados",
         description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
         description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. suma te igualara 1:1 hasta un total de $30 (tu agregas $15, suma agrega $15 de créditos). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
-        our_cost: Money.new(200),
         vendor_service_categories: [farmers_market_match_category],
         image: returning_buyers_logo,
         max_quantity_per_member_per_offering: 500,
@@ -437,7 +434,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       description_en:,
       description_es:,
       vendor:,
-      our_cost:,
       vendor_service_categories:,
       image:,
       max_quantity_per_member_per_offering:,
@@ -449,7 +445,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       product = Suma::Commerce::Product.create(name: product_name) do |p|
         p.description = Suma::TranslatedText.create(en: description_en, es: description_es)
         p.vendor = vendor
-        p.our_cost = our_cost
       end
       vendor_service_categories.each { |vsc| product.add_vendor_service_category(vsc) }
       product.add_image({uploaded_file: image})
