@@ -1,6 +1,5 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
-import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
@@ -70,14 +69,19 @@ export default function ProductForm({
           />
         </Stack>
         <ResponsiveStack sx={{ pt: theme.spacing(2) }}>
-          <CurrencyTextField
-            {...register("ourCost")}
-            label="Our Cost"
-            helperText="How much does suma offer this product for?"
-            money={resource.ourCost}
+          <TextField
+            {...register("ordinal")}
+            label="Ordinal"
+            helperText="The order in which the product appears in an offering.
+              Decimals are ok.
+              Lower values appear before higher values."
+            name="ordinal"
+            value={resource.ordinal}
+            type="number"
+            variant="outlined"
             required
-            style={{ flex: 1 }}
-            onMoneyChange={(v) => setField("ourCost", v)}
+            inputProps={{ step: 0.1 }}
+            onChange={setFieldFromInput}
           />
           <AutocompleteSearch
             {...register("vendor")}

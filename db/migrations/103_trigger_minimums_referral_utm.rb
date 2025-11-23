@@ -10,5 +10,8 @@ Sequel.migration do
       rename_column :event_name, :campaign
       add_column :medium, :text, null: false, default: ""
     end
+    alter_table(:commerce_products) do
+      add_column :ordinal, :numeric, default: 0, null: false
+    end
   end
 end

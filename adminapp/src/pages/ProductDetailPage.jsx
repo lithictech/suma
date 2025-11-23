@@ -24,6 +24,7 @@ export default function ProductDetailPage() {
         { label: "Name (Es)", value: model.name.es },
         { label: "Description (En)", value: model.description.en },
         { label: "Description (Es)", value: model.description.es },
+        { label: "Ordinal", value: model.ordinal },
         {
           label: "Vendor",
           value: <AdminLink model={model.vendor}>{model.vendor.name}</AdminLink>,
