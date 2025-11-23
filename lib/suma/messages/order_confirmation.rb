@@ -22,7 +22,6 @@ class Suma::Messages::OrderConfirmation < Suma::Message::Template
   end
 
   def template_name = @order.checkout.cart.offering.confirmation_template
-  def template_folder = "offerings"
 
   def localized? = true
 end
