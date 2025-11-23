@@ -5,7 +5,7 @@ RSpec.describe Suma::Member::Exporter, :db do
     allfields = Suma::Fixtures.member.create(
       name: "ABC", phone: "12223334444", email: "a@b.c", onboarding_verified_at: Time.now,
     )
-    Suma::Fixtures.referral.create(member: allfields, event_name: "ev", channel: "chan")
+    Suma::Fixtures.referral.create(member: allfields, campaign: "ev", source: "chan")
     address = Suma::Fixtures.address.create(
       address1: "123 Main", address2: "", city: "Portland", state_or_province: "Oregon", postal_code: "97214",
     )
@@ -21,7 +21,7 @@ RSpec.describe Suma::Member::Exporter, :db do
 
     csv = described_class.new(Suma::Member.dataset).to_csv
     lines = <<~LINES
-      Id,Name,Lang,Channel,Event,Phone,IntlPhone,Email,Address1,Address2,City,State,Zip,Country,Verified,Programs,Deleted,Timezone
+      Id,Name,Lang,Source,Campaign,Phone,IntlPhone,Email,Address1,Address2,City,State,Zip,Country,Verified,Programs,Deleted,Timezone
       #{allfields.id},ABC,en,chan,ev,(222) 333-4444,12223334444,a@b.c,123 Main,"",Portland,Oregon,97214,US,true,"Casa, Oregon|Homes, Oregon",false,America/Los_Angeles
       #{plain.id},XYZ,,,,#{plain.phone},#{plain.phone},#{plain.email},,,,,,,false,"",true,America/Los_Angeles
     LINES

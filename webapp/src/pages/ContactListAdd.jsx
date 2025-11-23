@@ -46,8 +46,9 @@ export default function ContactListAdd() {
         phone,
         language: currentLanguage,
         timezone: dayjs.tz.guess(),
-        event_name: eventName,
-        channel: referral,
+        campaign: eventName,
+        source: referral,
+        medium: "event",
         organizationName,
       })
       .then(() => {

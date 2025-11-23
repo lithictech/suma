@@ -72,6 +72,10 @@ class Suma::API::Auth < Suma::API::V1
         member.timezone = params[:timezone]
         save_or_error!(member)
         if is_new
+          if (referral = Suma::Member::Referral.from_params(cookies.send(:cookies)))
+            referral.member = member
+            referral.save_changes
+          end
           member.audit_activity(
             "registered",
             actor: member,
@@ -143,9 +147,10 @@ class Suma::API::Auth < Suma::API::V1
     params do
       requires :name, type: String, allow_blank: false
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
-      requires :channel, type: String, allow_blank: false
       requires :timezone, type: String, values: ALL_TIMEZONES
-      optional :event_name, type: String
+      requires :source, type: String, allow_blank: false
+      optional :channel, type: String
+      optional :medium, type: String
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
       optional :organization_name, type: String
     end
@@ -165,8 +170,9 @@ class Suma::API::Auth < Suma::API::V1
           save_or_error!(member)
           Suma::Member::Referral.create(
             member:,
-            channel: params[:channel],
-            event_name: params[:event_name] || "",
+            source: params[:source],
+            campaign: params[:campaign] || "",
+            medium: params[:medium] || "",
           )
         end
         Suma.set_request_user_and_admin(member, nil) do
@@ -179,7 +185,7 @@ class Suma::API::Auth < Suma::API::V1
           else
             member.audit_activity(
               "added_to_contact_list",
-              prefix: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''})",
+              prefix: "Added to contact list (source: #{params[:source]}, campaign: #{params[:campaign] || ''})",
             )
           end
           member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)

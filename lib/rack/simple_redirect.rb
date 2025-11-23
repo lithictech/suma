@@ -25,6 +25,7 @@ class Rack::SimpleRedirect
       end
     end
     return @app.call(env) if loc.nil?
+    loc = "#{loc}?#{env['QUERY_STRING']}" if env["QUERY_STRING"].present?
     return [@status, {"Location" => loc}, []]
   end
 

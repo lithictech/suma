@@ -28,4 +28,11 @@ RSpec.describe Rack::SimpleRedirect do
     expect(mw.call(Rack::MockRequest.env_for("/x"))).to eq([200, {}, "success"])
     expect(mw.call(Rack::MockRequest.env_for("/y"))).to eq([302, {"Location" => "/y/f"}, []])
   end
+
+  it "includes query params" do
+    mw = described_class.new(app, routes: {"/x" => "/a"})
+    expect(mw.call(Rack::MockRequest.env_for("/x?foo=bar&spam=quz"))).to eq(
+      [302, {"Location" => "/a?foo=bar&spam=quz"}, []],
+    )
+  end
 end

@@ -8,8 +8,8 @@ class Suma::Member::Exporter < Suma::Exporter
       ["Id", lambda(&:id)],
       ["Name", lambda(&:name)],
       ["Lang", ->(m) { m.message_preferences&.preferred_language }],
-      ["Channel", ->(m) { m.referral&.channel }],
-      ["Event", ->(m) { m.referral&.event_name }],
+      ["Source", ->(m) { m.referral&.source }],
+      ["Campaign", ->(m) { m.referral&.campaign }],
       ["Phone", lambda { |m|
                   m.soft_deleted? ? m.phone : Suma::PhoneNumber.format_display(m.phone)
                 },],
