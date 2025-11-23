@@ -15,6 +15,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
   class DetailedEntity < ProductEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :ordinal
     expose :our_cost, with: MoneyEntity
     expose :inventory do
       expose :max_quantity_per_member_per_offering,
@@ -47,6 +48,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         requires(:name, type: JSON) { use :translated_text }
         requires(:description, type: JSON) { use :translated_text }
+        requires :ordinal, type: Float
         requires(:our_cost, type: JSON) { use :money }
         requires(:vendor, type: JSON) { use :model_with_id }
         optional(:vendor_service_categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
@@ -75,6 +77,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         optional(:name, type: JSON) { use :translated_text }
         optional(:description, type: JSON) { use :translated_text }
+        optional :ordinal, type: Float
         optional(:our_cost, type: JSON) { use :money }
         optional(:vendor, type: JSON) { use :model_with_id }
         optional(:vendor_service_categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }

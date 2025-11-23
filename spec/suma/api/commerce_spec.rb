@@ -88,6 +88,27 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
+    it "orders products by ordinal" do
+      fac = Suma::Fixtures.offering_product(offering:)
+      op1 = fac.create(product: Suma::Fixtures.product.with_categories.create(ordinal: 1))
+      op2 = fac.create(product: Suma::Fixtures.product.with_categories.create(ordinal: 2))
+      op3 = fac.create(product: Suma::Fixtures.product.with_categories.create(ordinal: 3))
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: match_array(
+          [
+            include(product_id: op1.product.id),
+            include(product_id: op2.product.id),
+            include(product_id: op3.product.id),
+
+          ],
+        ),
+      )
+    end
+
     it "401s if not authed" do
       logout
       get "/v1/commerce/offerings/#{offering.id}"
