@@ -570,7 +570,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     it "sends the order confirmation" do
       import_localized_message_seeds
 
-      order.checkout.cart.offering.update(confirmation_template: "2022_12_pilot_confirmation")
+      order.checkout.cart.offering.update(confirmation_template: "offerings/2022_12_pilot_confirmation")
       expect do
         order.publish_immediate("created", order.id)
       end.to perform_async_job(Suma::Async::OrderConfirmation)

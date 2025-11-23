@@ -247,7 +247,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
     protected def setup_holiday_offering
       offering = Suma::Commerce::Offering.create do |o|
-        o.confirmation_template = "2022_12_pilot_confirmation"
+        o.confirmation_template = "offerings/2022_12_pilot_confirmation"
         o.period = Time.now..1.year.from_now
         o.description = Suma::TranslatedText.create(en: "Holidays Demo", es: "Días festivos")
         o.fulfillment_prompt = Suma::TranslatedText.create(
@@ -358,7 +358,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       offering = Suma::Commerce::Offering.create do |o|
         o.period = offering_period
-        o.confirmation_template = "2023_07_pilot_confirmation"
+        o.confirmation_template = "offerings/2023_07_pilot_confirmation"
         o.set(
           description: Suma::TranslatedText.create(
             en: "#{market_name} Ride & Shop",
