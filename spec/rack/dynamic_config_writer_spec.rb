@@ -2,7 +2,6 @@
 
 require "rack/dynamic_config_writer"
 
-# rubocop:disable Layout/LineLength
 RSpec.describe Rack::DynamicConfigWriter do
   include_context "uses temp dir"
 
@@ -64,15 +63,6 @@ RSpec.describe Rack::DynamicConfigWriter do
       dcw.emplace({})
       expect(File.read(index)).to eq("<html><head><script>globals.x={}</script></head><body></body></html>")
     end
-
-    it "includes the build JS asset file path from the manifest" do
-      File.write(index, "")
-      File.write(manifest, {"index.html" => {"file" => "assets/index-C5Z8u35m.js"}}.to_json)
-
-      dcw = described_class.new(index, global_assign: "globals.x")
-      dcw.emplace({})
-      expect(File.read(index)).to eq("<html><head><script>globals.x={\"VITE_HASHED_INDEX_JS\":\"assets/index-C5Z8u35m.js\"}</script></head><body></body></html>")
-    end
   end
 
   describe "pick_env" do
@@ -86,4 +76,3 @@ RSpec.describe Rack::DynamicConfigWriter do
     end
   end
 end
-# rubocop:enable Layout/LineLength

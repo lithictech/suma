@@ -48,19 +48,6 @@ class Rack::DynamicConfigWriter
 
   protected def prepare
     return if File.exist?(@index_html_backup)
-
-    # Parse the manifest so we can get the hashed index JS path for further index.html templating.
-    begin
-      File.open(Pathname.new(@index_html_path).dirname + ".vite" + "manifest.json") do |f|
-        @manifest = Yajl::Parser.parse(f)
-        if (hashed_js = @manifest.dig("index.html", "file"))
-          @additional_kvps["VITE_HASHED_INDEX_JS"] = hashed_js
-        end
-      end
-    rescue Errno::ENOENT
-      # Ignore missing manifest
-    end
-
     FileUtils.move(@index_html_path, @index_html_backup)
   end
 
