@@ -10,7 +10,7 @@ export default function CategoriesRelatedList({ categories }) {
       headers={["Id", "Name", "Slug", "Parent"]}
       keyRowAttr="id"
       toCells={(row) => [
-        row.id,
+        <AdminLink model={row} />,
         row.name,
         row.slug,
         row.parent ? <AdminLink model={row.parent}>{row.parent.name}</AdminLink> : null,

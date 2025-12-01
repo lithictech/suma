@@ -30,10 +30,6 @@ export default function ProductDetailPage() {
           value: <AdminLink model={model.vendor}>{model.vendor.name}</AdminLink>,
         },
         {
-          label: "Category",
-          value: model.vendorServiceCategories[0]?.name,
-        },
-        {
           label: "Max Per Member/Offering",
           value: model.inventory.maxQuantityPerMemberPerOffering,
         },

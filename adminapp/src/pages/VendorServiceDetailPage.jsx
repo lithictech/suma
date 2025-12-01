@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
+import CategoriesRelatedList from "../components/CategoriesRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
@@ -46,13 +47,7 @@ export default function VendorServiceDetailPage() {
             </AdminLink>,
           ]}
         />,
-        <RelatedList
-          title="Categories"
-          rows={model.categories}
-          headers={["Id", "Name", "Slug"]}
-          keyRowAttr="id"
-          toCells={(row) => [row.id, row.name, row.slug]}
-        />,
+        <CategoriesRelatedList categories={model.categories} />,
         <AuditActivityList activities={model.auditActivities} />,
       ]}
     </ResourceDetail>

@@ -67,7 +67,7 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     return nil
   end
 
-  def mobility_adapter_setting_options
+  def self.mobility_adapter_setting_options
     return [
       {name: "No Adapter/Non-Mobility", value: "no_adapter"},
       {name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"},
@@ -89,7 +89,7 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   end
 
   def mobility_adapter_setting_name
-    self.mobility_adapter_setting_options.find { |h| h[:value] == self.mobility_adapter_setting }.fetch(:name)
+    self.class.mobility_adapter_setting_options.find { |h| h[:value] == self.mobility_adapter_setting }.fetch(:name)
   end
 
   def mobility_adapter_setting=(value)
