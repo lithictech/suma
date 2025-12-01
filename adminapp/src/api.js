@@ -96,6 +96,8 @@ export default {
     get(`/adminapi/v1/meta/resource_access`, data, ...args),
   getStateMachine: ({ name, ...data }, ...args) =>
     get(`/adminapi/v1/meta/state_machines/${name}`, data, ...args),
+  getVendorServiceMobilityAdapterOptions: (data, ...args) =>
+    get(`/adminapi/v1/meta/vendor_service_mobility_adapter_options`, data, ...args),
 
   getBankAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),

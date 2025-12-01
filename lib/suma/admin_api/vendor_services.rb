@@ -21,7 +21,6 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
 
     expose :mobility_adapter_setting
     expose :mobility_adapter_setting_name
-    expose :mobility_adapter_setting_options
   end
 
   resource :vendor_services do
@@ -43,7 +42,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       params do
         requires(:vendor, type: JSON) { use :model_with_id }
         requires :image, type: File
-        requires(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         requires :internal_name, type: String
         requires :external_name, type: String
         requires :period_begin, type: Time

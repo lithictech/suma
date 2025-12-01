@@ -22,7 +22,7 @@ RSpec.describe "Suma::Vendor::Service", :db do
   describe "mobility adapter settings" do
     it "can set and describe all options" do
       vs = Suma::Fixtures.vendor_service.create
-      expect(vs.mobility_adapter_setting_options).to match_array(
+      expect(vs.class.mobility_adapter_setting_options).to match_array(
         [
           {name: "No Adapter/Non-Mobility", value: "no_adapter"},
           {name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"},

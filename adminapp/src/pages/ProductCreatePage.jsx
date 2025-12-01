@@ -12,7 +12,7 @@ export default function ProductCreatePage() {
     name: formHelpers.initialTranslation,
     vendor: null,
     ordinal: 0,
-    category: null,
+    vendorServiceCategories: [],
     inventory: {
       maxQuantityPerMemberPerOrder: null,
       limitedQuantity: false,

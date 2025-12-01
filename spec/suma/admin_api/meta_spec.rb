@@ -104,4 +104,15 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "GET /v1/meta/vendor_service_mobility_adapter_options" do
+    it "returns options" do
+      get "/v1/meta/vendor_service_mobility_adapter_options"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: include({name: "No Adapter/Non-Mobility", value: "no_adapter"}),
+      )
+    end
+  end
 end

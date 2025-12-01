@@ -5,6 +5,7 @@ import ImageFileInput from "../components/ImageFileInput";
 import ResponsiveStack from "../components/ResponsiveStack";
 import SafeDateTimePicker from "../components/SafeDateTimePicker";
 import VendorServiceCategoryMultiSelect from "../components/VendorServiceCategoryMultiSelect";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import { formatOrNull } from "../modules/dayConfig";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
@@ -91,29 +92,22 @@ export default function VendorServiceForm({
           />
         </ResponsiveStack>
         <VendorServiceCategoryMultiSelect
-          {...register("category")}
+          {...register("categories")}
           label="Categories"
           helperText="What ledger funds can be used to pay for this service?"
           value={resource.categories}
           style={{ flex: 1 }}
           onChange={(_, c) => setField("categories", c)}
-          required
         />
         <FormControl>
           <InputLabel>Mobility Adapter</InputLabel>
-          <Select
+          <MobilityAdapterSelect
             {...register("mobilityAdapterSetting")}
             label="Mobility Adapter Key"
             name="mobilityAdapterSetting"
             value={resource.mobilityAdapterSetting}
             onChange={setFieldFromInput}
-          >
-            {resource.mobilityAdapterSettingOptions.map(({ name, value }) => (
-              <MenuItem key={value} value={value}>
-                {name}
-              </MenuItem>
-            ))}
-          </Select>
+          />
           <FormHelperText>
             How this service maps to backend functionality. Generally a programmer will
             set this.
@@ -139,5 +133,22 @@ export default function VendorServiceForm({
         />
       </Stack>
     </FormLayout>
+  );
+}
+
+function MobilityAdapterSelect({ ...rest }) {
+  const data = useGlobalApiState(
+    (data, ...args) => api.getVendorServiceMobilityAdapterOptions({ ...data }, ...args),
+    { items: [] }
+  );
+
+  return (
+    <Select {...rest}>
+      {data.items.map(({ name, value }) => (
+        <MenuItem key={value} value={value}>
+          {name}
+        </MenuItem>
+      ))}
+    </Select>
   );
 }
