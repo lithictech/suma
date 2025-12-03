@@ -58,12 +58,14 @@ end
 #  message_handler_key            | text                     | NOT NULL
 #  app_install_link               | text                     | NOT NULL
 #  enabled                        | boolean                  | NOT NULL
-#  instructions_id                | integer                  | NOT NULL
+#  terms_text_id                  | integer                  | NOT NULL
 #  auth_to_vendor_key             | text                     | NOT NULL
 #  linked_success_instructions_id | integer                  | NOT NULL
 #  search_content                 | text                     |
 #  search_embedding               | vector(384)              |
 #  search_hash                    | text                     |
+#  description_text_id            | integer                  | NOT NULL
+#  help_text_id                   | integer                  | NOT NULL
 # Indexes:
 #  anon_proxy_vendor_configurations_pkey                          | PRIMARY KEY btree (id)
 #  anon_proxy_vendor_configurations_vendor_id_key                 | UNIQUE btree (vendor_id)
@@ -71,7 +73,9 @@ end
 #  anon_proxy_vendor_configurations_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  anon_proxy_vendor_configurati_linked_success_instructions__fkey | (linked_success_instructions_id) REFERENCES translated_texts(id)
-#  anon_proxy_vendor_configurations_instructions_id_fkey           | (instructions_id) REFERENCES translated_texts(id)
+#  anon_proxy_vendor_configurations_description_text_id_fkey       | (description_text_id) REFERENCES translated_texts(id)
+#  anon_proxy_vendor_configurations_help_text_id_fkey              | (help_text_id) REFERENCES translated_texts(id)
+#  anon_proxy_vendor_configurations_instructions_id_fkey           | (terms_text_id) REFERENCES translated_texts(id)
 #  anon_proxy_vendor_configurations_vendor_id_fkey                 | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 # Referenced By:
 #  anon_proxy_vendor_accounts                | anon_proxy_vendor_accounts_configuration_id_fkey                | (configuration_id) REFERENCES anon_proxy_vendor_configurations(id) ON DELETE CASCADE

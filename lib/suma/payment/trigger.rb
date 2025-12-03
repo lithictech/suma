@@ -331,6 +331,8 @@ end
 #  search_content                        | text                     |
 #  search_embedding                      | vector(384)              |
 #  search_hash                           | text                     |
+#  act_as_credit                         | boolean                  | NOT NULL DEFAULT false
+#  unmatched_amount_cents                | integer                  | NOT NULL DEFAULT 0
 # Indexes:
 #  payment_triggers_pkey                          | PRIMARY KEY btree (id)
 #  payment_triggers_search_content_trigram_index  | gist (search_content)
