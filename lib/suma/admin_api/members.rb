@@ -62,6 +62,8 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :public_url
     expose :subscriptions, with: PreferencesSubscriptionEntity
     expose :preferred_language_name
+    expose :sms_undeliverable_at
+    expose :sms_undeliverable?, as: :sms_undeliverable
   end
 
   class ReferralEntity < BaseEntity
@@ -153,6 +155,9 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           optional :address, type: JSON do
             use :address
           end
+        end
+        optional :preferences, type: JSON do
+          optional :sms_undeliverable, type: Boolean
         end
         optional :organization_memberships, type: Array[JSON] do
           optional :id, type: Integer

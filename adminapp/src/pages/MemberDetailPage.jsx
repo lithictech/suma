@@ -10,6 +10,7 @@ import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
+import ResponsiveStack from "../components/ResponsiveStack";
 import SupportNoteModal from "../components/SupportNoteModal";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
@@ -169,14 +170,12 @@ export default function MemberDetailPage() {
           <Orders orders={model.orders} />,
           <Charges charges={model.charges} />,
           <PaymentInstruments instruments={model.paymentInstruments} />,
-          <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />,
+          <MessagePreferences preferences={model.preferences} />,
           <VendorAccounts vendorAccounts={model.vendorAccounts} />,
           <MemberContacts memberContacts={model.memberContacts} />,
-          <MessagePreferences preferences={model.preferences} />,
           <MessageDeliveries messageDeliveries={model.messageDeliveries} />,
           <Sessions sessions={model.sessions} />,
           <ResetCodes resetCodes={model.resetCodes} />,
-          <AuditActivityList activities={model.auditActivities} />,
           <RelatedList
             title="Marketing Lists"
             headers={["Id", "Label"]}
@@ -200,6 +199,8 @@ export default function MemberDetailPage() {
               row.lastError,
             ]}
           />,
+          <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />,
+          <AuditActivityList activities={model.auditActivities} />,
         ]}
       </ResourceDetail>
     </>
@@ -455,9 +456,10 @@ function MessagePreferences({ preferences }) {
   }
   const { subscriptions, publicUrl } = preferences;
   return (
-    <>
+    <ResponsiveStack>
       <RelatedList
         title="Message Preferences"
+        cardProps={{ sx: { flex: 1 } }}
         headers={["Key", "Opted In", "Editable State"]}
         rows={subscriptions}
         keyRowAttr="key"
@@ -467,14 +469,28 @@ function MessagePreferences({ preferences }) {
           row.editableState,
         ]}
       />
-      <Typography sx={{ mt: 2 }}>
-        Give this link to the member when they request to change their messaging
-        preferences:{" "}
-        <Copyable text={publicUrl} inline>
-          <SafeExternalLink href={publicUrl}>{publicUrl}</SafeExternalLink>
-        </Copyable>
-      </Typography>
-    </>
+      <DetailGrid
+        title="Message Preferences"
+        cardProps={{ sx: { flex: 1 } }}
+        properties={[
+          {
+            label: "SMS Undeliverable",
+            value: preferences.smsUndeliverableAt
+              ? `Yes (set ${dayjs(preferences.smsUndeliverableAt).format("l")})`
+              : "No",
+          },
+        ]}
+        footer={
+          <Typography sx={{ mt: 2 }}>
+            Give this link to the member when they request to change their messaging
+            preferences:{" "}
+            <Copyable text={publicUrl} inline>
+              <SafeExternalLink href={publicUrl}>{publicUrl}</SafeExternalLink>
+            </Copyable>
+          </Typography>
+        }
+      />
+    </ResponsiveStack>
   );
 }
 

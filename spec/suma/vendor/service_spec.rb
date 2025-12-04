@@ -24,11 +24,11 @@ RSpec.describe "Suma::Vendor::Service", :db do
       vs = Suma::Fixtures.vendor_service.create
       expect(vs.class.mobility_adapter_setting_options).to match_array(
         [
-          {name: "No Adapter/Non-Mobility", value: "no_adapter"},
-          {name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"},
-          {name: "Deep Linking (vendor sends receipts)", value: "deep_linking_vendor_receipts"},
-          {name: "MaaS: lime_maas", value: "lime_maas"},
-          {name: "MaaS: internal", value: "internal"},
+          have_attributes(name: "No Adapter/Non-Mobility", value: "no_adapter"),
+          have_attributes(name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"),
+          have_attributes(name: "Deep Linking (vendor sends receipts)", value: "deep_linking_vendor_receipts"),
+          have_attributes(name: "MaaS: lime_maas", value: "lime_maas"),
+          have_attributes(name: "MaaS: internal", value: "internal"),
         ],
       )
 

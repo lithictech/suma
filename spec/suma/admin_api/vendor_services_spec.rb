@@ -173,4 +173,15 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(v.refresh.categories).to have_same_ids_as(cat2)
     end
   end
+
+  describe "GET /v1/vendor_services/mobility_adapter_options" do
+    it "returns options" do
+      get "/v1/vendor_services/mobility_adapter_options"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: include({name: "No Adapter/Non-Mobility", value: "no_adapter"}),
+      )
+    end
+  end
 end

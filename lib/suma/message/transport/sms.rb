@@ -55,6 +55,7 @@ class Suma::Message::Transport::Sms < Suma::Message::Transport
     to_phone = Suma::PhoneNumber.format_e164(delivery.to)
     raise Suma::Message::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless
       self.allowlisted_phone?(to_phone)
+
     override_from = delivery.extra_fields.fetch("from", nil)
 
     if self.class.provider_disabled

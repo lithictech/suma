@@ -36,4 +36,9 @@ RSpec.describe "Suma::Message::Preferences", :db, :messaging do
       expect(pref).to have_attributes(preferred_language_name: "Invalid (zz)")
     end
   end
+
+  it "can describe subscription groups" do
+    pref = Suma::Fixtures.member.create.message_preferences!
+    expect(pref.subscriptions).to have_length(3)
+  end
 end

@@ -13,6 +13,8 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
     expose :body, with: TranslatedTextEntity
     expose :sending_number
     expose :sending_number_formatted
+    expose :preferences_optout_field
+    expose :preferences_optout_name
     expose :lists, with: MarketingListEntity
     expose :all_lists, with: MarketingListEntity do |_inst|
       Suma::Marketing::List.dataset.order(:label).all
@@ -32,9 +34,16 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
     expose :cost
   end
 
+  class SmsBroadcastReviewAssociatedEntity < MarketingSmsBroadcastEntity
+    expose :sending_number_formatted
+    expose :sending_number
+    expose :preferences_optout_field
+    expose :preferences_optout_name
+  end
+
   class SmsBroadcastPreReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    expose :broadcast, with: MarketingSmsBroadcastEntity
+    expose :broadcast, with: SmsBroadcastReviewAssociatedEntity
     expose :list_labels
     expose :total_recipients
     expose :en_recipients
@@ -47,7 +56,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
 
   class SmsBroadcastPostReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    expose :broadcast, with: MarketingSmsBroadcastEntity
+    expose :broadcast, with: SmsBroadcastReviewAssociatedEntity
     expose :list_labels
     expose :total_recipients
     expose :delivered_recipients
@@ -106,6 +115,9 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
       params do
         optional :label, type: String
         optional :sending_number, type: String
+        optional :preferences_optout_field,
+                 type: String,
+                 values: Suma::Marketing::SmsBroadcast::PREFERENCES_OPT_OUT_OPTIONS.map(&:value)
         optional(:body, type: JSON) { use :translated_text, allow_blank: true }
         optional :lists, type: Array
       end
@@ -129,6 +141,12 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
         status 200
         present o, with: DetailedSmsBroadcastEntity
       end
+    end
+
+    get :preferences_optout_options do
+      use_http_expires_caching 48.hours
+      check_admin_role_access!(:read, :admin_access)
+      present_collection Suma::Marketing::SmsBroadcast::PREFERENCES_OPT_OUT_OPTIONS, with: NamedValueEntity
     end
   end
 end

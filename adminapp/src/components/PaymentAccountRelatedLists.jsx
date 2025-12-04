@@ -25,6 +25,30 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
   return (
     <>
       <RelatedList
+        title="Originated Funding Transactions"
+        rows={paymentAccount.originatedFundingTransactions}
+        headers={["Id", "Created", "Status", "Amount"]}
+        keyRowAttr="id"
+        toCells={(row) => [
+          <AdminLink key="id" model={row} />,
+          dayjs(row.createdAt).format("lll"),
+          row.status,
+          <Money key="amt">{row.amount}</Money>,
+        ]}
+      />
+      <RelatedList
+        title="Originated Payouts"
+        rows={paymentAccount.originatedPayoutTransactions}
+        headers={["Id", "Created", "Status", "Amount"]}
+        keyRowAttr="id"
+        toCells={(row) => [
+          <AdminLink key="id" model={row} />,
+          dayjs(row.createdAt).format("lll"),
+          row.status,
+          <Money key="amt">{row.amount}</Money>,
+        ]}
+      />
+      <RelatedList
         title={`Ledgers - ${formatMoney(paymentAccount.totalBalance)}`}
         headers={headers}
         rows={paymentAccount.ledgers}
@@ -62,30 +86,6 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           rows={ledger.combinedBookTransactions}
         />
       ))}
-      <RelatedList
-        title="Originated Funding Transactions"
-        rows={paymentAccount.originatedFundingTransactions}
-        headers={["Id", "Created", "Status", "Amount"]}
-        keyRowAttr="id"
-        toCells={(row) => [
-          <AdminLink key="id" model={row} />,
-          dayjs(row.createdAt).format("lll"),
-          row.status,
-          <Money key="amt">{row.amount}</Money>,
-        ]}
-      />
-      <RelatedList
-        title="Originated Payouts"
-        rows={paymentAccount.originatedPayoutTransactions}
-        headers={["Id", "Created", "Status", "Amount"]}
-        keyRowAttr="id"
-        toCells={(row) => [
-          <AdminLink key="id" model={row} />,
-          dayjs(row.createdAt).format("lll"),
-          row.status,
-          <Money key="amt">{row.amount}</Money>,
-        ]}
-      />
     </>
   );
 }

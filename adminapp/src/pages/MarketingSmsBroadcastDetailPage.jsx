@@ -26,6 +26,10 @@ export default function MarketingSmsBroadcastDetailPage() {
           label: "Sending From",
           value: model.sendingNumberFormatted || "(Blank - Will not send)",
         },
+        {
+          label: "Preferences Optout",
+          value: model.preferencesOptoutName,
+        },
         { label: "Sent At", value: formatDate(model.sentAt) },
         { label: "English Body", value: model.body.en },
         {

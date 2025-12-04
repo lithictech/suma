@@ -178,4 +178,28 @@ RSpec.describe Suma::AdminAPI::MarketingSmsBroadcasts, :db do
       )
     end
   end
+
+  describe "GET /v1/marketing_sms_broadcasts/preferences_optout_options" do
+    it "returns options" do
+      get "/v1/marketing_sms_broadcasts/preferences_optout_options"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          {
+            name: "Bypass opt-out",
+            value: "",
+          },
+          {
+            name: "Account updates",
+            value: "account_updates",
+          },
+          {
+            name: "Marketing",
+            value: "marketing",
+          },
+        ],
+      )
+    end
+  end
 end

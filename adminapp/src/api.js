@@ -96,8 +96,6 @@ export default {
     get(`/adminapi/v1/meta/resource_access`, data, ...args),
   getStateMachine: ({ name, ...data }, ...args) =>
     get(`/adminapi/v1/meta/state_machines/${name}`, data, ...args),
-  getVendorServiceMobilityAdapterOptions: (data, ...args) =>
-    get(`/adminapi/v1/meta/vendor_service_mobility_adapter_options`, data, ...args),
 
   getBankAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),
@@ -214,6 +212,12 @@ export default {
     post(`/adminapi/v1/marketing_sms_broadcasts/preview`, data, ...args),
   getMarketingSmsBroadcastReview: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/marketing_sms_broadcasts/${id}/review`, data, ...args),
+  getMarketingSmsBroadcastPreferencesOptoutOptions: (data, ...args) =>
+    get(
+      `/adminapi/v1/marketing_sms_broadcasts/preferences_optout_options`,
+      data,
+      ...args
+    ),
 
   getMarketingSmsDispatches: (data, ...args) =>
     get(`/adminapi/v1/marketing_sms_dispatches`, data, ...args),
@@ -263,6 +267,8 @@ export default {
     postForm(`/adminapi/v1/vendor_services/create`, data, ...args),
   updateVendorService: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/vendor_services/${id}`, data, ...args),
+  getVendorServiceMobilityAdapterOptions: (data, ...args) =>
+    get(`/adminapi/v1/vendor_services/mobility_adapter_options`, data, ...args),
 
   getVendorServiceRates: (data, ...args) =>
     get(`/adminapi/v1/vendor_service_rates`, data, ...args),

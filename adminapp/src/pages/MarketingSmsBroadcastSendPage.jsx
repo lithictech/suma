@@ -1,8 +1,10 @@
 import api from "../api";
+import BackTo from "../components/BackTo";
 import DetailGrid from "../components/DetailGrid";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import elementJoin from "../modules/elementJoin";
+import { resourceViewRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import React from "react";
@@ -38,10 +40,17 @@ export default function MarketingSmsBroadcastSendPage() {
   return (
     <Stack gap={3}>
       <DetailGrid
-        title={`Review ${state.broadcast.label}`}
+        title={
+          <>
+            <BackTo to={resourceViewRoute("marketing_sms_broadcast", state.broadcast)} />
+            Review {state.broadcast.label}
+          </>
+        }
         properties={
           state.preReview
             ? [
+                { label: "Sending From", value: state.broadcast.sendingNumberFormatted },
+                { label: "Opt-out Field", value: state.broadcast.preferencesOptoutName },
                 { label: "Lists", value: elementJoin(state.listLabels) },
                 { label: "Total Recipients", value: state.totalRecipients },
                 { label: "English Recipients", value: state.enRecipients },
@@ -51,6 +60,8 @@ export default function MarketingSmsBroadcastSendPage() {
                 { label: "Spanish Cost", value: `$${state.esTotalCost}` },
               ]
             : [
+                { label: "Sending From", value: state.broadcast.sendingNumberFormatted },
+                { label: "Opt-out Field", value: state.broadcast.preferencesOptoutLabel },
                 { label: "Lists", value: elementJoin(state.listLabels) },
                 { label: "Total Recipients", value: state.totalRecipients },
                 { label: "Delivered Recipients", value: state.deliveredRecipients },

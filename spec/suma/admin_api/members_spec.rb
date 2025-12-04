@@ -232,6 +232,16 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       )
     end
 
+    it "updates preferences given" do
+      member = Suma::Fixtures.member.create
+      member.preferences!
+
+      post "/v1/members/#{member.id}", preferences: {sms_undeliverable: true}
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.preferences).to have_attributes(sms_undeliverable_at: match_time(:now))
+    end
+
     it "removes/updates/creates memberships for the member if given" do
       member = Suma::Fixtures.member.create
       fac = Suma::Fixtures.organization_membership(member:)

@@ -4,6 +4,7 @@ require "suma/admin_linked"
 require "suma/image"
 require "suma/has_activity_audit"
 require "suma/mobility/vendor_adapter"
+require "suma/named_value"
 require "suma/postgres/model"
 require "suma/vendor/has_service_categories"
 
@@ -67,14 +68,15 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     return nil
   end
 
+  # @return [Array<Suma::NamedValue>]
   def self.mobility_adapter_setting_options
     return [
-      {name: "No Adapter/Non-Mobility", value: "no_adapter"},
-      {name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"},
-      {name: "Deep Linking (vendor sends receipts)", value: "deep_linking_vendor_receipts"},
+      Suma::NamedValue.new(name: "No Adapter/Non-Mobility", value: "no_adapter"),
+      Suma::NamedValue.new(name: "Deep Linking (suma sends receipts)", value: "deep_linking_suma_receipts"),
+      Suma::NamedValue.new(name: "Deep Linking (vendor sends receipts)", value: "deep_linking_vendor_receipts"),
     ].concat(
       Suma::Mobility::TripProvider.registered_keys.map do |value|
-        {name: "MaaS: #{value}", value:}
+        Suma::NamedValue.new(name: "MaaS: #{value}", value:)
       end,
     )
   end
@@ -89,7 +91,7 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   end
 
   def mobility_adapter_setting_name
-    self.class.mobility_adapter_setting_options.find { |h| h[:value] == self.mobility_adapter_setting }.fetch(:name)
+    self.class.mobility_adapter_setting_options.find { |h| h.value == self.mobility_adapter_setting }.name
   end
 
   def mobility_adapter_setting=(value)

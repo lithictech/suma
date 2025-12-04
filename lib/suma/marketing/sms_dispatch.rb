@@ -25,8 +25,6 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
         self.db,
         "cannot send sms while in a transaction due to potential progress loss",
       )
-      self.dataset.pending.where(sms_broadcast: Suma::Marketing::SmsBroadcast.where(sending_number: "")).each do |d|
-      end
       self.dataset.pending.each do |dispatch|
         log_tags = {
           member_id: dispatch.member.id,
@@ -37,6 +35,17 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
         SemanticLogger.named_tagged(log_tags) do
           if dispatch.sms_broadcast.sending_number.blank?
             self.logger.info("sms_dispatch_no_marketing_number")
+            dispatch.cancel.save_changes
+            next
+          end
+          if dispatch.member.message_preferences!.sms_undeliverable?
+            dispatch.cancel.save_changes
+            next
+          end
+          opted_out = dispatch.sms_broadcast.preferences_optout_field.present? &&
+            dispatch.member.message_preferences.opted_out?(dispatch.sms_broadcast.preferences_optout_field,
+                                                           :sms,)
+          if opted_out
             dispatch.cancel.save_changes
             next
           end

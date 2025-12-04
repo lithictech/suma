@@ -32,6 +32,17 @@ RSpec.describe "Suma::Marketing::SmsBroadcast", :db do
     end
   end
 
+  describe "preferences_optout" do
+    it "can find its label" do
+      b = described_class.new
+      expect(b.preferences_optout_name).to eq("Bypass opt-out")
+      b.preferences_optout_field = "marketing"
+      expect(b.preferences_optout_name).to eq("Marketing")
+      b.preferences_optout_field = "xyz"
+      expect(b.preferences_optout_name).to be_nil
+    end
+  end
+
   describe "rendering" do
     it "returns the content if it does not parse correctly" do
       s = described_class.render(member: nil, content: "hi {{ name")
