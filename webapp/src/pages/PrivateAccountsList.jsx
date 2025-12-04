@@ -133,7 +133,7 @@ function PrivateAccount({ account, onHelp }) {
         className="mb-4"
         style={{ maxWidth: "100%" }}
       />
-      <p>{account.uiStateV1.descriptionText}</p>
+      <p>{dt(account.uiStateV1.descriptionText)}</p>
       <Stack direction="horizontal" gap={2}>
         {showHelp && (
           <Button variant="link" className="flex-grow-1" onClick={() => onHelp()}>

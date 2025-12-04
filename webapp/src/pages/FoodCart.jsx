@@ -7,7 +7,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import { anyMoney } from "../shared/money";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
@@ -133,7 +133,7 @@ function CartItem({ offeringId, product, vendor }) {
       </Link>
       <div>
         <Link to={`/product/${offeringId}/${productId}`}>
-          <h6 className="mb-2">{name}</h6>
+          <h6 className="mb-2">{dt(name)}</h6>
         </Link>
         <p className="text-secondary mb-2 small">
           {t("food.from_vendor", { vendorName: vendor.name })}

@@ -9,8 +9,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import SumaMarkdown from "../components/SumaMarkdown.jsx";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
@@ -305,14 +304,10 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
   return (
     <>
       {checkout.offering.fulfillmentPrompt && (
-        <h5>
-          <SumaMarkdown>{checkout.offering.fulfillmentPrompt}</SumaMarkdown>
-        </h5>
+        <h5>{dt(checkout.offering.fulfillmentPrompt)}</h5>
       )}
       {checkout.offering.fulfillmentInstructions && (
-        <p className="mb-2">
-          <SumaMarkdown>{checkout.offering.fulfillmentInstructions}</SumaMarkdown>
-        </p>
+        <p className="mb-2">{dt(checkout.offering.fulfillmentInstructions)}</p>
       )}
       <FormRadioInputs
         inputs={inputs}
@@ -329,7 +324,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
 function FulfillmentOptionLabel({ description, address }) {
   return (
     <>
-      <SumaMarkdown>{description}</SumaMarkdown>
+      {dt(description)}
       {address?.oneLineAddress && (
         <ExternalLink
           href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
@@ -465,13 +460,13 @@ function CheckoutItem({ item }) {
       />
       {product.outOfStock ? (
         <Stack>
-          <h6 className="mb-2">{product.name}</h6>
+          <h6 className="mb-2">{dt(product.name)}</h6>
           <p className="text-secondary mb-0">{t("food.sold_out")}</p>
         </Stack>
       ) : (
         <>
           <Stack className="justify-content-between">
-            <h6 className="mb-0">{product.name}</h6>
+            <h6 className="mb-0">{dt(product.name)}</h6>
             <p className="text-secondary mb-0">
               <small>{t("food.from_vendor", { vendorName: product.vendor.name })}</small>
             </p>

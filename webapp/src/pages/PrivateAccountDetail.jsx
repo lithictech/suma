@@ -5,8 +5,7 @@ import FormError from "../components/FormError.jsx";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink.jsx";
-import SumaMarkdown from "../components/SumaMarkdown.jsx";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUnmountEffect from "../shared/react/useUnmountEffect.jsx";
 import { useError } from "../state/useError.jsx";
@@ -122,7 +121,7 @@ function StepsView({ account, setView }) {
 function TermsView({ account, setView }) {
   return (
     <ProgressContainer header={t("private_accounts.view_header_terms")} view={VIEW_TERMS}>
-      <SumaMarkdown>{account.uiStateV1.termsText}</SumaMarkdown>
+      {dt(account.uiStateV1.termsText)}
       <FormButtons
         margin={0}
         secondaryProps={{
@@ -239,12 +238,12 @@ function LinkView({ account, setView }) {
       view={VIEW_LINK}
       progress={buttonStatus === LINKBTN_SENT ? 100 : null}
     >
-      <SumaMarkdown>{t("private_accounts.linkview_instructions")}</SumaMarkdown>
+      {t("private_accounts.linkview_instructions")}
       <Alert variant={alertVariant} show={!!alertVariant} className="mb-0">
         {buttonStatus === LINKBTN_SENT ? (
           <span>
             <i className="bi bi-phone-vibrate d-inline me-2"></i>
-            {pollingSuccessResponse?.successInstructions}
+            {dt(pollingSuccessResponse?.successInstructions)}
           </span>
         ) : (
           <div>

@@ -9,7 +9,7 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SoldOutText from "../components/SoldOutText";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import useOffering from "../state/useOffering";
 import isEmpty from "lodash/isEmpty";
@@ -83,7 +83,7 @@ export default function FoodList() {
       <LayoutContainer gutters>
         <div className="hstack my-3">
           <BackBreadcrumb back="/food">
-            <PageHeading className="mb-0">{offering.description}</PageHeading>
+            <PageHeading className="mb-0">{dt(offering.description)}</PageHeading>
           </BackBreadcrumb>
         </div>
         {isEmpty(products) ? (
@@ -120,7 +120,7 @@ function Product({ product, offeringId, cart }) {
       className="mb-4 border-bottom border-secondary border-opacity-50 position-relative"
     >
       <SumaImage image={images[0]} className="w-100" width={225} h={150} variant="dark" />
-      <h5 className="mb-2 mt-2">{name}</h5>
+      <h5 className="mb-2 mt-2">{dt(name)}</h5>
       <p className="my-2">{product.vendor.name}</p>
       {outOfStock ? (
         <p className="mb-3 text-secondary">

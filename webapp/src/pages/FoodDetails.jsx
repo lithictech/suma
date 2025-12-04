@@ -72,7 +72,7 @@ export default function FoodDetails() {
       <LayoutContainer gutters>
         <BackBreadcrumb back={`/food/${offeringId}`} />
         <PageHeading level={1} className="mb-3">
-          {product.name}
+          {dt(product.name)}
         </PageHeading>
       </LayoutContainer>
       <SumaImage
