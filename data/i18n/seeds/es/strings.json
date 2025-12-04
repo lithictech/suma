@@ -222,6 +222,7 @@
   "forms.invalid_card_expiry": "La fecha de expiración debe escribirse Mes Mes / Año Año, como '10/23'.",
   "forms.invalid_card_number": "Por favor verifique el número de cuenta.",
   "forms.invalid_field": "Respuesta invalida",
+  "forms.invalid_fields_submit": "Algunos campos no son válidos. Desplázate hacia arriba y corrige los errores.",
   "forms.invalid_max_amount": "Su respuesta debe ser {{constraint, sumaCurrency}} o menos.",
   "forms.invalid_max_length": "Su respuesta no debe exceder {{constraint}} caracteres.",
   "forms.invalid_min": "Su respuesta debe ser {{constraint}} o mayor.",
