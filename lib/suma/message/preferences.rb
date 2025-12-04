@@ -2,11 +2,12 @@
 
 require "suma/i18n"
 require "suma/postgres"
+require "suma/member"
 require "suma/message"
 
-# TODO: We have some assumptions about SMS right now; when we add in email support into the UI,
-# stuff like subscription groups will need per-channel optin/out behavior.
 class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
+  EDITABLE_SUBSCRIPTIONS = [:account_updates, :marketing].freeze
+
   plugin :timestamps
 
   many_to_one :member, class: Suma::Member
@@ -32,6 +33,12 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
   def sms_enabled? = self.sms_enabled
   def email_enabled? = self.email_enabled
 
+  def sms_undeliverable? = Suma::MethodUtilities.timestamp_set?(self, :sms_undeliverable_at)
+
+  def sms_undeliverable=(v)
+    Suma::MethodUtilities.timestamp_set(self, :sms_undeliverable_at, v)
+  end
+
   # @param [Suma::Message::Template] message
   def dispatch(message)
     message.language = self.preferred_language
@@ -42,26 +49,27 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
     return sent
   end
 
+  # Return the available subscription groups.
+  # NOTE: We have some assumptions about SMS right now; when we add in email support into the UI,
+  # stuff like subscription groups will need per-channel optin/out behavior.
   # @return [Array<SubscriptionGroup>]
   def subscriptions
-    groups = []
-    groups << SubscriptionGroup.new(
-      model: self,
-      optout_field: :account_updates_sms_optout,
-      key: :account_updates,
-      opted_in: !self.account_updates_sms_optout,
-      editable_state: "on",
-    )
-    groups << SubscriptionGroup.new(
-      model: self,
-      optout_field: :marketing_sms_optout,
-      key: :marketing,
-      opted_in: !self.marketing_sms_optout,
-      editable_state: "on",
-    )
+    groups = EDITABLE_SUBSCRIPTIONS.map do |key|
+      SubscriptionGroup.new(
+        model: self,
+        optout_field: :"#{key}_sms_optout",
+        key:,
+        opted_in: self.opted_in?(key, :sms),
+        editable_state: "on",
+      )
+    end
     groups << SubscriptionGroup.new(key: :security, opted_in: true, editable_state: "off")
     return groups
   end
+
+  def optout_field(group_name, transport) = :"#{group_name}_#{transport}_optout"
+  def opted_out?(group_name, transport) = self.send(self.optout_field(group_name, transport))
+  def opted_in?(group_name, transport) = !self.opted_out?(group_name, transport)
 
   def public_url = "#{Suma.app_url}/preferences-public?token=#{self.access_token}"
 

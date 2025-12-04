@@ -3,12 +3,18 @@
 require "smstools"
 
 require "suma/marketing"
+require "suma/message/preferences"
+require "suma/named_value"
 require "suma/postgres/model"
 require "suma/async/marketing_sms_broadcast_dispatch"
 
 class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broadcasts)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+
+  PREFERENCES_OPT_OUT_OPTIONS = [
+    Suma::NamedValue.new(name: "Bypass opt-out", value: ""),
+  ] + Suma::Message::Preferences::EDITABLE_SUBSCRIPTIONS.map { |f| Suma::NamedValue.new(value: f.to_s, name: f.to_s.humanize) }
 
   plugin :association_pks
   plugin :hybrid_search
@@ -64,6 +70,7 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
   def initialize(*)
     super
     self.sending_number ||= Suma::Signalwire.marketing_number || ""
+    self.preferences_optout_field ||= ""
   end
 
   def sending_number_formatted = self.sending_number.blank? ? "" : Phony.format(self.sending_number, format: :national)
@@ -72,6 +79,10 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
 
   def sent=(v)
     Suma::MethodUtilities.timestamp_set(self, :sent_at, v)
+  end
+
+  def preferences_optout_name
+    return PREFERENCES_OPT_OUT_OPTIONS.find { |h| h[:value] == self.preferences_optout_field }&.name
   end
 
   # Create +Suma::Marketing::SmsDispatch+ instances for each member in +lists+.
@@ -166,6 +177,11 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
       :label,
       :sent_at,
     ]
+  end
+
+  def validate
+    super
+    self.validates_includes PREFERENCES_OPT_OUT_OPTIONS.map(&:value), :preferences_optout_field
   end
 
   class Payload < Suma::TypedStruct

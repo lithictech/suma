@@ -23,6 +23,7 @@ export default function RelatedList({
   addNewLink,
   addNewRole,
   emptyState,
+  cardProps,
   className,
   onAddNewClick,
   ...rest
@@ -68,7 +69,7 @@ export default function RelatedList({
     className = clsx(className, "related-list-table-overflow");
   }
   return (
-    <Card>
+    <Card {...cardProps}>
       <CardContent>
         <div ref={topRef} />
         {title && (

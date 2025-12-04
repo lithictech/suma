@@ -74,5 +74,11 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end
     end
+
+    get :mobility_adapter_options do
+      use_http_expires_caching 48.hours
+      check_admin_role_access!(:read, :admin_access)
+      present_collection Suma::Vendor::Service.mobility_adapter_setting_options, with: NamedValueEntity
+    end
   end
 end

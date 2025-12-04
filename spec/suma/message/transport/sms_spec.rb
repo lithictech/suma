@@ -61,6 +61,15 @@ RSpec.describe Suma::Message::Transport::Sms, :db, reset_configuration: Suma::Me
       end.to raise_error(Suma::Message::UndeliverableRecipient, /not allowlisted/)
     end
 
+    it "still delivers to undeliverable members" do
+      delivery = Suma::Fixtures.message_delivery.sms("+15554443210", "hello").with_recipient.create
+      delivery.recipient.message_preferences!.update(sms_undeliverable: true)
+      req = stub_signalwire_sms(sid: "SMXYZ")
+      result = described_class.new.send!(delivery)
+      expect(result).to eq("SMXYZ")
+      expect(req).to have_been_made
+    end
+
     describe "with sms provider disabled", reset_configuration: described_class do
       before(:each) do
         described_class.provider_disabled = true

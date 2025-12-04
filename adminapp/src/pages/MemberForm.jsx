@@ -2,7 +2,14 @@ import AddressInputs from "../components/AddressInputs";
 import FormLayout from "../components/FormLayout";
 import ResponsiveStack from "../components/ResponsiveStack";
 import RoleEditor from "../components/RoleEditor";
-import { Divider, FormLabel, Stack, TextField } from "@mui/material";
+import {
+  Divider,
+  FormControlLabel,
+  FormLabel,
+  Stack,
+  Switch,
+  TextField,
+} from "@mui/material";
 import merge from "lodash/merge";
 import React from "react";
 
@@ -63,6 +70,15 @@ export default function MemberForm({
           onFieldChange={(addressObj) =>
             setField("legalEntity", merge(resource.legalEntity, addressObj))
           }
+        />
+        <Divider />
+        <FormLabel>Message Preferences</FormLabel>
+        <FormControlLabel
+          control={<Switch />}
+          label="SMS Undeliverable"
+          name="preferences.smsUndeliverable"
+          checked={resource.preferences.smsUndeliverable}
+          onChange={setFieldFromInput}
         />
       </Stack>
     </FormLayout>

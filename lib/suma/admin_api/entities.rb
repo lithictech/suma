@@ -14,6 +14,11 @@ module Suma::AdminAPI::Entities
     expose :es
   end
 
+  class NamedValueEntity < Suma::Service::Entities::Base
+    expose :name
+    expose :value
+  end
+
   class ImageEntity < Suma::Service::Entities::Base
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
     expose :caption, with: TranslatedTextEntity

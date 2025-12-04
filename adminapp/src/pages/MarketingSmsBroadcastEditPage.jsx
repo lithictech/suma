@@ -2,13 +2,16 @@ import api from "../api";
 import FormLayout from "../components/FormLayout";
 import ResourceEdit from "../components/ResourceEdit";
 import ResponsiveStack from "../components/ResponsiveStack";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import withoutAt from "../shared/withoutAt";
 import {
   Card,
   CardContent,
   Checkbox,
+  Divider,
   FormControl,
+  FormHelperText,
   FormLabel,
   InputLabel,
   List,
@@ -88,24 +91,46 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
           fullWidth
           onChange={setFieldFromInput}
         />
-        <FormControl>
-          <InputLabel shrink>Sending Number</InputLabel>
-          <Select
-            {...register("sendingNumber")}
-            label="Sending Number"
-            name="sendingNumber"
-            value={resource.sendingNumber || ""}
-            displayEmpty
-            onChange={setFieldFromInput}
-          >
-            <MenuItem value="">Blank - Will not send</MenuItem>
-            {resource.availableSendingNumbers.map(({ name, number, formatted }) => (
-              <MenuItem key={name} value={number}>
-                {name}: {formatted}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <ResponsiveStack>
+          <FormControl sx={{ flex: 1 }}>
+            <InputLabel shrink>Sending Number</InputLabel>
+            <Select
+              {...register("sendingNumber")}
+              label="Sending Number"
+              name="sendingNumber"
+              value={resource.sendingNumber || ""}
+              displayEmpty
+              onChange={setFieldFromInput}
+            >
+              <MenuItem value="">Blank - Will not send</MenuItem>
+              {resource.availableSendingNumbers.map(({ name, number, formatted }) => (
+                <MenuItem key={name} value={number}>
+                  {name}: {formatted}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              What number will this send from? Note that Marketing numbers generally
+              process opt-outs, while Transactional numbers usually bypass preferences.
+              Setting no number here will create a broadcast that will not send anything.
+            </FormHelperText>
+          </FormControl>
+          <FormControl sx={{ flex: 1 }}>
+            <InputLabel shrink>Preferences Opt-Out</InputLabel>
+            <OptoutFieldSelect
+              {...register("preferencesOptoutField")}
+              label="Preferences Opt-Out"
+              name="preferencesOptoutField"
+              value={resource.preferencesOptoutField}
+              onChange={setFieldFromInput}
+            />
+            <FormHelperText>
+              Which message preferences field should this broadcast honor? Dispatches to
+              users who have this opt-out field set, will not be sent.
+            </FormHelperText>
+          </FormControl>
+        </ResponsiveStack>
+        <Divider />
         <ResponsiveStack>
           <BodyPreview
             register={register}
@@ -135,7 +160,7 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
 function BodyPreview({ register, resource, onBodyChange, language, preview }) {
   const payload = preview[`${language}Payload`];
   return (
-    <Stack sx={{ width: "50%" }}>
+    <Stack sx={{ flex: 1 }}>
       <TextField
         {...register(`body.${language}`)}
         label={`Body (${language})`}
@@ -199,3 +224,21 @@ function MarketingLists({ allLists, lists, setLists }) {
     </Card>
   );
 }
+
+const OptoutFieldSelect = React.forwardRef(function OptoutFieldSelect({ ...rest }, ref) {
+  const data = useGlobalApiState(
+    (data, ...args) =>
+      api.getMarketingSmsBroadcastPreferencesOptoutOptions({ ...data }, ...args),
+    { items: [] }
+  );
+
+  return (
+    <Select displayEmpty {...rest}>
+      {data.items.map(({ name, value }) => (
+        <MenuItem key={value} value={value}>
+          {name}
+        </MenuItem>
+      ))}
+    </Select>
+  );
+});

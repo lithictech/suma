@@ -62,12 +62,6 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
         end
       end
     end
-
-    get :vendor_service_mobility_adapter_options do
-      use_http_expires_caching 48.hours
-      check_admin_role_access!(:read, :admin_access)
-      present_collection Suma::Vendor::Service.mobility_adapter_setting_options
-    end
   end
 
   class CurrencyEntity < BaseEntity

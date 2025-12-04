@@ -94,6 +94,33 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       expect(d.refresh).to be_canceled
     end
 
+    describe "when the broadcast optout is set" do
+      let(:broadcast) { Suma::Fixtures.marketing_sms_broadcast.create(preferences_optout_field: "marketing") }
+      let(:dispatch) { Suma::Fixtures.marketing_sms_dispatch.create(sms_broadcast: broadcast) }
+
+      it "cancels the dispatch if the preferences optout is set" do
+        dispatch.member.preferences!.update(marketing_sms_optout: true)
+        described_class.send_all
+        expect(dispatch.refresh).to be_canceled
+      end
+
+      it "still sends if the prefences optout is not set" do
+        req = stub_request(:post, "https://sumafaketest.signalwire.com/2010-04-01/Accounts/sw-test-project/Messages.json").
+          to_return(json_response(load_fixture_data("signalwire/send_message")))
+        d = dispatch
+        described_class.send_all
+        expect(req).to have_been_made
+        expect(d.refresh).to_not be_canceled
+      end
+    end
+
+    it "cancels the dispatch if member preferences are sms undeliverable" do
+      d = Suma::Fixtures.marketing_sms_dispatch.create
+      d.member.preferences!.update(sms_undeliverable: true)
+      described_class.send_all
+      expect(d.refresh).to be_canceled
+    end
+
     it "handles errors by sending them to Sentry and moving on" do
       disp = Suma::Fixtures.marketing_sms_dispatch.create
       req = stub_request(:post, "https://sumafaketest.signalwire.com/2010-04-01/Accounts/sw-test-project/Messages.json").
