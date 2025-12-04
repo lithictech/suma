@@ -1,5 +1,6 @@
 import api from "../api";
 import BackTo from "../components/BackTo";
+import DialogWindowButtons from "../components/DialogWindowButtons";
 import FabAdd from "../components/FabAdd";
 import Link from "../components/Link";
 import ResponsiveStack from "../components/ResponsiveStack";
@@ -8,7 +9,6 @@ import extractErrorMessage from "../modules/extractErrorMessage";
 import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
-import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
 import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
@@ -24,7 +24,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import {
   DataGrid,
@@ -237,6 +236,7 @@ function StaticStringsDialog({
   onFieldChange,
   onSavePromise,
 }) {
+  const fullscreenToggle = useToggle();
   const handleModalClose = React.useCallback(() => {
     // Don't set these here, or it causes modal flashing before it disappears.
     // setRowBeingEdited({});
@@ -266,10 +266,12 @@ function StaticStringsDialog({
     <Dialog
       open={toggle.isOn}
       disableEscapeKeyDown
+      fullScreen={fullscreenToggle.isOn}
       fullWidth
       maxWidth="lg"
       PaperProps={{
         component: "form",
+        sx: { height: fullscreenToggle.isOn ? null : "50vh" },
         onSubmit: handleModalSubmit,
       }}
       onClose={handleModalClose}
@@ -280,27 +282,24 @@ function StaticStringsDialog({
           Help
         </Button>
       </DialogTitle>
+      <DialogWindowButtons fullscreenToggle={fullscreenToggle} onExit={toggle.turnOff} />
       <DialogContent>
-        <ResponsiveStack rowAt="md" sx={{ pt: 1 }}>
-          <TextField
+        <ResponsiveStack rowAt="md" sx={{ pt: 1, height: "100%" }}>
+          <FullHeightTextArea
             autoFocus
             margin="dense"
             name="en"
             label="English"
             fullWidth
-            multiline
-            rows={5}
             variant="outlined"
             value={row.en || ""}
             onChange={(e) => onFieldChange("en", e.target.value)}
           />
-          <TextField
+          <FullHeightTextArea
             margin="dense"
             name="es"
             label="Spanish"
             fullWidth
-            multiline
-            rows={5}
             variant="outlined"
             value={row.es || ""}
             onChange={(e) => onFieldChange("es", e.target.value)}
@@ -326,21 +325,32 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+function FullHeightTextArea(props) {
+  return (
+    <TextField
+      multiline
+      {...props}
+      sx={{
+        flexGrow: 1,
+        "& .MuiInputBase-root": {
+          height: "100%",
+          alignItems: "stretch",
+        },
+        "& textarea": {
+          height: "100% !important",
+          overflow: "auto",
+          resize: "none",
+        },
+      }}
+    />
+  );
+}
+
 function DocsModal({ toggle, selectedRow }) {
   return (
     <Dialog onClose={toggle.turnOff} open={toggle.isOn}>
       <DialogTitle>Static Strings Help</DialogTitle>
-      <IconButton
-        onClick={toggle.turnOff}
-        sx={{
-          position: "absolute",
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
+      <DialogWindowButtons onClick={toggle.turnOff} />
       <DialogContent>
         <DialogContentText>
           Static strings are not tied to specific pieces of content, like program
