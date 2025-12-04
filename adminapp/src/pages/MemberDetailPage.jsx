@@ -441,7 +441,9 @@ function PaymentInstruments({ instruments }) {
       rows={instruments}
       getKey={(r) => `${r.id}-${r.paymentMethodType}`}
       toCells={(row) => [
-        <AdminLink key="id" model={row} />,
+        <AdminLink key="id" model={row}>
+          {row.instrumentId}
+        </AdminLink>,
         row.paymentMethodType,
         row.name,
         row.status,

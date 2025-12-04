@@ -72,6 +72,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def for(type, id) = self.where(payment_method_type: type, instrument_id: id)
   end
 
+  def id = self[:instrument_id]
   def payment_method_type = self[:payment_method_type]
   def usable_for_funding? = self[:usable_for_funding]
   def usable_for_payout? = self[:usable_for_payout]
