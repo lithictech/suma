@@ -102,24 +102,31 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
   # This seems like a reasonable default...
   DEFAULT_MAX_QUANTITY = 12
+  DEFAULT = :default
+  OUT_OF_STOCK = :out_of_stock
+  ALREADY_PURCHASED = :purchased
+  MAX_ITEMS_ORDERED = :max_ordered
 
-  def max_quantity_for(offering_product)
+  # Return the maximum quantity that can be ordered for the offering product,
+  # along with the reason why the limit is set.
+  # Generally the limit is only relevant if the max quantity is zero.
+  def max_quantity_and_reason_for(offering_product)
     product = offering_product.product
     inv = product.inventory!
     offering = offering_product.offering
 
     purchase_limits = []
-    purchase_limits << (inv.quantity_on_hand - inv.quantity_pending_fulfillment) if
+    purchase_limits << [(inv.quantity_on_hand - inv.quantity_pending_fulfillment), OUT_OF_STOCK] if
       inv.limited_quantity?
 
     if (max_for_product = inv.max_quantity_per_member_per_offering)
       items_already_in_offering = self.purchased_checkout_items.
         to_h { |row| [row.offering_product.id, row.quantity] }
       existing = items_already_in_offering.fetch(offering_product.id, 0)
-      purchase_limits << (max_for_product - existing)
+      purchase_limits << [(max_for_product - existing), ALREADY_PURCHASED]
     end
     if (max_offering_cumulative = offering.max_ordered_items_cumulative)
-      purchase_limits << (max_offering_cumulative - offering.total_ordered_items)
+      purchase_limits << [(max_offering_cumulative - offering.total_ordered_items), OUT_OF_STOCK]
     end
 
     if (max_offering_per_member = offering.max_ordered_items_per_member)
@@ -127,11 +134,22 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
       # We can only order as much of this item as items we haven't already ordered
       remaining_to_be_ordered = max_offering_per_member - total_ordered
       quantity_of_other_items_in_cart = self.items.reject { |ci| ci.product === product }.sum(0, &:quantity)
-      purchase_limits << (remaining_to_be_ordered - quantity_of_other_items_in_cart)
+      purchase_limits << [(remaining_to_be_ordered - quantity_of_other_items_in_cart), MAX_ITEMS_ORDERED]
     end
 
     limited_max = purchase_limits.min
-    return limited_max.nil? ? DEFAULT_MAX_QUANTITY : limited_max
+    return limited_max.nil? ? [DEFAULT_MAX_QUANTITY, DEFAULT] : limited_max
+  end
+
+  # Return the translated text for the cart quantity reason.
+  def self.localize_max_quantity_reason(reason)
+    txt = Suma.cached_get("cart.quantity_reason_#{reason}") do
+      Suma::I18n::StaticString.find_text?("backend", "cart_quantity_reason.#{reason}")
+    end
+    return txt if txt
+    return Suma.cached_get("cart.quantity_reason_fallback") do
+      Suma::I18n::StaticString.find_text("backend", "cart_quantity_reason.out_of_stock")
+    end
   end
 
   # Return true if nothing else can fit into our cart.
@@ -231,8 +249,8 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
       raise EmptyCart, "no items available to checkout" if self.items.empty?
       self.items.each do |item|
         raise ActualProductUnavailable.new(item.product, self.offering) unless item.available_at?(context.apply_at)
-        max_available = item.cart.max_quantity_for(item.offering_product)
-        msg = "product #{item.product.name.en} quantity #{item.quantity} > max of #{max_available}"
+        max_available, reason = item.cart.max_quantity_and_reason_for(item.offering_product)
+        msg = "product #{item.product.name.en} quantity #{item.quantity} > max of #{max_available}: #{reason}"
         raise Suma::Commerce::Checkout::MaxQuantityExceeded, msg if item.quantity > max_available
         checkout.add_item({cart_item: item, offering_product: item.offering_product})
       end

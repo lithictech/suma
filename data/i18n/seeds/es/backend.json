@@ -1,4 +1,7 @@
 {
+  "cart_quantity_reason.max_ordered": "No disponible",
+  "cart_quantity_reason.out_of_stock": "Fuera de stock",
+  "cart_quantity_reason.purchased": "Máximo comprado",
   "subsidy_default": "Apoyo de financiadores locales",
   "subsidy_rebalancing_uncategorized": "Rebalancing uncategorized subsidy",
   "trip_receipt_additional_charges": "Cargos adicionales",

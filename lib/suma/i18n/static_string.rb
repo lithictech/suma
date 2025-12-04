@@ -54,6 +54,10 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
           select_map(:namespace)
     end
 
+    def find_text?(namespace, key)
+      return self.find(namespace:, key:)&.text
+    end
+
     def find_text(namespace, key)
       ss = self.find!(namespace:, key:)
       return ss.text

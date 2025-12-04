@@ -461,7 +461,7 @@ function CheckoutItem({ item }) {
       {product.outOfStock ? (
         <Stack>
           <h6 className="mb-2">{dt(product.name)}</h6>
-          <p className="text-secondary mb-0">{t("food.sold_out")}</p>
+          <p className="text-secondary mb-0">{product.outOfStockReasonText}</p>
         </Stack>
       ) : (
         <>

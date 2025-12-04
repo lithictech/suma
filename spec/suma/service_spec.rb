@@ -200,6 +200,15 @@ class Suma::API::TestService < Suma::Service
   class LanguageWithBlockExposureEntity < Suma::Service::Entities::Base
     expose_translated :othername, &self.delegate_to(:name)
   end
+
+  class LanguageWithMethodEntity < Suma::Service::Entities::Base
+    expose_translated :othername
+
+    private def othername
+      self.object.name
+    end
+  end
+
   get :language_with_exposure do
     p = Suma::Fixtures.product.create
     p.name.update(en: "English", es: "Spanish")
@@ -211,6 +220,13 @@ class Suma::API::TestService < Suma::Service
     p = Suma::Fixtures.product.create
     p.name.update(en: "English", es: "Spanish")
     present(p, with: LanguageWithBlockExposureEntity)
+    status 200
+  end
+
+  get :language_with_method do
+    p = Suma::Fixtures.product.create
+    p.name.update(en: "English", es: "Spanish")
+    present(p, with: LanguageWithMethodEntity)
     status 200
   end
 
@@ -1075,6 +1091,12 @@ RSpec.describe Suma::Service, :db do
 
     it "can use expose_translated with a block" do
       get "/language_with_block"
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(othername: "English")
+    end
+
+    it "can use expose_translated with an entity method" do
+      get "/language_with_method"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(othername: "English")
     end
