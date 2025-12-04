@@ -125,7 +125,10 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
   return (
     <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
       <HeaderComp to={appLink}>
-        <h5 className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute text-truncate program-card-title">
+        <h5
+          className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
+          style={{ zIndex: 1 }}
+        >
           {name}
         </h5>
       </HeaderComp>
