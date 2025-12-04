@@ -4,8 +4,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import SumaMarkdown from "../components/SumaMarkdown.jsx";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
@@ -63,21 +62,15 @@ export default function FoodCheckoutConfirmation() {
           </div>
         )}
         {offering.fulfillmentInstructions && (
-          <p className="lead">
-            <SumaMarkdown>{offering.fulfillmentInstructions}</SumaMarkdown>
-          </p>
+          <p className="lead">{dt(offering.fulfillmentInstructions)}</p>
         )}
       </LayoutContainer>
       <hr className="my-4" />
       {fulfillmentOption && (
         <>
           <LayoutContainer gutters>
-            <h4>
-              <SumaMarkdown>{offering.fulfillmentConfirmation}</SumaMarkdown>
-            </h4>
-            <p>
-              <SumaMarkdown>{fulfillmentOption.description}</SumaMarkdown>
-            </p>
+            <h4>{dt(offering.fulfillmentConfirmation)}</h4>
+            <p>{dt(fulfillmentOption.description)}</p>
           </LayoutContainer>
           <hr className="my-4" />
         </>
@@ -110,7 +103,7 @@ function Item({ item }) {
         variant="dark"
       />
       <Stack>
-        <p className="mb-0 lead">{product.name}</p>
+        <p className="mb-0 lead">{dt(product.name)}</p>
         <p className="text-secondary mb-0">
           {t("food.quantity", { quantity: quantity })}
         </p>

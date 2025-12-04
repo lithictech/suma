@@ -82,7 +82,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
           </Card.Text>
           {order.items.map(({ name, description, customerPrice, quantity }, i) => (
             <Stack key={i} className="justify-content-between align-items-start" gap={1}>
-              <div className="lead">{name}</div>
+              <div className="lead">{dt(name)}</div>
               <div>
                 {t("food.price_times_quantity", {
                   price: customerPrice,
@@ -112,8 +112,8 @@ function FulfillmentOption({ order, onOrderUpdated }) {
     // No options, but something is selected, so show it
     return (
       <div>
-        <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
-        <span>{order.fulfillmentOption.description}</span>
+        <h6 className="fw-bold">{dt(order.fulfillmentConfirmation)}</h6>
+        <span>{dt(order.fulfillmentOption.description)}</span>
       </div>
     );
   }
@@ -122,7 +122,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
     return (
       <span>
         <h6 className="fw-bold lh-lg">
-          {order.fulfillmentConfirmation}
+          {dt(order.fulfillmentConfirmation)}
           {order.fulfillmentOptionEditable && (
             <Button
               variant="link"
