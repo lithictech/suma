@@ -77,7 +77,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
   end
 
-  describe "max_quantity_for" do
+  describe "max_quantity_and_reason_for" do
     let(:member) { Suma::Fixtures.member.create }
     let(:offering) { Suma::Fixtures.offering.create }
     let(:product) { Suma::Fixtures.product.with_categories.create }
@@ -86,7 +86,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
 
     describe "with no quantity limitations" do
       it "returns the default max quantity" do
-        expect(cart.max_quantity_for(offering_product)).to eq(12)
+        expect(cart.max_quantity_and_reason_for(offering_product)).to eq([12, :default])
       end
     end
 
@@ -106,51 +106,51 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     describe "with a maximum quantity per member on the product" do
       it "returns the quantity value minus the amount the member has ordered already in uncanceled orders" do
         product.inventory!.update(max_quantity_per_member_per_offering: 5)
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :purchased])
 
         cart.add_item(product:, quantity: 2, timestamp: 0)
         order = create_fake_order(cart)
 
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(3)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([3, :purchased])
 
         order.update(order_status: "canceled")
 
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :purchased])
         # Test eager loading does not break/cause an error
-        expect(Suma::Commerce::Cart.all.first.max_quantity_for(offering_product)).to eq(5)
+        expect(Suma::Commerce::Cart.all.first.max_quantity_and_reason_for(offering_product)).to eq([5, :purchased])
       end
     end
 
     describe "with a maximum number of items cumulative on the offering" do
       it "returns the quantity value minus the total number of items in uncanceled orders" do
         offering.update(max_ordered_items_cumulative: 5)
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :out_of_stock])
 
         order = create_fake_order(Suma::Fixtures.cart.with_product(product, 2).create(offering:))
 
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(3)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([3, :out_of_stock])
 
         order.update(order_status: "canceled")
 
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(5)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([5, :out_of_stock])
       end
     end
 
     describe "with a maximum number of items per member on the offering" do
       it "returns the quantity value minus the total number of items in uncanceled orders for the member" do
         offering.update(max_ordered_items_per_member: 50)
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(50)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([50, :max_ordered])
 
         # Ignore the order not from the member
         create_fake_order(Suma::Fixtures.cart.with_product(product, 2).create(offering:))
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(50)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([50, :max_ordered])
 
         cart.add_item(product:, quantity: 10, timestamp: 0)
         order = create_fake_order(cart)
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(40)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([40, :max_ordered])
 
         order.update(order_status: "canceled")
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(50)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([50, :max_ordered])
       end
 
       it "factors in the quantity of other items in the cart" do
@@ -158,18 +158,18 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         offering_product2 = Suma::Fixtures.offering_product(offering:, product: product2).create
 
         offering.update(max_ordered_items_per_member: 5)
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
-        expect(cart.refresh.max_quantity_for(offering_product2)).to eq(5)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :max_ordered])
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product2)).to eq([5, :max_ordered])
 
         # Add two of product1 to the cart, still have a max of 5 for product1, but 3 for product2
         cart.add_item(product:, quantity: 2, timestamp: 0)
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(5)
-        expect(cart.refresh.max_quantity_for(offering_product2.refresh)).to eq(3)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([5, :max_ordered])
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product2.refresh)).to eq([3, :max_ordered])
 
         # Add 1 of product2, now max for product1 goes down 1, but max for product2 does not change
         cart.add_item(product: product2, quantity: 1, timestamp: 0)
-        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(4)
-        expect(cart.refresh.max_quantity_for(offering_product2.refresh)).to eq(3)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product.refresh)).to eq([4, :max_ordered])
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product2.refresh)).to eq([3, :max_ordered])
       end
     end
 
@@ -181,16 +181,16 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       end
 
       it "uses unallocated quantity on hand" do
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(2)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([2, :out_of_stock])
       end
     end
 
     describe "with offering and inventory limits" do
       it "returns the less available quantity" do
         product.inventory!.update(limited_quantity: true, quantity_on_hand: 6)
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(6)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([6, :out_of_stock])
         offering.update(max_ordered_items_cumulative: 5)
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+        expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :out_of_stock])
       end
     end
 
@@ -218,6 +218,20 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         cart.add_item(product:, quantity: 1, timestamp: 0)
         expect(cart.refresh).to be_cart_full
       end
+    end
+  end
+
+  describe "localize_max_quantity_reason" do
+    it "returns the static string if available" do
+      Suma::Fixtures.static_string.text("hello").create(namespace: "backend", key: "cart_quantity_reason.purchased")
+      t = described_class.localize_max_quantity_reason(described_class::ALREADY_PURCHASED)
+      expect(t.en).to eq("hello")
+    end
+
+    it "returns the fallback string if unavailable" do
+      Suma::Fixtures.static_string.text("hello").create(namespace: "backend", key: "cart_quantity_reason.out_of_stock")
+      t = described_class.localize_max_quantity_reason(described_class::ALREADY_PURCHASED)
+      expect(t.en).to eq("hello")
     end
   end
 

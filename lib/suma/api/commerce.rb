@@ -282,9 +282,9 @@ class Suma::API::Commerce < Suma::API::V1
 
   class PricedOfferingProductEntity < BaseOfferingProductEntity
     expose :max_quantity
-    expose :out_of_stock do |_|
-      self.max_quantity <= 0
-    end
+    expose :out_of_stock?, as: :out_of_stock
+    expose :out_of_stock_reason
+    expose_translated :out_of_stock_reason_text
 
     expose :displayable_noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |_inst|
       self.noncash_ledger_contrib
@@ -305,9 +305,14 @@ class Suma::API::Commerce < Suma::API::V1
            with: Suma::Service::Entities::Money,
            &self.delegate_to(:discount_amount, safe_with_default: Money.new(0))
 
-    private def max_quantity
-      return @max_quantity ||= self.options.fetch(:cart).max_quantity_for(self.object)
+    private def max_quantity_and_reason
+      return @max_quantity_and_reason ||= self.options.fetch(:cart).max_quantity_and_reason_for(self.object)
     end
+
+    private def max_quantity = max_quantity_and_reason[0]
+    private def out_of_stock? = max_quantity <= 0
+    private def out_of_stock_reason = max_quantity_and_reason[1]
+    private def out_of_stock_reason_text = Suma::Commerce::Cart.localize_max_quantity_reason(out_of_stock_reason)
 
     private def noncash_ledger_contrib
       return @noncash_ledger_contrib ||= self.options.fetch(:cart).

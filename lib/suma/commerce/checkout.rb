@@ -250,7 +250,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     self.items.each do |item|
       product = item.cart_item.product
       quantity = item.cart_item.quantity
-      max_available = self.cart.max_quantity_for(item.offering_product)
+      max_available = self.cart.max_quantity_and_reason_for(item.offering_product)[0]
       raise MaxQuantityExceeded, "product #{product.name.en} quantity #{quantity} > max of #{max_available}" if
         quantity > max_available
       # Always keep track of what is pending

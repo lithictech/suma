@@ -52,6 +52,7 @@ module Suma::Service::Entities
     end
 
     def evaluate_exposure(name, block, instance, options)
+      return self.send(name) if self.respond_to?(name, true)
       return instance.send(name) unless block
       return block.arity == 1 ? block[instance] : block[instance, options]
     end

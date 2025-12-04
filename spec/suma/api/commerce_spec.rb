@@ -39,6 +39,10 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:product) { Suma::Fixtures.product.with_categories.create }
     let(:offering_product_fac) { Suma::Fixtures.offering_product(product:, offering:) }
 
+    before(:each) do
+      import_localized_backend_seeds
+    end
+
     it "returns only available offering products" do
       op1 = offering_product_fac.create
       op2 = offering_product_fac.closed.create
@@ -139,6 +143,10 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product.create(offering:, product:) }
 
+    before(:each) do
+      import_localized_backend_seeds
+    end
+
     it "adds a product (uses Cart#set_item)" do
       put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2
 
@@ -196,6 +204,10 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+
+    before(:each) do
+      import_localized_backend_seeds
+    end
 
     it "creates a checkout" do
       post "/v1/commerce/offerings/#{offering.id}/checkout"
@@ -274,6 +286,10 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:cart) { Suma::Fixtures.cart(member:).with_any_product.create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
 
+    before(:each) do
+      import_localized_backend_seeds
+    end
+
     it "returns the checkout and other data" do
       get "/v1/commerce/checkouts/#{checkout.id}"
 
@@ -313,6 +329,10 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
+
+    before(:each) do
+      import_localized_backend_seeds
+    end
 
     it "updates the fulfillment option" do
       newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
