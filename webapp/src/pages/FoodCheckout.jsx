@@ -5,6 +5,7 @@ import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormButtons from "../components/FormButtons";
 import FormRadioInputs from "../components/FormRadioInputs";
+import FormStateError from "../components/FormStateError.jsx";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
@@ -49,13 +50,7 @@ export default function FoodCheckout() {
   const screenLoader = useScreenLoader();
   const navigate = useNavigate();
   const { reset: resetOffering } = useOffering();
-  const {
-    register,
-    handleSubmit,
-    clearErrors,
-    setValue,
-    formState: { errors },
-  } = useForm({
+  const { register, handleSubmit, clearErrors, setValue, formState } = useForm({
     mode: "all",
   });
 
@@ -138,7 +133,7 @@ export default function FoodCheckout() {
                   runSetter("paymentOption", setManuallySelectedInstrument, pi)
                 }
                 register={register}
-                errors={errors}
+                errors={formState.errors}
               />
             </LayoutContainer>
             <hr />
@@ -151,7 +146,7 @@ export default function FoodCheckout() {
                 checkout={checkout}
                 showErrorToast={showErrorToast}
                 register={register}
-                errors={errors}
+                errors={formState.errors}
                 onCheckoutChange={(attrs) =>
                   runSetter("fulfillmentOption", setCheckoutMutations, {
                     ...checkoutMutations,
@@ -168,7 +163,11 @@ export default function FoodCheckout() {
         </LayoutContainer>
         <hr />
         <LayoutContainer gutters className="my-4">
-          <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
+          <OrderSummary
+            checkout={checkout}
+            chosenInstrument={chosenInstrument}
+            formState={formState}
+          />
         </LayoutContainer>
       </Form>
     </>
@@ -360,7 +359,7 @@ function CheckoutItems({ checkout }) {
   );
 }
 
-function OrderSummary({ checkout, chosenInstrument }) {
+function OrderSummary({ checkout, chosenInstrument, formState }) {
   const itemCount = sum(map(checkout.items, "quantity"));
   // We only handle this reason explicitly; other reasons, assume we can still submit,
   // and if there's an error we'll deal with it.
@@ -422,6 +421,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
             <p className="small text-secondary mt-2">
               {t("food.terms_of_use_agreement")}
             </p>
+            <FormStateError formState={formState} />
             <FormButtons
               primaryProps={{
                 variant: "success",

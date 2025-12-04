@@ -222,6 +222,7 @@
   "forms.invalid_card_expiry": "Expiration date should be typed Month Month / Year Year, like '10 / 23'.",
   "forms.invalid_card_number": "Please double check the account number.",
   "forms.invalid_field": "This field is not valid.",
+  "forms.invalid_fields_submit": "Some fields are not valid. Scroll up and fix any errors.",
   "forms.invalid_max_amount": "Must be {{constraint, sumaCurrency}} or less.",
   "forms.invalid_max_length": "Cannot be more than {{constraint}} characters.",
   "forms.invalid_min": "Must be greater than or equal to {{constraint}}.",
