@@ -197,6 +197,10 @@ export default {
     get(`/adminapi/v1/marketing_lists/${id}`, data, ...args),
   updateMarketingList: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/marketing_lists/${id}`, data, ...args),
+  destroyMarketingList: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/marketing_lists/${id}/destroy`, data, ...args),
+  rebuildMarketingList: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/marketing_lists/${id}/rebuild`, data, ...args),
 
   getMarketingSmsBroadcasts: (data, ...args) =>
     get(`/adminapi/v1/marketing_sms_broadcasts`, data, ...args),

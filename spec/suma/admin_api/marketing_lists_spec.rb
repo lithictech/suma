@@ -105,6 +105,37 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
       post "/v1/marketing_lists/#{o.id}", label: "hello"
 
       expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "marketing_list_managed"))
+    end
+  end
+
+  describe "POST /v1/marketing_lists/:id/rebuild" do
+    it "rebuilds the list" do
+      m1 = Suma::Fixtures.member.create
+      m1.message_preferences!
+      o = Suma::Fixtures.marketing_list.create(label: "Unverified, All time - SMS", managed: true)
+
+      post "/v1/marketing_lists/#{o.id}/rebuild"
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh.members).to have_same_ids_as(m1)
+    end
+
+    it "errors if the list is unmanaged" do
+      o = Suma::Fixtures.marketing_list.create
+
+      post "/v1/marketing_lists/#{o.id}/rebuild"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "marketing_list_unmanaged"))
+    end
+
+    it "errors if the list has no spec" do
+      o = Suma::Fixtures.marketing_list.create(label: "No spec", managed: true)
+
+      post "/v1/marketing_lists/#{o.id}/rebuild"
+
+      expect(last_response).to have_json_body.that_includes(error: include(code: "marketing_list_spec_missing"))
     end
   end
 end
