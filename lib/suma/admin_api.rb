@@ -60,6 +60,10 @@ module Suma::AdminAPI
           end
         end
 
+        rescue_from Suma::InvalidPrecondition do |e|
+          invalid!(e.to_s)
+        end
+
         rescue_from Sequel::UniqueConstraintViolation do |e|
           invalid!(e.to_s)
         end

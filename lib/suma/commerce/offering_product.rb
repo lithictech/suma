@@ -46,15 +46,19 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
   # so this is the way we must change pricing.
   # @param customer_price [Money]
   # @param undiscounted_price [Money]
+  # @param reopen_ok [true,false] If false, raise an error if this product is closed.
+  #   If true, create a new opened offering product even if this product is closed.
+  #   The original close timestamp is not modified.
   # @return [Suma::Commerce::OfferingProduct]
-  def with_changes(customer_price: nil, undiscounted_price: nil)
+  def with_changes(customer_price: nil, undiscounted_price: nil, reopen_ok: false)
     customer_price ||= self.customer_price
     undiscounted_price ||= self.undiscounted_price
-    raise ArgumentError, "at least one new pricing field must be passed" if
-      customer_price == self.customer_price && undiscounted_price == self.undiscounted_price
-    raise Suma::InvalidPrecondition, "cannot change pricing of a closed offering product" if self.closed?
+    raise Suma::InvalidPrecondition, "at least one new pricing field or reopen_ok must be passed" if
+      customer_price == self.customer_price && undiscounted_price == self.undiscounted_price && !reopen_ok
+    raise Suma::InvalidPrecondition, "cannot change pricing of a closed offering product" if
+      !reopen_ok && self.closed?
     self.db.transaction do
-      self.update(closed_at: Time.now)
+      self.update(closed_at: Time.now) unless self.closed?
       return self.class.create(
         customer_price:,
         undiscounted_price:,

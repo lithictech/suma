@@ -180,6 +180,7 @@
   "food.press_and_hold": "Press\n\n and\n\n hold",
   "food.price": "Price",
   "food.price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
+  "food.product_404": "Sorry, this product is unavailable for purchase.",
   "food.quantity": "Quantity: {{quantity}}",
   "food.remove_from_cart": "Remove from cart",
   "food.return_to_dashboard_alert": "Please return to the dashboard to add more funds or edit the cart quantities to lower your cost.",

@@ -43,14 +43,13 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
       params do
         optional(:customer_price, allow_blank: false, type: JSON) { use :money }
         optional(:undiscounted_price, allow_blank: false, type: JSON) { use :money }
-        at_least_one_of :customer_price, :undiscounted_price
       end
       post do
         check_admin_role_access!(:write, Suma::Commerce::OfferingProduct)
         Suma::Commerce::OfferingProduct.db.transaction do
           (m = Suma::Commerce::OfferingProduct[params[:id]]) or forbidden!
           new_op = m.with_changes(
-            customer_price: params[:customer_price], undiscounted_price: params[:undiscounted_price],
+            customer_price: params[:customer_price], undiscounted_price: params[:undiscounted_price], reopen_ok: true,
           )
           created_resource_headers(new_op.id, new_op.admin_link)
           status 200

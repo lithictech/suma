@@ -51,14 +51,21 @@ export default function FoodDetails() {
   }
 
   if (error || !product) {
+    const errorScreenProps = {};
+    if (!error) {
+      errorScreenProps.body = t("food.product_404");
+      errorScreenProps.actionLabel = t("common.back");
+      errorScreenProps.actionHref = `/food/${offeringId}`;
+    }
     return (
       <PageLayout {...PAGE_LAYOUT_PROPS}>
         <LayoutContainer top>
-          <ErrorScreen />
+          <ErrorScreen {...errorScreenProps} />
         </LayoutContainer>
       </PageLayout>
     );
   }
+
   const vendor = find(vendors, (v) => v.id === product.vendor.id);
   const title = makeTitle(product.name, vendor.name, t("food.title"));
   return (

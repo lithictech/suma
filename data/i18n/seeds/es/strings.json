@@ -180,6 +180,7 @@
   "food.press_and_hold": "Presionar\n\n y\n\n sostener",
   "food.price": "precio",
   "food.price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
+  "food.product_404": "Lo siento, este producto no está disponible para comprar.",
   "food.quantity": "Cantidad: {{quantity}}",
   "food.remove_from_cart": "Eliminar del carrito",
   "food.return_to_dashboard_alert": "Por favor regrese al inicio para agregar más fondos o edite las cantidades del carrito para reducir el costo.",

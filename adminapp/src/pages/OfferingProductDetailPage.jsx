@@ -1,9 +1,12 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import BackTo from "../components/BackTo";
+import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
+import { resourceEditRoute } from "../modules/resourceRoutes";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -12,9 +15,10 @@ export default function OfferingProductDetailPage() {
     <ResourceDetail
       resource="offering_product"
       apiGet={api.getCommerceOfferingProduct}
-      canEdit
-      apiSoftDelete={api.closeCommerceOfferingProduct}
+      canEdit={(m) => !m.closedAt}
       canDelete={(m) => !m.closedAt}
+      backTo={BackTo.BACK}
+      apiSoftDelete={api.closeCommerceOfferingProduct}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -42,6 +46,14 @@ export default function OfferingProductDetailPage() {
         {
           label: "Undiscounted Price",
           value: <Money>{model.undiscountedPrice}</Money>,
+        },
+        model.closedAt && {
+          label: "Edit",
+          value: (
+            <Link to={resourceEditRoute("offering_product", model)}>
+              Reopen and Change Price
+            </Link>
+          ),
         },
       ]}
     >

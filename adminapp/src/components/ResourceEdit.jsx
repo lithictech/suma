@@ -7,7 +7,15 @@ import { useSnackbar } from "notistack";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-export default function ResourceEdit({ apiGet, apiUpdate, Form }) {
+/**
+ * @param apiGet API method to get the resource.
+ * @param apiUpdate API method to update the resource.
+ * @param alwaysApply If false, show 'no changes to save' if there are no changes queued.
+ *   If true, always update on submit. Only useful where submitting no parameters
+ *   has some other side effect.
+ * @param Form Form component to use.
+ */
+export default function ResourceEdit({ apiGet, apiUpdate, alwaysApply, Form }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { enqueueSnackbar } = useSnackbar();
   const { id: idStr } = useParams();
@@ -21,14 +29,14 @@ export default function ResourceEdit({ apiGet, apiUpdate, Form }) {
   });
   const handleApplyChange = React.useCallback(
     (changes) => {
-      if (isEmpty(changes)) {
+      if (!alwaysApply && isEmpty(changes)) {
         enqueueSnackbar("No changes to save.");
         window.history.back();
         return Promise.resolve();
       }
       return apiUpdate({ id, ...changes });
     },
-    [apiUpdate, enqueueSnackbar, id]
+    [apiUpdate, enqueueSnackbar, id, alwaysApply]
   );
 
   // TODO: Add an error page at some point
