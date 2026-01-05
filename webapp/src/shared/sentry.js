@@ -48,6 +48,7 @@ export function initSentry({
   release,
   environment,
   allowUrls,
+  ignoreErrors,
   ...rest
 }) {
   if (!dsn) {
@@ -62,6 +63,16 @@ export function initSentry({
     allowUrls,
     sampleRate: 1.0,
     integrations: [Sentry.browserTracingIntegration()],
+    ignoreErrors: ignoreErrors || [
+      "Network Error",
+      "canceled", // Sometimes seen when aborting a request, like on page navigate
+      "ECONNABORTED",
+      /Request aborted/i,
+      /Request failed with status code 4\d\d/,
+      /timeout of \d+ms exceeded/i,
+      /Invalid call to runtime\./,
+      /[A-Z]+ \/[a-z]+\/v\d\/[a-zA-Z_\d/]+ \d+/, // GET /api/v1/commerce/offerings/18 403
+    ],
     ...rest,
   });
   if (application) {
