@@ -44,11 +44,22 @@ class Suma::API::Commerce < Suma::API::V1
           end
 
           def present_offering(offering)
-            items = offering.offering_products_dataset.available.all
-            items.sort_by! { |op| [op.product.ordinal, op.created_at, op.id] }
+            offering_products = offering.offering_products_dataset.for_purchase.all
             cart = lookup_cart!(offering)
-            vendors = items.map { |v| v.product.vendor }.uniq(&:id)
-            present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context
+            vendors = offering_products.map { |v| v.product.vendor }.uniq(&:id)
+            context = new_context
+            # This is gross, but we need to move out of stock items to the end of the item list.
+            # We don't want to move Cart.max_quantity_and_reason_for into the database,
+            # so we use the entity here, which allows us to sort based on out-of-stock (calculated on the entity),
+            # and then render using the same instance (so do not need to re-calculate).
+            # We tried other solutions (proxy object) but it was more complex,
+            # because we use the same offering product entity in multiple places,
+            # included through straight :expose, not pre-created in the endpoint code.
+            options = {cart:, vendors:, context:}
+            all_items = offering_products.map { |op| PricedOfferingProductEntity.new(op, options) }
+            # Partition the items list so out of stock rows are moved to the end.
+            items = [].concat(*all_items.partition { |op| !op.out_of_stock? })
+            present offering, with: OfferingWithContextEntity, **options.merge(items:)
           end
         end
 
@@ -274,47 +285,50 @@ class Suma::API::Commerce < Suma::API::V1
   class BaseOfferingProductEntity < BaseEntity
     expose_translated :name, &self.delegate_to(:product, :name)
     expose_translated :description, &self.delegate_to(:product, :description)
-    expose :offering_id
+    expose :offering_id, &self.delegate_to(:offering, :id)
     expose :product_id, &self.delegate_to(:product, :id)
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
   end
 
   class PricedOfferingProductEntity < BaseOfferingProductEntity
+    include Suma::API::Entities
+
+    expose :listable?, as: :listable
     expose :max_quantity
     expose :out_of_stock?, as: :out_of_stock
     expose :out_of_stock_reason
     expose_translated :out_of_stock_reason_text
 
-    expose :displayable_noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |_inst|
+    expose :displayable_noncash_ledger_contribution_amount, with: MoneyEntity do |_inst|
       self.noncash_ledger_contrib
     end
-    expose :displayable_cash_price, with: Suma::Service::Entities::Money do |inst|
+    expose :displayable_cash_price, with: MoneyEntity do |inst|
       noncash = self.noncash_ledger_contrib
       inst.customer_price - noncash
     end
 
     expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)
     expose :customer_price,
-           with: Suma::Service::Entities::Money,
+           with: MoneyEntity,
            &self.delegate_to(:customer_price, safe_with_default: Money.new(0))
     expose :undiscounted_price,
-           with: Suma::Service::Entities::Money,
+           with: MoneyEntity,
            &self.delegate_to(:undiscounted_price, safe_with_default: Money.new(0))
     expose :discount_amount,
-           with: Suma::Service::Entities::Money,
+           with: MoneyEntity,
            &self.delegate_to(:discount_amount, safe_with_default: Money.new(0))
 
-    private def max_quantity_and_reason
+    def max_quantity_and_reason
       return @max_quantity_and_reason ||= self.options.fetch(:cart).max_quantity_and_reason_for(self.object)
     end
 
-    private def max_quantity = max_quantity_and_reason[0]
-    private def out_of_stock? = max_quantity <= 0
-    private def out_of_stock_reason = max_quantity_and_reason[1]
-    private def out_of_stock_reason_text = Suma::Commerce::Cart.localize_max_quantity_reason(out_of_stock_reason)
+    def max_quantity = max_quantity_and_reason[0]
+    def out_of_stock? = max_quantity <= 0
+    def out_of_stock_reason = max_quantity_and_reason[1]
+    def out_of_stock_reason_text = Suma::Commerce::Cart.localize_max_quantity_reason(out_of_stock_reason)
 
-    private def noncash_ledger_contrib
+    def noncash_ledger_contrib
       return @noncash_ledger_contrib ||= self.options.fetch(:cart).
           cost_info(self.options.fetch(:context)).
           product_noncash_ledger_contribution_amount(self.object)
@@ -325,7 +339,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    expose :items, with: PricedOfferingProductEntity do |_, opts|
+    expose :items do |_, opts|
       opts.fetch(:items)
     end
     expose :vendors, with: VendorEntity do |_, opts|

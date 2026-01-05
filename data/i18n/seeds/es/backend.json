@@ -1,4 +1,5 @@
 {
+  "cart_quantity_reason.closed": "No disponible",
   "cart_quantity_reason.max_ordered": "No disponible",
   "cart_quantity_reason.out_of_stock": "Fuera de stock",
   "cart_quantity_reason.purchased": "Máximo comprado",

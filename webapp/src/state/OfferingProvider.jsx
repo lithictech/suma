@@ -60,6 +60,8 @@ export default function OfferingProvider({ children }) {
     [asyncFetch, setOfferingFromResponse]
   );
 
+  const listableProducts = products.filter((p) => p.listable);
+
   const value = React.useMemo(
     () => ({
       initializeToOffering,
@@ -67,6 +69,7 @@ export default function OfferingProvider({ children }) {
       setOfferingFromResponse,
       vendors,
       products,
+      listableProducts,
       cart,
       loading,
       error,
@@ -80,6 +83,7 @@ export default function OfferingProvider({ children }) {
       offering,
       setOfferingFromResponse,
       products,
+      listableProducts,
       reset,
       vendors,
     ]

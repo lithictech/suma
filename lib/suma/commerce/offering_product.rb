@@ -24,12 +24,41 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
                     order: [:created_at, :id]
 
   dataset_module do
-    def available
-      return self.where(closed_at: nil)
+    # Limit and order the dataset so that:
+    #
+    # - There is only one offering product for each offering/product combination,
+    # - The unclosed row is included, or
+    # - The row with the latest closed_at is included,
+    # - Rows are ordered by product ordinal and then a disambiguator
+    #   (we do not order by name in our default,
+    #   since that would require a translation join and in many cases we don't need it,
+    #   but we could add it in the future).
+    #
+    # In general this should only be used with a dataset that limits for a single product or offering.
+    def for_purchase
+      distinct = [
+        :offering_id,
+        :ordinal,
+        :product_id,
+      ]
+      return self.
+          distinct(*distinct).
+          reselect.
+          join(:commerce_products, id: :product_id).
+          order(
+            # Must always order by distinct at first.
+            *distinct,
+            # Then we want unclosed (year 9999) or the most recently closed rows.
+            Sequel.desc(Sequel.function(:coalesce, :closed_at, Sequel.cast("9999-01-01", :timestamptz))),
+            # Then disambiguate.
+            Sequel.desc(Sequel[:commerce_offering_products][:created_at]),
+            Sequel.desc(Sequel[:commerce_offering_products][:id]),
+          )
     end
   end
 
   def available? = self.closed_at.nil?
+  alias listable? available?
   def closed? = !self.available?
 
   def discounted?
