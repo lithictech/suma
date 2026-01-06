@@ -1,4 +1,5 @@
 import api from "../api";
+import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ResourceEdit from "../components/ResourceEdit";
 import StateMachineStateSelect from "../components/StateMachineStateSelect";
@@ -15,7 +16,14 @@ export default function OrganizationMembershipVerificationEditPage() {
   );
 }
 
-function VerificationForm({ resource, setFieldFromInput, register, isBusy, onSubmit }) {
+function VerificationForm({
+  resource,
+  setFieldFromInput,
+  setField,
+  register,
+  isBusy,
+  onSubmit,
+}) {
   return (
     <FormLayout
       title="Update Verification Fields"
@@ -49,6 +57,17 @@ function VerificationForm({ resource, setFieldFromInput, register, isBusy, onSub
           value={resource.memberOutreachFrontConversationId || ""}
           variant="outlined"
           onChange={setFieldFromInput}
+        />
+        <AutocompleteSearch
+          {...register("organizationName")}
+          label="Organization"
+          value={resource.organizationName}
+          fullWidth
+          required
+          disabled={!resource.organizationNameEditable}
+          search={api.searchOrganizations}
+          style={{ flex: 1 }}
+          onValueSelect={(org) => setField("organizationName", org.name)}
         />
       </Stack>
     </FormLayout>
