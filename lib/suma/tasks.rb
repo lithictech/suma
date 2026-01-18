@@ -13,7 +13,7 @@ module Suma::Tasks
         require path
       end
       Rake::TaskLib.descendants.each do |task|
-        next unless task.name.start_with?("Suma::Tasks")
+        next unless task.name&.start_with?("Suma::Tasks")
         task.new
       end
       @loaded = true
