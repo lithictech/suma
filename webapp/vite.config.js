@@ -17,4 +17,7 @@ export default defineConfig({
     outDir: "../build-webapp",
     emptyOutDir: true,
   },
+  server: {
+    strictPort: true,
+  },
 });
