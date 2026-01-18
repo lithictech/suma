@@ -34,7 +34,7 @@ class Suma::Tasks::Mobility < Rake::TaskLib
             ARGV.shift
             ARGF
           end
-          io = Suma::Rakeutil.readall_nonblock(argf)
+          io = Suma::Rakeutil.readall(argf)
           raise "Must pass a filename or use STDIN" if io.nil?
           Suma::Lime::SyncTripsFromReport.new.run_for_report(io)
         end
