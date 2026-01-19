@@ -60,7 +60,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
         begin
           transport_message_id = self.transport!.send!(self)
         rescue Suma::Message::UndeliverableRecipient => e
-          self.logger.error("undeliverable_recipient",  error: e)
+          self.logger.error("undeliverable_recipient",  e)
           self.update(aborted_at: Time.now)
           return self
         end

@@ -8,12 +8,12 @@ import React from "react";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function ErrorScreen() {
+export default function ErrorScreen({ title, body, actionLabel, actionHref }) {
   return (
     <>
-      <h2>{t("errors.something_went_wrong_title")}</h2>
-      <p>{t("errors.something_went_wrong_body")}</p>
-      <GoHome />
+      <h2>{title || t("errors.something_went_wrong_title")}</h2>
+      <p>{body || t("errors.something_went_wrong_body")}</p>
+      <GoHome href={actionHref} label={actionLabel} />
     </>
   );
 }

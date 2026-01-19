@@ -185,7 +185,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       collect_result = self.strategy.collect_funds
       Suma.assert { collect_result.nil? }
     rescue CollectFundsFailed => e
-      self.logger.error("collect_funds_error", error: e)
+      self.logger.error("collect_funds_error", e)
       return self.put_into_review("Error collecting funds", exception: e)
     end
     return super

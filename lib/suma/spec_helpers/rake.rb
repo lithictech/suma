@@ -25,7 +25,7 @@ module Suma::SpecHelpers::Rake
     end
   end
 
-  module_function def invoke_rake_task(name, *args, argf: nil)
+  module_function def invoke_rake_task(name, *args, tail: [])
     argv = ["rake"]
     if args.empty?
       argv << name
@@ -33,8 +33,8 @@ module Suma::SpecHelpers::Rake
       argstr = args.map(&:to_s).join(",")
       argv << "#{name}[#{argstr}]"
     end
+    argv.concat(tail)
     stub_const("ARGV", argv)
-    stub_const("ARGF", argf) if argf
     Rake::Task.tasks.each(&:reenable)
     Rake::Task[name].invoke(*args)
   ensure
@@ -54,4 +54,16 @@ module Suma::SpecHelpers::Rake
 
   def named_stdout = named_io("<STDOUT>")
   def named_stderr = named_io("<STDERR>")
+
+  module_function def create_rake_task(args: [], &block)
+    taskname = "testtask_#{SecureRandom.hex(8)}"
+    cls = Class.new(Rake::TaskLib) do
+      define_method :initialize do
+        super()
+        task(taskname, args, &block)
+      end
+    end
+    cls.new
+    return Rake::Task.tasks.find { |t| t.name == taskname }
+  end
 end

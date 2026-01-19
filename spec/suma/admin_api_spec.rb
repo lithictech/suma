@@ -28,6 +28,10 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
   get :role_check do
     check_admin_role_access!(:read, :admin_access)
   end
+
+  get :invalid_precond do
+    raise Suma::InvalidPrecondition, "hello"
+  end
 end
 
 RSpec.describe Suma::AdminAPI, :db do
@@ -97,6 +101,14 @@ RSpec.describe Suma::AdminAPI, :db do
       get "/v1/role_check"
 
       expect(last_response).to have_status(200)
+    end
+
+    it "does not fail if check_admin_role_access is called" do
+      get "/v1/invalid_precond"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: "Hello"))
     end
   end
 end

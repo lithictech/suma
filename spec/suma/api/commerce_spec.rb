@@ -92,22 +92,28 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
-    it "orders products by ordinal" do
-      fac = Suma::Fixtures.offering_product(offering:)
-      op1 = fac.create(product: Suma::Fixtures.product.with_categories.create(ordinal: 1))
-      op2 = fac.create(product: Suma::Fixtures.product.with_categories.create(ordinal: 2))
-      op3 = fac.create(product: Suma::Fixtures.product.with_categories.create(ordinal: 3))
+    it "orders products by ordinal, with out of stock products always last" do
+      op_fac = Suma::Fixtures.offering_product(offering:)
+      p_fac = Suma::Fixtures.product.with_categories
+      op2 = op_fac.create(product: p_fac.create(ordinal: 20))
+      op1 = op_fac.create(product: p_fac.create(ordinal: 10))
+      op_stock1 = op_fac.closed.create(product: p_fac.create(ordinal: 14))
+      op_stock3 = op_fac.closed.create(product: p_fac.create(ordinal: 16))
+      op_stock2 = op_fac.closed.create(product: p_fac.create(ordinal: 15))
+      op3 = op_fac.create(product: p_fac.create(ordinal: 30))
 
       get "/v1/commerce/offerings/#{offering.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: match_array(
+        items: match(
           [
             include(product_id: op1.product.id),
             include(product_id: op2.product.id),
             include(product_id: op3.product.id),
-
+            include(product_id: op_stock1.product.id),
+            include(product_id: op_stock2.product.id),
+            include(product_id: op_stock3.product.id),
           ],
         ),
       )

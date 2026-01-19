@@ -37,7 +37,13 @@ export default function OfferingProductForm({
   return (
     <FormLayout
       title={isCreate ? "Create an Offering Product" : "Update Offering Product"}
-      subtitle="This adds any product to any offering. The product will be listed in the offering at the set customer price."
+      subtitle={
+        isCreate
+          ? "Offering Products associate a product and an offering, with the given prices."
+          : "Offering Products associate a product and an offering, with the given prices. " +
+            "Changing a price closes any existing offering products for this product/offering combo, " +
+            "and creates a new (open) offering product with the given prices."
+      }
       onSubmit={onSubmit}
       isBusy={isBusy}
     >

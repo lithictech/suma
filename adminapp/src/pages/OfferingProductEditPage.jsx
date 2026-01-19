@@ -9,6 +9,7 @@ export default function OfferingProductEditPage() {
       apiGet={api.getCommerceOfferingProduct}
       apiUpdate={api.updateCommerceOfferingProduct}
       Form={OfferingProductForm}
+      alwaysApply
     />
   );
 }

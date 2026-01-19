@@ -42,7 +42,8 @@ import { useNavigate, useParams } from "react-router-dom";
  *   show the delete icon.
  * @param {function|string} title
  * @param {function} properties Called with the resource state and returns the property pairs (label/value).
- * @param {function|string} backTo Where the 'back' icon goes.
+ * @param {function|string} backTo Where clicking the 'back' icon goes.
+ *   Use BackTo.BACK to use the router 'back' rather than a link.
  * @param children
  * @constructor
  */
@@ -104,12 +105,16 @@ export default function ResourceDetail({
   }
   canDelete = canDelete ? invokeIfFunc(canDelete, state) : Boolean(apiDelete);
 
+  const backToVal =
+    backTo === BackTo.BACK
+      ? BackTo.BACK
+      : invokeIfFunc(backTo, state) || resourceListRoute(resource);
   const topCards = [
     <DetailGrid
       key={-1}
       title={
         <Title onDelete={canDelete && handleDelete} toEdit={toEdit}>
-          <BackTo to={invokeIfFunc(backTo, state) || resourceListRoute(resource)} />
+          <BackTo to={backToVal} />
           {title(state)}
         </Title>
       }

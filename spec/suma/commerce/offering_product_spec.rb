@@ -9,6 +9,30 @@ RSpec.describe "Suma::Commerce::OfferingProduct", :db do
     expect(op.refresh.orders).to contain_exactly(be === order)
   end
 
+  describe "dataset" do
+    describe "for_purchase" do
+      it "includes the unclosed or latest offering product, sorted appropriately" do
+        o_a = Suma::Fixtures.offering.create
+        o_b = Suma::Fixtures.offering.create
+        p_c = Suma::Fixtures.product.create(ordinal: 3)
+        p_a = Suma::Fixtures.product.create(ordinal: 1)
+        p_b = Suma::Fixtures.product.create(ordinal: 2)
+
+        op_oa_pa_v1 = Suma::Fixtures.offering_product(offering: o_a, product: p_a).closed.create
+        op_oa_pa_v2 = Suma::Fixtures.offering_product(offering: o_a, product: p_a).create
+        op_oa_pb_v1 = Suma::Fixtures.offering_product(offering: o_a, product: p_b).create
+        op_oa_pc_v1 = Suma::Fixtures.offering_product(offering: o_a, product: p_c).closed.create
+
+        op_ob_pa_v1 = Suma::Fixtures.offering_product(offering: o_b, product: p_a).closed.create
+        op_ob_pa_v2 = Suma::Fixtures.offering_product(offering: o_b, product: p_a).closed.create
+        op_ob_pa_v3 = Suma::Fixtures.offering_product(offering: o_b, product: p_a).create
+
+        rows = described_class.for_purchase.all
+        expect(rows).to have_same_ids_as(op_oa_pa_v2, op_oa_pb_v1, op_oa_pc_v1, op_ob_pa_v3)
+      end
+    end
+  end
+
   it "knows when it is discounted" do
     op = Suma::Fixtures.offering_product.create
     op.undiscounted_price = op.customer_price
@@ -52,17 +76,37 @@ RSpec.describe "Suma::Commerce::OfferingProduct", :db do
 
     it "errors if no price is passed, or the passed price is the same value" do
       op = Suma::Fixtures.offering_product.create
-      expect { op.with_changes }.to raise_error(ArgumentError)
-      expect { op.with_changes(undiscounted_price: op.undiscounted_price) }.to raise_error(ArgumentError)
-      expect { op.with_changes(customer_price: op.customer_price) }.to raise_error(ArgumentError)
+      expect { op.with_changes }.to raise_error(Suma::InvalidPrecondition)
+      expect { op.with_changes(undiscounted_price: op.undiscounted_price) }.to raise_error(Suma::InvalidPrecondition)
+      expect { op.with_changes(customer_price: op.customer_price) }.to raise_error(Suma::InvalidPrecondition)
       expect do
         op.with_changes(customer_price: op.customer_price, undiscounted_price: Money.new(1))
       end.to_not raise_error
     end
 
-    it "errors if the receiver is already closed (since it would likely cause a UniqueConstraintViolation on save)" do
-      op = Suma::Fixtures.offering_product.closed.create
-      expect { op.with_changes(undiscounted_price: Money.new(500)) }.to raise_error(Suma::InvalidPrecondition)
+    describe "when the receiver is closed" do
+      it "errors if reopen_ok is false" do
+        op = Suma::Fixtures.offering_product.closed.create
+        expect { op.with_changes(undiscounted_price: Money.new(500)) }.to raise_error(Suma::InvalidPrecondition)
+      end
+
+      describe "and reopen_ok is true" do
+        it "creates a new opened product and does not modify the original closed timestamp" do
+          t = 5.hours.ago
+          orig = Suma::Fixtures.offering_product.create(closed_at: t)
+          newop = orig.with_changes(undiscounted_price: Money.new(500), reopen_ok: true)
+          expect(orig).to be_closed
+          expect(orig).to have_attributes(closed_at: match_time(t))
+          expect(newop).to be_available
+          expect(newop).to have_attributes(undiscounted_price: cost("$5"))
+        end
+
+        it "does not require a new price" do
+          orig = Suma::Fixtures.offering_product.closed.create
+          newop = orig.with_changes(reopen_ok: true)
+          expect(newop).to have_attributes(undiscounted_price: orig.undiscounted_price)
+        end
+      end
     end
   end
 

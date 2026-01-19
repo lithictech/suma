@@ -226,7 +226,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       send_result = self.strategy.send_funds
       Suma.assert { send_result.nil? }
     rescue SendFundsFailed => e
-      self.logger.error("send_funds_error", error: e)
+      self.logger.error("send_funds_error", e)
       return self.put_into_review("Error sending funds", exception: e)
     end
     return super

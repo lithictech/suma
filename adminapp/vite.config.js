@@ -9,4 +9,7 @@ export default defineConfig({
     outDir: "../build-adminapp",
     emptyOutDir: true,
   },
+  server: {
+    strictPort: true,
+  },
 });

@@ -447,9 +447,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid-report",
         from_email: "from@mysuma.org",
-        to_email: "to@mysuma.org",
         timestamp: Time.now,
-        data: {Attachments: [{ContentType: "text/csv", Content: Base64.encode64(report_txt)}]}.to_json,
+        data: {
+          To: "to@mysuma.org",
+          Attachments: [{ContentType: "text/csv", Content: Base64.encode64(report_txt)}],
+        }.to_json,
       )
 
       Suma::Async::LimeTripSync.new.perform

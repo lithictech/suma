@@ -84,6 +84,11 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(offering:, product:).create }
     let(:cart) { Suma::Fixtures.cart(member:, offering:).create }
 
+    it "is 0 if the offering product is closed" do
+      offering_product.update(closed_at: Time.now)
+      expect(cart.max_quantity_and_reason_for(offering_product)).to eq([0, :closed])
+    end
+
     describe "with no quantity limitations" do
       it "returns the default max quantity" do
         expect(cart.max_quantity_and_reason_for(offering_product)).to eq([12, :default])

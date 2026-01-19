@@ -85,7 +85,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     if item.nil?
       return if quantity <= 0
       raise ActualProductUnavailable.new(product, self.offering) if
-        self.offering.offering_products_dataset.available.where(product:).empty?
+        self.offering.offering_products_dataset.where(closed_at: nil, product:).empty?
       self.add_item(product:, quantity:, timestamp: tsval)
       return
     end
@@ -103,6 +103,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   # This seems like a reasonable default...
   DEFAULT_MAX_QUANTITY = 12
   DEFAULT = :default
+  CLOSED = :closed
   OUT_OF_STOCK = :out_of_stock
   ALREADY_PURCHASED = :purchased
   MAX_ITEMS_ORDERED = :max_ordered
@@ -111,6 +112,8 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   # along with the reason why the limit is set.
   # Generally the limit is only relevant if the max quantity is zero.
   def max_quantity_and_reason_for(offering_product)
+    return [0, CLOSED] if offering_product.closed?
+
     product = offering_product.product
     inv = product.inventory!
     offering = offering_product.offering

@@ -27,6 +27,8 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
     expose :address, with: AddressEntity, &self.delegate_to(:membership, :member, :legal_entity, :address, safe: true)
+    expose :organization_name
+    expose :organization_name_editable?, as: :organization_name_editable
     expose :audit_logs, with: AuditLogEntity
     expose :partner_outreach_front_conversation_id
     expose :member_outreach_front_conversation_id
@@ -107,6 +109,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       params do
         optional :account_number, type: String
         optional :status, type: String
+        optional :organization_name, type: String
         optional :partner_outreach_front_conversation_id, type: String
         optional :member_outreach_front_conversation_id, type: String
       end

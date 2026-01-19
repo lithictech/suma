@@ -25,7 +25,7 @@ export default function FoodList() {
   const navigate = useNavigate();
   const { state: locationState } = useLocation();
 
-  const { offering, cart, products, initializeToOffering, error, loading } =
+  const { offering, cart, listableProducts, initializeToOffering, error, loading } =
     useOffering();
 
   React.useEffect(() => {
@@ -33,17 +33,17 @@ export default function FoodList() {
   }, [initializeToOffering, offeringId]);
 
   React.useEffect(() => {
-    if (products.length !== 1 || !locationState?.fromIndex) {
+    if (listableProducts.length !== 1 || !locationState?.fromIndex) {
       // We can auto-redirect when coming from the index, and when we have just one product
       return;
     }
-    const firstProduct = products[0];
+    const firstProduct = listableProducts[0];
     if (firstProduct.offeringId !== Number(offeringId)) {
       // The offering hasn't finished initializing yet
       return;
     }
     navigate(`/product/${offeringId}/${firstProduct.productId}`, { replace: true });
-  }, [locationState?.fromIndex, navigate, offeringId, products]);
+  }, [locationState?.fromIndex, navigate, offeringId, listableProducts]);
 
   if (error) {
     return (
@@ -86,7 +86,7 @@ export default function FoodList() {
             <PageHeading className="mb-0">{dt(offering.description)}</PageHeading>
           </BackBreadcrumb>
         </div>
-        {isEmpty(products) ? (
+        {isEmpty(listableProducts) ? (
           <>
             {t("food.no_products")}
             <div className="button-stack w-100">
@@ -97,7 +97,7 @@ export default function FoodList() {
           </>
         ) : (
           <Row>
-            {products.map((p) => (
+            {listableProducts.map((p) => (
               <Product
                 key={p.productId}
                 cart={cart}

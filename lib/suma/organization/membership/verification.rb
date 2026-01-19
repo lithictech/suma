@@ -123,6 +123,16 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     self.membership.update(verified_organization: self.membership.matched_organization)
   end
 
+  def organization_name = self.membership.organization_label
+
+  def organization_name=(name)
+    raise Suma::InvalidPrecondition, "Can only edit organization name of unverified verifications" unless
+      self.organization_name_editable?
+    self.membership.update(unverified_organization_name: name)
+  end
+
+  def organization_name_editable? = self.membership.unverified?
+
   def begin_partner_outreach
     subject, body = _partner_outreach_content
     params = {

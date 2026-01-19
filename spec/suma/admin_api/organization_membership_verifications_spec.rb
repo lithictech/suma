@@ -192,6 +192,24 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       expect(v.refresh).to have_attributes(status: "abandoned")
     end
 
+    it "can change the organization_name" do
+      post "/v1/organization_membership_verifications/#{v.id}", organization_name: "hello"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh.membership).to have_attributes(unverified_organization_name: "hello")
+    end
+
+    it "errors if changing the organization name but the membership is not unverified" do
+      v.membership.verified_organization_id = Suma::Fixtures.organization.create.id
+      v.membership.save_changes
+
+      post "/v1/organization_membership_verifications/#{v.id}", organization_name: "hello"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: /only edit organization name/))
+    end
+
     it "403s if the item does not exist" do
       post "/v1/organization_membership_verifications/0", status: "started"
 
