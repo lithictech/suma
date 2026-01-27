@@ -1,42 +1,83 @@
 # frozen_string_literal: true
 
 RSpec.describe Suma::Eligibility, :db do
-  it "does its thing" do
-    member = Suma::Fixtures.member.create
-    member2 = Suma::Fixtures.member.create
-    org = Suma::Fixtures.organization.with_membership_of(member).create
-    role1 = Suma::Fixtures.role.create
-    role2 = Suma::Fixtures.role.create
-    org.add_role(role1)
-    member.add_role(role2)
+  describe "evaluate" do
+    it "can evaluate eligibility" do
+      member = Suma::Fixtures.member.create
+      org = Suma::Fixtures.organization.with_membership_of(member).create
+      role1 = Suma::Fixtures.role.create
+      role2 = Suma::Fixtures.role.create
+      org.add_role(role1)
+      member.add_role(role2)
 
-    ami80 = Suma::Eligibility::Attribute.create(name: "80% AMI")
-    ami60 = Suma::Eligibility::Attribute.create(name: "60% AMI", parent: ami80)
-    ami40 = Suma::Eligibility::Attribute.create(name: "40% AMI", parent: ami60)
-    ami20 = Suma::Eligibility::Attribute.create(name: "20% AMI", parent: ami40)
+      member2 = Suma::Fixtures.member.create
+      member2.add_role(role2)
 
-    Suma::Eligibility::Assignment.create(member: member2, attribute: ami60)
+      ami80 = Suma::Eligibility::Attribute.create(name: "80% AMI")
+      ami60 = Suma::Eligibility::Attribute.create(name: "60% AMI", parent: ami80)
+      ami40 = Suma::Eligibility::Attribute.create(name: "40% AMI", parent: ami60)
+      ami20 = Suma::Eligibility::Attribute.create(name: "20% AMI", parent: ami40)
 
-    Suma::Eligibility::Assignment.create(member:, attribute: ami20)
-    Suma::Eligibility::Assignment.create(role: role1, attribute: ami40)
-    Suma::Eligibility::Assignment.create(role: role2, attribute: ami60)
-    Suma::Eligibility::Assignment.create(organization: org, attribute: ami80)
+      Suma::Eligibility::Assignment.create(member: member2, attribute: ami60)
 
-    trigger80 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 80%")
-    trigger60 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 60%")
-    trigger40 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 40%")
-    trigger20 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 20%")
+      Suma::Eligibility::Assignment.create(member:, attribute: ami20)
+      Suma::Eligibility::Assignment.create(role: role1, attribute: ami40)
+      Suma::Eligibility::Assignment.create(role: role2, attribute: ami60)
+      Suma::Eligibility::Assignment.create(organization: org, attribute: ami80)
 
-    req_ami80 = Suma::Eligibility::Requirement.create(payment_trigger: trigger80)
-    req_ami80.expression.update(attribute: ami80)
-    req_ami60 = Suma::Eligibility::Requirement.create(payment_trigger: trigger60)
-    req_ami60.expression.update(attribute: ami60)
-    req_ami40 = Suma::Eligibility::Requirement.create(payment_trigger: trigger40)
-    req_ami40.expression.update(attribute: ami40)
-    req_ami20 = Suma::Eligibility::Requirement.create(payment_trigger: trigger20)
-    req_ami20.expression.update(attribute: ami20)
+      trigger80 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 80%")
+      trigger60 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 60%")
+      trigger40 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 40%")
+      trigger20 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 20%")
 
-    ea = member.evaluate_eligibility_access_to(trigger20)
-    expect(ea).to be_access
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger80).expression.update(attribute: ami80)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger60).expression.update(attribute: ami60)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger40).expression.update(attribute: ami40)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger20).expression.update(attribute: ami20)
+
+      expect(member.evaluate_eligibility_access_to(trigger80)).to be_access
+      expect(member.evaluate_eligibility_access_to(trigger20)).to be_access
+
+      expect(member2.evaluate_eligibility_access_to(trigger60)).to be_access
+      expect(member2.evaluate_eligibility_access_to(trigger80)).to be_access
+      expect(member2.evaluate_eligibility_access_to(trigger40)).to_not be_access
+    end
+
+    it "uses boolean logic" do
+      member = Suma::Fixtures.member.create
+      role = Suma::Fixtures.role.create
+      member.add_role(role)
+
+      attr1 = Suma::Eligibility::Attribute.create(name: "Attr1")
+      attr2 = Suma::Eligibility::Attribute.create(name: "Attr2")
+      payment_trigger = Suma::Fixtures.payment_trigger.create
+
+      expr = Suma::Eligibility::Requirement.create(payment_trigger:).expression
+      expr.update(
+        left: Suma::Eligibility::Expression.create(attribute: attr1),
+        right: Suma::Eligibility::Expression.create(attribute: attr2),
+        operator: "OR",
+      )
+
+      # Using an OR should allow access
+      Suma::Eligibility::Assignment.create(role:, attribute: attr1)
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
+
+      # AND is missing attr2
+      expr.update(operator: "AND")
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+
+      # We add attr2 so AND should work
+      attr2_assignment = Suma::Eligibility::Assignment.create(role:, attribute: attr2)
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
+
+      # Remove attr2 again
+      attr2_assignment.destroy
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+
+      # Multiple requirements should work like OR
+      Suma::Eligibility::Requirement.create(payment_trigger:).expression.update(attribute: attr1)
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
+    end
   end
 end

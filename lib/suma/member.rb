@@ -384,6 +384,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   #
+  # :section: Eligibility
+  #
+
+  # Evaluate and return the eligibility access for the resource.
+  def evaluate_eligibility_access_to(resource)
+    Suma::Eligibility::Evaluation.evaluate(self, resource)
+  end
+
+  #
   # :section: Masking
   #
 
