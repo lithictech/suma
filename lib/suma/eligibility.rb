@@ -2,3 +2,5 @@
 
 module Suma::Eligibility
 end
+
+require "suma/eligibility/evaluation"
