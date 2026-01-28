@@ -26,7 +26,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   def ruby_operator = self.operator == "OR" ? :| : :&
 
   # Return all attributes used in the expression, recursively.
-  # @return [Sequel::IdentitySet,Set<Suma::Eligibility::Attribute>]
+  # @return [Sequel::IdentitySet<Suma::Eligibility::Attribute>]
   def referenced_attributes(accum: Sequel::IdentitySet.new)
     if self.leaf?
       accum << self.attribute
