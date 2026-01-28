@@ -1,30 +1,38 @@
 # frozen_string_literal: true
 
 require "suma/eligibility"
+require "suma/terminal"
 
 class Suma::Eligibility::Evaluation
   class << self
     # @param member [Suma::Member]
     # @param resource [Suma::Postgres::Model]
     def evaluate(member, resource)
-      assignments = Suma::Eligibility::MemberAssignment.where(member:).all
-      attrs = self.accumulate_attributes(assignments.map(&:attribute))
-      resource_reqs = Suma::Eligibility::Requirement.for_resource(resource).all
-      exprs = resource_reqs.map(&:expression)
+      requirements = Suma::Eligibility::Requirement.for_resource(resource).all
+      expressions = requirements.map(&:expression)
+      # Pull the attributes from the expression, NOT the member.
+      # This avoids looking at all attributes the member has,
+      # which is often a lot larger than the attributes a resource uses.
+      expression_attrs = Suma::Eligibility::Attribute.accumulate(
+        Sequel::IdentitySet.flatten(*requirements.map { |r| r.expression.referenced_attributes }),
+      )
+
+      assignments = Suma::Eligibility::MemberAssignment.where(member:, attribute_id: expression_attrs.map(&:id)).all
+      member_attrs = Suma::Eligibility::Attribute.accumulate(assignments.map(&:attribute))
       bitmap = {}
-      exprs.each do |expr|
-        ok = self.evaluate_expression(expr, attrs)
+      expressions.each do |expr|
+        ok = self.evaluate_expression(expr, member_attrs)
         bitmap[expr.id] = ok
       end
-      return self.new(assignments, attrs, exprs, bitmap)
+      return self.new(assignments, expression_attrs, expressions, bitmap)
     end
 
     # Evaluate this expression for the given attribute.
     # @param expr [Suma::Eligibility::Expression]
-    # @param attrs [Hash{Integer => Suma::Eligibility::Attribute}]
+    # @param attrs [Set<Suma::Eligibility::Attribute>]
     def evaluate_expression(expr, attrs)
-      return attrs.key?(expr.attribute.id) if expr.leaf?
-      results = [expr.left, expr.right].compact.map { |e| self.evaluate_expression(e, attrs) }
+      return attrs.include?(expr.attribute) if expr.leaf?
+      results = expr.subexpressions.map { |e| self.evaluate_expression(e, attrs) }
       ok = results.reduce(&expr.ruby_operator)
       return ok
     end
@@ -44,10 +52,10 @@ class Suma::Eligibility::Evaluation
   # @return [Array<Suma::Eligibility::MemberAssignment>]]
   attr_reader :member_assignments
 
-  # @return [Hash{Integer => Suma::Eligibility::Attribute}]
+  # @return [Sequel::IdentitySet<Suma::Eligibility::Attribute>]
   attr_reader :attributes
 
-  # @return [Hash{Integer => Suma::Eligibility::Expression}]
+  # @return [Sequel::IdentitySet<Suma::Eligibility::Expression>]
   attr_reader :expressions
 
   # @return [Hash{Integer => Boolean}]
@@ -56,10 +64,50 @@ class Suma::Eligibility::Evaluation
   def access? = @access
 
   def initialize(assignments, attrs, exprs, bitmap)
-    @assignments = assignments
+    @member_assignments = assignments
     @attributes = attrs
     @expressions = exprs
     @bitmap = bitmap
     @access = bitmap.values.any?
+  end
+
+  def deepest_member_assignments
+    return self.member_assignments
+    # groups = self.member_assignments.group_by(&:attribute_id)
+    # groups.values.each { |ma| ma.sort_by!(&:depth) }
+    # return groups.values.map(&:first)
+  end
+
+  # Represent the evaluation as tables.
+  # Keys are
+  def to_table
+    assignment_rows = self.deepest_member_assignments.map do |ma|
+      row = [ma.attribute.name]
+      row << case ma.source_type
+        when "member"
+          "self"
+        when "role"
+          role = Suma::Role[ma.source_ids[0]]
+          "role #{role.name}"
+        when "membership"
+          om = Suma::Organization::Membership[ma.source_ids[0]]
+          "membership in #{om.organization_label}"
+        when "organization_role"
+          org = Suma::Organization[ma.source_ids[0]]
+          role = Suma::Role[ma.source_ids[1]]
+          "role #{role.name} for #{org.name}"
+        else
+          raise Suma::InvariantViolation, "unexpected source type: #{ma.inspect}"
+      end
+      row << ma.depth.to_s
+    end
+    assignment_rows.sort!
+    assignments = Suma::Terminal.ascii_table(assignment_rows, headers: ["Attribute", "From", "Depth"])
+
+    expr_rows = self.expressions.map do |expr|
+      [expr.to_formula_str, self.bitmap[expr.id] ? "PASS" : "fail"]
+    end
+    expressions = Suma::Terminal.ascii_table(expr_rows, headers: ["Expression", "Result"])
+    return {assignments:, expressions:}
   end
 end

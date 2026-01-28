@@ -246,6 +246,8 @@ module Suma::Postgres::ModelUtilities
       return "#<%p %s>" % [self.class, values.join(", ")]
     end
 
+    alias to_s inspect if ENV["DEBUGGER_HOST"]
+
     # @return [String]
     def inspect_time(t) = t.in_time_zone(Time.zone).strftime("%Y-%m-%d %H:%M:%S")
 

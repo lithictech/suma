@@ -79,5 +79,103 @@ RSpec.describe Suma::Eligibility, :db do
       Suma::Eligibility::Requirement.create(payment_trigger:).expression.update(attribute: attr1)
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
     end
+
+    it "uses boolean logic 2" do
+      member = Suma::Fixtures.member.create
+
+      payment_trigger = Suma::Fixtures.payment_trigger.create(label: "trigger1")
+      Suma::Eligibility::Requirement.create(payment_trigger: payment_trigger).
+        expression.
+        update(
+          left: nil,
+          right: Suma::Eligibility::Expression.create(
+            left: Suma::Eligibility::Expression.create(attribute: Suma::Eligibility::Attribute.create(name: "attr6")),
+          ),
+        )
+
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+    end
+
+    it "can represent itself" do
+      member = Suma::Fixtures.member.create
+      org = Suma::Fixtures.organization.with_membership_of(member).create(name: "Org1")
+      role1 = Suma::Fixtures.role.create(name: "role1")
+      role2 = Suma::Fixtures.role.create(name: "role2")
+      org.add_role(role1)
+      member.add_role(role2)
+
+      member2 = Suma::Fixtures.member.create
+      member2.add_role(role2)
+
+      attr1 = Suma::Eligibility::Attribute.create(name: "attr1")
+      attr2 = Suma::Eligibility::Attribute.create(name: "attr2", parent: attr1)
+      attr3 = Suma::Eligibility::Attribute.create(name: "attr3", parent: attr2)
+      attr4 = Suma::Eligibility::Attribute.create(name: "attr4", parent: attr3)
+      attr5 = Suma::Eligibility::Attribute.create(name: "attr5", parent: attr3)
+
+      Suma::Eligibility::Assignment.create(member: member2, attribute: attr2)
+
+      Suma::Eligibility::Assignment.create(member:, attribute: attr4)
+      Suma::Eligibility::Assignment.create(role: role1, attribute: attr3)
+      Suma::Eligibility::Assignment.create(role: role1, attribute: attr2)
+      Suma::Eligibility::Assignment.create(role: role2, attribute: attr2)
+      Suma::Eligibility::Assignment.create(organization: org, attribute: attr1)
+
+      trigger1 = Suma::Fixtures.payment_trigger.create(label: "trigger1")
+
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger1).
+        expression.
+        update(
+          left: Suma::Eligibility::Expression.create(attribute: attr1),
+          right: Suma::Eligibility::Expression.create(
+            left: Suma::Eligibility::Expression.create(attribute: attr2),
+            right: Suma::Eligibility::Expression.create(
+              left: Suma::Eligibility::Expression.create(attribute: attr3),
+              right: Suma::Eligibility::Expression.create(attribute: attr4),
+            ),
+            operator: "OR",
+          ),
+        )
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger1).
+        expression.
+        update(
+          left: nil,
+          right: Suma::Eligibility::Expression.create(
+            left: Suma::Eligibility::Expression.create(attribute: Suma::Eligibility::Attribute.create(name: "attr6")),
+          ),
+        )
+
+      tbl = member.evaluate_eligibility_access_to(trigger1).to_table
+      expect(tbl).to eq(
+        {
+          assignments: <<~STR.strip,
+            +-----------+---------------------+-------+
+            | Attribute | From                | Depth |
+            +-----------+---------------------+-------+
+            | attr1     | membership in Org1  | 0     |
+            | attr1     | role role1 for Org1 | 1     |
+            | attr1     | role role1 for Org1 | 2     |
+            | attr1     | role role2          | 1     |
+            | attr1     | self                | 3     |
+            | attr2     | role role1 for Org1 | 0     |
+            | attr2     | role role1 for Org1 | 1     |
+            | attr2     | role role2          | 0     |
+            | attr2     | self                | 2     |
+            | attr3     | role role1 for Org1 | 0     |
+            | attr3     | self                | 1     |
+            | attr4     | self                | 0     |
+            +-----------+---------------------+-------+
+          STR
+          expressions: <<~STR.strip,
+            +--------------------------------------------------+--------+
+            | Expression                                       | Result |
+            +--------------------------------------------------+--------+
+            | ('attr1' AND ('attr2' OR ('attr3' AND 'attr4'))) | PASS   |
+            | (('attr6'))                                      | fail   |
+            +--------------------------------------------------+--------+
+          STR
+        },
+      )
+    end
   end
 end

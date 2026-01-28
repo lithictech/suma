@@ -36,32 +36,46 @@ Sequel.migration do
     end
 
     create_view :eligibility_member_assignments, Sequel.lit(<<~SQL)
-      SELECT DISTINCT member_id, attribute_id, source_type, source_ids
-      FROM (
-            SELECT member_id, attribute_id, 'member' AS source_type, ARRAY[member_id] AS source_ids
-            FROM eligibility_assignments ea
-            WHERE member_id IS NOT NULL
-            UNION ALL
-            SELECT rm.member_id, ea.attribute_id, 'role' AS source, ARRAY[rm.role_id] AS source_ids
-            FROM eligibility_assignments ea
-                INNER JOIN roles_members rm
-                ON rm.role_id = ea.role_id
-            UNION ALL
-            SELECT om.member_id, ea.attribute_id, 'membership' AS source, ARRAY[om.id] AS source_ids
-            FROM eligibility_assignments ea
-                INNER JOIN organization_memberships om
-                ON om.verified_organization_id = ea.organization_id
-            UNION ALL
-            SELECT omr.member_id, ea.attribute_id, 'organization_role' AS source, ARRAY[omr.organization_id, omr.role_id] AS source_ids
-            FROM eligibility_assignments ea
-                INNER JOIN (
-                    SELECT ro.role_id as role_id, om.member_id as member_id, om.verified_organization_id as organization_id
-                    FROM organization_memberships om
-                    JOIN roles_organizations ro
-                    ON ro.organization_id = om.verified_organization_id
-                ) omr
-                ON omr.role_id = ea.role_id
-      ) t;
+      WITH RECURSIVE attr_expanded AS (
+          SELECT id AS attribute_id, id AS root_attribute_id, 0 as depth
+          FROM eligibility_attributes
+
+          UNION ALL
+
+          SELECT e.parent_id AS attribute_id, a.root_attribute_id, a.depth + 1 as depth
+          FROM attr_expanded a
+              JOIN eligibility_attributes e
+              ON e.id = a.attribute_id
+          WHERE e.parent_id IS NOT NULL
+      ), base AS (
+          SELECT member_id, attribute_id, 'member' AS source_type, ARRAY[member_id] AS source_ids
+          FROM eligibility_assignments ea
+          WHERE member_id IS NOT NULL
+          UNION ALL
+          SELECT rm.member_id, ea.attribute_id, 'role' AS source, ARRAY[rm.role_id] AS source_ids
+          FROM eligibility_assignments ea
+              INNER JOIN roles_members rm
+              ON rm.role_id = ea.role_id
+          UNION ALL
+          SELECT om.member_id, ea.attribute_id, 'membership' AS source, ARRAY[om.id] AS source_ids
+          FROM eligibility_assignments ea
+              INNER JOIN organization_memberships om
+              ON om.verified_organization_id = ea.organization_id
+          UNION ALL
+          SELECT omr.member_id, ea.attribute_id, 'organization_role' AS source, ARRAY[omr.organization_id, omr.role_id] AS source_ids
+          FROM eligibility_assignments ea
+              INNER JOIN (
+                  SELECT ro.role_id as role_id, om.member_id as member_id, om.verified_organization_id as organization_id
+                  FROM organization_memberships om
+                  JOIN roles_organizations ro
+                  ON ro.organization_id = om.verified_organization_id
+              ) omr
+              ON omr.role_id = ea.role_id
+      )
+      SELECT DISTINCT b.member_id, e.attribute_id, b.source_type, b.source_ids, e.depth
+      FROM base b
+      JOIN attr_expanded e
+      ON e.root_attribute_id = b.attribute_id;
     SQL
 
     create_table(:eligibility_expressions) do
@@ -69,8 +83,8 @@ Sequel.migration do
 
       foreign_key :left_id, :eligibility_expressions, on_delete: :cascade
       foreign_key :right_id, :eligibility_expressions, on_delete: :cascade
-      text :operator, null: false, default: ""
-      constraint :valid_operator, Sequel[:operator] =~ ["AND", "OR", ""]
+      text :operator, null: false, default: "AND"
+      constraint :valid_operator, Sequel[:operator] =~ ["AND", "OR"]
 
       foreign_key :attribute_id, :eligibility_attributes, on_delete: :cascade
 
