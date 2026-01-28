@@ -71,15 +71,7 @@ class Suma::Eligibility::Evaluation
     @access = bitmap.values.any?
   end
 
-  def deepest_member_assignments
-    return self.member_assignments
-    # groups = self.member_assignments.group_by(&:attribute_id)
-    # groups.values.each { |ma| ma.sort_by!(&:depth) }
-    # return groups.values.map(&:first)
-  end
-
   # Represent the evaluation as tables.
-  # Keys are
   def to_table
     assignment_rows = self.deepest_member_assignments.map do |ma|
       row = [ma.attribute.name]
