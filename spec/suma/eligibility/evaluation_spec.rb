@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Suma::Eligibility::Evaluation, :db do
+  before(:each) do
+    stub_const("Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE", false)
+  end
+
   describe "evaluate" do
     it "evaluates eligibility" do
       member = Suma::Fixtures.member.create
@@ -94,6 +98,21 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
         )
 
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+    end
+
+    describe "when default accessible is true" do
+      before(:each) do
+        stub_const("Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE", true)
+      end
+
+      it "is true for a resource without requirements" do
+        member = Suma::Fixtures.member.create
+        program = Suma::Fixtures.program.create
+
+        expect(member.evaluate_eligibility_access_to(program)).to be_access
+        Suma::Fixtures.eligibility_requirement.create(resource: program)
+        expect(member.evaluate_eligibility_access_to(program)).to_not be_access
+      end
     end
   end
 

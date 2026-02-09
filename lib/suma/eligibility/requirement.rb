@@ -18,15 +18,9 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
   RESOURCE_ASSOCIATIONS = [:program, :payment_trigger].freeze
 
   dataset_module do
+    # @param resource [Suma::Eligibility::Resource::InstanceMethods]
     def for_resource(resource)
-      conds = case resource
-        when Suma::Payment::Trigger
-          {payment_trigger_id: resource.id}
-        when Suma::Program
-          {program_id: resource.id}
-        else
-          raise TypeError("requirements not supported for #{resource.class}")
-      end
+      conds = resource.requirement_where_condition
       return self.where(conds)
     end
   end

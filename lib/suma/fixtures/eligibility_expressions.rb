@@ -27,10 +27,23 @@ module Suma::Fixtures::EligibilityExpressions
     self.attribute = attr
   end
 
-  # Need to do it this way to avoid implicit hash arg stuff that would require a change to FluentFixtures itself.
-  decorator :branch do |(left, right)|
-    left = Suma::Fixtures.eligibility_expression.create(left) if left && !left.is_a?(Suma::Eligibility::Expression)
-    right = Suma::Fixtures.eligibility_expression.create(right) if right && !right.is_a?(Suma::Eligibility::Expression)
+  # Need to call this as a pair to avoid implicit hash arg stuff
+  # that would require a change to FluentFixtures itself.
+  decorator :branch do |(left_arg, right_arg)|
+    left = if left_arg.is_a?(Suma::Eligibility::Attribute)
+             Suma::Fixtures.eligibility_expression.leaf(left_arg).create
+            elsif left_arg.is_a?(Suma::Eligibility::Expression)
+              left_arg
+            elsif left_arg
+              Suma::Fixtures.eligibility_expression.create(left_arg)
+            end
+    right = if right_arg.is_a?(Suma::Eligibility::Attribute)
+              Suma::Fixtures.eligibility_expression.leaf(right_arg).create
+            elsif right_arg.is_a?(Suma::Eligibility::Expression)
+              right_arg
+            elsif right_arg
+              Suma::Fixtures.eligibility_expression.create(right_arg)
+            end
     self.left = left
     self.right = right
   end

@@ -14,4 +14,8 @@ module Suma::Fixtures::EligibilityRequirements
     instance.resource ||= Suma::Fixtures.send([:program, :payment_trigger].sample).create
     instance
   end
+
+  decorator :attribute do |attr={}|
+    self.expression = Suma::Fixtures.eligibility_expression.leaf(attr).create
+  end
 end

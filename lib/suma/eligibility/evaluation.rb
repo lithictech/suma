@@ -6,7 +6,7 @@ require "suma/terminal"
 class Suma::Eligibility::Evaluation
   class << self
     # @param member [Suma::Member]
-    # @param resource [Suma::Postgres::Model]
+    # @param resource [Suma::Eligibility::Resource::InstanceMethods]
     def evaluate(member, resource)
       requirements = Suma::Eligibility::Requirement.for_resource(resource).all
       expressions = requirements.map(&:expression)
@@ -68,7 +68,7 @@ class Suma::Eligibility::Evaluation
     @attributes = attrs
     @expressions = exprs
     @bitmap = bitmap
-    @access = bitmap.values.any?
+    @access = bitmap.values.any? || (Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE && exprs.empty?)
   end
 
   # Represent the evaluation as tables.

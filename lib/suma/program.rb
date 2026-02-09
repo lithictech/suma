@@ -2,6 +2,7 @@
 
 require "suma/admin_linked"
 require "suma/has_activity_audit"
+require "suma/eligibility"
 require "suma/image"
 require "suma/postgres/model"
 
@@ -22,16 +23,6 @@ class Suma::Program < Suma::Postgres::Model(:programs)
     setting :service_revoker_lookback, 4.days.to_i
   end
 
-  # True if +Suma::Program::Has+ types should be available to everyone when they have no programs (value of +true+),
-  # or available to no one until they are associated with a program (value of +false+).
-  #
-  # This value is +true+ when running tests, because otherwise we need to create a program to link
-  # every fixtured object to a member being tested.
-  #
-  # Since programs are designed to be orthogonal to the components they're providing access to,
-  # this makes tests and concepts messy. But it's a safer default outside of tests.
-  UNPROGRAMMED_ACCESSIBLE = Suma.test?
-
   plugin :hybrid_search
   plugin :timestamps
   plugin :tstzrange_fields, :period
@@ -39,10 +30,9 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :translated_text, :description, Suma::TranslatedText
   plugin :translated_text, :app_link_text, Suma::TranslatedText
   plugin :association_pks
+  plugin Suma::Eligibility::Resource
 
-  one_to_many :enrollments, class: "Suma::Program::Enrollment", order: order_desc
   one_to_many :pricings, class: "Suma::Program::Pricing", order: order_desc
-  one_to_many :enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
 
   many_to_many :commerce_offerings,
                class: "Suma::Commerce::Offering",
@@ -63,9 +53,6 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :association_array_replacer, :commerce_offerings, :anon_proxy_vendor_configurations, :payment_triggers
 
   dataset_module do
-    def active(as_of:)
-      return self.where { (lower(period) < as_of) & (upper(period) > as_of) }
-    end
   end
 
   class << self
@@ -79,27 +66,27 @@ class Suma::Program < Suma::Postgres::Model(:programs)
     end
   end
 
-  def enrollment_for(o, as_of:, include: :active)
-    # Use datasets for these checks, since otherwise we'd need to load a bunch of organization memberships,
-    # which could be very memory-intensive.
-    ds = case o
-      when Suma::Member
-        self.enrollments_dataset.
-          where(
-            Sequel[member: o] |
-            Sequel[organization_id: o.organization_memberships_dataset.verified.select(:verified_organization_id)] |
-            Sequel[role_id: o.roles_dataset.select(:id)],
-          )
-      when Suma::Organization
-        self.enrollments_dataset.where(organization: o)
-      when Suma::Role
-        self.enrollments_dataset.where(role: o)
-     else
-        raise TypeError, "unhandled type: #{o.class}"
-    end
-    ds = ds.active(as_of:) unless include == :all
-    return ds.first
-  end
+  # def enrollment_for(o, as_of:, include: :active)
+  #   # Use datasets for these checks, since otherwise we'd need to load a bunch of organization memberships,
+  #   # which could be very memory-intensive.
+  #   ds = case o
+  #     when Suma::Member
+  #       self.enrollments_dataset.
+  #         where(
+  #           Sequel[member: o] |
+  #           Sequel[organization_id: o.organization_memberships_dataset.verified.select(:verified_organization_id)] |
+  #           Sequel[role_id: o.roles_dataset.select(:id)],
+  #         )
+  #     when Suma::Organization
+  #       self.enrollments_dataset.where(organization: o)
+  #     when Suma::Role
+  #       self.enrollments_dataset.where(role: o)
+  #    else
+  #       raise TypeError, "unhandled type: #{o.class}"
+  #   end
+  #   ds = ds.active(as_of:) unless include == :all
+  #   return ds.first
+  # end
 
   # Return +period_end+ if it is soon enough to matter, +nil+ if not.
   # We do not need to display closing information for offerings that end so far in the future.

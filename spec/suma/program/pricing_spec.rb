@@ -16,14 +16,6 @@ RSpec.describe "Suma::Program::Pricing", :db do
   end
 
   describe "datasets" do
-    it "can limit to programs to those eligible to a member" do
-      pp1 = Suma::Fixtures.program_pricing.create
-      pp2 = Suma::Fixtures.program_pricing.create
-      m = Suma::Fixtures.member.create
-      Suma::Fixtures.program_enrollment.create(member: m, program: pp2.program)
-      expect(described_class.eligible_to(m, as_of: Time.now).all).to have_same_ids_as(pp2)
-    end
-
     it "can compress program pricing so that the pricing with the lowest rate ordinal is chosen" do
       vs = Suma::Fixtures.vendor_service.create
       rate2 = Suma::Fixtures.vendor_service_rate.create(ordinal: 2)

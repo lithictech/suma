@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/postgres/model"
+require "suma/eligibility"
 require "suma/has_activity_audit"
 
 class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
@@ -14,24 +15,11 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   plugin :tstzrange_fields, :active_during
   plugin :translated_text, :memo, Suma::TranslatedText
   plugin :translated_text, :receiving_ledger_contribution_text, Suma::TranslatedText
+  plugin Suma::Eligibility::Resource, key: :payment_trigger_id, period: :active_during
 
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
 
-  many_to_many :programs,
-               class: "Suma::Program",
-               join_table: :programs_payment_triggers,
-               left_key: :trigger_id,
-               order: order_desc
-  include Suma::Program::Has
-
   one_to_many :executions, class: "Suma::Payment::Trigger::Execution", order: order_desc
-
-  dataset_module do
-    # Limit dataset to rows where +t+ is in +active_during+.
-    def active_at(t)
-      return self.where(Sequel.pg_range(:active_during).contains(Sequel.cast(t, :timestamptz)))
-    end
-  end
 
   # Gather a series of triggers applying to a payment account
   # so they can be used multiple times with different amounts.
@@ -42,7 +30,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   #   Useful if wanting to limit the query to triggers for a set of certain programs only.
   # @return [Collection]
   def self.gather(account, active_as_of:, dataset: self.dataset)
-    triggers = dataset.active_at(active_as_of).eligible_to(account.member, as_of: active_as_of).all
+    triggers = dataset.fetch_eligible_to(account.member, as_of: active_as_of)
     return Collection.new(account:, triggers:)
   end
 
