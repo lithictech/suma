@@ -14,12 +14,20 @@ Sequel.migration do
       text :description, null: false, default: ""
 
       foreign_key :parent_id, :eligibility_attributes, null: true, index: true
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :eligibility_attributes_search_content_tsvector_index,
+            type: :gin
     end
 
     create_table(:eligibility_assignments) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
+      foreign_key :created_by_id, :members, on_delete: :set_null
 
       foreign_key :attribute_id, :eligibility_attributes, null: false, index: true, on_delete: :cascade
 
@@ -33,6 +41,13 @@ Sequel.migration do
       index [:attribute_id, :member_id], unique: true, where: Sequel[:member_id] !~ nil
       index [:attribute_id, :organization_id], unique: true, where: Sequel[:member_id] !~ nil
       index [:attribute_id, :role_id], unique: true, where: Sequel[:member_id] !~ nil
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :eligibility_assignments_search_content_tsvector_index,
+            type: :gin
     end
 
     create_view :eligibility_member_assignments, Sequel.lit(<<~SQL)
@@ -96,6 +111,7 @@ Sequel.migration do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
+      foreign_key :created_by_id, :members, on_delete: :set_null
 
       foreign_key :program_id, :programs, index: true, on_delete: :cascade
       foreign_key :payment_trigger_id, :payment_triggers, index: true, on_delete: :cascade
@@ -103,6 +119,13 @@ Sequel.migration do
                  Sequel.unambiguous_constraint([:program_id, :payment_trigger_id])
 
       foreign_key :expression_id, :eligibility_expressions, on_delete: :cascade
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :eligibility_requirements_search_content_tsvector_index,
+            type: :gin
     end
   end
 end
