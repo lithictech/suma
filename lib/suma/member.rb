@@ -124,80 +124,80 @@ class Suma::Member < Suma::Postgres::Model(:members)
                left_key: :member_id,
                order: order_desc
 
-  one_to_many :program_enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
-  one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
-  many_through_many :program_enrollments_via_organizations,
-                    [
-                      [:organization_memberships, :member_id, :verified_organization_id],
-                    ],
-                    class: "Suma::Program::Enrollment",
-                    left_primary_key: :id,
-                    right_primary_key: :organization_id,
-                    read_only: true
-
-  many_through_many :program_enrollments_via_roles,
-                    [
-                      [:roles_members, :member_id, :role_id],
-                    ],
-                    class: "Suma::Program::Enrollment",
-                    left_primary_key: :id,
-                    right_primary_key: :role_id,
-                    read_only: true
-
-  many_through_many :program_enrollments_via_organization_roles,
-                    [
-                      [:organization_memberships, :member_id, :verified_organization_id],
-                      [:roles_organizations, :organization_id, :role_id],
-                    ],
-                    class: "Suma::Program::Enrollment",
-                    left_primary_key: :id,
-                    right_primary_key: :role_id,
-                    read_only: true
-
-  one_to_many :combined_program_enrollments,
-              class: "Suma::Program::Enrollment",
-              read_only: true,
-              key: :id,
-              dataset: lambda {
-                # Prefer direct enrollments to indirect ones.
-                # The org enrollments being second in the UNION means
-                # direct enrollments will be chosen with the DISTINCT.
-                self.direct_program_enrollments_dataset.union(
-                  self.program_enrollments_via_organizations_dataset,
-                  alias: :program_enrollments,
-                ).union(
-                  self.program_enrollments_via_roles_dataset,
-                  alias: :program_enrollments,
-                ).union(
-                  self.program_enrollments_via_organization_roles_dataset,
-                  alias: :program_enrollments,
-                ).exclude(
-                  program_id: Suma::Program::EnrollmentExclusion.
-                    where(
-                      Sequel[member: self] |
-                      Sequel[role: self.roles_dataset] |
-                      Sequel[role_id: self.db[:roles_organizations].
-                        where(organization_id: self.organization_memberships_dataset.select(:verified_organization_id)).
-                        select(:role_id)],
-                    ).
-                    select(:program_id),
-                ).order(:program_id, :member_id, :organization_id).
-                  distinct(:program_id)
-              },
-              eager_loader: (proc do |eo|
-                eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
-                ds = Suma::Program::Enrollment.dataset.
-                  for_members(self.where(id: eo[:id_map].keys)).
-                  # Get unique enrollments for a program. Prefer direct/member enrollments,
-                  # so sort the rows by member_id so NULL member_id rows (indirect/org enrollments)
-                  # sort last and are eliminated by the DISTINCT.
-                  order(:program_id, :member_id, :organization_id).
-                  distinct(:program_id)
-                ds.all do |en|
-                  m = eo[:id_map][en.member_id || en.values.fetch(:annotated_member_id)].first
-                  m.associations[:combined_program_enrollments] << en
-                end
-              end)
+  one_to_many :eligibility_assignments, class: "Suma::Eligibility::Assignment", order: order_desc
+  # one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
+  # many_through_many :program_enrollments_via_organizations,
+  #                   [
+  #                     [:organization_memberships, :member_id, :verified_organization_id],
+  #                   ],
+  #                   class: "Suma::Program::Enrollment",
+  #                   left_primary_key: :id,
+  #                   right_primary_key: :organization_id,
+  #                   read_only: true
+  #
+  # many_through_many :program_enrollments_via_roles,
+  #                   [
+  #                     [:roles_members, :member_id, :role_id],
+  #                   ],
+  #                   class: "Suma::Program::Enrollment",
+  #                   left_primary_key: :id,
+  #                   right_primary_key: :role_id,
+  #                   read_only: true
+  #
+  # many_through_many :program_enrollments_via_organization_roles,
+  #                   [
+  #                     [:organization_memberships, :member_id, :verified_organization_id],
+  #                     [:roles_organizations, :organization_id, :role_id],
+  #                   ],
+  #                   class: "Suma::Program::Enrollment",
+  #                   left_primary_key: :id,
+  #                   right_primary_key: :role_id,
+  #                   read_only: true
+  #
+  # one_to_many :combined_program_enrollments,
+  #             class: "Suma::Program::Enrollment",
+  #             read_only: true,
+  #             key: :id,
+  #             dataset: lambda {
+  #               # Prefer direct enrollments to indirect ones.
+  #               # The org enrollments being second in the UNION means
+  #               # direct enrollments will be chosen with the DISTINCT.
+  #               self.direct_program_enrollments_dataset.union(
+  #                 self.program_enrollments_via_organizations_dataset,
+  #                 alias: :program_enrollments,
+  #               ).union(
+  #                 self.program_enrollments_via_roles_dataset,
+  #                 alias: :program_enrollments,
+  #               ).union(
+  #                 self.program_enrollments_via_organization_roles_dataset,
+  #                 alias: :program_enrollments,
+  #               ).exclude(
+  #                 program_id: Suma::Program::EnrollmentExclusion.
+  #                   where(
+  #                     Sequel[member: self] |
+  #                     Sequel[role: self.roles_dataset] |
+  #                     Sequel[role_id: self.db[:roles_organizations].
+  #                       where(organization_id: self.organization_memberships_dataset.select(:verified_organization_id)).
+  #                       select(:role_id)],
+  #                   ).
+  #                   select(:program_id),
+  #               ).order(:program_id, :member_id, :organization_id).
+  #                 distinct(:program_id)
+  #             },
+  #             eager_loader: (proc do |eo|
+  #               eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
+  #               ds = Suma::Program::Enrollment.dataset.
+  #                 for_members(self.where(id: eo[:id_map].keys)).
+  #                 # Get unique enrollments for a program. Prefer direct/member enrollments,
+  #                 # so sort the rows by member_id so NULL member_id rows (indirect/org enrollments)
+  #                 # sort last and are eliminated by the DISTINCT.
+  #                 order(:program_id, :member_id, :organization_id).
+  #                 distinct(:program_id)
+  #               ds.all do |en|
+  #                 m = eo[:id_map][en.member_id || en.values.fetch(:annotated_member_id)].first
+  #                 m.associations[:combined_program_enrollments] << en
+  #               end
+  #             end)
 
   dataset_module do
     def with_email(*emails)

@@ -23,7 +23,7 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
               class: "Suma::Organization::Membership",
               key: :former_organization_id,
               order: order_desc
-  one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
+  one_to_many :eligibility_assignments, class: "Suma::Eligibility::Assignment", order: order_desc
   plugin :many_to_many_pubsub,
          :roles,
          class: "Suma::Role",

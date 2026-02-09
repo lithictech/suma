@@ -10,23 +10,26 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     expect(Suma::Fixtures.payment_trigger.memo("hi").create).to have_attributes(memo: have_attributes(en: "hi"))
   end
 
-  it "knows its programs" do
-    pr = Suma::Fixtures.program.create
-    tr = Suma::Fixtures.payment_trigger.matching.with_programs(pr).create
-    expect(tr.programs).to contain_exactly(be === pr)
-    expect(pr.payment_triggers).to contain_exactly(be === tr)
-  end
+  describe "eligibility" do
+    it "can reify and limit a dataset to only actually eligible rows" do
+      a1 = Suma::Fixtures.eligibility_attribute.create
+      a2 = Suma::Fixtures.eligibility_attribute.create
 
-  describe "associations" do
-    it "knows its program enrollments" do
-      e1 = Suma::Fixtures.program_enrollment.create
-      e2 = Suma::Fixtures.program_enrollment.create
-      e3 = Suma::Fixtures.program_enrollment.create
-
-      o = Suma::Fixtures.payment_trigger.create
-      o.add_program(e1.program)
-      o.add_program(e2.program)
-      expect(o.program_enrollments).to have_same_ids_as(e1, e2)
+      prog_and = Suma::Fixtures.payment_trigger.create
+      prog_or = Suma::Fixtures.payment_trigger.create
+      # prog_and has AND (so won't be eligible to member with just 1 attr), prog_or has OR (so will be eligible)
+      Suma::Fixtures.eligibility_requirement.create(
+        resource: prog_and,
+        expression: Suma::Fixtures.eligibility_expression.branch([a1, a2]).and.create,
+      )
+      Suma::Fixtures.eligibility_requirement.create(
+        resource: prog_or,
+        expression: Suma::Fixtures.eligibility_expression.branch([a1, a2]).or.create,
+      )
+      # Assign the first attribute only, so the 'OR' payment_trigger is matched.
+      m = Suma::Fixtures.member.create
+      Suma::Fixtures.eligibility_assignment(member: m, attribute: a1).create
+      expect(described_class.dataset.fetch_eligible_to(m, as_of: Time.now)).to have_same_ids_as(prog_or)
     end
   end
 
@@ -141,19 +144,18 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       end
     end
 
-    describe "when the trigger is in a program" do
-      let!(:program) { Suma::Fixtures.program.create }
-      let!(:tr) { Suma::Fixtures.payment_trigger.matching.with_programs(program).no_max.create }
+    describe "when the trigger has an eligibility requirement" do
+      let!(:attr) { Suma::Fixtures.eligibility_attribute.create }
+      let!(:tr) { Suma::Fixtures.payment_trigger.matching.with_eligibility_requirements(attr).no_max.create }
 
-      it "excludes the trigger if the subject does not have an active enrollment in an overlapping program" do
-        unenrolled = Suma::Fixtures.program_enrollment.unenrolled.create(member: account.member, program:)
-        different_program = Suma::Fixtures.program_enrollment.create(member: account.member)
+      it "excludes the trigger if the subject does not have an overlapping attribute assignment" do
+        Suma::Fixtures.eligibility_assignment.create(member: account.member)
         plan = gather(money("$10"))
         expect(plan.steps).to be_empty
       end
 
-      it "includes the trigger if the subject has an active enrollment in the trigger program" do
-        Suma::Fixtures.program_enrollment.create(member: account.member, program:)
+      it "includes the trigger if the subject has an overlapping attribute assignment" do
+        Suma::Fixtures.eligibility_assignment.create(member: account.member, attribute: attr)
         plan = gather(money("$10"))
         expect(plan.steps).to contain_exactly(have_attributes(trigger: tr))
       end
