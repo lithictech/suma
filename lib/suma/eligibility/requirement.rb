@@ -6,6 +6,7 @@ require "suma/postgres/model"
 class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requirements)
   many_to_one :program, class: "Suma::Program"
   many_to_one :payment_trigger, class: "Suma::Payment::Trigger"
+  RESOURCE_ASSOCIATIONS = [:program, :payment_trigger].freeze
 
   many_to_one :expression, class: "Suma::Eligibility::Expression"
 
@@ -21,6 +22,12 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
       end
       return self.where(conds)
     end
+  end
+
+  def resource = Suma::MethodUtilities.unambiguous_association(self, RESOURCE_ASSOCIATIONS)
+
+  def resource=(o)
+    Suma::MethodUtilities.set_ambiguous_association(self, RESOURCE_ASSOCIATIONS, o)
   end
 
   def before_create

@@ -73,7 +73,7 @@ class Suma::Eligibility::Evaluation
 
   # Represent the evaluation as tables.
   def to_table
-    assignment_rows = self.deepest_member_assignments.map do |ma|
+    assignment_rows = self.member_assignments.map do |ma|
       row = [ma.attribute.name]
       row << case ma.source_type
         when "member"
