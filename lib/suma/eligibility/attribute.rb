@@ -4,6 +4,11 @@ require "suma/eligibility"
 require "suma/postgres/model"
 
 class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attributes)
+  include Suma::Postgres::HybridSearch
+
+  plugin :hybrid_search
+  plugin :timestamps
+
   many_to_one :parent, class: self
 
   class << self

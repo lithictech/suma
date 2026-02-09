@@ -4,11 +4,18 @@ require "suma/eligibility"
 require "suma/postgres/model"
 
 class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requirements)
+  include Suma::Postgres::HybridSearch
+
+  plugin :hybrid_search
+  plugin :timestamps
+
+  many_to_one :created_by, class: "Suma::Member"
+
+  many_to_one :expression, class: "Suma::Eligibility::Expression"
+
   many_to_one :program, class: "Suma::Program"
   many_to_one :payment_trigger, class: "Suma::Payment::Trigger"
   RESOURCE_ASSOCIATIONS = [:program, :payment_trigger].freeze
-
-  many_to_one :expression, class: "Suma::Eligibility::Expression"
 
   dataset_module do
     def for_resource(resource)
@@ -32,6 +39,7 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
 
   def before_create
     self.expression ||= Suma::Eligibility::Expression.create
+    self.created_by = Suma.request_user_and_admin[1]
     super
   end
 end
