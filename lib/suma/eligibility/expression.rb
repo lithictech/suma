@@ -38,11 +38,9 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
 
   def to_formula_str
     return "'#{self.attribute.name}'" if self.leaf?
-    return "" if self.subexpressions.empty?
-    s = +""
-    s << "("
-    s << self.subexpressions.map(&:to_formula_str).join(" #{self.operator} ")
-    s << ")"
-    return s
+    substrs = self.subexpressions.map(&:to_formula_str).reject(&:empty?)
+    return "" if substrs.empty?
+    return substrs[0] if substrs.size == 1
+    return "(#{substrs[0]} #{self.operator} #{substrs[1]})"
   end
 end

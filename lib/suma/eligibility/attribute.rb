@@ -8,7 +8,7 @@ class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attribut
 
   class << self
     # Given a collection of attributes, accumulate all parents.
-    # @return [Set<Suma::Eligibility::Attribute>]
+    # @return [Sequel::IdentitySet,Set<Suma::Eligibility::Attribute>]
     def accumulate(attrs, accum: Sequel::IdentitySet.new)
       attrs.each do |a|
         accum << a
