@@ -44,6 +44,6 @@ module Suma::Fixtures::VendorServices
 
   decorator :available_to, presave: true do |m|
     pricing = Suma::Fixtures.program_pricing.create(vendor_service: self)
-    Suma::Fixtures.program_enrollment.in(pricing.program).create(member: m)
+    Suma::Fixtures.eligibility_attribute.between(m, pricing.program)
   end
 end

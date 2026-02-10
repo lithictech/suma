@@ -42,7 +42,8 @@ RSpec.describe Suma::API::Mobility, :db do
 
     it "is limited to vendor services active and available to the user" do
       program = vendor_service.program_pricings.first.program
-      program.enrollments.first.destroy
+      attr = Suma::Fixtures.eligibility_attribute.create
+      Suma::Fixtures.eligibility_requirement.attribute(attr).create(resource: program)
 
       vehicle_fac.loc(20, 120).escooter.create
 
@@ -51,7 +52,7 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to_not include(:escooter, :ebike)
 
-      Suma::Fixtures.program_enrollment.create(program:, member:)
+      Suma::Fixtures.eligibility_assignment.create(member:, attribute: attr)
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
       expect(last_response).to have_status(200)
@@ -320,7 +321,6 @@ RSpec.describe Suma::API::Mobility, :db do
         ensure_ledger_with_category(vendor_service.categories.first)
       Suma::Fixtures.payment_trigger.
         matching.
-        with_programs(program_pricing.program).
         from(subsidizing_ledger).
         create
 
@@ -357,6 +357,7 @@ RSpec.describe Suma::API::Mobility, :db do
 
     it "403s if the provider is not evailable to the member" do
       pp2 = Suma::Fixtures.program_pricing.create
+      Suma::Fixtures.eligibility_requirement.create(resource: pp2.program)
       b1 = vehicle_fac.loc(0, 0).ebike.create(vendor_service: pp2.vendor_service)
 
       get "/v1/mobility/vehicle", loc: [0, 0], provider_id: pp2.id, type: "ebike"
@@ -436,7 +437,7 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "errors if the member cannot access the service due to eligibility" do
-      program_pricing.program.enrollments.first.destroy
+      Suma::Fixtures.eligibility_requirement.create(resource: program_pricing.program)
 
       post "/v1/mobility/begin_trip", provider_id: program_pricing.id, vehicle_id: vehicle.vehicle_id
 

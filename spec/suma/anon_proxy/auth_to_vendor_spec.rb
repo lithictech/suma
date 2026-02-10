@@ -154,10 +154,9 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
       Timecop.freeze("2022-12-15T12:00:15Z") do
         # Enroll only in the program the user is in, with a lyft pass program id
-        not_enrolled = Suma::Fixtures.program.create(lyft_pass_program_id: "12")
-        enrolled = Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "34").create
-        nogood = Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "56").unapproved.create
-        no_program = Suma::Fixtures.program_enrollment(member:).create
+        not_available = Suma::Fixtures.program.create(lyft_pass_program_id: "12")
+        Suma::Fixtures.eligibility_requirement.create(resource: not_available)
+        available = Suma::Fixtures.program.create(lyft_pass_program_id: "34")
         va.auth_to_vendor.auth(now:)
       end
       expect(req).to have_been_made
@@ -175,8 +174,8 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
         to_return(status: 200)
 
       Timecop.freeze("2020-01-15T12:00:00Z") do
-        Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "34").create
-        Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "56").create
+        Suma::Fixtures.program.create(lyft_pass_program_id: "34")
+        Suma::Fixtures.program.create(lyft_pass_program_id: "56")
         va.add_registration(external_program_id: "34")
         va.auth_to_vendor.auth(now:)
       end
@@ -190,12 +189,12 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     it "needs attention if the user is not registered in an available program" do
       expect(va.auth_to_vendor).to_not be_needs_linking(now:)
 
-      Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "5678").create
+      Suma::Fixtures.program.create(lyft_pass_program_id: "5678")
       expect(va.auth_to_vendor).to be_needs_linking(now:)
       va.add_registration(external_program_id: "5678")
       expect(va.auth_to_vendor).to_not be_needs_linking(now:)
 
-      Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "1234").create
+      Suma::Fixtures.program.create(lyft_pass_program_id: "1234")
       expect(va.auth_to_vendor).to be_needs_linking(now:)
     end
   end

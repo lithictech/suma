@@ -98,16 +98,6 @@ module Suma::API::Entities
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
-  class ProgramEnrollmentEntity < BaseEntity
-    expose_translated :name, &self.delegate_to(:program, :name)
-    expose_translated :description, &self.delegate_to(:program, :description)
-    expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
-    expose :period_begin, &self.delegate_to(:program, :period, :begin)
-    expose :period_end, &self.delegate_to(:program, :period_end_visible)
-    expose :app_link, &self.delegate_to(:program, :app_link)
-    expose_translated :app_link_text, &self.delegate_to(:program, :app_link_text)
-  end
-
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
     expose :ongoing_trip, with: MobilityTripEntity

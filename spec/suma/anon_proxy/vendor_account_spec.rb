@@ -32,22 +32,24 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       expect(described_class.for(member, as_of:)).to have_length(1)
     end
 
-    it "applies program eligibility" do
+    it "applies eligibility" do
       member = Suma::Fixtures.member.onboarding_verified.create
       cfg = Suma::Fixtures.anon_proxy_vendor_configuration.create
       program = Suma::Fixtures.program.create
+      cfg.add_program(program)
 
-      # No programs means everyone can access
+      # No requirement means everyone can access
       expect(described_class.for(member.refresh, as_of:)).to contain_exactly(
         have_attributes(configuration: be === cfg),
       )
 
-      # Having program restricts access
-      cfg.add_program(program)
+      # Having requirement restricts access
+      attribute = Suma::Fixtures.eligibility_attribute.create
+      Suma::Fixtures.eligibility_requirement.attribute(attribute).create(resource: program)
       expect(described_class.for(member.refresh, as_of:)).to be_empty
 
       # Member can now access
-      Suma::Fixtures.program_enrollment.create(program:, member:)
+      Suma::Fixtures.eligibility_assignment.create(attribute:, member:)
       expect(described_class.for(member.refresh, as_of:)).to contain_exactly(
         have_attributes(configuration: be === cfg),
       )
@@ -139,7 +141,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
     let!(:vc) { Suma::Fixtures.anon_proxy_vendor_configuration.create(vendor:) }
     let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(configuration: vc, member:).create }
     let!(:program) { Suma::Fixtures.program.with_(vc).create }
-    let!(:enrollment) { Suma::Fixtures.program_enrollment.create(program:, member:) }
+    let!(:attribute) { Suma::Fixtures.eligibility_attribute.between(member, program).create }
     let!(:pricing) { Suma::Fixtures.program_pricing.create(program:, vendor_service_rate:, vendor_service:) }
     let(:as_of) { Time.now }
 
@@ -165,7 +167,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
         end
 
         it "the member cannot access the programs with pricings" do
-          enrollment.update(unenrolled: true)
+          Suma::Eligibility::Assignment.dataset.delete
           expect(va).to_not be_require_payment_instrument(as_of:)
         end
       end

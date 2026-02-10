@@ -9,33 +9,27 @@ RSpec.describe Suma::Member::Dashboard, :db do
   def dashboard = described_class.new(member, at: now)
 
   it "can represent a blank/empty member" do
-    expect(dashboard).to have_attributes(cash_balance: money("$0"), program_enrollments: [])
+    expect(dashboard).to have_attributes(cash_balance: money("$0"), programs: [])
   end
 
   it "includes enrolled programs" do
-    pe1 = Suma::Fixtures.program_enrollment.create(member:)
-    pe2 = Suma::Fixtures.program_enrollment.create(member:)
+    pr1 = Suma::Fixtures.program.create
+    pr2 = Suma::Fixtures.program.create
     expect(dashboard).to have_attributes(
-      program_enrollments: have_same_ids_as(pe1, pe2),
+      programs: have_same_ids_as(pr1, pr2),
     )
   end
 
   it "adds the member role by default" do
-    dashboard.program_enrollments
+    dashboard.programs
     expect(member.roles).to include(Suma::Role.cache.member)
   end
 
-  it "sorts enrollments by program ordinal" do
+  it "sorts programs by ordinal" do
     p3 = Suma::Fixtures.program.create(ordinal: 3)
     p1 = Suma::Fixtures.program.create(ordinal: 1)
     p2 = Suma::Fixtures.program.create(ordinal: 2)
-    pe3 = Suma::Fixtures.program_enrollment.create(member:, program: p3)
-    pe1 = Suma::Fixtures.program_enrollment.create(member:, program: p1)
-    pe2 = Suma::Fixtures.program_enrollment.create(member:, program: p2)
-    enrollments = dashboard.program_enrollments
-    expect(enrollments.first).to have_attributes(program: p1)
-    expect(enrollments.second).to have_attributes(program: p2)
-    expect(enrollments.last).to have_attributes(program: p3)
+    expect(dashboard.programs).to have_same_ids_as(p1, p2, p3).ordered
   end
 
   describe "alerts" do
