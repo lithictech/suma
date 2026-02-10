@@ -393,6 +393,12 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return Suma::Eligibility::Evaluation.evaluate(self, resource)
   end
 
+  # Iterate all programs a member has access to.
+  # @return [Enumerator<Suma::Program>]
+  def eligible_programs(as_of:)
+    return Suma::Program.dataset.fetch_eligible_to(self, as_of:)
+  end
+
   #
   # :section: Masking
   #

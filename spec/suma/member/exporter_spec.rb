@@ -12,9 +12,12 @@ RSpec.describe Suma::Member::Exporter, :db do
     allfields.legal_entity.update(address:)
     allfields.message_preferences!
 
-    enrollment_fac = Suma::Fixtures.program_enrollment(member: allfields)
-    enrollment_fac.create(program: Suma::Fixtures.program.named("Homes, Oregon").create)
-    enrollment_fac.create(program: Suma::Fixtures.program.named("Casa, Oregon").create)
+    Suma::Fixtures.eligibility_attribute.
+      between(allfields, Suma::Fixtures.program.named("Homes, Oregon").create).
+      create
+    Suma::Fixtures.eligibility_attribute.
+      between(allfields, Suma::Fixtures.program.named("Casa, Oregon").create).
+      create
 
     plain = Suma::Fixtures.member.create(name: "XYZ", phone: "12223339999", email: "x@y.z")
     plain.soft_delete
