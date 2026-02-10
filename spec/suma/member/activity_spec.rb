@@ -18,8 +18,8 @@ RSpec.describe "Suma::Member::Activity", :db do
   describe "summary_md" do
     it "parses and renders the summary" do
       a = described_class.new(message_name: "removeexclusion")
-      a.summary = "a@lithic.tech performed removeexclusion on Suma::Program[39] 'A Market 2025': Suma::Program::EnrollmentExclusion[7](enrollee: Suma::Member[439] 'Person x' Suma::Payment::FakeStrategy[1])"
-      expect(a.summary_md).to eq("<span class=\"email\">a@lithic.tech</span> performed <span class=\"action\">removeexclusion</span> on [<code class=\"code\">Program[39]</code>](/program/39) <span class=\"quote\">'A Market 2025'</span>: [<code class=\"code\">Program::EnrollmentExclusion[7]</code>](/program-enrollment-exclusion/7)(enrollee: [<code class=\"code\">Member[439]</code>](/member/439) <span class=\"quote\">'Person x'</span> <code class=\"code\">Suma::Payment::FakeStrategy[1]</code>)")
+      a.summary = "a@lithic.tech performed removeexclusion on Suma::Program[39] 'A Market 2025': Suma::Organization[7](enrollee: Suma::Member[439] 'Person x' Suma::Payment::FakeStrategy[1])"
+      expect(a.summary_md).to eq("<span class=\"email\">a@lithic.tech</span> performed <span class=\"action\">removeexclusion</span> on [<code class=\"code\">Program[39]</code>](/program/39) <span class=\"quote\">'A Market 2025'</span>: [<code class=\"code\">Organization[7]</code>](/organization/7)(enrollee: [<code class=\"code\">Member[439]</code>](/member/439) <span class=\"quote\">'Person x'</span> <code class=\"code\">Suma::Payment::FakeStrategy[1]</code>)")
     end
   end
 

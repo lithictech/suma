@@ -3,8 +3,11 @@
 require "csv"
 
 class Suma::Exporter
-  def initialize(dataset)
+  attr_reader :as_of
+
+  def initialize(dataset, as_of: Time.now)
     @dataset = dataset
+    @as_of = as_of
   end
 
   # Return array of typles of header/converter pair.
