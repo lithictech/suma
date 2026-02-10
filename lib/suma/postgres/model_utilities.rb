@@ -281,6 +281,59 @@ module Suma::Postgres::ModelUtilities
 
     # @return [Sequel::SQL::Expression]
     protected def now_sql = Suma::Postgres.now_sql
+
+    # Return the first association with a non-nil value.
+    # This is usually the ORM side of a Sequel.unambiguous_constraint.
+    #
+    # @param assocs [Array<Symbol>]
+    # @return [Sequel::Model]
+    def unambiguous_association(assocs)
+      assocs.each do |assoc|
+        v = self.send(assoc)
+        return v unless v.nil?
+      end
+      return nil
+    end
+
+    # Return the first association name with a non-nil value.
+    #
+    # @param assocs [Array<Symbol>]
+    # @return [Symbol]
+    def unambiguous_association_name(assocs)
+      assocs.each do |assoc|
+        return assoc if self.send(assoc)
+      end
+      return nil
+    end
+
+    # Set the relevant association field by finding the first with the same type as v,
+    # and assigning to it. All other assocs get nil assigned.
+    # If v is not a supported type, raise a TypeError.
+    #
+    # @param assocs [Array<Symbol>]
+    # @param v [Sequel::Model]
+    def set_ambiguous_association(assocs, v)
+      if v.nil?
+        assocs.each do |assoc|
+          self.send("#{assoc}=", nil)
+        end
+        return
+      end
+      assocs.each do |assoc|
+        details = self.class.association_reflections[assoc]
+        type_match = details[:class_name] == v.class.name
+        next unless type_match
+        assocs.each do |other|
+          next if other == assoc
+          self.send("#{other}=", nil)
+        end
+        self.send("#{assoc}=", v)
+        # rubocop:disable Lint/NonLocalExitFromIterator
+        return
+        # rubocop:enable Lint/NonLocalExitFromIterator
+      end
+      raise TypeError, "invalid association type: #{v.class}(#{v})"
+    end
   end
 
   module DatasetMethods

@@ -66,28 +66,6 @@ class Suma::Program < Suma::Postgres::Model(:programs)
     end
   end
 
-  # def enrollment_for(o, as_of:, include: :active)
-  #   # Use datasets for these checks, since otherwise we'd need to load a bunch of organization memberships,
-  #   # which could be very memory-intensive.
-  #   ds = case o
-  #     when Suma::Member
-  #       self.enrollments_dataset.
-  #         where(
-  #           Sequel[member: o] |
-  #           Sequel[organization_id: o.organization_memberships_dataset.verified.select(:verified_organization_id)] |
-  #           Sequel[role_id: o.roles_dataset.select(:id)],
-  #         )
-  #     when Suma::Organization
-  #       self.enrollments_dataset.where(organization: o)
-  #     when Suma::Role
-  #       self.enrollments_dataset.where(role: o)
-  #    else
-  #       raise TypeError, "unhandled type: #{o.class}"
-  #   end
-  #   ds = ds.active(as_of:) unless include == :all
-  #   return ds.first
-  # end
-
   # Return +period_end+ if it is soon enough to matter, +nil+ if not.
   # We do not need to display closing information for offerings that end so far in the future.
   def period_end_visible = Suma::Program.period_end_or_nil(self.period_end)

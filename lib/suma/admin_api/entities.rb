@@ -63,6 +63,11 @@ module Suma::AdminAPI::Entities
     end
   end
 
+  # Entity with no custom fields except those from AutoExposeBase.
+  class AutoExposedBaseEntity < BaseEntity
+    include AutoExposeBase
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :impersonating, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonating
@@ -160,24 +165,25 @@ module Suma::AdminAPI::Entities
     expose :app_link_text, with: TranslatedTextEntity
   end
 
-  class ProgramEnrolleeEntity < BaseEntity
+  class EligibilityAttributeEntity < BaseEntity
     include AutoExposeBase
-    expose :name do |inst|
-      inst.is_a?(Suma::Role) ? inst.name.titleize : inst.name
-    end
+    expose :name
+    expose :parent, with: self
   end
 
-  class ProgramEnrollmentEntity < BaseEntity
+  class EligibilityAssignmentEntity < BaseEntity
     include AutoExposeBase
-    expose :admin_link
-    expose :program, with: ProgramEntity
-    expose :enrollee, with: ProgramEnrolleeEntity
-    expose :enrollee_type
-    expose :approved_at
-    expose :unenrolled_at
-    expose :program_active do |pe|
-      pe.program_active_at?(Time.now)
-    end
+    expose :assignee, with: AutoExposedBaseEntity
+    expose :assignee_label
+    expose :assignee_type
+    expose :attribute, with: EligibilityAttributeEntity
+  end
+
+  class EligibilityRequirementEntity < BaseEntity
+    include AutoExposeBase
+    expose :resource, with: AutoExposedBaseEntity
+    expose :resource_label
+    expose :expression_formula_str, &self.delegate_to(:expression, :to_formula_str)
   end
 
   class VendorEntity < BaseEntity

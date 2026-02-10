@@ -104,48 +104,4 @@ module Suma::MethodUtilities
       o.send(setter, v)
     end
   end
-
-  # Return the first association with a non-nil value.
-  # This is usually the ORM side of a Sequel.unambiguous_constraint.
-  #
-  # @param o [Object]
-  # @param assocs [Array<Symbol>]
-  # @return [Sequel::Model]
-  module_function def unambiguous_association(o, assocs)
-    assocs.each do |assoc|
-      v = o.send(assoc)
-      return v unless v.nil?
-    end
-    return nil
-  end
-
-  # Set the relevant association field by finding the first with the same type as v,
-  # and assigning to it. All other assocs get nil assigned.
-  # If v is not a supported type, raise a TypeError.
-  #
-  # @param o [Object]
-  # @param assocs [Array<Symbol>]
-  # @param v [Sequel::Model]
-  module_function def set_ambiguous_association(o, assocs, v)
-    if v.nil?
-      assocs.each do |assoc|
-        o.send("#{assoc}=", nil)
-      end
-      return
-    end
-    assocs.each do |assoc|
-      details = o.class.association_reflections[assoc]
-      type_match = details[:class_name] == v.class.name
-      next unless type_match
-      assocs.each do |other|
-        next if other == assoc
-        o.send("#{other}=", nil)
-      end
-      o.send("#{assoc}=", v)
-      # rubocop:disable Lint/NonLocalExitFromIterator
-      return
-      # rubocop:enable Lint/NonLocalExitFromIterator
-    end
-    raise TypeError, "invalid association type: #{v.class}(#{v})"
-  end
 end

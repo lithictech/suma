@@ -15,12 +15,15 @@ RSpec.describe "Suma::Eligibility::Assignment", :db do
     m = Suma::Fixtures.member.create
     o = Suma::Fixtures.organization.create
     r = Suma::Fixtures.role.create
-    ea.assignee = m
+    ea.update(assignee: m)
     expect(ea).to have_attributes(member: be === m, organization: be_nil, role: be_nil, assignee: be === m)
-    ea.assignee = o
+    expect(m.eligibility_assignments).to contain_exactly(ea)
+    ea.update(assignee: o)
     expect(ea).to have_attributes(member: be_nil, organization: be === o, role: be_nil, assignee: be === o)
-    ea.assignee = r
+    expect(o.eligibility_assignments).to contain_exactly(ea)
+    ea.update(assignee: r)
     expect(ea).to have_attributes(member: be_nil, organization: be_nil, role: be === r, assignee: be === r)
+    expect(r.eligibility_assignments).to contain_exactly(ea)
     ea.assignee = nil
     expect(ea).to have_attributes(member: be_nil, organization: be_nil, role: be_nil, assignee: be_nil)
     expect { ea.assignee = 5 }.to raise_error(TypeError, /invalid association type: Integer\(5\)/)
