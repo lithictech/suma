@@ -4,6 +4,7 @@ require "suma/eligibility"
 require "suma/postgres/model"
 
 class Suma::Eligibility::Assignment < Suma::Postgres::Model(:eligibility_assignments)
+  include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
 
   plugin :hybrid_search
@@ -19,11 +20,21 @@ class Suma::Eligibility::Assignment < Suma::Postgres::Model(:eligibility_assignm
 
   ASSIGNEE_ASSOCIATIONS = [:member, :organization, :role].freeze
 
-  def assignee = Suma::MethodUtilities.unambiguous_association(self, ASSIGNEE_ASSOCIATIONS)
+  def assignee = self.unambiguous_association(ASSIGNEE_ASSOCIATIONS)
 
   def assignee=(o)
-    Suma::MethodUtilities.set_ambiguous_association(self, ASSIGNEE_ASSOCIATIONS, o)
+    self.set_ambiguous_association(ASSIGNEE_ASSOCIATIONS, o)
   end
+
+  def assignee_type = self.unambiguous_association_name(ASSIGNEE_ASSOCIATIONS)
+
+  def assignee_label
+    a = self.assignee
+    return a.name.titleize if a.is_a?(Suma::Role)
+    return a.name
+  end
+
+  def rel_admin_link = "/eligibility-assignment/#{self.id}"
 
   def before_create
     self.created_by = Suma.request_user_and_admin[1]

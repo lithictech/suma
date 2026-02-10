@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require "suma/has_activity_audit"
 require "suma/postgres/model"
 
 class Suma::Role < Suma::Postgres::Model(:roles)
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
 
   class Cache
     # :section: App Roles

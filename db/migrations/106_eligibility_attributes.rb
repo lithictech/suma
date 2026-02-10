@@ -120,6 +120,9 @@ Sequel.migration do
 
       foreign_key :expression_id, :eligibility_expressions, on_delete: :cascade
 
+      column :cached_attribute_ids, "integer[]", index: true, null: false
+      text :cached_expression_string, null: false
+
       column :search_content, :text
       column :search_embedding, "vector(384)"
       column :search_hash, :text

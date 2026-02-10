@@ -132,7 +132,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
       scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
       self.scooter_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Lemon Scooter 20% Discount",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 0.25,
@@ -328,7 +328,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_holiday_triggers
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Holiday food promo",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 8,
@@ -456,7 +456,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_farmers_market_triggers
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Farmers market 5 for 19 signup",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 3.8,
@@ -466,7 +466,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         receiving_ledger_name: "Farmers Market Intro Demo",
         receiving_ledger_contribution_text: self.ttext("FM Intro Offer"),
       )
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Farmers market 1 to 1",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 1,
