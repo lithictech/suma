@@ -33,7 +33,7 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
   end
 
   def _deep_link_for_user_agent(user_agent)
-    return nil unless self.vendor_service.mobility_adapter.uses_deep_linking?
+    return nil unless self.vendor_service.ensure_mobility_adapter.uses_deep_linking?
     browser = Browser.new(user_agent || "", accept_language: "en-us")
     uris = self.rental_uris
     key = if browser.platform.android?

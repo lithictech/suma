@@ -74,7 +74,7 @@ module Suma::Eligibility::Resource
 
   module InstanceMethods
     def eligible_to?(member, as_of:)
-      return false unless self.send(self.class.eligibility_resource_plugin_options.fetch(:timestamp)).cover?(as_of)
+      return false unless self.send(self.class.eligibility_resource_plugin_options.fetch(:period)).cover?(as_of)
       return Suma::Eligibility::Evaluation.evaluate(member, self).access?
     end
 

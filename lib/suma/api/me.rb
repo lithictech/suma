@@ -70,9 +70,19 @@ class Suma::API::Me < Suma::API::V1
     expose :variant
   end
 
+  class ProgramEntity < BaseEntity
+    expose_translated :name
+    expose_translated :description
+    expose :image?, as: :image
+    expose :period_begin, &self.delegate_to(:period, :begin)
+    expose :period_end, &self.delegate_to(:period_end_visible)
+    expose :app_link
+    expose_translated :app_link_text
+  end
+
   class DashboardEntity < BaseEntity
     expose :cash_balance, with: Suma::API::Entities::MoneyEntity
-    expose :program_enrollments, as: :programs, with: Suma::API::Entities::ProgramEnrollmentEntity
+    expose :programs, with: ProgramEntity
     expose :alerts, with: DashboardAlertEntity
   end
 end

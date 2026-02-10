@@ -6,6 +6,7 @@ class Suma::Program::Pricing < Suma::Postgres::Model(:program_pricings)
   include Suma::AdminLinked
 
   plugin :timestamps
+  plugin(Suma::Program::Has, nil, nil) { [self.program] }
 
   many_to_one :program, class: "Suma::Program"
   many_to_one :vendor_service, class: "Suma::Vendor::Service"

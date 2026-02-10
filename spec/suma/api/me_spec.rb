@@ -141,7 +141,8 @@ RSpec.describe Suma::API::Me, :db do
     it "returns the dashboard" do
       led = Suma::Payment.ensure_cash_ledger(Suma::Fixtures.payment_account.create(member:))
       Suma::Fixtures.book_transaction.to(led).create(amount: money("$10"))
-      Suma::Fixtures.program_enrollment.create(member:)
+      program = Suma::Fixtures.program.create
+      Suma::Fixtures.eligibility_attribute.between(member, program).create
 
       get "/v1/me/dashboard"
 

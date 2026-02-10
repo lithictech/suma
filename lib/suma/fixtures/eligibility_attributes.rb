@@ -19,4 +19,9 @@ module Suma::Fixtures::EligibilityAttributes
     attr = Suma::Fixtures.eligibility_attribute.create(attr) unless attr.is_a?(Suma::Eligibility::Attribute)
     self.parent = attr
   end
+
+  decorator :between, presave: true do |member, resource|
+    Suma::Fixtures.eligibility_assignment.of(self).to(member).create
+    Suma::Fixtures.eligibility_requirement.attribute(self).create(resource:)
+  end
 end
