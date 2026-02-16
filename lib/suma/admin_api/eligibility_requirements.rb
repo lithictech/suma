@@ -40,6 +40,16 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       DetailedEligibilityRequirement,
     )
 
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Eligibility::Requirement,
+      DetailedEligibilityRequirement,
+    ) do
+      params do
+        requires :expression, type: JSON
+      end
+    end
+
     Suma::AdminAPI::CommonEndpoints.destroy(
       self,
       Suma::Eligibility::Requirement,
