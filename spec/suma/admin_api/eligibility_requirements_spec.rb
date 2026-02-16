@@ -84,6 +84,35 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
     end
   end
 
+  describe "POST /v1/eligibility_requirements/:id" do
+    it "updates the expression" do
+      attr1 = Suma::Fixtures.eligibility_attribute.create(name: 'attr1')
+      attr2 = Suma::Fixtures.eligibility_attribute.create(name: 'attr2')
+
+      ex = {
+        left: {
+          left: {
+            left: {
+              left: attr1.id,
+              right: attr2.id,
+              operator: 'AND',
+            }
+          },
+        },
+        operator: 'OR',
+        right: attr2.id,
+      }
+      r = Suma::Fixtures.eligibility_requirement.create
+
+      post "/v1/eligibility_requirements/#{r.id}", expression: ex
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: r.id)
+      expect(r.refresh.cached_expression_string).to eq('fff')
+    end
+  end
+
+
   describe "POST /v1/eligibility_requirements/:id/destroy" do
     it "destroys the resource" do
       m = Suma::Fixtures.eligibility_requirement.create
