@@ -36,7 +36,6 @@ module Suma::UrlShortener
 
     # @return [UrlShortener]
     def shortener
-      return nil unless self.enabled?
       return @shortener ||= new_shortener
     end
 
