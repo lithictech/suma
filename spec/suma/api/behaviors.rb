@@ -52,7 +52,7 @@ RSpec.shared_examples "an endpoint with pagination" do |download: true|
   end
 end
 
-RSpec.shared_examples "an endpoint with member-supplied ordering" do
+RSpec.shared_examples "an endpoint with member-supplied ordering" do |download: true|
   let(:url) { raise "must be defined in block" }
   let(:make_item) { raise "must be defined in block" }
   let(:order_by_field) { raise "must be defined in block" }
@@ -93,19 +93,21 @@ RSpec.shared_examples "an endpoint with member-supplied ordering" do
     expect(last_response.body).to include("order_by does not have a valid value")
   end
 
-  it "downloads sorted items" do
-    items = Array.new(3) { |i| make_item(i) }
+  if download
+    it "downloads sorted items" do
+      items = Array.new(3) { |i| make_item(i) }
 
-    send http_method, url, order_by: order_by_field, order_direction: "desc", download: "csv"
+      send http_method, url, order_by: order_by_field, order_direction: "desc", download: "csv"
 
-    expect(last_response).to have_status(ok_status)
-    first_idx = last_response.body.index("#{items.first.id},")
-    last_idx = last_response.body.index("#{items.last.id},")
-    expect(first_idx).to be > last_idx
+      expect(last_response).to have_status(ok_status)
+      first_idx = last_response.body.index("#{items.first.id},")
+      last_idx = last_response.body.index("#{items.last.id},")
+      expect(first_idx).to be > last_idx
+    end
   end
 end
 
-RSpec.shared_examples "an endpoint capable of search" do
+RSpec.shared_examples "an endpoint capable of search" do |download: true|
   let(:url) { raise "must be defined in block" }
   let(:make_matching_items) { raise "must be defined in block" }
   let(:make_non_matching_items) { raise "must be defined in block" }
@@ -113,10 +115,15 @@ RSpec.shared_examples "an endpoint capable of search" do
   let(:ok_status) { 200 }
   let(:http_method) { :get }
 
+  def reindex(items)
+    cls = items.first.class
+    cls.hybrid_search_reindex_all if cls.respond_to?(:hybrid_search_reindex_all)
+  end
+
   it "returns only matching items", :hybrid_search do
     matched = make_matching_items
     unmatched = make_non_matching_items
-    matched.first.class.hybrid_search_reindex_all
+    reindex(matched)
 
     send http_method, url, search: search_term
 
@@ -127,7 +134,7 @@ RSpec.shared_examples "an endpoint capable of search" do
   it "returns all results with a match-all (whitespace, asterik) string", :hybrid_search do
     matched = make_matching_items
     unmatched = make_non_matching_items
-    matched.first.class.hybrid_search_reindex_all
+    reindex(matched)
 
     send http_method, url, search: "\t  \t"
 
@@ -135,15 +142,17 @@ RSpec.shared_examples "an endpoint capable of search" do
     expect(last_response_json_body[:items]).to have_same_ids_as(matched + unmatched)
   end
 
-  it "downloads filtered items", :hybrid_search do
-    matched = make_matching_items
-    unmatched = make_non_matching_items
-    matched.first.class.hybrid_search_reindex_all
+  if download
+    it "downloads filtered items", :hybrid_search do
+      matched = make_matching_items
+      unmatched = make_non_matching_items
+      reindex(matched)
 
-    send http_method, url, search: search_term, download: "csv"
+      send http_method, url, search: search_term, download: "csv"
 
-    expect(last_response).to have_status(ok_status)
-    expect(last_response.body.lines).to have_length(1 + matched.count)
-    expect(last_response.body).to include("#{matched.first.id},")
+      expect(last_response).to have_status(ok_status)
+      expect(last_response.body.lines).to have_length(1 + matched.count)
+      expect(last_response.body).to include("#{matched.first.id},")
+    end
   end
 end

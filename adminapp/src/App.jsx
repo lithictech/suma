@@ -90,6 +90,9 @@ import RoleCreatePage from "./pages/RoleCreatePage";
 import RoleDetailPage from "./pages/RoleDetailPage";
 import RoleEditPage from "./pages/RoleEditPage";
 import RoleListPage from "./pages/RoleListPage";
+import ShortUrlDetailPage from "./pages/ShortUrlDetailPage";
+import ShortUrlEditPage from "./pages/ShortUrlEditPage";
+import ShortUrlListPage from "./pages/ShortUrlListPage";
 import SignInPage from "./pages/SignInPage";
 import StaticStringCreatePage from "./pages/StaticStringCreatePage";
 import StaticStringsNamespacePage from "./pages/StaticStringsNamespacePage";
@@ -410,7 +413,6 @@ function PageSwitch() {
         path="/mobility-trip/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripEditPage)}
       />
-
       <Route
         exact
         path="/offerings"
@@ -568,7 +570,6 @@ function PageSwitch() {
           ProgramEnrollmentExclusionDetailPage
         )}
       />
-
       <Route
         exact
         path="/program-pricing/new"
@@ -814,7 +815,6 @@ function PageSwitch() {
           OrganizationMembershipEditPage
         )}
       />
-
       <Route
         exact
         path="/membership-verifications"
@@ -842,7 +842,6 @@ function PageSwitch() {
           OrganizationMembershipVerificationEditPage
         )}
       />
-
       <Route
         exact
         path="/messages"
@@ -901,7 +900,6 @@ function PageSwitch() {
         path="/marketing-list/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), MarketingListEditPage)}
       />
-
       <Route
         exact
         path="/marketing-sms-broadcasts"
@@ -983,6 +981,21 @@ function PageSwitch() {
           withLayout(),
           StaticStringsNamespacePage
         )}
+      />
+      <Route
+        exact
+        path="/short-urls"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ShortUrlListPage)}
+      />
+      <Route
+        exact
+        path="/short-url/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ShortUrlDetailPage)}
+      />
+      <Route
+        exact
+        path="/short-url/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ShortUrlEditPage)}
       />
       <Route
         exact

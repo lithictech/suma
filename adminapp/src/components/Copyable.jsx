@@ -4,7 +4,14 @@ import isNumber from "lodash/isNumber";
 import { useSnackbar } from "notistack";
 import React from "react";
 
-export default function Copyable({ text, delay, inline, children }) {
+export default function Copyable({
+  text,
+  delay,
+  inline,
+  iconProps,
+  buttonOnly,
+  children,
+}) {
   delay = isNumber(delay) ? delay : 2000;
   const { enqueueSnackbar } = useSnackbar();
 
@@ -19,9 +26,9 @@ export default function Copyable({ text, delay, inline, children }) {
   const sx = inline && { px: "0!important", minWidth: "40px" };
   return (
     <React.Fragment>
-      {children || text}
+      {buttonOnly ? null : children || text}
       <Button title="Copy" variant="link" sx={sx} onClick={onCopy}>
-        <ContentCopyIcon />
+        <ContentCopyIcon {...iconProps} />
       </Button>
     </React.Fragment>
   );

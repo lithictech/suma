@@ -19,8 +19,10 @@ module Suma::UrlShortener
   class << self
     # @return [UrlShortener]
     def new_shortener(**kw)
+      conn = Sequel.connect(self.database_url)
+      conn.extension(:pagination)
       opts = {
-        conn: Sequel.connect(self.database_url),
+        conn:,
         table: self.table,
         root: Suma.api_host + ROOT_PATH,
         not_found_url: self.not_found_url,
@@ -37,5 +39,7 @@ module Suma::UrlShortener
       return nil unless self.enabled?
       return @shortener ||= new_shortener
     end
+
+    def admin_link(id) = "#{Suma.admin_url}/short-url/#{id}"
   end
 end

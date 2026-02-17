@@ -68,7 +68,7 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
       result.handled = true
       return result
     end
-    link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).url : magic_link
+    link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).short_url : magic_link
     vendor_account.replace_access_code(token, link_to_use).save_changes
     msg = Suma::Messages::SingleValue.new(
       "anon_proxy",
