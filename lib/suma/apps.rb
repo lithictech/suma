@@ -161,8 +161,7 @@ module Suma::Apps
   end
 
   UrlRedirects = Rack::Builder.new do
-    shortener = Suma::UrlShortener.new_shortener
-    run ::UrlShortener::RackApp.new(shortener)
+    run ::UrlShortener::RackApp.new(Suma::UrlShortener.shortener)
   end
 
   def self.emplace_dynamic_config
