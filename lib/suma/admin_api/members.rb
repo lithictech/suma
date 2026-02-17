@@ -105,6 +105,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :organization_memberships, with: OrganizationMembershipEntity
     expose :marketing_lists, with: MarketingListEntity
     expose :marketing_sms_dispatches, with: MarketingSmsDispatchEntity
+    expose :mobility_trips, with: MobilityTripEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
