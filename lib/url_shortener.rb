@@ -68,30 +68,36 @@ class UrlShortener
   end
 
   # @return [Sequel::Dataset]
-  def dataset
-    return @conn[@table]
+  def dataset = @conn[@table]
+
+  Shortened = Struct.new(:id, :short_id, :short_url, :long_url, :inserted_at)
+
+  # @return [Shortened]
+  def shortened_from_row(row)
+    short_id = row.fetch(:short_id)
+    return Shortened.new(
+      row.fetch(:id),
+      short_id,
+      self.short_url_from_id(short_id),
+      row.fetch(:url),
+      row.fetch(:inserted_at),
+    )
   end
 
-  # Create the table using the database connection.
-  # Should usually be called from a migration.
-  def create_table
-    @conn.create_table(@table) do
-      column :short_id, :text, unique: true, null: false
-      column :url, :text, null: false
-      column :inserted_at, :timestamptz, null: false, default: Sequel.function(:now)
-    end
-  end
+  def short_url_from_id(short_id) = "#{@root}/#{short_id}"
 
-  Shortened = Struct.new(:short_id, :url)
+  def gen_short_id = self.class.gen_short_id(@byte_size)
 
   # Return the short ID and shortened URL pointing to the full url.
   # @param [String] url
   # @return [Shortened]
-  def shorten(url)
+  def shorten(url, now: nil)
     (MAX_UNIQUE_ID_ATTEMPTS - 1).times do
-      short_id = self.class.gen_short_id(@byte_size)
-      @conn[@table].insert(url:, short_id:)
-      return Shortened.new(short_id, "#{@root}/#{short_id}")
+      short_id = self.gen_short_id
+      vals = {url:, short_id:}
+      vals[:inserted_at] = now if now
+      row = @conn[@table].returning.insert(vals).first
+      return self.shortened_from_row(row)
     rescue Sequel::UniqueConstraintViolation
       nil
     end
@@ -99,6 +105,23 @@ class UrlShortener
           "you are probably at or approaching the maximum number of shortened IDs for #{@bytesize} bytes. " \
           "You should increase the :bytesize value."
     raise NoIdAvailable, msg
+  end
+
+  def update(row_id, short_id: nil, url: nil, now: Time.now)
+    params = {}
+    unless short_id.nil?
+      short_id = short_id.strip
+      short_id = self.class.gen_short_id(@byte_size) if short_id.blank?
+      params[:short_id] = short_id
+    end
+    params[:url] = url.strip unless url.nil?
+    params[:inserted_at] = now
+    row = @conn[@table].
+      where(id: row_id).
+      returning.
+      update(params).
+      first
+    return shortened_from_row(row)
   end
 
   # Given a shortened ID (tail of the URL),

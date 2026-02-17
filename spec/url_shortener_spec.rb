@@ -10,14 +10,16 @@ RSpec.describe UrlShortener do
     @conn = Sequel.connect(ENV.fetch("DATABASE_URL"))
   end
   let(:conn) { @conn }
-  let(:table) { :urlshortener }
+  let(:table) { :url_shortener }
   let(:root) { "https://mysite.com" }
   let(:not_found_url) { "https://not-found.com" }
   let(:shortener) { described_class.new(conn:, table:, root:, not_found_url:) }
 
   before(:each) do
-    conn.drop_table?(table)
-    shortener.create_table
+    shortener.dataset.delete
+  end
+  after(:each) do
+    shortener.dataset.delete
   end
 
   it "uses the current time as the base of the random id" do
@@ -35,7 +37,7 @@ RSpec.describe UrlShortener do
 
   it "can generate and resolve shortened urls" do
     expect(described_class).to receive(:gen_short_id).and_return("abc123")
-    expect(shortener.shorten("https://x.y.z")).to have_attributes(short_id: "abc123", url: "https://mysite.com/abc123")
+    expect(shortener.shorten("https://x.y.z")).to have_attributes(short_id: "abc123", short_url: "https://mysite.com/abc123")
     expect(shortener.resolve_short_id("abc123")).to eq("https://x.y.z")
     expect(shortener.resolve_short_url("https://mysite.com/abc123")).to eq("https://x.y.z")
   end
@@ -74,6 +76,38 @@ RSpec.describe UrlShortener do
     expect { shortener.shorten("https://abc") }.to raise_error(described_class::NoIdAvailable)
   end
 
+  describe "update" do
+    it "updates with an explicit short id" do
+      s = shortener.shorten("z")
+      shortener.update(s.id, short_id: "shorty")
+      expect(shortener.dataset[id: s.id]).to include(short_id: "shorty")
+    end
+
+    it "generates a new id if blank" do
+      s = shortener.shorten("z")
+      expect(s.short_id).to match(/[a-z0-9]+/)
+      old = s.short_id
+      s2 = shortener.update(s.id, short_id: " ")
+      expect(s2.short_id).to match(/[a-z0-9]+/)
+      expect(s2.short_id).to_not eq(old)
+    end
+
+    it "trims spaces" do
+      s = shortener.shorten("z")
+      shortener.update(s.id, short_id: " x ", url: " y ")
+      expect(shortener.dataset[id: s.id]).to include(short_id: "x", url: "y")
+    end
+
+    it "sets the timestamp" do
+      t = Time.at(Time.now.to_i)
+      s = shortener.shorten("url1", now: t)
+      expect(shortener.dataset[id: s.id]).to include(inserted_at: t)
+      t2 = t + 20
+      shortener.update(s.id, short_id: "x", url: "url2", now: t2)
+      expect(shortener.dataset[short_id: "x"]).to include(short_id: "x", url: "url2", inserted_at: t2)
+    end
+  end
+
   describe "RackApp" do
     include Rack::Test::Methods
 
@@ -88,7 +122,7 @@ RSpec.describe UrlShortener do
     end
 
     it "redirects on matched urls" do
-      new_url = shortener.shorten("https://x.y.z").url
+      new_url = shortener.shorten("https://x.y.z").short_url
       new_url.delete_prefix!(root)
 
       get new_url
@@ -119,7 +153,7 @@ RSpec.describe UrlShortener do
       expect(described_class).to receive(:gen_short_id).and_return("abc123")
       shorty = shortener.shorten(raw_url)
       expect(shorty.short_id).to be_a_shortlink_to(raw_url)
-      expect(shorty.url).to be_a_shortlink_to(raw_url)
+      expect(shorty.short_url).to be_a_shortlink_to(raw_url)
 
       expect do
         expect(nil).to be_a_shortlink_to(raw_url)
@@ -130,7 +164,7 @@ RSpec.describe UrlShortener do
       end.to fail_with("No shortened URL found for \"abc1231\"")
 
       expect do
-        expect(shorty.url + "1").to be_a_shortlink_to(raw_url)
+        expect(shorty.short_url + "1").to be_a_shortlink_to(raw_url)
       end.to fail_with("No shortened URL found for \"https://mysite.com/abc1231\"")
 
       expect do

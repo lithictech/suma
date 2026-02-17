@@ -2,14 +2,14 @@
 
 Sequel.migration do
   up do
-    require "suma/url_shortener"
-
-    Suma::UrlShortener.new_shortener(conn: self).create_table
+    create_table(:url_shortener) do
+      column :short_id, :text, unique: true, null: false
+      column :url, :text, null: false
+      column :inserted_at, :timestamptz, null: false, default: Sequel.function(:now)
+    end
   end
 
   down do
-    require "suma/url_shortener"
-
-    drop_table Suma::UrlShortener.new_shortener.table
+    drop_table :url_shortener
   end
 end

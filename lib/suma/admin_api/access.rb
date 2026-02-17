@@ -49,6 +49,10 @@ class Suma::AdminAPI::Access
     Suma::Vendor => [:vendor, COMMERCE, MANAGEMENT],
   }.freeze
 
+  OTHER_RESOURCES = [
+    [:short_url, ALL, MARKETING_SMS],
+  ].freeze
+
   class << self
     def key(resource, rw) = rw == :read ? read_key(resource) : write_key(resource)
     def read_key(resource) = can?(resource, 1)
@@ -61,9 +65,13 @@ class Suma::AdminAPI::Access
     end
 
     def as_json
-      return MAPPING.values.each_with_object({}) do |v, acc|
+      r = MAPPING.values.each_with_object({}) do |v, acc|
         acc[v[0]] = [v[1], v[2]]
       end
+      OTHER_RESOURCES.each do |v|
+        r[v[0]] = [v[1], v[2]]
+      end
+      return r
     end
   end
 end

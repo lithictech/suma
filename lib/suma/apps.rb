@@ -67,6 +67,7 @@ require "suma/admin_api/program_enrollment_exclusions"
 require "suma/admin_api/program_pricings"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
+require "suma/admin_api/short_urls"
 require "suma/admin_api/static_strings"
 require "suma/admin_api/vendors"
 require "suma/admin_api/vendor_services"
@@ -132,6 +133,7 @@ module Suma::Apps
     mount Suma::AdminAPI::ProgramPricings
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search
+    mount Suma::AdminAPI::ShortUrls
     mount Suma::AdminAPI::StaticStrings
     mount Suma::AdminAPI::Vendors
     mount Suma::AdminAPI::VendorServices

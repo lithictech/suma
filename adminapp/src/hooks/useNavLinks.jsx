@@ -12,6 +12,7 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeIcon from "@mui/icons-material/Home";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import KeyIcon from "@mui/icons-material/Key";
+import LinkIcon from "@mui/icons-material/Link";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import OutboxIcon from "@mui/icons-material/Outbox";
@@ -226,6 +227,11 @@ export default function useNavLinks() {
             label: "SMS Dispatches",
             href: "/marketing-sms-dispatches",
             icon: <OutboxIcon />,
+          },
+          {
+            label: "URL Shortener",
+            href: "/short-urls",
+            icon: <LinkIcon />,
           },
         ].filter(Boolean),
       },

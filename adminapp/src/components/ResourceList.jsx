@@ -7,6 +7,7 @@ import pluralize from "../modules/pluralize";
 import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
+import humps from "humps";
 import startCase from "lodash/startCase";
 import React from "react";
 
@@ -28,7 +29,7 @@ export default function ResourceList({
       page: page + 1,
       perPage,
       search,
-      orderBy,
+      orderBy: humps.decamelize(orderBy || "") || null,
       orderDirection: order,
     });
   }, [apiList, order, orderBy, page, perPage, search]);

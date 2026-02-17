@@ -407,6 +407,14 @@ export default {
   updateRole: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/roles/${id}`, data, ...args),
 
+  getShortUrls: (data, ...args) => get(`/adminapi/v1/short_urls`, data, ...args),
+  createShortUrl: (data, ...args) =>
+    post(`/adminapi/v1/short_urls/create`, data, ...args),
+  getShortUrl: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/short_urls/${id}`, data, ...args),
+  updateShortUrl: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/short_urls/${id}`, data, ...args),
+
   getStaticStrings: (data, ...args) => get(`/adminapi/v1/static_strings`, data, ...args),
   createStaticString: (data, ...args) =>
     post(`/adminapi/v1/static_strings/create`, data, ...args),
