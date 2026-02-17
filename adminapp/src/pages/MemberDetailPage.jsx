@@ -168,6 +168,7 @@ export default function MemberDetailPage() {
           <EnrollmentExclusions model={model} />,
           <Activities activities={model.activities} />,
           <Orders orders={model.orders} />,
+          <MobilityTrips mobilityTrips={model.mobilityTrips} />,
           <Charges charges={model.charges} />,
           <PaymentInstruments instruments={model.paymentInstruments} />,
           <MessagePreferences preferences={model.preferences} />,
@@ -410,6 +411,28 @@ function Orders({ orders }) {
           {row.offering.description.en}
         </AdminLink>,
         row.statusLabel,
+      ]}
+    />
+  );
+}
+
+function MobilityTrips({ mobilityTrips }) {
+  return (
+    <RelatedList
+      title="Trips"
+      rows={mobilityTrips}
+      headers={["Id", "Began At", "Ended At", "Service", "Rate"]}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        formatDate(row.beganAt),
+        formatDate(row.endedAt),
+        <AdminLink key="vs" model={row.vendorService}>
+          {row.vendorService.internalName}
+        </AdminLink>,
+        <AdminLink key="r" model={row.vendorServiceRate}>
+          {row.vendorServiceRate.internalName}
+        </AdminLink>,
       ]}
     />
   );
