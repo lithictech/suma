@@ -408,6 +408,42 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       end
     end
 
+    it "handles a bug" do
+      member = Suma::Fixtures.member.onboarding_verified.create
+
+      cash_vsc = Suma::Vendor::ServiceCategory.cash
+      food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
+
+      cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+      food_ledger = Suma::Fixtures.ledger.member(member).
+        with_categories(food_vsc).
+        create(name: "food")
+
+      Suma::Payment::Account.lookup_platform_account.ensure_cash_ledger
+      platform_food_ledger = Suma::Fixtures.ledger.
+        with_categories(food_vsc).
+        create(name: "food", account: Suma::Payment::Account.lookup_platform_account)
+
+      offering = Suma::Fixtures.offering.create
+      product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+      op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+      product2 = Suma::Fixtures.product.with_categories(food_vsc).create
+      op2 = Suma::Fixtures.offering_product(product: product2, offering:).costing("$50", "$50").create
+      trigger = Suma::Fixtures.payment_trigger.matching(1).
+        from(platform_food_ledger).
+        create
+
+      cart = Suma::Fixtures.cart(offering:, member:).
+        with_product(product1, 1).
+        with_product(product2, 1).
+        create
+      ctx = Suma::Payment::CalculationContext.new(Time.now)
+      ci = cart.cost_info(ctx)
+      expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost('$25')
+      expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost('$25')
+      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost('$50'))
+    end
+
     describe "inventory behavior" do
       it "errors if the order quantity exceeds the maximum allowed on the offering" do
         offering.update(max_ordered_items_cumulative: 1)
