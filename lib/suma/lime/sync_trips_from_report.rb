@@ -14,6 +14,7 @@ class Suma::Lime::SyncTripsFromReport
   START_TIME = "START_TIME"
   END_TIME = "END_TIME"
   USER_EMAIL = "USER_EMAIL"
+  EMAIL_ADDRESS = "EMAIL_ADDRESS"
   START_LATITUDE = "START_LATITUDE"
   START_LONGITUDE = "START_LONGITUDE"
   END_LATITUDE = "END_LATITUDE"
@@ -92,7 +93,7 @@ class Suma::Lime::SyncTripsFromReport
       # We can't really predict these reliably, so if the trip token or email is missing,
       # assume the row is broken and just skip it.
       trip_token = row[TRIP_TOKEN]
-      user_email = row[USER_EMAIL]
+      user_email = row[USER_EMAIL] || row[EMAIL_ADDRESS]
       if trip_token.blank? || user_email.blank?
         blank_rows += 1
         next
@@ -123,16 +124,16 @@ class Suma::Lime::SyncTripsFromReport
       if (existing = Suma::Mobility::Trip[external_trip_id: trip_token])
         # If we already have this trip recorded, we want to noop, or update it if configured.
         # We do NOT handle the race condition with a unique violation on external_trip_id,
-        # since in that case we assume we're dealing with the same code and it isn't worth the complexity.
+        # since in that case we assume we're dealing with the same code, and it isn't worth the complexity.
         if Suma::Lime.trip_report_overwrite
-          new_values = self.parse_trip_from_row(row)[:receipt]
+          new_values = self.parse_trip_from_row(row, user_email:)[:receipt]
           existing.update(new_values.trip.values)
         end
         existing_rows += 1
         next
       end
       imported_rows += 1
-      self.import_trip_from_row(row)
+      self.import_trip_from_row(row, user_email:)
     end
     # Already logged, don't re-log as successful
     return unless import_successful
@@ -147,8 +148,8 @@ class Suma::Lime::SyncTripsFromReport
     raise
   end
 
-  def parse_trip_from_row(row)
-    registration = Suma::AnonProxy::VendorAccountRegistration.find!(external_program_id: row.fetch(USER_EMAIL))
+  def parse_trip_from_row(row, user_email:)
+    registration = Suma::AnonProxy::VendorAccountRegistration.find!(external_program_id: user_email)
     vendor_config = registration.account.configuration
     program = Suma::Enumerable.one!(vendor_config.programs)
     pricing = Suma::Enumerable.one!(program.pricings)
@@ -161,8 +162,8 @@ class Suma::Lime::SyncTripsFromReport
     return {receipt:, program:}
   end
 
-  def import_trip_from_row(row)
-    r = self.parse_trip_from_row(row)
+  def import_trip_from_row(row, user_email:)
+    r = self.parse_trip_from_row(row, user_email:)
     Suma::Mobility::TripImporter.import(receipt: r[:receipt], program: r[:program], logger: self.logger)
   end
 
