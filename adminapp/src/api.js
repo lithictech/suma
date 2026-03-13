@@ -238,21 +238,32 @@ export default {
   updateProgram: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/programs/${id}`, data, ...args),
 
-  getProgramEnrollments: (data, ...args) =>
-    get(`/adminapi/v1/program_enrollments`, data, ...args),
-  createProgramEnrollment: (data, ...args) =>
-    post("/adminapi/v1/program_enrollments/create", data, ...args),
-  getProgramEnrollment: ({ id, ...data }, ...args) =>
-    get(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
-  updateProgramEnrollment: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
+  getEligibilityAttributes: (data, ...args) =>
+    get(`/adminapi/v1/eligibility_attributes`, data, ...args),
+  createEligibilityAttribute: (data, ...args) =>
+    post("/adminapi/v1/eligibility_attributes/create", data, ...args),
+  getEligibilityAttribute: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/eligibility_attributes/${id}`, data, ...args),
+  updateEligibilityAttribute: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/eligibility_attributes/${id}`, data, ...args),
 
-  createProgramEnrollmentExclusion: (data, ...args) =>
-    post("/adminapi/v1/program_enrollment_exclusions/create", data, ...args),
-  getProgramEnrollmentExclusion: ({ id, ...data }, ...args) =>
-    get(`/adminapi/v1/program_enrollment_exclusions/${id}`, data, ...args),
-  destroyProgramEnrollmentExclusion: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/program_enrollment_exclusions/${id}/destroy`, data, ...args),
+  getEligibilityAssignments: (data, ...args) =>
+    get(`/adminapi/v1/eligibility_assignments`, data, ...args),
+  createEligibilityAssignment: (data, ...args) =>
+    post("/adminapi/v1/eligibility_assignments/create", data, ...args),
+  getEligibilityAssignment: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/eligibility_assignments/${id}`, data, ...args),
+  updateEligibilityAssignment: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/eligibility_assignments/${id}`, data, ...args),
+
+  getEligibilityRequirements: (data, ...args) =>
+    get(`/adminapi/v1/eligibility_requirements`, data, ...args),
+  createEligibilityRequirement: (data, ...args) =>
+    post("/adminapi/v1/eligibility_requirements/create", data, ...args),
+  getEligibilityRequirement: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/eligibility_requirements/${id}`, data, ...args),
+  updateEligibilityRequirement: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/eligibility_requirements/${id}`, data, ...args),
 
   createProgramPricing: (data, ...args) =>
     post("/adminapi/v1/program_pricings/create", data, ...args),

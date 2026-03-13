@@ -45,6 +45,9 @@ require "suma/admin_api/commerce_offerings"
 require "suma/admin_api/commerce_orders"
 require "suma/admin_api/commerce_products"
 require "suma/admin_api/commerce_offering_products"
+require "suma/admin_api/eligibility_attributes"
+require "suma/admin_api/eligibility_assignments"
+require "suma/admin_api/eligibility_requirements"
 require "suma/admin_api/financials"
 require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
@@ -62,8 +65,6 @@ require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
 require "suma/admin_api/payout_transactions"
 require "suma/admin_api/programs"
-require "suma/admin_api/program_enrollments"
-require "suma/admin_api/program_enrollment_exclusions"
 require "suma/admin_api/program_pricings"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
@@ -111,6 +112,9 @@ module Suma::Apps
     mount Suma::AdminAPI::CommerceOrders
     mount Suma::AdminAPI::CommerceProducts
     mount Suma::AdminAPI::CommerceOfferingProducts
+    mount Suma::AdminAPI::EligibilityAssignments
+    mount Suma::AdminAPI::EligibilityAttributes
+    mount Suma::AdminAPI::EligibilityRequirements
     mount Suma::AdminAPI::Financials
     mount Suma::AdminAPI::FundingTransactions
     mount Suma::AdminAPI::MarketingLists
@@ -128,8 +132,6 @@ module Suma::Apps
     mount Suma::AdminAPI::PaymentTriggers
     mount Suma::AdminAPI::PayoutTransactions
     mount Suma::AdminAPI::Programs
-    mount Suma::AdminAPI::ProgramEnrollments
-    mount Suma::AdminAPI::ProgramEnrollmentExclusions
     mount Suma::AdminAPI::ProgramPricings
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search
