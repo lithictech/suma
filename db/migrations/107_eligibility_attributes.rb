@@ -118,7 +118,7 @@ Sequel.migration do
       constraint :unambiguous_resource,
                  Sequel.unambiguous_constraint([:program_id, :payment_trigger_id])
 
-      foreign_key :expression_id, :eligibility_expressions, on_delete: :cascade
+      foreign_key :expression_id, :eligibility_expressions, null: false, on_delete: :restrict
 
       column :cached_attribute_ids, "integer[]", index: true, null: false
       text :cached_expression_string, null: false

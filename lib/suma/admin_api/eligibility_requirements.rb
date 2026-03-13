@@ -44,6 +44,14 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       self,
       Suma::Eligibility::Requirement,
       DetailedEligibilityRequirement,
+      around: lambda do |rt, m, &block|
+        expr = rt.params.delete(:expression)
+        block.call
+        if expr
+          m.replace_expression(expr)
+          m.resource.audit_activity("changedeligibility", action: m.cached_expression_string)
+        end
+      end,
     ) do
       params do
         requires :expression, type: JSON

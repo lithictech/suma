@@ -49,4 +49,23 @@ RSpec.describe "Suma::Eligibility::Requirement", :db do
       expect(req).to have_attributes(cached_expression_string: "")
     end
   end
+
+  describe "replace_expression" do
+    it "updates the expression" do
+      req = Suma::Fixtures.eligibility_requirement.create
+      expect(req.expression.serialize).to eq({op: "AND"})
+      old = req.expression
+      req.replace_expression({op: "OR"})
+      expect(req.expression).to_not be === old
+      expect(req.expression.serialize).to eq({op: "OR"})
+    end
+
+    it "noops if the expression has not changed" do
+      req = Suma::Fixtures.eligibility_requirement.create
+      expect(req.expression.serialize).to eq({op: "AND"})
+      old = req.expression
+      req.replace_expression({op: "AND"})
+      expect(req.expression).to be === old
+    end
+  end
 end

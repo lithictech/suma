@@ -38,6 +38,23 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
     return r.label
   end
 
+  # Replace an expression with a serialized version (usually from an endpoint).
+  # If the serialized version is the same as the current serialized expression, noop.
+  # Otherwise, delete the current expression (and all children)
+  # and replace it with a newly created tree from the serialized version.
+  # @param serialized [Hash]
+  def replace_expression(serialized)
+    existing = self.expression.serialize
+    return if existing == serialized
+    self.db.transaction do
+      # Since expression_id is non-nullable, we need to create and assign before destroying.
+      new_expr = Suma::Eligibility::Expression.deserialize(serialized)
+      old_expr = self.expression
+      self.update(expression: new_expr)
+      old_expr.destroy
+    end
+  end
+
   def rel_admin_link = "/eligibility-requirement/#{self.id}"
 
   def hybrid_search_fields

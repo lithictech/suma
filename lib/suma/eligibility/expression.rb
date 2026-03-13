@@ -48,10 +48,42 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
 
   # Return a serializable object representing the expression.
   # Can be deserialized using deserialize.
-  def serialize; end
+  # @return [Hash]
+  def serialize
+    return {attr: self.attribute.id} if self.leaf?
+    h = {}
+    h[:left] = self.left.serialize if self.left
+    h[:right] = self.right.serialize if self.right
+    h[:op] = self.operator
+    return h
+  end
 
-  # Deserialize an instance from a serialized version.
-  # If any invalid attribute IDs are used, they are ignored,
-  # and the subexpression will be empty.
-  def self.deserialize; end
+  class << self
+    # Deserialize an instance from a serialized version.
+    # If any invalid attribute IDs are used, they are ignored,
+    # and the subexpression will be empty.
+    # @param arg [Hash]
+    # @return [self]
+    def deserialize(arg)
+      self.db.transaction do
+        r = self._deserialize(arg)
+        r ||= self.create
+        return r
+      end
+    end
+
+    def _deserialize(arg)
+      return nil if arg.nil?
+      if arg[:attr]
+        attribute = Suma::Eligibility::Attribute[arg[:attr]]
+        return nil if attribute.nil?
+        return self.create(attribute:)
+      end
+      h = {}
+      h[:left] = self._deserialize(arg[:left]) if arg[:left]
+      h[:right] = self._deserialize(arg[:right]) if arg[:right]
+      h[:operator] = arg[:op] if arg[:op]
+      return self.create(h)
+    end
+  end
 end

@@ -72,4 +72,84 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
     )
     expect(deep.to_formula_str).to eq("('foo2' AND ('foo3' AND 'foo4'))")
   end
+
+  describe "serialization" do
+    def roundtrip(e)
+      expect(described_class.deserialize(e.serialize).serialize).to(eq(e.serialize))
+    end
+
+    it "can serialize and deserialize" do
+      attr1 = Suma::Fixtures.eligibility_attribute.create
+      attr2 = Suma::Fixtures.eligibility_attribute.create
+      expr_fac = Suma::Fixtures.eligibility_expression
+      empty = expr_fac.create
+      expect(empty.serialize).to eq({op: "AND"})
+      leaf = expr_fac.leaf(attr1).create
+      expect(leaf.serialize).to eq({attr: attr1.id})
+      roundtrip(leaf)
+
+      empty_operand = expr_fac.create(left: expr_fac.create, right: expr_fac.create)
+      expect(empty_operand.serialize).to eq({left: {op: "AND"}, op: "AND", right: {op: "AND"}})
+      roundtrip(empty_operand)
+
+      single_side = expr_fac.create(right: expr_fac.leaf(attr1).create)
+      expect(single_side.serialize).to eq({op: "AND", right: {attr: attr1.id}})
+      roundtrip(single_side)
+
+      deep = expr_fac.and.create(
+        left: expr_fac.leaf(attr1).create,
+        right: expr_fac.or.create(
+          left: expr_fac.create(
+            left: expr_fac.leaf(attr1).create,
+            right: expr_fac.leaf(attr2).create,
+          ),
+        ),
+      )
+      expect(deep.serialize).to eq(
+        {
+          left: {attr: attr1.id},
+          op: "AND",
+          right: {
+            left: {
+              left: {attr: attr1.id},
+              op: "AND",
+              right: {attr: attr2.id},
+            },
+            op: "OR",
+          },
+        },
+      )
+      roundtrip(deep)
+    end
+
+    it "ignores missing attributes on deserialization" do
+      expect(described_class.deserialize({attr: 0}).serialize).to eq({op: "AND"})
+
+      attr = Suma::Fixtures.eligibility_attribute.create
+      h = {
+        left: {attr: 0},
+        op: "AND",
+        right: {
+          left: {
+            left: {attr: attr.id},
+            op: "AND",
+            right: {attr: 0},
+          },
+          op: "OR",
+        },
+      }
+      expect(described_class.deserialize(h).serialize).to eq(
+        {
+          op: "AND",
+          right: {
+            left: {
+              left: {attr: attr.id},
+              op: "AND",
+            },
+            op: "OR",
+          },
+        },
+      )
+    end
+  end
 end

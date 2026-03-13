@@ -89,14 +89,14 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
         left: {
           left: {
             left: {
-              left: attr1.id,
-              right: attr2.id,
-              operator: "AND",
+              left: {attr: attr1.id},
+              right: {attr: attr2.id},
+              op: "AND",
             },
           },
         },
-        operator: "OR",
-        right: attr2.id,
+        op: "OR",
+        right: {attr: attr2.id},
       }
       r = Suma::Fixtures.eligibility_requirement.create
 
@@ -104,7 +104,7 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: r.id)
-      expect(r.refresh.cached_expression_string).to eq("fff")
+      expect(r.refresh.cached_expression_string).to eq("(('attr1' AND 'attr2') OR 'attr2')")
     end
   end
 
