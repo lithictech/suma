@@ -1,60 +1,61 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import BoolCheckmark from "../components/BoolCheckmark";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs } from "../modules/dayConfig";
-import formatDate from "../modules/formatDate";
-import EligibilityAttributeCreatePage from "./EligibilityAttributeCreatePage";
 import React from "react";
 
 export default function EligibilityAttributeDetailPage() {
   return (
     <ResourceDetail
-      resource="vendor"
-      apiGet={api.getVendor}
+      resource="eligibility_attribute"
+      apiGet={api.getEligibilityAttribute}
       canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
         { label: "Name", value: model.name },
-        { label: "Slug", value: model.slug },
-        ...detailPageImageProperties(model.image),
+        { label: "Description", value: model.description },
+        model.parent && {
+          label: "Parent",
+          value: <AdminLink model={model.parent}>{model.parent.name}</AdminLink>,
+        },
       ]}
     >
       {(model) => [
         <RelatedList
-          title="Services"
-          rows={model.services}
+          title="Children"
+          rows={model.children}
           headers={["Id", "Name"]}
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink model={row} />,
-            <AdminLink model={row}>{row.internalName}</AdminLink>,
+            <AdminLink model={row}>{row.name}</AdminLink>,
           ]}
         />,
         <RelatedList
-          title="Configuration"
-          rows={model.configurations}
-          headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
+          title="Assignments"
+          rows={model.assignments}
+          headers={["Id", "Assignee"]}
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
-            row.vendor.name,
-            row.authToVendorKey,
-            <BoolCheckmark>{row.enabled}</BoolCheckmark>,
+            <AdminLink key="assignee" model={row.assignee}>
+              {row.assigneeLabel}
+            </AdminLink>,
           ]}
         />,
         <RelatedList
-          title="Products"
-          rows={model.products}
-          headers={["Id", "Created", "Name"]}
+          title="Referenced Requirements"
+          rows={model.referencedRequirements}
+          headers={["Id", "Resource", "Expression"]}
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
-            formatDate(row.createdAt),
-            row.name.en,
+            <AdminLink key="id" model={row}>
+              {row.resourceLabel}
+            </AdminLink>,
+            row.expressionFormulaStr,
           ]}
         />,
       ]}

@@ -13,6 +13,7 @@ class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attribut
   plugin :timestamps
 
   many_to_one :parent, class: self
+  one_to_many :children, class: self, key: :parent_id
   one_to_many :assignments, class: "Suma::Eligibility::Assignment"
   one_to_many :referenced_requirements,
               class: "Suma::Eligibility::Requirement",

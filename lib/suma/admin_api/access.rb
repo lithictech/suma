@@ -21,7 +21,6 @@ class Suma::AdminAPI::Access
     Suma::Commerce::Product => [:product, COMMERCE, COMMERCE],
     Suma::Eligibility::Assignment => [:eligibility_assignment, ALL, MANAGEMENT],
     Suma::Eligibility::Attribute => [:eligibility_attribute, ALL, MANAGEMENT],
-    Suma::Eligibility::Expression => [:eligibility_expression, ALL, MANAGEMENT],
     Suma::Eligibility::Requirement => [:eligibility_requirement, ALL, MANAGEMENT],
     Suma::I18n::StaticString => [:static_string, ALL, LOCALIZATION],
     Suma::Marketing::List => [:marketing_list, MARKETING_SMS, MARKETING_SMS],

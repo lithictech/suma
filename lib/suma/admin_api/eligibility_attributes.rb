@@ -8,6 +8,8 @@ class Suma::AdminAPI::EligibilityAttributes < Suma::AdminAPI::V1
   class DetailedEligibilityAttribute < EligibilityAttributeEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :description
+    expose :children, with: EligibilityAttributeEntity
     expose :assignments, with: EligibilityAssignmentEntity
     expose :referenced_requirements, with: EligibilityRequirementEntity
   end

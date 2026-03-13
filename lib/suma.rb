@@ -94,7 +94,8 @@ module Suma
   WEBDRIVER_TESTS_ENABLED = ENV.fetch("WEBDRIVER_TESTS", false)
   INTEGRATION_TESTS_ENABLED = ENV.fetch("INTEGRATION_TESTS", false)
 
-  DATA_DIR = Pathname(__FILE__).dirname.parent + "data"
+  SELF_DIR = Pathname(__FILE__).dirname.parent
+  DATA_DIR = SELF_DIR + "data"
 
   singleton_attr_reader :globals_cache
   @globals_cache = {}
