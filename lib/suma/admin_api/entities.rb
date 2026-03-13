@@ -5,9 +5,9 @@ require "grape_entity"
 require "suma/service/entities"
 
 module Suma::AdminAPI::Entities
-  MoneyEntity = Suma::Service::Entities::Money
-  LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
-  AddressEntity = Suma::Service::Entities::Address
+  class MoneyEntity < Suma::Service::Entities::Money; end
+  class LegalEntityEntity < Suma::Service::Entities::LegalEntityEntity; end
+  class AddressEntity < Suma::Service::Entities::Address; end
 
   class TranslatedTextEntity < Suma::Service::Entities::Base
     expose :en

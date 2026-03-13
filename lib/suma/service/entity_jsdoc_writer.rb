@@ -1,37 +1,40 @@
-class Suma::Service::EntityJsdocWriter
+# frozen_string_literal: true
 
+require "suma/service"
+
+class Suma::Service::EntityJsdocWriter
   GRAPE_TO_JSDOC = {
     # Primitives
-    Integer   => "number",
-    Float     => "number",
+    Integer => "number",
+    Float => "number",
     BigDecimal => "number",
-    Numeric   => "number",
-    String    => "string",
-    Symbol    => "string",
-    "String"  => "string",
+    Numeric => "number",
+    String => "string",
+    Symbol => "string",
+    "String" => "string",
     "Integer" => "number",
-    "Float"   => "number",
+    "Float" => "number",
 
     # Booleans (grape-entity uses these symbols/strings)
-    :boolean  => "boolean",
+    :boolean => "boolean",
     "Boolean" => "boolean",
-    TrueClass  => "boolean",
+    TrueClass => "boolean",
     FalseClass => "boolean",
 
     # Date / time
-    Date      => "string",
-    DateTime  => "string",
-    Time      => "string",
+    Date => "string",
+    DateTime => "string",
+    Time => "string",
 
     # Collections
-    Array     => "Array",
-    Hash      => "Object",
+    Array => "Array",
+    Hash => "Object",
   }.freeze
 
   def self.gather_entity_classes
     ObjectSpace.each_object(Class).select do |klass|
       klass < Grape::Entity &&
-        klass.name &&              # skip anonymous classes
+        klass.name && # skip anonymous classes
         !klass.name.empty?
     end.sort_by(&:name)
   end
@@ -45,9 +48,7 @@ class Suma::Service::EntityJsdocWriter
     end
 
     # Documentation hint (e.g. documentation: { type: "string" })
-    if documentation.is_a?(Hash) && documentation[:type]
-      return documentation[:type].to_s
-    end
+    return documentation[:type].to_s if documentation.is_a?(Hash) && documentation[:type]
 
     return "?" unless type
 
@@ -56,19 +57,96 @@ class Suma::Service::EntityJsdocWriter
     return mapped if mapped
 
     # If it's a Grape::Entity subclass, reference it by name
-    if type.is_a?(Class) && type < Grape::Entity
-      return self.jsdoc_entity_name(type)
-    end
+    return self.jsdoc_entity_name(type) if type.is_a?(Class) && type < Grape::Entity
 
     # Fallback: stringify
     type.to_s
   end
 
+  protected def guess_jsdoc_type(attr)
+    attr = attr.to_s
+
+    return "number" if NUM_PREFIXES.any? { |prefix| attr.start_with?("#{prefix}_") }
+    return "number" if NUM_SUFFIXES.include?(attr) || NUM_SUFFIXES.any? { |a| attr.end_with?("_#{a}") }
+
+    return "string" if STR_PREFIXES.any? { |prefix| attr.start_with?("#{prefix}_") }
+    return "string" if STR_SUFFIXES.include?(attr) || STR_SUFFIXES.any? { |a| attr.end_with?("_#{a}") }
+
+    return "boolean" if BOOL_PREFIXES.any? { |prefix| attr.start_with?("#{prefix}_") }
+    return "boolean" if BOOL_SUFFIXES.include?(attr) || BOOL_SUFFIXES.any? { |a| attr.start_with?("_#{a}") }
+
+    return "ExternalLink[]" if attr == "external_links"
+    return "AdminAction[]" if attr == "admin_actions"
+
+    return "?"
+  end
+
+  NUM_PREFIXES = [
+    "count",
+    "quantity",
+  ].freeze
+  NUM_SUFFIXES = [
+    "id",
+    "cents",
+    "count",
+    "fraction",
+    "lat",
+    "lng",
+    "multiplier",
+    "offset",
+    "ordinal",
+    "quantity",
+  ].freeze
+  STR_PREFIXES = [
+    "formatted",
+  ].freeze
+  STR_SUFFIXES = [
+    "at",
+    "begin",
+    "code",
+    "content",
+    "currency",
+    "description",
+    "email",
+    "en",
+    "es",
+    "end",
+    "html",
+    "key",
+    "label",
+    "last4",
+    "link",
+    "md",
+    "phone",
+    "name",
+    "reason",
+    "slug",
+    "state",
+    "status",
+    "str",
+    "template",
+    "timezone",
+    "token",
+    "type",
+    "url",
+  ].freeze
+  BOOL_PREFIXES = [
+    "can",
+    "is",
+    "need",
+    "needs",
+  ].freeze
+  BOOL_SUFFIXES = [
+    "enabled",
+  ].freeze
+
   # Derive a clean JSDoc identifier from an entity class name.
   protected def jsdoc_entity_name(klass)
     name = klass.respond_to?(:name) ? klass.name : klass.to_s
+    # We don't want namespaces
+    name = name.split("::").last
     # Strip trailing "Entity" suffix for brevity, e.g. UserEntity → User
-    name.gsub("::", "_").sub(/_?Entity$/, "")
+    return name.sub(/_?Entity$/, "")
   end
 
   # Build JSDoc typedef for a single entity class
@@ -81,69 +159,53 @@ class Suma::Service::EntityJsdocWriter
     lines << " * @typedef {Object} #{type_name}"
     lines << " * @description Auto-generated from #{source_name}"
 
-    exposures = entity_class.root_exposures rescue []
+    exposures = begin
+      entity_class.root_exposures
+    rescue StandardError
+      []
+    end
 
     exposures.each do |exposure|
       # Each exposure may represent a single field or a nested block.
       # We walk recursively if the exposure responds to `nested_exposures`.
-      self.walk_exposure(exposure, "", lines)
+      self.walk_exposure(exposure, lines)
     end
 
     lines << " */"
     lines
   end
 
-  protected def walk_exposure(exposure, prefix, lines)
+  protected def walk_exposure(exposure, lines)
     # Nested / merge block
     if exposure.respond_to?(:nested_exposures) && exposure.nested_exposures.any?
       exposure.nested_exposures.each do |nested|
-        self.walk_exposure(nested, prefix, lines)
+        self.walk_exposure(nested, lines)
       end
       return
     end
 
-    attr_name = exposure.attribute.to_s rescue nil
+    attr_name = exposure.attribute.to_s
     return if attr_name.nil? || attr_name.empty?
 
-    full_name = prefix.empty? ? attr_name : "#{prefix}.#{attr_name}"
-
+    opts = exposure.send(:options)
     # Gather type hints from the exposure's options
-    opts = exposure.options rescue {}
+    name_as = opts[:as]
     using = opts[:using]
     type  = opts[:type]
     doc   = opts[:documentation]
-    is_array = opts[:is_array]
+
+    attr_name = name_as || attr_name
 
     js_type = self.jsdoc_type(type, using, doc)
+    js_type = self.guess_jsdoc_type(attr_name) if js_type == "?"
 
-    # Wrap in Array<...> when :is_array or :using with an array type
-    if is_array || (using && opts[:is_array] != false && guess_array?(exposure))
-      js_type = "Array<#{js_type}>"
-    end
-
-    optional = !opts[:required]
     desc_text = doc.is_a?(Hash) ? (doc[:desc] || doc[:description]).to_s : ""
 
-    prop_tag  = optional ? "@property {#{js_type}} [#{full_name}]" : "@property {#{js_type}} #{full_name}"
+    js_name = attr_name.to_s.camelize(:lower)
+    prop_tag  = "@property {#{js_type}} #{js_name}"
     prop_tag += " - #{desc_text}" unless desc_text.empty?
 
     lines << " * #{prop_tag}"
-
-    # If using another entity AND we have sub-exposures, recurse with dotted prefix
-    if using
-      sub_class = using.is_a?(Proc) ? using.call : using
-      if sub_class < Grape::Entity
-        (sub_class.root_exposures rescue []).each do |nested|
-          self.walk_exposure(nested, full_name, lines)
-        end
-      end
-    end
-  end
-
-  # Heuristic: if the exposure was declared with `expose :items, using: Foo`
-  # and the attribute name looks plural, guess it's an array.
-  def guess_array?(_exposure)
-    false # conservative default; :is_array option is the authoritative source
   end
 
   def build(entity_classes)
@@ -152,6 +214,21 @@ class Suma::Service::EntityJsdocWriter
     output_lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
     output_lines << "// Entities: #{entity_classes.map(&:name).join(', ')}"
     output_lines << ""
+    # language=js
+    output_lines << <<~JS
+      /**
+       * @typedef AdminAction
+       * @property {string} label
+       * @property {string} url
+       * @property {object} params
+       */
+
+      /**
+       * @typedef ExternalLink
+       * @property {string} url
+       * @property {string} label
+       */
+    JS
 
     entity_classes.each_with_index do |klass, i|
       output_lines.concat(typedef_for(klass))
