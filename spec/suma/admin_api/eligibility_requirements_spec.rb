@@ -29,15 +29,11 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       let(:search_term) { "zzz" }
 
       def make_matching_items
-        return [
-          Suma::Fixtures.eligibility_requirement.create(member: Suma::Fixtures.member.named("zzz").create).create,
-        ]
+        return [Suma::Fixtures.eligibility_requirement.attribute("zzz").create]
       end
 
       def make_non_matching_items
-        return [
-          Suma::Fixtures.eligibility_requirement.create(member: Suma::Fixtures.member.named("wibble").create).create,
-        ]
+        return [Suma::Fixtures.eligibility_requirement.attribute("wibble").create]
       end
     end
   end
@@ -86,8 +82,8 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
 
   describe "POST /v1/eligibility_requirements/:id" do
     it "updates the expression" do
-      attr1 = Suma::Fixtures.eligibility_attribute.create(name: 'attr1')
-      attr2 = Suma::Fixtures.eligibility_attribute.create(name: 'attr2')
+      attr1 = Suma::Fixtures.eligibility_attribute.create(name: "attr1")
+      attr2 = Suma::Fixtures.eligibility_attribute.create(name: "attr2")
 
       ex = {
         left: {
@@ -95,11 +91,11 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
             left: {
               left: attr1.id,
               right: attr2.id,
-              operator: 'AND',
-            }
+              operator: "AND",
+            },
           },
         },
-        operator: 'OR',
+        operator: "OR",
         right: attr2.id,
       }
       r = Suma::Fixtures.eligibility_requirement.create
@@ -108,10 +104,9 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: r.id)
-      expect(r.refresh.cached_expression_string).to eq('fff')
+      expect(r.refresh.cached_expression_string).to eq("fff")
     end
   end
-
 
   describe "POST /v1/eligibility_requirements/:id/destroy" do
     it "destroys the resource" do

@@ -58,15 +58,15 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
     empty_operand = expr_fac.create(left: expr_fac.create, right: expr_fac.create)
     expect(empty_operand.to_formula_str).to eq("")
 
-    single_side = expr_fac.create(right: expr_fac.leaf({name: "foo1"}).create)
+    single_side = expr_fac.create(right: expr_fac.leaf("foo1").create)
     expect(single_side.to_formula_str).to eq("'foo1'")
 
     deep = expr_fac.and.create(
-      left: expr_fac.leaf({name: "foo2"}).create,
+      left: expr_fac.leaf("foo2").create,
       right: expr_fac.or.create(
         left: expr_fac.create(
-          left: expr_fac.leaf({name: "foo3"}).create,
-          right: expr_fac.leaf({name: "foo4"}).create,
+          left: expr_fac.leaf("foo3").create,
+          right: expr_fac.leaf("foo4").create,
         ),
       ),
     )

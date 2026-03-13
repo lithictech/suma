@@ -36,6 +36,15 @@ class Suma::Eligibility::Assignment < Suma::Postgres::Model(:eligibility_assignm
 
   def rel_admin_link = "/eligibility-assignment/#{self.id}"
 
+  def hybrid_search_fields
+    return [
+      :attribute,
+      :member,
+      :organization,
+      :role,
+    ]
+  end
+
   def before_create
     self.created_by = Suma.request_user_and_admin[1]
     super

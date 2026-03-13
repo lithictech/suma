@@ -30,13 +30,13 @@ RSpec.describe Suma::AdminAPI::EligibilityAssignments, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.eligibility_assignment.create(member: Suma::Fixtures.member.named("zzz").create).create,
+          Suma::Fixtures.eligibility_assignment.create(member: Suma::Fixtures.member.create(name: "zzz")),
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.eligibility_assignment.create(member: Suma::Fixtures.member.named("wibble").create).create,
+          Suma::Fixtures.eligibility_assignment.create(member: Suma::Fixtures.member.create(name: "wibble")),
         ]
       end
     end

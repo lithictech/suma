@@ -31,7 +31,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     expose :receiving_ledger_name
     expose :receiving_ledger_contribution_text, with: TranslatedTextEntity
     expose :executions, with: PaymentTriggerExecutionEntity
-    expose :programs, with: ProgramEntity
+    expose :eligibility_requirements, with: EligibilityRequirementEntity
   end
 
   resource :payment_triggers do

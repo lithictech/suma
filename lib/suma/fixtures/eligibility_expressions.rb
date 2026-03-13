@@ -23,6 +23,7 @@ module Suma::Fixtures::EligibilityExpressions
   end
 
   decorator :leaf do |attr={}|
+    attr = {name: attr} if attr.is_a?(String)
     attr = Suma::Fixtures.eligibility_attribute.create(attr) unless attr.is_a?(Suma::Eligibility::Attribute)
     self.attribute = attr
   end
@@ -35,6 +36,7 @@ module Suma::Fixtures::EligibilityExpressions
             elsif left_arg.is_a?(Suma::Eligibility::Expression)
               left_arg
             elsif left_arg
+              left_arg = {name: left_arg} if left_arg.is_a?(String)
               Suma::Fixtures.eligibility_expression.create(left_arg)
             end
     right = if right_arg.is_a?(Suma::Eligibility::Attribute)
@@ -42,6 +44,7 @@ module Suma::Fixtures::EligibilityExpressions
             elsif right_arg.is_a?(Suma::Eligibility::Expression)
               right_arg
             elsif right_arg
+              right_arg = {name: right_arg} if left_arg.is_a?(String)
               Suma::Fixtures.eligibility_expression.create(right_arg)
             end
     self.left = left

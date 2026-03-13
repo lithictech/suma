@@ -19,6 +19,7 @@ class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attribut
               dataset: lambda {
                 Suma::Eligibility::Requirement.where(Sequel.pg_array(:cached_attribute_ids).contains([id]))
               },
+              skip_index_check: true,
               eager_loader: (lambda do |eo|
                 id_map = {}
                 eo[:rows].each do |parent|
@@ -50,4 +51,12 @@ class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attribut
   end
 
   def rel_admin_link = "/eligibility-attribute/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :name,
+      :description,
+      :parent,
+    ]
+  end
 end

@@ -48,14 +48,10 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
 
   # Return a serializable object representing the expression.
   # Can be deserialized using deserialize.
-  def serialize
-
-  end
+  def serialize; end
 
   # Deserialize an instance from a serialized version.
   # If any invalid attribute IDs are used, they are ignored,
   # and the subexpression will be empty.
-  def self.deserialize
-
-  end
+  def self.deserialize; end
 end

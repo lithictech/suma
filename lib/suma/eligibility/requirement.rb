@@ -40,6 +40,14 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
 
   def rel_admin_link = "/eligibility-requirement/#{self.id}"
 
+  def hybrid_search_fields
+    return [
+      :cached_expression_string,
+      ["Program", self.program&.name],
+      ["Payment Trigger", self.payment_trigger&.label],
+    ]
+  end
+
   def before_create
     self.expression ||= Suma::Eligibility::Expression.create
     self.created_by = Suma.request_user_and_admin[1]

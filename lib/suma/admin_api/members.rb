@@ -91,8 +91,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :charges, with: ChargeEntity
-    expose :direct_program_enrollments, with: ProgramEnrollmentEntity
-    expose :program_enrollment_exclusions, with: ProgramEnrollmentExclusionEntity
+    expose :eligibility_assignments, with: EligibilityAssignmentEntity
     expose :referral, with: ReferralEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity

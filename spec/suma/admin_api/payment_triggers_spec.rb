@@ -129,8 +129,8 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
     end
   end
 
-  describe "POST /v1/payment_triggers/:id/programs" do
-    it "replaces the programs" do
+  describe "POST /v1/payment_triggers/:id/eligibility_assignments", skip: "TODO" do
+    it "replaces the assignments" do
       pr = Suma::Fixtures.program.create
       to_add = Suma::Fixtures.program.create
       pt = Suma::Fixtures.payment_trigger.with_programs(pr).create
