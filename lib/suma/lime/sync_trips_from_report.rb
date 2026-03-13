@@ -7,6 +7,8 @@ require "suma/mobility/trip_importer"
 class Suma::Lime::SyncTripsFromReport
   include Appydays::Loggable
 
+  class InvalidReportRow < StandardError; end
+
   DEFAULT_VEHICLE_TYPE = Suma::Mobility::ESCOOTER
   DEFAULT_CUTOFF = 2.weeks
 
@@ -44,13 +46,14 @@ class Suma::Lime::SyncTripsFromReport
         b64content = attachment.fetch("Content")
         content = Base64.decode64(b64content)
         filename = attachment.fetch("Name", nil)
-        log_context = {
+        Suma::Logutil.with_tags(
           filename:,
           message_id: row.fetch(:message_id),
           message_timestamp: row.fetch(:timestamp),
           subject: row.fetch(:subject),
-        }
-        self.run_for_report(content, log_context:)
+        ) do
+          self.run_for_report(content)
+        end
       end
     end
   end
@@ -65,7 +68,13 @@ class Suma::Lime::SyncTripsFromReport
   end
 
   # Import the text parsed as a CSV, and return the number of rows imported.
-  def run_for_report(txt, log_context: {})
+  def run_for_report(txt)
+    Suma::Logutil.with_tags do
+      self._run_for_report(txt)
+    end
+  end
+
+  def _run_for_report(txt)
     # The trip report generator is adding summary lines to the bottom that have the wrong newline.
     # I am guessing they are doing this with some special code and don't know CSV format line endings are meaningful.
     txt = txt.gsub("\n\n", "\r\n")
@@ -73,15 +82,17 @@ class Suma::Lime::SyncTripsFromReport
       csv = CSV.parse(txt, headers: true)
     rescue CSV::MalformedCSVError => e
       fragment = txt[..1000]
-      self.logger.warn("lime_report_malformed_csv", {text_fragment: fragment, **log_context}, e)
-      Sentry.capture_message("Lime trip report CSV malformed") do |scope|
-        scope.set_extras(text_fragment: fragment, error: e, **log_context)
+      Suma::Logutil.with_tags(text_fragment: fragment) do
+        self.logger.warn("lime_report_malformed_csv", e)
+        Suma::Logutil.sentry_scope.set_extras(error: e)
+        Sentry.capture_message("Lime trip report CSV malformed")
       end
       return
     end
     import_successful = true
     imported_rows = 0
     missing_member_rows = 0
+    invalid_rows = 0
     existing_rows = 0
     blank_rows = 0
     row_count = 0
@@ -100,9 +111,9 @@ class Suma::Lime::SyncTripsFromReport
       end
       # Ignore older spreadsheets, not worth supporting them.
       unless row[LIME_ACCESS_COST]
-        self.logger.warn("lime_report_invalid_csv", **log_context)
-        Sentry.capture_message("Lime trip report with invalid headers") do |scope|
-          scope.set_extras(headers: row.headers, **log_context)
+        Suma::Logutil.with_tags(headers: row.headers) do
+          self.logger.warn("lime_report_invalid_csv")
+          Sentry.capture_message("Lime trip report with invalid headers")
         end
         # Break/return instead of processing the next row.
         import_successful = false
@@ -112,39 +123,42 @@ class Suma::Lime::SyncTripsFromReport
         account: Suma::AnonProxy::VendorAccount.where(configuration_id: Suma::Lime.trip_report_vendor_configuration_id),
         external_program_id: user_email,
       )
-      if reg_ds.empty?
-        log_args = {member_contact_email: user_email, trip_token:, **log_context}
-        self.logger.warn("lime_report_missing_member", log_args)
-        Sentry.capture_message("Lime trip taken by unknown user") do |scope|
-          scope.set_extras(log_args)
+      Suma::Logutil.with_tags(member_contact_email: user_email, trip_token:) do
+        if reg_ds.empty?
+          self.logger.warn("lime_report_missing_member")
+          Sentry.capture_message("Lime trip taken by unknown user")
+          missing_member_rows += 1
+          next
         end
-        missing_member_rows += 1
-        next
-      end
-      if (existing = Suma::Mobility::Trip[external_trip_id: trip_token])
-        # If we already have this trip recorded, we want to noop, or update it if configured.
-        # We do NOT handle the race condition with a unique violation on external_trip_id,
-        # since in that case we assume we're dealing with the same code, and it isn't worth the complexity.
-        if Suma::Lime.trip_report_overwrite
-          new_values = self.parse_trip_from_row(row, user_email:)[:receipt]
-          existing.update(new_values.trip.values)
+        if (existing = Suma::Mobility::Trip[external_trip_id: trip_token])
+          # If we already have this trip recorded, we want to noop, or update it if configured.
+          # We do NOT handle the race condition with a unique violation on external_trip_id,
+          # since in that case we assume we're dealing with the same code, and it isn't worth the complexity.
+          if Suma::Lime.trip_report_overwrite
+            new_values = self.parse_trip_from_row(row, user_email:)[:receipt]
+            existing.update(new_values.trip.values)
+          end
+          existing_rows += 1
+          self.logger.debug("lime_trip_exists", overwritten: Suma::Lime.trip_report_overwrite)
+          next
         end
-        existing_rows += 1
-        next
+        self.logger.debug("lime_importing_trip")
+        begin
+          self.import_trip_from_row(row, user_email:)
+          imported_rows += 1
+        rescue InvalidReportRow
+          self.logger.error("lime_report_missing_field")
+          Sentry.capture_message("Lime trip row missing necessary fields")
+          invalid_rows += 1
+        end
       end
-      imported_rows += 1
-      self.import_trip_from_row(row, user_email:)
     end
     # Already logged, don't re-log as successful
     return unless import_successful
     self.logger.info("lime_report_import_successful",
-                     blank_rows:, missing_member_rows:, imported_rows:, existing_rows:, row_count:,
-                     **log_context,)
+                     blank_rows:, missing_member_rows:, imported_rows:, existing_rows:, row_count:, invalid_rows:,)
   rescue StandardError => e
-    self.logger.error("lime_report_import_unhandled_error", log_context, e)
-    Sentry.with_scope do |scope|
-      scope&.set_extras(**log_context)
-    end
+    self.logger.error("lime_report_import_unhandled_error", e)
     raise
   end
 
@@ -175,19 +189,23 @@ class Suma::Lime::SyncTripsFromReport
   # The only price column we keep track of is ACTUAL_COST;
   # this is what Lime charges suma.
   def parse_row_to_receipt(row, rate:)
-    r = Suma::Mobility::TripImporter::Receipt.new
-    r.trip.set(
+    fields = {
       vehicle_id: row.fetch(TRIP_TOKEN),
       vehicle_type: DEFAULT_VEHICLE_TYPE,
       began_at: parsetime(row.fetch(START_TIME)),
       ended_at: parsetime(row.fetch(END_TIME)),
-      begin_lat: BigDecimal(row.fetch(START_LATITUDE)),
-      begin_lng: BigDecimal(row.fetch(START_LONGITUDE)),
-      end_lat: BigDecimal(row.fetch(END_LATITUDE)),
-      end_lng: BigDecimal(row.fetch(END_LONGITUDE)),
+      begin_lat: parsedecimal(row.fetch(START_LATITUDE)),
+      begin_lng: parsedecimal(row.fetch(START_LONGITUDE)),
+      end_lat: parsedecimal(row.fetch(END_LATITUDE)),
+      end_lng: parsedecimal(row.fetch(END_LONGITUDE)),
       external_trip_id: row.fetch(TRIP_TOKEN),
-      our_cost: Monetize.parse(row.fetch(COST_TO_SUMA)),
-    )
+      our_cost: parsemoney(row.fetch(COST_TO_SUMA)),
+    }
+
+    raise InvalidReportRow if fields.values.any?(&:nil?)
+
+    r = Suma::Mobility::TripImporter::Receipt.new
+    r.trip.set(fields)
     r.charged_at = r.trip.began_at
     r.paid_off_platform_amount = Money.zero
     r.subsidized_off_platform_amount = Money.zero
@@ -208,12 +226,16 @@ class Suma::Lime::SyncTripsFromReport
     return r
   end
 
+  def parsedecimal(v) = v.blank? ? nil : BigDecimal(v)
+  def parsemoney(v) = v.blank? ? nil : Monetize.parse(v)
+
   # Lime's time formats are ridiculous.
   # We perform our own time parsing, since the alternatives around being clever
   # or making assumptions are even worse.
   # We see a mixture of AM/PM, 12 hour clock, seconds, date formats, etc.
   # See specs for examples of all the formats we've seen.
   def parsetime(t)
+    return nil if t.blank?
     if /\d\d\d\d \d\d:\d\d:\d\d GMT[+-]\d/.match?(t)
       # Handle "Mon Dec 08 2025 09:38:00 GMT+0100 (Central European Standard Time)" format specially.
       # No idea why just some rides in the same report use a format like this.

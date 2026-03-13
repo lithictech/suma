@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/external_links"
+require "suma/logutil"
 require "suma/marketing"
 require "suma/postgres/model"
 
@@ -32,7 +33,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
           broadcast_id: dispatch.sms_broadcast.id,
           broadcast: dispatch.sms_broadcast.label,
         }
-        SemanticLogger.named_tagged(log_tags) do
+        Suma::Logutil.with_tags(log_tags) do
           if dispatch.sms_broadcast.sending_number.blank?
             self.logger.info("sms_dispatch_no_marketing_number")
             dispatch.cancel.save_changes

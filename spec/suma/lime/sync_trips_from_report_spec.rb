@@ -75,6 +75,16 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       )
     end
 
+    it "logs if a needed cell is blank" do
+      txt = <<~CSV
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,EMAIL_ADDRESS,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,,,,,,
+        RK7PCB7HWXRK5,warning,,Mon Mar 09 2026 00:39:00 GMT+0100 (Central European Standard Time),45.57,-122.68,45.58,-122.69,Portland,UHAYR2RQDV7HF,m1@in.mysuma.org,32,0.79,0,0.5,2.24,0.07,2.74,14.02,80,,,,,,#REF!
+      CSV
+      expect_sentry_capture(type: :message, arg_matcher: eq("Lime trip row missing necessary fields"))
+      described_class.new.run_for_report(txt)
+      expect(Suma::Mobility::Trip.all).to be_blank
+    end
+
     it "only looks at the configured vendor configuration" do
       Suma::Lime.trip_report_vendor_configuration_id = 0
       txt = <<~CSV
