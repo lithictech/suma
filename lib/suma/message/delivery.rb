@@ -3,6 +3,7 @@
 require "suma/admin_actions"
 require "suma/admin_linked"
 require "suma/external_links"
+require "suma/logutil"
 require "suma/message"
 require "suma/postgres/model"
 
@@ -49,7 +50,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
 
   def send!
     return nil if self.sent_at || self.aborted_at
-    SemanticLogger.named_tagged(message_delivery_id: self.id, to: self.to) do
+    Suma::Logutil.with_tags(message_delivery_id: self.id, to: self.to) do
       self.db.transaction do
         self.lock!
         return nil if self.sent_at || self.aborted_at
