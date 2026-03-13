@@ -438,6 +438,8 @@ export default {
   undeprecatedStaticString: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/static_strings/${id}/undeprecate`, data, ...args),
 
+  searchEligibilityAttributes: (data, ...args) =>
+    post(`/adminapi/v1/search/eligibility_attributes`, data, ...args),
   searchProducts: (data, ...args) => post(`/adminapi/v1/search/products`, data, ...args),
   searchOfferings: (data, ...args) =>
     post(`/adminapi/v1/search/offerings`, data, ...args),

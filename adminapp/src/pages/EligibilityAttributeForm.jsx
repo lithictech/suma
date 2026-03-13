@@ -1,3 +1,5 @@
+import api from "../api";
+import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import EligibilityAttributeCreatePage from "./EligibilityAttributeCreatePage";
@@ -15,21 +17,16 @@ export default function EligibilityAttributeForm({
 }) {
   return (
     <FormLayout
-      title={isCreate ? "Create a Vendor" : "Update Vendor"}
-      subtitle="Vendor represents a vendor of goods and services, like 'Alan's Farm'. It is tied
-        to a product. Suma does a wholesale purchase from a vendor. It then lists those
-        products, and takes responsibility for inventory and fulfillment."
+      title={
+        isCreate ? "Create an Eligibility Attribute" : "Update Eligibility Attribute"
+      }
+      subtitle="Eligibility attributes can be assigned to members/organizations/roles,
+      and set as a requirement of programs and other resources,
+      to control who has access to what.."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <ImageFileInput
-          image={resource.image}
-          caption={resource.imageCaption}
-          required={isCreate}
-          onImageChange={(f) => setField("image", f)}
-          onCaptionChange={(f) => setField("imageCaption", f)}
-        />
         <TextField
           {...register("name")}
           label="Name"
@@ -37,6 +34,24 @@ export default function EligibilityAttributeForm({
           value={resource.name}
           fullWidth
           onChange={setFieldFromInput}
+        />
+        <TextField
+          {...register("description")}
+          label="Description"
+          name="description"
+          value={resource.description}
+          fullWidth
+          onChange={setFieldFromInput}
+        />
+        <AutocompleteSearch
+          {...register("parent")}
+          label="Parent"
+          value={resource.parent?.name || ""}
+          fullWidth
+          search={api.searchEligibilityAttributes}
+          style={{ flex: 1 }}
+          searchEmpty
+          onValueSelect={(p) => setField("parent", p)}
         />
       </Stack>
     </FormLayout>

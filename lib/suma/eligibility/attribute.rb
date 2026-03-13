@@ -51,6 +51,11 @@ class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attribut
     end
   end
 
+  def fqn_label
+    return self.name if self.parent.nil?
+    return "#{self.name} | #{self.parent.fqn_label}"
+  end
+
   def rel_admin_link = "/eligibility-attribute/#{self.id}"
 
   def hybrid_search_fields

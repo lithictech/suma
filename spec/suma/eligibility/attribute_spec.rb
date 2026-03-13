@@ -42,4 +42,9 @@ RSpec.describe "Suma::Eligibility::Attribute", :db do
     expect(attr.referenced_requirements).to contain_exactly(req)
     expect(described_class.where(id: attr.id).all.first.referenced_requirements).to contain_exactly(req)
   end
+
+  it "cannot be its own parent" do
+    a = Suma::Fixtures.eligibility_attribute.create
+    expect { a.update(parent: a) }.to raise_error(Sequel::CheckConstraintViolation)
+  end
 end

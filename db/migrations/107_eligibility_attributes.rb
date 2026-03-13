@@ -2,6 +2,7 @@
 
 require "sequel/all_or_none_constraint"
 require "sequel/unambiguous_constraint"
+require "sequel/not_self_constraint"
 
 Sequel.migration do
   change do
@@ -14,6 +15,7 @@ Sequel.migration do
       text :description, null: false, default: ""
 
       foreign_key :parent_id, :eligibility_attributes, null: true, index: true
+      constraint :no_self_reference, Sequel.not_self_constraint(:parent_id)
 
       column :search_content, :text
       column :search_embedding, "vector(384)"

@@ -28,6 +28,8 @@ class Suma::AdminAPI::EligibilityAttributes < Suma::AdminAPI::V1
     ) do
       params do
         requires :name, type: String
+        optional :description, type: String
+        optional(:parent, type: JSON) { use :model_with_id }
       end
     end
 
@@ -44,6 +46,8 @@ class Suma::AdminAPI::EligibilityAttributes < Suma::AdminAPI::V1
     ) do
       params do
         optional :name, type: String
+        optional :description, type: String
+        optional(:parent, type: JSON) { use :model_with_id }
       end
     end
   end

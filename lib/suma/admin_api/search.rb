@@ -118,6 +118,18 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     params do
       optional :q, type: String
     end
+    post :eligibility_attributes do
+      check_admin_role_access!(:read, Suma::Eligibility::Attribute)
+      ds = Suma::Eligibility::Attribute.dataset
+      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchEligibilityAttributeEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
     post :products do
       check_admin_role_access!(:read, Suma::Commerce::Product)
       ds = Suma::Commerce::Product.dataset
@@ -281,6 +293,14 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       status 200
       present_collection ds, with: SearchProgramEntity
     end
+  end
+
+  class SearchEligibilityAttributeEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name
+    expose :fqn_label, as: :label
   end
 
   class SearchLedgerEntity < BaseEntity
