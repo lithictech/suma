@@ -43,6 +43,7 @@ module Suma::AdminAPI::Entities
       ctx.expose :created_at, if: ->(o) { o.respond_to?(:created_at) }
       ctx.expose :soft_deleted_at, if: ->(o) { o.respond_to?(:soft_deleted_at) }
       ctx.expose :admin_link, if: ->(o, _) { o.respond_to?(:admin_link) }
+      ctx.expose :admin_label, as: :label, if: ->(o, _) { o.respond_to?(:admin_label) }
     end
   end
 
@@ -77,7 +78,6 @@ module Suma::AdminAPI::Entities
   class RoleEntity < BaseEntity
     include AutoExposeBase
     expose :name
-    expose :label
   end
 
   class OrganizationEntity < BaseEntity
@@ -182,8 +182,9 @@ module Suma::AdminAPI::Entities
   class EligibilityRequirementEntity < BaseEntity
     include AutoExposeBase
     expose :resource, with: AutoExposedBaseEntity
+    expose :resource_type
     expose :resource_label
-    expose :expression_formula_str, &self.delegate_to(:expression, :to_formula_str)
+    expose :cached_expression_string, as: :expression_formula_str
   end
 
   class VendorEntity < BaseEntity
@@ -293,7 +294,6 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :name
     expose :account_name, &self.delegate_to(:account, :display_name)
-    expose :admin_label
   end
 
   class SimplePaymentAccountEntity < BaseEntity
@@ -339,9 +339,6 @@ module Suma::AdminAPI::Entities
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
     expose :balance, with: MoneyEntity
-    expose :label do |inst|
-      inst.vendor_service_categories.map(&:name).sort.join(", ")
-    end
   end
 
   class DetailedPaymentAccountEntity < BaseEntity
@@ -359,7 +356,6 @@ module Suma::AdminAPI::Entities
   class PaymentTriggerEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :label
     expose :active_during_begin
     expose :active_during_end
   end
@@ -450,14 +446,12 @@ module Suma::AdminAPI::Entities
 
   class MarketingListEntity < BaseEntity
     include AutoExposeBase
-    expose :label
     expose :managed
   end
 
   class MarketingSmsBroadcastEntity < BaseEntity
     include AutoExposeBase
     expose :sent_at
-    expose :label
   end
 
   class MarketingSmsDispatchEntity < BaseEntity

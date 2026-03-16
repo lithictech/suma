@@ -1,10 +1,17 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
 import formHelpers from "../modules/formHelpers";
+import EligibilityAssignmentForm from "./EligibilityAssignmentForm";
 import VendorForm from "./VendorForm";
 import React from "react";
 
 export default function EligibilityAssignmentCreatePage() {
-  const empty = { image: null, imageCaption: formHelpers.initialTranslation, name: "" };
-  return <ResourceCreate empty={empty} apiCreate={api.createVendor} Form={VendorForm} />;
+  const empty = { attribute: {} };
+  return (
+    <ResourceCreate
+      empty={empty}
+      apiCreate={api.createEligibilityAssignment}
+      Form={EligibilityAssignmentForm}
+    />
+  );
 }

@@ -32,6 +32,8 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
     self.set_ambiguous_association(RESOURCE_ASSOCIATIONS, o)
   end
 
+  def resource_type = self.unambiguous_association_name(RESOURCE_ASSOCIATIONS)
+
   def resource_label
     r = self.resource
     return r.name.en if r.is_a?(Suma::Program)

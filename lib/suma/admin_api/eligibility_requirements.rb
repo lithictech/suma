@@ -9,6 +9,8 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :created_by, with: AuditMemberEntity
+    expose :program, with: ProgramEntity
+    expose :payment_trigger, with: PaymentTriggerEntity
   end
 
   resource :eligibility_requirements do
@@ -45,6 +47,8 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       Suma::Eligibility::Requirement,
       DetailedEligibilityRequirement,
       around: lambda do |rt, m, &block|
+        clear_resource = [:program, :payment_trigger].any? { |x| rt.params.include?(x) }
+        m.resource = nil if clear_resource
         expr = rt.params.delete(:expression)
         block.call
         if expr
@@ -54,7 +58,10 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       end,
     ) do
       params do
-        requires :expression, type: JSON
+        optional(:program, type: JSON) { use :model_with_id }
+        optional(:payment_trigger, type: JSON) { use :model_with_id }
+        mutually_exclusive :program, :payment_trigger
+        optional :expression, type: JSON
       end
     end
 

@@ -8,8 +8,8 @@ import React from "react";
 export default function EligibilityAssignmentListPage() {
   return (
     <ResourceList
-      resource="vendor"
-      apiList={api.getVendors}
+      resource="eligibility_assignment"
+      apiList={api.getEligibilityAssignments}
       canCreate
       canSearch
       columns={[
@@ -21,17 +21,22 @@ export default function EligibilityAssignmentListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "created_at",
-          label: "Created",
+          id: "attribute",
+          label: "Attribute",
           align: "left",
-          sortable: true,
-          render: (c) => formatDate(c.createdAt),
+          render: (c) => <AdminLink model={c.attribute}>{c.attribute.name}</AdminLink>,
         },
         {
-          id: "name",
-          label: "Name",
+          id: "assignee",
+          label: "Assignee",
           align: "left",
-          render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
+          render: (c) => <AdminLink model={c.assignee}>{c.assigneeLabel}</AdminLink>,
+        },
+        {
+          id: "assigneeType",
+          label: "Type",
+          align: "left",
+          render: (c) => c.assigneeType,
         },
       ]}
     />

@@ -7,8 +7,8 @@ import React from "react";
 export default function EligibilityRequirementListPage() {
   return (
     <ResourceList
-      resource="vendor"
-      apiList={api.getVendors}
+      resource="eligibility_requirement"
+      apiList={api.getEligibilityRequirements}
       canCreate
       canSearch
       columns={[

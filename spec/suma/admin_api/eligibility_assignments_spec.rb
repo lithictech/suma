@@ -96,6 +96,19 @@ RSpec.describe Suma::AdminAPI::EligibilityAssignments, :db do
     end
   end
 
+  describe "POST /v1/eligibility_assignments/:id" do
+    it "updates the model" do
+      am = Suma::Fixtures.eligibility_assignment.create
+      attr2 = Suma::Fixtures.eligibility_attribute.create
+      role = Suma::Fixtures.role.create
+
+      post "/v1/eligibility_assignments/#{am.id}", attribute: {id: attr2.id}, role: {id: role.id}
+
+      expect(last_response).to have_status(200)
+      expect(am.refresh).to have_attributes(attribute: be === attr2, assignee: be === role)
+    end
+  end
+
   describe "POST /v1/eligibility_assignments/:id/destroy" do
     it "destroys the resource" do
       m = Suma::Fixtures.eligibility_assignment.create

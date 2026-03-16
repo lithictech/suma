@@ -9,6 +9,9 @@ class Suma::AdminAPI::EligibilityAssignments < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :created_by, with: AuditMemberEntity
+    expose :member, with: MemberEntity
+    expose :organization, with: OrganizationEntity
+    expose :role, with: RoleEntity
   end
 
   resource :eligibility_assignments do
@@ -42,6 +45,25 @@ class Suma::AdminAPI::EligibilityAssignments < Suma::AdminAPI::V1
       Suma::Eligibility::Assignment,
       DetailedEligibilityAssignment,
     )
+
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Eligibility::Assignment,
+      DetailedEligibilityAssignment,
+      around: lambda do |rt, m, &b|
+        clear_assignee = [:member, :organization, :role].any? { |x| rt.params.include?(x) }
+        m.assignee = nil if clear_assignee
+        b.call
+      end,
+    ) do
+      params do
+        optional(:attribute, type: JSON) { use :model_with_id }
+        optional(:member, type: JSON) { use :model_with_id }
+        optional(:organization, type: JSON) { use :model_with_id }
+        optional(:role, type: JSON) { use :model_with_id }
+        mutually_exclusive :member, :organization, :role
+      end
+    end
 
     Suma::AdminAPI::CommonEndpoints.destroy(
       self,

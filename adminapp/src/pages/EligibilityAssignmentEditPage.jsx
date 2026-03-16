@@ -1,10 +1,14 @@
 import api from "../api";
 import ResourceEdit from "../components/ResourceEdit";
-import VendorForm from "./VendorForm";
+import EligibilityAssignmentForm from "./EligibilityAssignmentForm";
 import React from "react";
 
 export default function EligibilityAttributeEditPage() {
   return (
-    <ResourceEdit apiGet={api.getVendor} apiUpdate={api.updateVendor} Form={VendorForm} />
+    <ResourceEdit
+      apiGet={api.getEligibilityAssignment}
+      apiUpdate={api.updateEligibilityAssignment}
+      Form={EligibilityAssignmentForm}
+    />
   );
 }

@@ -255,6 +255,8 @@ export default {
     get(`/adminapi/v1/eligibility_assignments/${id}`, data, ...args),
   updateEligibilityAssignment: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/eligibility_assignments/${id}`, data, ...args),
+  destroyEligibilityAssignment: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/eligibility_assignments/${id}/destroy`, data, ...args),
 
   getEligibilityRequirements: (data, ...args) =>
     get(`/adminapi/v1/eligibility_requirements`, data, ...args),
@@ -264,6 +266,8 @@ export default {
     get(`/adminapi/v1/eligibility_requirements/${id}`, data, ...args),
   updateEligibilityRequirement: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/eligibility_requirements/${id}`, data, ...args),
+  destroyEligibilityRequirement: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/eligibility_requirements/${id}/destroy`, data, ...args),
 
   createProgramPricing: (data, ...args) =>
     post("/adminapi/v1/program_pricings/create", data, ...args),
@@ -445,6 +449,8 @@ export default {
     post(`/adminapi/v1/search/offerings`, data, ...args),
   searchPaymentInstruments: (data, ...args) =>
     post(`/adminapi/v1/search/payment_instruments`, data, ...args),
+  searchPaymentTriggers: (data, ...args) =>
+    post(`/adminapi/v1/search/payment_triggers`, data, ...args),
   searchLedgers: (data, ...args) => post(`/adminapi/v1/search/ledgers`, data, ...args),
   searchLedgersLookup: (data, ...args) =>
     post(`/adminapi/v1/search/ledgers/lookup`, data, ...args),

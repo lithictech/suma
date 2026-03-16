@@ -12,6 +12,22 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     login_as(admin)
   end
 
+  describe "entity" do
+    entities = described_class.
+      constants.
+      map { |c| described_class.const_get(c) }.
+      select { |c| c.is_a?(Class) && c < described_class::SearchEntity }
+
+    entities.each do |entity_class|
+      describe entity_class.name do
+        it "exposes a label" do
+          exposed = entity_class.root_exposures.map(&:attribute) + entity_class.root_exposures.map(&:key)
+          expect(exposed).to include(:label), "#{entity_class} is missing a :label exposure"
+        end
+      end
+    end
+  end
+
   describe "POST /v1/search/eligibility_attributes" do
     it "returns matching rows" do
       r1 = Suma::Fixtures.eligibility_attribute.create(name: "sponge bob")
@@ -27,7 +43,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       r1 = Suma::Fixtures.eligibility_attribute.create(name: "sponge bob")
       r2 = Suma::Fixtures.eligibility_attribute.create(name: "sponge bob square pants")
 
-      post "/v1/search/eligibility_attributes", q: "bob"
+      post "/v1/search/eligibility_attributes", q: ""
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r2, r1))
@@ -164,6 +180,28 @@ RSpec.describe Suma::AdminAPI::Search, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba))
+    end
+  end
+
+  describe "POST /v1/search/payment_triggers" do
+    it "returns matching rows" do
+      r1 = Suma::Fixtures.payment_trigger.create(label: "sponge bob")
+      r2 = Suma::Fixtures.payment_trigger.create(label: "patrick")
+
+      post "/v1/search/payment_triggers", q: "sponge"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r1.id))
+    end
+
+    it "returns all results in descending order if no query" do
+      r1 = Suma::Fixtures.payment_trigger.create(label: "sponge bob")
+      r2 = Suma::Fixtures.payment_trigger.create(label: "sponge bob square pants")
+
+      post "/v1/search/payment_triggers", q: ""
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r2, r1))
     end
   end
 

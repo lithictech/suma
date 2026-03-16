@@ -111,4 +111,20 @@ RSpec.describe Suma::AdminAPI, :db do
         that_includes(error: include(message: "Hello"))
     end
   end
+
+  describe "entities" do
+    describe "entity" do
+      entities = ObjectSpace.each_object(Class).
+        select { |c| (c < Suma::AdminAPI::Entities::BaseEntity) && c.include?(Suma::AdminAPI::Entities::AutoExposeBase) }
+
+      entities.each do |entity_class|
+        describe entity_class.name do
+          it "expose a label" do
+            exposed = (entity_class.root_exposures.map(&:attribute) | entity_class.root_exposures.map(&:key)).sort
+            expect(exposed).to include(:label), "#{entity_class} is missing a :label exposure"
+          end
+        end
+      end
+    end
+  end
 end

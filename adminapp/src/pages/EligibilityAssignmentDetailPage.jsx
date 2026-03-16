@@ -11,52 +11,30 @@ import React from "react";
 export default function EligibilityAssignmentDetailPage() {
   return (
     <ResourceDetail
-      resource="vendor"
-      apiGet={api.getVendor}
+      resource="eligibility_assignment"
+      apiGet={api.getEligibilityAssignment}
+      apiDelete={api.destroyEligibilityAssignment}
       canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Name", value: model.name },
-        { label: "Slug", value: model.slug },
-        ...detailPageImageProperties(model.image),
+        model.createdBy && {
+          label: "Created By",
+          value: <AdminLink model={model.createdBy}>{model.createdBy.name}</AdminLink>,
+        },
+        {
+          label: "Attribute",
+          value: <AdminLink model={model.attribute}>{model.attribute.fqn}</AdminLink>,
+        },
+        {
+          label: "Assignee",
+          value: (
+            <AdminLink model={model.assignee}>
+              {model.assigneeLabel} ({model.assigneeType})
+            </AdminLink>
+          ),
+        },
       ]}
-    >
-      {(model) => [
-        <RelatedList
-          title="Services"
-          rows={model.services}
-          headers={["Id", "Name"]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink model={row} />,
-            <AdminLink model={row}>{row.internalName}</AdminLink>,
-          ]}
-        />,
-        <RelatedList
-          title="Configuration"
-          rows={model.configurations}
-          headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            row.vendor.name,
-            row.authToVendorKey,
-            <BoolCheckmark>{row.enabled}</BoolCheckmark>,
-          ]}
-        />,
-        <RelatedList
-          title="Products"
-          rows={model.products}
-          headers={["Id", "Created", "Name"]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            formatDate(row.createdAt),
-            row.name.en,
-          ]}
-        />,
-      ]}
-    </ResourceDetail>
+    />
   );
 }
