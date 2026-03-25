@@ -33,6 +33,7 @@ import {
   DialogContent,
   DialogActions,
   Stack,
+  DialogContentText,
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
@@ -175,7 +176,7 @@ export default function MemberDetailPage() {
           <VendorAccounts vendorAccounts={model.vendorAccounts} />,
           <MemberContacts memberContacts={model.memberContacts} />,
           <MessageDeliveries messageDeliveries={model.messageDeliveries} />,
-          <Sessions sessions={model.sessions} />,
+          <Sessions member={model} setMember={setModel} sessions={model.sessions} />,
           <ResetCodes resetCodes={model.resetCodes} />,
           <RelatedList
             title="Marketing Lists"
@@ -378,21 +379,55 @@ function ResetCodes({ resetCodes }) {
   );
 }
 
-function Sessions({ sessions }) {
+function Sessions({ member, setMember, sessions }) {
+  const logoutToggle = useToggle();
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    api
+      .logoutMemberSessions({ id: member.id })
+      .then((r) => {
+        setMember(r.data);
+        logoutToggle.turnOff();
+      })
+      .catch(enqueueErrorSnackbar);
+  }
+
   return (
-    <RelatedList
-      title="Sessions"
-      headers={["Started", "IP", "User Agent"]}
-      keyRowAttr="id"
-      rows={sessions}
-      toCells={(row) => [
-        formatDate(row.createdAt),
-        <SafeExternalLink key="ip" href={row.ipLookupLink}>
-          {row.peerIp}
-        </SafeExternalLink>,
-        row.userAgent,
-      ]}
-    />
+    <>
+      <Dialog open={logoutToggle.isOn} onClose={logoutToggle.turnOff}>
+        <DialogTitle>Log out of all sessions?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will log the user out of all sessions. Are you sure?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={logoutToggle.turnOff}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleSubmit}>
+            Yes, Log Out
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <RelatedList
+        title="Sessions"
+        addNewLabel="Log out all sessions"
+        addNewRole="memberSession"
+        onAddNewClick={logoutToggle.turnOn}
+        headers={["Started", "IP", "User Agent", "Logged Out"]}
+        keyRowAttr="id"
+        rows={sessions}
+        toCells={(row) => [
+          formatDate(row.createdAt),
+          <SafeExternalLink key="ip" href={row.ipLookupLink}>
+            {row.peerIp}
+          </SafeExternalLink>,
+          row.userAgent,
+          formatDate(row.loggedOutAt),
+        ]}
+      />
+    </>
   );
 }
 

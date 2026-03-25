@@ -386,4 +386,17 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/members/:id/sessions/logout" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "logs out all sessions" do
+      sess = Suma::Fixtures.session.for(member).create
+
+      post "/v1/members/#{member.id}/sessions/logout"
+
+      expect(last_response).to have_status(200)
+      expect(sess.refresh).to be_logged_out
+    end
+  end
 end
