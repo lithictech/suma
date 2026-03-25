@@ -138,4 +138,37 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
         )
     end
   end
+
+  describe "POST /v1/eligibility_requirements/editor/detokenize" do
+    it "detokenizes and returns the result" do
+      a1 = Suma::Fixtures.eligibility_attribute.create(name: "x")
+      expr = Suma::Eligibility::Expression
+
+      post "/v1/eligibility_requirements/editor/detokenize", tokens: [
+        expr::Token.new(id: 1, value: "x", label: "x", type: expr::Tokenizer::VARIABLE).to_h,
+        expr::Tokenizer::TOK_OP_AND.to_h,
+      ]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          serialized: {
+            left: {
+              attr: 1,
+              name: "x",
+              fqn: "x",
+            },
+            op: "AND",
+          },
+          warnings: [
+            {
+              index: 1,
+              message: "expression cannot end with operator",
+              value: "AND",
+              string: "expression cannot end with operator: (1) AND",
+            },
+          ],
+        )
+    end
+  end
 end

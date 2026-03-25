@@ -31,6 +31,18 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     expose :attributes, with: EditorTokenOptionEntity
   end
 
+  class EditorDetokenizationWarningEntity < BaseEntity
+    expose :index
+    expose :message
+    expose :value
+    expose :string, &self.delegate_to(:to_s)
+  end
+
+  class EditorDetokenizationEntity < BaseEntity
+    expose :serialized
+    expose :warnings, with: EditorDetokenizationWarningEntity
+  end
+
   resource :eligibility_requirements do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
@@ -104,7 +116,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
             id: a.id,
             value: a.fqn_label,
             label: a.name,
-            type: tokenizer::TYPE_VARIABLE,
+            type: tokenizer::VARIABLE,
           )
         end
         settings = {
@@ -127,10 +139,12 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
           requires :type, type: Symbol, values: [:operator, :paren, :variable]
         end
       end
-      post :parse_tokens do
+      post :detokenize do
         check_admin_role_access!(:read, Suma::Eligibility::Requirement)
-        r = Suma::Eligibility::Attribute.parse_tokens(params[:tokens])
-        present r, with:
+        tokens = params[:tokens].map { |h| Suma::Eligibility::Expression::Token.new(**h) }
+        r = Suma::Eligibility::Expression::Tokenizer.detokenize(tokens)
+        status 200
+        present r, with: EditorDetokenizationEntity
       end
     end
   end
