@@ -119,4 +119,23 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       expect(m).to be_destroyed
     end
   end
+
+  describe "GET /v1/eligibility_requirements/editor/settings" do
+    it "returns settings" do
+      a1 = Suma::Fixtures.eligibility_attribute.create(name: "A1")
+      a2 = Suma::Fixtures.eligibility_attribute.create(name: "A2", parent: a1)
+
+      get "/v1/eligibility_requirements/editor/settings"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          operators: ["AND", "OR"],
+          attributes: [
+            {id: a1.id, name: "A1", full_name: "A1"},
+            {id: a2.id, name: "A2", full_name: "A2.A1"},
+          ],
+        )
+    end
+  end
 end

@@ -1,10 +1,8 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
-import ImageFileInput from "../components/ImageFileInput";
 import useMountEffect from "../shared/react/useMountEffect";
-import EligibilityAttributeCreatePage from "./EligibilityAttributeCreatePage";
-import EligibilityRequirementCreatePage from "./EligibilityRequirementCreatePage";
+import EligibilityRequirementExpressionEditor from "./EligibilityRequirementExpressionEditor";
 import {
   FormControl,
   FormControlLabel,
@@ -12,7 +10,6 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  TextField,
 } from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
@@ -114,6 +111,7 @@ export default function EligibilityRequirementForm({
           />
         )}
       </Stack>
+      {!isCreate && <EligibilityRequirementExpressionEditor sx={{ mt: 1 }} />}
     </FormLayout>
   );
 }

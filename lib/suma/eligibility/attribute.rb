@@ -53,7 +53,7 @@ class Suma::Eligibility::Attribute < Suma::Postgres::Model(:eligibility_attribut
 
   def fqn_label
     return self.name if self.parent.nil?
-    return "#{self.name} | #{self.parent.fqn_label}"
+    return "#{self.name}.#{self.parent.fqn_label}"
   end
 
   alias admin_label fqn_label

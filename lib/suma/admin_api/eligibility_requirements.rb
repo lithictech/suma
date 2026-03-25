@@ -74,5 +74,16 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
         b.call
       end,
     )
+
+    resource :editor do
+      get :settings do
+        check_admin_role_access!(:read, Suma::Eligibility::Requirement)
+        operators = ["AND", "OR"]
+        attributes = Suma::Eligibility::Attribute.all.
+          sort_by { |a| a.fqn_label.reverse }.
+          map { |a| {id: a.id, name: a.name, full_name: a.fqn_label} }
+        present({operators:, attributes:})
+      end
+    end
   end
 end
