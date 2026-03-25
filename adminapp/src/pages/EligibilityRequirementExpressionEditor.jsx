@@ -13,19 +13,29 @@ import { styled } from "@mui/material/styles";
 import React from "react";
 
 const VARIABLES = [
-  "user.age",
-  "account.active",
-  "user.country",
-  "order.total",
-  "plan.tier",
+  { id: 1, value: "user.age", label: "age", type: "variable" },
+  { id: 2, value: "account.active", label: "active", type: "variable" },
+  { id: 3, value: "user.country", label: "country", type: "variable" },
+  { id: 4, value: "order.total", label: "total", type: "variable" },
+  { id: 5, value: "plan.tier", label: "tier", type: "variable" },
 ];
-const OPERATORS = ["AND", "OR"];
-const PARENS = ["(", ")"];
+const AND = { id: "AND", label: "AND", value: "AND", type: "operator" };
+const OR = { id: "OR", label: "OR", value: "OR", type: "operator" };
+const OPERATORS = [AND, OR];
+const P_OPEN = { id: "(", label: "(", value: "(", type: "paren" };
+const P_CLOSE = { id: ")", label: ")", value: ")", type: "paren" };
+const PARENS = [P_OPEN, P_CLOSE];
 
 const TOKEN_COLORS = {
   variable: "primary",
   operator: "warning",
   paren: "default",
+};
+
+const TOKEN_VARIANTS = {
+  variable: "outlined",
+  operator: "filled",
+  paren: "outlined",
 };
 
 function validate(tokens) {
@@ -120,14 +130,15 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
   }, [tokens.length]);
 
   const insertToken = React.useCallback(
-    (value, type) => {
-      const newToken = { id: Date.now() + Math.random(), value, type };
+    (t) => {
+      const newToken = { ...t, key: `${t.id}_${Math.random()}` };
       setTokens((prev) => {
         const next = [...prev];
         next.splice(cursorPos, 0, newToken);
         return next;
       });
       setCursorPos((p) => p + 1);
+      canvasRef.current?.focus();
     },
     [cursorPos]
   );
@@ -167,6 +178,20 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
       } else if (e.key === "End") {
         e.preventDefault();
         setCursorPos(tokens.length);
+      } else if (e.key === "(") {
+        e.preventDefault();
+        insertToken(P_OPEN);
+      } else if (e.key === ")") {
+        e.preventDefault();
+        insertToken(P_CLOSE);
+      } else if (e.key === "&") {
+        e.preventDefault();
+        insertToken(AND);
+      } else if (e.key === "|") {
+        e.preventDefault();
+        insertToken(OR);
+      } else {
+        console.log(e.key, e);
       }
     },
     [deleteBeforeCursor, tokens.length]
@@ -188,24 +213,27 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
       </Typography>
       <Typography variant="body2" color="text.secondary">
         Click a gap between tokens to place your cursor, then pick from the palette to
-        insert. Use ← → to move, Backspace to delete.
+        insert. Use <HelpChar>← →</HelpChar> to move, <HelpChar>backspace</HelpChar> to
+        delete, <HelpChar>&</HelpChar> for AND, <HelpChar>|</HelpChar> for OR,{" "}
+        <HelpChar>(</HelpChar> and <HelpChar>)</HelpChar> for parenthesis, or start typing
+        a character to auto-complete attribute names.
       </Typography>
 
       {/* Palette */}
-      <Paper variant="outlined" sx={{ p: 2, mt: 2, borderRadius: 2 }}>
+      <Paper variant="outlined" sx={{ p: 2, mt: 1, borderRadius: 2 }}>
         <Stack spacing={1.5}>
           <Box>
             <InputGroupLabel>Variables</InputGroupLabel>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {VARIABLES.map((v) => (
                 <PaletteButton
-                  key={v}
+                  key={v.value}
                   size="small"
                   variant="outlined"
                   color="primary"
-                  onClick={() => insertToken(v, "variable")}
+                  onClick={() => insertToken(v)}
                 >
-                  {v}
+                  {v.value}
                 </PaletteButton>
               ))}
             </Box>
@@ -219,11 +247,11 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
               <ButtonGroup size="small" variant="outlined" color="warning">
                 {OPERATORS.map((op) => (
                   <PaletteButton
-                    key={op}
-                    onClick={() => insertToken(op, "operator")}
+                    key={op.id}
+                    onClick={() => insertToken(op)}
                     color="warning"
                   >
-                    {op}
+                    {op.value}
                   </PaletteButton>
                 ))}
               </ButtonGroup>
@@ -233,11 +261,11 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
               <ButtonGroup size="small" variant="outlined">
                 {PARENS.map((p) => (
                   <PaletteButton
-                    key={p}
-                    onClick={() => insertToken(p, "paren")}
+                    key={p.id}
+                    onClick={() => insertToken(p)}
                     sx={{ fontSize: "1rem", px: 1.5 }}
                   >
-                    {p}
+                    {p.value}
                   </PaletteButton>
                 ))}
               </ButtonGroup>
@@ -259,6 +287,7 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
         }}
         sx={{
           p: 2,
+          mt: 1,
           mb: 1,
           borderRadius: 2,
           minHeight: 64,
@@ -314,7 +343,7 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
             </CursorSlot>
 
             {tokens.map((t, i) => (
-              <Box key={t.id} sx={{ display: "contents" }}>
+              <Box key={t.key} sx={{ display: "contents" }}>
                 <TokenChip
                   label={t.value}
                   tokentype={t.type}
@@ -324,7 +353,7 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
                     e.stopPropagation();
                     removeToken(i);
                   }}
-                  variant={t.type === "operator" ? "filled" : "outlined"}
+                  variant={TOKEN_VARIANTS[t.type]}
                   onClick={(e) => {
                     // clicking a token moves cursor to its right side
                     e.stopPropagation();
@@ -348,32 +377,10 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
         )}
       </Paper>
 
-      {/* Cursor position hint */}
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ display: "block", mb: 1.5, fontFamily: "monospace" }}
-      >
-        {tokens.length === 0
-          ? "Empty — add tokens from the palette"
-          : `Cursor at position ${cursorPos} / ${tokens.length}${
-              cursorPos === 0
-                ? " — before all tokens"
-                : cursorPos === tokens.length
-                ? " — after all tokens"
-                : ""
-            }`}
-      </Typography>
-
       {/* Validation feedback */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
-        </Alert>
-      )}
-      {isValid && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          Valid expression
         </Alert>
       )}
 
@@ -418,6 +425,10 @@ export default function EligibilityRequirementExpressionEditor({ sx }) {
       </Box>
     </Box>
   );
+}
+
+function HelpChar({ children }) {
+  return <strong style={{ fontFamily: "monospace" }}>{children}</strong>;
 }
 
 function InputGroupLabel({ children }) {
