@@ -268,6 +268,10 @@ export default {
     post(`/adminapi/v1/eligibility_requirements/${id}`, data, ...args),
   destroyEligibilityRequirement: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/eligibility_requirements/${id}/destroy`, data, ...args),
+  eligibilityRequirementExpressionEditorSettings: (data, ...args) =>
+    get(`/adminapi/v1/eligibility_requirements/editor/settings`, data, ...args),
+  eligibilityRequirementExpressionEditorDetokenize: (data, ...args) =>
+    post(`/adminapi/v1/eligibility_requirements/editor/detokenize`, data, ...args),
 
   createProgramPricing: (data, ...args) =>
     post("/adminapi/v1/program_pricings/create", data, ...args),

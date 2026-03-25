@@ -1,3 +1,5 @@
+import api from "../api";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import {
   Box,
   Chip,
@@ -8,35 +10,10 @@ import {
   Divider,
   Alert,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React from "react";
-
-const VARIABLES = [
-  { id: 1, value: "user.age", label: "age", type: "variable" },
-  { id: 2, value: "account.active", label: "active", type: "variable" },
-  { id: 3, value: "user.country", label: "country", type: "variable" },
-  { id: 4, value: "order.total", label: "total", type: "variable" },
-  { id: 5, value: "plan.tier", label: "tier", type: "variable" },
-];
-const AND = { id: "AND", label: "AND", value: "AND", type: "operator" };
-const OR = { id: "OR", label: "OR", value: "OR", type: "operator" };
-const OPERATORS = [AND, OR];
-const P_OPEN = { id: "(", label: "(", value: "(", type: "paren" };
-const P_CLOSE = { id: ")", label: ")", value: ")", type: "paren" };
-const PARENS = [P_OPEN, P_CLOSE];
-
-const TOKEN_COLORS = {
-  variable: "primary",
-  operator: "warning",
-  paren: "default",
-};
-
-const TOKEN_VARIANTS = {
-  variable: "outlined",
-  operator: "filled",
-  paren: "outlined",
-};
 
 function validate(tokens) {
   if (tokens.length === 0) return null;
@@ -75,49 +52,6 @@ function validate(tokens) {
   return null;
 }
 
-// Cursor sits *between* tokens. cursorPos=0 means before all tokens,
-// cursorPos=tokens.length means after all tokens.
-const CursorLine = styled("span")(({ theme, active }) => ({
-  display: "inline-flex",
-  alignItems: "center",
-  alignSelf: "stretch",
-  width: 2,
-  minHeight: 24,
-  borderRadius: 2,
-  backgroundColor: active ? theme.palette.primary.main : "transparent",
-  margin: "0 1px",
-  transition: "background-color 0.15s",
-  cursor: "text",
-  flexShrink: 0,
-  "&:hover": {
-    backgroundColor: theme.palette.primary.light,
-  },
-}));
-
-// Invisible wider hit-target around each cursor slot
-const CursorSlot = styled("span")({
-  display: "inline-flex",
-  alignItems: "center",
-  padding: "0 3px",
-  cursor: "text",
-  alignSelf: "stretch",
-});
-
-const TokenChip = styled(Chip)(({ tokentype }) => ({
-  fontFamily: "monospace",
-  fontWeight: tokentype === "operator" ? 700 : 400,
-  fontSize: tokentype === "paren" ? "1rem" : "0.8rem",
-  cursor: "pointer",
-  transition: "box-shadow 0.1s",
-}));
-
-const PaletteButton = styled(Button)({
-  textTransform: "none",
-  fontFamily: "monospace",
-  fontWeight: 500,
-  fontSize: "0.8rem",
-});
-
 export default function EligibilityRequirementExpressionEditor({
   expression,
   setExpression,
@@ -127,6 +61,11 @@ export default function EligibilityRequirementExpressionEditor({
   // cursorPos: index in [0..tokens.length] — the slot where next insert goes
   const [cursorPos, setCursorPos] = React.useState(0);
   const canvasRef = React.useRef(null);
+
+  const { state: editorSettings, loading: editorSettingsLoading } = useAsyncFetch(
+    api.eligibilityRequirementExpressionEditorSettings,
+    { pickData: true }
+  );
 
   // Keep cursor in bounds when tokens shrink
   React.useEffect(() => {
@@ -184,16 +123,16 @@ export default function EligibilityRequirementExpressionEditor({
         setCursorPos(tokens.length);
       } else if (e.key === "(") {
         e.preventDefault();
-        insertToken(P_OPEN);
+        insertToken(editorSettings.parenOpen);
       } else if (e.key === ")") {
         e.preventDefault();
-        insertToken(P_CLOSE);
+        insertToken(editorSettings.parenClose);
       } else if (e.key === "&") {
         e.preventDefault();
-        insertToken(AND);
+        insertToken(editorSettings.opAnd);
       } else if (e.key === "|") {
         e.preventDefault();
-        insertToken(OR);
+        insertToken(editorSettings.opOr);
       } else {
         console.log(e.key, e);
       }
@@ -204,6 +143,10 @@ export default function EligibilityRequirementExpressionEditor({
   const error = validate(tokens);
   const expressionString = tokens.map((t) => t.value).join(" ");
   const isValid = tokens.length > 0 && !error;
+
+  if (editorSettingsLoading) {
+    return <CircularProgress />;
+  }
 
   return (
     <Box sx={sx}>
@@ -229,7 +172,7 @@ export default function EligibilityRequirementExpressionEditor({
           <Box>
             <InputGroupLabel>Variables</InputGroupLabel>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {VARIABLES.map((v) => (
+              {editorSettings.attributes.map((v) => (
                 <PaletteButton
                   key={v.value}
                   size="small"
@@ -249,7 +192,7 @@ export default function EligibilityRequirementExpressionEditor({
             <Box>
               <InputGroupLabel>Operators</InputGroupLabel>
               <ButtonGroup size="small" variant="outlined" color="warning">
-                {OPERATORS.map((op) => (
+                {editorSettings.ops.map((op) => (
                   <PaletteButton
                     key={op.id}
                     onClick={() => insertToken(op)}
@@ -263,7 +206,7 @@ export default function EligibilityRequirementExpressionEditor({
             <Box>
               <InputGroupLabel>Parentheses</InputGroupLabel>
               <ButtonGroup size="small" variant="outlined">
-                {PARENS.map((p) => (
+                {editorSettings.parens.map((p) => (
                   <PaletteButton
                     key={p.id}
                     onClick={() => insertToken(p)}
@@ -430,6 +373,61 @@ export default function EligibilityRequirementExpressionEditor({
     </Box>
   );
 }
+
+const TOKEN_COLORS = {
+  variable: "primary",
+  operator: "warning",
+  paren: "default",
+};
+
+const TOKEN_VARIANTS = {
+  variable: "outlined",
+  operator: "filled",
+  paren: "outlined",
+};
+
+// Cursor sits *between* tokens. cursorPos=0 means before all tokens,
+// cursorPos=tokens.length means after all tokens.
+const CursorLine = styled("span")(({ theme, active }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  alignSelf: "stretch",
+  width: 2,
+  minHeight: 24,
+  borderRadius: 2,
+  backgroundColor: active ? theme.palette.primary.main : "transparent",
+  margin: "0 1px",
+  transition: "background-color 0.15s",
+  cursor: "text",
+  flexShrink: 0,
+  "&:hover": {
+    backgroundColor: theme.palette.primary.light,
+  },
+}));
+
+// Invisible wider hit-target around each cursor slot
+const CursorSlot = styled("span")({
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "0 3px",
+  cursor: "text",
+  alignSelf: "stretch",
+});
+
+const TokenChip = styled(Chip)(({ tokentype }) => ({
+  fontFamily: "monospace",
+  fontWeight: tokentype === "operator" ? 700 : 400,
+  fontSize: tokentype === "paren" ? "1rem" : "0.8rem",
+  cursor: "pointer",
+  transition: "box-shadow 0.1s",
+}));
+
+const PaletteButton = styled(Button)({
+  textTransform: "none",
+  fontFamily: "monospace",
+  fontWeight: 500,
+  fontSize: "0.8rem",
+});
 
 function HelpChar({ children }) {
   return <strong style={{ fontFamily: "monospace" }}>{children}</strong>;
