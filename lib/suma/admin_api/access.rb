@@ -24,6 +24,7 @@ class Suma::AdminAPI::Access
     Suma::Marketing::SmsBroadcast => [:marketing_sms_broadcast, MARKETING_SMS, MARKETING_SMS],
     Suma::Marketing::SmsDispatch => [:marketing_sms_dispatch, MARKETING_SMS, MARKETING_SMS],
     Suma::Member => [:member, MEMBERS, MEMBERS],
+    Suma::Member::Session => [:member_session, MEMBERS, MEMBERS],
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],
     Suma::Mobility::Trip => [:mobility_trip, COMMERCE, MANAGEMENT],
     Suma::Organization::Membership => [:organization_membership, MEMBERS, MEMBERS],

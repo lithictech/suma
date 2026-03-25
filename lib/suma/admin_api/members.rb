@@ -27,6 +27,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     include AutoExposeBase
     expose :user_agent
     expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
+    expose :logged_out_at
     expose :ip_lookup_link do |instance|
       "https://whatismyipaddress.com/ip/#{instance.peer_ip}"
     end
@@ -194,6 +195,23 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         end
         status 200
         present member, with: DetailedMemberEntity
+      end
+
+      resource :sessions do
+        post :logout do
+          check_admin_role_access!(:write, Suma::Member)
+          member = lookup_member!
+          admin = admin_member
+          member.db.transaction do
+            count = Suma::Member::Session.logout_member(member)
+            member.audit_activity(
+              "loggedout",
+              prefix: "Admin #{admin.email} logged #{member.email} out of #{count} sessions",
+            )
+          end
+          status 200
+          present member, with: DetailedMemberEntity
+        end
       end
     end
   end

@@ -9,11 +9,17 @@ class Suma::Member::Session < Suma::Postgres::Model(:member_sessions)
   many_to_one :member, class: Suma::Member
   many_to_one :impersonating, class: Suma::Member
 
-  def self.params_for_request(request)
-    return {
-      peer_ip: request.ip,
-      user_agent: request.user_agent || "(unset)",
-    }
+  class << self
+    def params_for_request(request)
+      return {
+        peer_ip: request.ip,
+        user_agent: request.user_agent || "(unset)",
+      }
+    end
+
+    def logout_member(member, except: [], now: Time.now)
+      return member.sessions_dataset.valid.exclude(id: except).update(logged_out_at: now)
+    end
   end
 
   dataset_module do

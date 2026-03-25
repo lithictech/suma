@@ -340,6 +340,8 @@ export default {
     post(`/adminapi/v1/members/${id}/notes/create`, data, ...args),
   updateMemberNote: ({ id, noteId, ...data }, ...args) =>
     post(`/adminapi/v1/members/${id}/notes/${noteId}`, data, ...args),
+  logoutMemberSessions: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/members/${id}/sessions/logout`, data, ...args),
 
   getOrganizations: (data, ...args) => get(`/adminapi/v1/organizations`, data, ...args),
   getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),
