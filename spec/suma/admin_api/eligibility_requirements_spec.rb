@@ -130,10 +130,10 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(
-          operators: ["AND", "OR"],
+          op_and: include(id: "AND", value: "AND"),
           attributes: [
-            {id: a1.id, name: "A1", full_name: "A1"},
-            {id: a2.id, name: "A2", full_name: "A2.A1"},
+            include(id: a1.id, label: "A1", value: "A1"),
+            include(id: a2.id, label: "A2", value: "A2.A1"),
           ],
         )
     end

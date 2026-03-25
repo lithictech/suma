@@ -79,13 +79,13 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
     end
 
     it "can serialize and deserialize" do
-      attr1 = Suma::Fixtures.eligibility_attribute.create
-      attr2 = Suma::Fixtures.eligibility_attribute.create
+      attr1 = Suma::Fixtures.eligibility_attribute.create(name: "A")
+      attr2 = Suma::Fixtures.eligibility_attribute.create(name: "B", parent: attr1)
       expr_fac = Suma::Fixtures.eligibility_expression
       empty = expr_fac.create
       expect(empty.serialize).to eq({op: "AND"})
       leaf = expr_fac.leaf(attr1).create
-      expect(leaf.serialize).to eq({attr: attr1.id})
+      expect(leaf.serialize).to eq({attr: attr1.id, name: "A", fqn: "A"})
       roundtrip(leaf)
 
       empty_operand = expr_fac.create(left: expr_fac.create, right: expr_fac.create)
@@ -93,7 +93,7 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
       roundtrip(empty_operand)
 
       single_side = expr_fac.create(right: expr_fac.leaf(attr1).create)
-      expect(single_side.serialize).to eq({op: "AND", right: {attr: attr1.id}})
+      expect(single_side.serialize).to eq({op: "AND", right: {attr: attr1.id, name: "A", fqn: "A"}})
       roundtrip(single_side)
 
       deep = expr_fac.and.create(
@@ -105,15 +105,15 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
           ),
         ),
       )
-      expect(deep.serialize).to eq(
+      expect(deep.serialize).to match(
         {
-          left: {attr: attr1.id},
+          left: include(attr: attr1.id),
           op: "AND",
           right: {
             left: {
-              left: {attr: attr1.id},
+              left: include(attr: attr1.id),
               op: "AND",
-              right: {attr: attr2.id},
+              right: include(attr: attr2.id),
             },
             op: "OR",
           },
@@ -150,6 +150,164 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
           },
         },
       )
+    end
+  end
+
+  describe "tokenization" do
+    it "can convert a serialized expression into tokens" do
+      ser = {
+        left: {attr: 5, name: "A", fqn: "A.B"},
+        op: "AND",
+        right: {
+          left: {
+            left: {attr: 5, name: "A", fqn: "A.B"},
+            op: "AND",
+            right: {attr: 6, name: "B", fqn: "B"},
+          },
+          op: "OR",
+        },
+      }
+      tokens = described_class::Tokenizer.tokenize(ser)
+      expect(tokens.map(&:value).join(" ")).to eq("A.B AND ( ( A.B AND B ) OR )")
+      expect(tokens.map(&:to_h)).to match_array(
+        [
+          {id: 5, label: "A", type: :variable, value: "A.B"},
+          {id: "AND", label: "AND", type: :operator, value: "AND"},
+          {id: "(", label: "(", type: :paren, value: "("},
+          {id: "(", label: "(", type: :paren, value: "("},
+          {id: 5, label: "A", type: :variable, value: "A.B"},
+          {id: "AND", label: "AND", type: :operator, value: "AND"},
+          {id: 6, label: "B", type: :variable, value: "B"},
+          {id: ")", label: ")", type: :paren, value: ")"},
+          {id: "OR", label: "OR", type: :operator, value: "OR"},
+          {id: ")", label: ")", type: :paren, value: ")"},
+        ],
+      )
+    end
+
+    it "can parse tokens as a serialized expression" do
+      tokens = [
+        {id: 5, label: "A", type: :variable, value: "A.B"},
+        {id: "AND", label: "AND", type: :operator, value: "AND"},
+        {id: "(", label: "(", type: :paren, value: "("},
+        {id: "(", label: "(", type: :paren, value: "("},
+        {id: 5, label: "A", type: :variable, value: "A.B"},
+        {id: "AND", label: "AND", type: :operator, value: "AND"},
+        {id: 6, label: "B", type: :variable, value: "B"},
+        {id: ")", label: ")", type: :paren, value: ")"},
+        {id: "OR", label: "OR", type: :operator, value: "OR"},
+        {id: ")", label: ")", type: :paren, value: ")"},
+      ].map { |t| described_class::Token.new(**t) }
+      result = described_class::Tokenizer.detokenize(tokens)
+      expect(result.warnings).to eq([])
+      expect(result.serialized).to eq(
+        {
+          left: {attr: 5, name: "A", fqn: "A.B"},
+          op: "AND",
+          right: {
+            left: {
+              left: {attr: 5, name: "A", fqn: "A.B"},
+              op: "AND",
+              right: {attr: 6, name: "B", fqn: "B"},
+            },
+            op: "OR",
+          },
+        },
+      )
+    end
+
+    it "handles empty tokens" do
+      result = described_class::Tokenizer.detokenize([])
+      expect(result.warnings).to eq([])
+      expect(result.serialized).to eq({})
+    end
+
+    describe "validity" do
+      it "fails for invalid types" do
+        tokens = [
+          {id: "AND", label: "AND", type: :foo, value: "AND"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Invalid type 'foo'"])
+      end
+
+      it "fails for missing close parens" do
+        tokens = [
+          {id: "(", label: "(", type: :paren, value: "("},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Unmatched opening parenthesis"])
+      end
+
+      it "fails for missing open parens" do
+        tokens = [
+          {id: ")", label: ")", type: :paren, value: ")"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Unmatched closing parenthesis"])
+      end
+
+      it "fails for empty parens" do
+        tokens = [
+          {id: "(", label: "(", type: :paren, value: "("},
+          {id: ")", label: ")", type: :paren, value: ")"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Empty parentheses are not allowed"])
+      end
+
+      it "fails for invalid paren values" do
+        tokens = [
+          {id: "x", label: "(", type: :paren, value: "("},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Invalid parenthesis id 'x'"])
+      end
+
+      it "fails for invalid operators" do
+        tokens = [
+          {id: "x", label: "AND", type: :operator, value: "AND"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Invalid operator id 'x'"])
+      end
+
+      it "fails for misplaced operators" do
+        tokens = [
+          {id: "AND", label: "AND", type: :operator, value: "AND"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["'AND' cannot appear here"])
+      end
+
+      it "fails for closing operators" do
+        tokens = [
+          {id: "x", label: "x", type: :variable, value: "x"},
+          {id: "AND", label: "AND", type: :operator, value: "AND"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Expression cannot end with 'AND'"])
+      end
+
+      it "fails for missing operators" do
+        tokens = [
+          {id: "x", label: "x", type: :variable, value: "x"},
+          {id: "x", label: "x", type: :variable, value: "x"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Missing operator before 'x'"])
+      end
+
+      it "fails for operators before parens" do
+        tokens = [
+          {id: "(", label: "(", type: :paren, value: "("},
+          {id: "x", label: "x", type: :variable, value: "x"},
+          {id: "AND", label: "AND", type: :operator, value: "AND"},
+          {id: ")", label: ")", type: :paren, value: ")"},
+        ].map { |t| described_class::Token.new(**t) }
+        result = described_class::Tokenizer.detokenize(tokens)
+        expect(result.warnings).to eq(["Operator before ')' is invalid"])
+      end
     end
   end
 end

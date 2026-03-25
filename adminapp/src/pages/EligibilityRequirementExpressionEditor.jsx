@@ -118,7 +118,11 @@ const PaletteButton = styled(Button)({
   fontSize: "0.8rem",
 });
 
-export default function EligibilityRequirementExpressionEditor({ sx }) {
+export default function EligibilityRequirementExpressionEditor({
+  expression,
+  setExpression,
+  sx,
+}) {
   const [tokens, setTokens] = React.useState([]);
   // cursorPos: index in [0..tokens.length] — the slot where next insert goes
   const [cursorPos, setCursorPos] = React.useState(0);

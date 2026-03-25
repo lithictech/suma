@@ -11,6 +11,24 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     expose :created_by, with: AuditMemberEntity
     expose :program, with: ProgramEntity
     expose :payment_trigger, with: PaymentTriggerEntity
+    expose :expression, &self.delegate_to(:expression, :serialize)
+  end
+
+  class EditorTokenOptionEntity < BaseEntity
+    expose :id
+    expose :value
+    expose :label
+    expose :type
+  end
+
+  class EditorSettingsEntity < BaseEntity
+    expose :paren_open, with: EditorTokenOptionEntity
+    expose :paren_close, with: EditorTokenOptionEntity
+    expose :parens, with: EditorTokenOptionEntity
+    expose :op_and, with: EditorTokenOptionEntity
+    expose :op_or, with: EditorTokenOptionEntity
+    expose :ops, with: EditorTokenOptionEntity
+    expose :attributes, with: EditorTokenOptionEntity
   end
 
   resource :eligibility_requirements do
@@ -78,11 +96,41 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     resource :editor do
       get :settings do
         check_admin_role_access!(:read, Suma::Eligibility::Requirement)
-        operators = ["AND", "OR"]
+        tokenizer = Suma::Eligibility::Expression::Tokenizer
         attributes = Suma::Eligibility::Attribute.all.
           sort_by { |a| a.fqn_label.reverse }.
-          map { |a| {id: a.id, name: a.name, full_name: a.fqn_label} }
-        present({operators:, attributes:})
+          map do |a|
+          Suma::Eligibility::Expression::Token.new(
+            id: a.id,
+            value: a.fqn_label,
+            label: a.name,
+            type: tokenizer::TYPE_VARIABLE,
+          )
+        end
+        settings = {
+          paren_open: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_OPEN,
+          paren_close: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_CLOSE,
+          parens: Suma::Eligibility::Expression::Tokenizer::PAREN_TOKENS,
+          op_and: Suma::Eligibility::Expression::Tokenizer::TOK_OP_AND,
+          op_or: Suma::Eligibility::Expression::Tokenizer::TOK_OP_OR,
+          ops: Suma::Eligibility::Expression::Tokenizer::OPERATOR_TOKENS,
+          attributes:,
+        }
+
+        present settings, with: EditorSettingsEntity
+      end
+
+      params do
+        requires :tokens, type: Array[JSON] do
+          requires :id
+          requires :value
+          requires :type, type: Symbol, values: [:operator, :paren, :variable]
+        end
+      end
+      post :parse_tokens do
+        check_admin_role_access!(:read, Suma::Eligibility::Requirement)
+        r = Suma::Eligibility::Attribute.parse_tokens(params[:tokens])
+        present r, with:
       end
     end
   end

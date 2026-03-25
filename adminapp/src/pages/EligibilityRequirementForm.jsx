@@ -111,7 +111,13 @@ export default function EligibilityRequirementForm({
           />
         )}
       </Stack>
-      {!isCreate && <EligibilityRequirementExpressionEditor sx={{ mt: 1 }} />}
+      {!isCreate && (
+        <EligibilityRequirementExpressionEditor
+          expression={resource.expression}
+          setExpression={(e) => setField("expression", e)}
+          sx={{ mt: 1 }}
+        />
+      )}
     </FormLayout>
   );
 }
