@@ -32,6 +32,10 @@ export default function EligibilityRequirementDetailPage() {
             </AdminLink>
           ),
         },
+        {
+          label: "Formula",
+          value: <code>{model.expressionFormulaStr}</code>,
+        },
       ]}
     >
       {(model) => [

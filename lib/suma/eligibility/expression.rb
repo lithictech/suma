@@ -58,6 +58,8 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
     return h
   end
 
+  def tokenize = Tokenizer.tokenize(self.serialize)
+
   class << self
     # Deserialize an instance from a serialized version.
     # If any invalid attribute IDs are used, they are ignored,
@@ -165,8 +167,18 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
         return Detokenization.new(serialized: ser, warnings:)
       end
 
+      # @param tokens [Array<Suma::Eligibility::Expression::Token>]
+      # @param warnings [Array<Suma::Eligibility::Expression::Tokenizer::Warning>]
+      # @param serialized [Hash]
       def _detokenize(tokens, warnings, serialized)
         return nil if tokens.empty?
+
+        # Handle the degenerative case of a single attribute node
+        if tokens.length === 1 && (t = tokens[0]).type == VARIABLE
+          serialized.merge!(attr: t.id, name: t.label, fqn: t.value)
+          return nil
+        end
+
         node_stack = [serialized]
         depth = 0
         last_open_paren = nil
@@ -199,8 +211,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
             end
           end
           if (t.type == OPERATOR) && (!prev || prev.value == "(" || prev.type == OPERATOR)
-            warnings << Warning.new(i, "cannot appear here",
-                                    t.value,)
+            warnings << Warning.new(i, "cannot appear here", t.value)
             # warnings << Warning.new(i, "operator cannot terminate expression", t.value) unless nxt
           end
           if (t.type == VARIABLE) && prev && (prev.type == VARIABLE || prev.value == ")")
@@ -209,13 +220,11 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
           if t.id == "("
             warnings << Warning.new(i, "empty parentheses are not allowed", "") if nxt && nxt.value === ")"
             if prev && (prev.type == VARIABLE || prev.value == ")")
-              warnings << Warning.new(i, "missing operator before (",
-                                      "",)
+              warnings << Warning.new(i, "missing operator before (", "")
             end
           end
           if (t.id == ")") && prev && prev.type == OPERATOR
-            warnings << Warning.new(i, "operator before ) is invalid",
-                                    "",)
+            warnings << Warning.new(i, "operator before ) is invalid", "")
           end
 
           # Detokenize tokens into serializable form.
@@ -246,9 +255,8 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
 
         warnings << Warning.new(last_open_paren, "unmatched opening parenthesis", "") if depth != 0
         last = tokens[tokens.length - 1]
-        return unless last.type == OPERATOR
-        warnings << Warning.new(tokens.length - 1, "expression cannot end with operator",
-                                last.value,)
+        warnings << Warning.new(tokens.length - 1, "expression cannot end with operator", last.value) if
+          last.type == OPERATOR
       end
     end
   end

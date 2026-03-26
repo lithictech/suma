@@ -1,4 +1,5 @@
 import api from "../api";
+import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import {
   Box,
@@ -15,82 +16,63 @@ import {
 import { styled } from "@mui/material/styles";
 import React from "react";
 
-function validate(tokens) {
-  if (tokens.length === 0) return null;
-  let depth = 0;
-  for (let i = 0; i < tokens.length; i++) {
-    const t = tokens[i];
-    const prev = tokens[i - 1];
-    const next = tokens[i + 1];
-    if (t.value === "(") {
-      depth++;
-    } else if (t.value === ")") {
-      depth--;
-      if (depth < 0) return "Unmatched closing parenthesis";
-    }
-    if (t.type === "operator") {
-      if (!prev || prev.value === "(" || prev.type === "operator")
-        return `"${t.value}" cannot appear here`;
-      if (!next) return `Expression cannot end with "${t.value}"`;
-    }
-    if (t.type === "variable") {
-      if (prev && (prev.type === "variable" || prev.value === ")"))
-        return `Missing operator before "${t.value}"`;
-    }
-    if (t.value === "(") {
-      if (next && next.value === ")") return "Empty parentheses are not allowed";
-      if (prev && (prev.type === "variable" || prev.value === ")"))
-        return `Missing operator before "("`;
-    }
-    if (t.value === ")") {
-      if (prev && prev.type === "operator") return `Operator before ")" is invalid`;
-    }
-  }
-  if (depth !== 0) return "Unmatched opening parenthesis";
-  const last = tokens[tokens.length - 1];
-  if (last.type === "operator") return `Expression cannot end with "${last.value}"`;
-  return null;
-}
-
 export default function EligibilityRequirementExpressionEditor({
-  expression,
+  expressionTokens,
   setExpression,
   sx,
 }) {
-  const [tokens, setTokens] = React.useState([]);
+  const [tokens, setTokens] = React.useState(expressionTokens);
   // cursorPos: index in [0..tokens.length] — the slot where next insert goes
-  const [cursorPos, setCursorPos] = React.useState(0);
+  const [cursorPos, setCursorPosInner] = React.useState(0);
+  const setCursorPos = React.useCallback((v) => {
+    setCursorPosInner(v);
+    canvasRef.current?.focus();
+  }, []);
   const canvasRef = React.useRef(null);
+  const [error, setError] = React.useState("");
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
 
   const { state: editorSettings, loading: editorSettingsLoading } = useAsyncFetch(
     api.eligibilityRequirementExpressionEditorSettings,
     { pickData: true }
   );
 
+  React.useEffect(() => {
+    api
+      .eligibilityRequirementExpressionEditorDetokenize({ tokens })
+      .then((r) => {
+        const d = r.data;
+        setError(d.warnings.length > 0 ? d.warnings[0].string : "");
+        setExpression(d.serialized);
+      })
+      .catch(enqueueErrorSnackbar);
+  }, [tokens]);
+
   // Keep cursor in bounds when tokens shrink
   React.useEffect(() => {
     setCursorPos((p) => Math.min(p, tokens.length));
-  }, [tokens.length]);
+  }, [setCursorPos, tokens.length]);
 
   const insertToken = React.useCallback(
     (t) => {
-      const newToken = { ...t, key: `${t.id}_${Math.random()}` };
       setTokens((prev) => {
         const next = [...prev];
-        next.splice(cursorPos, 0, newToken);
+        next.splice(cursorPos, 0, t);
         return next;
       });
       setCursorPos((p) => p + 1);
-      canvasRef.current?.focus();
     },
-    [cursorPos]
+    [cursorPos, setCursorPos]
   );
 
-  const removeToken = React.useCallback((index) => {
-    setTokens((prev) => prev.filter((_, i) => i !== index));
-    // Move cursor left if we deleted something before or at cursor
-    setCursorPos((p) => (index < p ? p - 1 : p));
-  }, []);
+  const removeToken = React.useCallback(
+    (index) => {
+      setTokens((prev) => prev.filter((_, i) => i !== index));
+      // Move cursor left if we deleted something before or at cursor
+      setCursorPos((p) => (index < p ? p - 1 : p));
+    },
+    [setCursorPos]
+  );
 
   // Delete token immediately before cursor (Backspace behavior)
   const deleteBeforeCursor = React.useCallback(() => {
@@ -137,10 +119,9 @@ export default function EligibilityRequirementExpressionEditor({
         console.log(e.key, e);
       }
     },
-    [deleteBeforeCursor, tokens.length]
+    [deleteBeforeCursor, editorSettings, insertToken, setCursorPos, tokens.length]
   );
 
-  const error = validate(tokens);
   const expressionString = tokens.map((t) => t.value).join(" ");
   const isValid = tokens.length > 0 && !error;
 
@@ -172,15 +153,15 @@ export default function EligibilityRequirementExpressionEditor({
           <Box>
             <InputGroupLabel>Variables</InputGroupLabel>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {editorSettings.attributes.map((v) => (
+              {editorSettings.attributes.map((t) => (
                 <PaletteButton
-                  key={v.value}
+                  key={t.id}
                   size="small"
                   variant="outlined"
-                  color="primary"
-                  onClick={() => insertToken(v)}
+                  color={TOKEN_COLORS[t.type]}
+                  onClick={() => insertToken(t)}
                 >
-                  {v.value}
+                  {t.value}
                 </PaletteButton>
               ))}
             </Box>
@@ -192,13 +173,13 @@ export default function EligibilityRequirementExpressionEditor({
             <Box>
               <InputGroupLabel>Operators</InputGroupLabel>
               <ButtonGroup size="small" variant="outlined" color="warning">
-                {editorSettings.ops.map((op) => (
+                {editorSettings.ops.map((t) => (
                   <PaletteButton
-                    key={op.id}
-                    onClick={() => insertToken(op)}
-                    color="warning"
+                    key={t.id}
+                    color={TOKEN_COLORS[t.type]}
+                    onClick={() => insertToken(t)}
                   >
-                    {op.value}
+                    {t.value}
                   </PaletteButton>
                 ))}
               </ButtonGroup>
@@ -206,13 +187,14 @@ export default function EligibilityRequirementExpressionEditor({
             <Box>
               <InputGroupLabel>Parentheses</InputGroupLabel>
               <ButtonGroup size="small" variant="outlined">
-                {editorSettings.parens.map((p) => (
+                {editorSettings.parens.map((t) => (
                   <PaletteButton
-                    key={p.id}
-                    onClick={() => insertToken(p)}
+                    key={t.id}
+                    color={TOKEN_COLORS[t.type]}
+                    onClick={() => insertToken(t)}
                     sx={{ fontSize: "1rem", px: 1.5 }}
                   >
-                    {p.value}
+                    {t.value}
                   </PaletteButton>
                 ))}
               </ButtonGroup>
@@ -230,7 +212,6 @@ export default function EligibilityRequirementExpressionEditor({
         onClick={() => {
           // clicking blank space in the canvas moves cursor to end
           setCursorPos(tokens.length);
-          canvasRef.current?.focus();
         }}
         sx={{
           p: 2,
@@ -255,7 +236,6 @@ export default function EligibilityRequirementExpressionEditor({
               onClick={(e) => {
                 e.stopPropagation();
                 setCursorPos(0);
-                canvasRef.current?.focus();
               }}
             >
               <CursorLine active={1} />
@@ -273,24 +253,27 @@ export default function EligibilityRequirementExpressionEditor({
             sx={{
               display: "flex",
               flexWrap: "wrap",
-              gap: 0.5,
+              gap: 0.25,
               alignItems: "center",
               minHeight: 32,
+              cursor: "text",
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCursorPos(tokens.length);
+            }}
           >
             {/* Slot BEFORE index 0 */}
             <CursorSlot
               onClick={() => {
                 setCursorPos(0);
-                canvasRef.current?.focus();
               }}
             >
               <CursorLine active={cursorPos === 0 ? 1 : 0} />
             </CursorSlot>
 
             {tokens.map((t, i) => (
-              <Box key={t.key} sx={{ display: "contents" }}>
+              <Box key={`${t.id}${i}`} sx={{ display: "contents" }}>
                 <TokenChip
                   label={t.value}
                   tokentype={t.type}
@@ -300,12 +283,11 @@ export default function EligibilityRequirementExpressionEditor({
                     e.stopPropagation();
                     removeToken(i);
                   }}
-                  variant={TOKEN_VARIANTS[t.type]}
+                  variant={TOKEN_CHIP_VARIANTS[t.type]}
                   onClick={(e) => {
                     // clicking a token moves cursor to its right side
                     e.stopPropagation();
                     setCursorPos(i + 1);
-                    canvasRef.current?.focus();
                   }}
                 />
                 {/* Slot AFTER token i */}
@@ -313,7 +295,6 @@ export default function EligibilityRequirementExpressionEditor({
                   onClick={(e) => {
                     e.stopPropagation();
                     setCursorPos(i + 1);
-                    canvasRef.current?.focus();
                   }}
                 >
                   <CursorLine active={cursorPos === i + 1 ? 1 : 0} />
@@ -347,7 +328,7 @@ export default function EligibilityRequirementExpressionEditor({
             color="text.secondary"
             sx={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}
           >
-            Output string
+            Expression
           </Typography>
           <Typography
             variant="body2"
@@ -377,12 +358,12 @@ export default function EligibilityRequirementExpressionEditor({
 const TOKEN_COLORS = {
   variable: "primary",
   operator: "warning",
-  paren: "default",
+  paren: "secondary",
 };
 
-const TOKEN_VARIANTS = {
-  variable: "outlined",
-  operator: "filled",
+const TOKEN_CHIP_VARIANTS = {
+  variable: "filled",
+  operator: "outlined",
   paren: "outlined",
 };
 
@@ -409,7 +390,7 @@ const CursorLine = styled("span")(({ theme, active }) => ({
 const CursorSlot = styled("span")({
   display: "inline-flex",
   alignItems: "center",
-  padding: "0 3px",
+  padding: "2px 1px",
   cursor: "text",
   alignSelf: "stretch",
 });

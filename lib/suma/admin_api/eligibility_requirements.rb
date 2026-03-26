@@ -12,6 +12,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     expose :program, with: ProgramEntity
     expose :payment_trigger, with: PaymentTriggerEntity
     expose :expression, &self.delegate_to(:expression, :serialize)
+    expose :expression_tokens, &self.delegate_to(:expression, :tokenize)
   end
 
   class EditorTokenOptionEntity < BaseEntity
@@ -136,12 +137,14 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
         requires :tokens, type: Array[JSON] do
           requires :id
           requires :value
+          requires :label
           requires :type, type: Symbol, values: [:operator, :paren, :variable]
         end
       end
       post :detokenize do
         check_admin_role_access!(:read, Suma::Eligibility::Requirement)
-        tokens = params[:tokens].map { |h| Suma::Eligibility::Expression::Token.new(**h) }
+        dparams = declared(params)
+        tokens = dparams[:tokens].map { |h| Suma::Eligibility::Expression::Token.new(**h) }
         r = Suma::Eligibility::Expression::Tokenizer.detokenize(tokens)
         status 200
         present r, with: EditorDetokenizationEntity
