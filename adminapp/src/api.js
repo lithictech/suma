@@ -270,6 +270,12 @@ export default {
     get(`/adminapi/v1/eligibility_requirements/editor/settings`, data, ...args),
   eligibilityRequirementExpressionEditorDetokenize: (data, ...args) =>
     post(`/adminapi/v1/eligibility_requirements/editor/detokenize`, data, ...args),
+  eligibilityRequirementExpressionEditorEvaluate: (data, ...args) =>
+    post(
+      `/adminapi/v1/eligibility_requirements/editor/evaluate_expression`,
+      data,
+      ...args
+    ),
 
   createProgramPricing: (data, ...args) =>
     post("/adminapi/v1/program_pricings/create", data, ...args),

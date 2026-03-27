@@ -1,4 +1,5 @@
 import api from "../api";
+import AdminLink from "../components/AdminLink";
 import useDebounced from "../hooks/useDebounced";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -13,20 +14,28 @@ import {
   Alert,
   Stack,
   CircularProgress,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableBody,
 } from "@mui/material";
+import TableCell from "@mui/material/TableCell";
 import { styled } from "@mui/material/styles";
 import { useTheme } from "@mui/styles";
 import React from "react";
 
 export default function EligibilityRequirementExpressionEditor({
+  requirement,
   expressionTokens,
   setExpression,
   sx,
 }) {
-  const [error, setError] = React.useState("");
   const { enqueueErrorSnackbar } = useErrorSnackbar();
 
+  const [error, setError] = React.useState("");
   const [tokens, setTokens] = React.useState(expressionTokens);
+  const [evaluationResult, setEvaluationResult] = React.useState(null);
 
   const canvasRef = React.useRef(null);
   // cursorPos: index in [0..tokens.length] — the slot where next insert goes
@@ -47,6 +56,14 @@ export default function EligibilityRequirementExpressionEditor({
       const d = r.data;
       setError(d.warnings.length > 0 ? d.warnings[0].string : "");
       setExpression(d.serialized);
+      return api
+        .eligibilityRequirementExpressionEditorEvaluate({
+          requirementId: requirement.id,
+          serializedExpression: d.serialized,
+        })
+        .then((r) => {
+          setEvaluationResult(r.data);
+        });
     },
     enqueueErrorSnackbar,
     { wait: 1, maxWait: 10 }
@@ -327,43 +344,28 @@ export default function EligibilityRequirementExpressionEditor({
       )}
 
       {/* Output & actions */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: 1,
-        }}
-      >
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}
-          >
-            Expression
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              fontFamily: "monospace",
-              color: tokens.length ? "text.primary" : "text.disabled",
-              wordBreak: "break-all",
-            }}
-          >
-            <ExpressionString tokens={tokens} />
-          </Typography>
-        </Box>
-        <Button
-          size="small"
-          variant="text"
-          color="error"
-          onClick={clearAll}
-          disabled={tokens.length === 0}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            gap: 1,
+          }}
         >
-          Clear all
-        </Button>
+          <ExpressionString tokens={tokens} />
+          <Button
+            size="small"
+            variant="text"
+            color="error"
+            onClick={clearAll}
+            disabled={tokens.length === 0}
+          >
+            Clear all
+          </Button>
+        </Box>
+        <EvaluationResult requirement={requirement} evaluationResult={evaluationResult} />
       </Box>
     </Box>
   );
@@ -389,28 +391,149 @@ const TOKEN_WEIGHTS = {
 
 function ExpressionString({ tokens }) {
   const theme = useTheme();
-  if (tokens.length === 0) {
-    return "-";
-  }
-  const els = tokens.map((t, i) => {
-    const key = `${t.id}-${i}`;
-    let color = theme.palette[TOKEN_COLORS[t.type]].main;
-    let fontWeight = TOKEN_WEIGHTS[t.type];
-    let v = t.value;
-    if (t.type === "variable") {
-      console.log();
-    } else if (t.type === "paren") {
-      console.log();
-    } else {
-      v = ` ${v} `;
+
+  const inner = (() => {
+    if (tokens.length === 0) {
+      return "-";
     }
-    return (
-      <span key={key} style={{ color, fontWeight }}>
-        {v}
-      </span>
-    );
-  });
-  return els;
+
+    const els = tokens.map((t, i) => {
+      const key = `${t.id}-${i}`;
+      let color = theme.palette[TOKEN_COLORS[t.type]].main;
+      let fontWeight = TOKEN_WEIGHTS[t.type];
+      let v = t.value;
+      if (t.type === "variable") {
+        console.log();
+      } else if (t.type === "paren") {
+        console.log();
+      } else {
+        v = ` ${v} `;
+      }
+      return (
+        <span key={key} style={{ color, fontWeight }}>
+          {v}
+        </span>
+      );
+    });
+    return els;
+  })();
+  return (
+    <Box sx={{ flex: 1 }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}
+      >
+        Expression
+      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          fontFamily: "monospace",
+          color: tokens.length ? "text.primary" : "text.disabled",
+          wordBreak: "break-all",
+        }}
+      >
+        {inner}
+      </Typography>
+    </Box>
+  );
+}
+
+function EvaluationResult({ requirement, evaluationResult }) {
+  const r = evaluationResult;
+  if (!r) {
+    return null;
+  }
+  return (
+    <TableContainer>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}
+      >
+        Evaluation
+      </Typography>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Member</TableCell>
+            <TableCell>
+              <AdminLink model={r.member}>{r.member.name}</AdminLink>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+      </Table>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Expression</TableCell>
+            <TableCell>Passed</TableCell>
+            <TableCell>Requirement</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {r.expressions.map(
+            ({
+              requirementId,
+              requirementAdminLink,
+              requirementLabel,
+              formula,
+              passed,
+            }) => (
+              <TableRow key={requirementAdminLink}>
+                <TableCell>{formula}</TableCell>
+                <TableCell>{passed ? "✅" : "❌"}</TableCell>
+                <TableCell>
+                  <AdminLink to={requirementAdminLink}>
+                    {requirementLabel}
+                    {requirementId === requirement.id ? " (this)" : ""}
+                  </AdminLink>
+                </TableCell>
+              </TableRow>
+            )
+          )}
+        </TableBody>
+      </Table>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Attribute Assignments</TableCell>
+            <TableCell>Depth</TableCell>
+            <TableCell colSpan={2}>Source</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {r.assignments.map(
+            ({
+              attributeAdminLink,
+              label,
+              depth,
+              sourceType,
+              sourceLabels,
+              sourceAdminLinks,
+            }) => (
+              <TableRow key={label}>
+                <TableCell>
+                  <AdminLink to={attributeAdminLink}>{label}</AdminLink>
+                </TableCell>
+                <TableCell>{depth}</TableCell>
+                <TableCell>{sourceType}</TableCell>
+                <TableCell>
+                  {sourceLabels.map((lbl, i) => (
+                    <React.Fragment key={lbl}>
+                      <AdminLink to={sourceAdminLinks[i]}>{lbl}</AdminLink>
+                      <br />
+                    </React.Fragment>
+                  ))}
+                </TableCell>
+              </TableRow>
+            )
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 }
 
 // Cursor sits *between* tokens. cursorPos=0 means before all tokens,

@@ -39,6 +39,12 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     expose :string, &self.delegate_to(:to_s)
   end
 
+  class EditorExpressionEvaluationEntity < BaseEntity
+    expose :member, with: Suma::AdminAPI::Entities::MemberEntity
+    expose :assignments
+    expose :expressions
+  end
+
   class EditorDetokenizationEntity < BaseEntity
     expose :serialized
     expose :warnings, with: EditorDetokenizationWarningEntity
@@ -109,16 +115,10 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     resource :editor do
       get :settings do
         check_admin_role_access!(:read, Suma::Eligibility::Requirement)
-        tokenizer = Suma::Eligibility::Expression::Tokenizer
         attributes = Suma::Eligibility::Attribute.all.
           sort_by { |a| a.fqn_label.reverse }.
           map do |a|
-          Suma::Eligibility::Expression::Token.new(
-            id: a.id,
-            value: a.fqn_label,
-            label: a.name,
-            type: tokenizer::VARIABLE,
-          )
+          Suma::Eligibility::Expression::Token.from_attribute(a)
         end
         settings = {
           paren_open: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_OPEN,
@@ -148,6 +148,31 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
         r = Suma::Eligibility::Expression::Tokenizer.detokenize(tokens)
         status 200
         present r, with: EditorDetokenizationEntity
+      end
+
+      params do
+        requires :requirement_id, type: Integer
+        requires :serialized_expression, type: JSON
+        optional :member_id, type: Integer
+      end
+      post :evaluate_expression do
+        check_admin_role_access!(:read, Suma::Eligibility::Requirement)
+        check_admin_role_access!(:read, Suma::Member)
+        member = if (member_id = params[:member_id])
+                   Suma::Member[member_id] or forbidden!("no member with that ID")
+                 else
+                   current_member
+                 end
+
+        (req = Suma::Eligibility::Requirement[params[:requirement_id]]) or forbidden!("no requirement with that id")
+        tbls = req.db.transaction(rollback: :always) do
+          req.replace_expression(params[:serialized_expression])
+          member.evaluate_eligibility_access_to(req.resource).to_structured_tables
+        end
+        tbls.transform_values! { |a| a.map(&:to_h) }
+        tbls[:member] = member
+        status 200
+        present tbls, with: EditorExpressionEvaluationEntity
       end
     end
   end

@@ -108,6 +108,7 @@ export default function EligibilityRequirementForm({
       </Stack>
       {!isCreate && (
         <EligibilityRequirementExpressionEditor
+          requirement={resource}
           expressionTokens={resource.expressionTokens}
           setExpression={setExpression}
           sx={{ mt: 1 }}

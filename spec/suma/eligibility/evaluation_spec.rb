@@ -119,6 +119,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
   it "can represent itself" do
     member = Suma::Fixtures.member.create
     org = Suma::Fixtures.organization.with_membership_of(member).create(name: "Org1")
+    membership = org.memberships.first
     role1 = Suma::Fixtures.role.create(name: "role1")
     role2 = Suma::Fixtures.role.create(name: "role2")
     org.add_role(role1)
@@ -165,26 +166,28 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
         ),
       )
 
-    tbl = member.evaluate_eligibility_access_to(trigger1).to_table
-    expect(tbl).to eq(
+    evaled = member.evaluate_eligibility_access_to(trigger1)
+
+    txt_tbl = evaled.to_ascii_tables
+    expect(txt_tbl).to eq(
       {
         assignments: <<~STR.strip,
-          +-----------+---------------------+-------+
-          | Attribute | From                | Depth |
-          +-----------+---------------------+-------+
-          | attr1     | membership in Org1  | 0     |
-          | attr1     | role role1 for Org1 | 1     |
-          | attr1     | role role1 for Org1 | 2     |
-          | attr1     | role role2          | 1     |
-          | attr1     | self                | 3     |
-          | attr2     | role role1 for Org1 | 0     |
-          | attr2     | role role1 for Org1 | 1     |
-          | attr2     | role role2          | 0     |
-          | attr2     | self                | 2     |
-          | attr3     | role role1 for Org1 | 0     |
-          | attr3     | self                | 1     |
-          | attr4     | self                | 0     |
-          +-----------+---------------------+-------+
+          +-------------------------+---------------------+-------+
+          | Attribute               | From                | Depth |
+          +-------------------------+---------------------+-------+
+          | attr1                   | membership in Org1  | 0     |
+          | attr1                   | role role1 for Org1 | 1     |
+          | attr1                   | role role1 for Org1 | 2     |
+          | attr1                   | role role2          | 1     |
+          | attr1                   | self                | 3     |
+          | attr2.attr1             | role role1 for Org1 | 0     |
+          | attr2.attr1             | role role1 for Org1 | 1     |
+          | attr2.attr1             | role role2          | 0     |
+          | attr2.attr1             | self                | 2     |
+          | attr3.attr2.attr1       | role role1 for Org1 | 0     |
+          | attr3.attr2.attr1       | self                | 1     |
+          | attr4.attr3.attr2.attr1 | self                | 0     |
+          +-------------------------+---------------------+-------+
         STR
         expressions: <<~STR.strip,
           +--------------------------------------------------+--------+
@@ -195,6 +198,38 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
           +--------------------------------------------------+--------+
         STR
       },
+    )
+
+    struct_tbl = evaled.to_structured_tables
+    expect(struct_tbl[:assignments]).to match_array(
+      [
+        have_attributes(
+          id: attr1.id,
+          label: "attr1",
+          depth: 0,
+          source_type: "membership",
+          source_ids: [membership.id],
+          source_labels: ["Membership #{membership.id}"],
+          source_admin_links: ["http://localhost:22014/membership/#{membership.id}"],
+        ),
+        have_attributes(label: "attr1", depth: 1, source_type: "organization_role"),
+        have_attributes(label: "attr1", depth: 1, source_type: "role"),
+        have_attributes(label: "attr1", depth: 2, source_type: "organization_role"),
+        have_attributes(label: "attr1", depth: 3, source_type: "member"),
+        have_attributes(label: "attr2.attr1", depth: 0, source_type: "organization_role"),
+        have_attributes(label: "attr2.attr1", depth: 0, source_type: "role"),
+        have_attributes(label: "attr2.attr1", depth: 1, source_type: "organization_role"),
+        have_attributes(label: "attr2.attr1", depth: 2, source_type: "member"),
+        have_attributes(label: "attr3.attr2.attr1", depth: 0, source_type: "organization_role"),
+        have_attributes(label: "attr3.attr2.attr1", depth: 1, source_type: "member"),
+        have_attributes(label: "attr4.attr3.attr2.attr1", depth: 0, source_type: "member"),
+      ],
+    )
+    expect(struct_tbl[:expressions]).to match_array(
+      [
+        have_attributes(formula: "('attr1' AND ('attr2' OR ('attr3' AND 'attr4')))", passed: true),
+        have_attributes(formula: "'attr6'", passed: false),
+      ],
     )
   end
 end

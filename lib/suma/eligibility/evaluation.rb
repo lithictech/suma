@@ -71,20 +71,23 @@ class Suma::Eligibility::Evaluation
     @access = bitmap.values.any? || (Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE && exprs.empty?)
   end
 
-  # Represent the evaluation as tables.
-  def to_table
-    assignment_rows = self.member_assignments.map do |ma|
-      row = [ma.attribute.name]
+  # Represent the evaluation as ASCII tables.
+  # Result is a hash with :assignments and :expressions keys,
+  # each value is a table string for console rendering.
+  def to_ascii_tables
+    stbl = self.to_structured_tables
+    assignment_rows = stbl[:assignments].map do |ma|
+      row = [ma.label]
       row << case ma.source_type
-        when "member"
+        when Suma::Eligibility::MemberAssignment::MEMBER
           "self"
-        when "role"
+        when Suma::Eligibility::MemberAssignment::ROLE
           role = Suma::Role[ma.source_ids[0]]
           "role #{role.name}"
-        when "membership"
+        when Suma::Eligibility::MemberAssignment::MEMBERSHIP
           om = Suma::Organization::Membership[ma.source_ids[0]]
           "membership in #{om.organization_label}"
-        when "organization_role"
+        when Suma::Eligibility::MemberAssignment::ORGANIZATION_ROLE
           org = Suma::Organization[ma.source_ids[0]]
           role = Suma::Role[ma.source_ids[1]]
           "role #{role.name} for #{org.name}"
@@ -96,10 +99,59 @@ class Suma::Eligibility::Evaluation
     assignment_rows.sort!
     assignments = Suma::Terminal.ascii_table(assignment_rows, headers: ["Attribute", "From", "Depth"])
 
-    expr_rows = self.expressions.map do |expr|
-      [expr.to_formula_str, self.bitmap[expr.id] ? "PASS" : "fail"]
+    expr_rows = stbl[:expressions].map do |expr|
+      [expr.formula, expr.passed ? "PASS" : "fail"]
     end
     expressions = Suma::Terminal.ascii_table(expr_rows, headers: ["Expression", "Result"])
+    return {assignments:, expressions:}
+  end
+
+  Assignment = Struct.new(
+    :attribute_id,
+    :attribute_admin_link,
+    :label,
+    :depth,
+    :source_type,
+    :source_ids,
+    :source_labels,
+    :source_admin_links,
+  )
+  Expression = Struct.new(
+    :requirement_id,
+    :requirement_label,
+    :requirement_admin_link,
+    :expression_id,
+    :formula,
+    :passed,
+  )
+
+  # Represent the evaluation as a series of structs,
+  # for easier use in rendering.
+  def to_structured_tables
+    assignments = self.member_assignments.map do |ma|
+      a = Assignment.new
+      a.attribute_id = ma.attribute.id
+      a.attribute_admin_link = ma.attribute.admin_link
+      a.label = ma.attribute.fqn_label
+      a.depth = ma.depth
+      a.source_type = ma.source_type
+      a.source_ids = ma.source_ids
+      a.source_labels = ma.to_sources.map(&:admin_label)
+      a.source_admin_links = ma.to_sources.map(&:admin_link)
+      a
+    end
+    assignments.sort_by! { |a| [a.label, a.depth] }
+
+    expressions = self.expressions.map do |expr|
+      e = Expression.new
+      e.expression_id = expr.id
+      e.requirement_id = expr.requirement.id
+      e.requirement_label = expr.requirement.admin_label
+      e.requirement_admin_link = expr.requirement.admin_link
+      e.formula = expr.to_formula_str
+      e.passed = self.bitmap[expr.id]
+      e
+    end
     return {assignments:, expressions:}
   end
 end

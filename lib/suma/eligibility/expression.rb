@@ -7,6 +7,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   many_to_one :left, class: self
   many_to_one :right, class: self
   many_to_one :attribute, class: "Suma::Eligibility::Attribute"
+  one_to_one :requirement, class: "Suma::Eligibility::Requirement"
 
   LEAF = :leaf
   BRANCH = :branch
@@ -102,6 +103,12 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
     end
 
     def self.constant(s, type) = self.new(id: s, value: s, label: s, type:)
+
+    def self.from_attribute(a)
+      return self.new(
+        id: a.id, value: a.fqn_label, label: a.name, type: Suma::Eligibility::Expression::Tokenizer::VARIABLE,
+      )
+    end
   end
 
   module Tokenizer

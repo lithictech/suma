@@ -8,6 +8,12 @@ RSpec.describe "Suma::Eligibility::Requirement", :db do
     expect(r).to be_a(described_class)
   end
 
+  it "creates and associates an expression automatically" do
+    req = Suma::Fixtures.eligibility_requirement.create
+    expect(req.expression).to be_a(Suma::Eligibility::Expression)
+    expect(req.expression.requirement).to be === req
+  end
+
   it "can get and set its resource" do
     req = Suma::Fixtures.eligibility_requirement.create
     pr = Suma::Fixtures.program.create

@@ -141,12 +141,11 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
 
   describe "POST /v1/eligibility_requirements/editor/detokenize" do
     it "detokenizes and returns the result" do
-      a1 = Suma::Fixtures.eligibility_attribute.create(name: "x")
-      expr = Suma::Eligibility::Expression
+      exprcls = Suma::Eligibility::Expression
 
       post "/v1/eligibility_requirements/editor/detokenize", tokens: [
-        expr::Token.new(id: 1, value: "x", label: "x", type: expr::Tokenizer::VARIABLE).to_h,
-        expr::Tokenizer::TOK_OP_AND.to_h,
+        exprcls::Token.new(id: 1, value: "x", label: "x", type: exprcls::Tokenizer::VARIABLE).to_h,
+        exprcls::Tokenizer::TOK_OP_AND.to_h,
       ]
 
       expect(last_response).to have_status(200)
@@ -168,6 +167,53 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
               string: "expression cannot end with operator: (1) AND",
             },
           ],
+        )
+    end
+  end
+
+  describe "POST /v1/eligibility_requirements/editor/evaluate_expression" do
+    it "evaluates the serialized expression and rolls back the changes" do
+      member = Suma::Fixtures.member.create
+      attr = Suma::Fixtures.eligibility_attribute.create
+      Suma::Fixtures.eligibility_assignment.create(member:, attribute: attr)
+
+      req = Suma::Fixtures.eligibility_requirement.create
+      orig_expr = req.expression
+
+      post "/v1/eligibility_requirements/editor/evaluate_expression",
+           member_id: member.id,
+           requirement_id: req.id,
+           serialized_expression: {attr: attr.id}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          assignments: contain_exactly(include(label: attr.fqn_label, source_type: "member")),
+          expressions: contain_exactly(include(formula: "'#{attr.name}'", passed: true)),
+        )
+
+      expect(req.refresh.expression).to be === orig_expr
+    end
+
+    it "defaults to the current impersonated user" do
+      member = Suma::Fixtures.member.create
+      attr = Suma::Fixtures.eligibility_attribute.create
+      Suma::Fixtures.eligibility_assignment.create(member:, attribute: attr)
+
+      impersonate(admin:, target: member)
+
+      req = Suma::Fixtures.eligibility_requirement.create
+
+      post "/v1/eligibility_requirements/editor/evaluate_expression",
+           requirement_id: req.id,
+           serialized_expression: {attr: attr.id}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          member: include(id: member.id),
+          assignments: contain_exactly(include(source_type: "member", source_ids: [member.id])),
+          expressions: contain_exactly(include(formula: "'#{attr.name}'", passed: true)),
         )
     end
   end
