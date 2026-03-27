@@ -20,7 +20,7 @@ export default function EligibilityAssignmentDetailPage() {
         },
         {
           label: "Attribute",
-          value: <AdminLink model={model.attribute}>{model.attribute.fqn}</AdminLink>,
+          value: <AdminLink model={model.attribute}>{model.attribute.label}</AdminLink>,
         },
         {
           label: "Assignee",

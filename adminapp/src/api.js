@@ -146,8 +146,6 @@ export default {
     get(`/adminapi/v1/payment_triggers/${id}`, data, ...args),
   updatePaymentTrigger: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/payment_triggers/${id}`, data, ...args),
-  updatePaymentTriggerPrograms: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/payment_triggers/${id}/programs`, data, ...args),
   subdividePaymentTrigger: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/payment_triggers/${id}/subdivide`, data, ...args),
 

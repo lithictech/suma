@@ -4,10 +4,10 @@ import AuditActivityList from "../components/AuditActivityList";
 import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
+import EligibilityAssignmentsRelatedList from "../components/EligibilityAssignmentsRelatedList";
 import InlineEditField from "../components/InlineEditField";
 import OrganizationMembership from "../components/OrganizationMembership";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
-import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import ResponsiveStack from "../components/ResponsiveStack";
@@ -161,12 +161,7 @@ export default function MemberDetailPage() {
             memberships={model.organizationMemberships}
             model={model}
           />,
-          <ProgramEnrollmentRelatedList
-            model={model}
-            resource="member"
-            enrollments={model.directProgramEnrollments}
-          />,
-          <EnrollmentExclusions model={model} />,
+          <EligibilityAssignmentsRelatedList model={model} type="member" />,
           <Activities activities={model.activities} />,
           <Orders orders={model.orders} />,
           <MobilityTrips mobilityTrips={model.mobilityTrips} />,
@@ -231,30 +226,6 @@ function LegalEntity({ address }) {
         ]}
       />
     </div>
-  );
-}
-
-function EnrollmentExclusions({ model }) {
-  return (
-    <RelatedList
-      title="Enrollment Exclusions"
-      addNewLabel="Add Exclusion"
-      addNewLink={createRelativeUrl(`/program-enrollment-exclusion/new`, {
-        enrolleeId: model.id,
-        enrolleeLabel: `(${model.id}) ${model.name}`,
-        enrolleeType: "member",
-      })}
-      addNewRole="programEnrollmentExclusion"
-      rows={model.programEnrollmentExclusions}
-      headers={["Id", "Program"]}
-      keyRowAttr="id"
-      toCells={(row) => [
-        <AdminLink key="id" model={row} />,
-        <AdminLink key="program" model={row.program}>
-          {row.program.name.en}
-        </AdminLink>,
-      ]}
-    />
   );
 }
 

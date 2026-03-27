@@ -1,11 +1,11 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
+import EligibilityAssignmentsRelatedList from "../components/EligibilityAssignmentsRelatedList";
 import {
   OrganizationMembershipRemovedIcon,
   OrganizationMembershipVerifiedIcon,
 } from "../components/OrganizationMembership";
-import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -49,11 +49,6 @@ export default function OrganizationDetailPage() {
       ]}
     >
       {(model) => [
-        <ProgramEnrollmentRelatedList
-          model={model}
-          resource="organization"
-          enrollments={model.programEnrollments}
-        />,
         <RelatedList
           title={
             <>
@@ -97,6 +92,7 @@ export default function OrganizationDetailPage() {
             formatDate(row.formerlyInOrganizationAt),
           ]}
         />,
+        <EligibilityAssignmentsRelatedList model={model} type="organization" />,
         <AuditActivityList activities={model.auditActivities} />,
       ]}
     </ResourceDetail>

@@ -24,7 +24,6 @@ export default function EligibilityRequirementForm({
   onSubmit,
 }) {
   const [searchParams] = useSearchParams();
-  const searchProgramId = Number(searchParams.get("programId") || -1);
   const searchResourceId = Number(searchParams.get("resourceId") || -1);
   const searchResourceType = searchParams.get("resourceType");
   const [resourceType, setResourceType] = React.useState(
@@ -36,12 +35,6 @@ export default function EligibilityRequirementForm({
   useMountEffect(() => {
     if (searchParams.get("edit")) {
       return;
-    }
-    if (searchProgramId > 0) {
-      setField("program", {
-        id: searchProgramId,
-        label: searchParams.get("programLabel"),
-      });
     }
     if (searchResourceId > 0) {
       setField(searchResourceType, {
@@ -74,7 +67,7 @@ export default function EligibilityRequirementForm({
           <RadioGroup value={resourceType} row onChange={handleResourceTypeChange}>
             <FormControlLabel value="program" control={<Radio />} label="Program" />
             <FormControlLabel
-              value="payment_trigger"
+              value="paymentTrigger"
               control={<Radio />}
               label="Payment Trigger"
             />
@@ -84,7 +77,7 @@ export default function EligibilityRequirementForm({
           <AutocompleteSearch
             key="program"
             {...register("program")}
-            label="Member"
+            label="Program"
             helperText="Modify the eligibility of which program?"
             value={resource.program?.label || ""}
             fullWidth
@@ -95,7 +88,7 @@ export default function EligibilityRequirementForm({
             onTextChange={() => clearField("program")}
           />
         )}
-        {resourceType === "payment_trigger" && (
+        {resourceType === "paymentTrigger" && (
           <AutocompleteSearch
             key="trigger"
             {...register("paymentTrigger")}

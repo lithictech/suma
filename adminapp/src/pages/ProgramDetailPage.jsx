@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
+import EligibilityRequirementsRelatedList from "../components/EligibilityRequirementsRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
@@ -106,46 +107,26 @@ export default function ProgramDetailPage() {
             row.enabled ? "Yes" : "No",
           ]}
         />,
-        <RelatedList
-          title="Enrollments"
-          headers={["Id", "Enrollee", "Enrollee Type", "Approved At", "Unenrolled At"]}
-          rows={model.enrollments}
-          addNewLabel="Enroll member, organization or role"
-          addNewLink={createRelativeUrl(`/program-enrollment/new`, {
-            programId: model.id,
-            programLabel: `(${model.id}) ${model.name.en}`,
-          })}
-          addNewRole="program"
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            <AdminLink model={row.enrollee}>{row.enrollee?.name}</AdminLink>,
-            row.enrolleeType,
-            dayjsOrNull(row.approvedAt)?.format("lll"),
-            dayjsOrNull(row.unenrolledAt)?.format("lll"),
-          ]}
-        />,
-        <RelatedList
-          title="Enrollment Exclusions"
-          addNewLabel="Add Exclusion"
-          addNewLink={createRelativeUrl(`/program-enrollment-exclusion/new`, {
-            programId: model.id,
-            programLabel: `(${model.id}) ${model.name.en || "-"}`,
-          })}
-          addNewRole="programEnrollmentExclusion"
-          rows={model.enrollmentExclusions}
-          headers={["Id", "Member", "Role"]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            <AdminLink key="member" model={row.member}>
-              {row.member?.name}
-            </AdminLink>,
-            <AdminLink key="role" model={row.role}>
-              {row.role?.name}
-            </AdminLink>,
-          ]}
-        />,
+        <EligibilityRequirementsRelatedList model={model} type="program" />,
+        // <RelatedList
+        //   title="Enrollments"
+        //   headers={["Id", "Enrollee", "Enrollee Type", "Approved At", "Unenrolled At"]}
+        //   rows={model.enrollments}
+        //   addNewLabel="Enroll member, organization or role"
+        //   addNewLink={createRelativeUrl(`/program-enrollment/new`, {
+        //     programId: model.id,
+        //     programLabel: `(${model.id}) ${model.name.en}`,
+        //   })}
+        //   addNewRole="program"
+        //   keyRowAttr="id"
+        //   toCells={(row) => [
+        //     <AdminLink key="id" model={row} />,
+        //     <AdminLink model={row.enrollee}>{row.enrollee?.name}</AdminLink>,
+        //     row.enrolleeType,
+        //     dayjsOrNull(row.approvedAt)?.format("lll"),
+        //     dayjsOrNull(row.unenrolledAt)?.format("lll"),
+        //   ]}
+        // />,
         <AuditActivityList activities={model.auditActivities} />,
       ]}
     </ResourceDetail>

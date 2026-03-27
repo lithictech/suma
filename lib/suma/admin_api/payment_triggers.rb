@@ -87,12 +87,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.programs_update(
-      self,
-      Suma::Payment::Trigger,
-      DetailedPaymentTriggerEntity,
-    )
-
     route_param :id, type: Integer do
       params do
         requires :amount, type: Integer

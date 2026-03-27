@@ -255,13 +255,18 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
       expect(result.serialized).to eq({})
     end
 
-    it "handles single tokens" do
+    it "handles single attribute tokens" do
       tokens = [
         {id: 5, label: "A", type: :variable, value: "A.B"},
       ].map { |t| described_class::Token.new(**t) }
       result = described_class::Tokenizer.detokenize(tokens)
       expect(result.warnings.map(&:to_s)).to eq([])
       expect(result.serialized).to eq({attr: 5, fqn: "A.B", name: "A"})
+    end
+
+    it "uses empty for the empty form" do
+      expr = Suma::Fixtures.eligibility_expression.create
+      expect(expr.tokenize).to eq([])
     end
 
     describe "validity" do

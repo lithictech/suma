@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
+import EligibilityRequirementsRelatedList from "../components/EligibilityRequirementsRelatedList";
 import Link from "../components/Link";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
@@ -74,13 +75,7 @@ export default function PaymentTriggerDetailPage() {
       ]}
     >
       {(model, setModel) => [
-        <Programs
-          resource="payment_trigger"
-          programs={model.programs}
-          modelId={model.id}
-          replaceModelData={setModel}
-          makeUpdateRequest={api.updatePaymentTriggerPrograms}
-        />,
+        <EligibilityRequirementsRelatedList model={model} type="paymentTrigger" />,
         <RelatedList
           title="Executions"
           rows={model.executions}

@@ -13,9 +13,10 @@ export default function RoleForm({
   return (
     <FormLayout
       title={isCreate ? "Create a Role" : "Update Role"}
-      subtitle="Most roles are system controlled.
-      You can also create roles that can be used to control resource access,
-      like through Program Enrollments."
+      subtitle="Some roles (admin, member) are system controlled,
+      while others can be created by admins to provide a single way
+      to control access for a group of members or organizations,
+      by assigning them the role and then adding an Eligibility Assignment to the role."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >

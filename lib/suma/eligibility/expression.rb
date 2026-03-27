@@ -17,6 +17,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   def type = self.attribute_id ? LEAF : BRANCH
   def leaf? = self.type == LEAF
   def branch? = self.type == BRANCH
+  def empty? = self.attribute.nil? && self.left.nil? && self.right.nil?
 
   # Return left and right subexpressions, if set.
   # @return [Array<Suma::Eligibility::Expression]
@@ -58,7 +59,10 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
     return h
   end
 
-  def tokenize = Tokenizer.tokenize(self.serialize)
+  def tokenize
+    return [] if self.empty?
+    return Tokenizer.tokenize(self.serialize)
+  end
 
   class << self
     # Deserialize an instance from a serialized version.
