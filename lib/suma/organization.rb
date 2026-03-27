@@ -39,6 +39,16 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
       :name,
     ]
   end
+
+  def after_create
+    super
+    # We often will need to target resources to specific organizations,
+    # so automatically create an attribute for this organization.
+    # If the org or attribute gets renamed, we can manually deal with the drift;
+    # this is just for convenience.
+    attr = Suma::Eligibility::Attribute.find_or_create(name: self.name)
+    self.add_eligibility_assignment(attribute: attr)
+  end
 end
 
 # Table: organizations
