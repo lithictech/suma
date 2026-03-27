@@ -31,12 +31,14 @@ class Suma::Service::EntityJsdocWriter
     Hash => "Object",
   }.freeze
 
-  def self.gather_entity_classes
-    ObjectSpace.each_object(Class).select do |klass|
+  def self.gather_entity_classes(prefix: nil)
+    classes = ObjectSpace.each_object(Class).select do |klass|
       klass < Grape::Entity &&
         klass.name && # skip anonymous classes
         !klass.name.empty?
     end.sort_by(&:name)
+    classes = classes.select { |cls| cls.name.start_with?(prefix) } if prefix
+    return classes
   end
 
   # Convert a grape-entity :using or :type value to a JSDoc type string.
@@ -208,34 +210,36 @@ class Suma::Service::EntityJsdocWriter
     lines << " * #{prop_tag}"
   end
 
-  def build(entity_classes)
+  def build(entity_classes, extra: "")
     output_lines = []
     output_lines << "// Auto-generated JSDoc typedefs from Grape::Entity"
     output_lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
     output_lines << "// Entities: #{entity_classes.map(&:name).join(', ')}"
     output_lines << ""
-    # language=js
-    output_lines << <<~JS
-      /**
-       * @typedef AdminAction
-       * @property {string} label
-       * @property {string} url
-       * @property {object} params
-       */
+    output_lines << extra
 
-      /**
-       * @typedef ExternalLink
-       * @property {string} url
-       * @property {string} label
-       */
-    JS
-
-    entity_classes.each_with_index do |klass, i|
+    entity_classes.each do |klass|
       output_lines.concat(typedef_for(klass))
-      output_lines << "" unless i == entity_classes.size - 1
+      output_lines << ""
     end
 
     output = output_lines.join("\n")
     return output
   end
+
+  # language=js
+  ADMIN_EXTRA = <<~JS
+    /**
+     * @typedef AdminAction
+     * @property {string} label
+     * @property {string} url
+     * @property {object} params
+     */
+
+    /**
+     * @typedef ExternalLink
+     * @property {string} url
+     * @property {string} label
+     */
+  JS
 end

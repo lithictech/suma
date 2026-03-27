@@ -130,8 +130,6 @@ module Suma::Postgres
 
     "suma/plaid_institution",
     "suma/program",
-    # "suma/program/enrollment",
-    # "suma/program/enrollment_exclusion",
     "suma/program/pricing",
     "suma/role",
     "suma/support/note",

@@ -204,7 +204,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
     expect(struct_tbl[:assignments]).to match_array(
       [
         have_attributes(
-          id: attr1.id,
+          attribute_id: attr1.id,
           label: "attr1",
           depth: 0,
           source_type: "membership",

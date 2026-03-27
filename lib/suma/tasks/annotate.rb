@@ -12,7 +12,7 @@ class Suma::Tasks::Annotate < Rake::TaskLib
       Rake::Task["annotate:check"].invoke
       Rake::Task["annotate:db"].invoke
       Rake::Task["annotate:adminapp"].invoke
-      Rake::Task["annotate:web_app"].invoke
+      Rake::Task["annotate:webapp"].invoke
     end
 
     namespace :annotate do
@@ -50,17 +50,33 @@ class Suma::Tasks::Annotate < Rake::TaskLib
         puts "Please commit the changes."
       end
 
-      desc "Update frontend JSDoc typedefs."
+      desc "Update admin JSDoc typedefs."
       task :adminapp do
         require "suma"
         Suma.load_app?
         require "suma/apps"
         require "suma/service/entity_jsdoc_writer"
-        classes = Suma::Service::EntityJsdocWriter.gather_entity_classes.
-          select { |cls| cls.name.start_with?("Suma::AdminAPI::") }
-        s = Suma::Service::EntityJsdocWriter.new.build(classes)
-        File.write(Suma::SELF_DIR + "adminapp/src/typedefs.js", s)
+        classes = Suma::Service::EntityJsdocWriter.gather_entity_classes(prefix: "Suma::AdminAPI::")
+        s = Suma::Service::EntityJsdocWriter.new.build(classes, extra: Suma::Service::EntityJsdocWriter::ADMIN_EXTRA)
+        self.class.write_typedefs(Suma::SELF_DIR + "adminapp/src/typedefs.js", s)
       end
+
+      desc "Update webapp JSDoc typedefs."
+      task :webapp do
+        require "suma"
+        Suma.load_app?
+        require "suma/apps"
+        require "suma/service/entity_jsdoc_writer"
+        classes = Suma::Service::EntityJsdocWriter.gather_entity_classes(prefix: "Suma::API::")
+        s = Suma::Service::EntityJsdocWriter.new.build(classes)
+        self.class.write_typedefs(Suma::SELF_DIR + "webapp/src/typedefs.js", s)
+      end
+    end
+  end
+
+  class << self
+    def write_typedefs(path, s)
+      File.write(path, s)
     end
   end
 end
