@@ -74,8 +74,8 @@ export default function PaymentTriggerDetailPage() {
         },
       ]}
     >
-      {(model, setModel) => [
-        <EligibilityRequirementsRelatedList model={model} type="paymentTrigger" />,
+      {(model) => [
+        <EligibilityRequirementsRelatedList model={model} type="payment_trigger" />,
         <RelatedList
           title="Executions"
           rows={model.executions}

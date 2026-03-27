@@ -11,6 +11,7 @@ import {
   RadioGroup,
   Stack,
 } from "@mui/material";
+import humps from "humps";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -26,6 +27,7 @@ export default function EligibilityRequirementForm({
   const [searchParams] = useSearchParams();
   const searchResourceId = Number(searchParams.get("resourceId") || -1);
   const searchResourceType = searchParams.get("resourceType");
+  const searchResourceField = humps.camelize(searchResourceType);
   const [resourceType, setResourceType] = React.useState(
     resource.resourceType || searchResourceType || "program"
   );
@@ -37,7 +39,7 @@ export default function EligibilityRequirementForm({
       return;
     }
     if (searchResourceId > 0) {
-      setField(searchResourceType, {
+      setField(searchResourceField, {
         id: searchResourceId,
         label: searchParams.get("resourceLabel"),
       });
@@ -67,7 +69,7 @@ export default function EligibilityRequirementForm({
           <RadioGroup value={resourceType} row onChange={handleResourceTypeChange}>
             <FormControlLabel value="program" control={<Radio />} label="Program" />
             <FormControlLabel
-              value="paymentTrigger"
+              value="payment_trigger"
               control={<Radio />}
               label="Payment Trigger"
             />
@@ -88,7 +90,7 @@ export default function EligibilityRequirementForm({
             onTextChange={() => clearField("program")}
           />
         )}
-        {resourceType === "paymentTrigger" && (
+        {resourceType === "payment_trigger" && (
           <AutocompleteSearch
             key="trigger"
             {...register("paymentTrigger")}

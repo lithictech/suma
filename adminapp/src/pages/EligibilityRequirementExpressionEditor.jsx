@@ -15,6 +15,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useTheme } from "@mui/styles";
 import React from "react";
 
 export default function EligibilityRequirementExpressionEditor({
@@ -130,17 +131,12 @@ export default function EligibilityRequirementExpressionEditor({
         e.preventDefault();
         insertToken(editorSettings.opOr);
       } else {
-        console.log(e.key, e);
+        // console.log(e.key, e);
       }
     },
     [deleteBeforeCursor, editorSettings, insertToken, setCursorPos, tokens.length]
   );
 
-  const expressionString = tokens
-    .map((t) => t.value)
-    .join(" ")
-    .replaceAll("( ", "(")
-    .replaceAll(" )", ")");
   const isValid = tokens.length > 0 && !error;
 
   if (editorSettingsLoading) {
@@ -356,7 +352,7 @@ export default function EligibilityRequirementExpressionEditor({
               wordBreak: "break-all",
             }}
           >
-            {expressionString || "—"}
+            <ExpressionString tokens={tokens} />
           </Typography>
         </Box>
         <Button
@@ -384,6 +380,38 @@ const TOKEN_CHIP_VARIANTS = {
   operator: "outlined",
   paren: "outlined",
 };
+
+const TOKEN_WEIGHTS = {
+  variable: 400,
+  operator: 400,
+  paren: 700,
+};
+
+function ExpressionString({ tokens }) {
+  const theme = useTheme();
+  if (tokens.length === 0) {
+    return "-";
+  }
+  const els = tokens.map((t, i) => {
+    const key = `${t.id}-${i}`;
+    let color = theme.palette[TOKEN_COLORS[t.type]].main;
+    let fontWeight = TOKEN_WEIGHTS[t.type];
+    let v = t.value;
+    if (t.type === "variable") {
+      console.log();
+    } else if (t.type === "paren") {
+      console.log();
+    } else {
+      v = ` ${v} `;
+    }
+    return (
+      <span key={key} style={{ color, fontWeight }}>
+        {v}
+      </span>
+    );
+  });
+  return els;
+}
 
 // Cursor sits *between* tokens. cursorPos=0 means before all tokens,
 // cursorPos=tokens.length means after all tokens.
@@ -415,7 +443,7 @@ const CursorSlot = styled("span")({
 
 const TokenChip = styled(Chip)(({ tokentype }) => ({
   fontFamily: "monospace",
-  fontWeight: tokentype === "operator" ? 700 : 400,
+  fontWeight: TOKEN_WEIGHTS[tokentype],
   fontSize: tokentype === "paren" ? "1rem" : "0.8rem",
   cursor: "pointer",
   transition: "box-shadow 0.1s",
