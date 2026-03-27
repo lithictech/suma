@@ -403,9 +403,9 @@ function ExpressionString({ tokens }) {
       let fontWeight = TOKEN_WEIGHTS[t.type];
       let v = t.value;
       if (t.type === "variable") {
-        console.log();
+        // Nothing
       } else if (t.type === "paren") {
-        console.log();
+        // Nothing
       } else {
         v = ` ${v} `;
       }
