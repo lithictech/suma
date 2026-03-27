@@ -3,7 +3,6 @@ import AdminLink from "../components/AdminLink";
 import EligibilityAssignmentsRelatedList from "../components/EligibilityAssignmentsRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
 export default function RoleDetailPage() {

@@ -5,7 +5,7 @@ import EligibilityRequirementsRelatedList from "../components/EligibilityRequire
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
-import { dayjs, dayjsOrNull } from "../modules/dayConfig";
+import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
@@ -108,25 +108,6 @@ export default function ProgramDetailPage() {
           ]}
         />,
         <EligibilityRequirementsRelatedList model={model} type="program" />,
-        // <RelatedList
-        //   title="Enrollments"
-        //   headers={["Id", "Enrollee", "Enrollee Type", "Approved At", "Unenrolled At"]}
-        //   rows={model.enrollments}
-        //   addNewLabel="Enroll member, organization or role"
-        //   addNewLink={createRelativeUrl(`/program-enrollment/new`, {
-        //     programId: model.id,
-        //     programLabel: `(${model.id}) ${model.name.en}`,
-        //   })}
-        //   addNewRole="program"
-        //   keyRowAttr="id"
-        //   toCells={(row) => [
-        //     <AdminLink key="id" model={row} />,
-        //     <AdminLink model={row.enrollee}>{row.enrollee?.name}</AdminLink>,
-        //     row.enrolleeType,
-        //     dayjsOrNull(row.approvedAt)?.format("lll"),
-        //     dayjsOrNull(row.unenrolledAt)?.format("lll"),
-        //   ]}
-        // />,
         <AuditActivityList activities={model.auditActivities} />,
       ]}
     </ResourceDetail>
