@@ -125,6 +125,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
                order: order_desc
 
   one_to_many :eligibility_assignments, class: "Suma::Eligibility::Assignment", order: order_desc
+  one_to_many :expanded_eligibility_assignments,
+              class: "Suma::Eligibility::MemberAssignment",
+              order: [:attribute_id, :member_id, :source_type]
 
   dataset_module do
     def with_email(*emails)

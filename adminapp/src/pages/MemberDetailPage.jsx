@@ -162,6 +162,9 @@ export default function MemberDetailPage() {
             model={model}
           />,
           <EligibilityAssignmentsRelatedList model={model} type="member" />,
+          <MemberEligibilityAssignments
+            assignments={model.expandedEligibilityAssignments}
+          />,
           <Activities activities={model.activities} />,
           <Orders orders={model.orders} />,
           <MobilityTrips mobilityTrips={model.mobilityTrips} />,
@@ -311,6 +314,26 @@ function Notes({ notes, model, setModel }) {
         ]}
       />
     </>
+  );
+}
+
+function ExpandedEligibilityAssignments({ assignments }) {
+  return (
+    <RelatedList
+      title="All Eligibility Assignments"
+      rows={assignments}
+      headers={["Attribute", "Sources"]}
+      keyRowAttr="key"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        formatDate(row.createdAt),
+        row.totalItemCount,
+        <AdminLink key="off" model={row.offering}>
+          {row.offering.description.en}
+        </AdminLink>,
+        row.statusLabel,
+      ]}
+    />
   );
 }
 

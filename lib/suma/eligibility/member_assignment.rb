@@ -14,6 +14,8 @@ require "suma/postgres/model"
 # Duplicate rows are collapsed (members could have multiple ways attributes are assigned).
 #
 class Suma::Eligibility::MemberAssignment < Suma::Postgres::Model(:eligibility_member_assignments)
+  set_primary_key [:member_id, :attribute_id, :source_type, :source_ids]
+
   many_to_one :attribute, class: "Suma::Eligibility::Attribute"
   many_to_one :member, class: "Suma::Member"
 
@@ -22,9 +24,11 @@ class Suma::Eligibility::MemberAssignment < Suma::Postgres::Model(:eligibility_m
   MEMBERSHIP = "membership"
   ORGANIZATION_ROLE = "organization_role"
 
+  def unique_key = "#{self.member_id}.#{self.attribute_id}.#{self.source_type}.#{self.source_ids.join('_')}"
+
   # Given the source_type and source_ids, return the actual models/rows that specify
   # where this attribute came from.
-  def to_sources
+  def sources
     return case self.source_type
       when MEMBER
         [self.member]

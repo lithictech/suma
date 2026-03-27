@@ -92,6 +92,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :charges, with: ChargeEntity
     expose :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
     expose :referral, with: ReferralEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity

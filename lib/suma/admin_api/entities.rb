@@ -171,6 +171,15 @@ module Suma::AdminAPI::Entities
     expose :parent, with: self
   end
 
+  class EligibilityMemberAssignmentEntity < BaseEntity
+    expose :unique_key
+    expose :member, with: MemberEntity
+    expose :attribute, with: EligibilityAttributeEntity
+    expose :source_type
+    expose :source_ids
+    expose :depth
+  end
+
   class EligibilityAssignmentEntity < BaseEntity
     include AutoExposeBase
     expose :assignee, with: AutoExposedBaseEntity
