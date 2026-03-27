@@ -19,9 +19,9 @@ RSpec.describe Suma::Tasks::Annotate, :db, :redirect do
     end
 
     it "errors if git diff is not blank" do
+      expect(Sequel::Annotate).to_not receive(:annotate)
       expect(Kernel).to receive(:`).with("git diff").and_return("xyz")
-      expect(Kernel).to receive(:exit).with(1)
-      invoke_rake_task("annotate")
+      expect { invoke_rake_task("annotate") }.to raise_error(SystemExit)
       expect($stdout.string).to include("Cannot annotate while there")
     end
   end
