@@ -1,4 +1,5 @@
 import api from "../api";
+import useDebounced from "../hooks/useDebounced";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import {
@@ -21,32 +22,43 @@ export default function EligibilityRequirementExpressionEditor({
   setExpression,
   sx,
 }) {
+  const [error, setError] = React.useState("");
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+
   const [tokens, setTokens] = React.useState(expressionTokens);
+
+  const canvasRef = React.useRef(null);
   // cursorPos: index in [0..tokens.length] — the slot where next insert goes
   const [cursorPos, setCursorPosInner] = React.useState(0);
   const setCursorPos = React.useCallback((v) => {
     setCursorPosInner(v);
     canvasRef.current?.focus();
   }, []);
-  const canvasRef = React.useRef(null);
-  const [error, setError] = React.useState("");
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
 
   const { state: editorSettings, loading: editorSettingsLoading } = useAsyncFetch(
     api.eligibilityRequirementExpressionEditorSettings,
     { pickData: true }
   );
 
+  const detokenize = useDebounced(
+    api.eligibilityRequirementExpressionEditorDetokenize,
+    (r) => {
+      const d = r.data;
+      setError(d.warnings.length > 0 ? d.warnings[0].string : "");
+      setExpression(d.serialized);
+    },
+    enqueueErrorSnackbar,
+    { wait: 1, maxWait: 10 }
+  );
+
+  // Whenever the tokens change, parse it as an expression.
   React.useEffect(() => {
-    api
-      .eligibilityRequirementExpressionEditorDetokenize({ tokens })
-      .then((r) => {
-        const d = r.data;
-        setError(d.warnings.length > 0 ? d.warnings[0].string : "");
-        setExpression(d.serialized);
-      })
-      .catch(enqueueErrorSnackbar);
-  }, [tokens]);
+    detokenize({ tokens });
+    // We can use setExpression with whatever is the latest version given the token update.
+    // Using setExpression as a dep causes this effect to fire itself circularly.
+    // We cannot easily do this by wrapping the setState either; this is good enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enqueueErrorSnackbar, tokens]);
 
   // Keep cursor in bounds when tokens shrink
   React.useEffect(() => {
@@ -76,7 +88,9 @@ export default function EligibilityRequirementExpressionEditor({
 
   // Delete token immediately before cursor (Backspace behavior)
   const deleteBeforeCursor = React.useCallback(() => {
-    if (cursorPos === 0) return;
+    if (cursorPos === 0) {
+      return;
+    }
     removeToken(cursorPos - 1);
   }, [cursorPos, removeToken]);
 
@@ -122,7 +136,11 @@ export default function EligibilityRequirementExpressionEditor({
     [deleteBeforeCursor, editorSettings, insertToken, setCursorPos, tokens.length]
   );
 
-  const expressionString = tokens.map((t) => t.value).join(" ");
+  const expressionString = tokens
+    .map((t) => t.value)
+    .join(" ")
+    .replaceAll("( ", "(")
+    .replaceAll(" )", ")");
   const isValid = tokens.length > 0 && !error;
 
   if (editorSettingsLoading) {
@@ -143,8 +161,8 @@ export default function EligibilityRequirementExpressionEditor({
         Click a gap between tokens to place your cursor, then pick from the palette to
         insert. Use <HelpChar>← →</HelpChar> to move, <HelpChar>backspace</HelpChar> to
         delete, <HelpChar>&</HelpChar> for AND, <HelpChar>|</HelpChar> for OR,{" "}
-        <HelpChar>(</HelpChar> and <HelpChar>)</HelpChar> for parenthesis, or start typing
-        a character to auto-complete attribute names.
+        <HelpChar>(</HelpChar> and <HelpChar>)</HelpChar> for parenthesis, or choose
+        attribute names from the list.
       </Typography>
 
       {/* Palette */}

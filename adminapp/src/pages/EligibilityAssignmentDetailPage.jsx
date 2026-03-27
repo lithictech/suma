@@ -1,11 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import BoolCheckmark from "../components/BoolCheckmark";
-import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs } from "../modules/dayConfig";
-import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function EligibilityAssignmentDetailPage() {

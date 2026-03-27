@@ -1,8 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import formatDate from "../modules/formatDate";
-import EligibilityAttributeCreatePage from "./EligibilityAttributeCreatePage";
 import React from "react";
 
 export default function EligibilityAssignmentListPage() {

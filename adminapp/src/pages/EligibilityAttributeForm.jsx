@@ -1,8 +1,6 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
-import ImageFileInput from "../components/ImageFileInput";
-import EligibilityAttributeCreatePage from "./EligibilityAttributeCreatePage";
 import { Stack, TextField } from "@mui/material";
 import React from "react";
 

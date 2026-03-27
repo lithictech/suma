@@ -19,7 +19,6 @@ export default function EligibilityRequirementForm({
   resource,
   setField,
   clearField,
-  setFieldFromInput,
   register,
   isBusy,
   onSubmit,
@@ -32,6 +31,7 @@ export default function EligibilityRequirementForm({
     resource.resourceType || searchResourceType || "program"
   );
   const fixedResource = searchResourceId > 0;
+  const setExpression = React.useCallback((e) => setField("expression", e), [setField]);
 
   useMountEffect(() => {
     if (searchParams.get("edit")) {
@@ -114,7 +114,7 @@ export default function EligibilityRequirementForm({
       {!isCreate && (
         <EligibilityRequirementExpressionEditor
           expressionTokens={resource.expressionTokens}
-          setExpression={(e) => setField("expression", e)}
+          setExpression={setExpression}
           sx={{ mt: 1 }}
         />
       )}

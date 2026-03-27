@@ -1,5 +1,5 @@
+import useDebounced from "../hooks/useDebounced";
 import { Autocomplete, TextField } from "@mui/material";
-import debounce from "lodash/debounce";
 import { isObject } from "lodash/lang";
 import React from "react";
 
@@ -34,23 +34,15 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
   ref
 ) {
   const activeAbortController = React.useRef(new AbortController());
-  const searchDebounced = React.useRef(
-    debounce(
-      (data) => {
-        activeAbortController.current.abort();
-        const thisAbortCtrl = new AbortController();
-        activeAbortController.current = thisAbortCtrl;
-        return search(data).then((r) => {
-          if (!thisAbortCtrl.signal.aborted) {
-            setOptions(r.data.items);
-            hasSearched.current = true;
-          }
-        });
-      },
-      150,
-      { maxWait: 400 }
-    )
-  ).current;
+  const searchDebounced = useDebounced(
+    search,
+    (r) => {
+      setOptions(r.data.items);
+      hasSearched.current = true;
+    },
+    null,
+    {}
+  );
   const hasSearched = React.useRef(false);
   const [options, setOptions] = React.useState([]);
   const [emptyOptions, setEmptyOptions] = React.useState([]);
@@ -79,7 +71,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
     // The caller just has to worry about the text change; onValueSelect will never be called with null.
     if (isObject(val)) {
       // If this is in uncontrolled mode, select will be called with a string,
-      // even after the selection is made. However we always are dealing with objects,
+      // even after the selection is made. However, we are always dealing with objects,
       // never strings, so never alert if this case is hit.
       onValueSelect(val);
     }
