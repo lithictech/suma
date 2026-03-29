@@ -89,7 +89,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
     end
 
-    it "uses boolean logic 2" do
+    it "uses boolean logic 2 (empty binary operand)" do
       member = Suma::Fixtures.member.create
 
       payment_trigger = Suma::Fixtures.payment_trigger.create(label: "trigger1")
@@ -100,12 +100,41 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
           right: Suma::Fixtures.eligibility_expression.binary(
             "AND",
             [
-              Suma::Fixtures.eligibility_expression.attribute("attr6"),
+              Suma::Fixtures.eligibility_expression.attribute("attr6").create,
             ],
           ).create,
         )
 
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+    end
+
+    it "uses boolean logic 3 (unary not)" do
+      member = Suma::Fixtures.member.create
+      attr = Suma::Fixtures.eligibility_attribute(name: "attr1").create
+      Suma::Fixtures.eligibility_assignment.of(attr).to(member).create
+
+      payment_trigger = Suma::Fixtures.payment_trigger.create(label: "trigger1")
+      expr = Suma::Eligibility::Requirement.create(payment_trigger: payment_trigger).expression
+
+      expr.update(
+        type: "unary",
+        operator: "NOT",
+        left: Suma::Fixtures.eligibility_expression.attribute(attr).create,
+      )
+
+      # NOT attr1
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+
+      expr.update(
+        type: "unary",
+        operator: "NOT",
+        left: Suma::Fixtures.eligibility_expression.unary(
+          "NOT",
+          Suma::Fixtures.eligibility_expression.attribute(attr).create,
+        ).create,
+      )
+      # NOT NOT attr1
+      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
     end
 
     describe "when default accessible is true" do
@@ -163,7 +192,11 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
             Suma::Fixtures.eligibility_expression.binary(
               "AND",
               [
-                Suma::Fixtures.eligibility_expression.attribute(attr3).create,
+                Suma::Fixtures.eligibility_expression.
+                  unary(
+                    "NOT",
+                    Suma::Fixtures.eligibility_expression.attribute(attr3).create,
+                  ).create,
                 Suma::Fixtures.eligibility_expression.attribute(attr4).create,
               ],
             ).create,
@@ -186,12 +219,12 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
 
     txt_tbl = evaled.to_ascii_tables
     expect(txt_tbl[:expressions]).to eq(<<~STR.strip)
-      +--------------------------------------------------+--------+
-      | Expression                                       | Result |
-      +--------------------------------------------------+--------+
-      | ('attr1' AND ('attr2' OR ('attr3' AND 'attr4'))) | PASS   |
-      | 'attr6'                                          | fail   |
-      +--------------------------------------------------+--------+
+      +--------------------------------------------------------+--------+
+      | Expression                                             | Result |
+      +--------------------------------------------------------+--------+
+      | ('attr1' AND ('attr2' OR ((NOT 'attr3') AND 'attr4'))) | PASS   |
+      | 'attr6'                                                | fail   |
+      +--------------------------------------------------------+--------+
     STR
     expect(txt_tbl[:assignments]).to eq(<<~STR.strip)
       +-------------------------+---------------------+-------+
@@ -215,7 +248,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
     struct_tbl = evaled.to_structured_tables
     expect(struct_tbl[:expressions]).to match_array(
       [
-        have_attributes(formula: "('attr1' AND ('attr2' OR ('attr3' AND 'attr4')))", passed: true),
+        have_attributes(formula: "('attr1' AND ('attr2' OR ((NOT 'attr3') AND 'attr4')))", passed: true),
         have_attributes(formula: "'attr6'", passed: false),
       ],
     )

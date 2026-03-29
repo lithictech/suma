@@ -44,7 +44,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
     return "'#{self.attribute.name}'" if self.attribute?
     substrs = self.subexpressions.map(&:to_formula_str).reject(&:empty?)
     return "" if substrs.empty?
-    return "#{self.operator} #{substrs[0]}" if self.unary?
+    return "(#{self.operator} #{substrs[0]})" if self.unary?
     return substrs[0] if substrs.size == 1
     return "(#{substrs[0]} #{self.operator} #{substrs[1]})"
   end
