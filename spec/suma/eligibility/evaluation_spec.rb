@@ -34,10 +34,14 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       trigger40 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 40%")
       trigger20 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 20%")
 
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger80).expression.update(attribute: ami80)
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger60).expression.update(attribute: ami60)
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger40).expression.update(attribute: ami40)
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger20).expression.update(attribute: ami20)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger80).
+        expression.update(type: "attribute", operator: nil, attribute: ami80)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger60).
+        expression.update(type: "attribute", operator: nil, attribute: ami60)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger40).
+        expression.update(type: "attribute", operator: nil, attribute: ami40)
+      Suma::Eligibility::Requirement.create(payment_trigger: trigger20).
+        expression.update(type: "attribute", operator: nil, attribute: ami20)
 
       expect(member.evaluate_eligibility_access_to(trigger80)).to be_access
       expect(member.evaluate_eligibility_access_to(trigger20)).to be_access
@@ -58,8 +62,8 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
 
       expr = Suma::Eligibility::Requirement.create(payment_trigger:).expression
       expr.update(
-        left: Suma::Eligibility::Expression.create(attribute: attr1),
-        right: Suma::Eligibility::Expression.create(attribute: attr2),
+        left: Suma::Fixtures.eligibility_expression.attribute(attr1).create,
+        right: Suma::Fixtures.eligibility_expression.attribute(attr2).create,
         operator: "OR",
       )
 
@@ -80,7 +84,8 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
 
       # Multiple requirements should work like OR
-      Suma::Eligibility::Requirement.create(payment_trigger:).expression.update(attribute: attr1)
+      Suma::Eligibility::Requirement.create(payment_trigger:).expression.
+        update(type: "attribute", attribute: attr1, operator: nil)
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
     end
 
@@ -92,9 +97,12 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
         expression.
         update(
           left: nil,
-          right: Suma::Eligibility::Expression.create(
-            left: Suma::Eligibility::Expression.create(attribute: Suma::Eligibility::Attribute.create(name: "attr6")),
-          ),
+          right: Suma::Fixtures.eligibility_expression.binary(
+            "AND",
+            [
+              Suma::Fixtures.eligibility_expression.attribute("attr6"),
+            ],
+          ).create,
         )
 
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
@@ -147,60 +155,70 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
     Suma::Eligibility::Requirement.create(payment_trigger: trigger1).
       expression.
       update(
-        left: Suma::Eligibility::Expression.create(attribute: attr1),
-        right: Suma::Eligibility::Expression.create(
-          left: Suma::Eligibility::Expression.create(attribute: attr2),
-          right: Suma::Eligibility::Expression.create(
-            left: Suma::Eligibility::Expression.create(attribute: attr3),
-            right: Suma::Eligibility::Expression.create(attribute: attr4),
-          ),
-          operator: "OR",
-        ),
+        left: Suma::Fixtures.eligibility_expression.attribute(attr1).create,
+        right: Suma::Fixtures.eligibility_expression.binary(
+          "OR",
+          [
+            Suma::Fixtures.eligibility_expression.attribute(attr2).create,
+            Suma::Fixtures.eligibility_expression.binary(
+              "AND",
+              [
+                Suma::Fixtures.eligibility_expression.attribute(attr3).create,
+                Suma::Fixtures.eligibility_expression.attribute(attr4).create,
+              ],
+            ).create,
+          ],
+        ).create,
       )
     Suma::Eligibility::Requirement.create(payment_trigger: trigger1).
       expression.
       update(
         left: nil,
-        right: Suma::Eligibility::Expression.create(
-          left: Suma::Eligibility::Expression.create(attribute: Suma::Eligibility::Attribute.create(name: "attr6")),
-        ),
+        right: Suma::Fixtures.eligibility_expression.binary(
+          "AND",
+          [
+            Suma::Fixtures.eligibility_expression.attribute("attr6").create,
+          ],
+        ).create,
       )
 
     evaled = member.evaluate_eligibility_access_to(trigger1)
 
     txt_tbl = evaled.to_ascii_tables
-    expect(txt_tbl).to eq(
-      {
-        assignments: <<~STR.strip,
-          +-------------------------+---------------------+-------+
-          | Attribute               | From                | Depth |
-          +-------------------------+---------------------+-------+
-          | attr1                   | membership in Org1  | 0     |
-          | attr1                   | role role1 for Org1 | 1     |
-          | attr1                   | role role1 for Org1 | 2     |
-          | attr1                   | role role2          | 1     |
-          | attr1                   | self                | 3     |
-          | attr2.attr1             | role role1 for Org1 | 0     |
-          | attr2.attr1             | role role1 for Org1 | 1     |
-          | attr2.attr1             | role role2          | 0     |
-          | attr2.attr1             | self                | 2     |
-          | attr3.attr2.attr1       | role role1 for Org1 | 0     |
-          | attr3.attr2.attr1       | self                | 1     |
-          | attr4.attr3.attr2.attr1 | self                | 0     |
-          +-------------------------+---------------------+-------+
-        STR
-        expressions: <<~STR.strip,
-          +--------------------------------------------------+--------+
-          | Expression                                       | Result |
-          +--------------------------------------------------+--------+
-          | ('attr1' AND ('attr2' OR ('attr3' AND 'attr4'))) | PASS   |
-          | 'attr6'                                          | fail   |
-          +--------------------------------------------------+--------+
-        STR
-      },
-    )
+    expect(txt_tbl[:expressions]).to eq(<<~STR.strip)
+      +--------------------------------------------------+--------+
+      | Expression                                       | Result |
+      +--------------------------------------------------+--------+
+      | ('attr1' AND ('attr2' OR ('attr3' AND 'attr4'))) | PASS   |
+      | 'attr6'                                          | fail   |
+      +--------------------------------------------------+--------+
+    STR
+    expect(txt_tbl[:assignments]).to eq(<<~STR.strip)
+      +-------------------------+---------------------+-------+
+      | Attribute               | From                | Depth |
+      +-------------------------+---------------------+-------+
+      | attr1                   | membership in Org1  | 0     |
+      | attr1                   | role role1 for Org1 | 1     |
+      | attr1                   | role role1 for Org1 | 2     |
+      | attr1                   | role role2          | 1     |
+      | attr1                   | self                | 3     |
+      | attr2.attr1             | role role1 for Org1 | 0     |
+      | attr2.attr1             | role role1 for Org1 | 1     |
+      | attr2.attr1             | role role2          | 0     |
+      | attr2.attr1             | self                | 2     |
+      | attr3.attr2.attr1       | role role1 for Org1 | 0     |
+      | attr3.attr2.attr1       | self                | 1     |
+      | attr4.attr3.attr2.attr1 | self                | 0     |
+      +-------------------------+---------------------+-------+
+    STR
 
     struct_tbl = evaled.to_structured_tables
+    expect(struct_tbl[:expressions]).to match_array(
+      [
+        have_attributes(formula: "('attr1' AND ('attr2' OR ('attr3' AND 'attr4')))", passed: true),
+        have_attributes(formula: "'attr6'", passed: false),
+      ],
+    )
     expect(struct_tbl[:assignments]).to match_array(
       [
         have_attributes(
@@ -227,12 +245,6 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
         have_attributes(label: "attr3.attr2.attr1", depth: 0, source_type: "organization_role"),
         have_attributes(label: "attr3.attr2.attr1", depth: 1, source_type: "member"),
         have_attributes(label: "attr4.attr3.attr2.attr1", depth: 0, source_type: "member"),
-      ],
-    )
-    expect(struct_tbl[:expressions]).to match_array(
-      [
-        have_attributes(formula: "('attr1' AND ('attr2' OR ('attr3' AND 'attr4')))", passed: true),
-        have_attributes(formula: "'attr6'", passed: false),
       ],
     )
   end

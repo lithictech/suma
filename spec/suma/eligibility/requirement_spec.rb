@@ -32,7 +32,7 @@ RSpec.describe "Suma::Eligibility::Requirement", :db do
       attr = Suma::Fixtures.eligibility_attribute.create(name: "foo")
       req = Suma::Fixtures.eligibility_requirement.create
       expect(req).to have_attributes(cached_attribute_ids: [], cached_expression_string: "")
-      req.expression.update(attribute: attr)
+      req.expression.update(type: "attribute", attribute: attr, operator: nil)
       req.update(search_content: "bar")
       expect(req).to have_attributes(cached_attribute_ids: [attr.id], cached_expression_string: "'foo'")
     end

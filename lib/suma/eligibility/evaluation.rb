@@ -31,10 +31,20 @@ class Suma::Eligibility::Evaluation
     # @param expr [Suma::Eligibility::Expression]
     # @param attrs [Set<Suma::Eligibility::Attribute>]
     def evaluate_expression(expr, attrs)
-      return attrs.include?(expr.attribute) if expr.leaf?
+      return attrs.include?(expr.attribute) if expr.attribute?
       results = expr.subexpressions.map { |e| self.evaluate_expression(e, attrs) }
-      ok = results.reduce(&expr.ruby_operator)
-      return ok
+      return false if results.empty?
+      case expr.operator
+        when Suma::Eligibility::Expression::AND
+          return results.reduce(&:&)
+        when Suma::Eligibility::Expression::OR
+          return results.reduce(&:|)
+        when Suma::Eligibility::Expression::NOT
+          raise Suma::InvariantViolation, "unary expects 1 subexpression" unless results.length == 1
+          return !results[0]
+        else
+          raise Suma::InvariantViolation, "invalid operator"
+      end
     end
 
     # @param attrs [Array<Suma::Eligibility::Attribute>]
@@ -82,15 +92,15 @@ class Suma::Eligibility::Evaluation
         when Suma::Eligibility::MemberAssignment::MEMBER
           "self"
         when Suma::Eligibility::MemberAssignment::ROLE
-          role = Suma::Role[ma.sources[0][:id]]
+          role = Suma::Role.find!(ma.sources[0][:id])
           "role #{role.name}"
         when Suma::Eligibility::MemberAssignment::MEMBERSHIP
-          om = Suma::Organization::Membership[ma.sources[0][:id]]
+          om = Suma::Organization::Membership.find!(ma.sources[0][:id])
           "membership in #{om.organization_label}"
         when Suma::Eligibility::MemberAssignment::ORGANIZATION_ROLE
-          org = Suma::Organization[ma.sources[0][:id]]
-          role = Suma::Role[ma.sources[1][:id]]
-          "role #{role.name} for #{org.name}"
+          om = Suma::Organization::Membership.find!(ma.sources[0][:id])
+          role = Suma::Role.find!(ma.sources[1][:id])
+          "role #{role.name} for #{om.verified_organization.name}"
         else
           raise Suma::InvariantViolation, "unexpected source type: #{ma.inspect}"
       end

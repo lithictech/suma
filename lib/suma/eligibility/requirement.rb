@@ -68,7 +68,7 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
   end
 
   def before_create
-    self.expression ||= Suma::Eligibility::Expression.create
+    self.expression ||= Suma::Eligibility::Expression.create_empty
     self.created_by = Suma.request_user_and_admin[1]
     self.cached_expression_string = self.expression.to_formula_str
     self.cached_attribute_ids = self.expression.referenced_attributes.map(&:id)

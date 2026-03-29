@@ -8,27 +8,35 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
     expect(e).to be_a(described_class)
     expect(e.attribute).to be_nil
 
-    e = Suma::Fixtures.eligibility_expression.leaf.create
+    e = Suma::Fixtures.eligibility_expression.attribute.create
     expect(e.attribute).to be_a(Suma::Eligibility::Attribute)
 
-    e = Suma::Fixtures.eligibility_expression.branch.create
-    expect(e).to have_attributes(attribute: nil, left: nil, right: nil)
+    e = Suma::Fixtures.eligibility_expression.binary("AND").create
+    expect(e).to have_attributes(attribute: nil, operator: "AND", left: nil, right: nil)
 
-    e = Suma::Fixtures.eligibility_expression.branch([{}, {}]).create
+    e = Suma::Fixtures.eligibility_expression.binary("AND", [{}, {}]).create
+    expect(e).to have_attributes(type: "binary", operator: "AND")
     expect(e.left).to be_a(Suma::Eligibility::Expression)
     expect(e.right).to be_a(Suma::Eligibility::Expression)
 
     e2 = Suma::Fixtures.eligibility_expression.create
-    e = Suma::Fixtures.eligibility_expression.branch([nil, e2]).create
+    e = Suma::Fixtures.eligibility_expression.binary("AND", [nil, e2]).create
     expect(e.left).to be_nil
     expect(e.right).to be === e2
+
+    e = Suma::Fixtures.eligibility_expression.unary("NOT", e2).create
+    expect(e).to have_attributes(type: "unary", operator: "NOT")
+    expect(e.left).to be === e2
+    expect(e.right).to be_nil
   end
 
-  it "knows about leaf and branch properties" do
-    leaf = Suma::Fixtures.eligibility_expression.leaf.create
-    expect(leaf).to have_attributes(type: :leaf, leaf?: true)
-    branch = Suma::Fixtures.eligibility_expression.branch.create
-    expect(branch).to have_attributes(type: :branch, branch?: true)
+  it "knows about type properties" do
+    attr = Suma::Fixtures.eligibility_expression.attribute.create
+    expect(attr).to have_attributes(type: "attribute", attribute?: true)
+    binary = Suma::Fixtures.eligibility_expression.binary.create
+    expect(binary).to have_attributes(type: "binary", binary?: true)
+    unary = Suma::Fixtures.eligibility_expression.unary.create
+    expect(unary).to have_attributes(type: "unary", unary?: true)
   end
 
   it "recursively finds attributes" do
@@ -36,14 +44,14 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
     a2 = Suma::Fixtures.eligibility_attribute.create
     a3 = Suma::Fixtures.eligibility_attribute.create
     expr_fac = Suma::Fixtures.eligibility_expression
-    e = expr_fac.create(
-      left: expr_fac.create(
-        left: expr_fac.leaf(a1).create,
-        right: expr_fac.create(
-          right: expr_fac.leaf(a2).create,
+    e = expr_fac.binary("AND").create(
+      left: expr_fac.binary("AND").create(
+        left: expr_fac.attribute(a1).create,
+        right: expr_fac.binary("AND").create(
+          right: expr_fac.attribute(a2).create,
         ),
       ),
-      right: expr_fac.leaf(a3).create,
+      right: expr_fac.unary("NOT", expr_fac.attribute(a3).create).create,
     )
     expect(e.referenced_attributes).to have_same_ids_as(a1, a2, a3)
   end
@@ -52,21 +60,21 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
     expr_fac = Suma::Fixtures.eligibility_expression
     empty = expr_fac.create
     expect(empty.to_formula_str).to eq("")
-    leaf = expr_fac.leaf({name: "foo"}).create
-    expect(leaf.to_formula_str).to eq("'foo'")
+    attrexpr = expr_fac.attribute({name: "foo"}).create
+    expect(attrexpr.to_formula_str).to eq("'foo'")
 
-    empty_operand = expr_fac.create(left: expr_fac.create, right: expr_fac.create)
+    empty_operand = expr_fac.binary("AND").create
     expect(empty_operand.to_formula_str).to eq("")
 
-    single_side = expr_fac.create(right: expr_fac.leaf("foo1").create)
+    single_side = expr_fac.and.create(right: expr_fac.attribute("foo1").create)
     expect(single_side.to_formula_str).to eq("'foo1'")
 
     deep = expr_fac.and.create(
-      left: expr_fac.leaf("foo2").create,
+      left: expr_fac.attribute("foo2").create,
       right: expr_fac.or.create(
-        left: expr_fac.create(
-          left: expr_fac.leaf("foo3").create,
-          right: expr_fac.leaf("foo4").create,
+        left: expr_fac.and.create(
+          left: expr_fac.attribute("foo3").create,
+          right: expr_fac.attribute("foo4").create,
         ),
       ),
     )
@@ -84,24 +92,24 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
       expr_fac = Suma::Fixtures.eligibility_expression
       empty = expr_fac.create
       expect(empty.serialize).to eq({op: "AND"})
-      leaf = expr_fac.leaf(attr1).create
-      expect(leaf.serialize).to eq({attr: attr1.id, name: "A", fqn: "A"})
-      roundtrip(leaf)
+      attrexpr = expr_fac.attribute(attr1).create
+      expect(attrexpr.serialize).to eq({attr: attr1.id, name: "A", fqn: "A"})
+      roundtrip(attrexpr)
 
-      empty_operand = expr_fac.create(left: expr_fac.create, right: expr_fac.create)
+      empty_operand = expr_fac.binary("AND", [expr_fac.create, expr_fac.create]).create
       expect(empty_operand.serialize).to eq({left: {op: "AND"}, op: "AND", right: {op: "AND"}})
       roundtrip(empty_operand)
 
-      single_side = expr_fac.create(right: expr_fac.leaf(attr1).create)
+      single_side = expr_fac.binary("AND", [nil, expr_fac.attribute(attr1).create]).create
       expect(single_side.serialize).to eq({op: "AND", right: {attr: attr1.id, name: "A", fqn: "A"}})
       roundtrip(single_side)
 
       deep = expr_fac.and.create(
-        left: expr_fac.leaf(attr1).create,
-        right: expr_fac.or.create(
-          left: expr_fac.create(
-            left: expr_fac.leaf(attr1).create,
-            right: expr_fac.leaf(attr2).create,
+        left: expr_fac.attribute(attr1).create,
+        right: expr_fac.not.create(
+          left: expr_fac.or.create(
+            left: expr_fac.attribute(attr1).create,
+            right: expr_fac.attribute(attr2).create,
           ),
         ),
       )
@@ -112,10 +120,10 @@ RSpec.describe "Suma::Eligibility::Expression", :db do
           right: {
             left: {
               left: include(attr: attr1.id),
-              op: "AND",
+              op: "OR",
               right: include(attr: attr2.id),
             },
-            op: "OR",
+            op: "NOT",
           },
         },
       )

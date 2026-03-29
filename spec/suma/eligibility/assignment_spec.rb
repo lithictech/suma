@@ -14,6 +14,8 @@ RSpec.describe "Suma::Eligibility::Assignment", :db do
     ea = Suma::Fixtures.eligibility_assignment.create
     m = Suma::Fixtures.member.create
     o = Suma::Fixtures.organization.create
+    o.eligibility_assignments_dataset.delete # Remove the auto-created one for simplicity during testing
+
     r = Suma::Fixtures.role.create
     ea.update(assignee: m)
     expect(ea).to have_attributes(member: be === m, organization: be_nil, role: be_nil, assignee: be === m)

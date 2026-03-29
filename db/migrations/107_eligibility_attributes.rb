@@ -133,15 +133,36 @@ Sequel.migration do
     create_table(:eligibility_expressions) do
       primary_key :id
 
+      foreign_key :attribute_id, :eligibility_attributes, on_delete: :cascade
       foreign_key :left_id, :eligibility_expressions, on_delete: :cascade
       foreign_key :right_id, :eligibility_expressions, on_delete: :cascade
-      text :operator, null: false, default: "AND"
-      constraint :valid_operator, Sequel[:operator] =~ ["AND", "OR"]
+      text :operator
 
-      foreign_key :attribute_id, :eligibility_attributes, on_delete: :cascade
+      text :type, null: false
+      constraint :valid_type, Sequel[:type] =~ ["attribute", "binary", "unary"]
 
-      constraint :unambiguous_node_type,
-                 Sequel.unambiguous_constraint([:left_id, :attribute_id], allow_all_null: true)
+      constraint :coherent_type,
+                 Sequel.case(
+                   {
+                     # Attribute expressions just have an attribute_id and that's it.
+                     Sequel[type: "attribute"] => (
+                       (Sequel[:attribute_id] !~ nil) &
+                       Sequel[left_id: nil, right_id: nil, operator: nil]
+                     ),
+                     # Binary expressions have an operator, no attribute or unary, and MAY have a left/right.
+                     Sequel[type: "binary"] => (
+                       Sequel[operator: ["AND", "OR"]] &
+                       Sequel[attribute_id: nil]
+                     ),
+                     # Unary expressions have an operator, no attribute or binary,
+                     # and MAY have a left, but must NOT have a right.
+                     Sequel[type: "unary"] => (
+                       Sequel[operator: ["NOT"]] &
+                       Sequel[attribute_id: nil, right_id: nil]
+                     ),
+                   },
+                   nil,
+                 )
     end
 
     create_table(:eligibility_requirements) do

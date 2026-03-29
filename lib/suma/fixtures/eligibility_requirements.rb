@@ -16,6 +16,6 @@ module Suma::Fixtures::EligibilityRequirements
   end
 
   decorator :attribute do |attr={}|
-    self.expression = Suma::Fixtures.eligibility_expression.leaf(attr).create
+    self.expression = Suma::Fixtures.eligibility_expression.attribute(attr).create
   end
 end

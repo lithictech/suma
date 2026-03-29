@@ -9,28 +9,30 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   many_to_one :attribute, class: "Suma::Eligibility::Attribute"
   one_to_one :requirement, class: "Suma::Eligibility::Requirement"
 
-  LEAF = :leaf
-  BRANCH = :branch
+  ATTRIBUTE = "attribute"
+  UNARY = "unary"
+  BINARY = "binary"
 
-  # Leaf nodes have attribute set;
-  # branch nodes do not have attribute set.
-  # Branch nodes may have left and/or right, or neither, set.
-  def type = self.attribute_id ? LEAF : BRANCH
-  def leaf? = self.type == LEAF
-  def branch? = self.type == BRANCH
+  AND = "AND"
+  OR = "OR"
+  NOT = "NOT"
+
+  BINARY_OPS = [AND, OR].freeze
+  UNARY_OPS = [NOT].freeze
+
+  def binary? = self.type == BINARY
+  def unary? = self.type == UNARY
+  def attribute? = self.type == ATTRIBUTE
   def empty? = self.attribute.nil? && self.left.nil? && self.right.nil?
 
   # Return left and right subexpressions, if set.
   # @return [Array<Suma::Eligibility::Expression]
   def subexpressions = [self.left, self.right].compact
 
-  # Return the Ruby operator for the AND/OR.
-  def ruby_operator = self.operator == "OR" ? :| : :&
-
   # Return all attributes used in the expression, recursively.
   # @return [Sequel::IdentitySet<Suma::Eligibility::Attribute>]
   def referenced_attributes(accum: Sequel::IdentitySet.new)
-    if self.leaf?
+    if self.attribute?
       accum << self.attribute
       return accum
     end
@@ -39,9 +41,10 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   end
 
   def to_formula_str
-    return "'#{self.attribute.name}'" if self.leaf?
+    return "'#{self.attribute.name}'" if self.attribute?
     substrs = self.subexpressions.map(&:to_formula_str).reject(&:empty?)
     return "" if substrs.empty?
+    return "#{self.operator} #{substrs[0]}" if self.unary?
     return substrs[0] if substrs.size == 1
     return "(#{substrs[0]} #{self.operator} #{substrs[1]})"
   end
@@ -52,7 +55,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   # Can be deserialized using deserialize.
   # @return [Hash]
   def serialize
-    return {attr: self.attribute.id, name: self.attribute.name, fqn: self.attribute.fqn_label} if self.leaf?
+    return {attr: self.attribute.id, name: self.attribute.name, fqn: self.attribute.fqn_label} if self.attribute?
     h = {}
     h[:left] = self.left.serialize if self.left
     h[:right] = self.right.serialize if self.right
@@ -66,6 +69,9 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   end
 
   class << self
+    # Create an empty expression. We need this when creating a default in some places.
+    def create_empty = self.create(type: BINARY, operator: AND)
+
     # Deserialize an instance from a serialized version.
     # If any invalid attribute IDs are used, they are ignored,
     # and the subexpression will be empty.
@@ -74,7 +80,9 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
     def deserialize(arg)
       self.db.transaction do
         r = self._deserialize(arg)
-        r ||= self.create
+        # If we can't deserialize anything (invalid attr at the root level, or something like that),
+        # just return an empty expression.
+        r ||= self.create_empty
         return r
       end
     end
@@ -84,12 +92,13 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
       if arg[:attr]
         attribute = Suma::Eligibility::Attribute[arg[:attr]]
         return nil if attribute.nil?
-        return self.create(attribute:)
+        return self.create(type: ATTRIBUTE, attribute:)
       end
       h = {}
       h[:left] = self._deserialize(arg[:left]) if arg[:left]
       h[:right] = self._deserialize(arg[:right]) if arg[:right]
-      h[:operator] = arg[:op] if arg[:op]
+      h[:operator] = arg[:op] || AND
+      h[:type] = UNARY_OPS.include?(h[:operator]) ? UNARY : BINARY
       return self.create(h)
     end
   end

@@ -33,10 +33,10 @@ RSpec.describe "Suma::Eligibility::Attribute", :db do
   it "knows about requirements which use the attribute in their expression" do
     attr = Suma::Fixtures.eligibility_attribute.create
     req = Suma::Fixtures.eligibility_requirement.create(
-      expression: Suma::Fixtures.eligibility_expression.leaf(attr).create,
+      expression: Suma::Fixtures.eligibility_expression.attribute(attr).create,
     )
     other = Suma::Fixtures.eligibility_requirement.attribute.create(
-      expression: Suma::Fixtures.eligibility_expression.leaf.create,
+      expression: Suma::Fixtures.eligibility_expression.attribute.create,
     )
     # Check normal and eager loaders
     expect(attr.referenced_requirements).to contain_exactly(req)
