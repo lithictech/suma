@@ -212,7 +212,9 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       expect(last_response).to have_json_body.
         that_includes(
           member: include(id: member.id),
-          assignments: contain_exactly(include(source_type: "member", source_ids: [member.id])),
+          assignments: contain_exactly(
+            include(source_type: "member", sources: contain_exactly(include(id: member.id))),
+          ),
           expressions: contain_exactly(include(formula: "'#{attr.name}'", passed: true)),
         )
     end

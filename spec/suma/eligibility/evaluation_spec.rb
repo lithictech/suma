@@ -208,9 +208,13 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
           label: "attr1",
           depth: 0,
           source_type: "membership",
-          source_ids: [membership.id],
-          source_labels: ["Membership #{membership.id}"],
-          source_admin_links: ["http://localhost:22014/membership/#{membership.id}"],
+          sources: [
+            {
+              id: membership.id,
+              label: "Membership #{membership.id}",
+              admin_link: "http://localhost:22014/membership/#{membership.id}",
+            },
+          ],
         ),
         have_attributes(label: "attr1", depth: 1, source_type: "organization_role"),
         have_attributes(label: "attr1", depth: 1, source_type: "role"),

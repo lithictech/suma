@@ -19,27 +19,31 @@ class Suma::Eligibility::MemberAssignment < Suma::Postgres::Model(:eligibility_m
   many_to_one :attribute, class: "Suma::Eligibility::Attribute"
   many_to_one :member, class: "Suma::Member"
 
+  many_to_one :source_member, class: "Suma::Member"
+  many_to_one :source_membership, class: "Suma::Organization::Membership"
+  many_to_one :source_role, class: "Suma::Role"
+
   MEMBER = "member"
   ROLE = "role"
   MEMBERSHIP = "membership"
   ORGANIZATION_ROLE = "organization_role"
 
-  def unique_key = "#{self.member_id}.#{self.attribute_id}.#{self.source_type}.#{self.source_ids.join('_')}"
+  def unique_key = "#{self.member_id}.#{self.attribute_id}.#{self.source_type}.#{self.sources.map(&:id).join('_')}"
 
-  # Given the source_type and source_ids, return the actual models/rows that specify
+  # Given the source_type and source ids, return the actual models/rows that specify
   # where this attribute came from.
   def sources
     return case self.source_type
       when MEMBER
-        [self.member]
+        [self.source_member]
       when ROLE
-        [Suma::Role[self.source_role_id]]
+        [self.source_role]
       when MEMBERSHIP
-        [Suma::Organization::Membership[source_membership_id]]
+        [self.source_membership]
       when ORGANIZATION_ROLE
         [
-          Suma::Organization::Membership[source_membership_id],
-          Suma::Role[self.source_role_id],
+          self.source_membership,
+          self.source_role,
         ]
       else
         raise Suma::InvariantViolation, "unexpected source type: #{self.inspect}"

@@ -69,20 +69,21 @@ Sequel.migration do
                  attribute_id,
                  'member' AS source_type,
                  member_id AS source_member_id,
-                 -- Establish the type for the other queries
-                 NULL::INTEGER AS source_role_id,
-                 NULL::INTEGER AS source_membership_id,
-                 NULL::INTEGER AS source_organization_id
+                 -- Use -1, not NULL, so we can use this as a primary key, and NULL is not equal to NULL,
+                 -- which causes weird ambiguity where a row cannot compare with itself.
+                 -1 AS source_role_id,
+                 -1 AS source_membership_id,
+                 -1 AS source_organization_id
           FROM eligibility_assignments ea
           WHERE member_id IS NOT NULL
           UNION ALL
           SELECT rm.member_id,
                  ea.attribute_id,
                  'role' AS source_type,
-                 NULL as source_member_id,
+                 -1 as source_member_id,
                  rm.role_id AS source_role_id,
-                 NULL AS source_membership_id,
-                 NULL AS source_organization_id
+                 -1 AS source_membership_id,
+                 -1 AS source_organization_id
           FROM eligibility_assignments ea
               INNER JOIN roles_members rm
               ON rm.role_id = ea.role_id
@@ -90,8 +91,8 @@ Sequel.migration do
           SELECT om.member_id,
                  ea.attribute_id,
                  'membership' AS source_type,
-                 NULL AS source_member_id,
-                 NULL as source_role_id,
+                 -1 AS source_member_id,
+                 -1 as source_role_id,
                  om.id AS source_membership_id,
                  om.verified_organization_id AS source_organization_id
           FROM eligibility_assignments ea
@@ -101,7 +102,7 @@ Sequel.migration do
           SELECT omr.member_id,
                  ea.attribute_id,
                  'organization_role' AS source_type,
-                 NULL as source_member_id,
+                 -1 as source_member_id,
                  omr.role_id AS source_role_id,
                  omr.membership_id AS source_membership_id,
                  omr.organization_id AS source_organization_id

@@ -15,7 +15,7 @@ RSpec.describe Suma::AdminAPI::EligibilityAssignments, :db do
 
   describe "GET /v1/eligibility_assignments" do
     it "returns all instances" do
-      objs = Array.new(2) { Suma::Fixtures.eligibility_assignment.create }
+      objs = Array.new(2) { Suma::Fixtures.eligibility_assignment.to(Suma::Fixtures.member.create).create }
 
       get "/v1/eligibility_assignments"
 
@@ -62,7 +62,9 @@ RSpec.describe Suma::AdminAPI::EligibilityAssignments, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
-      expect(Suma::Eligibility::Assignment.all).to have_length(1)
+      expect(Suma::Eligibility::Assignment.all).to include(
+        have_attributes(attribute: be === attr, organization: be === organization),
+      )
     end
 
     it "creates the assignment for role" do

@@ -82,14 +82,14 @@ class Suma::Eligibility::Evaluation
         when Suma::Eligibility::MemberAssignment::MEMBER
           "self"
         when Suma::Eligibility::MemberAssignment::ROLE
-          role = Suma::Role[ma.source_ids[0]]
+          role = Suma::Role[ma.sources[0][:id]]
           "role #{role.name}"
         when Suma::Eligibility::MemberAssignment::MEMBERSHIP
-          om = Suma::Organization::Membership[ma.source_ids[0]]
+          om = Suma::Organization::Membership[ma.sources[0][:id]]
           "membership in #{om.organization_label}"
         when Suma::Eligibility::MemberAssignment::ORGANIZATION_ROLE
-          org = Suma::Organization[ma.source_ids[0]]
-          role = Suma::Role[ma.source_ids[1]]
+          org = Suma::Organization[ma.sources[0][:id]]
+          role = Suma::Role[ma.sources[1][:id]]
           "role #{role.name} for #{org.name}"
         else
           raise Suma::InvariantViolation, "unexpected source type: #{ma.inspect}"
@@ -112,9 +112,7 @@ class Suma::Eligibility::Evaluation
     :label,
     :depth,
     :source_type,
-    :source_ids,
-    :source_labels,
-    :source_admin_links,
+    :sources,
   )
   Expression = Struct.new(
     :requirement_id,
@@ -135,9 +133,7 @@ class Suma::Eligibility::Evaluation
       a.label = ma.attribute.fqn_label
       a.depth = ma.depth
       a.source_type = ma.source_type
-      a.source_ids = ma.source_ids
-      a.source_labels = ma.to_sources.map(&:admin_label)
-      a.source_admin_links = ma.to_sources.map(&:admin_link)
+      a.sources = ma.sources.map { |o| {id: o.id, label: o.admin_label, admin_link: o.admin_link} }
       a
     end
     assignments.sort_by! { |a| [a.label, a.depth] }
