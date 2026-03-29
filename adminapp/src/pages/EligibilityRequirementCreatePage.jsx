@@ -4,7 +4,7 @@ import EligibilityRequirementForm from "./EligibilityRequirementForm";
 import React from "react";
 
 export default function EligibilityRequirementCreatePage() {
-  const empty = {};
+  const empty = { programs: [], paymentTriggers: [] };
   return (
     <ResourceCreate
       empty={empty}

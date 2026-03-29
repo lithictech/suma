@@ -27,10 +27,17 @@ export default function EligibilityRequirementListPage() {
           render: (c) => formatDate(c.createdAt),
         },
         {
-          id: "name",
-          label: "Name",
+          id: "rez",
+          label: "Resources",
           align: "left",
-          render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
+          render: (c) =>
+            c.resources.length === 0
+              ? "-"
+              : AdminLink.Array(
+                  c.resources,
+                  (o) => <AdminLink model={o}>{o.label}</AdminLink>,
+                  ","
+                ),
         },
       ]}
     />

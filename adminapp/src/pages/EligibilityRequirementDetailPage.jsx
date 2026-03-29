@@ -1,7 +1,12 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Link from "../components/Link";
+import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import createRelativeUrl from "../shared/createRelativeUrl";
+import EditIcon from "@mui/icons-material/Edit";
+import IconButton from "@mui/material/IconButton";
 import React from "react";
 
 export default function EligibilityRequirementDetailPage() {
@@ -19,53 +24,53 @@ export default function EligibilityRequirementDetailPage() {
           value: <AdminLink model={model.createdBy}>{model.createdBy.name}</AdminLink>,
         },
         {
-          label: "Resource",
-          value: (
-            <AdminLink model={model.resource}>
-              {model.resource.label} ({model.resourceType})
-            </AdminLink>
-          ),
-        },
-        {
           label: "Formula",
-          value: <code>{model.expressionFormulaStr}</code>,
+          value: (
+            <>
+              <code>{model.expressionFormulaStr}</code>
+              <IconButton
+                component={Link}
+                size="small"
+                color="success"
+                href={createRelativeUrl(
+                  `/eligibility-requirement/${model.id}/edit-expression`
+                )}
+                sx={{ marginRight: 1 }}
+              >
+                <EditIcon />
+              </IconButton>
+            </>
+          ),
         },
       ]}
     >
       {(model) => [
-        // <RelatedList
-        //   title="Services"
-        //   rows={model.services}
-        //   headers={["Id", "Name"]}
-        //   keyRowAttr="id"
-        //   toCells={(row) => [
-        //     <AdminLink model={row} />,
-        //     <AdminLink model={row}>{row.internalName}</AdminLink>,
-        //   ]}
-        // />,
-        // <RelatedList
-        //   title="Configuration"
-        //   rows={model.configurations}
-        //   headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
-        //   keyRowAttr="id"
-        //   toCells={(row) => [
-        //     <AdminLink key="id" model={row} />,
-        //     row.vendor.name,
-        //     row.authToVendorKey,
-        //     <BoolCheckmark>{row.enabled}</BoolCheckmark>,
-        //   ]}
-        // />,
-        // <RelatedList
-        //   title="Products"
-        //   rows={model.products}
-        //   headers={["Id", "Created", "Name"]}
-        //   keyRowAttr="id"
-        //   toCells={(row) => [
-        //     <AdminLink key="id" model={row} />,
-        //     formatDate(row.createdAt),
-        //     row.name.en,
-        //   ]}
-        // />,
+        <RelatedList
+          title="Programs"
+          rows={model.programs}
+          addNewLabel="Add program requirement"
+          addNewRole="program"
+          addNewLink={createRelativeUrl(`/eligibility-requirement/${model.id}/edit`)}
+          headers={["Id", "Name"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            <AdminLink model={row}>{row.label}</AdminLink>,
+          ]}
+        />,
+        <RelatedList
+          title="Payment Triggers"
+          rows={model.paymentTriggers}
+          addNewLabel="Add payment trigger requirement"
+          addNewRole="program"
+          addNewLink={createRelativeUrl(`/eligibility-requirement/${model.id}/edit`)}
+          headers={["Id", "Name"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            <AdminLink model={row}>{row.label}</AdminLink>,
+          ]}
+        />,
       ]}
     </ResourceDetail>
   );

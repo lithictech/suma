@@ -24,6 +24,7 @@ import EligibilityAttributeListPage from "./pages/EligibilityAttributeListPage";
 import EligibilityRequirementCreatePage from "./pages/EligibilityRequirementCreatePage";
 import EligibilityRequirementDetailPage from "./pages/EligibilityRequirementDetailPage";
 import EligibilityRequirementEditPage from "./pages/EligibilityRequirementEditPage";
+import EligibilityRequirementExpressionEditorPage from "./pages/EligibilityRequirementExpressionEditorPage";
 import EligibilityRequirementListPage from "./pages/EligibilityRequirementListPage";
 import FinancialsPage from "./pages/FinancialsPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
@@ -1031,6 +1032,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           EligibilityRequirementEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-requirement/:id/edit-expression"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityRequirementExpressionEditorPage
         )}
       />
 
