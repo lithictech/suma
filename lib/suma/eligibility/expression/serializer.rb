@@ -11,13 +11,17 @@ module Suma::Eligibility::Expression::Serializer
     # @param [Suma::Eligibility::Expression]
     # @return [Hash]
     def serialize(e)
-      return {attr: e.attribute.id, name: e.attribute.name, fqn: e.attribute.fqn_label} if e.attribute?
+      return self.hash_from_attr(e) if e.attribute?
       h = {}
       h[:left] = e.left.serialize if e.left
       h[:right] = e.right.serialize if e.right
       h[:op] = e.operator
       return h
     end
+
+    def attr_hash(id:, name:, fqn:) = {attr: id, name:, fqn:}
+    def hash_from_attr(a) = self.attr_hash(id: a.id, name: a.name, fqn: a.fqn_label)
+    def operator_hash(op, left=nil, right=nil) = {left:, op:, right:}
 
     # Deserialize an instance from a serialized version.
     # If any invalid attribute IDs are used, they are ignored,

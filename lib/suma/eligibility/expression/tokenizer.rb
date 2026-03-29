@@ -11,6 +11,8 @@ module Suma::Eligibility::Expression::Tokenizer
   TYPES = [PAREN, OPERATOR, VARIABLE].freeze
 
   class Token < Suma::TypedStruct
+    include Suma::Eligibility::Expression::Constants
+
     attr_reader :id, :value, :label, :type
 
     def initialize(**kwargs)
@@ -25,6 +27,10 @@ module Suma::Eligibility::Expression::Tokenizer
         id: a.id, value: a.fqn_label, label: a.name, type: VARIABLE,
       )
     end
+
+    def binary? = self.type == OPERATOR && BINARY_OPS.include?(self.id)
+    def unary? = self.type == OPERATOR && UNARY_OPS.include?(self.id)
+    def variable? = self.type == VARIABLE
   end
 
   TOK_PAREN_OPEN = Token.constant("(", PAREN)
@@ -58,6 +64,8 @@ module Suma::Eligibility::Expression::Tokenizer
   end
 
   class << self
+    include Suma::Eligibility::Expression::Constants
+
     # Tokenize a serialized expression (see +Suma::Eligibility::Expression#serialize+).
     # @param expr [Hash]
     # @return [Array<Suma::Eligibility::Expression::Tokenizer::Token>]
@@ -96,6 +104,8 @@ module Suma::Eligibility::Expression::Tokenizer
     # @param warnings [Array<Suma::Eligibility::Expression::Tokenizer::Warning>]
     # @param serialized [Hash]
     def _detokenize(tokens, warnings, serialized)
+      # rubocop:disable Lint/DuplicateBranch
+
       return nil if tokens.empty?
 
       # Handle the degenerative case of a single attribute node
@@ -103,6 +113,8 @@ module Suma::Eligibility::Expression::Tokenizer
         serialized.merge!(attr: t.id, name: t.label, fqn: t.value)
         return nil
       end
+
+      serializer = Suma::Eligibility::Expression::Serializer
 
       node_stack = [serialized]
       depth = 0
@@ -135,7 +147,7 @@ module Suma::Eligibility::Expression::Tokenizer
             return # rubocop:disable Lint/NonLocalExitFromIterator
           end
         end
-        if (t.type == OPERATOR) && (!prev || prev.value == "(" || prev.type == OPERATOR)
+        if t.binary? && (!prev || prev.value == "(" || prev.type == OPERATOR)
           warnings << Warning.new(i, "cannot appear here", t.value)
           # warnings << Warning.new(i, "operator cannot terminate expression", t.value) unless nxt
         end
@@ -156,23 +168,68 @@ module Suma::Eligibility::Expression::Tokenizer
         # (x) -> {attr: <x.id>}
         # x AND y -> {left: {attr: <x.id>}, op: AND, right: {attr: <y.id>}}
         if t.type == OPERATOR
-          # Update the top-level node.
-          node_stack.last[:op] = t.value
+          # Operators can either:
+          # - Update the top level node (unary and binary both work the same in that sense)
+          # - Establish a new node, if the head node already has an operator.
+          #   That is, "NOT NOT x" needs to create two nodes, not set the operator twice.
+          if node_stack.last[:op]
+            # Add a new node
+            node = serializer.operator_hash(t.id)
+            node_stack.push(node)
+          else
+            # Update the top level node
+            node_stack.last[:op] = t.id
+          end
         elsif t.id == ")"
           # We're closing a group; figure out whether it should go to left or right of the outer group.
+          # If there is already a 'left', it must go in the right;
+          # but if there is no left, check if we know we're already working with a binary operator;
+          # if we are, that means we must set the right node, like 'OR (X)'.
           node = node_stack.pop
           head = node_stack.last
-          key = head.key?(:left) ? :right : :left
-          head[key] = node
+          if head.key?(:left)
+            head[:right] = node
+          elsif binary_hash?(head)
+            head[:right] = node
+          else
+            head[:left] = node
+          end
         elsif t.id == "("
           # We're opening a new group, so push a new node.
           node = {}
           node_stack.push(node)
         else
-          # This is a variable node, assign it to left or right.
+          # Suma.assert { t.type == VARIABLE }
+          # This is a variable node. This can either:
+          # - Begin a binary operation (left)
+          # - End a binary operation (right)
+          # - End a unary operation (left)
+          ahash = serializer.attr_hash(id: t.id, name: t.label, fqn: t.value)
           head = node_stack.last
-          key = head.key?(:left) ? :right : :left
-          head[key] = {attr: t.id, name: t.label, fqn: t.value}
+          # First let's check if the top of the stack is already 'finished';
+          # that is, a unary node with an operator, a binary node with two,
+          # or another variable node.
+          # If they are, we need to add to the stack, not update.
+          head_closed = (self.unary_hash?(head) && head[:left]) ||
+            (self.binary_hash?(head) && head[:left] && head[:right]) ||
+            self.variable_hash?(head)
+          if head_closed
+            node_stack.push(ahash)
+          elsif self.unary_hash?(head)
+            # This is a unary op like NOT, this is the operand for it.
+            head[:left] = ahash
+          elsif !head.key?(:op)
+            # One of two situations:
+            # 1) don't know what type of node this is yet;
+            #    it could be blank, like if we're evaluating X in 'X OR Y',
+            #    In this case, always assign to left.
+            # 2) it's the second operand of a binary operator.
+            #    In this case, always assign to the right, since the left must have been assigned (or skipped)
+            #    to find the binary operator in the first place.
+            head[:left] = ahash
+          else
+            head[:right] = ahash
+          end
         end
       end
 
@@ -180,6 +237,12 @@ module Suma::Eligibility::Expression::Tokenizer
       last = tokens[tokens.length - 1]
       warnings << Warning.new(tokens.length - 1, "expression cannot end with operator", last.value) if
         last.type == OPERATOR
+
+      # rubocop:enable Lint/DuplicateBranch
     end
+
+    def binary_hash?(h) = BINARY_OPS.include?(h[:op])
+    def unary_hash?(h) = UNARY_OPS.include?(h[:op])
+    def variable_hash?(h) = h.include?(:attr)
   end
 end

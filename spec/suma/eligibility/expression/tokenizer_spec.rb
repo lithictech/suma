@@ -127,6 +127,38 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
       expect(result.serialized).to eq({attr: 5, fqn: "A.B", name: "A"})
     end
 
+    it "handles unary operators" do
+      tokens = arr2tok(
+        {id: "NOT", label: "NOT", type: :operator, value: "NOT"},
+        {id: 5, label: "A", type: :variable, value: "A.B"},
+      )
+      result = described_class.detokenize(tokens)
+      expect(result.warnings.map(&:to_s)).to eq([])
+      expect(result.serialized).to eq(
+        {
+          left: {attr: 5, fqn: "A.B", name: "A"},
+          op: "NOT",
+        },
+      )
+    end
+
+    it "handles non-parenthesized expressions" do
+      tokens = arr2tok(
+        {id: 5, label: "A", type: :variable, value: "A"},
+        {id: "AND", label: "AND", type: :operator, value: "AND"},
+        {id: "NOT", label: "NOT", type: :operator, value: "NOT"},
+        {id: 6, label: "B", type: :variable, value: "B"},
+        {id: "OR", label: "OR", type: :operator, value: "OR"},
+        {id: "NOT", label: "NOT", type: :operator, value: "NOT"},
+        {id: "NOT", label: "NOT", type: :operator, value: "NOT"},
+        {id: 7, label: "C", type: :variable, value: "C"},
+      )
+      result = described_class.detokenize(tokens)
+      expect(result.warnings.map(&:to_s)).to eq([])
+      puts result.serialized
+      expect(result.serialized).to eq({attr: 5, fqn: "A.B", name: "A"})
+    end
+
     describe "validity" do
       it "fails for invalid types" do
         tokens = arr2tok(
