@@ -129,22 +129,23 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(
-          op_and: include(id: "AND", value: "AND"),
+          operators: include(include(id: "AND", value: "AND")),
           attributes: [
             include(id: a1.id, label: "A1", value: "A1"),
             include(id: a2.id, label: "A2", value: "A2.A1"),
           ],
+          key_mappings: include(include(key: "(", token: include(id: "("))),
         )
     end
   end
 
   describe "POST /v1/eligibility_requirements/editor/detokenize" do
     it "detokenizes and returns the result" do
-      exprcls = Suma::Eligibility::Expression
+      tizer = Suma::Eligibility::Expression::Tokenizer
 
       post "/v1/eligibility_requirements/editor/detokenize", tokens: [
-        exprcls::Token.new(id: 1, value: "x", label: "x", type: exprcls::Tokenizer::VARIABLE).to_h,
-        exprcls::Tokenizer::TOK_OP_AND.to_h,
+        tizer::Token.new(id: 1, value: "x", label: "x", type: tizer::VARIABLE).to_h,
+        tizer::Token.constant("AND", tizer::OPERATOR).to_h,
       ]
 
       expect(last_response).to have_status(200)

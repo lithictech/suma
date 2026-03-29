@@ -22,14 +22,16 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     expose :type
   end
 
+  class EditorSettingsKeyMapping < BaseEntity
+    expose :key
+    expose :token, with: EditorTokenOptionEntity
+  end
+
   class EditorSettingsEntity < BaseEntity
-    expose :paren_open, with: EditorTokenOptionEntity
-    expose :paren_close, with: EditorTokenOptionEntity
     expose :parens, with: EditorTokenOptionEntity
-    expose :op_and, with: EditorTokenOptionEntity
-    expose :op_or, with: EditorTokenOptionEntity
-    expose :ops, with: EditorTokenOptionEntity
+    expose :operators, with: EditorTokenOptionEntity
     expose :attributes, with: EditorTokenOptionEntity
+    expose :key_mappings, with: EditorSettingsKeyMapping
   end
 
   class EditorDetokenizationWarningEntity < BaseEntity
@@ -122,16 +124,19 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
         attributes = Suma::Eligibility::Attribute.all.
           sort_by { |a| a.fqn_label.reverse }.
           map do |a|
-          Suma::Eligibility::Expression::Token.from_attribute(a)
+          Suma::Eligibility::Expression::Tokenizer::Token.from_attribute(a)
         end
         settings = {
-          paren_open: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_OPEN,
-          paren_close: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_CLOSE,
           parens: Suma::Eligibility::Expression::Tokenizer::PAREN_TOKENS,
-          op_and: Suma::Eligibility::Expression::Tokenizer::TOK_OP_AND,
-          op_or: Suma::Eligibility::Expression::Tokenizer::TOK_OP_OR,
-          ops: Suma::Eligibility::Expression::Tokenizer::OPERATOR_TOKENS,
+          operators: Suma::Eligibility::Expression::Tokenizer::OPERATOR_TOKENS,
           attributes:,
+          key_mappings: [
+            {key: "(", token: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_OPEN},
+            {key: ")", token: Suma::Eligibility::Expression::Tokenizer::TOK_PAREN_CLOSE},
+            {key: "&", token: Suma::Eligibility::Expression::Tokenizer::TOK_OP_AND},
+            {key: "|", token: Suma::Eligibility::Expression::Tokenizer::TOK_OP_OR},
+            {key: "!", token: Suma::Eligibility::Expression::Tokenizer::TOK_OP_NOT},
+          ],
         }
 
         present settings, with: EditorSettingsEntity
@@ -148,7 +153,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       post :detokenize do
         check_admin_role_access!(:read, Suma::Eligibility::Requirement)
         dparams = declared(params)
-        tokens = dparams[:tokens].map { |h| Suma::Eligibility::Expression::Token.new(**h) }
+        tokens = dparams[:tokens].map { |h| Suma::Eligibility::Expression::Tokenizer::Token.new(**h) }
         r = Suma::Eligibility::Expression::Tokenizer.detokenize(tokens)
         status 200
         present r, with: EditorDetokenizationEntity

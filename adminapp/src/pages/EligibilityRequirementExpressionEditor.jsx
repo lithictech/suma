@@ -49,6 +49,13 @@ export default function EligibilityRequirementExpressionEditor({
     api.eligibilityRequirementExpressionEditorSettings,
     { pickData: true }
   );
+  const keyMappedTokens = React.useMemo(
+    () =>
+      Object.fromEntries(
+        editorSettings?.keyMappings?.map(({ key, token }) => [key, token]) || []
+      ),
+    [editorSettings]
+  );
 
   const detokenize = useDebounced(
     api.eligibilityRequirementExpressionEditorDetokenize,
@@ -135,23 +142,14 @@ export default function EligibilityRequirementExpressionEditor({
       } else if (e.key === "End") {
         e.preventDefault();
         setCursorPos(tokens.length);
-      } else if (e.key === "(") {
+      } else if (keyMappedTokens[e.key]) {
         e.preventDefault();
-        insertToken(editorSettings.parenOpen);
-      } else if (e.key === ")") {
-        e.preventDefault();
-        insertToken(editorSettings.parenClose);
-      } else if (e.key === "&") {
-        e.preventDefault();
-        insertToken(editorSettings.opAnd);
-      } else if (e.key === "|") {
-        e.preventDefault();
-        insertToken(editorSettings.opOr);
+        insertToken(keyMappedTokens[e.key]);
       } else {
         // console.log(e.key, e);
       }
     },
-    [deleteBeforeCursor, editorSettings, insertToken, setCursorPos, tokens.length]
+    [deleteBeforeCursor, insertToken, setCursorPos, tokens.length, keyMappedTokens]
   );
 
   const isValid = tokens.length > 0 && !error;
@@ -204,7 +202,7 @@ export default function EligibilityRequirementExpressionEditor({
             <Box>
               <InputGroupLabel>Operators</InputGroupLabel>
               <ButtonGroup size="small" variant="outlined" color="warning">
-                {editorSettings.ops.map((t) => (
+                {editorSettings.operators.map((t) => (
                   <PaletteButton
                     key={t.id}
                     color={TOKEN_COLORS[t.type]}
@@ -500,36 +498,25 @@ function EvaluationResult({ requirement, evaluationResult }) {
           <TableRow>
             <TableCell>Attribute Assignments</TableCell>
             <TableCell>Depth</TableCell>
-            <TableCell colSpan={2}>Source</TableCell>
+            <TableCell>Source</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {r.assignments.map(
-            ({
-              attributeAdminLink,
-              label,
-              depth,
-              sourceType,
-              sourceLabels,
-              sourceAdminLinks,
-            }) => (
-              <TableRow key={label}>
-                <TableCell>
-                  <AdminLink to={attributeAdminLink}>{label}</AdminLink>
-                </TableCell>
-                <TableCell>{depth}</TableCell>
-                <TableCell>{sourceType}</TableCell>
-                <TableCell>
-                  {sourceLabels.map((lbl, i) => (
-                    <React.Fragment key={lbl}>
-                      <AdminLink to={sourceAdminLinks[i]}>{lbl}</AdminLink>
-                      <br />
-                    </React.Fragment>
-                  ))}
-                </TableCell>
-              </TableRow>
-            )
-          )}
+          {r.assignments.map(({ attributeAdminLink, label, depth, sources }) => (
+            <TableRow
+              key={`${attributeAdminLink}_${depth}_${sources.map(({ id }) => id)}`}
+            >
+              <TableCell>
+                <AdminLink to={attributeAdminLink}>{label}</AdminLink>
+              </TableCell>
+              <TableCell>{depth}</TableCell>
+              <TableCell>
+                {AdminLink.Array(sources, (o) => (
+                  <AdminLink model={o}>{o.label}</AdminLink>
+                ))}
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

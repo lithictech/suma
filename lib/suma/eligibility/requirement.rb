@@ -39,7 +39,7 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
     return if existing == serialized
     self.db.transaction do
       # Since expression_id is non-nullable, we need to create and assign before destroying.
-      new_expr = Suma::Eligibility::Expression.deserialize(serialized)
+      new_expr = Suma::Eligibility::Expression::Serializer.deserialize(serialized)
       old_expr = self.expression
       self.update(expression: new_expr)
       old_expr.destroy
