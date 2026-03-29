@@ -17,6 +17,7 @@ RSpec.describe Suma::Eligibility::MemberAssignment, :db do
       it "describes all source types" do
         m = Suma::Fixtures.member.create
         o = Suma::Fixtures.organization.with_membership_of(m).create
+        membership = o.memberships.first
         o.eligibility_assignments_dataset.delete # Remove the auto-created one for simplicity during testing
         r = Suma::Fixtures.role.create
         o.add_role(r)
@@ -38,10 +39,10 @@ RSpec.describe Suma::Eligibility::MemberAssignment, :db do
         expect(ma.sources).to contain_exactly(be === o.memberships.first)
 
         ma = described_class.find!(member: m, source_type: "organization_role")
-        expect(ma.sources).to match_array([be === o, be === r])
+        expect(ma.sources).to match_array([be === membership, be === r])
 
         ma = described_class.where(member: m, source_type: "organization_role").all.first
-        expect(ma.sources).to match_array([be === o, be === r])
+        expect(ma.sources).to match_array([be === membership, be === r])
       end
     end
   end

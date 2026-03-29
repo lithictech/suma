@@ -65,31 +65,65 @@ Sequel.migration do
               ON e.id = a.attribute_id
           WHERE e.parent_id IS NOT NULL
       ), base AS (
-          SELECT member_id, attribute_id, 'member' AS source_type, ARRAY[member_id] AS source_ids
+          SELECT member_id,
+                 attribute_id,
+                 'member' AS source_type,
+                 member_id AS source_member_id,
+                 -- Establish the type for the other queries
+                 NULL::INTEGER AS source_role_id,
+                 NULL::INTEGER AS source_membership_id,
+                 NULL::INTEGER AS source_organization_id
           FROM eligibility_assignments ea
           WHERE member_id IS NOT NULL
           UNION ALL
-          SELECT rm.member_id, ea.attribute_id, 'role' AS source, ARRAY[rm.role_id] AS source_ids
+          SELECT rm.member_id,
+                 ea.attribute_id,
+                 'role' AS source_type,
+                 NULL as source_member_id,
+                 rm.role_id AS source_role_id,
+                 NULL AS source_membership_id,
+                 NULL AS source_organization_id
           FROM eligibility_assignments ea
               INNER JOIN roles_members rm
               ON rm.role_id = ea.role_id
           UNION ALL
-          SELECT om.member_id, ea.attribute_id, 'membership' AS source, ARRAY[om.id] AS source_ids
+          SELECT om.member_id,
+                 ea.attribute_id,
+                 'membership' AS source_type,
+                 NULL AS source_member_id,
+                 NULL as source_role_id,
+                 om.id AS source_membership_id,
+                 om.verified_organization_id AS source_organization_id
           FROM eligibility_assignments ea
               INNER JOIN organization_memberships om
               ON om.verified_organization_id = ea.organization_id
           UNION ALL
-          SELECT omr.member_id, ea.attribute_id, 'organization_role' AS source, ARRAY[omr.organization_id, omr.role_id] AS source_ids
+          SELECT omr.member_id,
+                 ea.attribute_id,
+                 'organization_role' AS source_type,
+                 NULL as source_member_id,
+                 omr.role_id AS source_role_id,
+                 omr.membership_id AS source_membership_id,
+                 omr.organization_id AS source_organization_id
           FROM eligibility_assignments ea
               INNER JOIN (
-                  SELECT ro.role_id as role_id, om.member_id as member_id, om.verified_organization_id as organization_id
+                  SELECT ro.role_id as role_id,
+                         om.member_id as member_id,
+                         om.id as membership_id,
+                         om.verified_organization_id as organization_id
                   FROM organization_memberships om
                   JOIN roles_organizations ro
                   ON ro.organization_id = om.verified_organization_id
               ) omr
               ON omr.role_id = ea.role_id
       )
-      SELECT DISTINCT b.member_id, e.attribute_id, b.source_type, b.source_ids, e.depth
+      SELECT DISTINCT b.member_id,
+                      e.attribute_id,
+                      e.depth,
+                      b.source_type,
+                      b.source_member_id,
+                      b.source_role_id,
+                      b.source_membership_id
       FROM base b
       JOIN attr_expanded e
       ON e.root_attribute_id = b.attribute_id;
