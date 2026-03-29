@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
 export default function EligibilityAttributeDetailPage() {
@@ -36,6 +37,12 @@ export default function EligibilityAttributeDetailPage() {
         <RelatedList
           title="Assignments"
           rows={model.assignments}
+          addNewLabel="Add Assignment"
+          addNewRole="eligibilityAssignment"
+          addNewLink={createRelativeUrl(`/eligibility-assignment/new`, {
+            attributeId: model.id,
+            attributeLabel: model.label,
+          })}
           headers={["Id", "Assignee"]}
           keyRowAttr="id"
           toCells={(row) => [

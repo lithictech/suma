@@ -161,9 +161,13 @@ export default function MemberDetailPage() {
             memberships={model.organizationMemberships}
             model={model}
           />,
-          <EligibilityAssignmentsRelatedList model={model} type="member" />,
-          <MemberEligibilityAssignments
+          <ExpandedEligibilityAssignments
             assignments={model.expandedEligibilityAssignments}
+          />,
+          <EligibilityAssignmentsRelatedList
+            model={model}
+            type="member"
+            title="Direct Eligibility Assignments"
           />,
           <Activities activities={model.activities} />,
           <Orders orders={model.orders} />,
@@ -320,18 +324,21 @@ function Notes({ notes, model, setModel }) {
 function ExpandedEligibilityAssignments({ assignments }) {
   return (
     <RelatedList
-      title="All Eligibility Assignments"
+      title="Expanded Eligibility Assignments"
       rows={assignments}
-      headers={["Attribute", "Sources"]}
-      keyRowAttr="key"
+      headers={["Attribute", "Source Type", "Sources"]}
+      keyRowAttr="uniqueKey"
       toCells={(row) => [
-        <AdminLink key="id" model={row} />,
-        formatDate(row.createdAt),
-        row.totalItemCount,
-        <AdminLink key="off" model={row.offering}>
-          {row.offering.description.en}
-        </AdminLink>,
-        row.statusLabel,
+        <AdminLink key="attr" model={row.attribute} />,
+        row.sourceType,
+        [row.sourceMember, row.sourceMembership, row.sourceRole]
+          .filter(Boolean)
+          .map((src) => (
+            <React.Fragment key={src.adminLink}>
+              <AdminLink model={src}>{src.label}</AdminLink>
+              <br />
+            </React.Fragment>
+          )),
       ]}
     />
   );

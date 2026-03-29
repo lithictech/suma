@@ -3,10 +3,10 @@ import AdminLink from "./AdminLink";
 import RelatedList from "./RelatedList";
 import React from "react";
 
-export default function EligibilityAssignmentsRelatedList({ model, type }) {
+export default function EligibilityAssignmentsRelatedList({ model, type, title }) {
   return (
     <RelatedList
-      title="Eligibility Assignments"
+      title={title || "Eligibility Assignments"}
       rows={model.eligibilityAssignments}
       addNewLabel="Assign attribute"
       addNewLink={createRelativeUrl(`/eligibility-assignment/new`, {

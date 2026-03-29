@@ -31,15 +31,19 @@ RSpec.describe Suma::Eligibility::MemberAssignment, :db do
 
         ma = described_class.find!(member: m, source_type: "member")
         expect(ma.sources).to contain_exactly(be === m)
+        expect(ma.unique_key).to be_present
 
         ma = described_class.find!(member: m, source_type: "role")
         expect(ma.sources).to contain_exactly(be === r)
+        expect(ma.unique_key).to be_present
 
         ma = described_class.find!(member: m, source_type: "membership")
         expect(ma.sources).to contain_exactly(be === o.memberships.first)
+        expect(ma.unique_key).to be_present
 
         ma = described_class.find!(member: m, source_type: "organization_role")
         expect(ma.sources).to match_array([be === membership, be === r])
+        expect(ma.unique_key).to be_present
 
         ma = described_class.where(member: m, source_type: "organization_role").all.first
         expect(ma.sources).to match_array([be === membership, be === r])

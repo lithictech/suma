@@ -75,6 +75,18 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :medium
   end
 
+  class EligibilityMemberAssignmentEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :unique_key
+    expose :member, with: MemberEntity
+    expose :attribute, with: EligibilityAttributeEntity
+    expose :source_type
+    expose :depth
+    expose :source_member, with: MemberEntity
+    expose :source_role, with: RoleEntity
+    expose :source_membership, with: OrganizationMembershipEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail

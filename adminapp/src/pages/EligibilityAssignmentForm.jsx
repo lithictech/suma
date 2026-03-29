@@ -23,22 +23,23 @@ export default function EligibilityAssignmentForm({
   onSubmit,
 }) {
   const [searchParams] = useSearchParams();
-  const searchProgramId = Number(searchParams.get("programId") || -1);
+  const searchAttributeId = Number(searchParams.get("attributeId") || -1);
   const searchAssigneeId = Number(searchParams.get("assigneeId") || -1);
   const searchAssigneeType = searchParams.get("assigneeType");
   const [assigneeType, setAssigneeType] = React.useState(
     resource.assigneeType || searchAssigneeType || "member"
   );
   const fixedAssignee = searchAssigneeId > 0;
+  const fixedAttribute = searchAttributeId > 0;
 
   useMountEffect(() => {
     if (searchParams.get("edit")) {
       return;
     }
-    if (searchProgramId > 0) {
-      setField("program", {
-        id: searchProgramId,
-        label: searchParams.get("programLabel"),
+    if (searchAttributeId > 0) {
+      setField("attribute", {
+        id: searchAttributeId,
+        label: searchParams.get("attributeLabel"),
       });
     }
     if (searchAssigneeId > 0) {
@@ -70,9 +71,10 @@ export default function EligibilityAssignmentForm({
         <AutocompleteSearch
           {...register("attribute")}
           label="Attribute"
-          value={resource.attribute?.name || ""}
+          value={resource.attribute?.label || ""}
           fullWidth
           search={api.searchEligibilityAttributes}
+          disabled={fixedAttribute}
           style={{ flex: 1 }}
           searchEmpty
           onValueSelect={(p) => setField("attribute", p)}
@@ -94,7 +96,7 @@ export default function EligibilityAssignmentForm({
             key="member"
             {...register("member")}
             label="Member"
-            helperText="Who can access this program?"
+            helperText="Assign this attribute to a member directly."
             value={resource.member?.label || ""}
             fullWidth
             search={api.searchMembers}
@@ -109,7 +111,7 @@ export default function EligibilityAssignmentForm({
             key="org"
             {...register("organization")}
             label="Organization"
-            helperText="What members in this organization can access this program?"
+            helperText="All members of the organization get the attribute."
             value={resource.organization?.label || ""}
             fullWidth
             disabled={fixedAssignee}
@@ -124,7 +126,7 @@ export default function EligibilityAssignmentForm({
             key="role"
             {...register("role")}
             label="Role"
-            helperText="What members with this role can access this program?"
+            helperText="All members with this role, or with membership in an organization with this role, get the attribute."
             value={resource.role?.label || ""}
             fullWidth
             search={api.searchRoles}
