@@ -45,7 +45,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
 
       # Having requirement restricts access
       attribute = Suma::Fixtures.eligibility_attribute.create
-      Suma::Fixtures.eligibility_requirement.attribute(attribute).create(resource: program)
+      Suma::Fixtures.eligibility_requirement.attribute(attribute).of(program).create
       expect(described_class.for(member.refresh, as_of:)).to be_empty
 
       # Member can now access

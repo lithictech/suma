@@ -15,6 +15,9 @@ require "suma/postgres/model"
 #
 class Suma::Eligibility::MemberAssignment < Suma::Postgres::Model(:eligibility_member_assignments)
   set_primary_key [:member_id, :attribute_id, :source_type, :source_member_id, :source_role_id, :source_membership_id]
+  class << self
+    def read_only? = true
+  end
 
   many_to_one :attribute, class: "Suma::Eligibility::Attribute"
   many_to_one :member, class: "Suma::Member"

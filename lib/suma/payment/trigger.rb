@@ -15,7 +15,10 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   plugin :tstzrange_fields, :active_during
   plugin :translated_text, :memo, Suma::TranslatedText
   plugin :translated_text, :receiving_ledger_contribution_text, Suma::TranslatedText
-  plugin Suma::Eligibility::Resource, key: :payment_trigger_id, period: :active_during
+  plugin Suma::Eligibility::Resource,
+         join_table: :eligibility_requirements_payment_triggers,
+         key: :payment_trigger_id,
+         period: :active_during
 
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
 

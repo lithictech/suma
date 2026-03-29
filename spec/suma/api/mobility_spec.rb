@@ -43,7 +43,7 @@ RSpec.describe Suma::API::Mobility, :db do
     it "is limited to vendor services active and available to the user" do
       program = vendor_service.program_pricings.first.program
       attr = Suma::Fixtures.eligibility_attribute.create
-      Suma::Fixtures.eligibility_requirement.attribute(attr).create(resource: program)
+      Suma::Fixtures.eligibility_requirement.attribute(attr).of(program).create
 
       vehicle_fac.loc(20, 120).escooter.create
 
@@ -357,7 +357,7 @@ RSpec.describe Suma::API::Mobility, :db do
 
     it "403s if the provider is not evailable to the member" do
       pp2 = Suma::Fixtures.program_pricing.create
-      Suma::Fixtures.eligibility_requirement.create(resource: pp2.program)
+      Suma::Fixtures.eligibility_requirement.of(pp2.program).create
       b1 = vehicle_fac.loc(0, 0).ebike.create(vendor_service: pp2.vendor_service)
 
       get "/v1/mobility/vehicle", loc: [0, 0], provider_id: pp2.id, type: "ebike"
@@ -437,7 +437,7 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "errors if the member cannot access the service due to eligibility" do
-      Suma::Fixtures.eligibility_requirement.create(resource: program_pricing.program)
+      Suma::Fixtures.eligibility_requirement.of(program_pricing.program).create
 
       post "/v1/mobility/begin_trip", provider_id: program_pricing.id, vehicle_id: vehicle.vehicle_id
 

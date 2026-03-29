@@ -181,9 +181,7 @@ module Suma::AdminAPI::Entities
 
   class EligibilityRequirementEntity < BaseEntity
     include AutoExposeBase
-    expose :resource, with: AutoExposedBaseEntity
-    expose :resource_type
-    expose :resource_label
+    expose :all_resources, as: :resources, with: AutoExposedBaseEntity
     expose :cached_expression_string, as: :expression_formula_str
   end
 

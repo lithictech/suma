@@ -43,7 +43,7 @@ module Suma::Fixtures::PaymentTriggers
 
   decorator :with_eligibility_requirements, presave: true do |*attrs|
     attrs.each do |attr|
-      Suma::Fixtures.eligibility_requirement.attribute(attr).create(resource: self)
+      Suma::Fixtures.eligibility_requirement.attribute(attr).of(self).create
     end
   end
 

@@ -171,11 +171,6 @@ Sequel.migration do
       timestamptz :updated_at
       foreign_key :created_by_id, :members, on_delete: :set_null
 
-      foreign_key :program_id, :programs, index: true, on_delete: :cascade
-      foreign_key :payment_trigger_id, :payment_triggers, index: true, on_delete: :cascade
-      constraint :unambiguous_resource,
-                 Sequel.unambiguous_constraint([:program_id, :payment_trigger_id])
-
       foreign_key :expression_id, :eligibility_expressions, null: false, on_delete: :restrict
 
       column :cached_attribute_ids, "integer[]", index: true, null: false
@@ -188,5 +183,15 @@ Sequel.migration do
             name: :eligibility_requirements_search_content_tsvector_index,
             type: :gin
     end
+
+    create_join_table(
+      {requirement_id: :eligibility_requirements, payment_trigger_id: :payment_triggers},
+      name: :eligibility_requirements_payment_triggers,
+    )
+
+    create_join_table(
+      {requirement_id: :eligibility_requirements, program_id: :programs},
+      name: :eligibility_requirements_programs,
+    )
   end
 end

@@ -22,6 +22,6 @@ module Suma::Fixtures::EligibilityAttributes
 
   decorator :between, presave: true do |assignee, resource|
     Suma::Fixtures.eligibility_assignment.of(self).to(assignee).create
-    Suma::Fixtures.eligibility_requirement.attribute(self).create(resource:)
+    Suma::Fixtures.eligibility_requirement.attribute(self).of(resource).create
   end
 end

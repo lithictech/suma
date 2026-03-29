@@ -14,31 +14,20 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
 
   many_to_one :expression, class: "Suma::Eligibility::Expression"
 
-  many_to_one :program, class: "Suma::Program"
-  many_to_one :payment_trigger, class: "Suma::Payment::Trigger"
-  RESOURCE_ASSOCIATIONS = [:program, :payment_trigger].freeze
+  many_to_many :programs,
+               class: "Suma::Program",
+               join_table: :eligibility_requirements_programs,
+               left_key: :requirement_id,
+               right_key: :program_id,
+               order: order_desc
+  many_to_many :payment_triggers,
+               class: "Suma::Payment::Trigger",
+               join_table: :eligibility_requirements_payment_triggers,
+               left_key: :requirement_id,
+               right_key: :payment_trigger_id,
+               order: order_desc
 
-  dataset_module do
-    # @param resource [Suma::Eligibility::Resource::InstanceMethods]
-    def for_resource(resource)
-      conds = resource.requirement_where_condition
-      return self.where(conds)
-    end
-  end
-
-  def resource = self.unambiguous_association(RESOURCE_ASSOCIATIONS)
-
-  def resource=(o)
-    self.set_ambiguous_association(RESOURCE_ASSOCIATIONS, o)
-  end
-
-  def resource_type = self.unambiguous_association_name(RESOURCE_ASSOCIATIONS)
-
-  def resource_label
-    r = self.resource
-    return r.name.en if r.is_a?(Suma::Program)
-    return r.label
-  end
+  def all_resources = self.programs + self.payment_triggers
 
   # Replace an expression with a serialized version (usually from an endpoint).
   # If the serialized version is the same as the current serialized expression, noop.
@@ -62,8 +51,8 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
   def hybrid_search_fields
     return [
       :cached_expression_string,
-      ["Program", self.program&.name],
-      ["Payment Trigger", self.payment_trigger&.label],
+      ["Programs", self.programs.map(&:name)],
+      ["Payment Triggers", self.payment_triggers.map(&:label)],
     ]
   end
 

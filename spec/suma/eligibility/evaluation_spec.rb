@@ -34,13 +34,13 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       trigger40 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 40%")
       trigger20 = Suma::Fixtures.payment_trigger.create(label: "Discount AMI 20%")
 
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger80).
+      Suma::Fixtures.eligibility_requirement.of(trigger80).create.
         expression.update(type: "attribute", operator: nil, attribute: ami80)
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger60).
+      Suma::Fixtures.eligibility_requirement.of(trigger60).create.
         expression.update(type: "attribute", operator: nil, attribute: ami60)
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger40).
+      Suma::Fixtures.eligibility_requirement.of(trigger40).create.
         expression.update(type: "attribute", operator: nil, attribute: ami40)
-      Suma::Eligibility::Requirement.create(payment_trigger: trigger20).
+      Suma::Fixtures.eligibility_requirement.of(trigger20).create.
         expression.update(type: "attribute", operator: nil, attribute: ami20)
 
       expect(member.evaluate_eligibility_access_to(trigger80)).to be_access
@@ -60,7 +60,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       attr2 = Suma::Eligibility::Attribute.create(name: "Attr2")
       payment_trigger = Suma::Fixtures.payment_trigger.create
 
-      expr = Suma::Eligibility::Requirement.create(payment_trigger:).expression
+      expr = Suma::Fixtures.eligibility_requirement.of(payment_trigger).create.expression
       expr.update(
         left: Suma::Fixtures.eligibility_expression.attribute(attr1).create,
         right: Suma::Fixtures.eligibility_expression.attribute(attr2).create,
@@ -69,31 +69,31 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
 
       # Using an OR should allow access
       Suma::Eligibility::Assignment.create(role:, attribute: attr1)
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to be_access
 
       # AND is missing attr2
       expr.update(operator: "AND")
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to_not be_access
 
       # We add attr2 so AND should work
       attr2_assignment = Suma::Eligibility::Assignment.create(role:, attribute: attr2)
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to be_access
 
       # Remove attr2 again
       attr2_assignment.destroy
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to_not be_access
 
       # Multiple requirements should work like OR
-      Suma::Eligibility::Requirement.create(payment_trigger:).expression.
+      Suma::Fixtures.eligibility_requirement.of(payment_trigger).create.expression.
         update(type: "attribute", attribute: attr1, operator: nil)
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to be_access
     end
 
     it "uses boolean logic 2 (empty binary operand)" do
       member = Suma::Fixtures.member.create
 
       payment_trigger = Suma::Fixtures.payment_trigger.create(label: "trigger1")
-      Suma::Eligibility::Requirement.create(payment_trigger: payment_trigger).
+      Suma::Fixtures.eligibility_requirement.of(payment_trigger).create.
         expression.
         update(
           left: nil,
@@ -105,7 +105,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
           ).create,
         )
 
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to_not be_access
     end
 
     it "uses boolean logic 3 (unary not)" do
@@ -114,7 +114,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       Suma::Fixtures.eligibility_assignment.of(attr).to(member).create
 
       payment_trigger = Suma::Fixtures.payment_trigger.create(label: "trigger1")
-      expr = Suma::Eligibility::Requirement.create(payment_trigger: payment_trigger).expression
+      expr = Suma::Fixtures.eligibility_requirement.of(payment_trigger).create.expression
 
       expr.update(
         type: "unary",
@@ -123,7 +123,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       )
 
       # NOT attr1
-      expect(member.evaluate_eligibility_access_to(payment_trigger)).to_not be_access
+      expect(member.evaluate_eligibility_access_to(payment_trigger.refresh)).to_not be_access
 
       expr.update(
         type: "unary",
@@ -134,6 +134,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
         ).create,
       )
       # NOT NOT attr1
+      payment_trigger.refresh
       expect(member.evaluate_eligibility_access_to(payment_trigger)).to be_access
     end
 
@@ -147,7 +148,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
         program = Suma::Fixtures.program.create
 
         expect(member.evaluate_eligibility_access_to(program)).to be_access
-        Suma::Fixtures.eligibility_requirement.create(resource: program)
+        Suma::Fixtures.eligibility_requirement.of(program).create
         expect(member.evaluate_eligibility_access_to(program)).to_not be_access
       end
     end
@@ -181,7 +182,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
 
     trigger1 = Suma::Fixtures.payment_trigger.create(label: "trigger1")
 
-    Suma::Eligibility::Requirement.create(payment_trigger: trigger1).
+    Suma::Fixtures.eligibility_requirement.of(trigger1).create.
       expression.
       update(
         left: Suma::Fixtures.eligibility_expression.attribute(attr1).create,
@@ -203,7 +204,7 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
           ],
         ).create,
       )
-    Suma::Eligibility::Requirement.create(payment_trigger: trigger1).
+    Suma::Fixtures.eligibility_requirement.of(trigger1).create.
       expression.
       update(
         left: nil,
@@ -222,8 +223,8 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
       +--------------------------------------------------------+--------+
       | Expression                                             | Result |
       +--------------------------------------------------------+--------+
-      | ('attr1' AND ('attr2' OR ((NOT 'attr3') AND 'attr4'))) | PASS   |
       | 'attr6'                                                | fail   |
+      | ('attr1' AND ('attr2' OR ((NOT 'attr3') AND 'attr4'))) | PASS   |
       +--------------------------------------------------------+--------+
     STR
     expect(txt_tbl[:assignments]).to eq(<<~STR.strip)
@@ -248,8 +249,8 @@ RSpec.describe Suma::Eligibility::Evaluation, :db do
     struct_tbl = evaled.to_structured_tables
     expect(struct_tbl[:expressions]).to match_array(
       [
-        have_attributes(formula: "('attr1' AND ('attr2' OR ((NOT 'attr3') AND 'attr4')))", passed: true),
         have_attributes(formula: "'attr6'", passed: false),
+        have_attributes(formula: "('attr1' AND ('attr2' OR ((NOT 'attr3') AND 'attr4')))", passed: true),
       ],
     )
     expect(struct_tbl[:assignments]).to match_array(

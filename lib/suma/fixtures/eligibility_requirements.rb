@@ -11,8 +11,17 @@ module Suma::Fixtures::EligibilityRequirements
   end
 
   before_saving do |instance|
-    instance.resource ||= Suma::Fixtures.send([:program, :payment_trigger].sample).create
     instance
+  end
+
+  decorator :of, presave: true do |o|
+    if o.is_a?(Suma::Program)
+      self.add_program(o)
+    elsif o.is_a?(Suma::Payment::Trigger)
+      self.add_payment_trigger(o)
+    else
+      raise ArgumentError, "invalid requirement resource #{o}"
+    end
   end
 
   decorator :attribute do |attr={}|

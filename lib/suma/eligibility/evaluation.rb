@@ -5,10 +5,13 @@ require "suma/terminal"
 
 class Suma::Eligibility::Evaluation
   class << self
+    # Evaluate access to a resource, or an array of eligibility requirements
+    # (used when testing a requirement without a resource).
+    #
     # @param member [Suma::Member]
-    # @param resource [Suma::Eligibility::Resource::InstanceMethods]
+    # @param resource [Suma::Eligibility::Resource::InstanceMethods,Array<Suma::Eligibility::Requirement>]
     def evaluate(member, resource)
-      requirements = Suma::Eligibility::Requirement.for_resource(resource).all
+      requirements = resource.respond_to?(:eligibility_requirements) ? resource.eligibility_requirements : resource
       expressions = requirements.map(&:expression)
       # Pull the attributes from the expression, NOT the member.
       # This avoids looking at all attributes the member has,

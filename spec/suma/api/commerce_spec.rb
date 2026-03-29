@@ -136,7 +136,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "403s if the member cannot access the offering due to eligibility" do
       program = offering.add_program(Suma::Fixtures.program.create)
-      Suma::Fixtures.eligibility_requirement.create(resource: program)
+      Suma::Fixtures.eligibility_requirement.of(program).create
 
       get "/v1/commerce/offerings/#{offering.id}"
 
@@ -197,7 +197,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "403s if the member cannot access the offering due to eligibility" do
       program = offering.add_program(Suma::Fixtures.program.create)
-      Suma::Fixtures.eligibility_requirement.create(resource: program)
+      Suma::Fixtures.eligibility_requirement.of(program).create
 
       put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2
 
@@ -273,7 +273,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "403s if the member cannot access the offering due to eligibility" do
       program = offering.add_program(Suma::Fixtures.program.create)
-      Suma::Fixtures.eligibility_requirement.create(resource: program)
+      Suma::Fixtures.eligibility_requirement.of(program).create
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
@@ -520,7 +520,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "403s if the member cannot access the offering due to eligibility" do
       program = offering.add_program(Suma::Fixtures.program.create)
-      Suma::Fixtures.eligibility_requirement.create(resource: program)
+      Suma::Fixtures.eligibility_requirement.of(program).create
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 

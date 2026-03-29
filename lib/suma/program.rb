@@ -30,7 +30,9 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :translated_text, :description, Suma::TranslatedText
   plugin :translated_text, :app_link_text, Suma::TranslatedText
   plugin :association_pks
-  plugin Suma::Eligibility::Resource
+  plugin Suma::Eligibility::Resource,
+         join_table: :eligibility_requirements_programs,
+         key: :program_id
 
   one_to_many :pricings, class: "Suma::Program::Pricing", order: order_desc
 

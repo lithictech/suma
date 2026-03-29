@@ -18,14 +18,12 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       prog_and = Suma::Fixtures.payment_trigger.create
       prog_or = Suma::Fixtures.payment_trigger.create
       # prog_and has AND (so won't be eligible to member with just 1 attr), prog_or has OR (so will be eligible)
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: prog_and,
-        expression: Suma::Fixtures.eligibility_expression.branch([a1, a2]).and.create,
-      )
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: prog_or,
-        expression: Suma::Fixtures.eligibility_expression.branch([a1, a2]).or.create,
-      )
+      Suma::Fixtures.eligibility_requirement.
+        of(prog_and).
+        create(expression: Suma::Fixtures.eligibility_expression.binary("AND", [a1, a2]).create)
+      Suma::Fixtures.eligibility_requirement.
+        of(prog_or).
+        create(expression: Suma::Fixtures.eligibility_expression.binary("OR", [a1, a2]).create)
       # Assign the first attribute only, so the 'OR' payment_trigger is matched.
       m = Suma::Fixtures.member.create
       Suma::Fixtures.eligibility_assignment(member: m, attribute: a1).create

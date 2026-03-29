@@ -14,17 +14,16 @@ RSpec.describe "Suma::Eligibility::Requirement", :db do
     expect(req.expression.requirement).to be === req
   end
 
-  it "can get and set its resource" do
+  it "has an association to resources" do
     req = Suma::Fixtures.eligibility_requirement.create
     pr = Suma::Fixtures.program.create
     pt = Suma::Fixtures.payment_trigger.create
-    req.resource = pr
-    expect(req).to have_attributes(program: be === pr, payment_trigger: be_nil, resource: be === pr)
-    req.resource = pt
-    expect(req).to have_attributes(program: be_nil, payment_trigger: be === pt, resource: be === pt)
-    req.resource = nil
-    expect(req).to have_attributes(program: be_nil, payment_trigger: be_nil, resource: be_nil)
-    expect { req.resource = 5 }.to raise_error(TypeError, /invalid association type: Integer\(5\)/)
+    req.add_program(pr)
+    req.add_payment_trigger(pt)
+    expect(req.programs).to contain_exactly(be === pr)
+    expect(req.payment_triggers).to contain_exactly(be === pt)
+    expect(pr.eligibility_requirements).to contain_exactly(be === req)
+    expect(pt.eligibility_requirements).to contain_exactly(be === req)
   end
 
   describe "caching" do

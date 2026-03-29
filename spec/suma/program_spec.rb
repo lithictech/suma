@@ -36,7 +36,7 @@ RSpec.describe "Suma::Program", :db do
       no_assignment = Suma::Fixtures.program.create
       m = Suma::Fixtures.member.create
       assignment = Suma::Fixtures.eligibility_assignment(member: m).create
-      Suma::Fixtures.eligibility_requirement.attribute(assignment.attribute).create(resource: prog)
+      Suma::Fixtures.eligibility_requirement.attribute(assignment.attribute).of(prog).create
       expect(described_class.dataset.potentially_eligible_to(m).all).to have_same_ids_as(
         prog,
         # NOTE: This test will/should fail when we start excluding rows that cannot possibly match.
@@ -52,14 +52,12 @@ RSpec.describe "Suma::Program", :db do
       prog_and = Suma::Fixtures.program.create
       prog_or = Suma::Fixtures.program.create
       # prog_and has AND (so won't be eligible to member with just 1 attr), prog_or has OR (so will be eligible)
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: prog_and,
-        expression: Suma::Fixtures.eligibility_expression.branch([a1, a2]).and.create,
-      )
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: prog_or,
-        expression: Suma::Fixtures.eligibility_expression.branch([a1, a2]).or.create,
-      )
+      Suma::Fixtures.eligibility_requirement.
+        of(prog_and).
+        create(expression: Suma::Fixtures.eligibility_expression.binary("AND", [a1, a2]).and.create)
+      Suma::Fixtures.eligibility_requirement.
+        of(prog_or).
+        create(expression: Suma::Fixtures.eligibility_expression.binary("AND", [a1, a2]).or.create)
       # Assign the first attribute only, so the 'OR' program is matched.
       m = Suma::Fixtures.member.create
       Suma::Fixtures.eligibility_assignment(member: m, attribute: a1).create
@@ -74,19 +72,16 @@ RSpec.describe "Suma::Program", :db do
       prog_and = Suma::Fixtures.program.create
       prog_or = Suma::Fixtures.program.create
       # prog_and has AND (so won't be eligible to member with just 1 attr), prog_or has OR (so will be eligible)
-      expr_fac = Suma::Fixtures.eligibility_expression.branch([a1, a2])
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: prog_and,
-        expression: expr_fac.and.create,
-      )
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: prog_or,
-        expression: expr_fac.or.create,
-      )
-      Suma::Fixtures.eligibility_requirement.create(
-        resource: expired,
-        expression: expr_fac.or.create,
-      )
+      expr_fac = Suma::Fixtures.eligibility_expression.binary("AND", [a1, a2])
+      Suma::Fixtures.eligibility_requirement.
+        of(prog_and).
+        create(expression: expr_fac.and.create)
+      Suma::Fixtures.eligibility_requirement.
+        of(prog_or).
+        create(expression: expr_fac.or.create)
+      Suma::Fixtures.eligibility_requirement.
+        of(expired).
+        create(expression: expr_fac.or.create)
       # Assign the first attribute only, so the 'OR' program is matched.
       m = Suma::Fixtures.member.create
       Suma::Fixtures.eligibility_assignment(member: m, attribute: a1).create

@@ -155,7 +155,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
       Timecop.freeze("2022-12-15T12:00:15Z") do
         # Enroll only in the program the user is in, with a lyft pass program id
         not_available = Suma::Fixtures.program.create(lyft_pass_program_id: "12")
-        Suma::Fixtures.eligibility_requirement.create(resource: not_available)
+        Suma::Fixtures.eligibility_requirement.of(not_available).create
         available = Suma::Fixtures.program.create(lyft_pass_program_id: "34")
         va.auth_to_vendor.auth(now:)
       end
