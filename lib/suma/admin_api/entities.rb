@@ -5,9 +5,9 @@ require "grape_entity"
 require "suma/service/entities"
 
 module Suma::AdminAPI::Entities
-  MoneyEntity = Suma::Service::Entities::Money
-  LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
-  AddressEntity = Suma::Service::Entities::Address
+  class MoneyEntity < Suma::Service::Entities::Money; end
+  class LegalEntityEntity < Suma::Service::Entities::LegalEntityEntity; end
+  class AddressEntity < Suma::Service::Entities::Address; end
 
   class TranslatedTextEntity < Suma::Service::Entities::Base
     expose :en
@@ -43,6 +43,7 @@ module Suma::AdminAPI::Entities
       ctx.expose :created_at, if: ->(o) { o.respond_to?(:created_at) }
       ctx.expose :soft_deleted_at, if: ->(o) { o.respond_to?(:soft_deleted_at) }
       ctx.expose :admin_link, if: ->(o, _) { o.respond_to?(:admin_link) }
+      ctx.expose :admin_label, as: :label, if: ->(o, _) { o.respond_to?(:admin_label) }
     end
   end
 
@@ -63,6 +64,11 @@ module Suma::AdminAPI::Entities
     end
   end
 
+  # Entity with no custom fields except those from AutoExposeBase.
+  class AutoExposedBaseEntity < BaseEntity
+    include AutoExposeBase
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :impersonating, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonating
@@ -72,7 +78,6 @@ module Suma::AdminAPI::Entities
   class RoleEntity < BaseEntity
     include AutoExposeBase
     expose :name
-    expose :label
   end
 
   class OrganizationEntity < BaseEntity
@@ -287,7 +292,6 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :name
     expose :account_name, &self.delegate_to(:account, :display_name)
-    expose :admin_label
   end
 
   class SimplePaymentAccountEntity < BaseEntity
@@ -333,9 +337,6 @@ module Suma::AdminAPI::Entities
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
     expose :balance, with: MoneyEntity
-    expose :label do |inst|
-      inst.vendor_service_categories.map(&:name).sort.join(", ")
-    end
   end
 
   class DetailedPaymentAccountEntity < BaseEntity
@@ -353,7 +354,6 @@ module Suma::AdminAPI::Entities
   class PaymentTriggerEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :label
     expose :active_during_begin
     expose :active_during_end
   end
@@ -444,14 +444,12 @@ module Suma::AdminAPI::Entities
 
   class MarketingListEntity < BaseEntity
     include AutoExposeBase
-    expose :label
     expose :managed
   end
 
   class MarketingSmsBroadcastEntity < BaseEntity
     include AutoExposeBase
     expose :sent_at
-    expose :label
   end
 
   class MarketingSmsDispatchEntity < BaseEntity

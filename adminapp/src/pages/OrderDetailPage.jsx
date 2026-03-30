@@ -50,7 +50,7 @@ export default function OrderDetailPage() {
             { label: "Total", value: <Money>{model.checkout.total}</Money> },
             {
               label: "Instrument",
-              value: model.checkout.paymentInstrument?.adminLabel,
+              value: model.checkout.paymentInstrument?.label,
             },
             {
               label: "Fulfillment (En)",

@@ -47,7 +47,7 @@ export default function PaymentLedgerDetailPage() {
           rows={model.unbalancedCounterparties}
           getKey={(row) => row.ledger.id}
           toCells={(row) => [
-            <AdminLink model={row.ledger}>{row.ledger.adminLabel}</AdminLink>,
+            <AdminLink model={row.ledger}>{row.ledger.label}</AdminLink>,
             <Money>{row.amount}</Money>,
           ]}
         />,

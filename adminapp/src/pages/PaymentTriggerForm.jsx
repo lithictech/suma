@@ -186,7 +186,7 @@ export default function PaymentTriggerForm({
           {...register("originatingLedger")}
           label="Originating Ledger"
           helperText="Where is the money coming from?"
-          value={resource.originatingLedger?.adminLabel || ""}
+          value={resource.originatingLedger?.label || ""}
           required
           search={api.searchLedgers}
           style={{ flex: 1, width: "100%" }}
