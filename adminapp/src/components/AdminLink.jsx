@@ -19,3 +19,12 @@ const AdminLink = React.forwardRef(function AdminLink(
 });
 
 export default AdminLink;
+
+AdminLink.Array = function (array, cb, sep = <></>) {
+  return array.map((o, i) => (
+    <React.Fragment key={JSON.stringify(o) + i}>
+      {cb(o)}
+      {i === array.length - 1 ? null : sep}
+    </React.Fragment>
+  ));
+};
