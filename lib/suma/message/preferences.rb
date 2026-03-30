@@ -123,6 +123,7 @@ end
 #  account_updates_email_optout | boolean                  | NOT NULL DEFAULT false
 #  marketing_sms_optout         | boolean                  | NOT NULL DEFAULT false
 #  marketing_email_optout       | boolean                  | NOT NULL DEFAULT false
+#  sms_undeliverable_at         | timestamp with time zone |
 # Indexes:
 #  message_preferences_pkey             | PRIMARY KEY btree (id)
 #  message_preferences_access_token_key | UNIQUE btree (access_token)
