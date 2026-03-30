@@ -22,7 +22,7 @@ class Suma::TypedStruct
         has_setter = methods.include?(:"#{m}=")
         if has_setter
           @_accessors << m
-        elsif !m.to_s.end_with?("=")
+        elsif !m.to_s.end_with?("=") && !m.to_s.end_with?("?")
           @_accessors << m
           @_accessors_without_writers << m
         end
@@ -80,5 +80,6 @@ class Suma::TypedStruct
     return "#{self.class.name}(#{kvps})"
   end
 
-  def as_json = self.class._accessors.to_h { |k| [k, self[k]] }.as_json
+  def to_h = self.class._accessors.to_h { |k| [k, self[k]] }
+  def as_json = self.to_h.as_json
 end

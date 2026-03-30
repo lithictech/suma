@@ -13,6 +13,8 @@ RSpec.describe Suma::TypedStruct do
         def z=(_)
           :not_see_this
         end
+
+        def x? = true
       end
       expect(t.new(x: "x", y: :y).inspect).to eq('(a: :a, x: "x", y: :y, z: :z)')
       t.new.z = 5 # Used to hit coverage on the z= method
