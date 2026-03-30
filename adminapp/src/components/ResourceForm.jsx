@@ -1,11 +1,12 @@
 import api from "../api";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { isNil, mergeWith } from "lodash";
 import assign from "lodash/assign";
 import isArray from "lodash/isArray";
-import { isObject } from "lodash/lang";
+import isNil from "lodash/isNil";
+import isObject from "lodash/isObject";
 import merge from "lodash/merge";
+import mergeWith from "lodash/mergeWith";
 import set from "lodash/set";
 import React from "react";
 import { useForm } from "react-hook-form";
