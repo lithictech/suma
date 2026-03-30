@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/admin_api"
+
 class Suma::AdminAPI::Access
   ALL = Suma::Member::RoleAccess::ADMIN_ACCESS
   MEMBERS = Suma::Member::RoleAccess::ADMIN_MEMBERS
