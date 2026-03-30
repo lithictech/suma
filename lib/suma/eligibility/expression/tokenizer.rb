@@ -125,7 +125,7 @@ module Suma::Eligibility::Expression::Tokenizer
       @index = index
       @reason = reason
       @value = value
-      v = (@value || '').empty? ? "" : " #{@value}"
+      v = (@value || "").empty? ? "" : " #{@value}"
       super("#{@reason}: (#{@index})#{v}")
     end
   end
@@ -133,7 +133,7 @@ module Suma::Eligibility::Expression::Tokenizer
   class ExpressionParser
     include Suma::Eligibility::Expression::Serializer::Nodes
 
-    INFIX_BP = { "AND" => 10, "OR" => 5 }.freeze
+    INFIX_BP = {"AND" => 10, "OR" => 5}.freeze
 
     # @param tokens [Array<Suma::Eligibility::Expression::Tokenizer::Token>]
     def initialize(tokens)
@@ -148,10 +148,8 @@ module Suma::Eligibility::Expression::Tokenizer
       return node
     end
 
-    private
-
     # @return [Suma::Eligibility::Expression::Serializer::Node]
-    def parse_expr(min_bp)
+    private def parse_expr(min_bp)
       left = self.parse_prefix
 
       loop do
@@ -171,13 +169,13 @@ module Suma::Eligibility::Expression::Tokenizer
     end
 
     # @return [Suma::Eligibility::Expression::Serializer::Node]
-    def parse_prefix
+    private def parse_prefix
       t = self.peek_token
-      raise ParseError.new(@pos-1, "unexpected end of input", self.prev_token&.value) unless t
+      raise ParseError.new(@pos - 1, "unexpected end of input", self.prev_token&.value) unless t
 
       case t.type
         when PAREN
-          raise ParseError.new(@pos, "invalid parenthesis id", t.id) unless '()'.include?(t.id)
+          raise ParseError.new(@pos, "invalid parenthesis id", t.id) unless "()".include?(t.id)
           raise ParseError.new(@pos, "unexpected )") if t.id == ")"
           self.consume_token
           inner = self.parse_expr(0)
@@ -198,12 +196,12 @@ module Suma::Eligibility::Expression::Tokenizer
     end
 
     # @return [Suma::Eligibility::Expression::Tokenizer::Token]
-    def peek_token = @tokens[@pos]
+    private def peek_token = @tokens[@pos]
     # @return [Suma::Eligibility::Expression::Tokenizer::Token,nil]
-    def prev_token = @pos.zero? ? nil : @tokens[@pos-1]
+    private def prev_token = @pos.zero? ? nil : @tokens[@pos - 1]
     # @return [Suma::Eligibility::Expression::Tokenizer::Token]
-    def next_token = @tokens[@pos+1]
+    private def next_token = @tokens[@pos + 1]
 
-    def consume_token = @tokens[@pos].tap { @pos += 1 }
+    private def consume_token = @tokens[@pos].tap { @pos += 1 }
   end
 end

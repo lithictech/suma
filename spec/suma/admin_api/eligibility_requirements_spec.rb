@@ -159,16 +159,16 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
               fqn: "x",
             },
             op: "AND",
-            "right": {
-              "attr": 2,
-              "name": "y",
-              "fqn": "y"
+            right: {
+              attr: 2,
+              name: "y",
+              fqn: "y",
             },
           },
-          "error_index": nil,
-          "error_value": nil,
-          "error_reason": nil,
-          "error_message": nil,
+          error_index: nil,
+          error_value: nil,
+          error_reason: nil,
+          error_message: nil,
         )
     end
 
@@ -183,11 +183,11 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(
-          "node": nil,
-          "error_index": 1,
-          "error_value": "AND",
-          "error_reason": "unexpected end of input",
-          "error_message": "unexpected end of input: (1) AND"
+          node: nil,
+          error_index: 1,
+          error_value: "AND",
+          error_reason: "unexpected end of input",
+          error_message: "unexpected end of input: (1) AND",
         )
     end
   end
