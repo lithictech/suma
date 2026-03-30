@@ -69,8 +69,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
         {id: ")", label: ")", type: :paren, value: ")"},
       )
       result = described_class.detokenize(tokens)
-      expect(result.warnings).to eq([])
-      expect(result.serialized).to eq(
+      expect(result.node.to_h).to eq(
         {
           left: {attr: 5, name: "A", fqn: "A.B"},
           op: "AND",
@@ -87,41 +86,9 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
       )
     end
 
-    it "handles partially valid expressions" do
-      tokens = arr2tok(
-        {id: 5, label: "A", type: :variable, value: "A.B"},
-        {id: "AND", label: "AND", type: :operator, value: "AND"},
-        {id: "(", label: "(", type: :paren, value: "("},
-        {id: "(", label: "(", type: :paren, value: "("},
-        {id: 5, label: "A", type: :variable, value: "A.B"},
-        {id: "AND", label: "AND", type: :operator, value: "AND"},
-        {id: 6, label: "B", type: :variable, value: "B"},
-        {id: ")", label: ")", type: :paren, value: ")"},
-        {id: "OR", label: "OR", type: :operator, value: "OR"},
-        {id: ")", label: ")", type: :paren, value: ")"},
-      )
-      result = described_class.detokenize(tokens)
-      expect(result.warnings.map(&:to_s)).to eq(["operator before ) is invalid: (9)"])
-      expect(result.serialized).to eq(
-        {
-          left: {attr: 5, name: "A", fqn: "A.B"},
-          op: "AND",
-          right: {
-            left: {
-              left: {attr: 5, name: "A", fqn: "A.B"},
-              op: "AND",
-              right: {attr: 6, name: "B", fqn: "B"},
-            },
-            op: "OR",
-          },
-        },
-      )
-    end
-
     it "detokenizes empty tokens" do
       result = described_class.detokenize([])
-      expect(result.warnings.map(&:to_s)).to eq([])
-      expect(result.serialized).to eq({})
+      expect(result.node.to_h).to eq({})
     end
 
     it "handles single attribute tokens" do
@@ -129,8 +96,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
         {id: 5, label: "A", type: :variable, value: "A.B"},
       )
       result = described_class.detokenize(tokens)
-      expect(result.warnings.map(&:to_s)).to eq([])
-      expect(result.serialized).to eq({attr: 5, fqn: "A.B", name: "A"})
+      expect(result.node.to_h).to eq({attr: 5, fqn: "A.B", name: "A"})
     end
 
     it "handles unary operators" do
@@ -139,8 +105,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
         {id: 5, label: "A", type: :variable, value: "A.B"},
       )
       result = described_class.detokenize(tokens)
-      expect(result.warnings.map(&:to_s)).to eq([])
-      expect(result.serialized).to eq(
+      expect(result.node.to_h).to eq(
         {
           left: {attr: 5, fqn: "A.B", name: "A"},
           op: "NOT",
@@ -160,9 +125,26 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
         {id: 7, label: "C", type: :variable, value: "C"},
       )
       result = described_class.detokenize(tokens)
-      expect(result.warnings.map(&:to_s)).to eq([])
-      puts result.serialized
-      expect(result.serialized).to eq({attr: 5, fqn: "A.B", name: "A"})
+      expect(result.node.to_h).to eq(
+        {
+          left: {
+            left: {attr: 5, fqn: "A", name: "A"},
+            op: "AND",
+            right: {
+              left: {attr: 6, fqn: "B", name: "B"},
+              op: "NOT",
+            },
+          },
+          op: "OR",
+          right: {
+            left: {
+              left: {attr: 7, fqn: "C", name: "C"},
+              op: "NOT",
+            },
+            op: "NOT",
+          },
+        },
+      )
     end
 
     describe "validity" do
@@ -171,7 +153,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "AND", label: "AND", type: :foo, value: "AND"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["invalid type: (0) foo"])
+        expect(result.error_message).to eq("invalid type: (0) foo")
       end
 
       it "fails for missing close parens" do
@@ -179,7 +161,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "(", label: "(", type: :paren, value: "("},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["unmatched opening parenthesis: (0)"])
+        expect(result.error_message).to eq("unexpected end of input: (0) (")
       end
 
       it "fails for missing open parens" do
@@ -187,7 +169,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: ")", label: ")", type: :paren, value: ")"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["unmatched closing parenthesis: (0)"])
+        expect(result.error_message).to eq("unexpected ): (0)")
       end
 
       it "fails for empty parens" do
@@ -196,7 +178,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: ")", label: ")", type: :paren, value: ")"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["empty parentheses are not allowed: (0)"])
+        expect(result.error_message).to eq("unexpected ): (1)")
       end
 
       it "fails for invalid paren values" do
@@ -204,7 +186,13 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "x", label: "(", type: :paren, value: "("},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["invalid parenthesis id: (0) x"])
+        expect(result.error_message).to eq("invalid parenthesis id: (0) x")
+
+        tokens = arr2tok(
+          {id: "x", label: ")", type: :paren, value: ")"},
+        )
+        result = described_class.detokenize(tokens)
+        expect(result.error_message).to eq("invalid parenthesis id: (0) x")
       end
 
       it "fails for invalid operators" do
@@ -212,7 +200,15 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "x", label: "AND", type: :operator, value: "AND"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["invalid operator id: (0) x"])
+        expect(result.error_message).to eq("not a unary operator: (0) x")
+
+        tokens = arr2tok(
+          {id: 5, label: "A", type: :variable, value: "A.B"},
+          {id: "x", label: "AND", type: :operator, value: "AND"},
+          {id: 5, label: "A", type: :variable, value: "A.B"},
+        )
+        result = described_class.detokenize(tokens)
+        expect(result.error_message).to eq("not a binary operator: (1) x")
       end
 
       it "fails for misplaced operators" do
@@ -221,7 +217,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: 5, label: "A", type: :variable, value: "A.B"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["cannot appear here: (0) AND"])
+        expect(result.error_message).to eq("not a unary operator: (0) AND")
       end
 
       it "fails for closing operators" do
@@ -230,7 +226,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "AND", label: "AND", type: :operator, value: "AND"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["expression cannot end with operator: (1) AND"])
+        expect(result.error_message).to eq("unexpected end of input: (1) AND")
       end
 
       it "fails for missing operators" do
@@ -239,7 +235,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "x", label: "x", type: :variable, value: "x"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["operator required before variable: (1) x"])
+        expect(result.error_message).to eq("unexpected token: (1) x")
       end
 
       it "fails for operators before parens" do
@@ -250,7 +246,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: ")", label: ")", type: :paren, value: ")"},
         )
         result = described_class.detokenize(tokens)
-        expect(result.warnings.map(&:to_s)).to eq(["operator before ) is invalid: (3)"])
+        expect(result.error_message).to eq("unexpected ): (3)")
       end
     end
   end

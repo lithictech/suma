@@ -35,8 +35,8 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
   # and replace it with a newly created tree from the serialized version.
   # @param serialized [Hash]
   def replace_expression(serialized)
-    existing = self.expression.serialize
-    return if existing == serialized
+    existing = self.expression.serialize.to_h
+    return if existing == serialized.to_h
     self.db.transaction do
       # Since expression_id is non-nullable, we need to create and assign before destroying.
       new_expr = Suma::Eligibility::Expression::Serializer.deserialize(serialized)

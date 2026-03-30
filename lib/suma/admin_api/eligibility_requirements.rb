@@ -47,11 +47,6 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     expose :expressions
   end
 
-  class EditorDetokenizationEntity < BaseEntity
-    expose :serialized
-    expose :warnings, with: EditorDetokenizationWarningEntity
-  end
-
   resource :eligibility_requirements do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
@@ -92,7 +87,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
         expr = rt.params.delete(:expression)
         block.call
         if expr
-          m.replace_expression(expr)
+          m.replace_expression(expr.deep_symbolize_keys)
           m.all_resources.each { |r| r.audit_activity("changedeligibility", action: m.cached_expression_string) }
         end
       end,
@@ -153,10 +148,12 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       post :detokenize do
         check_admin_role_access!(:read, Suma::Eligibility::Requirement)
         dparams = declared(params)
-        tokens = dparams[:tokens].map { |h| Suma::Eligibility::Expression::Tokenizer::Token.new(**h) }
+        tokens = dparams[:tokens].map do |h|
+          Suma::Eligibility::Expression::Tokenizer::Token.new(**h.deep_symbolize_keys)
+        end
         r = Suma::Eligibility::Expression::Tokenizer.detokenize(tokens)
         status 200
-        present r, with: EditorDetokenizationEntity
+        present r.to_h
       end
 
       params do
@@ -175,7 +172,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
 
         (req = Suma::Eligibility::Requirement[params[:requirement_id]]) or forbidden!("no requirement with that id")
         tbls = req.db.transaction(rollback: :always) do
-          req.replace_expression(params[:serialized_expression])
+          req.replace_expression(params[:serialized_expression].deep_symbolize_keys)
           Suma::Eligibility::Evaluation.evaluate(member, [req]).to_structured_tables
         end
         tbls.transform_values! { |a| a.map(&:to_h) }

@@ -19,8 +19,6 @@ module Suma::Eligibility::Expression::Serializer
       # @return [Hash]
       def _to_h = raise NotImplementedError
 
-      def [](key) = self.respond_to?(key) ? self.send(key) : nil
-
       def filled? = raise NotImplementedError
 
       def self.from_h(h)
@@ -85,6 +83,8 @@ module Suma::Eligibility::Expression::Serializer
     end
   end
 
+  include Nodes
+
   class << self
     include Suma::Eligibility::Expression::Constants
     include Nodes
@@ -124,8 +124,8 @@ module Suma::Eligibility::Expression::Serializer
         return Suma::Eligibility::Expression.create(type: ATTRIBUTE, attribute:)
       end
       h = {}
-      h[:left] = _deserialize(node.left) if node[:left]
-      h[:right] = _deserialize(node.right) if node[:right]
+      h[:left] = _deserialize(node.left) if node.respond_to?(:left)
+      h[:right] = _deserialize(node.right) if node.respond_to?(:right)
       h[:operator] = node.op || AND
       h[:type] = UNARY_OPS.include?(node.op) ? UNARY : BINARY
       return Suma::Eligibility::Expression.create(h)

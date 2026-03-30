@@ -146,27 +146,48 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
       post "/v1/eligibility_requirements/editor/detokenize", tokens: [
         tizer::Token.new(id: 1, value: "x", label: "x", type: tizer::VARIABLE).to_h,
         tizer::Token.constant("AND", tizer::OPERATOR).to_h,
+        tizer::Token.new(id: 2, value: "y", label: "y", type: tizer::VARIABLE).to_h,
       ]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(
-          serialized: {
+          node: {
             left: {
               attr: 1,
               name: "x",
               fqn: "x",
             },
             op: "AND",
-          },
-          warnings: [
-            {
-              index: 1,
-              message: "expression cannot end with operator",
-              value: "AND",
-              string: "expression cannot end with operator: (1) AND",
+            "right": {
+              "attr": 2,
+              "name": "y",
+              "fqn": "y"
             },
-          ],
+          },
+          "error_index": nil,
+          "error_value": nil,
+          "error_reason": nil,
+          "error_message": nil,
+        )
+    end
+
+    it "handles invalid expressions" do
+      tizer = Suma::Eligibility::Expression::Tokenizer
+
+      post "/v1/eligibility_requirements/editor/detokenize", tokens: [
+        tizer::Token.new(id: 1, value: "x", label: "x", type: tizer::VARIABLE).to_h,
+        tizer::Token.constant("AND", tizer::OPERATOR).to_h,
+      ]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          "node": nil,
+          "error_index": 1,
+          "error_value": "AND",
+          "error_reason": "unexpected end of input",
+          "error_message": "unexpected end of input: (1) AND"
         )
     end
   end
