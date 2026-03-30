@@ -50,9 +50,7 @@ export default function BookTransactionListPage() {
           label: "Originating",
           align: "center",
           render: (c) => (
-            <AdminLink model={c.originatingLedger}>
-              {c.originatingLedger.adminLabel}
-            </AdminLink>
+            <AdminLink model={c.originatingLedger}>{c.originatingLedger.label}</AdminLink>
           ),
         },
         {
@@ -60,9 +58,7 @@ export default function BookTransactionListPage() {
           label: "Receiving",
           align: "center",
           render: (c) => (
-            <AdminLink model={c.receivingLedger}>
-              {c.receivingLedger.adminLabel}
-            </AdminLink>
+            <AdminLink model={c.receivingLedger}>{c.receivingLedger.label}</AdminLink>
           ),
         },
       ]}

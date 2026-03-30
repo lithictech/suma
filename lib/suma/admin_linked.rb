@@ -15,4 +15,16 @@ module Suma::AdminLinked
     u = URI(Suma.admin_url)
     return u.path + _rel_admin_link
   end
+
+  # Return the appropriate admin label for a resource.
+  # Callers can implement their own admin_label, or this method will make a best-guess.
+  def admin_label
+    return self.label if self.respond_to?(:label)
+    return self.search_label if self.respond_to?(:search_label)
+    if self.respond_to?(:name) && (name = self.name)
+      return name if name.is_a?(String)
+      return name.en if name.respond_to?(:en)
+    end
+    return "#{self.class.name.split('::').last} #{self.pk}"
+  end
 end

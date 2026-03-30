@@ -26,10 +26,10 @@ export default function LedgerBookTransactionsRelatedList({ ledger, title, rows 
             : row.amount}
         </Money>,
         <AdminLink key="originating" model={row.originatingLedger}>
-          {row.originatingLedger.adminLabel}
+          {row.originatingLedger.label}
         </AdminLink>,
         <AdminLink key="receiving" model={row.receivingLedger}>
-          {row.receivingLedger.adminLabel}
+          {row.receivingLedger.label}
         </AdminLink>,
       ]}
     />

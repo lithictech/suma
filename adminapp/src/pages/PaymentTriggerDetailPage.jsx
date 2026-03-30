@@ -58,7 +58,7 @@ export default function PaymentTriggerDetailPage() {
           label: "Originating Ledger",
           value: (
             <AdminLink model={model.originatingLedger}>
-              {model.originatingLedger.adminLabel}
+              {model.originatingLedger.label}
             </AdminLink>
           ),
         },
@@ -92,7 +92,7 @@ export default function PaymentTriggerDetailPage() {
             </AdminLink>,
             formatDate(row.at),
             <AdminLink key="recledger" model={row}>
-              {row.receivingLedger.adminLabel}
+              {row.receivingLedger.label}
             </AdminLink>,
           ]}
         />,

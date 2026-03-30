@@ -80,7 +80,8 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
   def verified? = self[:verified]
   def institution_name = self[:institution_name]
   def refetch_remote_data = nil
-  def reify = Suma::Payment::Instrument.reify([self]).first
+  def reify = (@reified ||= Suma::Payment::Instrument.reify([self])).first
+  def simple_label = self.reify.simple_label
 
   class << self
     def read_only? = true

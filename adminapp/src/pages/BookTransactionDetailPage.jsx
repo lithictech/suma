@@ -25,7 +25,7 @@ export default function BookTransactionDetailPage() {
           label: "Originating",
           value: (
             <AdminLink model={model.originatingLedger}>
-              {model.originatingLedger.adminLabel}
+              {model.originatingLedger.label}
             </AdminLink>
           ),
         },
@@ -33,7 +33,7 @@ export default function BookTransactionDetailPage() {
           label: "Receiving",
           value: (
             <AdminLink model={model.receivingLedger}>
-              {model.receivingLedger.adminLabel}
+              {model.receivingLedger.label}
             </AdminLink>
           ),
         },
