@@ -61,16 +61,18 @@ export default function EligibilityRequirementExpressionEditor({
     api.eligibilityRequirementExpressionEditorDetokenize,
     (r) => {
       const d = r.data;
-      setError(d.warnings.length > 0 ? d.warnings[0].string : "");
-      setExpression(d.serialized);
-      return api
-        .eligibilityRequirementExpressionEditorEvaluate({
-          requirementId: requirement.id,
-          serializedExpression: d.serialized,
-        })
-        .then((r) => {
-          setEvaluationResult(r.data);
-        });
+      setError(d.errorMessage);
+      setExpression(d.node);
+      if (!d.errorMessage) {
+        return api
+          .eligibilityRequirementExpressionEditorEvaluate({
+            requirementId: requirement.id,
+            serializedExpression: d.node,
+          })
+          .then((r) => {
+            setEvaluationResult(r.data);
+          });
+      }
     },
     enqueueErrorSnackbar,
     { wait: 1, maxWait: 10 }

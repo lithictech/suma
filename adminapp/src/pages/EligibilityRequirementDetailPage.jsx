@@ -27,7 +27,6 @@ export default function EligibilityRequirementDetailPage() {
           label: "Formula",
           value: (
             <>
-              <code>{model.expressionFormulaStr}</code>
               <IconButton
                 component={Link}
                 size="small"
@@ -39,6 +38,7 @@ export default function EligibilityRequirementDetailPage() {
               >
                 <EditIcon />
               </IconButton>
+              <code>{model.expressionFormulaStr}</code>
             </>
           ),
         },

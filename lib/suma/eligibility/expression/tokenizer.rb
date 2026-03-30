@@ -143,6 +143,7 @@ module Suma::Eligibility::Expression::Tokenizer
 
     # @return [Suma::Eligibility::Expression::Serializer::Node]
     def parse
+      return BinaryNode.new if @tokens.empty?
       node = parse_expr(0)
       raise ParseError.new(@pos, "unexpected token", @tokens[@pos].value) if @pos < @tokens.size
       return node

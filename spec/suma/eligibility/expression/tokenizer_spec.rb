@@ -89,6 +89,7 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
     it "detokenizes empty tokens" do
       result = described_class.detokenize([])
       expect(result.node.to_h).to eq({})
+      expect(result).to have_attributes(error_index: nil)
     end
 
     it "handles single attribute tokens" do
