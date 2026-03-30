@@ -22,7 +22,7 @@ class Suma::TypedStruct
         has_setter = methods.include?(:"#{m}=")
         if has_setter
           @_accessors << m
-        elsif !m.to_s.end_with?("=") && !m.to_s.end_with?('?')
+        elsif !m.to_s.end_with?("=") && !m.to_s.end_with?("?")
           @_accessors << m
           @_accessors_without_writers << m
         end

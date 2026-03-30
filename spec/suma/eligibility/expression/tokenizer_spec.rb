@@ -19,13 +19,16 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           left: {
             left: {attr: 5, name: "A", fqn: "A.B"},
             op: "AND",
-            right: {attr: 6, name: "B", fqn: "B"},
+            right: {
+              left: {attr: 6, name: "B", fqn: "B"},
+              op: "NOT",
+            },
           },
           op: "OR",
         },
       }
       tokens = described_class.tokenize(ser)
-      expect(tokens.map(&:value).join(" ")).to eq("A.B AND ( ( A.B AND B ) OR )")
+      expect(tokens.map(&:value).join(" ")).to eq("A.B AND ( ( A.B AND ( NOT B ) ) OR )")
       expect(tokens.map(&:to_h)).to match_array(
         [
           {id: 5, label: "A", type: :variable, value: "A.B"},
@@ -34,7 +37,10 @@ RSpec.describe "Suma::Eligibility::Expression::Tokenizer", :db do
           {id: "(", label: "(", type: :paren, value: "("},
           {id: 5, label: "A", type: :variable, value: "A.B"},
           {id: "AND", label: "AND", type: :operator, value: "AND"},
+          {id: "(", label: "(", type: :paren, value: "("},
+          {id: "NOT", label: "NOT", type: :operator, value: "NOT"},
           {id: 6, label: "B", type: :variable, value: "B"},
+          {id: ")", label: ")", type: :paren, value: ")"},
           {id: ")", label: ")", type: :paren, value: ")"},
           {id: "OR", label: "OR", type: :operator, value: "OR"},
           {id: ")", label: ")", type: :paren, value: ")"},

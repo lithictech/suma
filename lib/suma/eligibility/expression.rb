@@ -9,6 +9,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
   many_to_one :attribute, class: "Suma::Eligibility::Attribute"
   one_to_one :requirement, class: "Suma::Eligibility::Requirement"
 
+  # Mixin for easy usage.
   module Constants
     ATTRIBUTE = "attribute"
     UNARY = "unary"
