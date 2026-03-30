@@ -89,7 +89,7 @@ export default function ChargeDetailPage() {
             <AdminLink key="id" model={row} />,
             <Money key="amt">{row.amount}</Money>,
             <AdminLink model={row.receivingLedger}>
-              {row.receivingLedger.adminLabel}
+              {row.receivingLedger.label}
             </AdminLink>,
           ]}
         />,

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/service"
+require "grape_entity"
 
 class Suma::Service::EntityJsdocWriter
   GRAPE_TO_JSDOC = {
@@ -31,7 +32,8 @@ class Suma::Service::EntityJsdocWriter
     Hash => "Object",
   }.freeze
 
-  def self.gather_entity_classes(prefix: nil)
+  def self.gather_entity_classes(glob: nil, prefix: nil)
+    Dir.glob(Suma::SELF_DIR + glob).each { |f| require f } if glob
     classes = ObjectSpace.each_object(Class).select do |klass|
       klass < Grape::Entity &&
         klass.name && # skip anonymous classes
@@ -216,7 +218,7 @@ class Suma::Service::EntityJsdocWriter
     output_lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
     output_lines << "// Entities: #{entity_classes.map(&:name).join(', ')}"
     output_lines << ""
-    output_lines << extra
+    output_lines << extra if extra.present?
 
     entity_classes.each do |klass|
       output_lines.concat(typedef_for(klass))

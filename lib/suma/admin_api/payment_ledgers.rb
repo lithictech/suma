@@ -11,7 +11,6 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :name
-    expose :admin_label
     expose :is_platform_account, &self.delegate_to(:account, :is_platform_account)
     expose :currency
     expose :balance, with: MoneyEntity

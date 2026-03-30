@@ -1,6 +1,6 @@
 // Auto-generated JSDoc typedefs from Grape::Entity
-// Generated: 2026-03-13 12:49:18
-// Entities: Suma::AdminAPI::AnonProxyMemberContacts::DetailedMemberContactEntity, Suma::AdminAPI::AnonProxyVendorAccounts::DetailedVendorAccountEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntity, Suma::AdminAPI::AnonProxyVendorConfigurations::DetailedVendorConfigurationEntity, Suma::AdminAPI::BankAccounts::BankAccountEntity, Suma::AdminAPI::BankAccounts::DetailedBankAccountEntity, Suma::AdminAPI::BookTransactions::DetailedBookTransactionEntity, Suma::AdminAPI::Cards::CardEntity, Suma::AdminAPI::Cards::DetailedCardEntity, Suma::AdminAPI::Charges::ChargeEntityWithMember, Suma::AdminAPI::Charges::DetailedChargeEntity, Suma::AdminAPI::CommerceOfferingProducts::DetailedCommerceOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::DetailedOfferingEntity, Suma::AdminAPI::CommerceOfferings::ListCommerceOfferingEntity, Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntity, Suma::AdminAPI::CommerceOfferings::PicklistEntity, Suma::AdminAPI::CommerceOfferings::PicklistFulfillmentOptionEntity, Suma::AdminAPI::CommerceOfferings::PicklistOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistOrderItemEntity, Suma::AdminAPI::CommerceOfferings::PicklistProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistSimpleMemberEntity, Suma::AdminAPI::CommerceOrders::CheckoutEntity, Suma::AdminAPI::CommerceOrders::CheckoutItemEntity, Suma::AdminAPI::CommerceOrders::DetailedCommerceOrderEntity, Suma::AdminAPI::CommerceOrders::ListOrderEntity, Suma::AdminAPI::CommerceProducts::DetailedEntity, Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntity, Suma::AdminAPI::EligibilityAssignments::DetailedEligibilityAssignment, Suma::AdminAPI::EligibilityAttributes::DetailedEligibilityAttribute, Suma::AdminAPI::EligibilityRequirements::DetailedEligibilityRequirement, Suma::AdminAPI::Entities::ActivityEntity, Suma::AdminAPI::Entities::AddressEntity, Suma::AdminAPI::Entities::AnonProxyMemberContactEntity, Suma::AdminAPI::Entities::AnonProxyVendorAccountEntity, Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntity, Suma::AdminAPI::Entities::AuditLogEntity, Suma::AdminAPI::Entities::AuditMemberEntity, Suma::AdminAPI::Entities::AutoExposedBaseEntity, Suma::AdminAPI::Entities::BaseEntity, Suma::AdminAPI::Entities::BaseOrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::BookTransactionEntity, Suma::AdminAPI::Entities::ChargeEntity, Suma::AdminAPI::Entities::ChargeLineItemEntity, Suma::AdminAPI::Entities::ChargeWithPricesEntity, Suma::AdminAPI::Entities::CurrentMemberEntity, Suma::AdminAPI::Entities::DetailedPaymentAccountEntity, Suma::AdminAPI::Entities::DetailedPaymentAccountLedgerEntity, Suma::AdminAPI::Entities::EligibilityAssignmentEntity, Suma::AdminAPI::Entities::EligibilityAttributeEntity, Suma::AdminAPI::Entities::EligibilityRequirementEntity, Suma::AdminAPI::Entities::FundingTransactionEntity, Suma::AdminAPI::Entities::ImageEntity, Suma::AdminAPI::Entities::LegalEntityEntity, Suma::AdminAPI::Entities::MarketingListEntity, Suma::AdminAPI::Entities::MarketingMemberEntity, Suma::AdminAPI::Entities::MarketingSmsBroadcastEntity, Suma::AdminAPI::Entities::MarketingSmsDispatchEntity, Suma::AdminAPI::Entities::MemberEntity, Suma::AdminAPI::Entities::MessageDeliveryEntity, Suma::AdminAPI::Entities::MobilityTripEntity, Suma::AdminAPI::Entities::MoneyEntity, Suma::AdminAPI::Entities::NamedValueEntity, Suma::AdminAPI::Entities::OfferingEntity, Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntity, Suma::AdminAPI::Entities::OfferingProductEntity, Suma::AdminAPI::Entities::OrderEntity, Suma::AdminAPI::Entities::OrganizationEntity, Suma::AdminAPI::Entities::OrganizationMembershipEntity, Suma::AdminAPI::Entities::OrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::PaymentInstrumentEntity, Suma::AdminAPI::Entities::PaymentStrategyEntity, Suma::AdminAPI::Entities::PaymentTriggerEntity, Suma::AdminAPI::Entities::PayoutTransactionEntity, Suma::AdminAPI::Entities::ProductEntity, Suma::AdminAPI::Entities::ProgramEnrollmentExclusionEntity, Suma::AdminAPI::Entities::ProgramEntity, Suma::AdminAPI::Entities::ProgramPricingEntity, Suma::AdminAPI::Entities::RoleEntity, Suma::AdminAPI::Entities::SimpleLedgerEntity, Suma::AdminAPI::Entities::SimplePaymentAccountEntity, Suma::AdminAPI::Entities::SupportNoteEntity, Suma::AdminAPI::Entities::TranslatedTextEntity, Suma::AdminAPI::Entities::VendorEntity, Suma::AdminAPI::Entities::VendorServiceCategoryEntity, Suma::AdminAPI::Entities::VendorServiceCategoryTerminalEntity, Suma::AdminAPI::Entities::VendorServiceEntity, Suma::AdminAPI::Entities::VendorServiceRateEntity, Suma::AdminAPI::Entities::VendorServiceRateUndiscountedrateEntity, Suma::AdminAPI::Financials::LedgerEntity, Suma::AdminAPI::Financials::OffPlatformTransactionEntity, Suma::AdminAPI::Financials::PlatformStatusEntity, Suma::AdminAPI::FundingTransactions::DetailedFundingTransactionEntity, Suma::AdminAPI::MarketingLists::DetailedListEntity, Suma::AdminAPI::MarketingSmsBroadcasts::DetailedSmsBroadcastEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPayloadEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPostReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPreReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastReviewAssociatedEntity, Suma::AdminAPI::MarketingSmsDispatches::DetailedSmsDispatchEntity, Suma::AdminAPI::Members::DetailedMemberEntity, Suma::AdminAPI::Members::MemberContactEntity, Suma::AdminAPI::Members::MemberOrderEntity, Suma::AdminAPI::Members::MemberResetCodeEntity, Suma::AdminAPI::Members::MemberSessionEntity, Suma::AdminAPI::Members::MemberVendorAccountEntity, Suma::AdminAPI::Members::PreferencesEntity, Suma::AdminAPI::Members::PreferencesSubscriptionEntity, Suma::AdminAPI::Members::ReferralEntity, Suma::AdminAPI::MessageDeliveries::DetailedMessageDeliveryEntity, Suma::AdminAPI::MessageDeliveries::MessageBodyEntity, Suma::AdminAPI::Meta::CurrencyEntity, Suma::AdminAPI::Meta::HierarchicalCategoryEntity, Suma::AdminAPI::Meta::SlimProgramEntity, Suma::AdminAPI::MobilityTrips::DetailedMobilityTripEntity, Suma::AdminAPI::OffPlatformTransactions::DetailedOffPlatformTransactionEntity, Suma::AdminAPI::OrganizationMembershipVerifications::DetailedMembershipVerificationEntity, Suma::AdminAPI::OrganizationMembershipVerifications::VerificationListEntity, Suma::AdminAPI::OrganizationMemberships::DetailedOrganizationMembershipEntity, Suma::AdminAPI::Organizations::DetailedOrganizationEntity, Suma::AdminAPI::PaymentLedgers::DetailedLedgerEntity, Suma::AdminAPI::PaymentLedgers::LedgerEntity, Suma::AdminAPI::PaymentLedgers::UnbalancedCounterpartyEntity, Suma::AdminAPI::PaymentTriggers::DetailedPaymentTriggerEntity, Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntity, Suma::AdminAPI::PayoutTransactions::DetailedPayoutTransactionEntity, Suma::AdminAPI::ProgramPricings::DetailedProgramPricingEntity, Suma::AdminAPI::Programs::DetailedProgramEntity, Suma::AdminAPI::Roles::DetailedRoleEntity, Suma::AdminAPI::Roles::RoleEntity, Suma::AdminAPI::Roles::RoleListEntity, Suma::AdminAPI::Search::SearchCommerceOfferingEntity, Suma::AdminAPI::Search::SearchLedgerEntity, Suma::AdminAPI::Search::SearchMemberEntity, Suma::AdminAPI::Search::SearchOfferingEntity, Suma::AdminAPI::Search::SearchOrganizationEntity, Suma::AdminAPI::Search::SearchPaymentInstrumentEntity, Suma::AdminAPI::Search::SearchProductEntity, Suma::AdminAPI::Search::SearchProgramEntity, Suma::AdminAPI::Search::SearchRoleEntity, Suma::AdminAPI::Search::SearchStaticStringEntity, Suma::AdminAPI::Search::SearchTransactionEntity, Suma::AdminAPI::Search::SearchVendorEntity, Suma::AdminAPI::Search::SearchVendorServiceCategoryEntity, Suma::AdminAPI::Search::SearchVendorServiceEntity, Suma::AdminAPI::Search::SearchVendorServiceRateEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlRowEntity, Suma::AdminAPI::StaticStrings::BaseStaticStringEntity, Suma::AdminAPI::StaticStrings::JoinedStaticStringEntity, Suma::AdminAPI::StaticStrings::StandaloneStaticStringEntity, Suma::AdminAPI::StaticStrings::StaticStringGroup, Suma::AdminAPI::VendorServiceCategories::DetailedVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceCategories::ListVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceRates::DetailedVendorServiceRateEntity, Suma::AdminAPI::VendorServices::DetailedVendorServiceEntity, Suma::AdminAPI::Vendors::DetailedVendorEntity
+// Generated: 2026-03-30 11:29:33
+// Entities: Suma::AdminAPI::AnonProxyMemberContacts::DetailedMemberContactEntity, Suma::AdminAPI::AnonProxyVendorAccounts::DetailedVendorAccountEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntity, Suma::AdminAPI::AnonProxyVendorConfigurations::DetailedVendorConfigurationEntity, Suma::AdminAPI::BankAccounts::BankAccountEntity, Suma::AdminAPI::BankAccounts::DetailedBankAccountEntity, Suma::AdminAPI::BookTransactions::DetailedBookTransactionEntity, Suma::AdminAPI::Cards::CardEntity, Suma::AdminAPI::Cards::DetailedCardEntity, Suma::AdminAPI::Charges::ChargeEntityWithMember, Suma::AdminAPI::Charges::DetailedChargeEntity, Suma::AdminAPI::CommerceOfferingProducts::DetailedCommerceOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::DetailedOfferingEntity, Suma::AdminAPI::CommerceOfferings::ListCommerceOfferingEntity, Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntity, Suma::AdminAPI::CommerceOfferings::PicklistEntity, Suma::AdminAPI::CommerceOfferings::PicklistFulfillmentOptionEntity, Suma::AdminAPI::CommerceOfferings::PicklistOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistOrderItemEntity, Suma::AdminAPI::CommerceOfferings::PicklistProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistSimpleMemberEntity, Suma::AdminAPI::CommerceOrders::CheckoutEntity, Suma::AdminAPI::CommerceOrders::CheckoutItemEntity, Suma::AdminAPI::CommerceOrders::DetailedCommerceOrderEntity, Suma::AdminAPI::CommerceOrders::ListOrderEntity, Suma::AdminAPI::CommerceProducts::DetailedEntity, Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntity, Suma::AdminAPI::Entities::ActivityEntity, Suma::AdminAPI::Entities::AddressEntity, Suma::AdminAPI::Entities::AnonProxyMemberContactEntity, Suma::AdminAPI::Entities::AnonProxyVendorAccountEntity, Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntity, Suma::AdminAPI::Entities::AuditLogEntity, Suma::AdminAPI::Entities::AuditMemberEntity, Suma::AdminAPI::Entities::AutoExposedBaseEntity, Suma::AdminAPI::Entities::BaseEntity, Suma::AdminAPI::Entities::BaseOrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::BookTransactionEntity, Suma::AdminAPI::Entities::ChargeEntity, Suma::AdminAPI::Entities::ChargeLineItemEntity, Suma::AdminAPI::Entities::ChargeWithPricesEntity, Suma::AdminAPI::Entities::CurrentMemberEntity, Suma::AdminAPI::Entities::DetailedPaymentAccountEntity, Suma::AdminAPI::Entities::DetailedPaymentAccountLedgerEntity, Suma::AdminAPI::Entities::FundingTransactionEntity, Suma::AdminAPI::Entities::ImageEntity, Suma::AdminAPI::Entities::LegalEntityEntity, Suma::AdminAPI::Entities::MarketingListEntity, Suma::AdminAPI::Entities::MarketingMemberEntity, Suma::AdminAPI::Entities::MarketingSmsBroadcastEntity, Suma::AdminAPI::Entities::MarketingSmsDispatchEntity, Suma::AdminAPI::Entities::MemberEntity, Suma::AdminAPI::Entities::MessageDeliveryEntity, Suma::AdminAPI::Entities::MobilityTripEntity, Suma::AdminAPI::Entities::MoneyEntity, Suma::AdminAPI::Entities::NamedValueEntity, Suma::AdminAPI::Entities::OfferingEntity, Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntity, Suma::AdminAPI::Entities::OfferingProductEntity, Suma::AdminAPI::Entities::OrderEntity, Suma::AdminAPI::Entities::OrganizationEntity, Suma::AdminAPI::Entities::OrganizationMembershipEntity, Suma::AdminAPI::Entities::OrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::PaymentInstrumentEntity, Suma::AdminAPI::Entities::PaymentStrategyEntity, Suma::AdminAPI::Entities::PaymentTriggerEntity, Suma::AdminAPI::Entities::PayoutTransactionEntity, Suma::AdminAPI::Entities::ProductEntity, Suma::AdminAPI::Entities::ProgramEnrolleeEntity, Suma::AdminAPI::Entities::ProgramEnrollmentEntity, Suma::AdminAPI::Entities::ProgramEnrollmentExclusionEntity, Suma::AdminAPI::Entities::ProgramEntity, Suma::AdminAPI::Entities::ProgramPricingEntity, Suma::AdminAPI::Entities::RoleEntity, Suma::AdminAPI::Entities::SimpleLedgerEntity, Suma::AdminAPI::Entities::SimplePaymentAccountEntity, Suma::AdminAPI::Entities::SupportNoteEntity, Suma::AdminAPI::Entities::TranslatedTextEntity, Suma::AdminAPI::Entities::VendorEntity, Suma::AdminAPI::Entities::VendorServiceCategoryEntity, Suma::AdminAPI::Entities::VendorServiceCategoryTerminalEntity, Suma::AdminAPI::Entities::VendorServiceEntity, Suma::AdminAPI::Entities::VendorServiceRateEntity, Suma::AdminAPI::Entities::VendorServiceRateUndiscountedrateEntity, Suma::AdminAPI::Financials::LedgerEntity, Suma::AdminAPI::Financials::OffPlatformTransactionEntity, Suma::AdminAPI::Financials::PlatformStatusEntity, Suma::AdminAPI::FundingTransactions::DetailedFundingTransactionEntity, Suma::AdminAPI::MarketingLists::DetailedListEntity, Suma::AdminAPI::MarketingSmsBroadcasts::DetailedSmsBroadcastEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPayloadEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPostReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPreReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastReviewAssociatedEntity, Suma::AdminAPI::MarketingSmsDispatches::DetailedSmsDispatchEntity, Suma::AdminAPI::Members::DetailedMemberEntity, Suma::AdminAPI::Members::MemberContactEntity, Suma::AdminAPI::Members::MemberOrderEntity, Suma::AdminAPI::Members::MemberResetCodeEntity, Suma::AdminAPI::Members::MemberSessionEntity, Suma::AdminAPI::Members::MemberVendorAccountEntity, Suma::AdminAPI::Members::PreferencesEntity, Suma::AdminAPI::Members::PreferencesSubscriptionEntity, Suma::AdminAPI::Members::ReferralEntity, Suma::AdminAPI::MessageDeliveries::DetailedMessageDeliveryEntity, Suma::AdminAPI::MessageDeliveries::MessageBodyEntity, Suma::AdminAPI::Meta::CurrencyEntity, Suma::AdminAPI::Meta::HierarchicalCategoryEntity, Suma::AdminAPI::Meta::SlimProgramEntity, Suma::AdminAPI::MobilityTrips::DetailedMobilityTripEntity, Suma::AdminAPI::OffPlatformTransactions::DetailedOffPlatformTransactionEntity, Suma::AdminAPI::OrganizationMembershipVerifications::DetailedMembershipVerificationEntity, Suma::AdminAPI::OrganizationMembershipVerifications::VerificationListEntity, Suma::AdminAPI::OrganizationMemberships::DetailedOrganizationMembershipEntity, Suma::AdminAPI::Organizations::DetailedOrganizationEntity, Suma::AdminAPI::PaymentLedgers::DetailedLedgerEntity, Suma::AdminAPI::PaymentLedgers::LedgerEntity, Suma::AdminAPI::PaymentLedgers::UnbalancedCounterpartyEntity, Suma::AdminAPI::PaymentTriggers::DetailedPaymentTriggerEntity, Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntity, Suma::AdminAPI::PayoutTransactions::DetailedPayoutTransactionEntity, Suma::AdminAPI::ProgramEnrollmentExclusions::DetailedProgramEnrollmentExclusionEntity, Suma::AdminAPI::ProgramEnrollments::DetailedProgramEnrollmentEntity, Suma::AdminAPI::ProgramPricings::DetailedProgramPricingEntity, Suma::AdminAPI::Programs::DetailedProgramEntity, Suma::AdminAPI::Roles::DetailedRoleEntity, Suma::AdminAPI::Roles::RoleEntity, Suma::AdminAPI::Roles::RoleListEntity, Suma::AdminAPI::Search::SearchCommerceOfferingEntity, Suma::AdminAPI::Search::SearchEntity, Suma::AdminAPI::Search::SearchLedgerEntity, Suma::AdminAPI::Search::SearchMemberEntity, Suma::AdminAPI::Search::SearchOfferingEntity, Suma::AdminAPI::Search::SearchOrganizationEntity, Suma::AdminAPI::Search::SearchPaymentInstrumentEntity, Suma::AdminAPI::Search::SearchPaymentTriggerEntity, Suma::AdminAPI::Search::SearchProductEntity, Suma::AdminAPI::Search::SearchProgramEntity, Suma::AdminAPI::Search::SearchRoleEntity, Suma::AdminAPI::Search::SearchStaticStringEntity, Suma::AdminAPI::Search::SearchTransactionEntity, Suma::AdminAPI::Search::SearchVendorEntity, Suma::AdminAPI::Search::SearchVendorServiceCategoryEntity, Suma::AdminAPI::Search::SearchVendorServiceEntity, Suma::AdminAPI::Search::SearchVendorServiceRateEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlRowEntity, Suma::AdminAPI::StaticStrings::BaseStaticStringEntity, Suma::AdminAPI::StaticStrings::JoinedStaticStringEntity, Suma::AdminAPI::StaticStrings::StandaloneStaticStringEntity, Suma::AdminAPI::StaticStrings::StaticStringGroup, Suma::AdminAPI::VendorServiceCategories::DetailedVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceCategories::ListVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceRates::DetailedVendorServiceRateEntity, Suma::AdminAPI::VendorServices::DetailedVendorServiceEntity, Suma::AdminAPI::Vendors::DetailedVendorEntity
 
 /**
  * @typedef AdminAction
@@ -22,6 +22,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Member} member
  * @property {string} formattedAddress
  * @property {string} relayKey
@@ -41,6 +42,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Member} member
  * @property {AnonProxyVendorConfiguration} configuration
  * @property {string} updatedAt
@@ -61,6 +63,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} externalProgramId
  * @property {number} externalRegistrationId
  */
@@ -72,6 +75,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Vendor} vendor
  * @property {string} appInstallLink
  * @property {string} authToVendorKey
@@ -94,6 +98,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} paymentMethodType
  * @property {LegalEntity} legalEntity
  * @property {string} institutionName
@@ -112,6 +117,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} paymentMethodType
  * @property {LegalEntity} legalEntity
  * @property {string} institutionName
@@ -134,6 +140,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} applyAt
  * @property {Money} amount
  * @property {TranslatedText} memo
@@ -160,6 +167,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} paymentMethodType
  * @property {LegalEntity} legalEntity
  * @property {string} institutionName
@@ -178,6 +186,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} paymentMethodType
  * @property {LegalEntity} legalEntity
  * @property {string} institutionName
@@ -201,6 +210,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} opaqueId
  * @property {Money} discountedSubtotal
  * @property {Money} undiscountedSubtotal
@@ -214,6 +224,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} opaqueId
  * @property {Money} discountedSubtotal
  * @property {Money} undiscountedSubtotal
@@ -238,6 +249,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
@@ -256,6 +268,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {TranslatedText} description
  * @property {string} periodEnd
  * @property {string} periodBegin
@@ -286,6 +299,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {TranslatedText} description
  * @property {string} periodEnd
  * @property {string} periodBegin
@@ -300,6 +314,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} orderStatus
  * @property {string} fulfillmentStatus
  * @property {string} statusLabel
@@ -321,6 +336,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} description
  */
 
@@ -331,6 +347,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {PicklistProduct} product
  */
 
@@ -353,6 +370,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  */
 
@@ -363,6 +381,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} email
  * @property {string} name
  * @property {string} phone
@@ -379,6 +398,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Money} undiscountedCost
  * @property {Money} customerCost
  * @property {Money} savings
@@ -405,6 +425,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
@@ -427,6 +448,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} orderStatus
  * @property {string} fulfillmentStatus
  * @property {string} statusLabel
@@ -442,6 +464,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Vendor} vendor
  * @property {TranslatedText} name
  * @property {TranslatedText} description
@@ -468,6 +491,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} closedAt
  * @property {number} productId
  * @property {string} productName
@@ -479,58 +503,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Offering} offering
- */
-
-/**
- * @typedef {Object} DetailedEligibilityAssignment
- * @description Auto-generated from Suma::AdminAPI::EligibilityAssignments::DetailedEligibilityAssignment
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {AutoExposedBase} assignee
- * @property {string} assigneeLabel
- * @property {string} assigneeType
- * @property {EligibilityAttribute} attribute
- * @property {string} updatedAt
- * @property {ExternalLink[]} externalLinks
- * @property {AdminAction[]} adminActions
- * @property {AuditMember} createdBy
- */
-
-/**
- * @typedef {Object} DetailedEligibilityAttribute
- * @description Auto-generated from Suma::AdminAPI::EligibilityAttributes::DetailedEligibilityAttribute
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} name
- * @property {EligibilityAttribute} parent
- * @property {string} updatedAt
- * @property {ExternalLink[]} externalLinks
- * @property {AdminAction[]} adminActions
- * @property {string} description
- * @property {EligibilityAttribute} children
- * @property {EligibilityAssignment} assignments
- * @property {EligibilityRequirement} referencedRequirements
- */
-
-/**
- * @typedef {Object} DetailedEligibilityRequirement
- * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::DetailedEligibilityRequirement
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {AutoExposedBase} resource
- * @property {string} resourceLabel
- * @property {string} expressionFormulaStr
- * @property {string} updatedAt
- * @property {ExternalLink[]} externalLinks
- * @property {AdminAction[]} adminActions
- * @property {AuditMember} createdBy
  */
 
 /**
@@ -540,6 +514,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {AuditMember} member
  * @property {string} messageName
  * @property {?} messageVars
@@ -567,6 +542,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Member} member
  * @property {string} formattedAddress
  * @property {string} relayKey
@@ -579,6 +555,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Member} member
  * @property {AnonProxyVendorConfiguration} configuration
  */
@@ -590,6 +567,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Vendor} vendor
  * @property {string} appInstallLink
  * @property {string} authToVendorKey
@@ -625,6 +603,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  */
 
 /**
@@ -639,6 +618,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {Member} owner
  */
@@ -650,6 +630,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} applyAt
  * @property {Money} amount
  * @property {TranslatedText} memo
@@ -666,6 +647,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} opaqueId
  * @property {Money} discountedSubtotal
  * @property {Money} undiscountedSubtotal
@@ -678,6 +660,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} chargeId
  * @property {Money} amount
  * @property {TranslatedText} memo
@@ -690,6 +673,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} opaqueId
  * @property {Money} discountedSubtotal
  * @property {Money} undiscountedSubtotal
@@ -718,6 +702,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
@@ -737,6 +722,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
@@ -744,43 +730,6 @@
  * @property {VendorServiceCategory} vendorServiceCategories
  * @property {BookTransaction} combinedBookTransactions
  * @property {Money} balance
- * @property {string} label
- */
-
-/**
- * @typedef {Object} EligibilityAssignment
- * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityAssignmentEntity
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {AutoExposedBase} assignee
- * @property {string} assigneeLabel
- * @property {string} assigneeType
- * @property {EligibilityAttribute} attribute
- */
-
-/**
- * @typedef {Object} EligibilityAttribute
- * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityAttributeEntity
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} name
- * @property {EligibilityAttribute} parent
- */
-
-/**
- * @typedef {Object} EligibilityRequirement
- * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityRequirementEntity
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {AutoExposedBase} resource
- * @property {string} resourceLabel
- * @property {string} expressionFormulaStr
  */
 
 /**
@@ -790,6 +739,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {Money} amount
  * @property {SimplePaymentAccount} originatingPaymentAccount
@@ -828,6 +778,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} email
  * @property {string} name
  * @property {string} phone
@@ -848,8 +799,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} sentAt
  * @property {string} label
+ * @property {string} sentAt
  */
 
 /**
@@ -859,6 +810,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {MarketingMember} member
  * @property {MarketingSmsBroadcast} smsBroadcast
  * @property {string} sentAt
@@ -874,6 +826,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} email
  * @property {string} name
  * @property {string} phone
@@ -889,6 +842,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} template
  * @property {string} transportType
  * @property {string} carrierKey
@@ -907,6 +861,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} vehicleId
  * @property {number} beginLat
  * @property {number} beginLng
@@ -941,6 +896,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {TranslatedText} description
  * @property {string} periodEnd
  * @property {string} periodBegin
@@ -953,6 +909,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {TranslatedText} description
  * @property {string} type
  * @property {number} ordinal
@@ -967,6 +924,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} closedAt
  * @property {number} productId
  * @property {string} productName
@@ -983,6 +941,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} orderStatus
  * @property {string} fulfillmentStatus
  * @property {string} statusLabel
@@ -997,6 +956,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  */
 
@@ -1007,6 +967,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Member} member
  * @property {Organization} verifiedOrganization
  * @property {string} unverifiedOrganizationName
@@ -1024,6 +985,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {OrganizationMembership} membership
  * @property {Member} owner
@@ -1036,6 +998,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} paymentMethodType
  * @property {LegalEntity} legalEntity
  * @property {string} institutionName
@@ -1050,6 +1013,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {?} adminDetails
  */
 
@@ -1072,6 +1036,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {?} classification
  * @property {Money} amount
@@ -1085,9 +1050,38 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Vendor} vendor
  * @property {TranslatedText} name
  * @property {TranslatedText} description
+ */
+
+/**
+ * @typedef {Object} ProgramEnrollee
+ * @description Auto-generated from Suma::AdminAPI::Entities::ProgramEnrolleeEntity
+ * @property {number} id
+ * @property {string} createdAt
+ * @property {string} softDeletedAt
+ * @property {string} adminLink
+ * @property {string} label
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} ProgramEnrollment
+ * @description Auto-generated from Suma::AdminAPI::Entities::ProgramEnrollmentEntity
+ * @property {number} id
+ * @property {string} createdAt
+ * @property {string} softDeletedAt
+ * @property {string} adminLink
+ * @property {string} label
+ * @property {string} adminLink
+ * @property {Program} program
+ * @property {ProgramEnrollee} enrollee
+ * @property {string} enrolleeType
+ * @property {string} approvedAt
+ * @property {string} unenrolledAt
+ * @property {?} programActive
  */
 
 /**
@@ -1097,6 +1091,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Program} program
  * @property {Member} member
  * @property {Role} role
@@ -1109,6 +1104,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {TranslatedText} name
  * @property {TranslatedText} description
  * @property {string} periodBegin
@@ -1125,6 +1121,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Program} program
  * @property {VendorService} vendorService
  * @property {VendorServiceRate} vendorServiceRate
@@ -1137,8 +1134,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} name
  * @property {string} label
+ * @property {string} name
  */
 
 /**
@@ -1148,9 +1145,9 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} accountName
- * @property {string} adminLabel
  */
 
 /**
@@ -1160,6 +1157,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} displayName
  */
 
@@ -1170,6 +1168,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {AuditMember} author
  * @property {string} authoredAt
  * @property {string} content
@@ -1190,6 +1189,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  */
 
@@ -1200,6 +1200,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} slug
  * @property {VendorServiceCategoryTerminal} parent
@@ -1212,6 +1213,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} slug
  */
@@ -1223,6 +1225,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} internalName
  * @property {string} externalName
  * @property {Vendor} vendor
@@ -1237,6 +1240,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} internalName
  * @property {string} externalName
  * @property {Money} unitAmount
@@ -1258,9 +1262,9 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} accountName
- * @property {string} adminLabel
  * @property {Money} balance
  * @property {Money} totalCredits
  * @property {number} countCredits
@@ -1275,6 +1279,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Money} amount
  * @property {string} transactedAt
  * @property {?} note
@@ -1305,6 +1310,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {Money} amount
  * @property {SimplePaymentAccount} originatingPaymentAccount
@@ -1347,8 +1353,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} sentAt
  * @property {string} label
+ * @property {string} sentAt
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
@@ -1408,8 +1414,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} sentAt
  * @property {string} label
+ * @property {string} sentAt
  * @property {?} sendingNumberFormatted
  * @property {?} sendingNumber
  * @property {?} preferencesOptoutField
@@ -1423,6 +1429,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {MarketingMember} member
  * @property {MarketingSmsBroadcast} smsBroadcast
  * @property {string} sentAt
@@ -1443,6 +1450,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} email
  * @property {string} name
  * @property {string} phone
@@ -1462,7 +1470,8 @@
  * @property {LegalEntity} legalEntity
  * @property {DetailedPaymentAccount} paymentAccount
  * @property {Charge} charges
- * @property {EligibilityAssignment} eligibilityAssignments
+ * @property {ProgramEnrollment} directProgramEnrollments
+ * @property {ProgramEnrollmentExclusion} programEnrollmentExclusions
  * @property {Referral} referral
  * @property {MemberResetCode} resetCodes
  * @property {MemberSession} sessions
@@ -1486,6 +1495,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} formattedAddress
  */
 
@@ -1496,6 +1506,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} orderStatus
  * @property {string} fulfillmentStatus
  * @property {string} statusLabel
@@ -1512,10 +1523,11 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {?} transport
  * @property {?} used
  * @property {string} expireAt
- * @property {?} token
+ * @property {string} token
  * @property {MessageDelivery} messageDelivery
  */
 
@@ -1526,8 +1538,10 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {?} userAgent
  * @property {?} peerIp
+ * @property {string} loggedOutAt
  * @property {string} ipLookupLink
  */
 
@@ -1538,6 +1552,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} latestAccessCode
  * @property {string} latestAccessCodeMagicLink
  * @property {Vendor} vendor
@@ -1568,6 +1583,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {?} source
  * @property {?} campaign
  * @property {?} medium
@@ -1580,6 +1596,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} template
  * @property {string} transportType
  * @property {string} carrierKey
@@ -1602,6 +1619,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {?} mediatype
  * @property {string} content
  */
@@ -1629,6 +1647,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  */
 
@@ -1639,6 +1658,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {number} vehicleId
  * @property {number} beginLat
  * @property {number} beginLng
@@ -1691,6 +1711,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {OrganizationMembership} membership
  * @property {Member} owner
@@ -1725,6 +1746,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {OrganizationMembership} membership
  * @property {Member} owner
@@ -1746,6 +1768,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Member} member
  * @property {Organization} verifiedOrganization
  * @property {string} unverifiedOrganizationName
@@ -1769,6 +1792,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
@@ -1780,7 +1804,7 @@
  * @property {Activity} auditActivities
  * @property {OrganizationMembership} memberships
  * @property {OrganizationMembership} formerMemberships
- * @property {EligibilityAssignment} eligibilityAssignments
+ * @property {ProgramEnrollment} programEnrollments
  * @property {Role} roles
  */
 
@@ -1791,8 +1815,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
- * @property {string} adminLabel
  * @property {boolean} isPlatformAccount
  * @property {string} currency
  * @property {Money} balance
@@ -1812,8 +1836,8 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
- * @property {string} adminLabel
  * @property {boolean} isPlatformAccount
  * @property {string} currency
  * @property {Money} balance
@@ -1852,7 +1876,7 @@
  * @property {string} receivingLedgerName
  * @property {TranslatedText} receivingLedgerContributionText
  * @property {PaymentTriggerExecution} executions
- * @property {EligibilityRequirement} eligibilityRequirements
+ * @property {Program} programs
  */
 
 /**
@@ -1872,6 +1896,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} status
  * @property {?} classification
  * @property {Money} amount
@@ -1891,12 +1916,55 @@
  */
 
 /**
+ * @typedef {Object} DetailedProgramEnrollmentExclusion
+ * @description Auto-generated from Suma::AdminAPI::ProgramEnrollmentExclusions::DetailedProgramEnrollmentExclusionEntity
+ * @property {number} id
+ * @property {string} createdAt
+ * @property {string} softDeletedAt
+ * @property {string} adminLink
+ * @property {string} label
+ * @property {Program} program
+ * @property {Member} member
+ * @property {Role} role
+ * @property {string} updatedAt
+ * @property {ExternalLink[]} externalLinks
+ * @property {AdminAction[]} adminActions
+ * @property {Member} createdBy
+ */
+
+/**
+ * @typedef {Object} DetailedProgramEnrollment
+ * @description Auto-generated from Suma::AdminAPI::ProgramEnrollments::DetailedProgramEnrollmentEntity
+ * @property {number} id
+ * @property {string} createdAt
+ * @property {string} softDeletedAt
+ * @property {string} adminLink
+ * @property {string} label
+ * @property {string} adminLink
+ * @property {Program} program
+ * @property {ProgramEnrollee} enrollee
+ * @property {string} enrolleeType
+ * @property {string} approvedAt
+ * @property {string} unenrolledAt
+ * @property {?} programActive
+ * @property {string} updatedAt
+ * @property {ExternalLink[]} externalLinks
+ * @property {AdminAction[]} adminActions
+ * @property {?} enrolled
+ * @property {?} approved
+ * @property {Member} approvedBy
+ * @property {?} unenrolled
+ * @property {Member} unenrolledBy
+ */
+
+/**
  * @typedef {Object} DetailedProgramPricing
  * @description Auto-generated from Suma::AdminAPI::ProgramPricings::DetailedProgramPricingEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {Program} program
  * @property {VendorService} vendorService
  * @property {VendorServiceRate} vendorServiceRate
@@ -1912,6 +1980,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {TranslatedText} name
  * @property {TranslatedText} description
  * @property {string} periodBegin
@@ -1929,6 +1998,8 @@
  * @property {ProgramPricing} pricings
  * @property {AnonProxyVendorConfiguration} configurations
  * @property {PaymentTrigger} paymentTriggers
+ * @property {ProgramEnrollment} enrollments
+ * @property {ProgramEnrollmentExclusion} enrollmentExclusions
  * @property {Activity} auditActivities
  */
 
@@ -1939,19 +2010,21 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} name
  * @property {string} label
+ * @property {string} name
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
  * @property {string} description
  * @property {Member} members
  * @property {Organization} organizations
- * @property {EligibilityAssignment} eligibilityAssignments
+ * @property {ProgramEnrollment} programEnrollments
+ * @property {ProgramEnrollmentExclusion} programEnrollmentExclusions
  */
 
 /**
@@ -1961,12 +2034,13 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} name
  * @property {string} label
+ * @property {string} name
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  */
 
 /**
@@ -1976,12 +2050,13 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
- * @property {string} name
  * @property {string} label
+ * @property {string} name
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} description
  */
 
@@ -1993,6 +2068,11 @@
  * @property {string} adminLink
  * @property {string} name
  * @property {string} label
+ */
+
+/**
+ * @typedef {Object} Search
+ * @description Auto-generated from Suma::AdminAPI::Search::SearchEntity
  */
 
 /**
@@ -2039,6 +2119,15 @@
  * @property {string} key
  * @property {number} id
  * @property {string} paymentMethodType
+ * @property {string} adminLink
+ * @property {string} label
+ */
+
+/**
+ * @typedef {Object} SearchPaymentTrigger
+ * @description Auto-generated from Suma::AdminAPI::Search::SearchPaymentTriggerEntity
+ * @property {string} key
+ * @property {number} id
  * @property {string} adminLink
  * @property {string} label
  */
@@ -2200,6 +2289,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} slug
  * @property {VendorServiceCategoryTerminal} parent
@@ -2217,6 +2307,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} slug
  * @property {VendorServiceCategoryTerminal} parent
@@ -2230,6 +2321,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} internalName
  * @property {string} externalName
  * @property {Money} unitAmount
@@ -2251,6 +2343,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} internalName
  * @property {string} externalName
  * @property {Vendor} vendor
@@ -2280,6 +2373,7 @@
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
+ * @property {string} label
  * @property {string} name
  * @property {string} updatedAt
  * @property {ExternalLink[]} externalLinks
