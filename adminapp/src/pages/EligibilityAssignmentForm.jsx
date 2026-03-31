@@ -13,7 +13,7 @@ import {
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
-export default function ProgramEnrollmentForm({
+export default function EligibilityAssignmentForm({
   isCreate,
   resource,
   setField,
@@ -23,60 +23,65 @@ export default function ProgramEnrollmentForm({
   onSubmit,
 }) {
   const [searchParams] = useSearchParams();
-  const searchProgramId = Number(searchParams.get("programId") || -1);
-  const searchEnrolleeId = Number(searchParams.get("enrolleeId") || -1);
-  const searchEnrolleeType = searchParams.get("enrolleeType");
-  const [enrolleeType, setEnrolleeType] = React.useState(searchEnrolleeType || "member");
-  const fixedEnrollee = searchEnrolleeId > 0;
+  const searchAttributeId = Number(searchParams.get("attributeId") || -1);
+  const searchAssigneeId = Number(searchParams.get("assigneeId") || -1);
+  const searchAssigneeType = searchParams.get("assigneeType");
+  const [assigneeType, setAssigneeType] = React.useState(
+    resource.assigneeType || searchAssigneeType || "member"
+  );
+  const fixedAssignee = searchAssigneeId > 0;
+  const fixedAttribute = searchAttributeId > 0;
 
   useMountEffect(() => {
     if (searchParams.get("edit")) {
       return;
     }
-    if (searchProgramId > 0) {
-      setField("program", {
-        id: searchProgramId,
-        label: searchParams.get("programLabel"),
+    if (searchAttributeId > 0) {
+      setField("attribute", {
+        id: searchAttributeId,
+        label: searchParams.get("attributeLabel"),
       });
     }
-    if (searchEnrolleeId > 0) {
-      setField(searchEnrolleeType, {
-        id: searchEnrolleeId,
-        label: searchParams.get("enrolleeLabel"),
+    if (searchAssigneeId > 0) {
+      setField(searchAssigneeType, {
+        id: searchAssigneeId,
+        label: searchParams.get("assigneeLabel"),
       });
     }
   }, [searchParams]);
 
-  const handleEnrolleeTypeChange = (e) => {
-    setEnrolleeType(e.target.value);
-    clearField(enrolleeType);
+  const handleAssigneeTypeChange = (e) => {
+    setAssigneeType(e.target.value);
+    clearField(assigneeType);
   };
+
   return (
     <FormLayout
-      title={isCreate ? "Create a Program Enrollment" : "Update a Program Enrollment"}
-      subtitle="Program enrollment that are approved gives access to a member,
-      members in an organization, or members with a role to resources connected
-      with an active program. After creation, you can approve the enrollment and/or unenroll."
+      title={
+        isCreate ? "Assign an Eligibility Attribute" : "Update an Eligbility Assignment"
+      }
+      subtitle="Assign eligibility attributes to members, organizations, and roles.
+      Members get all the eligibility attributes assigned to them,
+      roles added to them, organizations they're a member of,
+      and the roles added to organizations they're a member of."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <FormLabel>Program</FormLabel>
         <AutocompleteSearch
-          {...register("program")}
-          label="Program"
-          value={resource.program.label || ""}
+          {...register("attribute")}
+          label="Attribute"
+          value={resource.attribute?.label || ""}
           fullWidth
-          required
-          search={api.searchPrograms}
-          disabled={searchProgramId > 0}
+          search={api.searchEligibilityAttributes}
+          disabled={fixedAttribute}
           style={{ flex: 1 }}
           searchEmpty
-          onValueSelect={(p) => setField("program", p)}
+          onValueSelect={(p) => setField("attribute", p)}
         />
-        <FormControl disabled={fixedEnrollee}>
-          <FormLabel>Enrollee Type</FormLabel>
-          <RadioGroup value={enrolleeType} row onChange={handleEnrolleeTypeChange}>
+        <FormControl disabled={fixedAssignee}>
+          <FormLabel>Assignee Type</FormLabel>
+          <RadioGroup value={assigneeType} row onChange={handleAssigneeTypeChange}>
             <FormControlLabel value="member" control={<Radio />} label="Member" />
             <FormControlLabel
               value="organization"
@@ -86,47 +91,47 @@ export default function ProgramEnrollmentForm({
             <FormControlLabel value="role" control={<Radio />} label="Role" />
           </RadioGroup>
         </FormControl>
-        {enrolleeType === "member" && (
+        {assigneeType === "member" && (
           <AutocompleteSearch
             key="member"
             {...register("member")}
             label="Member"
-            helperText="Who can access this program?"
+            helperText="Assign this attribute to a member directly."
             value={resource.member?.label || ""}
             fullWidth
             search={api.searchMembers}
-            disabled={fixedEnrollee}
+            disabled={fixedAssignee}
             style={{ flex: 1 }}
             onValueSelect={(mem) => setField("member", mem)}
             onTextChange={() => clearField("member")}
           />
         )}
-        {enrolleeType === "organization" && (
+        {assigneeType === "organization" && (
           <AutocompleteSearch
             key="org"
             {...register("organization")}
             label="Organization"
-            helperText="What members in this organization can access this program?"
+            helperText="All members of the organization get the attribute."
             value={resource.organization?.label || ""}
             fullWidth
-            disabled={fixedEnrollee}
+            disabled={fixedAssignee}
             search={api.searchOrganizations}
             style={{ flex: 1 }}
             onValueSelect={(org) => setField("organization", org)}
             onTextChange={() => clearField("organization")}
           />
         )}
-        {enrolleeType === "role" && (
+        {assigneeType === "role" && (
           <AutocompleteSearch
             key="role"
             {...register("role")}
             label="Role"
-            helperText="What members with this role can access this program?"
+            helperText="All members with this role, or with membership in an organization with this role, get the attribute."
             value={resource.role?.label || ""}
             fullWidth
             search={api.searchRoles}
             searchEmpty={true}
-            disabled={fixedEnrollee}
+            disabled={fixedAssignee}
             style={{ flex: 1 }}
             onValueSelect={(role) => setField("role", role)}
             onTextChange={() => clearField("role")}

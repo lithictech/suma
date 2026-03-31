@@ -20,8 +20,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     expose :description
     expose :members, with: Suma::AdminAPI::Entities::MemberEntity
     expose :organizations, with: Suma::AdminAPI::Entities::OrganizationEntity
-    expose :program_enrollments, with: Suma::AdminAPI::Entities::ProgramEnrollmentEntity
-    expose :program_enrollment_exclusions, with: Suma::AdminAPI::Entities::ProgramEnrollmentExclusionEntity
+    expose :eligibility_assignments, with: EligibilityAssignmentEntity
   end
 
   resource :roles do

@@ -118,6 +118,18 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     params do
       optional :q, type: String
     end
+    post :eligibility_attributes do
+      check_admin_role_access!(:read, Suma::Eligibility::Attribute)
+      ds = Suma::Eligibility::Attribute.dataset
+      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchEligibilityAttributeEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
     post :products do
       check_admin_role_access!(:read, Suma::Commerce::Product)
       ds = Suma::Commerce::Product.dataset
@@ -297,6 +309,14 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
 
   class SearchEntity < BaseEntity; end
 
+  class SearchEligibilityAttributeEntity < SearchEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name
+    expose :fqn_label, as: :label
+  end
+
   class SearchLedgerEntity < SearchEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
@@ -304,7 +324,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :search_label, as: :label
   end
 
-  class SearchPaymentInstrumentEntity < SearchEntity
+  class SearchPaymentInstrumentEntity < BaseEntity
     expose :key do |inst|
       "#{inst.id}-#{inst.payment_method_type}"
     end
@@ -314,7 +334,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :search_label, as: :label
   end
 
-  class SearchTransactionEntity < SearchEntity
+  class SearchTransactionEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :en
     expose :es
@@ -323,21 +343,21 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
   end
 
-  class SearchProductEntity < SearchEntity
+  class SearchProductEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
     expose :label, &self.delegate_to(:name, :en)
   end
 
-  class SearchOfferingEntity < SearchEntity
+  class SearchOfferingEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
     expose :label, &self.delegate_to(:description, :en)
   end
 
-  class SearchVendorEntity < SearchEntity
+  class SearchVendorEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :slug
@@ -345,7 +365,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :name, as: :label
   end
 
-  class SearchMemberEntity < SearchEntity
+  class SearchMemberEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
@@ -368,7 +388,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :name, as: :label
   end
 
-  class SearchRoleEntity < SearchEntity
+  class SearchRoleEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
@@ -376,7 +396,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :label
   end
 
-  class SearchStaticStringEntity < SearchEntity
+  class SearchStaticStringEntity < BaseEntity
     expose :fqn, as: :key
     expose :id
     expose :label do |inst, opts|
@@ -385,7 +405,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :key, as: :string_key
   end
 
-  class SearchVendorServiceEntity < SearchEntity
+  class SearchVendorServiceEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
@@ -393,7 +413,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :external_name, as: :label
   end
 
-  class SearchVendorServiceCategoryEntity < SearchEntity
+  class SearchVendorServiceCategoryEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
@@ -401,7 +421,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :name, as: :label
   end
 
-  class SearchVendorServiceRateEntity < SearchEntity
+  class SearchVendorServiceRateEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
@@ -409,7 +429,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :internal_name, as: :label
   end
 
-  class SearchCommerceOfferingEntity < SearchEntity
+  class SearchCommerceOfferingEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
@@ -417,7 +437,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :label, &self.delegate_to(:description, :en)
   end
 
-  class SearchProgramEntity < SearchEntity
+  class SearchProgramEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link

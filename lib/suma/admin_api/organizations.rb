@@ -16,7 +16,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     expose :audit_activities, with: ActivityEntity
     expose :memberships, with: OrganizationMembershipEntity
     expose :former_memberships, with: OrganizationMembershipEntity
-    expose :program_enrollments, with: ProgramEnrollmentEntity
+    expose :eligibility_assignments, with: EligibilityAssignmentEntity
     expose :roles, with: RoleEntity
   end
 

@@ -165,24 +165,24 @@ module Suma::AdminAPI::Entities
     expose :app_link_text, with: TranslatedTextEntity
   end
 
-  class ProgramEnrolleeEntity < BaseEntity
+  class EligibilityAttributeEntity < BaseEntity
     include AutoExposeBase
-    expose :name do |inst|
-      inst.is_a?(Suma::Role) ? inst.name.titleize : inst.name
-    end
+    expose :name
+    expose :parent, with: self
   end
 
-  class ProgramEnrollmentEntity < BaseEntity
+  class EligibilityAssignmentEntity < BaseEntity
     include AutoExposeBase
-    expose :admin_link
-    expose :program, with: ProgramEntity
-    expose :enrollee, with: ProgramEnrolleeEntity
-    expose :enrollee_type
-    expose :approved_at
-    expose :unenrolled_at
-    expose :program_active do |pe|
-      pe.program_active_at?(Time.now)
-    end
+    expose :assignee, with: AutoExposedBaseEntity
+    expose :assignee_label
+    expose :assignee_type
+    expose :attribute, with: EligibilityAttributeEntity
+  end
+
+  class EligibilityRequirementEntity < BaseEntity
+    include AutoExposeBase
+    expose :all_resources, as: :resources, with: AutoExposedBaseEntity
+    expose :cached_expression_string, as: :expression_formula_str
   end
 
   class VendorEntity < BaseEntity
@@ -228,13 +228,6 @@ module Suma::AdminAPI::Entities
     expose :program, with: ProgramEntity
     expose :vendor_service, with: VendorServiceEntity
     expose :vendor_service_rate, with: VendorServiceRateEntity
-  end
-
-  class ProgramEnrollmentExclusionEntity < BaseEntity
-    include AutoExposeBase
-    expose :program, with: ProgramEntity
-    expose :member, with: MemberEntity
-    expose :role, with: RoleEntity
   end
 
   class AnonProxyVendorConfigurationEntity < BaseEntity

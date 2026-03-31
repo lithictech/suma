@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+RSpec.describe "Suma::Eligibility::Assignment", :db do
+  let(:described_class) { Suma::Eligibility::Assignment }
+
+  it "can be fixtured" do
+    attr = Suma::Fixtures.eligibility_attribute.create
+    m = Suma::Fixtures.member.create
+    ea = Suma::Fixtures.eligibility_assignment.of(attr).to(m).create
+    expect(ea).to have_attributes(attribute: be === attr, assignee: be === m)
+  end
+
+  it "can set and get an assignee" do
+    ea = Suma::Fixtures.eligibility_assignment.create
+    m = Suma::Fixtures.member.create
+    o = Suma::Fixtures.organization.create
+    o.eligibility_assignments_dataset.delete # Remove the auto-created one for simplicity during testing
+
+    r = Suma::Fixtures.role.create
+    ea.update(assignee: m)
+    expect(ea).to have_attributes(member: be === m, organization: be_nil, role: be_nil, assignee: be === m)
+    expect(m.eligibility_assignments).to contain_exactly(ea)
+    ea.update(assignee: o)
+    expect(ea).to have_attributes(member: be_nil, organization: be === o, role: be_nil, assignee: be === o)
+    expect(o.eligibility_assignments).to contain_exactly(ea)
+    ea.update(assignee: r)
+    expect(ea).to have_attributes(member: be_nil, organization: be_nil, role: be === r, assignee: be === r)
+    expect(r.eligibility_assignments).to contain_exactly(ea)
+    ea.assignee = nil
+    expect(ea).to have_attributes(member: be_nil, organization: be_nil, role: be_nil, assignee: be_nil)
+    expect { ea.assignee = 5 }.to raise_error(TypeError, /invalid association type: Integer\(5\)/)
+  end
+end

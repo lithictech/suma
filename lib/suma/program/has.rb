@@ -3,41 +3,39 @@
 require "suma/program"
 
 module Suma::Program::Has
-  # @!attribute programs
-  # @return [Array<Suma::Program>]
+  def self.configure(model, join_table, left_key, &)
+    require "suma/program"
 
-  def self.included(mod)
-    raise TypeError, "#{mod} must define a :programs method or association" unless
-      mod.instance_methods.include?(:programs)
-    mod.dataset_module DatasetMethods
-
-    assoc = mod.association_reflections[:programs]
-    mod.many_through_many :program_enrollments,
-                          [
-                            [assoc[:join_table], assoc[:left_key], :program_id],
-                          ],
-                          class: "Suma::Program::Enrollment",
-                          left_primary_key: :id,
-                          right_primary_key: :program_id,
-                          read_only: true
-    mod.include InstanceMethods
+    if block_given?
+      model.define_method(:programs, &)
+    else
+      model.many_to_many :programs,
+                         class: "Suma::Program",
+                         join_table:,
+                         left_key:,
+                         order: Suma::Postgres::Model.order_desc
+    end
   end
 
   module DatasetMethods
-    def eligible_to(member, as_of:)
-      cond = Sequel[program_enrollments: member.combined_program_enrollments_dataset.active(as_of:)]
-      if Suma::Program::UNPROGRAMMED_ACCESSIBLE
-        # Include all rows that have no programs
-        cond |= Sequel.~(programs: Suma::Program.dataset)
+    # See +Suma::Eligibility::Resource::DatasetMethods.fetch_eligible_to+
+    # for info.
+    def fetch_eligible_to(member, as_of:)
+      rows = self.all.select do |receiver|
+        receiver.eligible_to?(member, as_of:)
       end
-      ds = self.where(cond)
-      return ds
+      return rows
     end
   end
 
   module InstanceMethods
+    def programs_eligible_to(member, as_of:)
+      return self.programs.select { |p| p.eligible_to?(member, as_of:) }
+    end
+
     def eligible_to?(member, as_of:)
-      return !self.class.where(id: self.id).eligible_to(member, as_of:).empty?
+      return true if self.programs.empty? && Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE
+      return self.programs_eligible_to(member, as_of:).any?
     end
   end
 end

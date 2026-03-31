@@ -1,0 +1,197 @@
+# frozen_string_literal: true
+
+require "sequel/all_or_none_constraint"
+require "sequel/unambiguous_constraint"
+require "sequel/not_self_constraint"
+
+Sequel.migration do
+  change do
+    create_table(:eligibility_attributes) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :name, null: false, unique: true
+      text :description, null: false, default: ""
+
+      foreign_key :parent_id, :eligibility_attributes, null: true, index: true
+      constraint :no_self_reference, Sequel.not_self_constraint(:parent_id)
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :eligibility_attributes_search_content_tsvector_index,
+            type: :gin
+    end
+
+    create_table(:eligibility_assignments) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      foreign_key :created_by_id, :members, on_delete: :set_null
+
+      foreign_key :attribute_id, :eligibility_attributes, null: false, index: true, on_delete: :cascade
+
+      foreign_key :member_id, :members, on_delete: :cascade
+      foreign_key :organization_id, :organizations, on_delete: :cascade
+      foreign_key :role_id, :roles, on_delete: :cascade
+
+      constraint :unambiguous_assignee,
+                 Sequel.unambiguous_constraint([:member_id, :organization_id, :role_id])
+
+      index [:attribute_id, :member_id], unique: true, where: Sequel[:member_id] !~ nil
+      index [:attribute_id, :organization_id], unique: true, where: Sequel[:member_id] !~ nil
+      index [:attribute_id, :role_id], unique: true, where: Sequel[:member_id] !~ nil
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :eligibility_assignments_search_content_tsvector_index,
+            type: :gin
+    end
+
+    create_view :eligibility_member_assignments, Sequel.lit(<<~SQL)
+      WITH RECURSIVE attr_expanded AS (
+          SELECT id AS attribute_id, id AS root_attribute_id, 0 as depth
+          FROM eligibility_attributes
+
+          UNION ALL
+
+          SELECT e.parent_id AS attribute_id, a.root_attribute_id, a.depth + 1 as depth
+          FROM attr_expanded a
+              JOIN eligibility_attributes e
+              ON e.id = a.attribute_id
+          WHERE e.parent_id IS NOT NULL
+      ), base AS (
+          SELECT member_id,
+                 attribute_id,
+                 'member' AS source_type,
+                 member_id AS source_member_id,
+                 -- Use 0, not NULL, so we can use this as a primary key, and NULL is not equal to NULL,
+                 -- which causes weird ambiguity where a row cannot compare with itself.
+                 0 AS source_role_id,
+                 0 AS source_membership_id,
+                 0 AS source_organization_id
+          FROM eligibility_assignments ea
+          WHERE member_id IS NOT NULL
+          UNION ALL
+          SELECT rm.member_id,
+                 ea.attribute_id,
+                 'role' AS source_type,
+                 0 as source_member_id,
+                 rm.role_id AS source_role_id,
+                 0 AS source_membership_id,
+                 0 AS source_organization_id
+          FROM eligibility_assignments ea
+              INNER JOIN roles_members rm
+              ON rm.role_id = ea.role_id
+          UNION ALL
+          SELECT om.member_id,
+                 ea.attribute_id,
+                 'membership' AS source_type,
+                 0 AS source_member_id,
+                 0 as source_role_id,
+                 om.id AS source_membership_id,
+                 om.verified_organization_id AS source_organization_id
+          FROM eligibility_assignments ea
+              INNER JOIN organization_memberships om
+              ON om.verified_organization_id = ea.organization_id
+          UNION ALL
+          SELECT omr.member_id,
+                 ea.attribute_id,
+                 'organization_role' AS source_type,
+                 0 as source_member_id,
+                 omr.role_id AS source_role_id,
+                 omr.membership_id AS source_membership_id,
+                 omr.organization_id AS source_organization_id
+          FROM eligibility_assignments ea
+              INNER JOIN (
+                  SELECT ro.role_id as role_id,
+                         om.member_id as member_id,
+                         om.id as membership_id,
+                         om.verified_organization_id as organization_id
+                  FROM organization_memberships om
+                  JOIN roles_organizations ro
+                  ON ro.organization_id = om.verified_organization_id
+              ) omr
+              ON omr.role_id = ea.role_id
+      )
+      SELECT DISTINCT b.member_id,
+                      e.attribute_id,
+                      e.depth,
+                      b.source_type,
+                      b.source_member_id,
+                      b.source_role_id,
+                      b.source_membership_id
+      FROM base b
+      JOIN attr_expanded e
+      ON e.root_attribute_id = b.attribute_id;
+    SQL
+
+    create_table(:eligibility_expressions) do
+      primary_key :id
+
+      foreign_key :attribute_id, :eligibility_attributes, on_delete: :cascade
+      foreign_key :left_id, :eligibility_expressions, on_delete: :cascade
+      foreign_key :right_id, :eligibility_expressions, on_delete: :cascade
+      text :operator
+
+      text :type, null: false
+      constraint :valid_type, Sequel[:type] =~ ["attribute", "binary", "unary"]
+
+      constraint :coherent_type,
+                 Sequel.case(
+                   {
+                     # Attribute expressions just have an attribute_id and that's it.
+                     Sequel[type: "attribute"] => (
+                       (Sequel[:attribute_id] !~ nil) &
+                       Sequel[left_id: nil, right_id: nil, operator: nil]
+                     ),
+                     # Binary expressions have an operator, no attribute or unary, and MAY have a left/right.
+                     Sequel[type: "binary"] => (
+                       Sequel[operator: ["AND", "OR"]] &
+                       Sequel[attribute_id: nil]
+                     ),
+                     # Unary expressions have an operator, no attribute or binary,
+                     # and MAY have a left, but must NOT have a right.
+                     Sequel[type: "unary"] => (
+                       Sequel[operator: ["NOT"]] &
+                       Sequel[attribute_id: nil, right_id: nil]
+                     ),
+                   },
+                   nil,
+                 )
+    end
+
+    create_table(:eligibility_requirements) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      foreign_key :created_by_id, :members, on_delete: :set_null
+
+      foreign_key :expression_id, :eligibility_expressions, null: false, on_delete: :restrict
+
+      column :cached_attribute_ids, "integer[]", index: true, null: false
+      text :cached_expression_string, null: false
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :eligibility_requirements_search_content_tsvector_index,
+            type: :gin
+    end
+
+    create_join_table(
+      {requirement_id: :eligibility_requirements, payment_trigger_id: :payment_triggers},
+      name: :eligibility_requirements_payment_triggers,
+    )
+
+    create_join_table(
+      {requirement_id: :eligibility_requirements, program_id: :programs},
+      name: :eligibility_requirements_programs,
+    )
+  end
+end

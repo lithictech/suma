@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+require "suma/fixtures"
+
+module Suma::Fixtures::EligibilityAttributes
+  extend Suma::Fixtures
+
+  fixtured_class Suma::Eligibility::Attribute
+
+  base :eligibility_attribute do
+    self.name ||= "#{Faker::Lorem.word}-#{SecureRandom.hex(2)}"
+  end
+
+  before_saving do |instance|
+    instance
+  end
+
+  decorator :parent do |attr={}|
+    attr = Suma::Fixtures.eligibility_attribute.create(attr) unless attr.is_a?(Suma::Eligibility::Attribute)
+    self.parent = attr
+  end
+
+  decorator :between, presave: true do |assignee, resource|
+    Suma::Fixtures.eligibility_assignment.of(self).to(assignee).create
+    Suma::Fixtures.eligibility_requirement.attribute(self).of(resource).create
+  end
+end

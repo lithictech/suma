@@ -489,7 +489,6 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         with_cash_ledger.
         create(phone:)
       Suma::Fixtures.card.member(m).create
-      Suma::Fixtures.program_enrollment.create(program:, member: m)
       m
     end
 

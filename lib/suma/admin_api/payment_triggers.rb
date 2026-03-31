@@ -31,7 +31,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     expose :receiving_ledger_name
     expose :receiving_ledger_contribution_text, with: TranslatedTextEntity
     expose :executions, with: PaymentTriggerExecutionEntity
-    expose :programs, with: ProgramEntity
+    expose :eligibility_requirements, with: EligibilityRequirementEntity
   end
 
   resource :payment_triggers do
@@ -86,12 +86,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         optional(:receiving_ledger_contribution_text, type: JSON) { use :translated_text }
       end
     end
-
-    Suma::AdminAPI::CommonEndpoints.programs_update(
-      self,
-      Suma::Payment::Trigger,
-      DetailedPaymentTriggerEntity,
-    )
 
     route_param :id, type: Integer do
       params do

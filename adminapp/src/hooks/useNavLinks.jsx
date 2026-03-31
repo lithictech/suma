@@ -5,12 +5,13 @@ import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import BikeScooterIcon from "@mui/icons-material/BikeScooter";
+import CalculateIcon from "@mui/icons-material/Calculate";
 import CategoryIcon from "@mui/icons-material/Category";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import FunctionsIcon from "@mui/icons-material/Functions";
 import HomeIcon from "@mui/icons-material/Home";
-import HowToRegIcon from "@mui/icons-material/HowToReg";
 import KeyIcon from "@mui/icons-material/Key";
 import LinkIcon from "@mui/icons-material/Link";
 import MailIcon from "@mui/icons-material/Mail";
@@ -29,6 +30,7 @@ import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SmsIcon from "@mui/icons-material/Sms";
 import StorefrontIcon from "@mui/icons-material/Storefront";
+import SubscriptIcon from "@mui/icons-material/Subscript";
 import TollIcon from "@mui/icons-material/Toll";
 import TranslateIcon from "@mui/icons-material/Translate";
 import React from "react";
@@ -188,9 +190,19 @@ export default function useNavLinks() {
             icon: <EventAvailableIcon />,
           },
           management && {
-            label: "Program Enrollments",
-            href: "/program-enrollments",
-            icon: <HowToRegIcon />,
+            label: "Eligibility Attributes",
+            href: "/eligibility-attributes",
+            icon: <SubscriptIcon />,
+          },
+          management && {
+            label: "Eligibility Assignments",
+            href: "/eligibility-assignments",
+            icon: <FunctionsIcon />,
+          },
+          management && {
+            label: "Eligibility Requirements",
+            href: "/eligibility-requirements",
+            icon: <CalculateIcon />,
           },
           management && {
             label: "Categories",

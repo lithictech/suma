@@ -132,7 +132,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
       scooter_vs = Suma::Vendor::Service[internal_name: "lemon_mobility_deeplink"]
       self.scooter_program.add_pricing({vendor_service: scooter_vs, vendor_service_rate: scooter_rate})
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Lemon Scooter 20% Discount",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 0.25,
@@ -142,7 +142,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         receiving_ledger_contribution_text: self.ttext("Lemon Scooters"),
         maximum_cumulative_subsidy_cents: 0,
       )
-      trigger.add_program(self.scooter_program)
 
       Suma::Mobility::GbfsFeed.create(
         feed_root_url: "https://gbfs.lyft.com/gbfs/2.3/pdx/en",
@@ -329,7 +328,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_holiday_triggers
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Holiday food promo",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 8,
@@ -339,7 +338,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         receiving_ledger_name: "Holidays Food Demo",
         receiving_ledger_contribution_text: self.ttext("Holiday Food Subsidy"),
       )
-      trigger.add_program(self.holiday_program)
     end
 
     def setup_farmers_market_offering
@@ -458,7 +456,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_farmers_market_triggers
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Farmers market 5 for 19 signup",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 3.8,
@@ -468,8 +466,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         receiving_ledger_name: "Farmers Market Intro Demo",
         receiving_ledger_contribution_text: self.ttext("FM Intro Offer"),
       )
-      trigger.add_program(self.farmers_market_program)
-      trigger = Suma::Payment::Trigger.create(
+      Suma::Payment::Trigger.create(
         label: "Farmers market 1 to 1",
         active_during: Time.now..1.year.from_now,
         match_multiplier: 1,
@@ -479,7 +476,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         receiving_ledger_name: "Farmers Market Match Demo",
         receiving_ledger_contribution_text: self.ttext("FM Match"),
       )
-      trigger.add_program(self.farmers_market_program)
     end
   end
 
@@ -513,8 +509,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         g.app_link_text = self.ttext("Yummy food")
       end
 
-      Suma::Program.all.each do |pr|
-        pr.add_enrollment(role: Suma::Role.cache.member, approved_at: Time.now)
+      Suma::Program.all.each_with_index do |pr, idx|
+        Suma::Fixtures.eligibility_attribute(name: "demo-#{idx + 1}").between(Suma::Role.cache.member, pr).create
       end
     end
   end

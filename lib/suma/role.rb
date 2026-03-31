@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require "suma/has_activity_audit"
 require "suma/postgres/model"
 
 class Suma::Role < Suma::Postgres::Model(:roles)
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
 
   class Cache
     # :section: App Roles
@@ -61,8 +63,7 @@ class Suma::Role < Suma::Postgres::Model(:roles)
                join_table: :roles_organizations,
                order: order_assoc(:name)
 
-  one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
-  one_to_many :program_enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
+  one_to_many :eligibility_assignments, class: "Suma::Eligibility::Assignment", order: order_desc
 
   def rel_admin_link = "/role/#{self.id}"
 

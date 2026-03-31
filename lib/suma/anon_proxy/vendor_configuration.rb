@@ -19,15 +19,9 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   plugin :translated_text, :help_text, Suma::TranslatedText
   plugin :translated_text, :terms_text, Suma::TranslatedText
   plugin :translated_text, :linked_success_instructions, Suma::TranslatedText
+  plugin Suma::Program::Has, :programs_anon_proxy_vendor_configurations, :configuration_id
 
   many_to_one :vendor, class: "Suma::Vendor"
-
-  many_to_many :programs,
-               class: "Suma::Program",
-               join_table: :programs_anon_proxy_vendor_configurations,
-               left_key: :configuration_id,
-               order: order_desc
-  include Suma::Program::Has
 
   dataset_module do
     def enabled

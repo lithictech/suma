@@ -14,8 +14,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     expose :pricings, with: ProgramPricingEntity
     expose :anon_proxy_vendor_configurations, as: :configurations, with: AnonProxyVendorConfigurationEntity
     expose :payment_triggers, with: PaymentTriggerEntity
-    expose :enrollments, with: ProgramEnrollmentEntity
-    expose :enrollment_exclusions, with: ProgramEnrollmentExclusionEntity
+    expose :eligibility_requirements, with: EligibilityRequirementEntity
     expose :audit_activities, with: ActivityEntity
   end
 

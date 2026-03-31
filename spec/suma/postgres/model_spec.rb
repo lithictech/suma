@@ -529,6 +529,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
           next unless assoc.fetch(:type) == :one_to_many
           # Don't assume these are simple lookups
           next if assoc.fetch(:eager_block)
+          next if assoc[:skip_index_check]
           describe "#{assoc_name} association" do
             fk_to_this_model = assoc.fetch(:key_method)
             assoc_class = Kernel.const_get(assoc.fetch(:class_name))

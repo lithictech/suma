@@ -22,9 +22,7 @@ class Suma::Member::Exporter < Suma::Exporter
       ["Zip", ->(m) { m.legal_entity.address&.postal_code }],
       ["Country", ->(m) { m.legal_entity.address&.country }],
       ["Verified", ->(m) { m.onboarding_verified_at ? true : false }],
-      ["Programs", lambda do |m|
-        m.combined_program_enrollments_dataset.active(as_of: Time.now).all.map { |e| e.program.name.en }.sort.join("|")
-      end,],
+      ["Programs", ->(m) { m.eligible_programs(as_of: self.as_of).map { |pr| pr.name.en }.sort.join("|") }],
       ["Deleted", ->(m) { m.soft_deleted_at ? true : false }],
       ["Timezone", lambda(&:timezone)],
     ]

@@ -28,6 +28,28 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
   end
 
+  describe "POST /v1/search/eligibility_attributes" do
+    it "returns matching rows" do
+      r1 = Suma::Fixtures.eligibility_attribute.create(name: "sponge bob")
+      r2 = Suma::Fixtures.eligibility_attribute.create(name: "patrick")
+
+      post "/v1/search/eligibility_attributes", q: "sponge"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r1.id))
+    end
+
+    it "returns all results in descending order if no query" do
+      r1 = Suma::Fixtures.eligibility_attribute.create(name: "sponge bob")
+      r2 = Suma::Fixtures.eligibility_attribute.create(name: "sponge bob square pants")
+
+      post "/v1/search/eligibility_attributes", q: ""
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r2, r1))
+    end
+  end
+
   describe "POST /v1/search/ledgers" do
     it "returns matching ledgers" do
       o1 = Suma::Fixtures.ledger.create(name: "abc")
@@ -158,6 +180,28 @@ RSpec.describe Suma::AdminAPI::Search, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba))
+    end
+  end
+
+  describe "POST /v1/search/payment_triggers" do
+    it "returns matching rows" do
+      r1 = Suma::Fixtures.payment_trigger.create(label: "sponge bob")
+      r2 = Suma::Fixtures.payment_trigger.create(label: "patrick")
+
+      post "/v1/search/payment_triggers", q: "sponge"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r1.id))
+    end
+
+    it "returns all results in descending order if no query" do
+      r1 = Suma::Fixtures.payment_trigger.create(label: "sponge bob")
+      r2 = Suma::Fixtures.payment_trigger.create(label: "sponge bob square pants")
+
+      post "/v1/search/payment_triggers", q: ""
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r2, r1))
     end
   end
 
@@ -572,28 +616,6 @@ RSpec.describe Suma::AdminAPI::Search, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o2, o1).ordered)
-    end
-  end
-
-  describe "POST /v1/search/payment_triggers" do
-    it "returns matching rows" do
-      r1 = Suma::Fixtures.payment_trigger.create(label: "sponge bob")
-      r2 = Suma::Fixtures.payment_trigger.create(label: "patrick")
-
-      post "/v1/search/payment_triggers", q: "sponge"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r1.id))
-    end
-
-    it "returns all results in descending order if no query" do
-      r1 = Suma::Fixtures.payment_trigger.create(label: "sponge bob")
-      r2 = Suma::Fixtures.payment_trigger.create(label: "sponge bob square pants")
-
-      post "/v1/search/payment_triggers", q: ""
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r2, r1))
     end
   end
 

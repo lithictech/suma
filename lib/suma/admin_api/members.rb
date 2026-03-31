@@ -75,6 +75,18 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :medium
   end
 
+  class EligibilityMemberAssignmentEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :unique_key
+    expose :member, with: MemberEntity
+    expose :attribute, with: EligibilityAttributeEntity
+    expose :source_type
+    expose :depth
+    expose :source_member, with: MemberEntity
+    expose :source_role, with: RoleEntity
+    expose :source_membership, with: OrganizationMembershipEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -91,8 +103,8 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :charges, with: ChargeEntity
-    expose :direct_program_enrollments, with: ProgramEnrollmentEntity
-    expose :program_enrollment_exclusions, with: ProgramEnrollmentExclusionEntity
+    expose :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
     expose :referral, with: ReferralEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity

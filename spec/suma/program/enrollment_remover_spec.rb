@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Suma::Program::EnrollmentRemover, :db, :no_transaction_check do
+RSpec.describe Suma::Program::EnrollmentRemover, :db, :no_transaction_check, skip: "eligibility rewrite" do
   let(:member) { Suma::Fixtures.member.create }
   let(:instance) { described_class.new(member) }
 

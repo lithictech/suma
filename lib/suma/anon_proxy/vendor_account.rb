@@ -36,10 +36,8 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     def for(member, as_of:)
       return [] unless member.onboarding_verified?
 
-      ds = Suma::AnonProxy::VendorConfiguration.enabled.eligible_to(member, as_of:)
-      valid_configs = ds.
-        all.
-        index_by(&:id)
+      configs = Suma::AnonProxy::VendorConfiguration.enabled.fetch_eligible_to(member, as_of:)
+      valid_configs = configs.index_by(&:id)
       accounts = member.anon_proxy_vendor_accounts_dataset.where(configuration_id: valid_configs.keys).all
       accounts.each { |a| valid_configs.delete(a.configuration_id) }
       unless valid_configs.empty?
@@ -76,12 +74,8 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   # If we have any results from this, we probably need pricing,
   # and can ask the user to set up payment before provisioning/linking a vendor account.
   def require_payment_instrument?(as_of:)
-    config_programs = self.configuration.
-      programs_dataset.
-      active(as_of:)
-    config_member_programs = config_programs.
-      where(enrollments: self.member.combined_program_enrollments_dataset.enrolled(as_of:))
-    nonzero_same_vendor_programs = config_member_programs.
+    programs = self.configuration.programs_eligible_to(self.member, as_of:)
+    nonzero_same_vendor_programs = Suma::Program.where(id: programs.map(&:id)).
       where(
         pricings: Suma::Program::Pricing.where(
           vendor_service_rate: Suma::Vendor::ServiceRate.dataset.nonzero,

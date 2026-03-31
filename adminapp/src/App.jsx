@@ -13,6 +13,19 @@ import CardDetailPage from "./pages/CardDetailPage";
 import ChargeDetailPage from "./pages/ChargeDetailPage";
 import ChargeListPage from "./pages/ChargeListPage";
 import DashboardPage from "./pages/DashboardPage";
+import EligibilityAssignmentCreatePage from "./pages/EligibilityAssignmentCreatePage";
+import EligibilityAssignmentDetailPage from "./pages/EligibilityAssignmentDetailPage";
+import EligibilityAssignmentEditPage from "./pages/EligibilityAssignmentEditPage";
+import EligibilityAssignmentListPage from "./pages/EligibilityAssignmentListPage";
+import EligibilityAttributeCreatePage from "./pages/EligibilityAttributeCreatePage";
+import EligibilityAttributeDetailPage from "./pages/EligibilityAttributeDetailPage";
+import EligibilityAttributeEditPage from "./pages/EligibilityAttributeEditPage";
+import EligibilityAttributeListPage from "./pages/EligibilityAttributeListPage";
+import EligibilityRequirementCreatePage from "./pages/EligibilityRequirementCreatePage";
+import EligibilityRequirementDetailPage from "./pages/EligibilityRequirementDetailPage";
+import EligibilityRequirementEditPage from "./pages/EligibilityRequirementEditPage";
+import EligibilityRequirementExpressionEditorPage from "./pages/EligibilityRequirementExpressionEditorPage";
+import EligibilityRequirementListPage from "./pages/EligibilityRequirementListPage";
 import FinancialsPage from "./pages/FinancialsPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
@@ -77,11 +90,6 @@ import ProductListPage from "./pages/ProductListPage";
 import ProgramCreatePage from "./pages/ProgramCreatePage";
 import ProgramDetailPage from "./pages/ProgramDetailPage";
 import ProgramEditPage from "./pages/ProgramEditPage";
-import ProgramEnrollmentCreatePage from "./pages/ProgramEnrollmentCreatePage";
-import ProgramEnrollmentDetailPage from "./pages/ProgramEnrollmentDetailPage";
-import ProgramEnrollmentExclusionCreatePage from "./pages/ProgramEnrollmentExclusionCreatePage";
-import ProgramEnrollmentExclusionDetailPage from "./pages/ProgramEnrollmentExclusionDetailPage";
-import ProgramEnrollmentListPage from "./pages/ProgramEnrollmentListPage";
 import ProgramListPage from "./pages/ProgramListPage";
 import ProgramPricingCreatePage from "./pages/ProgramPricingCreatePage";
 import ProgramPricingDetailPage from "./pages/ProgramPricingDetailPage";
@@ -527,51 +535,6 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/program-enrollments"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          ProgramEnrollmentListPage
-        )}
-      />
-      <Route
-        exact
-        path="/program-enrollment/new"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          ProgramEnrollmentCreatePage
-        )}
-      />
-      <Route
-        exact
-        path="/program-enrollment/:id"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          ProgramEnrollmentDetailPage
-        )}
-      />
-      <Route
-        exact
-        path="/program-enrollment-exclusion/new"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          ProgramEnrollmentExclusionCreatePage
-        )}
-      />
-      <Route
-        exact
-        path="/program-enrollment-exclusion/:id"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          ProgramEnrollmentExclusionDetailPage
-        )}
-      />
-      <Route
-        exact
         path="/program-pricing/new"
         element={renderWithHocs(
           redirectIfUnauthed,
@@ -963,6 +926,124 @@ function PageSwitch() {
           MarketingSmsDispatchDetailPage
         )}
       />
+      <Route
+        exact
+        path="/eligibility-attributes"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAttributeListPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-attribute/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAttributeCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-attribute/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAttributeDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-attribute/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAttributeEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-assignments"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAssignmentListPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-assignment/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAssignmentCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-assignment/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAssignmentDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-assignment/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityAssignmentEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-requirements"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityRequirementListPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-requirement/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityRequirementCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-requirement/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityRequirementDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-requirement/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityRequirementEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/eligibility-requirement/:id/edit-expression"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityRequirementExpressionEditorPage
+        )}
+      />
+
       <Route
         exact
         path="/static-strings"
