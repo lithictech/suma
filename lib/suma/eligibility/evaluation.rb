@@ -46,19 +46,10 @@ class Suma::Eligibility::Evaluation
           raise Suma::InvariantViolation, "unary expects 1 subexpression" unless results.length == 1
           return !results[0]
         else
+          # :nocov:
           raise Suma::InvariantViolation, "invalid operator"
+        # :nocov:
       end
-    end
-
-    # @param attrs [Array<Suma::Eligibility::Attribute>]
-    # @param accum [Hash{Integer => Suma::Eligibility::Attribute}]
-    # @return [Hash{Integer => Suma::Eligibility::Attribute}]
-    def accumulate_attributes(attrs, accum: {})
-      attrs.each do |attr|
-        accum[attr.id] = attr
-        self.accumulate_attributes([attr.parent], accum:) if attr.parent
-      end
-      return accum
     end
   end
 
@@ -105,7 +96,9 @@ class Suma::Eligibility::Evaluation
           role = Suma::Role.find!(ma.sources[1][:id])
           "role #{role.name} for #{om.verified_organization.name}"
         else
+          # :nocov:
           raise Suma::InvariantViolation, "unexpected source type: #{ma.inspect}"
+        # :nocov:
       end
       row << ma.depth.to_s
     end

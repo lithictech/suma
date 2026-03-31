@@ -24,6 +24,10 @@ RSpec.describe "Suma::Eligibility::Requirement", :db do
     expect(req.payment_triggers).to contain_exactly(be === pt)
     expect(pr.eligibility_requirements).to contain_exactly(be === req)
     expect(pt.eligibility_requirements).to contain_exactly(be === req)
+
+    expect do
+      Suma::Fixtures.eligibility_requirement.of(req).create
+    end.to raise_error(/invalid requirement resource/)
   end
 
   describe "caching" do

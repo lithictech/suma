@@ -49,7 +49,9 @@ class Suma::Eligibility::MemberAssignment < Suma::Postgres::Model(:eligibility_m
           self.source_role,
         ]
       else
+        # :nocov:
         raise Suma::InvariantViolation, "unexpected source type: #{self.inspect}"
+      # :nocov:
     end
   end
 end
