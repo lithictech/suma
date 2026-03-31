@@ -44,15 +44,15 @@ class Suma::Service::EntityJsdocWriter
   end
 
   # Convert a grape-entity :using or :type value to a JSDoc type string.
-  protected def jsdoc_type(type, using, documentation)
+  protected def jsdoc_type(using, documentation)
     # Explicit :using — references another entity
     if using
       entity_class = using.is_a?(Proc) ? using.call : using
       return self.jsdoc_entity_name(entity_class)
     end
 
-    # Documentation hint (e.g. documentation: { type: "string" })
-    return documentation[:type].to_s if documentation.is_a?(Hash) && documentation[:type]
+    # Documentation hint (e.g. documentation: { type: "String" })
+    (type = documentation[:type].to_s) if documentation.is_a?(Hash) && documentation[:type]
 
     return "?" unless type
 
@@ -163,12 +163,7 @@ class Suma::Service::EntityJsdocWriter
     lines << " * @typedef {Object} #{type_name}"
     lines << " * @description Auto-generated from #{source_name}"
 
-    exposures = begin
-      entity_class.root_exposures
-    rescue StandardError
-      []
-    end
-
+    exposures = entity_class.root_exposures
     exposures.each do |exposure|
       # Each exposure may represent a single field or a nested block.
       # We walk recursively if the exposure responds to `nested_exposures`.
@@ -195,12 +190,11 @@ class Suma::Service::EntityJsdocWriter
     # Gather type hints from the exposure's options
     name_as = opts[:as]
     using = opts[:using]
-    type  = opts[:type]
-    doc   = opts[:documentation]
+    doc = opts[:documentation]
 
     attr_name = name_as || attr_name
 
-    js_type = self.jsdoc_type(type, using, doc)
+    js_type = self.jsdoc_type(using, doc)
     js_type = self.guess_jsdoc_type(attr_name) if js_type == "?"
 
     desc_text = doc.is_a?(Hash) ? (doc[:desc] || doc[:description]).to_s : ""
