@@ -63,6 +63,7 @@ gem "signalwire"
 gem "smstools"
 gem "state_machines"
 gem "stripe"
+gem "tsort"
 gem "twilio-ruby", "~> 5.74"
 gem "yajl-ruby"
 
