@@ -21,8 +21,8 @@ RSpec.describe Suma::ImageProcessor do
   end
 
   describe "handle" do
-    def handle(**opts)
-      v = described_class.prepare(described_class.from_file(photo_file), **opts)
+    def handle(**)
+      v = described_class.prepare(described_class.from_file(photo_file), **)
       return v.call(save: false)
     end
 

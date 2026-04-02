@@ -2,7 +2,7 @@
 
 require "liquid"
 
-require "suma"
+require "suma/liquid"
 
 # Allow members to expose variables from a template
 # using custom blocks and registers.

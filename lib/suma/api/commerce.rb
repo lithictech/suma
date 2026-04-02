@@ -356,6 +356,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   class FulfillmentOptionEntity < BaseEntity
     include Suma::API::Entities
+
     expose :id
     expose_translated :description
     expose :address, with: FulfillmentOptionAddressEntity
@@ -430,6 +431,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   class SimpleOrderHistoryEntity < BaseEntity
     include Suma::API::Entities
+
     expose :id
     expose :serial
     expose :created_at
@@ -443,12 +445,14 @@ class Suma::API::Commerce < Suma::API::V1
 
   class OrderHistoryFundingTransactionEntity < BaseEntity
     include Suma::API::Entities
+
     expose :amount, with: MoneyEntity
     expose :label, &self.delegate_to(:strategy, :originating_instrument_label)
   end
 
   class OrderHistoryItemEntity < BaseEntity
     include Suma::API::Entities
+
     expose :quantity
     expose_translated :name, &self.delegate_to(:offering_product, :product, :name)
     expose_translated :description, &self.delegate_to(:offering_product, :product, :description)
@@ -458,6 +462,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   class DetailedOrderHistoryEntity < SimpleOrderHistoryEntity
     include Suma::API::Entities
+
     expose :items, with: OrderHistoryItemEntity, &self.delegate_to(:checkout, :items)
     expose :offering_id, &self.delegate_to(:checkout, :cart, :offering_id)
     expose_translated :offering_description, &self.delegate_to(:checkout, :cart, :offering, :description)

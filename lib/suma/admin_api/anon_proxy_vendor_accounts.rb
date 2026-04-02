@@ -9,6 +9,7 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
   class VendorAccountRegistrationEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :external_program_id
     expose :external_registration_id
   end
@@ -16,6 +17,7 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
   class DetailedVendorAccountEntity < AnonProxyVendorAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :latest_access_code
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at

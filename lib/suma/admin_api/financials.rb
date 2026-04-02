@@ -9,6 +9,7 @@ class Suma::AdminAPI::Financials < Suma::AdminAPI::V1
 
   class LedgerEntity < SimpleLedgerEntity
     include Suma::AdminAPI::Entities
+
     expose :balance, with: MoneyEntity
     expose :total_credits, with: MoneyEntity
     expose :count_credits
@@ -19,6 +20,7 @@ class Suma::AdminAPI::Financials < Suma::AdminAPI::V1
   class OffPlatformTransactionEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :amount, with: MoneyEntity
     expose :transacted_at, &self.delegate_to(:strategy, :transacted_at)
     expose :note, &self.delegate_to(:strategy, :note)

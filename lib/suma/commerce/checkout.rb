@@ -245,7 +245,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   protected def check_and_update_product_inventories
     # Lock all inventories so we can 1) check quantity on limited quantity products,
     # and 2) update pending fulfillment amounts.
-    inventories = self.items.map { |it| it.cart_item.product.inventory! }
+    inventories = self.items.map { |v| v.cart_item.product.inventory! }
     inventories.each(&:lock!)
     self.items.each do |item|
       product = item.cart_item.product

@@ -8,6 +8,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
   class DetailedVendorServiceEntity < VendorServiceEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :audit_activities, with: ActivityEntity
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
     expose :program_pricings, with: ProgramPricingEntity

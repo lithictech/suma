@@ -9,6 +9,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
   class DetailedOrganizationEntity < OrganizationEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :ordinal
     expose :membership_verification_email
     expose :membership_verification_front_template_id

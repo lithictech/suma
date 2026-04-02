@@ -60,6 +60,8 @@ module Suma::Frontapp
   end
 end
 
+# rubocop:disable Style/OneClassPerFile
+
 class Frontapp::Client
   def create(path, body)
     params = self.post_request_params(body)
@@ -133,3 +135,5 @@ end
 class Frontapp::Client
   include Frontapp::Client::MessageTemplates
 end
+
+# rubocop:enable Style/OneClassPerFile

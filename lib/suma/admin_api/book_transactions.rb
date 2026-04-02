@@ -10,6 +10,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
   class DetailedBookTransactionEntity < BookTransactionEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :opaque_id
     expose :memo, with: TranslatedTextEntity
     expose :originating_funding_transaction, with: FundingTransactionEntity

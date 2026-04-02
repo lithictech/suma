@@ -4,56 +4,14 @@ require "active_support"
 require "active_support/core_ext"
 require "appydays/configurable"
 require "appydays/loggable"
+require "merge_heroku_env"
 require "money"
-require "pathname"
 require "phony"
 require "yajl"
 
-module Suma
-  def self.merge_heroku_env(env=ENV)
-    if (heroku_app = env.fetch("MERGE_HEROKU_ENV", nil))
-      text = Kernel.send(:`, "heroku config -j --app=#{heroku_app}")
-      env.merge!(Yajl::Parser.parse(text))
-    end
-  end
-end
+require "suma/monkeypatches"
 
-Suma.merge_heroku_env
-
-Money.locale_backend = :i18n
-Money.rounding_mode = BigDecimal::ROUND_HALF_UP
-
-class Money
-  class << self
-    def cache = @cache ||= {}
-
-    # Since Money instances are immutable, we can cache certain instances (0 cents)
-    # to reduce allocations.
-    def new(obj, currency=Money.default_currency, options={})
-      # rubocop:disable Style/NumericPredicate
-      if obj == 0
-        # rubocop:enable Style/NumericPredicate
-        zero = self.cache[currency] ||= super
-        return zero
-      end
-      return super
-    end
-  end
-end
-
-module SemanticLogger
-  class << self
-    alias original_get []
-    def [](key)
-      logger = self.original_get(key)
-      return logger unless Suma.respond_to?(:log_level_overrides)
-      if (level = Suma.log_level_overrides[logger.name])
-        logger.level = level
-      end
-      return logger
-    end
-  end
-end
+MergeHerokuEnv.merge
 
 module Suma
   include Appydays::Loggable
@@ -186,7 +144,7 @@ module Suma
       parts << instance.created_at
     end
     parts << SecureRandom.hex(8) if self.bust_idempotency
-    key << "-" << parts.map(&:to_s).join("-") unless parts.empty?
+    key << "-" << parts.join("-") unless parts.empty?
 
     return key
   end
@@ -289,7 +247,3 @@ require "suma/feature_flags"
 require "suma/phone_number"
 require "suma/signals"
 require "suma/typed_struct"
-
-raise "Remove this code, ActiveSupport has the new default" if
-  ActiveSupport::VERSION::MAJOR >= 8 && ActiveSupport::VERSION::MINOR >= 1
-ActiveSupport.to_time_preserves_timezone = :zone

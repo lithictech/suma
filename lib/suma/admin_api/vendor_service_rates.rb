@@ -8,6 +8,7 @@ class Suma::AdminAPI::VendorServiceRates < Suma::AdminAPI::V1
   class DetailedVendorServiceRateEntity < VendorServiceRateEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :unit_offset
     expose :ordinal
     expose :undiscounted_rate, with: VendorServiceRateEntity

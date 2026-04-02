@@ -8,6 +8,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
   class DetailedProgramEntity < ProgramEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose_image :image
     expose :lyft_pass_program_id
     expose :commerce_offerings, with: OfferingEntity

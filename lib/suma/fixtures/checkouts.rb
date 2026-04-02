@@ -27,8 +27,8 @@ module Suma::Fixtures::Checkouts
     self.complete(t)
     self.fulfillment_option ||= self.cart.offering.fulfillment_options.first ||
       Suma::Fixtures.offering_fulfillment_option(offering: self.cart.offering).create
-    self.items.each do |it|
-      it.update(cart_item_id: nil, immutable_quantity: it.cart_item.quantity)
+    self.items.each do |item|
+      item.update(cart_item_id: nil, immutable_quantity: item.cart_item.quantity)
     end
   end
 

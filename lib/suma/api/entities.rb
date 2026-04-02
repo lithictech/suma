@@ -146,6 +146,7 @@ module Suma::API::Entities
     expose :apply_at, as: :at
     expose_translated :memo
     include Suma::API::Entities::LedgerLineAmountMixin
+
     expose :usage_details, with: LedgerLineUsageDetailsEntity
   end
 

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "appydays/loggable"
-require "pathname"
 require "rack/test"
 require "rspec"
 require "yajl"

@@ -161,6 +161,7 @@ class Suma::API::AnonProxy < Suma::API::V1
 
   class AnonProxyVendorAccountEntity < BaseEntity
     include Suma::API::Entities
+
     expose :id
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
@@ -175,6 +176,7 @@ class Suma::API::AnonProxy < Suma::API::V1
 
   class AnonProxyVendorAccountPollResultEntity < BaseEntity
     include Suma::API::Entities
+
     expose :found_change
     expose_translated :success_instructions do |inst|
       inst.fetch(:vendor_account).configuration.linked_success_instructions

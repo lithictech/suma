@@ -9,12 +9,14 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
   class OfferingProductWithOfferingEntity < OfferingProductEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :offering, with: OfferingEntity
   end
 
   class DetailedEntity < ProductEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :ordinal
     expose :inventory do
       expose :max_quantity_per_member_per_offering,

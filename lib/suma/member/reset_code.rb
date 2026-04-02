@@ -22,10 +22,10 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
     end
   end
 
-  def self.replace_active(member, transport:, **options)
+  def self.replace_active(member, transport:, **)
     self.db.transaction do
       member.reset_codes_dataset.where(transport:).usable.each(&:expire!)
-      return self.create(member:, transport:, **options)
+      return self.create(member:, transport:, **)
     end
   end
 

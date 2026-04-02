@@ -5,6 +5,7 @@ require "suma/spec_helpers/sentry"
 
 RSpec.describe Suma::AnonProxy::MessageHandler, :db do
   include UrlShortener::SpecHelpers
+
   let(:url_shortener) { Suma::UrlShortener.shortener }
 
   before(:each) do

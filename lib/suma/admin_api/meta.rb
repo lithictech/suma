@@ -79,6 +79,7 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
   class SlimProgramEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :name do |o|
       o.name.en
     end

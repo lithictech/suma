@@ -3,12 +3,6 @@
 require "appydays/configurable"
 require "liquid"
 
-module Suma::Messages
-end
-
-module Suma::Liquid
-end
-
 module Suma::Message
   include Appydays::Configurable
   extend Suma::MethodUtilities

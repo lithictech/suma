@@ -131,6 +131,7 @@ class Suma::API::TestService < Suma::Service
 
   class EtaggedEntity < Grape::Entity
     prepend Suma::Service::Entities::EtaggedMixin
+
     expose :field1 do |_|
       25
     end
@@ -1075,7 +1076,7 @@ RSpec.describe Suma::Service, :db do
         ent = Class.new(Suma::Service::Entities::Base) do
           expose :z, &self.delegate_to(:yyy)
         end
-        expect { ent.represent(x).as_json.to_h }.to raise_error(NoMethodError, /undefined method `yyy'/)
+        expect { ent.represent(x).as_json.to_h }.to raise_error(NoMethodError, /undefined method 'yyy'/)
       end
     end
   end

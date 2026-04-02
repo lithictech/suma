@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/liquid"
+
 # Liquification provides a to_liquid method that returns a wrapped object,
 # so that any object can be used in a liquid template
 # (normally only things like basic types, and objects with to_liquid,

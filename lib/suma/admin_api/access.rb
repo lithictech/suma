@@ -69,8 +69,8 @@ class Suma::AdminAPI::Access
     end
 
     def as_json
-      r = MAPPING.values.each_with_object({}) do |v, acc|
-        acc[v[0]] = [v[1], v[2]]
+      r = MAPPING.values.to_h do |v|
+        [v[0], [v[1], v[2]]]
       end
       OTHER_RESOURCES.each do |v|
         r[v[0]] = [v[1], v[2]]

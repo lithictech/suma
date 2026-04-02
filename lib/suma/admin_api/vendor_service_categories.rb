@@ -7,12 +7,14 @@ class Suma::AdminAPI::VendorServiceCategories < Suma::AdminAPI::V1
 
   class ListVendorServiceCategoryEntity < VendorServiceCategoryEntity
     include Suma::AdminAPI::Entities
+
     expose :parent, with: VendorServiceCategoryEntity
   end
 
   class DetailedVendorServiceCategoryEntity < VendorServiceCategoryEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :parent, with: VendorServiceCategoryEntity
     expose :children, with: VendorServiceCategoryEntity
   end

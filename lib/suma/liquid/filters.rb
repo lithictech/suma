@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require "liquid"
-require "suma"
+require "suma/liquid"
 
 module Suma::Liquid::Filters
   def humanize(input)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 source "https://rubygems.org"
-ruby "3.3.7"
+ruby "4.0.2"
 
 gem "activesupport", "~> 8.0"
 gem "appydays", "~> 0.13"
@@ -13,7 +13,7 @@ gem "browser"
 gem "foreman"
 gem "frontapp"
 gem "geokit"
-gem "grape", "~> 2.4"
+gem "grape", "~> 3.1"
 gem "grape-entity", "~> 1.0"
 gem "grape_logging"
 gem "grape-swagger"
@@ -33,7 +33,7 @@ gem "platform-api"
 gem "premailer"
 gem "pry"
 gem "pry-clipboard2"
-gem "puma", "~> 6.6"
+gem "puma", "~> 7.0"
 gem "rack", "~> 3.1"
 gem "rack-attack"
 gem "rack-cors", "~> 3.0"
@@ -63,6 +63,7 @@ gem "signalwire"
 gem "smstools"
 gem "state_machines"
 gem "stripe"
+gem "tsort"
 gem "twilio-ruby", "~> 5.74"
 gem "yajl-ruby"
 
@@ -81,7 +82,7 @@ group :test_group do
   gem "rspec-eventually"
   gem "rspec-json_expectations"
   gem "rspec-temp_dir"
-  gem "rubocop", "~> 1.77.0"
+  gem "rubocop", "~> 1.86.0"
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false
   gem "rubocop-sequel", require: false

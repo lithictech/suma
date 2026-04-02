@@ -10,6 +10,7 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
   class MessageBodyEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :mediatype
     expose :content do |inst, opts|
       ra = opts.fetch(:env).fetch("yosoy").authenticated_object!.member.role_access
@@ -23,6 +24,7 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
   class DetailedMessageDeliveryEntity < MessageDeliveryEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :bodies, with: MessageBodyEntity
   end
 

@@ -15,6 +15,7 @@ class Suma::AdminAPI::Cards < Suma::AdminAPI::V1
   class DetailedCardEntity < CardEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :stripe_id
     expose :member, with: MemberEntity
   end

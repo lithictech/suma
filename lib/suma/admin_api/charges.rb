@@ -9,6 +9,7 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
   class DetailedChargeEntity < ChargeWithPricesEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :member, with: MemberEntity
     expose :mobility_trip, with: MobilityTripEntity
     expose :commerce_order, with: OrderEntity
@@ -19,6 +20,7 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
 
   class ChargeEntityWithMember < ChargeEntity
     include Suma::AdminAPI::Entities
+
     expose :member, with: MemberEntity
   end
 

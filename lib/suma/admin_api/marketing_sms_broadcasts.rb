@@ -9,6 +9,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
   class DetailedSmsBroadcastEntity < MarketingSmsBroadcastEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :created_by, with: MemberEntity
     expose :body, with: TranslatedTextEntity
     expose :sending_number
@@ -43,6 +44,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
 
   class SmsBroadcastPreReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :broadcast, with: SmsBroadcastReviewAssociatedEntity
     expose :list_labels
     expose :total_recipients
@@ -56,6 +58,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
 
   class SmsBroadcastPostReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :broadcast, with: SmsBroadcastReviewAssociatedEntity
     expose :list_labels
     expose :total_recipients

@@ -80,7 +80,7 @@ class Suma::Service::Collection
           Suma::Service::Collection.from_array(collection)
         end
 
-      present wrapped, opts
+      present wrapped, **opts
     end
   end
 end

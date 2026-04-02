@@ -66,8 +66,7 @@ RSpec.configure do |config|
     require "suma/spec_helpers/postgres"
     config.include(Suma::SpecHelpers::Postgres)
   else
-    require "sidekiq/testing"
-    Sidekiq::Testing.inline!
+    Sidekiq.testing!(:inline)
     require "suma/spec_helpers"
     config.include(Suma::SpecHelpers)
     require "suma/spec_helpers/async"

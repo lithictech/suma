@@ -247,6 +247,7 @@ RSpec.describe SequelTranslatedText, :db do
     it "can limit the all languages columns if `all_languages` is defined" do
       c = Class.new(Sequel::Model(:test_translated_texts)) do
         include SequelTranslatedText::Model
+
         def all_languages
           return [:fr]
         end

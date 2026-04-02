@@ -506,7 +506,7 @@ class Suma::Lyft::Pass
   end
 
   def extract_cookie(resp, key)
-    return %r{#{key}=([\w\-/\+\=]+);}.match(resp.headers["Set-Cookie"])[1]
+    return %r{#{key}=([\w\-/+=]+);}.match(resp.headers["Set-Cookie"])[1]
   end
 
   def encode_cookies(h)

@@ -8,6 +8,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
   class DetailedEligibilityRequirement < EligibilityRequirementEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :created_by, with: AuditMemberEntity
     expose :programs, with: ProgramEntity
     expose :payment_triggers, with: PaymentTriggerEntity

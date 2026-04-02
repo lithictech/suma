@@ -5,6 +5,7 @@ RSpec.describe Suma::AdminLinked, reset_configuration: Suma do
     Suma.admin_url = "http://localhost/admin"
     cls = Class.new do
       include Suma::AdminLinked
+
       def rel_admin_link = "/foo"
     end
     expect(cls.new.admin_link).to eq("http://localhost/admin/foo")
@@ -21,6 +22,7 @@ RSpec.describe Suma::AdminLinked, reset_configuration: Suma do
     Suma.admin_url = "http://localhost/admin"
     cls = Class.new do
       include Suma::AdminLinked
+
       def rel_admin_link = "/foo"
     end
     expect(cls.new.rooted_admin_link).to eq("/admin/foo")
@@ -28,6 +30,7 @@ RSpec.describe Suma::AdminLinked, reset_configuration: Suma do
     Suma.admin_url = "http://localhost:1000"
     cls = Class.new do
       include Suma::AdminLinked
+
       def rel_admin_link = "/foo"
     end
     expect(cls.new.rooted_admin_link).to eq("/foo")

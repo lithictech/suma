@@ -19,6 +19,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class DetailedOfferingEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :audit_activities, with: ActivityEntity
     expose :confirmation_template
     expose :description, with: TranslatedTextEntity
@@ -42,23 +43,27 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class PicklistProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose_translated :name
   end
 
   class PicklistOfferingProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :product, with: PicklistProductEntity
   end
 
   class PicklistFulfillmentOptionEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose_translated :description
   end
 
   class PicklistOrderItemEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :id
     expose :quantity
     expose :serial
