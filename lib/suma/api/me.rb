@@ -73,7 +73,7 @@ class Suma::API::Me < Suma::API::V1
   class ProgramEntity < BaseEntity
     expose_translated :name
     expose_translated :description
-    expose :image?, as: :image
+    expose :image?, as: :image, with: Suma::API::Entities::ImageEntity
     expose :period_begin, &self.delegate_to(:period, :begin)
     expose :period_end, &self.delegate_to(:period_end_visible)
     expose :app_link
