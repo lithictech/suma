@@ -14,8 +14,13 @@ class Suma::Member::Activity < Suma::Postgres::Model(:member_activities)
     s.gsub!(/(Suma::[A-Za-z:]+\[\d+\])/) do |m|
       clsname, id = m.split("[")
       id.delete_suffix!("]")
-      cls = Kernel.const_get(clsname)
-      model = cls.new
+      begin
+        cls = Kernel.const_get(clsname)
+      rescue NameError
+        model = nil
+      else
+        model = cls.new
+      end
       if model.respond_to?(:admin_link)
         model[cls.primary_key] = id.to_i
         m = m.delete_prefix("Suma::")
