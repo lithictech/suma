@@ -1,6 +1,7 @@
 import api from "../api";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import HelmetTitle from "./HelmetTitle";
 import assign from "lodash/assign";
 import isArray from "lodash/isArray";
 import isNil from "lodash/isNil";
@@ -73,16 +74,21 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
     return merge({}, obj, src);
   });
   return (
-    <InnerForm
-      isCreate={isCreate}
-      resource={resource}
-      setFields={setChanges}
-      setField={setField}
-      setFieldFromInput={setFieldFromInput}
-      clearField={clearField}
-      register={register}
-      isBusy={isBusy}
-      onSubmit={handleSubmit(submitter)}
-    />
+    <>
+      <HelmetTitle
+        title={isCreate ? "Create" : `Edit | ${resource.label} | ${resource.id}`}
+      />
+      <InnerForm
+        isCreate={isCreate}
+        resource={resource}
+        setFields={setChanges}
+        setField={setField}
+        setFieldFromInput={setFieldFromInput}
+        clearField={clearField}
+        register={register}
+        isBusy={isBusy}
+        onSubmit={handleSubmit(submitter)}
+      />
+    </>
   );
 }

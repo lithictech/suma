@@ -138,6 +138,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { SnackbarProvider } from "notistack";
 import React from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-dom";
 
 installPromiseExtras(window.Promise);
@@ -151,8 +152,10 @@ export default function App() {
             <GlobalApiStateProvider>
               <Router basename={import.meta.env.BASE_URL}>
                 <ClientsideSearchParamsProvider>
-                  <NavSwitch />
-                  <PageSwitch />
+                  <HelmetProvider>
+                    <NavSwitch />
+                    <PageSwitch />
+                  </HelmetProvider>
                 </ClientsideSearchParamsProvider>
               </Router>
             </GlobalApiStateProvider>

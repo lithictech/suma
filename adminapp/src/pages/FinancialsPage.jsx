@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
+import HelmetTitle from "../components/HelmetTitle";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import formatDate from "../modules/formatDate";
@@ -23,6 +24,7 @@ export default function FinancialsPage() {
   }
   return (
     <Stack gap={2}>
+      <HelmetTitle title="Platform Financials" />
       <Typography variant="h4" gutterBottom>
         Platform Financials
       </Typography>

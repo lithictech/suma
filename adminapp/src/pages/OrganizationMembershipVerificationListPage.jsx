@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import HelmetTitle from "../components/HelmetTitle";
 import InlineEditField from "../components/InlineEditField";
 import Link from "../components/Link";
 import OrganizationMembership from "../components/OrganizationMembership";
@@ -104,6 +105,7 @@ export default function OrganizationMembershipVerificationListPage() {
 
   return (
     <>
+      <HelmetTitle title="Verification Workflow" />
       <ResourceTable
         page={page}
         perPage={perPage}

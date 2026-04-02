@@ -1,5 +1,6 @@
 import api from "../api";
 import FabAdd from "../components/FabAdd";
+import HelmetTitle from "../components/HelmetTitle";
 import Link from "../components/Link";
 import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -17,6 +18,7 @@ export default function StaticStringsPage() {
   }
   return (
     <>
+      <HelmetTitle title="Static Strings" />
       <Typography variant="h4" gutterBottom>
         Static Strings
       </Typography>
