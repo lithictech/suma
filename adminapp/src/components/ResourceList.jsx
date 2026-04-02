@@ -7,6 +7,7 @@ import pluralize from "../modules/pluralize";
 import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
+import HelmetTitle from "./HelmetTitle";
 import humps from "humps";
 import startCase from "lodash/startCase";
 import React from "react";
@@ -53,6 +54,7 @@ export default function ResourceList({
 
   return (
     <>
+      <HelmetTitle title={title} />
       {canCreate && canWriteResource(resource) && (
         <FabAdd component={Link} href={resourceCreateRoute(resource)} />
       )}

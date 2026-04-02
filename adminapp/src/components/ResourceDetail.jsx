@@ -8,6 +8,7 @@ import useToggle from "../shared/react/useToggle";
 import AdminLink from "./AdminLink";
 import BackTo from "./BackTo";
 import DetailGrid from "./DetailGrid";
+import HelmetTitle from "./HelmetTitle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
@@ -91,7 +92,7 @@ export default function ResourceDetail({
     console.error("ResourceDetail children must be a function");
     return null;
   }
-  title = title || ((m) => `${startCase(resource)} ${m.id}`);
+  title = title || ((m) => `${startCase(resource)} ${m.id}: ${m.label}`);
 
   if (loading) {
     return <CircularProgress />;
@@ -143,6 +144,7 @@ export default function ResourceDetail({
 
   return (
     <Stack key={rerenderKey} gap={3}>
+      <HelmetTitle title={`${state.label} | ${startCase(resource)} ${state.id}`} />
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>{topCards}</Box>
       {bottomComponents}
     </Stack>

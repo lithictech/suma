@@ -2,6 +2,7 @@ import api from "../api";
 import BackTo from "../components/BackTo";
 import DialogWindowButtons from "../components/DialogWindowButtons";
 import FabAdd from "../components/FabAdd";
+import HelmetTitle from "../components/HelmetTitle";
 import Link from "../components/Link";
 import ResponsiveStack from "../components/ResponsiveStack";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -91,6 +92,7 @@ export default function StaticStringsNamespacePage() {
   }
   return (
     <>
+      <HelmetTitle title={`${startCase(namespace)} | Static Strings`} />
       <Typography variant="h5" gutterBottom>
         <BackTo to="/static-strings" />
         &lsquo;{startCase(namespace)}&rsquo; Static Strings{" "}

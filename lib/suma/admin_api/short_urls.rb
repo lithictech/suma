@@ -16,6 +16,9 @@ class Suma::AdminAPI::ShortUrls < Suma::AdminAPI::V1
     expose :admin_link do |sh|
       Suma::UrlShortener.admin_link(sh.id)
     end
+    expose :label do |sh|
+      "Short URL #{sh.short_id}"
+    end
   end
 
   class ShortenedUrlRowEntity < BaseEntity

@@ -2,6 +2,7 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
+import HelmetTitle from "../components/HelmetTitle";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
 import config from "../config";
@@ -45,6 +46,7 @@ export default function FundingTransactionCreatePage() {
       onSubmit={handleSubmit(submit)}
       isBusy={isBusy}
     >
+      <HelmetTitle title="Create Funding Transaction" />
       <ResponsiveStack alignItems="self-start">
         <CurrencyTextField
           {...register("amount")}
