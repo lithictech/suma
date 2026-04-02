@@ -218,7 +218,7 @@ GEM
       clipboard (~> 1)
       pry (~> 0)
     public_suffix (7.0.5)
-    puma (6.6.1)
+    puma (7.2.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -426,7 +426,7 @@ DEPENDENCIES
   premailer
   pry
   pry-clipboard2
-  puma (~> 6.6)
+  puma (~> 7.0)
   rack (~> 3.1)
   rack-attack
   rack-cors (~> 3.0)
