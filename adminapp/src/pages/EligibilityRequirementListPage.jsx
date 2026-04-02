@@ -36,7 +36,7 @@ export default function EligibilityRequirementListPage() {
               : AdminLink.Array(
                   c.resources,
                   (o) => <AdminLink model={o}>{o.label}</AdminLink>,
-                  ","
+                  " , "
                 ),
         },
       ]}
