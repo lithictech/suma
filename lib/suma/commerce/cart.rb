@@ -80,7 +80,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   # since it usually means the requests came in out-of-order.
   def set_item(product, quantity, timestamp:)
     raise ProductUnavailable, "Product (nil) not available" if product.nil?
-    item = self.items.find { |it| it.product === product }
+    item = self.items.find { |o| o.product === product }
     tsval = timestamp == IGNORE ? 0 : (timestamp || 0)
     if item.nil?
       return if quantity <= 0

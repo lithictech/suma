@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/message/template"
+require "suma/messages"
 
 module Suma::Messages::Testers
   class Base < Suma::Message::Template

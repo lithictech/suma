@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require "suma"
-require "liquid"
+require "suma/liquid"
 
 class Suma::Liquid::Partial < Liquid::Include
   def initialize(tag_name, name, options)

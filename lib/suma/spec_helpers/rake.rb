@@ -30,7 +30,7 @@ module Suma::SpecHelpers::Rake
     if args.empty?
       argv << name
     else
-      argstr = args.map(&:to_s).join(",")
+      argstr = args.join(",")
       argv << "#{name}[#{argstr}]"
     end
     argv.concat(tail)

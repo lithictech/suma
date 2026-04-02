@@ -331,6 +331,8 @@ module Sequel::Plugins::HybridSearch
   end
 end
 
+# rubocop:disable Style/OneClassPerFile
+
 # Patch pgvector to handle nil column values.
 module Pgvector
   class << self
@@ -347,3 +349,5 @@ module Pgvector
     end
   end
 end
+
+# rubocop:enable Style/OneClassPerFile

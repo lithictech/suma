@@ -49,7 +49,9 @@ class Suma::Message::Forwarder
         filename = row.fetch(:date_created).strftime("%Y%m%d")
         filename += "-attachment#{i + 1}"
         filename += "." + image.fetch("content_type").split("/").last
+        # rubocop:disable Style/FileOpen
         attachment = File.open(Pathname(tempdir) + filename, "wb+")
+        # rubocop:enable Style/FileOpen
         attachment.write(body_resp)
         attachment.rewind
         attachments << attachment

@@ -56,7 +56,9 @@ module Suma::Rakeutil
       elsif filename.start_with?("http")
         io = Suma::Http.get(filename, logger: nil, timeout: nil).body
       elsif filename
+        # rubocop:disable Style/FileOpen
         io = File.open(filename)
+        # rubocop:enable Style/FileOpen
       end
     end
     got = readall(io)

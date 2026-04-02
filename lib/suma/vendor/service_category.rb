@@ -49,28 +49,28 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
 
   def hierarchy_depth
     d = 0
-    it = self
-    while (parent = it.parent)
+    v = self
+    while (parent = v.parent)
       d += 1
-      it = parent
+      v = parent
     end
     return d
   end
 
   def hierarchy_up(&block)
-    it = self
+    v = self
     if block
       yield(self)
     else
       arr = [self]
     end
-    while (parent = it.parent)
+    while (parent = v.parent)
       if block
         yield(parent)
       else
         arr << parent
       end
-      it = parent
+      v = parent
     end
     return arr unless block
   end

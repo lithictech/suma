@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/message/template"
+require "suma/messages"
 
 class Suma::Messages::TripReceipt < Suma::Message::Template
   def self.fixtured(recipient)
