@@ -31,7 +31,7 @@ module Suma::Http
       @status = response.code
       @uri = response.request.last_uri.dup
       if @uri.query.present?
-        cleaned_params = URI::decode_www_form(@uri.query).map { |k, v| k.include?("secret") ? [k, ".snip."] : [k, v] }
+        cleaned_params = URI.decode_www_form(@uri.query).map { |k, v| k.include?("secret") ? [k, ".snip."] : [k, v] }
         @uri.query = HTTParty::Request::NON_RAILS_QUERY_STRING_NORMALIZER.call(cleaned_params)
       end
       @http_method = response.request.http_method::METHOD

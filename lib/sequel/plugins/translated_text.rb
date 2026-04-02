@@ -14,7 +14,7 @@ module Sequel::Plugins::TranslatedText
       text_model_class.one_to_one rev, key:, class: model, readonly: true
     end
 
-    unless text_model_class.instance_methods.include?(:string)
+    unless text_model_class.method_defined?(:string)
       text_model_class.define_method(:string) do
         txt = self.send(SequelTranslatedText.language!)
         (txt = self.send(SequelTranslatedText.default_language)) if

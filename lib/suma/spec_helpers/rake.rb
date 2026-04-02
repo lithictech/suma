@@ -55,12 +55,12 @@ module Suma::SpecHelpers::Rake
   def named_stdout = named_io("<STDOUT>")
   def named_stderr = named_io("<STDERR>")
 
-  module_function def create_rake_task(args: [], &block)
+  module_function def create_rake_task(args: [], &)
     taskname = "testtask_#{SecureRandom.hex(8)}"
     cls = Class.new(Rake::TaskLib) do
       define_method :initialize do
         super()
-        task(taskname, args, &block)
+        task(taskname, args, &)
       end
     end
     cls.new

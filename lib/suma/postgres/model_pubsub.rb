@@ -29,7 +29,7 @@ module Suma::Postgres::ModelPubsub
         con = current_ns.const_get(const_name)
         next unless con.is_a?(Class) || con.is_a?(Module)
         current_ns = con
-        most_resolved = con if current_ns.singleton_class.included_modules.include?(Suma::Postgres::ModelPubsub)
+        most_resolved = con if current_ns.singleton_class.include?(Suma::Postgres::ModelPubsub)
       end
       return most_resolved
     end

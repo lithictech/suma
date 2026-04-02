@@ -502,7 +502,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
         ds.multi_insert(v)
       }
       cls.each_cursor_page_action(page_size: 3, action:) do |tp|
-        tp.name == "a" ? (Array.new(10) { |i| {name: "a#{i}"} }) : nil
+        tp.name == "a" ? Array.new(10) { |i| {name: "a#{i}"} } : nil
       end
       expect(ds.order(:id).all.map(&:name)).to eq(
         ["a", "b", "c", "d", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9"],

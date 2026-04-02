@@ -113,6 +113,9 @@ Style/FormatStringToken:
   Enabled: false
 Style/Documentation:
   Enabled: false
+Style/EmptyClassDefinition:
+  Exclude:
+    - 'lib/suma/*/model.rb' # Causes issues with how Sequel establishes connections
 Style/FormatString:
   EnforcedStyle: percent
 Style/NumericPredicate:

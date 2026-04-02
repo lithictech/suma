@@ -5,7 +5,6 @@ require "active_support/core_ext"
 require "appydays/configurable"
 require "appydays/loggable"
 require "money"
-require "pathname"
 require "phony"
 require "yajl"
 

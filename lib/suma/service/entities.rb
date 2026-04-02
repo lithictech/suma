@@ -57,8 +57,8 @@ module Suma::Service::Entities
       return block.arity == 1 ? block[instance] : block[instance, options]
     end
 
-    def self.expose_translated(name, *args, &block)
-      self.expose(name, *args) do |instance, options|
+    def self.expose_translated(name, *, &block)
+      self.expose(name, *) do |instance, options|
         txt = self.evaluate_exposure(name, block, instance, options)
         s = txt&.string || ""
         i18n_fmt = Suma::I18n::Formatter.for(s)
