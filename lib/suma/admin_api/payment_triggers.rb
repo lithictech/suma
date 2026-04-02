@@ -9,6 +9,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
 
   class PaymentTriggerExecutionEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :id
     expose :admin_link, &self.delegate_to(:book_transaction, :admin_link)
     expose :book_transaction_id
@@ -19,6 +20,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
   class DetailedPaymentTriggerEntity < PaymentTriggerEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :audit_activities, with: ActivityEntity
     expose :match_multiplier, &self.delegate_to(:match_multiplier, :to_f)
     expose :match_fraction, &self.delegate_to(:match_fraction, :to_f)

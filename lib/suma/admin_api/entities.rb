@@ -77,16 +77,19 @@ module Suma::AdminAPI::Entities
 
   class RoleEntity < BaseEntity
     include AutoExposeBase
+
     expose :name
   end
 
   class OrganizationEntity < BaseEntity
     include AutoExposeBase
+
     expose :name
   end
 
   class PaymentInstrumentEntity < BaseEntity
     include AutoExposeBase
+
     expose :payment_method_type
     expose :legal_entity, with: LegalEntityEntity
     expose :institution_name
@@ -115,6 +118,7 @@ module Suma::AdminAPI::Entities
   class SupportNoteEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :author, with: AuditMemberEntity
     expose :authored_at
     expose :content
@@ -124,6 +128,7 @@ module Suma::AdminAPI::Entities
   class ActivityEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :member, with: AuditMemberEntity
     expose :message_name
     expose :message_vars
@@ -133,6 +138,7 @@ module Suma::AdminAPI::Entities
 
   class MemberEntity < BaseEntity
     include AutoExposeBase
+
     expose :email
     expose :name
     expose :phone
@@ -143,6 +149,7 @@ module Suma::AdminAPI::Entities
 
   class MessageDeliveryEntity < BaseEntity
     include AutoExposeBase
+
     expose :template
     expose :transport_type
     expose :carrier_key
@@ -156,6 +163,7 @@ module Suma::AdminAPI::Entities
 
   class ProgramEntity < BaseEntity
     include AutoExposeBase
+
     expose :name, with: TranslatedTextEntity
     expose :description, with: TranslatedTextEntity
     expose :period_begin
@@ -167,12 +175,14 @@ module Suma::AdminAPI::Entities
 
   class EligibilityAttributeEntity < BaseEntity
     include AutoExposeBase
+
     expose :name
     expose :parent, with: self
   end
 
   class EligibilityAssignmentEntity < BaseEntity
     include AutoExposeBase
+
     expose :assignee, with: AutoExposedBaseEntity
     expose :assignee_label
     expose :assignee_type
@@ -181,17 +191,20 @@ module Suma::AdminAPI::Entities
 
   class EligibilityRequirementEntity < BaseEntity
     include AutoExposeBase
+
     expose :all_resources, as: :resources, with: AutoExposedBaseEntity
     expose :cached_expression_string, as: :expression_formula_str
   end
 
   class VendorEntity < BaseEntity
     include AutoExposeBase
+
     expose :name
   end
 
   class VendorServiceEntity < BaseEntity
     include AutoExposeBase
+
     expose :internal_name
     expose :external_name
     expose :vendor, with: VendorEntity
@@ -201,6 +214,7 @@ module Suma::AdminAPI::Entities
 
   class VendorServiceCategoryTerminalEntity < BaseEntity
     include AutoExposeBase
+
     expose :name
     expose :slug
   end
@@ -216,6 +230,7 @@ module Suma::AdminAPI::Entities
 
   class VendorServiceRateEntity < BaseEntity
     include AutoExposeBase
+
     expose :internal_name
     expose :external_name
     expose :unit_amount, with: MoneyEntity
@@ -225,6 +240,7 @@ module Suma::AdminAPI::Entities
 
   class ProgramPricingEntity < BaseEntity
     include AutoExposeBase
+
     expose :program, with: ProgramEntity
     expose :vendor_service, with: VendorServiceEntity
     expose :vendor_service_rate, with: VendorServiceRateEntity
@@ -232,6 +248,7 @@ module Suma::AdminAPI::Entities
 
   class AnonProxyVendorConfigurationEntity < BaseEntity
     include AutoExposeBase
+
     expose :vendor, with: VendorEntity
     expose :app_install_link
     expose :auth_to_vendor_key
@@ -241,6 +258,7 @@ module Suma::AdminAPI::Entities
   class AnonProxyMemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :member, with: MemberEntity
     expose :formatted_address
     expose :relay_key
@@ -249,12 +267,14 @@ module Suma::AdminAPI::Entities
   class AnonProxyVendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :member, with: MemberEntity
     expose :configuration, with: AnonProxyVendorConfigurationEntity
   end
 
   class ChargeEntity < BaseEntity
     include AutoExposeBase
+
     expose :opaque_id
     expose :discounted_subtotal, with: MoneyEntity
     expose :undiscounted_subtotal, with: MoneyEntity
@@ -268,6 +288,7 @@ module Suma::AdminAPI::Entities
 
   class MobilityTripEntity < BaseEntity
     include AutoExposeBase
+
     expose :vehicle_id
     expose :begin_lat
     expose :begin_lng
@@ -283,22 +304,26 @@ module Suma::AdminAPI::Entities
 
   class SimpleLedgerEntity < BaseEntity
     include AutoExposeBase
+
     expose :name
     expose :account_name, &self.delegate_to(:account, :display_name)
   end
 
   class SimplePaymentAccountEntity < BaseEntity
     include AutoExposeBase
+
     expose :display_name
   end
 
   class PaymentStrategyEntity < BaseEntity
     include AutoExposeBase
+
     expose :admin_details_typed, as: :admin_details
   end
 
   class FundingTransactionEntity < BaseEntity
     include AutoExposeBase
+
     expose :status
     expose :amount, with: MoneyEntity
     expose :originating_payment_account, with: SimplePaymentAccountEntity
@@ -306,6 +331,7 @@ module Suma::AdminAPI::Entities
 
   class PayoutTransactionEntity < BaseEntity
     include AutoExposeBase
+
     expose :status
     expose :classification
     expose :amount, with: MoneyEntity
@@ -314,6 +340,7 @@ module Suma::AdminAPI::Entities
 
   class BookTransactionEntity < BaseEntity
     include AutoExposeBase
+
     expose :apply_at
     expose :amount, with: MoneyEntity
     expose :memo, with: TranslatedTextEntity
@@ -326,6 +353,7 @@ module Suma::AdminAPI::Entities
   class DetailedPaymentAccountLedgerEntity < BaseEntity
     include AutoExposeBase
     include AutoExposeDetail
+
     expose :currency
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
@@ -335,6 +363,7 @@ module Suma::AdminAPI::Entities
   class DetailedPaymentAccountEntity < BaseEntity
     include AutoExposeBase
     include AutoExposeDetail
+
     expose :member, with: MemberEntity
     expose :vendor, with: VendorEntity
     expose :is_platform_account
@@ -347,12 +376,14 @@ module Suma::AdminAPI::Entities
   class PaymentTriggerEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :active_during_begin
     expose :active_during_end
   end
 
   class OfferingEntity < BaseEntity
     include AutoExposeBase
+
     expose :description, with: TranslatedTextEntity
     expose :period_end
     expose :period_begin
@@ -360,6 +391,7 @@ module Suma::AdminAPI::Entities
 
   class OfferingFulfillmentOptionEntity < BaseEntity
     include AutoExposeBase
+
     expose :description, with: TranslatedTextEntity
     expose :type
     expose :ordinal
@@ -369,6 +401,7 @@ module Suma::AdminAPI::Entities
 
   class OfferingProductEntity < BaseEntity
     include AutoExposeBase
+
     expose :closed_at
     expose :product_id
     expose_translated :product_name, &self.delegate_to(:product, :name)
@@ -380,6 +413,7 @@ module Suma::AdminAPI::Entities
 
   class ProductEntity < BaseEntity
     include AutoExposeBase
+
     expose :vendor, with: VendorEntity
     expose :name, with: TranslatedTextEntity
     expose :description, with: TranslatedTextEntity
@@ -387,6 +421,7 @@ module Suma::AdminAPI::Entities
 
   class OrderEntity < BaseEntity
     include AutoExposeBase
+
     expose :order_status
     expose :fulfillment_status
     expose :admin_status_label, as: :status_label
@@ -397,12 +432,14 @@ module Suma::AdminAPI::Entities
   # Needed to handle the 1-to-1 between Membership and Verification
   class BaseOrganizationMembershipVerificationEntity < BaseEntity
     include AutoExposeBase
+
     expose :status
     expose :owner, with: MemberEntity
   end
 
   class OrganizationMembershipEntity < BaseEntity
     include AutoExposeBase
+
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
@@ -415,6 +452,7 @@ module Suma::AdminAPI::Entities
 
   class OrganizationMembershipVerificationEntity < BaseEntity
     include AutoExposeBase
+
     expose :status
     expose :membership, with: OrganizationMembershipEntity
     expose :owner, with: MemberEntity
@@ -422,6 +460,7 @@ module Suma::AdminAPI::Entities
 
   class ChargeLineItemEntity < BaseEntity
     include AutoExposeBase
+
     expose :charge_id
     expose :amount, with: MoneyEntity
     expose :memo, with: TranslatedTextEntity
@@ -437,17 +476,20 @@ module Suma::AdminAPI::Entities
 
   class MarketingListEntity < BaseEntity
     include AutoExposeBase
+
     expose :managed
   end
 
   class MarketingSmsBroadcastEntity < BaseEntity
     include AutoExposeBase
+
     expose :sent_at
   end
 
   class MarketingSmsDispatchEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :member, with: MarketingMemberEntity
     expose :sms_broadcast, with: MarketingSmsBroadcastEntity
     expose :sent_at

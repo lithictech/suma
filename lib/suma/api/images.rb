@@ -84,6 +84,7 @@ class Suma::API::Images < Suma::API::V1
 
   class UploadedFileEntity < BaseEntity
     include Suma::API::Entities
+
     expose :opaque_id
     expose :content_type
     expose :content_length

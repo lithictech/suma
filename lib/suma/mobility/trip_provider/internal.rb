@@ -38,7 +38,7 @@ class Suma::Mobility::TripProvider::Internal
         ),
         Suma::Mobility::EndTripResult::LineItem.new(
           memo: Suma::I18n::StaticString.find_text("backend", "trip_receipt_ride_cost").
-            format(unit_amount: trip.vendor_service_rate.unit_amount, minutes:),
+              format(unit_amount: trip.vendor_service_rate.unit_amount, minutes:),
           amount: trip_amount,
         ),
       ],

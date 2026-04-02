@@ -33,6 +33,7 @@ class Suma::API::Payments < Suma::API::V1
 
   class FundingTransactionEntity < BaseEntity
     include Suma::API::Entities
+
     expose :id
     expose :created_at
     expose :status

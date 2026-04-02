@@ -12,6 +12,7 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
 
   class CheckoutItemEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :id
     expose :offering_product, with: OfferingProductEntity
     expose :quantity
@@ -21,6 +22,7 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
   class CheckoutEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :undiscounted_cost, with: MoneyEntity
     expose :customer_cost, with: MoneyEntity
     expose :savings, with: MoneyEntity
@@ -35,6 +37,7 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     include AutoExposeDetail
+
     expose :order_status
     expose :fulfillment_status
     expose :admin_status_label, as: :status_label

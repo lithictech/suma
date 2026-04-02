@@ -7,6 +7,7 @@ require "suma/postgres"
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+
   RECENT_ACCESS_CODE_CUTOFF = 10.minutes
 
   plugin :timestamps

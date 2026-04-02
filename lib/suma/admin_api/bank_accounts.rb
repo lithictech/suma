@@ -15,6 +15,7 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
   class DetailedBankAccountEntity < BankAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :member, with: MemberEntity
   end
 

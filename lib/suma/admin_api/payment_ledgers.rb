@@ -10,6 +10,7 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
   class LedgerEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :name
     expose :is_platform_account, &self.delegate_to(:account, :is_platform_account)
     expose :currency
@@ -19,12 +20,14 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
 
   class UnbalancedCounterpartyEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :amount, with: MoneyEntity
     expose :ledger, with: LedgerEntity
   end
 
   class DetailedLedgerEntity < LedgerEntity
     include AutoExposeDetail
+
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
     expose :find_unbalanced_counterparty_ledgers, as: :unbalanced_counterparties, with: UnbalancedCounterpartyEntity

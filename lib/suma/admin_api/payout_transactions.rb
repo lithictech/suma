@@ -10,6 +10,7 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
   class DetailedPayoutTransactionEntity < PayoutTransactionEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose_translated :memo
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :crediting_book_transaction, with: BookTransactionEntity

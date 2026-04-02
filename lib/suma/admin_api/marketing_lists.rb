@@ -8,6 +8,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
   class DetailedListEntity < MarketingListEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :members, with: MarketingMemberEntity
     expose :sms_broadcasts, with: MarketingSmsBroadcastEntity
   end

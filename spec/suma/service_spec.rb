@@ -131,6 +131,7 @@ class Suma::API::TestService < Suma::Service
 
   class EtaggedEntity < Grape::Entity
     prepend Suma::Service::Entities::EtaggedMixin
+
     expose :field1 do |_|
       25
     end

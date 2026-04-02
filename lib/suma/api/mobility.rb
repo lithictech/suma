@@ -207,6 +207,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class SimpleRateEntity < BaseEntity
     include Suma::API::Entities
+
     expose :id
     expose :surcharge, with: MoneyEntity
     expose :unit_amount, with: MoneyEntity
@@ -219,6 +220,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class MobilityMapProviderEntity < BaseEntity
     include Suma::API::Entities
+
     expose :id
     expose :name, &self.delegate_to(:vendor_service, :external_name)
     expose :slug, &self.delegate_to(:vendor_service, :internal_name)
@@ -234,6 +236,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class MobilityMapEntity < BaseEntity
     include Suma::API::Entities
+
     expose :precision do |_|
       Suma::Mobility::COORD2INT_FACTOR
     end
@@ -257,6 +260,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class MobilityDetailedVehicleEntity < BaseEntity
     include Suma::API::Entities
+
     expose :precision do |_|
       Suma::Mobility::COORD2INT_FACTOR
     end
@@ -289,6 +293,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class MobilityTripCollectionEntity < Suma::Service::Collection::BaseEntity
     include Suma::API::Entities
+
     expose :items, with: MobilityTripEntity
     expose :ongoing, with: MobilityTripEntity do |_, opts|
       opts.fetch(:ongoing)

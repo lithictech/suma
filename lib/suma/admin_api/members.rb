@@ -11,6 +11,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class MemberResetCodeEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :transport
     expose :used
     expose :expire_at
@@ -25,6 +26,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class MemberSessionEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :user_agent
     expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
     expose :logged_out_at
@@ -35,6 +37,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
   class MemberOrderEntity < OrderEntity
     include Suma::AdminAPI::Entities
+
     expose :total_item_count
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
@@ -42,6 +45,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class MemberVendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :latest_access_code
     expose :latest_access_code_magic_link
     expose :vendor, with: VendorEntity, &self.delegate_to(:configuration, :vendor)
@@ -50,6 +54,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class MemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :formatted_address
   end
 
@@ -70,6 +75,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class ReferralEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
     expose :source
     expose :campaign
     expose :medium
@@ -77,6 +83,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
   class EligibilityMemberAssignmentEntity < BaseEntity
     include Suma::AdminAPI::Entities
+
     expose :unique_key
     expose :member, with: MemberEntity
     expose :attribute, with: EligibilityAttributeEntity
@@ -90,6 +97,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :opaque_id
     expose :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified

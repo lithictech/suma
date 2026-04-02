@@ -5,6 +5,7 @@ require "suma/sse/session_middleware"
 
 class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
+
   use Suma::SSE::SessionMiddleware
 
   class VerificationListEntity < OrganizationMembershipVerificationEntity

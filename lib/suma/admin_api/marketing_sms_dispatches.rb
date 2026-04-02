@@ -8,6 +8,7 @@ class Suma::AdminAPI::MarketingSmsDispatches < Suma::AdminAPI::V1
   class DetailedSmsDispatchEntity < MarketingSmsDispatchEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose :can_cancel?, as: :can_cancel
     expose :canceled?, as: :canceled
   end

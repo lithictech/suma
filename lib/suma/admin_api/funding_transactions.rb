@@ -10,6 +10,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
   class DetailedFundingTransactionEntity < FundingTransactionEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose_translated :memo
     expose :can_refund?, as: :can_refund
     expose :refundable_amount, with: MoneyEntity

@@ -27,6 +27,7 @@ class Suma::Eligibility::Expression < Suma::Postgres::Model(:eligibility_express
 
   class << self
     include Constants
+
     # Create an empty expression. We need this when creating a default in some places.
     def create_empty = self.create(type: BINARY, operator: AND)
   end
