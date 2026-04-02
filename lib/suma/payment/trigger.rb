@@ -163,7 +163,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     #     within an offering, like the holiday special often does).
     subsidy_cents = _calculate_subsidy_cents(amount:, up_to:)
     subsidy = Money.new(
-      Money.new(subsidy_cents, amount.currency).round_to_nearest_cash_value,
+      Money.new(subsidy_cents, amount.currency).to_nearest_cash_value.fractional,
       amount.currency,
     )
     if self.maximum_cumulative_subsidy_cents.positive?
