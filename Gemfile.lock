@@ -388,6 +388,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-23
+  arm64-darwin-25
   x86_64-linux
 
 DEPENDENCIES
@@ -473,7 +474,7 @@ DEPENDENCIES
   yajl-ruby
 
 RUBY VERSION
-   ruby 3.3.7p123
+   ruby 4.0.2p0
 
 BUNDLED WITH
    2.5.6
