@@ -20,7 +20,7 @@ export default function EligibilityRequirementsRelatedList({ model, type }) {
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         <AdminLink key="id" model={row}>
-          {row.expressionFormulaStr}
+          {row.expressionFormulaStr || "<empty>"}
         </AdminLink>,
       ]}
     />

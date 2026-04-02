@@ -43,13 +43,14 @@ export default function EligibilityAttributeDetailPage() {
             attributeId: model.id,
             attributeLabel: model.label,
           })}
-          headers={["Id", "Assignee"]}
+          headers={["Id", "Assignee", "Assignee Type"]}
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
             <AdminLink key="assignee" model={row.assignee}>
               {row.assigneeLabel}
             </AdminLink>,
+            row.assigneeType,
           ]}
         />,
         <RelatedList
@@ -59,9 +60,15 @@ export default function EligibilityAttributeDetailPage() {
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
-            <AdminLink key="id" model={row}>
-              {row.resourceLabel}
-            </AdminLink>,
+            <>
+              {AdminLink.Array(
+                row.resources,
+                (r) => (
+                  <AdminLink model={r}>{r.label}</AdminLink>
+                ),
+                " , "
+              )}
+            </>,
             row.expressionFormulaStr,
           ]}
         />,
