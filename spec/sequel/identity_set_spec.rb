@@ -28,8 +28,8 @@ RSpec.describe Sequel::IdentitySet do
     expect(s1.to_a).to contain_exactly(be === o1)
     expect(s1).to include(o1)
     expect(s1).to_not include(o2)
-    expect(s1.to_s).to eq("Sequel::IdentitySet{[#< @values={:id=>1}>]}")
-    expect(s1.inspect).to eq("Sequel::IdentitySet{[#< @values={:id=>1}>]}")
+    expect(s1.to_s).to eq("Sequel::IdentitySet{[#< @values={id: 1}>]}")
+    expect(s1.inspect).to eq("Sequel::IdentitySet{[#< @values={id: 1}>]}")
 
     s2 = described_class.new
     s2 << cls.new(id: 2)

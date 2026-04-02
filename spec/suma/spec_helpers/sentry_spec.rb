@@ -62,7 +62,7 @@ RSpec.describe Suma::SpecHelpers::Sentry do
         Sentry.capture_message("hi") do |scope|
           scope.set_level :debug
         end
-      end.to fail_mocks_with(include("to have attributes {:level => :info} but had attributes {:level => :debug}"))
+      end.to fail_mocks_with(include("to have attributes {level: :info} but had attributes {level: :debug}"))
     end
   end
 end

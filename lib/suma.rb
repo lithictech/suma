@@ -289,7 +289,3 @@ require "suma/feature_flags"
 require "suma/phone_number"
 require "suma/signals"
 require "suma/typed_struct"
-
-raise "Remove this code, ActiveSupport has the new default" if
-  ActiveSupport::VERSION::MAJOR >= 8 && ActiveSupport::VERSION::MINOR >= 1
-ActiveSupport.to_time_preserves_timezone = :zone
