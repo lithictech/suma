@@ -5,6 +5,7 @@ require "grape-swagger"
 require "rack/builder"
 require "rack/csp"
 require "rack/dynamic_config_writer"
+require "rack/index_templater"
 require "rack/lambda_app"
 require "rack/service_worker_allowed"
 require "rack/simple_headers"
@@ -167,6 +168,16 @@ module Suma::Apps
   end
 
   def self.emplace_dynamic_config
+    # Write some static strings into the index file.
+    # Note that seeing this requires a full restart,
+    # so the change may not be immediately visible like other static string changes.
+    # It's also not localized, since its primary purpose
+    # is for tooling which doesn't include an Accept-Language header;
+    # and we don't embed language in the URL.
+    Rack::IndexTemplater.new("build-webapp/index.html").
+      emplace(
+        meta_description: Suma::I18n::StaticString.find_text("backend", "web_meta.description").en,
+      )
     dw = Rack::DynamicConfigWriter.new(
       "build-webapp/index.html",
       global_assign: "window.sumaDynamicEnv",
