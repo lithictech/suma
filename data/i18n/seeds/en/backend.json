@@ -10,5 +10,6 @@
   "trip_receipt_ride_canceled": "Ride cancelled",
   "trip_receipt_ride_cost": "Ride cost ({{unit_amount}}/min for {{minutes}} min)",
   "trip_receipt_ride_cost_alt": "Riding - {{unit_amount}}/min ({{minutes}} min)",
-  "trip_receipt_unlock_fee": "Unlock fee"
+  "trip_receipt_unlock_fee": "Unlock fee",
+  "web_meta.description": "Suma provides affordable housing residents and other frontline community members access to low-cost, secure and easy to use access to clean mobility, food, transportation and utility options."
 }

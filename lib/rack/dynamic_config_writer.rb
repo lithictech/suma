@@ -21,7 +21,7 @@ require "nokogiri"
 # not at build time.
 class Rack::DynamicConfigWriter
   GLOBAL_ASSIGN = "window.rackDynamicConfig"
-  BACKUP_SUFFIX = ".original"
+  BACKUP_SUFFIX = ".dynconfig_original"
 
   def initialize(
     index_html_path,

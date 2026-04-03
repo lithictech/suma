@@ -10,5 +10,6 @@
   "trip_receipt_ride_canceled": "Viaje cancelado",
   "trip_receipt_ride_cost": "Costo del viaje ({{unit_amount}}/min por {{minutes}} min)",
   "trip_receipt_ride_cost_alt": "Viaje - {{unit_amount}}/min ({{minutes}} min)",
-  "trip_receipt_unlock_fee": "Tarifa de desbloqueo"
+  "trip_receipt_unlock_fee": "Tarifa de desbloqueo",
+  "web_meta.description": ""
 }
