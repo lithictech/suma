@@ -24,8 +24,9 @@ class Suma::Lime::SyncTripsFromReport
   COST_TO_SUMA = "COST_TO_SUMA"
   LIME_ACCESS_COST = "LIME_ACCESS_COST"
 
-  def initialize(cutoff: DEFAULT_CUTOFF)
+  def initialize(cutoff: DEFAULT_CUTOFF, now: Time.now)
     @cutoff = cutoff
+    @now = now
   end
 
   def row_iterator = Suma::Webhookdb::RowIterator.new("lime/synctripsreport/pk")
@@ -165,11 +166,18 @@ class Suma::Lime::SyncTripsFromReport
   def parse_trip_from_row(row, user_email:)
     registration = Suma::AnonProxy::VendorAccountRegistration.find!(external_program_id: user_email)
     vendor_config = registration.account.configuration
-    program = Suma::Enumerable.one!(vendor_config.programs)
-    pricing = Suma::Enumerable.one!(program.pricings)
+    member = registration.account.member
+    pricing = Suma::Program::Pricing.
+      fetch_eligible_to(
+        member,
+        as_of: @now,
+        dataset: Suma::Program::Pricing.where(program: vendor_config.programs_dataset),
+      ).first
+    raise Suma::InvalidPrecondition, "No pricing found for #{vendor_config.inspect}" if pricing.nil?
+    program = pricing.program
     receipt = self.parse_row_to_receipt(row, rate: pricing.vendor_service_rate)
     receipt.trip.set(
-      member: registration.account.member,
+      member:,
       vendor_service: pricing.vendor_service,
       vendor_service_rate: pricing.vendor_service_rate,
     )

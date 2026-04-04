@@ -225,17 +225,6 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       expect(Suma::Mobility::Trip.all).to be_empty
     end
 
-    it "errors if there is not only 1 program for the configuration, so we cannot figure out which one to use" do
-      va.configuration.add_program(Suma::Fixtures.program.create)
-      txt = <<~CSV
-        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
-        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
-      CSV
-      expect do
-        described_class.new.run_for_report(txt)
-      end.to raise_error(/have exactly 1 item/)
-    end
-
     it "errors if the associated program does not have pricing" do
       program.pricings.first.destroy
       txt = <<~CSV
@@ -244,7 +233,17 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       CSV
       expect do
         described_class.new.run_for_report(txt)
-      end.to raise_error(ArgumentError, /must have exactly 1 item/)
+      end.to raise_error(Suma::InvalidPrecondition, /No pricing found/)
+    end
+
+    it "uses the first eligible available program pricing" do
+      Suma::Fixtures.program_pricing.create(program: program)
+      txt = <<~CSV
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
+      CSV
+      described_class.new.run_for_report(txt)
+      expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vendor_service_rate: be === rate))
     end
 
     it "does not create duplicate trips" do
