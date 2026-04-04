@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "yajl"
+
 module MergeHerokuEnv
   def self.merge(env=ENV)
     if (heroku_app = env.fetch("MERGE_HEROKU_ENV", nil))
