@@ -40,31 +40,6 @@ RSpec.describe Suma::API::Mobility, :db do
         )
     end
 
-    it "is limited to vendor services active and available to the user" do
-      program = vendor_service.program_pricings.first.program
-      attr = Suma::Fixtures.eligibility_attribute.create
-      Suma::Fixtures.eligibility_requirement.attribute(attr).of(program).create
-
-      vehicle_fac.loc(20, 120).escooter.create
-
-      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
-
-      expect(last_response).to have_status(200)
-      expect(last_response_json_body).to_not include(:escooter, :ebike)
-
-      Suma::Fixtures.eligibility_assignment.create(member:, attribute: attr)
-      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(escooter: have_length(1))
-
-      vendor_service.update(period_end: 2.days.ago)
-      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
-
-      expect(last_response).to have_status(200)
-      expect(last_response_json_body).to_not include(:escooter, :ebike)
-    end
-
     it "handles coordinate precision" do
       vehicle_fac.loc(-0.5, 100).escooter.create
 
@@ -213,6 +188,66 @@ RSpec.describe Suma::API::Mobility, :db do
               include(o: [32, -24]),
             ),
           )
+      end
+    end
+
+    describe "providers and rates" do
+      it "is limited to vendor services active and available to the user" do
+        pricing = vendor_service.program_pricings.first
+        program = pricing.program
+        attr = Suma::Fixtures.eligibility_attribute.create
+        Suma::Fixtures.eligibility_requirement.attribute(attr).of(program).create
+        vehicle_fac.loc(20, 120).escooter.create
+
+        get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to include(providers: [])
+
+        Suma::Fixtures.eligibility_assignment.create(member:, attribute: attr)
+        get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to include(providers: have_same_ids_as(pricing))
+
+        vendor_service.update(period_end: 2.days.ago)
+        get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to include(providers: [])
+      end
+
+      it "collapses multiple pricings for the same service (see #fetch_pricings)" do
+        vendor_service.program_pricings_dataset.delete
+
+        # Create 5 pricings:
+        # - Index 0 and 4 are for programs ineligible to the user, so shouldn't be considered.
+        # - Indexes 1 and 3 are eligible, but their vendor service rate ordinals are low.
+        # - Index 2 is eligible, and should be chosen for its high rate ordinal.
+        pricing_fac = Suma::Fixtures.program_pricing(vendor_service:)
+        rate_fac = Suma::Fixtures.vendor_service_rate
+        pricing1 = pricing_fac.create(vendor_service_rate: rate_fac.create(surcharge_cents: 10))
+        pricing2 = pricing_fac.create(vendor_service_rate: rate_fac.create(surcharge_cents: 11, ordinal: 10))
+        pricing3 = pricing_fac.create(vendor_service_rate: rate_fac.create(surcharge_cents: 12, ordinal: 30))
+        pricing4 = pricing_fac.create(vendor_service_rate: rate_fac.create(surcharge_cents: 13, ordinal: 20))
+        pricing5 = pricing_fac.create(vendor_service_rate: rate_fac.create(surcharge_cents: 14))
+
+        ineligible_attr = Suma::Fixtures.eligibility_attribute.create
+        [pricing1, pricing5].each do |pri|
+          Suma::Fixtures.eligibility_requirement.attribute(ineligible_attr).of(pri.program).create
+        end
+        eligible_attr = Suma::Fixtures.eligibility_attribute.create
+        [pricing2, pricing3, pricing4].each do |pri|
+          Suma::Fixtures.eligibility_requirement.attribute(eligible_attr).of(pri.program).create
+        end
+
+        vehicle_fac.loc(20, 120).escooter.create
+        Suma::Fixtures.eligibility_assignment.create(member:, attribute: eligible_attr)
+
+        get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to include(providers: have_same_ids_as(pricing3))
       end
     end
 

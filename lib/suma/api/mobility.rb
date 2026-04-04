@@ -10,17 +10,14 @@ class Suma::API::Mobility < Suma::API::V1
 
   resource :mobility do
     helpers do
-      def fetch_pricings(ds)
-        return ds.
-            compress.
-            where(vendor_service: Suma::Vendor::Service.dataset.available_at(current_time)).
-            fetch_eligible_to(current_member, as_of: current_time)
+      def fetch_pricings(pricing_id: nil)
+        dataset = Suma::Program::Pricing.where(id: pricing_id) if pricing_id
+        rows = Suma::Program::Pricing.fetch_eligible_to(current_member, as_of: current_time, dataset:)
+        return rows
       end
 
       def find_pricing_and_vehicles(provider_id, **criteria)
-        pricing = fetch_pricings(
-          Suma::Program::Pricing.where(Sequel[:program_pricings][:id] => provider_id),
-        ).first
+        pricing = fetch_pricings(pricing_id: provider_id).first
         return nil, [] if pricing.nil?
         matches = Suma::Mobility::Vehicle.where(criteria).where(
           vendor_service_id: pricing.vendor_service_id,
@@ -41,7 +38,8 @@ class Suma::API::Mobility < Suma::API::V1
       max_lat, max_lng = params[:ne]
       ds = Suma::Mobility::Vehicle.search(min_lat:, min_lng:, max_lat:, max_lng:)
       ds = ds.where(vehicle_type: params[:types]) if params.key?(:types)
-      pricings_by_service_id = fetch_pricings(Suma::Program::Pricing).index_by(&:vendor_service_id)
+      # The highest-ordinal rate for a service will be last, so that is what will be selected.
+      pricings_by_service_id = fetch_pricings.index_by(&:vendor_service_id)
       ds = ds.where(vendor_service_id: pricings_by_service_id.keys)
       ds = ds.order(:id)
       program_pricings = []

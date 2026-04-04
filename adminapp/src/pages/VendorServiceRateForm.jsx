@@ -83,7 +83,7 @@ export default function VendorServiceRateForm({
             value={resource.ordinal}
             type="number"
             label="Priority/Ordinal"
-            helperText="When multiple rates for the same service are available to a member, the rate with the lowest ordinal will be used."
+            helperText="When multiple rates for the same service are available to a member, the rate with the highest ordinal will be used."
             fullWidth
             onChange={setFieldFromInput}
           />
