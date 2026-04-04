@@ -12,16 +12,17 @@ class Suma::Program::Pricing < Suma::Postgres::Model(:program_pricings)
   many_to_one :vendor_service, class: "Suma::Vendor::Service"
   many_to_one :vendor_service_rate, class: "Suma::Vendor::ServiceRate"
 
-  dataset_module do
-    # Limit the result such that the same vendor service is not repeated.
-    # The row chosen from among duplicates is the row with the lowest vendor service rate ordinal.
-    def compress
-      ds = self.
-        distinct(:vendor_service_id).
-        association_join(:vendor_service_rate).
-        reselect.
-        order(:vendor_service_id, Sequel[:vendor_service_rate][:ordinal], Sequel[:vendor_service_rate][:id])
-      return ds
+  class << self
+    # Fetch the program pricings available to the member.
+    # The result is sorted by vendor service rate ordinal, higher-first.
+    # This means that if there are multiple rates for the same service,
+    # the first one that appears should take precedence.
+    def fetch_eligible_to(member, as_of:, dataset: nil)
+      ds = dataset || self.dataset
+      ds = ds.where(vendor_service: Suma::Vendor::Service.dataset.available_at(as_of))
+      rows = ds.fetch_eligible_to(member, as_of:)
+      rows.sort_by! { |pri| pri.vendor_service_rate.ordinal }
+      return rows
     end
   end
 

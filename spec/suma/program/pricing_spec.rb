@@ -14,18 +14,4 @@ RSpec.describe "Suma::Program::Pricing", :db do
     expect(pvs.vendor_service.program_pricings).to contain_exactly(be === pvs)
     expect(pvs.vendor_service_rate.program_pricings).to contain_exactly(be === pvs)
   end
-
-  describe "datasets" do
-    it "can compress program pricing so that the pricing with the lowest rate ordinal is chosen" do
-      vs = Suma::Fixtures.vendor_service.create
-      rate2 = Suma::Fixtures.vendor_service_rate.create(ordinal: 2)
-      rate1 = Suma::Fixtures.vendor_service_rate.create(ordinal: 1)
-      rate3 = Suma::Fixtures.vendor_service_rate.create(ordinal: 3)
-      pp2 = Suma::Fixtures.program_pricing.create(vendor_service: vs, vendor_service_rate: rate2)
-      pp1 = Suma::Fixtures.program_pricing.create(vendor_service: vs, vendor_service_rate: rate1)
-      pp3 = Suma::Fixtures.program_pricing.create(vendor_service: vs, vendor_service_rate: rate3)
-
-      expect(described_class.compress.all).to have_same_ids_as(pp1)
-    end
-  end
 end
