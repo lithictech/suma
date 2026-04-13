@@ -1,4 +1,5 @@
 import api from "../api";
+import AdminActions from "../components/AdminActions";
 import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
 import BookTransactionDetail from "../components/BookTransactionDetail";
@@ -40,42 +41,41 @@ export default function FundingTransactionDetailPage() {
         { label: "Memo", value: model.memo },
       ]}
     >
-      {(model) => {
-        return [
-          <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
-          <BookTransactionDetail
-            title="Originated Book Transaction"
-            transaction={model.originatedBookTransaction}
-          />,
-          <BookTransactionDetail
-            title="Reversal Book Transaction"
-            transaction={model.reversaldBookTransaction}
-          />,
-          <RelatedList
-            title="Refund Payout Transactions"
-            rows={model.refundPayoutTransactions}
-            headers={["Id", "Created", "Amount"]}
-            keyRowAttr="id"
-            addNewLabel={model.canRefund && "Refund this transaction"}
-            addNewLink={
-              model.canRefund &&
-              `/funding-transaction/${
-                model.id
-              }/refund?refundableAmount=${encodeURIComponent(
-                JSON.stringify(model.refundableAmount)
-              )}`
-            }
-            addNewRole="payoutTransaction"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              formatDate(row.createdAt),
-              <Money key="amt">{row.amount}</Money>,
-            ]}
-          />,
-          <ExternalLinks externalLinks={model.externalLinks} />,
-          <AuditLogs auditLogs={model.auditLogs} />,
-        ];
-      }}
+      {(model, setModel) => [
+        <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
+        <BookTransactionDetail
+          title="Originated Book Transaction"
+          transaction={model.originatedBookTransaction}
+        />,
+        <BookTransactionDetail
+          title="Reversal Book Transaction"
+          transaction={model.reversaldBookTransaction}
+        />,
+        <RelatedList
+          title="Refund Payout Transactions"
+          rows={model.refundPayoutTransactions}
+          headers={["Id", "Created", "Amount"]}
+          keyRowAttr="id"
+          addNewLabel={model.canRefund && "Refund this transaction"}
+          addNewLink={
+            model.canRefund &&
+            `/funding-transaction/${
+              model.id
+            }/refund?refundableAmount=${encodeURIComponent(
+              JSON.stringify(model.refundableAmount)
+            )}`
+          }
+          addNewRole="payoutTransaction"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            formatDate(row.createdAt),
+            <Money key="amt">{row.amount}</Money>,
+          ]}
+        />,
+        <ExternalLinks externalLinks={model.externalLinks} />,
+        <AdminActions adminActions={model.adminActions} updateModel={setModel} />,
+        <AuditLogs auditLogs={model.auditLogs} />,
+      ]}
     </ResourceDetail>
   );
 }

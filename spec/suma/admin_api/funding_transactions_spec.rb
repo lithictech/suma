@@ -192,4 +192,24 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
+
+  describe "POST /v1/funding_transactions/:id/process/:event" do
+    let(:fx) { Suma::Fixtures.funding_transaction.with_fake_strategy.create }
+
+    it "processes the event" do
+      post "/v1/funding_transactions/#{fx.id}/process/put_into_review"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(status: "needs_review")
+      expect(fx.refresh).to have_attributes(status: "needs_review")
+    end
+
+    it "handles processing failure" do
+      post "/v1/funding_transactions/#{fx.id}/process/reset_status"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: /failed to transition on reset_status/))
+    end
+  end
 end

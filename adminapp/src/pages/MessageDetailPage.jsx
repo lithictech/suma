@@ -35,10 +35,10 @@ export default function MessageDetailPage() {
         },
       ]}
     >
-      {(model) =>
+      {(model, setModel) =>
         model.bodies.map(({ id, mediatype, content }) => [
           <ExternalLinks externalLinks={model.externalLinks} />,
-          <AdminActions adminActions={model.adminActions} />,
+          <AdminActions adminActions={model.adminActions} updateModel={setModel} />,
           <Box key={id} mt={3}>
             <hr />
             <Typography variant="h6">

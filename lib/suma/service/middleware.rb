@@ -39,6 +39,7 @@ module Suma::Service::Middleware
                  credentials: true,
                  expose: [
                    "Etag",
+                   "Admin-Action-Handler",
                    "Created-Resource-Id",
                    "Created-Resource-Admin",
                    "Suma-Current-Member",

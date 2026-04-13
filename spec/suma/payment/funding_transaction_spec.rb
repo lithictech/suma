@@ -184,7 +184,10 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         strategy.set_response(:ready_to_collect_funds?, true)
         strategy.set_response(:collect_funds, described_class::CollectFundsFailed.new("nope"))
         expect(payment).to transition_on(:collect_funds).to("needs_review")
-        expect(payment.audit_logs.last.messages).to include("Error collecting funds: nope")
+        expect(payment.audit_logs.last).to have_attributes(
+          reason: "Suma::Payment::FundingTransaction::CollectFundsFailed",
+          messages: ["Error collecting funds: nope"],
+        )
       end
 
       describe "when funds have been canceled" do
@@ -262,7 +265,8 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(payment).to transition_on(:put_into_review).with("mymessage", reason: "hi").to("needs_review")
         expect(Suma::Support::Ticket.all).to contain_exactly(
           have_attributes(
-            body: "Suma::Payment::FundingTransaction[#{payment.id}] was put into review (reason=hi): mymessage",
+            body: match(/FundingTransaction #{payment.id} was put into review/).
+              and(match(/\(reason=hi\) \(message=mymessage\)/)),
           ),
         )
       end
@@ -307,6 +311,22 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       Suma::Fixtures::PayoutTransactions.refund_of(fx, card, amount: money("$5"))
       expect(fx).to_not be_can_refund
       expect(fx).to have_attributes(refundable_amount: cost("$0"))
+    end
+  end
+
+  describe "actions" do
+    it "has actions for available st" do
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      expect(fx.admin_actions).to contain_exactly(
+        have_attributes(label: "Put into review"),
+        have_attributes(label: "Collect funds"),
+        have_attributes(label: "Cancel"),
+      )
+      fx.update(status: "cleared")
+      expect(fx.admin_actions).to contain_exactly(
+        have_attributes(label: "Put into review"),
+        have_attributes(label: "Reset status"),
+      )
     end
   end
 

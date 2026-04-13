@@ -8,6 +8,23 @@ require "suma/payment"
 # so have different database models.
 # This class exists to colocate the shared behavior.
 module Suma::Payment::ExternalTransaction
+  # Wrap a failed external action in a standard shape.
+  class WrappedError < StandardError
+    attr_reader :wrapped
+
+    def initialize(msg, wrapped=nil)
+      if wrapped
+        super("#{msg}: #{wrapped}")
+      elsif msg.is_a?(StandardError)
+        super(msg.message)
+        wrapped = msg
+      else
+        super(msg)
+      end
+      @wrapped = wrapped
+    end
+  end
+
   def self.included(mod)
     mod.include(Suma::ExternalLinks)
     mod.extend(ClassMethods)
@@ -44,7 +61,8 @@ module Suma::Payment::ExternalTransaction
 
     # @param [Suma::Payment::FundingTransaction::Strategy,Suma::Payment::PayoutTransaction::Strategy] strat
     def strategy=(strat)
-      # We cannot just do strat.payment = self, it triggers a save and we're not valid yet/don't want that
+      # We cannot just do strat.payment = self.
+      # It triggers a save, and we're not valid yet/don't want that.
       self.class.association_reflections.each_value do |details|
         type_match = details[:class_name] == strat.class.name
         next unless type_match
@@ -63,19 +81,20 @@ module Suma::Payment::ExternalTransaction
     end
 
     def _put_into_review_helper(message, opts={})
-      reason = nil
+      reason = "<none>"
       if opts[:reason]
         reason = opts[:reason]
       elsif (ex = opts[:exception])
         reason = ex.class.name
         message = "#{message}: #{ex}"
-        reason = ex.wrapped.class.name if ex.respond_to?(:wrapped)
+        reason = ex.wrapped.class.name if ex.respond_to?(:wrapped) && ex.wrapped
       end
       self.audit(message, reason:)
       Suma::Support::Ticket.create(
         sender_name: "Suma Payments",
-        subject: "#{self.class.name.split('::').last} Needs Review",
-        body: "#{self.class.name}[#{self.id}] was put into review (reason=#{reason}): #{message}",
+        subject: "#{self.admin_label} Needs Review",
+        body: "#{self.admin_label} was put into review. See more at #{self.admin_link}\n" \
+              "(reason=#{reason}) (message=#{message})",
       )
     end
 

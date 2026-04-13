@@ -11,7 +11,7 @@ module Suma::AdminActions
     def _defaults = {params: {}}
   end
 
-  def admin_actions = _admin_actions_self
+  def admin_actions = _admin_actions_self.select(&:itself)
   # @return [Array<Action>]
   def _admin_actions_self = raise NotImplementedError
   def _admin_action(label, url, params: {}) = Action.new(label:, url:, params:)

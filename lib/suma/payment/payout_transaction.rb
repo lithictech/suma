@@ -13,7 +13,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   include Suma::Payment::ExternalTransaction
 
   class InvalidAmount < Suma::InvalidPrecondition; end
-  class SendFundsFailed < Suma::StateMachine::FailedTransition; end
+  class SendFundsFailed < Suma::Payment::ExternalTransaction::WrappedError; end
 
   plugin :hybrid_search
   plugin :state_machine
