@@ -46,14 +46,18 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
 
   def collect_funds
     return if self.charge_id.present?
-    charge = self.originating_card.member.stripe.charge_card(
-      card: self.originating_card,
-      amount: self.funding_transaction.amount,
-      memo: "#{Suma.operator_name} charge",
-      idempotency_key: Suma.idempotency_key(self, "charge"),
-      params: {capture: false},
-      metadata: {suma_funding_transaction_id: self.funding_transaction.id},
-    )
+    begin
+      charge = self.originating_card.member.stripe.charge_card(
+        card: self.originating_card,
+        amount: self.funding_transaction.amount,
+        memo: "#{Suma.operator_name} charge",
+        idempotency_key: Suma.idempotency_key(self, "charge"),
+        params: {capture: false},
+        metadata: {suma_funding_transaction_id: self.funding_transaction.id},
+      )
+    rescue Stripe::CardError => e
+      raise Suma::Payment::FundingTransaction::CollectFundsFailed, e
+    end
     self.charge_json = charge.as_json
     charge_id_set!(Suma::InvalidPostcondition)
   end

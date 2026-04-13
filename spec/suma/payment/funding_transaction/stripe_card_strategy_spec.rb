@@ -54,6 +54,18 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       strategy.charge_json = {"id" => "ch_abc"}.to_json
       expect { strategy.collect_funds }.to_not(change { strategy.charge_json })
     end
+
+    it "raises CollectFundsFailed if collection fails" do
+      xaction.update(amount_cents: 2000)
+      req = stub_request(:post, "https://api.stripe.com/v1/charges").
+        to_return(fixture_response("stripe/charge_error", status: 402))
+
+      expect do
+        strategy.collect_funds
+      end.to raise_error(Suma::Payment::FundingTransaction::CollectFundsFailed, "Your card was declined.")
+      expect(req).to have_been_made
+      expect(strategy.charge_id).to be_nil
+    end
   end
 
   describe "funds_cleared?" do

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/admin_actions"
 require "suma/admin_linked"
 require "suma/state_machine"
 require "suma/has_activity_audit"
@@ -8,11 +9,12 @@ require "suma/payment/external_transaction"
 
 class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding_transactions)
   include Suma::Postgres::HybridSearch
+  include Suma::AdminActions
   include Suma::AdminLinked
   include Suma::HasActivityAudit
   include Suma::Payment::ExternalTransaction
 
-  class CollectFundsFailed < Suma::StateMachine::FailedTransition; end
+  class CollectFundsFailed < Suma::Payment::ExternalTransaction::WrappedError; end
   class StrategyUnavailable < Suma::Payment::Error; end
 
   plugin :hybrid_search
@@ -64,6 +66,10 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
     event :put_into_review do
       transition (any - :needs_review) => :needs_review
+    end
+
+    event :reset_status do
+      transition [:collecting, :cleared, :needs_review] => :created
     end
 
     after_transition to: :canceled, do: :after_canceled
@@ -206,6 +212,15 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   def put_into_review(message, opts={})
     self._put_into_review_helper(message, opts)
     return super
+  end
+
+  def _admin_actions_self
+    return Suma::StateMachine.new(self, :status).available_events.map do |ev|
+      self._admin_action(
+        ev.to_s.humanize,
+        "/adminapi/v1/funding_transactions/#{self.id}/process/#{ev}",
+      )
+    end
   end
 
   def hybrid_search_fields
