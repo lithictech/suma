@@ -264,12 +264,20 @@ module Suma::AdminAPI::Entities
     expose :relay_key
   end
 
+  class AnonProxyVendorAccountMemberContactEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+
+    expose :formatted_address
+  end
+
   class AnonProxyVendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
     expose :member, with: MemberEntity
     expose :configuration, with: AnonProxyVendorConfigurationEntity
+    expose :contact, with: AnonProxyVendorAccountMemberContactEntity
   end
 
   class ChargeEntity < BaseEntity

@@ -42,6 +42,13 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
+  class MemberContactEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+
+    expose :formatted_address
+  end
+
   class MemberVendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
@@ -49,13 +56,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :latest_access_code
     expose :latest_access_code_magic_link
     expose :vendor, with: VendorEntity, &self.delegate_to(:configuration, :vendor)
-  end
-
-  class MemberContactEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-
-    expose :formatted_address
+    expose :contact, with: MemberContactEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity

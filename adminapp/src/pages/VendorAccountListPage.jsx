@@ -26,6 +26,14 @@ export default function VendorAccountListPage() {
           render: (c) => <AdminLink model={c.member}>{c.member.name}</AdminLink>,
         },
         {
+          id: "address",
+          label: "Address",
+          align: "left",
+          render: (c) => (
+            <AdminLink model={c.contact}>{c.contact?.formattedAddress}</AdminLink>
+          ),
+        },
+        {
           id: "vendor",
           label: "Vendor",
           align: "left",
