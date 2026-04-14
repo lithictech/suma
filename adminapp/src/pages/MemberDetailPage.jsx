@@ -299,7 +299,7 @@ function Notes({ notes, model, setModel }) {
         keyRowAttr="id"
         toCells={(row) => [
           row.id,
-          <Stack direction="horizontal" gap={0.5} alignItems="center">
+          <Stack direction="row" gap={0.5} alignItems="center">
             <IconButton
               size="small"
               sx={{ marginRight: 1 }}
@@ -581,6 +581,7 @@ function VendorAccounts({ vendorAccounts }) {
         "Id",
         "Created",
         "Vendor",
+        "Contact",
         "Latest Access Code Magic Link",
         "Latest Access Code",
       ]}
@@ -592,6 +593,11 @@ function VendorAccounts({ vendorAccounts }) {
         <AdminLink key="vendor" model={row.vendor}>
           {row.vendor.name}
         </AdminLink>,
+        row.contact && (
+          <AdminLink key="contact" model={row.contact}>
+            {row.contact.formattedAddress}
+          </AdminLink>
+        ),
         <SafeExternalLink key="link" href={row.latestAccessCodeMagicLink}>
           {row.latestAccessCodeMagicLink}
         </SafeExternalLink>,
