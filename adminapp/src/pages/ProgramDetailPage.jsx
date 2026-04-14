@@ -69,18 +69,6 @@ export default function ProgramDetailPage() {
           ]}
         />,
         <RelatedList
-          title="Payment Triggers"
-          rows={model.paymentTriggers}
-          headers={["Id", "Label", "Opening Date", "Closing Date"]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            <AdminLink model={row}>{row.label}</AdminLink>,
-            formatDate(row.activeDuringBegin),
-            formatDate(row.activeDuringEnd),
-          ]}
-        />,
-        <RelatedList
           title="Vendor Configurations"
           rows={model.configurations}
           keyRowAttr="id"

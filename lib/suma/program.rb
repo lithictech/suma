@@ -46,13 +46,8 @@ class Suma::Program < Suma::Postgres::Model(:programs)
                join_table: :programs_anon_proxy_vendor_configurations,
                right_key: :configuration_id,
                order: order_desc
-  many_to_many :payment_triggers,
-               class: "Suma::Payment::Trigger",
-               join_table: :programs_payment_triggers,
-               right_key: :trigger_id,
-               order: order_desc
 
-  plugin :association_array_replacer, :commerce_offerings, :anon_proxy_vendor_configurations, :payment_triggers
+  plugin :association_array_replacer, :commerce_offerings, :anon_proxy_vendor_configurations
 
   dataset_module do
   end
