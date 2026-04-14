@@ -20,11 +20,17 @@ module Suma::AdminLinked
   # Callers can implement their own admin_label, or this method will make a best-guess.
   def admin_label
     return self.label if self.respond_to?(:label)
-    return self.search_label if self.respond_to?(:search_label)
     if self.respond_to?(:name) && (name = self.name)
       return name if name.is_a?(String)
       return name.en if name.respond_to?(:en)
     end
     return "#{self.class.name.split('::').last} #{self.pk}"
+  end
+
+  # Return a label useful for search (by default, the admin label with the id as a prefix).
+  def search_label
+    lbl = self.admin_label
+    has_pk = /\b#{self.pk}\b/.match?(lbl)
+    return has_pk ? lbl : "(#{self.pk}) #{lbl}"
   end
 end

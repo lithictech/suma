@@ -273,11 +273,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return ds.all
   end
 
-  def search_label
-    lbl = "(#{self.id}) #{self.name}"
-    return lbl
-  end
-
   # @return [Suma::Member::StripeAttributes]
   def stripe
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
