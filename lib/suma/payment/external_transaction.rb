@@ -113,7 +113,7 @@ module Suma::Payment::ExternalTransaction
       self.originated_book_transaction = originated_book_transaction
     end
 
-    protected def _reverse_originated_book_transaction
+    protected def _reverse_originated_book_transaction(memo:)
       return unless self.reversal_book_transaction.nil? && (orig_bx = self.originated_book_transaction)
       self.db.transaction do
         reversal_book_transaction = Suma::Payment::BookTransaction.create(
@@ -122,7 +122,7 @@ module Suma::Payment::ExternalTransaction
           originating_ledger: orig_bx.receiving_ledger,
           receiving_ledger: orig_bx.originating_ledger,
           associated_vendor_service_category: orig_bx.associated_vendor_service_category,
-          memo: self.memo,
+          memo:,
         )
         self.update(reversal_book_transaction:)
       end

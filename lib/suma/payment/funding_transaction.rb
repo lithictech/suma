@@ -128,10 +128,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           end
         end
         strategy.check_validity!
-        memo ||= Suma::TranslatedText.find_or_create(
-          en: "Transfer to suma",
-          es: "Transferencia a suma",
-        )
+        memo ||= Suma::I18n::StaticString.find_text("backend", "funding_transaction")
         xaction = self.new(
           amount:,
           memo:,
@@ -199,7 +196,9 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   # Whenever we transition to canceled, ensure we reverse any originated book transaction.
   def after_canceled
-    self._reverse_originated_book_transaction
+    self._reverse_originated_book_transaction(
+      Suma::I18n::StaticString.find_text("backend", "funding_transaction_reversal"),
+    )
   end
 
   def funds_cleared? = self.strategy.funds_cleared?
