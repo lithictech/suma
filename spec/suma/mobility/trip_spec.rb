@@ -122,11 +122,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     let!(:cash) { Suma::Fixtures.vendor_service_category.cash.create }
     let!(:mobility) { Suma::Fixtures.vendor_service_category.mobility.create }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "ends the trip and creates a charge using the returned cost" do
+    it "ends the trip and creates a charge using the returned cost", :i18n do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(member:, vendor_service:)
       trip.end_trip(lat: 1, lng: 2, now: Time.now)
       expect(trip.refresh).to have_attributes(end_lat: 1, end_lng: 2)
@@ -141,7 +137,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       )
     end
 
-    it "charges the service's category ledgers if there is a balance" do
+    it "charges the service's category ledgers if there is a balance", :i18n do
       rate = Suma::Fixtures.vendor_service_rate.surcharge(200).unit_amount(20).discounted_by(0.5).create
       member_mobility_ledger = member.payment_account.ensure_ledger_with_category(mobility)
       Suma::Fixtures.book_transaction.to(member_mobility_ledger).create(amount: money("$1"))
@@ -184,7 +180,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
           create(began_at: t - 211.seconds, vendor_service_rate: rate, member:)
       end
 
-      it "creates a funding transaction against the default payment instrument" do
+      it "creates a funding transaction against the default payment instrument", :i18n do
         Suma::Fixtures::Members.register_as_stripe_customer(member)
         Suma::Fixtures.card.member(member).create
 
@@ -203,7 +199,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         )
       end
 
-      it "creates a support ticket if money is required and there is no payment instrument" do
+      it "creates a support ticket if money is required and there is no payment instrument", :i18n do
         trip.end_trip(lat: 1, lng: 2, now: Time.now)
         expect(trip.charge).to be_a(Suma::Charge)
         expect(Suma::Support::Ticket.all).to contain_exactly(
@@ -212,7 +208,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       end
     end
 
-    it "does not create any book transactions for a $0 trip cost" do
+    it "does not create any book transactions for a $0 trip cost", :i18n do
       Suma::Payment.ensure_cash_ledger(member)
       member.refresh
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create

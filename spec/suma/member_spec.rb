@@ -10,13 +10,12 @@ RSpec.describe "Suma::Member", :db do
   end
 
   describe "associations" do
-    it "has an ongoing_trip association" do
+    it "has an ongoing_trip association", :i18n do
       c = Suma::Fixtures.member.with_cash_ledger.create
       Suma::Fixtures.ledger.member(c).category(:mobility).create # So we can end trip
       expect(c.ongoing_trip).to be_nil
       t = Suma::Fixtures.mobility_trip.ongoing.create(member: c)
       expect(c.refresh.ongoing_trip).to be === t
-      import_localized_backend_seeds
       t.end_trip(lat: 1, lng: 2, now: Time.now)
       expect(c.refresh.ongoing_trip).to be_nil
     end

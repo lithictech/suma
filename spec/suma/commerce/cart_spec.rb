@@ -109,7 +109,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
 
     describe "with a maximum quantity per member on the product" do
-      it "returns the quantity value minus the amount the member has ordered already in uncanceled orders" do
+      it "returns the quantity value minus the amount the member has ordered already in uncanceled orders", :i18n do
         product.inventory!.update(max_quantity_per_member_per_offering: 5)
         expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :purchased])
 
@@ -127,7 +127,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
 
     describe "with a maximum number of items cumulative on the offering" do
-      it "returns the quantity value minus the total number of items in uncanceled orders" do
+      it "returns the quantity value minus the total number of items in uncanceled orders", :i18n do
         offering.update(max_ordered_items_cumulative: 5)
         expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([5, :out_of_stock])
 
@@ -142,7 +142,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
 
     describe "with a maximum number of items per member on the offering" do
-      it "returns the quantity value minus the total number of items in uncanceled orders for the member" do
+      it "returns the quantity value minus the total number of items in uncanceled orders for the member", :i18n do
         offering.update(max_ordered_items_per_member: 50)
         expect(cart.refresh.max_quantity_and_reason_for(offering_product)).to eq([50, :max_ordered])
 
@@ -200,7 +200,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
 
     describe "cart_full?" do
-      it "is true when nothing else can be added to cart due to offering limits" do
+      it "is true when nothing else can be added to cart due to offering limits", :i18n do
         expect(cart.refresh).to_not be_cart_full
         offering.update(max_ordered_items_cumulative: 2)
         expect(cart.refresh).to_not be_cart_full

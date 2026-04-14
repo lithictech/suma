@@ -13,7 +13,7 @@ RSpec.describe Suma::API::Payments, :db do
   end
 
   describe "POST /v1/payments/create_funding" do
-    it "creates a new funding and book transaction" do
+    it "creates a new funding and book transaction", :i18n do
       ba = Suma::Fixtures.bank_account.member(member).verified.create
 
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
@@ -32,7 +32,7 @@ RSpec.describe Suma::API::Payments, :db do
       )
     end
 
-    it "can use a bank account" do
+    it "can use a bank account", :i18n do
       ba = Suma::Fixtures.bank_account.member(member).verified.create
 
       # Travel to a holiday so we don't try to collect funds
@@ -47,7 +47,7 @@ RSpec.describe Suma::API::Payments, :db do
       expect(last_response).to have_json_body.that_includes(status: "created")
     end
 
-    it "can use a card" do
+    it "can use a card", :i18n do
       Suma::Fixtures::Members.register_as_stripe_customer(member)
       card = Suma::Fixtures.card.member(member).create
       req = stub_request(:post, "https://api.stripe.com/v1/charges").

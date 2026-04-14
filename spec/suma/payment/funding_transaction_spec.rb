@@ -32,7 +32,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
 
     describe "collect param" do
       describe "false" do
-        it "does not try to collect" do
+        it "does not try to collect", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
           xaction = described_class.start_new(pacct, amount:, strategy:, collect: false)
@@ -41,7 +41,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       end
 
       describe "true" do
-        it "collects if ready" do
+        it "collects if ready", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, true)
@@ -49,7 +49,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
           xaction = described_class.start_new(pacct, amount:, strategy:, collect: true)
           expect(xaction).to have_attributes(status: "collecting")
         end
-        it "does not collect if not ready" do
+        it "does not collect if not ready", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, false)
@@ -59,7 +59,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       end
 
       describe ":must" do
-        it "collects if ready" do
+        it "collects if ready", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, true)
@@ -67,7 +67,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
           xaction = described_class.start_new(pacct, amount:, strategy:, collect: :must)
           expect(xaction).to have_attributes(status: "collecting")
         end
-        it "errors if not ready" do
+        it "errors if not ready", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, false)
@@ -78,7 +78,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       end
     end
 
-    it "uses an ACH strategy if originating from a bank account" do
+    it "uses an ACH strategy if originating from a bank account", :i18n do
       bank_account = Suma::Fixtures.bank_account.verified.create
       req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
         to_return(fixture_response("increase/ach_transfer"))
@@ -96,7 +96,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       expect(xaction.strategy).to have_attributes(originating_bank_account: bank_account)
     end
 
-    it "uses a card strategy if originating from a card" do
+    it "uses a card strategy if originating from a card", :i18n do
       card = Suma::Fixtures.card.member(Suma::Fixtures.member.registered_as_stripe_customer.create).create
       req = stub_request(:post, "https://api.stripe.com/v1/charges").
         to_return(fixture_response("stripe/charge"))
@@ -198,7 +198,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
           strategy.set_response(:funds_canceled?, true)
         end
 
-        it "transitions to canceled (and originates/reverses book transactions)" do
+        it "transitions to canceled (and originates/reverses book transactions)", :i18n do
           expect(payment).to transition_on(:collect_funds).to("collecting")
           expect(payment).to transition_on(:collect_funds).to("canceled")
           expect(payment.originated_book_transaction).to have_attributes(
@@ -216,7 +216,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
     end
 
     describe "cancel" do
-      it "transitions to canceled" do
+      it "transitions to canceled", :i18n do
         expect(payment).to transition_on(:cancel).to("canceled")
         expect(payment).to not_transition_on(:cancel)
 
@@ -224,7 +224,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(payment).to transition_on(:cancel).to("canceled")
       end
 
-      it "reverses the originated book transaction" do
+      it "reverses the originated book transaction", :i18n do
         strategy.set_response(:ready_to_collect_funds?, true)
         strategy.set_response(:collect_funds, nil)
         expect(payment).to transition_on(:collect_funds).to("collecting")
