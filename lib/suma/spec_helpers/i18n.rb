@@ -5,6 +5,10 @@ require "suma/spec_helpers"
 
 module Suma::SpecHelpers::I18n
   def self.included(context)
+    context.before(:each) do |example|
+      import_localized_backend_seeds if example.metadata[:i18n]
+    end
+
     context.around(:each) do |example|
       lang = example.metadata[:lang] || example.metadata[:language]
       lang = :en if lang == true
@@ -44,6 +48,10 @@ module Suma::SpecHelpers::I18n
     return Suma::TranslatedText.create(params)
   end
 
+  # Import the backend seeds. Tests should usually use the :i18n metadata.
+  # You rarely want to use the :i18n metadata for groups, only individual tests,
+  # since it is relatively slow and should be scoped as tightly as possible
+  # to avoid unnecessary work.
   module_function def import_localized_backend_seeds
     Suma::I18n::StaticStringIO.import_seeds(namespaces: "backend")
   end

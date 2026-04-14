@@ -132,7 +132,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
   end
 
-  describe "create_order" do
+  describe "create_order", :i18n do
     let(:member) { Suma::Fixtures.member.onboarding_verified.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }

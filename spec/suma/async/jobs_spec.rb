@@ -404,10 +404,9 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lime.trip_report_sync_enabled = true
       Suma::Lime.trip_report_from_email = "from@mysuma.org"
       Suma::Lime.trip_report_to_email = "to@mysuma.org"
-      import_localized_backend_seeds
     end
 
-    it "syncs trips from receipt emails and reports" do
+    it "syncs trips from receipt emails and reports", :i18n do
       member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
@@ -607,7 +606,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end
     end
 
-    it "charges a negative cash ledger balance to the updated instrument" do
+    it "charges a negative cash ledger balance to the updated instrument", :i18n do
       expect do
         ba.update(name: "xyz")
       end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)

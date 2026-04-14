@@ -39,11 +39,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:product) { Suma::Fixtures.product.with_categories.create }
     let(:offering_product_fac) { Suma::Fixtures.offering_product(product:, offering:) }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "returns only available offering products" do
+    it "returns only available offering products", :i18n do
       op1 = offering_product_fac.create
       op2 = offering_product_fac.closed.create
 
@@ -55,7 +51,7 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
-    it "returns details about the offering and the member cart" do
+    it "returns details about the offering and the member cart", :i18n do
       op1 = offering_product_fac.create
       vendor = op1.product.vendor
       other_vendor_product = Suma::Fixtures.offering_product(offering:).product(vendor:).create
@@ -71,7 +67,7 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
-    it "returns correct out_of_stock info about the offering items" do
+    it "returns correct out_of_stock info about the offering items", :i18n do
       offering.update(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
       offering_product_fac.create
 
@@ -92,7 +88,7 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
-    it "orders products by ordinal, with out of stock products always last" do
+    it "orders products by ordinal, with out of stock products always last", :i18n do
       op_fac = Suma::Fixtures.offering_product(offering:)
       p_fac = Suma::Fixtures.product.with_categories
       op2 = op_fac.create(product: p_fac.create(ordinal: 20))
@@ -150,11 +146,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product.create(offering:, product:) }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "adds a product (uses Cart#set_item)" do
+    it "adds a product (uses Cart#set_item)", :i18n do
       put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2
 
       expect(last_response).to have_status(200)
@@ -164,7 +156,7 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
-    it "ignores the change and returns the existing cart if for out of order updates" do
+    it "ignores the change and returns the existing cart if for out of order updates", :i18n do
       cart = Suma::Fixtures.cart(offering:, member:).with_product(product, 10, timestamp: 2).create
 
       put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2, timestamp: 1
@@ -213,11 +205,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "creates a checkout" do
+    it "creates a checkout", :i18n do
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
       expect(last_response).to have_status(200)
@@ -295,11 +283,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:cart) { Suma::Fixtures.cart(member:).with_any_product.create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "returns the checkout and other data" do
+    it "returns the checkout and other data", :i18n do
       get "/v1/commerce/checkouts/#{checkout.id}"
 
       expect(last_response).to have_status(200)
@@ -339,11 +323,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "updates the fulfillment option" do
+    it "updates the fulfillment option", :i18n do
       newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
 
       post "/v1/commerce/checkouts/#{checkout.id}/modify_fulfillment", option_id: newopt.id
@@ -380,7 +360,7 @@ RSpec.describe Suma::API::Commerce, :db do
       end
     end
 
-    it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
+    it "clears the cart, completes the checkout, creates an order, and returns the confirmation", :i18n do
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(200)
@@ -399,7 +379,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
     end
 
-    it "409s if the payment fails to process" do
+    it "409s if the payment fails to process", :i18n do
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
         post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
       end
@@ -408,7 +388,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
     end
 
-    it "sets the instrument on the checkout" do
+    it "sets the instrument on the checkout", :i18n do
       newcard = Suma::Fixtures.card.create(legal_entity: card.legal_entity)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
@@ -460,7 +440,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if the given amount is out of date" do
     end
 
-    it "sets the fulfillment option" do
+    it "sets the fulfillment option", :i18n do
       newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: newopt.id
@@ -469,7 +449,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
     end
 
-    it "does not modify fulfillment option if not passed" do
+    it "does not modify fulfillment option if not passed", :i18n do
       opt = Suma::Fixtures.offering_fulfillment_option(offering:).create
       checkout.update(fulfillment_option: opt)
 
@@ -479,7 +459,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
     end
 
-    it "allows a nil fulfillment option only if checkout option is nil" do
+    it "allows a nil fulfillment option only if checkout option is nil", :i18n do
       checkout.update(fulfillment_option: nil)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil

@@ -332,11 +332,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     let(:vendor_service_rate) { Suma::Fixtures.vendor_service_rate.create }
     let(:vendor_service) { Suma::Fixtures.vendor_service.mobility_deeplink.create }
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
-    it "fetches and upserts rides" do
+    it "fetches and upserts rides", :i18n do
       insert_valid_credential
       program_req = stub_request(:post, "https://www.lyft.com/api/rideprograms/ride-program").
         with(body: {ride_program_id: "5678"}.to_json).
@@ -492,10 +488,6 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       m
     end
 
-    before(:each) do
-      import_localized_backend_seeds
-    end
-
     def ride_json(
       transaction_amount_cents: 100,
       line_items: [{"money" => {"amount" => -100, "currency" => "USD", "exponent" => 2}, "title" => "default"}]
@@ -533,7 +525,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       end
     end
 
-    it "upserts a trip fully paid by suma's Lyft Pass" do
+    it "upserts a trip fully paid by suma's Lyft Pass", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -572,7 +564,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "upserts a trip partially paid by suma's Lyft Pass" do
+    it "upserts a trip partially paid by suma's Lyft Pass", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -599,7 +591,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "upserts a trip that costs more than what is calculated by suma's rate" do
+    it "upserts a trip that costs more than what is calculated by suma's rate", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -627,7 +619,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "upserts a trip that costs exactly what is calculated by suma's rate" do
+    it "upserts a trip that costs exactly what is calculated by suma's rate", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -652,7 +644,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "upserts a trip and warns in Sentry if the Lyft trip costs less than expected" do
+    it "upserts a trip and warns in Sentry if the Lyft trip costs less than expected", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -685,7 +677,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "creates a subsidy from the fallback ledger and warns in Sentry if there are no valid triggers" do
+    it "creates a subsidy from the fallback ledger and warns in Sentry if there are no valid triggers", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -723,7 +715,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
     end
 
-    it "creates a subsidy from the ledger specified by a valid trigger" do
+    it "creates a subsidy from the ledger specified by a valid trigger", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -759,7 +751,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       assert_zero_balances
     end
 
-    it "never uses a member's cash ledger balance" do
+    it "never uses a member's cash ledger balance", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -776,7 +768,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       expect(member.payment_account.cash_ledger!).to have_attributes(balance: cost("$5"))
     end
 
-    it "ignores duplicate line items" do
+    it "ignores duplicate line items", :i18n do
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(35).create
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:, vendor_service_rate:)
       ride = ride_json(
@@ -835,7 +827,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       end.to raise_error(Suma::InvariantViolation, /transaction amount cannot be zero/)
     end
 
-    it "will download and insert a map image if the url is set" do
+    it "will download and insert a map image if the url is set", :i18n do
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
       ride = ride_json
       ride["ride"]["map_image_url"] = "https://example.com/map.png"
@@ -850,7 +842,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
     end
 
-    it "noops if a trip with the external trip/ride id already exists" do
+    it "noops if a trip with the external trip/ride id already exists", :i18n do
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
       ride = ride_json
       trip = instance.upsert_ride_as_trip(ride, pricing)
@@ -858,7 +850,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       expect(Suma::Mobility::Trip.all).to have_same_ids_as(trip)
     end
 
-    it "logs and noops if a trip with the external trip/ride id already exists (constraint violation)" do
+    it "logs and noops if a trip with the external trip/ride id already exists (constraint violation)", :i18n do
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
       ride = ride_json
       instance.upsert_ride_as_trip(ride, pricing)
@@ -870,7 +862,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
     end
 
-    it "does not treat the trip as ongoing (to avoid unique constraint violation)" do
+    it "does not treat the trip as ongoing (to avoid unique constraint violation)", :i18n do
       pricing = Suma::Fixtures.program_pricing.create(program:, vendor_service:)
       Suma::Fixtures.mobility_trip.ongoing.create(member:)
       ride = ride_json

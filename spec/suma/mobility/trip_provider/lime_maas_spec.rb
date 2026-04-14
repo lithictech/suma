@@ -62,8 +62,7 @@ RSpec.describe Suma::Mobility::TripProvider::LimeMaas, :db do
     expect(trip).to have_attributes(external_trip_id: "fa03adb1-7755-429f-a80f-ad6836a960ee")
   end
 
-  it "can stop an ongoing trip" do
-    import_localized_backend_seeds
+  it "can stop an ongoing trip", :i18n do
     member.update(lime_user_id: "myuser")
     rate = Suma::Fixtures.vendor_service_rate.surcharge(100).discounted_by(0.5).create
     fake_end = Time.parse("2025-09-17T09:43:05Z")

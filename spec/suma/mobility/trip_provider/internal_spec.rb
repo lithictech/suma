@@ -8,8 +8,7 @@ RSpec.describe Suma::Mobility::TripProvider::Internal, :db do
 
   it_behaves_like "a mobility trip provider"
 
-  it "can start and stop" do
-    import_localized_backend_seeds
+  it "can start and stop", :i18n do
     trip = Suma::Mobility::Trip.new
     expect(ad.begin_trip(trip)).to be_a(Suma::Mobility::BeginTripResult)
     expect(trip).to have_attributes(external_trip_id: be_present)
@@ -17,8 +16,7 @@ RSpec.describe Suma::Mobility::TripProvider::Internal, :db do
     expect(ad.end_trip(trip)).to be_a(Suma::Mobility::EndTripResult)
   end
 
-  it "returns the charge based on the rate" do
-    import_localized_backend_seeds
+  it "returns the charge based on the rate", :i18n do
     rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(20).discounted_by(0.5).create
     t = Time.now
     trip = Suma::Fixtures.mobility_trip.create(began_at: t, vendor_service_rate: rate)

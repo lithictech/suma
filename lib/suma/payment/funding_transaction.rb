@@ -197,7 +197,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # Whenever we transition to canceled, ensure we reverse any originated book transaction.
   def after_canceled
     self._reverse_originated_book_transaction(
-      Suma::I18n::StaticString.find_text("backend", "funding_transaction_reversal"),
+      memo: Suma::I18n::StaticString.find_text("backend", "funding_transaction_reversal"),
     )
   end
 

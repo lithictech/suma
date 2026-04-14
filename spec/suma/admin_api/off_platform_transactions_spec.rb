@@ -14,7 +14,7 @@ RSpec.describe Suma::AdminAPI::OffPlatformTransactions, :db do
   end
 
   describe "POST /v1/off_platform_transactions/create" do
-    it "can create and process an off-platform funding transaction" do
+    it "can create and process an off-platform funding transaction", :i18n do
       post "/v1/off_platform_transactions/create",
            type: :funding,
            amount: {cents: 500, currency: "USD"},
@@ -88,7 +88,7 @@ RSpec.describe Suma::AdminAPI::OffPlatformTransactions, :db do
       )
     end
 
-    it "can use empty fields" do
+    it "can use empty fields", :i18n do
       post "/v1/off_platform_transactions/create",
            type: :funding,
            amount: {cents: 500, currency: "USD"},
