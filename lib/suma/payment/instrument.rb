@@ -54,7 +54,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def simple_label = raise NotImplementedError
 
     def search_label
-      lbl = "#{self.legal_entity.name}: #{self.name}, #{self.institution_name}"
+      lbl = "(#{self.id}) #{self.legal_entity.name}: #{self.name}, #{self.institution_name}"
       return lbl
     end
   end

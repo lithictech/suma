@@ -67,7 +67,7 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
           {label: "Type", type: :string, value: "Fake"},
           {label: "Lbl", type: :model, value: {label: card.admin_label, link: card.admin_link}},
           {label: "Nada", type: :model, value: {label: "Suma::Member::Session[#{session.id}]", link: nil}},
-          {label: "Searched", type: :model, value: {label: member.search_label, link: member.admin_link}},
+          {label: "Searched", type: :model, value: {label: member.admin_label, link: member.admin_link}},
         ],
       )
     end

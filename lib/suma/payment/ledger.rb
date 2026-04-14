@@ -249,14 +249,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
 
   def rel_admin_link = "/payment-ledger/#{self.id}"
 
-  def admin_label
-    lbl = "(#{self.id}) #{self.account.display_name} - #{self.name}"
-    return lbl
-  end
-
-  def search_label
-    return self.admin_label
-  end
+  def admin_label = "#{self.account.display_name} - #{self.name}"
 
   def hybrid_search_fields
     return [
