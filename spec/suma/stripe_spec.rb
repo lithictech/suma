@@ -4,16 +4,23 @@ require "suma/stripe"
 require "suma/service"
 
 RSpec.describe Suma::Stripe, :db do
-  it "uses only valid error codes" do
-    codes = described_class::ERRORS_FOR_CODES.keys
-    codes.each do |code|
-      declinebody = {"error" => {"code" => "card_declined", "decline_code" => code, "type" => "card_error"}}
-      err = Stripe::CardError.new("testing", "p", json_body: declinebody)
-      expect(Suma::I18n.localized_error_codes).to be_include(described_class.localized_error_code(err))
+  describe "localized_error_codes" do
+    it "uses only valid error codes" do
+      codes = described_class::ERRORS_FOR_CODES.keys
+      codes.each do |code|
+        declinebody = {"error" => {"code" => "card_declined", "decline_code" => code, "type" => "card_error"}}
+        err = Stripe::CardError.new("testing", "p", json_body: declinebody)
+        expect(Suma::I18n.localized_error_codes).to be_include(described_class.localized_error_code(err))
 
-      errbody = {"error" => {"code" => code, "type" => "card_error"}}
-      err = Stripe::CardError.new("testing", "p", json_body: errbody)
-      expect(Suma::I18n.localized_error_codes).to be_include(described_class.localized_error_code(err))
+        errbody = {"error" => {"code" => code, "type" => "card_error"}}
+        err = Stripe::CardError.new("testing", "p", json_body: errbody)
+        expect(Suma::I18n.localized_error_codes).to be_include(described_class.localized_error_code(err))
+      end
+    end
+
+    it "can use a string code" do
+      expect(described_class.localized_error_code("invalid_number")).to(eq("card_invalid_number"))
+      expect(described_class.localized_error_code("invalid_number_NO")).to(eq("card_generic"))
     end
   end
 

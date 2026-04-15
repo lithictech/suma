@@ -509,6 +509,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         g.app_link_text = self.ttext("Yummy food")
       end
 
+      require "suma/fixtures/eligibility_attributes"
+      require "suma/fixtures/eligibility_assignments"
+      require "suma/fixtures/eligibility_requirements"
+      require "suma/fixtures/eligibility_expressions"
       Suma::Program.all.each_with_index do |pr, idx|
         Suma::Fixtures.eligibility_attribute(name: "demo-#{idx + 1}").between(Suma::Role.cache.member, pr).create
       end

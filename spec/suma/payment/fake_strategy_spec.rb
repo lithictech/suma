@@ -33,6 +33,25 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
     end
   end
 
+  describe "mock responses" do
+    it "can set an exception" do
+      fs = described_class.create
+      fs.set_response(:collect_funds, Suma::InvariantViolation.new("hello"))
+      expect { fs.collect_funds }.to raise_error(Suma::InvariantViolation, "hello")
+      fs = described_class[fs.id]
+      expect { fs.collect_funds }.to raise_error(Suma::InvariantViolation, "hello")
+    end
+
+    it "can set a model" do
+      fs = described_class.create
+      fs2 = described_class.create
+      fs.set_response(:collect_funds, fs2)
+      expect(fs.collect_funds).to be === fs2
+      fs = described_class[fs.id]
+      expect(fs.collect_funds).to be === fs2
+    end
+  end
+
   describe "admin_detail_typed" do
     it "returns typing info for values" do
       s = described_class.new

@@ -13,8 +13,11 @@ class Suma::Payment::PlatformStatus
   # Funding minus payouts. This is 'potential profit'. Member liabilities reduce assets,
   # but not necessarily by their entire amount (since the actual amount will depend on vendor invoicing).
   attr_accessor :assets
+
   # Ledgers belonging to the platform account.
-  attr_accessor :platform_ledgers
+  def platform_ledgers
+    @platform_ledgers ||= Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
+  end
   # Unbalanced ledgers. These do not belong to the platform account,
   # since unbalanced member ledgers always mean unbalanced platform ledgers.
   attr_accessor :unbalanced_ledgers
@@ -22,7 +25,6 @@ class Suma::Payment::PlatformStatus
   attr_accessor :off_platform_funding_transactions, :off_platform_payout_transactions
 
   def calculate
-    self.platform_ledgers = Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
     funding_ds = Suma::Payment::FundingTransaction.dataset
     payout_ds = Suma::Payment::PayoutTransaction.dataset
     self.refunds, self.refund_count = sumcnt(payout_ds.exclude(refunded_funding_transaction_id: nil))
@@ -79,4 +81,6 @@ class Suma::Payment::PlatformStatus
       select_map(:ledger_id)
     return Suma::Payment::Ledger.order(:account_id, :name, :id).where(id: unbalanced_ids)
   end
+
+  def unbalanced_ledgers_dataset = self.find_unbalanced_ledgers_ds
 end

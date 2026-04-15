@@ -56,7 +56,13 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
         metadata: {suma_funding_transaction_id: self.funding_transaction.id},
       )
     rescue Stripe::CardError => e
-      raise Suma::Payment::FundingTransaction::CollectFundsFailed, e
+      raise Suma::Payment::FundingTransaction::CollectFundsFailed.new(
+        message: e.message,
+        type: "card_error",
+        code: e.code,
+        sub_code: e.json_body&.dig(:error, :decline_code),
+        localized_error_code: Suma::Stripe.localized_error_code(e),
+      )
     end
     self.charge_json = charge.as_json
     charge_id_set!(Suma::InvalidPostcondition)

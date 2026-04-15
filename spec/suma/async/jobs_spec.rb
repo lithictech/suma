@@ -398,6 +398,68 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "LedgerBalanceCharger" do
+    let(:negative_member_account) {}
+    let(:positive_member_account) { Suma::Fixtures.member.create.payment_account! }
+    let(:ba) { Suma::Fixtures.bank_account.verified.member(member).create }
+
+    it "charges cash ledgers with negative balance", :i18n do
+      food = Suma::Fixtures.vendor_service_category.create(name: "food")
+
+      platform_account = Suma::Payment::Account.lookup_platform_account
+      platform_cash = platform_account.ensure_cash_ledger
+      platform_food = platform_account.ensure_ledger_with_category(food)
+
+      account1 = Suma::Fixtures.payment_account.create
+      account2 = Suma::Fixtures.payment_account.create
+      account3 = Suma::Fixtures.payment_account.create
+      account4 = Suma::Fixtures.payment_account.create
+      [account1, account2, account3, account4].each do |account|
+        Suma::Fixtures.card.member(account.member).create
+      end
+
+      positive_cash = account1.ensure_cash_ledger
+      negative_cash = account2.ensure_cash_ledger
+      zero_cash = account3.ensure_cash_ledger
+      negative_food = account4.ensure_ledger_with_category(food)
+
+      Suma::Fixtures.book_transaction.from(platform_cash).to(positive_cash).create(amount: money("$5"))
+      Suma::Fixtures.book_transaction.from(negative_cash).to(platform_cash).create(amount: money("$50"))
+      Suma::Fixtures.book_transaction.from(negative_food).to(platform_food).create(amount: money("$500"))
+
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready) do
+        Suma::Async::LedgerBalanceCharger.new.perform(true)
+      end
+
+      expect(Suma::Payment::FundingTransaction.all).to contain_exactly(
+        have_attributes(amount: cost("$50"), originating_payment_account: be === negative_cash.account),
+      )
+    end
+
+    it "skips failed collections and those without a default instrument", :i18n do
+      platform_account = Suma::Payment::Account.lookup_platform_account
+      platform_cash = platform_account.ensure_cash_ledger
+
+      account1 = Suma::Fixtures.payment_account.create
+      Suma::Fixtures.card.member(account1.member).create
+      account2 = Suma::Fixtures.payment_account.create
+
+      # Skipped because the strategy is not ready
+      account1_cash = account1.ensure_cash_ledger
+      # Skipped since account2 has no instrument
+      account2_cash = account2.ensure_cash_ledger
+
+      Suma::Fixtures.book_transaction.from(account1_cash).to(platform_cash).create(amount: money("$10"))
+      Suma::Fixtures.book_transaction.from(account2_cash).to(platform_cash).create(amount: money("$20"))
+
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        Suma::Async::LedgerBalanceCharger.new.perform(true)
+      end
+
+      expect(Suma::Payment::FundingTransaction.all).to be_empty
+    end
+  end
+
   describe "LimeTripSync", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Lime.trip_email_sync_enabled = true
@@ -714,6 +776,37 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Async::PaymentInstrumentExpiringNotifier.new.perform(member.id)
       expect(member.message_deliveries).to be_empty
       expect(req).to have_been_made
+    end
+  end
+
+  describe "PaymentReviewer" do
+    let(:strategy) { Suma::Payment::FakeStrategy.create }
+
+    it "reviews payments", :i18n do
+      fx1 = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      fx2 = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      px1 = Suma::Fixtures.payout_transaction.with_fake_strategy.create
+
+      expect do
+        expect(fx1).to transition_on(:put_into_review).with("hi").to("needs_review")
+        fx1.save_changes
+      end.to perform_async_job(Suma::Async::PaymentReviewer)
+      expect do
+        expect(px1).to transition_on(:put_into_review).with("hi").to("needs_review")
+        px1.save_changes
+      end.to perform_async_job(Suma::Async::PaymentReviewer)
+      expect do
+        expect(fx2).to transition_on(:cancel).to("canceled")
+        fx2.save_changes
+      end.to perform_async_job(Suma::Async::PaymentReviewer)
+
+      expect(fx1.refresh).to have_attributes(status: "canceled")
+      expect(fx2.refresh).to have_attributes(status: "canceled")
+      expect(px1.refresh).to have_attributes(status: "needs_review")
+
+      expect(Suma::Support::Ticket.all).to contain_exactly(
+        have_attributes(body: include("PayoutTransaction #{px1.id} was put into review.")),
+      )
     end
   end
 

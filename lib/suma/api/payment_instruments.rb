@@ -58,6 +58,11 @@ class Suma::API::PaymentInstruments < Suma::API::V1
     end
 
     resource :cards do
+      rescue_from Stripe::CardError do |e|
+        code = Suma::Stripe.localized_error_code(e)
+        merror!(402, e.message, code:, more: {stripe_error: e.to_s})
+      end
+
       params do
         # See https://stripe.com/docs/api/tokens/object
         requires :token, type: JSON do
