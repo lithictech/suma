@@ -172,8 +172,12 @@ class Suma::API::Commerce < Suma::API::V1
               checkout.create_order(apply_at: current_time, cash_charge_amount: Money.new(params[:charge_amount_cents]))
             rescue Suma::Commerce::Checkout::Prohibited => e
               merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
-            rescue StateMachines::Sequel::FailedTransition
-              merror!(409, "Checkout prohibited: could not collect funds", code: "checkout_fatal_error")
+            rescue Suma::Payment::FundingTransaction::CollectFundsFailed => e
+              # NOTE: We could get a 'failed to transition' error if ready_to_collect_funds is false.
+              # We will need to figure out how to handle that (ie, handling async instruments like bank accounts);
+              # for now, we will 500 if we fail to transition (due to ready_to_collect_funds=false),
+              # but 409 if collecting those funds fails (NSF, etc.).
+              merror!(409, "Checkout prohibited: #{e.message}", code: e.localized_error_code)
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
               merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end

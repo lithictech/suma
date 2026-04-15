@@ -4,6 +4,9 @@ require "suma/behaviors"
 
 RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Suma::Payment do
   let(:described_class) { Suma::Payment::FundingTransaction }
+  let(:collect_failed_err) do
+    described_class::CollectFundsFailed.new(message: "nope", type: "tx", code: "cx", localized_error_code: "x")
+  end
 
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }
@@ -35,7 +38,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         it "does not try to collect", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
-          xaction = described_class.start_new(pacct, amount:, strategy:, collect: false)
+          xaction = described_class.start_new(pacct, amount:, memo:, strategy:, collect: false)
           expect(xaction).to have_attributes(status: "created")
         end
       end
@@ -46,15 +49,24 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, true)
           strategy.set_response(:collect_funds, nil)
-          xaction = described_class.start_new(pacct, amount:, strategy:, collect: true)
+          xaction = described_class.start_new(pacct, amount:, memo:, strategy:, collect: true)
           expect(xaction).to have_attributes(status: "collecting")
         end
         it "does not collect if not ready", :i18n do
           strategy = Suma::Payment::FakeStrategy.create
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, false)
-          xaction = described_class.start_new(pacct, amount:, strategy:, collect: true)
+          xaction = described_class.start_new(pacct, amount:, memo:, strategy:, collect: true)
           expect(xaction).to have_attributes(status: "created")
+        end
+        it "errors if collection failed", :i18n do
+          strategy = Suma::Payment::FakeStrategy.create
+          strategy.set_response(:check_validity, [])
+          strategy.set_response(:ready_to_collect_funds?, true)
+          strategy.set_response(:collect_funds, collect_failed_err)
+          expect do
+            described_class.start_new(pacct, amount:, memo:, strategy:, collect: true)
+          end.to raise_error(described_class::CollectFundsFailed, "nope")
         end
       end
 
@@ -64,7 +76,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, true)
           strategy.set_response(:collect_funds, nil)
-          xaction = described_class.start_new(pacct, amount:, strategy:, collect: :must)
+          xaction = described_class.start_new(pacct, amount:, memo:, strategy:, collect: :must)
           expect(xaction).to have_attributes(status: "collecting")
         end
         it "errors if not ready", :i18n do
@@ -72,8 +84,17 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
           strategy.set_response(:check_validity, [])
           strategy.set_response(:ready_to_collect_funds?, false)
           expect do
-            described_class.start_new(pacct, amount:, strategy:, collect: :must)
+            described_class.start_new(pacct, amount:, memo:, strategy:, collect: :must)
           end.to raise_error(StateMachines::Sequel::FailedTransition)
+        end
+        it "errors if collection failed", :i18n do
+          strategy = Suma::Payment::FakeStrategy.create
+          strategy.set_response(:check_validity, [])
+          strategy.set_response(:ready_to_collect_funds?, true)
+          strategy.set_response(:collect_funds, collect_failed_err)
+          expect do
+            described_class.start_new(pacct, amount:, memo:, strategy:, collect: :must)
+          end.to raise_error(described_class::CollectFundsFailed, "nope")
         end
       end
     end
@@ -85,7 +106,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
 
       # Travel to real collection time so we can test collection happens
       xaction = Timecop.travel("2022-10-28T13:00:00-0400") do
-        described_class.start_new(pacct, amount:, instrument: bank_account)
+        described_class.start_new(pacct, amount:, memo:, instrument: bank_account)
       end
       expect(xaction).to have_attributes(
         originating_payment_account: be === pacct,
@@ -100,7 +121,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       card = Suma::Fixtures.card.member(Suma::Fixtures.member.registered_as_stripe_customer.create).create
       req = stub_request(:post, "https://api.stripe.com/v1/charges").
         to_return(fixture_response("stripe/charge"))
-      xaction = described_class.start_new(pacct, amount:, instrument: card, originating_ip: "1.2.3.4")
+      xaction = described_class.start_new(pacct, amount:, memo:, instrument: card, originating_ip: "1.2.3.4")
       expect(xaction).to have_attributes(
         status: "collecting",
         originating_payment_account: be === pacct,
@@ -115,7 +136,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       fake_instrument = Struct.new(:payment_method_type)
       Suma::Payment.supported_methods = ["specie"]
       expect do
-        described_class.start_new(pacct, amount:, instrument: fake_instrument.new(:specie))
+        described_class.start_new(pacct, amount:, memo:, instrument: fake_instrument.new(:specie))
       end.to raise_error(described_class::StrategyUnavailable)
     end
 
@@ -123,7 +144,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, ["not registered"])
       expect do
-        described_class.start_new(pacct, amount:, strategy:)
+        described_class.start_new(pacct, amount:, memo:, strategy:)
       end.to raise_error(Suma::Payment::Invalid)
     end
 
@@ -131,7 +152,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       bank_account = Suma::Fixtures.bank_account.verified.create
       Suma::Payment.supported_methods = []
       expect do
-        described_class.start_new(pacct, amount:, instrument: bank_account)
+        described_class.start_new(pacct, amount:, memo:, instrument: bank_account)
       end.to raise_error(Suma::Payment::UnsupportedMethod)
     end
   end
@@ -175,19 +196,34 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(Suma::Payment::BookTransaction.all).to have_same_ids_as(orig_bx)
       end
 
-      it "transitions to review needed if ready to collect funds fails terminally" do
-        strategy.set_response(:ready_to_collect_funds?, described_class::CollectFundsFailed.new("nope"))
-        expect(payment).to transition_on(:collect_funds).to("needs_review")
+      describe "using on_failed=:review" do
+        it "transitions to review needed if ready to collect funds fails terminally" do
+          strategy.set_response(:ready_to_collect_funds?, collect_failed_err)
+          expect(payment).to transition_on(:collect_funds).with(on_failed: :review).to("needs_review")
+        end
+
+        it "transitions to review needed if funds fail to collect" do
+          strategy.set_response(:ready_to_collect_funds?, true)
+          strategy.set_response(:collect_funds, collect_failed_err)
+          expect(payment).to transition_on(:collect_funds).with(on_failed: :review).to("needs_review")
+          expect(payment.audit_logs.last).to have_attributes(
+            reason: "tx.cx",
+            messages: ["Error collecting funds", "nope"],
+          )
+        end
       end
 
-      it "transitions to review needed if funds fail to collect" do
-        strategy.set_response(:ready_to_collect_funds?, true)
-        strategy.set_response(:collect_funds, described_class::CollectFundsFailed.new("nope"))
-        expect(payment).to transition_on(:collect_funds).to("needs_review")
-        expect(payment.audit_logs.last).to have_attributes(
-          reason: "Suma::Payment::FundingTransaction::CollectFundsFailed",
-          messages: ["Error collecting funds: nope"],
-        )
+      describe "using on_failed=:raise (default)" do
+        it "raises if ready to collect funds raises" do
+          strategy.set_response(:ready_to_collect_funds?, collect_failed_err)
+          expect { payment.collect_funds }.to raise_error(collect_failed_err)
+        end
+
+        it "raises if funds fail to collect" do
+          strategy.set_response(:ready_to_collect_funds?, true)
+          strategy.set_response(:collect_funds, collect_failed_err)
+          expect { payment.collect_funds }.to raise_error(collect_failed_err)
+        end
       end
 
       describe "when funds have been canceled" do
@@ -245,30 +281,19 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
 
     describe "put_into_review" do
       it "uses the reason and message" do
-        expect(payment).to transition_on(:put_into_review).with("mymessage", reason: "re").to("needs_review")
+        expect(payment).to transition_on(:put_into_review).with("mymessage", "re").to("needs_review")
         expect(payment.audit_logs.last).to have_attributes(reason: "re", messages: ["mymessage"])
       end
 
       it "formats the exception into the message and uses the class as the reason" do
         e = RuntimeError.new("hello")
-        expect(payment).to transition_on(:put_into_review).with("mymessage", exception: e).to("needs_review")
-        expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage: hello"])
+        expect(payment).to transition_on(:put_into_review).with("mymessage", e).to("needs_review")
+        expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage", "hello"])
       end
 
-      it "uses the wrapped exception type as the reason" do
-        e = described_class::CollectFundsFailed.new("hello", RuntimeError.new("bye"))
-        expect(payment).to transition_on(:put_into_review).with("mymessage", exception: e).to("needs_review")
-        expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage: hello: bye"])
-      end
-
-      it "creates a support ticket" do
-        expect(payment).to transition_on(:put_into_review).with("mymessage", reason: "hi").to("needs_review")
-        expect(Suma::Support::Ticket.all).to contain_exactly(
-          have_attributes(
-            body: match(/FundingTransaction #{payment.id} was put into review/).
-              and(match(/\(reason=hi\) \(message=mymessage\)/)),
-          ),
-        )
+      it "handles the coded exception" do
+        expect(payment).to transition_on(:put_into_review).with("mymessage", collect_failed_err).to("needs_review")
+        expect(payment.audit_logs.last).to have_attributes(reason: "tx.cx", messages: ["mymessage", "nope"])
       end
     end
   end

@@ -380,12 +380,12 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "409s if the payment fails to process", :i18n do
-      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready.failing) do
         post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
       end
 
       expect(last_response).to have_status(409)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
+      expect(last_response).to have_json_body.that_includes(error: include(code: "card_generic"))
     end
 
     it "sets the instrument on the checkout", :i18n do

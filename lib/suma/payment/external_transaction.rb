@@ -8,23 +8,6 @@ require "suma/payment"
 # so have different database models.
 # This class exists to colocate the shared behavior.
 module Suma::Payment::ExternalTransaction
-  # Wrap a failed external action in a standard shape.
-  class WrappedError < StandardError
-    attr_reader :wrapped
-
-    def initialize(msg, wrapped=nil)
-      if wrapped
-        super("#{msg}: #{wrapped}")
-      elsif msg.is_a?(StandardError)
-        super(msg.message)
-        wrapped = msg
-      else
-        super(msg)
-      end
-      @wrapped = wrapped
-    end
-  end
-
   def self.included(mod)
     mod.include(Suma::ExternalLinks)
     mod.extend(ClassMethods)
@@ -80,22 +63,21 @@ module Suma::Payment::ExternalTransaction
       raise NotImplementedError
     end
 
-    def _put_into_review_helper(message, opts={})
-      reason = "<none>"
-      if opts[:reason]
-        reason = opts[:reason]
-      elsif (ex = opts[:exception])
-        reason = ex.class.name
-        message = "#{message}: #{ex}"
-        reason = ex.wrapped.class.name if ex.respond_to?(:wrapped) && ex.wrapped
+    def _put_into_review_helper(message, reason)
+      msg2 = nil
+      if reason.is_a?(Suma::Payment::CodedError)
+        msg2 = reason.message
+        reason = reason.fqn_code
+      elsif reason.is_a?(Exception)
+        msg2 = reason.message
+        reason = reason.class
+      elsif reason.blank?
+        reason = nil
+      else
+        reason = reason.to_s
       end
-      self.audit(message, reason:)
-      Suma::Support::Ticket.create(
-        sender_name: "Suma Payments",
-        subject: "#{self.admin_label} Needs Review",
-        body: "#{self.admin_label} was put into review. See more at #{self.admin_link}\n" \
-              "(reason=#{reason}) (message=#{message})",
-      )
+      al = self.audit(message, reason:)
+      al.messages << msg2 if msg2
     end
 
     protected def _originate_book_transaction(originating_ledger:, receiving_ledger:)

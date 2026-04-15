@@ -21,6 +21,7 @@ class Suma::Async::PaymentInstrumentChargeBalance
     Suma::Payment::FundingTransaction.start_new(
       pi.member.payment_account,
       amount: -balance,
+      memo: Suma::I18n::StaticString.find_text("backend", "funding_transaction_charge_balance"),
       instrument: pi,
       collect: false,
     )

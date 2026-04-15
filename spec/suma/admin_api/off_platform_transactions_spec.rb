@@ -64,7 +64,7 @@ RSpec.describe Suma::AdminAPI::OffPlatformTransactions, :db do
       )
     end
 
-    it "can create and process an off-platform payout transaction" do
+    it "can create and process an off-platform payout transaction", :i18n do
       post "/v1/off_platform_transactions/create",
            type: :payout,
            amount: {cents: 500, currency: "USD"},

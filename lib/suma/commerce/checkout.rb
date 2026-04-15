@@ -234,6 +234,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       return Suma::Payment::FundingTransaction.start_new(
         self.member.payment_account,
         amount:,
+        memo: self.contribution_memo,
         instrument: @order.checkout.payment_instrument,
         # Once we have asynchronous instruments (bank accounts, etc.),
         # we can set this to true and figure out how to handle later failures.

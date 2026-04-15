@@ -4,6 +4,9 @@ require "suma/behaviors"
 
 RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Suma::Payment do
   let(:described_class) { Suma::Payment::PayoutTransaction }
+  let(:send_failed_err) do
+    described_class::SendFundsFailed.new(message: "nope", type: "tx", code: "cx", localized_error_code: "x")
+  end
 
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }
@@ -13,11 +16,12 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])
       strategy.set_response(:ready_to_send_funds?, false)
-      xaction = described_class.start_new(pacct, amount:, strategy:)
+      memo = Suma::Fixtures.translated_text.create
+      xaction = described_class.start_new(pacct, amount:, memo:, strategy:)
       expect(xaction).to have_attributes(
         status: "created",
         amount: cost("$5"),
-        memo: have_attributes(en: "Transfer from suma"),
+        memo: be === memo,
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         crediting_book_transaction: nil,
@@ -31,7 +35,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       strategy.set_response(:check_validity, [])
       strategy.set_response(:ready_to_send_funds?, true)
       strategy.set_response(:send_funds, nil)
-      xaction = described_class.start_new(pacct, amount:, strategy:)
+      xaction = described_class.start_new(pacct, amount:, memo: Suma::Fixtures.translated_text.create, strategy:)
       expect(xaction).to have_attributes(status: "sending", originated_book_transaction: be_present)
     end
 
@@ -39,7 +43,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, ["not registered"])
       expect do
-        described_class.start_new(pacct, amount:, strategy:)
+        described_class.start_new(pacct, amount:, memo: Suma::Fixtures.translated_text.create, strategy:)
       end.to raise_error(Suma::Payment::Invalid)
     end
   end
@@ -228,15 +232,15 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       end
 
       it "transition to review needed if ready to collect funds fails terminally" do
-        strategy.set_response(:ready_to_send_funds?, described_class::SendFundsFailed.new("nope"))
+        strategy.set_response(:ready_to_send_funds?, send_failed_err)
         expect(payment).to transition_on(:send_funds).to("needs_review")
       end
 
       it "transition to review needed if funds fail to collect" do
         strategy.set_response(:ready_to_send_funds?, true)
-        strategy.set_response(:send_funds, described_class::SendFundsFailed.new("nope"))
+        strategy.set_response(:send_funds, send_failed_err)
         expect(payment).to transition_on(:send_funds).to("needs_review")
-        expect(payment.audit_logs.last.messages).to include("Error sending funds: nope")
+        expect(payment.audit_logs.last.messages).to include("Error sending funds")
       end
 
       describe "when funds fail to be sent" do
@@ -313,20 +317,19 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
 
     describe "put_into_review" do
       it "uses the reason and message" do
-        expect(payment).to transition_on(:put_into_review).with("mymessage", reason: "re").to("needs_review")
+        expect(payment).to transition_on(:put_into_review).with("mymessage", "re").to("needs_review")
         expect(payment.audit_logs.last).to have_attributes(reason: "re", messages: ["mymessage"])
       end
 
       it "formats the exception into the message and uses the class as the reason" do
         e = RuntimeError.new("hello")
-        expect(payment).to transition_on(:put_into_review).with("mymessage", exception: e).to("needs_review")
-        expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage: hello"])
+        expect(payment).to transition_on(:put_into_review).with("mymessage", e).to("needs_review")
+        expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage", "hello"])
       end
 
-      it "uses the wrapped exception type as the reason" do
-        e = described_class::SendFundsFailed.new("hello", RuntimeError.new("bye"))
-        expect(payment).to transition_on(:put_into_review).with("mymessage", exception: e).to("needs_review")
-        expect(payment.audit_logs.last).to have_attributes(reason: "RuntimeError", messages: ["mymessage: hello: bye"])
+      it "handles the coded exception" do
+        expect(payment).to transition_on(:put_into_review).with("mymessage", send_failed_err).to("needs_review")
+        expect(payment.audit_logs.last).to have_attributes(reason: "tx.cx", messages: ["mymessage", "nope"])
       end
     end
   end

@@ -166,6 +166,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         return Suma::Payment::FundingTransaction.start_new(
           self.member.payment_account,
           amount:,
+          memo: self.contribution_memo,
           instrument:,
           collect: false,
         )

@@ -50,16 +50,19 @@ class Suma::AdminAPI::OffPlatformTransactions < Suma::AdminAPI::V1
           model_cls = Suma::Payment::FundingTransaction
           startparams = {originating_ip: rt.request.ip, collect: true}
           process_event = :collect_funds
+          memo = "funding_transaction_default"
         else
           model_cls = Suma::Payment::PayoutTransaction
           startparams = {}
           process_event = :send_funds
+          memo = "payout_transaction_default"
         end
         block.call
         tx = model_cls.start_new(
           Suma::Payment::Account.lookup_platform_account,
           amount: rt.params[:amount],
           strategy:,
+          memo: Suma::I18n::StaticString.find_text("backend", memo),
           **startparams,
         )
         rt.audit_transaction_values(strategy, "created")

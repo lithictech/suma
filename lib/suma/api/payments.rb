@@ -22,6 +22,7 @@ class Suma::API::Payments < Suma::API::V1
       fx = Suma::Payment::FundingTransaction.start_new(
         c.payment_account,
         amount: params[:amount],
+        memo: Suma::I18n::StaticString.find_text("backend", "funding_transaction_default"),
         instrument:,
         collect: true,
       )

@@ -7,19 +7,6 @@ require "mimemagic"
 module Suma::Payment
   include Appydays::Configurable
 
-  class Error < StandardError; end
-
-  class Invalid < Error
-    attr_reader :reasons
-
-    def initialize(msg=nil, reasons: [])
-      super(msg)
-      @reasons = reasons
-    end
-  end
-
-  class UnsupportedMethod < Error; end
-
   class Institution
     attr_reader :name, :logo_src, :color
 

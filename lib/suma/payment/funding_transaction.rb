@@ -14,7 +14,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   include Suma::HasActivityAudit
   include Suma::Payment::ExternalTransaction
 
-  class CollectFundsFailed < Suma::Payment::ExternalTransaction::WrappedError; end
+  class CollectFundsFailed < Suma::Payment::CodedError; end
   class StrategyUnavailable < Suma::Payment::Error; end
 
   plugin :hybrid_search
@@ -106,7 +106,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     #   Note that this will also create a book transaction on success.
     # @return [Suma::Payment::FundingTransaction]
     def start_new(
-      payment_account, amount:, memo: nil, instrument: nil, originating_ip: nil, strategy: nil, collect: :must
+      payment_account, amount:, memo:, instrument: nil, originating_ip: nil, strategy: nil, collect: :must
     )
       Suma.assert { [payment_account.is_a?(Suma::Payment::Account), payment_account.inspect] }
       if strategy.nil?
@@ -128,7 +128,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           end
         end
         strategy.check_validity!
-        memo ||= Suma::I18n::StaticString.find_text("backend", "funding_transaction")
         xaction = self.new(
           amount:,
           memo:,
@@ -181,15 +180,22 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   end
 
   # Collect funds if the strategy is ready to collect them.
-  # If the collection fails, put this payment into review.
-  def collect_funds
+  # @param opts [Hash]
+  # @option opts [:raise, :review] :on_failed If the strategy raises CollectFundsFailed,
+  #   either re-raise the exception (:raise) or put it into review (:review).
+  #   Putting it into review is used when the charge is asynchronous
+  #   (not based on user behavior).
+  def collect_funds(opts={})
+    on_failed = opts[:on_failed] || :raise
     begin
       return false unless self.strategy.ready_to_collect_funds?
       collect_result = self.strategy.collect_funds
       Suma.assert { collect_result.nil? }
     rescue CollectFundsFailed => e
+      raise e if on_failed == :raise
+      Suma.assert { on_failed == :review }
       self.logger.error("collect_funds_error", e)
-      return self.put_into_review("Error collecting funds", exception: e)
+      return self.put_into_review("Error collecting funds", e)
     end
     return super
   end
@@ -208,8 +214,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # rather than the strategy calling a separate transition method on the transaction.
   def flagging_for_review? = self.strategy.flagging_for_review?
 
-  def put_into_review(message, opts={})
-    self._put_into_review_helper(message, opts)
+  def put_into_review(message, reason=nil)
+    self._put_into_review_helper(message, reason)
     return super
   end
 

@@ -38,10 +38,10 @@ module Suma::Stripe
     return h
   end
 
-  # @param [Stripe::CardError] e
+  # @param [Stripe::CardError,String] e
   # @return [String]
   def self.localized_error_code(e)
-    code = e.json_body&.dig(:error, :decline_code) || e.code
+    code = e.is_a?(String) ? e : (e.json_body&.dig(:error, :decline_code) || e.code)
     return "card_generic" if code.nil?
     code = code.to_sym
     localized = ERRORS_FOR_CODES.fetch(code.to_sym, :card_generic)

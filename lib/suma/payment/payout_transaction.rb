@@ -13,7 +13,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   include Suma::Payment::ExternalTransaction
 
   class InvalidAmount < Suma::InvalidPrecondition; end
-  class SendFundsFailed < Suma::Payment::ExternalTransaction::WrappedError; end
+  class SendFundsFailed < Suma::Payment::CodedError; end
 
   plugin :hybrid_search
   plugin :state_machine
@@ -86,14 +86,10 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #   When we need to find the strategy based on an instrument instead, we can add a method to do the inference
     #   (like exists in `FundingStrategy::start_new`).
     # @return [Suma::Payment::PayoutTransaction]
-    def start_new(payment_account, amount:, strategy:, memo: nil)
+    def start_new(payment_account, amount:, strategy:, memo:)
       self.db.transaction do
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         strategy.check_validity!
-        memo ||= Suma::TranslatedText.create(
-          en: "Transfer from suma",
-          es: "Transferencia de suma",
-        )
         xaction = self.new(
           amount:,
           memo:,
@@ -227,7 +223,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       Suma.assert { send_result.nil? }
     rescue SendFundsFailed => e
       self.logger.error("send_funds_error", e)
-      return self.put_into_review("Error sending funds", exception: e)
+      return self.put_into_review("Error sending funds", e)
     end
     return super
   end
@@ -273,8 +269,8 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   def funds_settled? = self.strategy.funds_settled?
   def send_failed? = self.strategy.send_failed?
 
-  def put_into_review(message, opts={})
-    self._put_into_review_helper(message, opts)
+  def put_into_review(message, reason=nil)
+    self._put_into_review_helper(message, reason)
     return super
   end
 

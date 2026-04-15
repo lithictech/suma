@@ -227,6 +227,30 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       expect(reqs).to all(have_been_made)
       expect(old_card.refresh).to be_soft_deleted
     end
+
+    describe "Stripe errors" do
+      it "does not modify non-card errors" do
+        req = stub_request(:post, "https://api.stripe.com/v1/customers").
+          to_return(fixture_response("stripe/charge_error", status: 500))
+
+        post "/v1/payment_instruments/cards/create_stripe", token: token_param
+
+        expect(req).to have_been_made.times(3)
+        expect(last_response).to have_status(500)
+        expect(last_response).to have_json_body.that_includes(error: include(code: "api_error"))
+      end
+
+      it "coerces card errors into an error shape" do
+        req = stub_request(:post, "https://api.stripe.com/v1/customers").
+          to_return(fixture_response("stripe/charge_error", status: 402))
+
+        post "/v1/payment_instruments/cards/create_stripe", token: token_param
+
+        expect(req).to have_been_made
+        expect(last_response).to have_status(402)
+        expect(last_response).to have_json_body.that_includes(error: include(code: "card_permanent_failure"))
+      end
+    end
   end
 
   describe "DELETE /v1/payment_instruments/cards/:id" do

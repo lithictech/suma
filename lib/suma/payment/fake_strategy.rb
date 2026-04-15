@@ -41,23 +41,26 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     end
   end
 
-  protected def return_response(symbol, *args)
+  protected def return_response(symbol, *_)
     if @memory_responses&.key?(symbol)
       v = @memory_responses[symbol]
       raise v if v.is_a?(Exception)
       return v
     end
-    syms = symbol.to_s
-    if syms.end_with?("=")
-      self.set_response(syms[..-2].to_sym, args[0])
-      return args[0]
+    symstr = symbol.to_s
+    raise NoRegisteredResponse, "no response registered for #{symbol.inspect}" unless self.responses.key?(symstr)
+    result = self.responses[symstr]
+    if result.is_a?(Hash)
+      if result["type"] == "marshaled"
+        # rubocop:disable Security/MarshalLoad
+        result = Marshal.load(Base64.strict_decode64(result.fetch("blob")))
+        # rubocop:enable Security/MarshalLoad
+      elsif result.key?("klass")
+        cls = result["klass"].constantize
+        result = cls[result.fetch("id")]
+      end
     end
-    raise NoRegisteredResponse, "no response registered for #{symbol.inspect}" unless self.responses.key?(syms)
-    result = self.responses[syms]
-    if result.is_a?(Hash) && result.key?("klass")
-      cls = result["klass"].constantize
-      return cls[result.fetch("id")]
-    end
+    raise result if result.is_a?(Exception)
     return result
   end
 
@@ -78,6 +81,8 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     @memory_responses[symbol] = result
     result = {"id" => result.id, "klass" => result.class.name} if
       result.is_a?(Suma::Postgres::Model)
+    result = {"type" => "marshaled", "blob" => Base64.strict_encode64(Marshal.dump(result))} if
+      result.is_a?(Exception)
     self.responses = self.responses.merge(symbol.to_s => result)
     self.save_changes
     return self
@@ -95,6 +100,14 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
         set_response(:ready_to_send_funds?, true).
         set_response(:collect_funds, nil).
         set_response(:send_funds, nil)
+  end
+
+  def failing
+    kw = {message: "fake failure", type: "fake", code: "fake", localized_error_code: "card_generic"}
+    failed_collect = Suma::Payment::FundingTransaction::CollectFundsFailed.new(**kw)
+    failed_send = Suma::Payment::PayoutTransaction::SendFundsFailed.new(**kw)
+    return self.set_response(:collect_funds, failed_collect).
+        set_response(:send_funds, failed_send)
   end
 
   def invalid
