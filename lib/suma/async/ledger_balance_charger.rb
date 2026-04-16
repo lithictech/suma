@@ -11,8 +11,7 @@ class Suma::Async::LedgerBalanceCharger
   include Suma::Async::JobUtils
 
   sidekiq_options(Suma::Async.cron_job_options)
-  # 8am Pacific time
-  cron "12 #{utc_hour(8, 'America/Los_Angeles')} * * *"
+  cron "12 */3 * * *"
   splay 60.seconds
 
   def _perform

@@ -3,7 +3,7 @@
   "cart_quantity_reason.max_ordered": "No disponible",
   "cart_quantity_reason.out_of_stock": "Fuera de stock",
   "cart_quantity_reason.purchased": "Máximo comprado",
-  "funding_transaction_charge_balance": "Transferencia de saldo de cuenta",
+  "funding_transaction_charge_balance": "Saldo de cuenta pagado",
   "funding_transaction_default": "Transferencia a suma",
   "funding_transaction_reversal": "Transferencia a suma revertida",
   "payout_transaction_default": "Transferencia de suma",
