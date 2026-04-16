@@ -29,7 +29,9 @@ class Suma::Async::LedgerBalanceCharger
           memo: Suma::I18n::StaticString.find_text("backend", "funding_transaction_charge_balance"),
           collect: :must,
         )
-      rescue StateMachines::Sequel::FailedTransition
+      rescue StateMachines::Sequel::FailedTransition, Suma::Payment::FundingTransaction::CollectFundsFailed
+        # We don't care about failures here; we'll try again later.
+        # We can report long-term negative balances separately.
         nil
       end
     end

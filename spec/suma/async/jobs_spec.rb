@@ -456,6 +456,22 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         Suma::Async::LedgerBalanceCharger.new.perform(true)
       end
 
+      # Skipped due to collection failed
+      account3 = Suma::Fixtures.payment_account.create
+      Suma::Fixtures.card.member(account3.member).create
+      account3_cash = account3.ensure_cash_ledger
+      Suma::Fixtures.book_transaction.from(account3_cash).to(platform_cash).create(amount: money("$30"))
+
+      strat = Suma::Payment::FakeStrategy.create.ready.set_response(
+        :collect_funds,
+        Suma::Payment::FundingTransaction::CollectFundsFailed.new(
+          message: "nope", type: "tx", code: "cx", localized_error_code: "x",
+        ),
+      )
+      Suma::Payment::FundingTransaction.force_fake(strat) do
+        Suma::Async::LedgerBalanceCharger.new.perform(true)
+      end
+
       expect(Suma::Payment::FundingTransaction.all).to be_empty
     end
   end
