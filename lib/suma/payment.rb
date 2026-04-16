@@ -57,6 +57,9 @@ module Suma::Payment
     # See also +Suma::Payment.can_use_services?+.
     setting :negative_cash_balance_grace_period, 18.hours
 
+    # How many hours to charge the outstanding balance of members with negative ledgers.
+    setting :charge_negative_balances_hour_interval, 3
+
     # Disable methods if not set up with the relevant partners/processors.
     setting :supported_methods, ["bank_account", "card"], convert: lambda(&:split)
   end
