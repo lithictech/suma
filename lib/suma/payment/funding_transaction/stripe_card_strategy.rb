@@ -74,18 +74,21 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
     begin
       charge = Stripe::Charge.capture(self.charge_id)
     rescue Stripe::InvalidRequestError => e
-      if e.code == "charge_already_refunded"
+      case e.code
+        when "charge_already_captured"
+        # This is fine; just re-fetch it.
+        when "charge_already_refunded"
         # It's possible for the charge to be refunded before it is captured,
         # in which case, we can pull a fresh version of the charge and see it's refunded,
         # and the funding transaction will be canceled.
-      elsif e.code == "charge_expired_for_capture"
-        # This should never happen, but it could if the payment processor is offline
-        # for a long time. We always want to know about these,
-        # but we'll probably just move them to 'canceled' manually.
-        self.flag_for_review
-        return false
+        when "charge_expired_for_capture"
+          # This should never happen, but it could if the payment processor is offline
+          # for a long time. We always want to know about these,
+          # but we'll probably just move them to 'canceled' manually.
+          self.flag_for_review
+          return false
       else
-        raise e
+          raise e
       end
       charge = Stripe::Charge.retrieve(self.charge_id)
     end

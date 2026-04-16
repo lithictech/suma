@@ -109,6 +109,23 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       expect(strategy).to be_funds_canceled
     end
 
+    it "re-fetches the charge if Stripe says it has been captured" do
+      strategy.charge_json = {"id" => "ch_123", "captured" => false}
+
+      error_body = load_fixture_data("stripe/charge_error")
+      error_body["error"]["code"] = "charge_already_captured"
+      capture_req = stub_request(:post, "https://api.stripe.com/v1/charges/ch_123/capture").
+        to_return(fixture_response(body: error_body.to_json, status: 400))
+
+      get_req = stub_request(:get, "https://api.stripe.com/v1/charges/ch_123").
+        to_return(fixture_response("stripe/charge"))
+
+      expect(strategy).to be_funds_cleared
+      expect(capture_req).to have_been_made
+      expect(get_req).to have_been_made
+      expect(strategy.charge_json.as_json).to include("status" => "succeeded")
+    end
+
     it "puts a payment into needs_review if it has expired" do
       strategy.charge_json = {"id" => "ch_123", "captured" => false}
 
