@@ -52,7 +52,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
         amount: self.funding_transaction.amount,
         memo: "#{Suma.operator_name} charge",
         idempotency_key: Suma.idempotency_key(self, "charge"),
-        params: {capture: false},
+        params: {capture: true},
         metadata: {suma_funding_transaction_id: self.funding_transaction.id},
       )
     rescue Stripe::CardError => e

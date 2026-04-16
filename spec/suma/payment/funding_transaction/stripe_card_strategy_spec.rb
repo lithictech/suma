@@ -31,13 +31,13 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
   end
 
   describe "collect_funds" do
-    it "preauthorizes a change" do
+    it "captures a change" do
       xaction.update(amount_cents: 2000)
       req = stub_request(:post, "https://api.stripe.com/v1/charges").
         with(
           body: hash_including(
             "amount" => "2000",
-            "capture" => "false",
+            "capture" => "true",
             "currency" => "USD",
             "customer" => member.stripe.customer_id,
             "description" => "suma charge",
