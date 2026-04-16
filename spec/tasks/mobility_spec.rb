@@ -62,9 +62,10 @@ RSpec.describe Suma::Tasks::Mobility, :db do
     end
 
     it "runs the sync using a filename", :i18n do
+      time = Time.now.strftime("%m/%d/%Y %I:%M %p")
       txt = <<~CSV
         TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
-        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
+        RTOKEN1,,#{time},#{time},45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       expect(File).to receive(:open).with("xyz").and_return(StringIO.new(txt))
       invoke_rake_task("mobility:sync:limereport", "xyz")
@@ -72,9 +73,10 @@ RSpec.describe Suma::Tasks::Mobility, :db do
     end
 
     it "runs the database sync if not file given", :i18n do
+      time = Time.now.strftime("%m/%d/%Y %I:%M %p")
       txt = <<~CSV
         TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
-        RTOKEN1,,09/16/2025 12:01 AM,09/16/2025 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
+        RTOKEN1,,#{time},#{time},45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid-report",

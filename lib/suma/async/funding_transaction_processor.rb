@@ -12,13 +12,13 @@ class Suma::Async::FundingTransactionProcessor
   splay 30.seconds
 
   def _perform
-    Suma::Payment::FundingTransaction.where(status: "created").each { |x| self.process(x, :collect_funds) }
-    Suma::Payment::FundingTransaction.where(status: "collecting").each { |x| self.process(x, :collect_funds) }
+    Suma::Payment::FundingTransaction.where(status: "created").each { |x| self.collect(x) }
+    Suma::Payment::FundingTransaction.where(status: "collecting").each { |x| self.collect(x) }
   end
 
-  def process(tx, m)
+  def collect(tx)
     member = tx.originating_payment_account.member
     tags = {member_id: member&.id, member_name: member&.name, funding_transaction_id: tx.id}
-    self.with_log_tags(tags) { tx.process(m) }
+    self.with_log_tags(tags) { tx.process(:collect_funds, on_failure: :review) }
   end
 end

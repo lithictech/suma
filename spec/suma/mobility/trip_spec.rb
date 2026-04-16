@@ -180,30 +180,26 @@ RSpec.describe "Suma::Mobility::Trip", :db do
           create(began_at: t - 211.seconds, vendor_service_rate: rate, member:)
       end
 
-      it "creates a funding transaction against the default payment instrument", :i18n do
-        Suma::Fixtures::Members.register_as_stripe_customer(member)
-        Suma::Fixtures.card.member(member).create
-
+      it "leaves a negative cash ledger balance for later charging", :i18n do
         trip.end_trip(lat: 1, lng: 2, now: t)
-        expect(trip.charge.associated_funding_transactions).to contain_exactly(
-          have_attributes(status: "created", amount: cost("$185")),
-        )
+
+        platform_cash = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash)
+        member_cash = member.payment_account.cash_ledger!
+
+        expect(trip.charge.associated_funding_transactions).to be_empty
         expect(trip.charge.contributing_book_transactions).to contain_exactly(
           have_attributes(
-            originating_ledger: member.payment_account.cash_ledger!,
-            receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
+            originating_ledger: member_cash,
+            receiving_ledger: platform_cash,
             amount: cost("$200"),
             memo: have_attributes(en: start_with("Super Scoot - trp_")),
             associated_vendor_service_category: be === cash,
           ),
         )
-      end
-
-      it "creates a support ticket if money is required and there is no payment instrument", :i18n do
-        trip.end_trip(lat: 1, lng: 2, now: Time.now)
-        expect(trip.charge).to be_a(Suma::Charge)
-        expect(Suma::Support::Ticket.all).to contain_exactly(
-          have_attributes(body: /could not be charged/),
+        expect(member_cash.combined_book_transactions).to contain_exactly(
+          have_attributes(amount: cost("$200"), receiving_ledger: be === platform_cash),
+          # Original balance on the ledger
+          have_attributes(amount: cost("$15"), receiving_ledger: be === member_cash),
         )
       end
     end

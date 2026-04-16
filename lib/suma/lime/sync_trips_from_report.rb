@@ -24,9 +24,8 @@ class Suma::Lime::SyncTripsFromReport
   COST_TO_SUMA = "COST_TO_SUMA"
   LIME_ACCESS_COST = "LIME_ACCESS_COST"
 
-  def initialize(cutoff: DEFAULT_CUTOFF, now: Time.now)
+  def initialize(cutoff: DEFAULT_CUTOFF)
     @cutoff = cutoff
-    @now = now
   end
 
   def row_iterator = Suma::Webhookdb::RowIterator.new("lime/synctripsreport/pk")
@@ -167,15 +166,16 @@ class Suma::Lime::SyncTripsFromReport
     registration = Suma::AnonProxy::VendorAccountRegistration.find!(external_program_id: user_email)
     vendor_config = registration.account.configuration
     member = registration.account.member
+    receipt_fields = self.extract_receipt_fields_from_row(row)
     pricing = Suma::Program::Pricing.
       fetch_eligible_to(
         member,
-        as_of: @now,
+        as_of: receipt_fields.fetch(:began_at),
         dataset: Suma::Program::Pricing.where(program: vendor_config.programs_dataset),
       ).first
     raise Suma::InvalidPrecondition, "No pricing found for #{vendor_config.inspect}" if pricing.nil?
     program = pricing.program
-    receipt = self.parse_row_to_receipt(row, rate: pricing.vendor_service_rate)
+    receipt = self.parse_row_to_receipt(row, receipt_fields, rate: pricing.vendor_service_rate)
     receipt.trip.set(
       member:,
       vendor_service: pricing.vendor_service,
@@ -189,14 +189,7 @@ class Suma::Lime::SyncTripsFromReport
     Suma::Mobility::TripImporter.import(receipt: r[:receipt], program: r[:program], logger: self.logger)
   end
 
-  # Convert a CSV row into a receipt for trip import.
-  # Note that we use our own rates for all Lime pricing;
-  # using anonymous accounts means we resemble a flow much more like
-  # suma retailing Lime trips.
-  #
-  # The only price column we keep track of is ACTUAL_COST;
-  # this is what Lime charges suma.
-  def parse_row_to_receipt(row, rate:)
+  private def extract_receipt_fields_from_row(row)
     fields = {
       vehicle_id: row.fetch(TRIP_TOKEN),
       vehicle_type: DEFAULT_VEHICLE_TYPE,
@@ -209,9 +202,18 @@ class Suma::Lime::SyncTripsFromReport
       external_trip_id: row.fetch(TRIP_TOKEN),
       our_cost: parsemoney(row.fetch(COST_TO_SUMA)),
     }
-
     raise InvalidReportRow if fields.values.any?(&:nil?)
+    return fields
+  end
 
+  # Convert a CSV row into a receipt for trip import.
+  # Note that we use our own rates for all Lime pricing;
+  # using anonymous accounts means we resemble a flow much more like
+  # suma retailing Lime trips.
+  #
+  # The only price column we keep track of is ACTUAL_COST;
+  # this is what Lime charges suma.
+  def parse_row_to_receipt(row, fields, rate:)
     r = Suma::Mobility::TripImporter::Receipt.new
     r.trip.set(fields)
     r.charged_at = r.trip.began_at

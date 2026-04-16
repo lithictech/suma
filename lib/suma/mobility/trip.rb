@@ -159,26 +159,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
 
     def start_funding_transaction(amount:)
-      if (instrument = self.member.default_payment_instrument)
-        # If we have a remainder, we need to create a funding transaction to cover it.
-        # Since the ride already happened, we want to collect this later, not now-
-        # if the funding fails, we handle it like any other fialed funding.
-        return Suma::Payment::FundingTransaction.start_new(
-          self.member.payment_account,
-          amount:,
-          memo: self.contribution_memo,
-          instrument:,
-          collect: false,
-        )
-      end
-      Suma::Support::Ticket.create(
-        sender_name: "Suma Mobility",
-        subject: "Member has no payment instrument",
-        body: "Member[#{self.member.id}] #{self.member.name} has no payment instrument and " \
-              "could not be charged #{amount.format} for Trip[#{@trip.id}] " \
-              "from #{@trip.vendor_service.internal_name}. The unpaid balance is on their ledger.",
-      )
-      return nil
+      # Since the ride already happened, we don't need to charge for it now.
+      # Instead, charge when it is swept up with outstanding ledger balances.
     end
   end
 
