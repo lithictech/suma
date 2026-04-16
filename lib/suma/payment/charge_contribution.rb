@@ -3,8 +3,6 @@
 require "suma/payment"
 
 class Suma::Payment::ChargeContribution < Suma::TypedStruct
-  class InvalidCalculation < StandardError; end
-
   attr_reader :ledger, :apply_at, :amount, :category
 
   def _defaults
@@ -275,24 +273,9 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
         #   original_ledger_balance + cash_contribution + (cash_contribution * trigger_multiplier) = cart_total
         # For example, there is no cent value of x for:
         #   $3 + $x + ($x * 3.8) = $24
-        # To solve this, we'd need to either support fractional cents,
-        # or allow a positive cash balance to be left on the ledger
-        # (choose the lowest contribution that yields a result >= amount).
-        # Rather than allowing a positive cash balance, we error, but this can change in the future.
-        msg = <<~MSG
-          Got a $0 step bisecting #{amount} #{loop_number} times. Usually this happens because
-          there is no whole cent value that can be processed by payment triggers,
-          and added to the current cash balance, to yield the target amount.
-          The cash ledger balance should be zero'ed out,
-          or non-cash ledgers can get a balance added such that the subsidy can be added cleanly.
-          Cash ledger: #{cash.inspect}
-          Balance: #{context.balance(cash)}
-          Target amount: #{amount}
-          Subsidy plan: #{subsidy_plan.inspect}
-          Loops: #{loop_number}
-          Amounts checked: #{candidates.map(&:cents)}
-        MSG
-        raise InvalidCalculation, msg
+        # In this case, we just use whatever we tried last. In testing,
+        # this seems to work, but we should in the future try some more mathematical proofs.
+        return candidate_charges
       end
       needs_more_cash = candidate_charges.remainder?
       # NOTE: It is possible the candidate is below the minimum funding amount,
