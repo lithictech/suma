@@ -18,7 +18,7 @@ class Suma::Member::Dashboard
     # has to worry about a ledger.
     return @cash_balance ||= begin
       Suma::Payment.ensure_cash_ledger(@member)
-      @member.payment_account!.cash_ledger!.balance
+      @member.payment_account!.cash_ledger!.balance_view.balance
     end
   end
 
@@ -52,9 +52,18 @@ class Suma::Member::Dashboard
   # - If they have expiring instruments, but no negative cash balance, link them to /funding.
   def alerts
     r = []
-    if cash_balance.negative? && !valid_instruments?
+    # We only want to show the banner if we think we've had issues charging the user.
+    # Since failed charges will not leave behind database objects,
+    # we have to guess this by checking if there are any 'recent' transactions
+    # (newer than how often we charge outstanding balances).
+    # This isn't perfect; we can iterate on this later if we need more fidelity.
+    latest_xaction_at = @member.payment_account.cash_ledger.balance_view.latest_transaction_at
+    time_elapsed_to_have_charged_balance = latest_xaction_at &&
+      latest_xaction_at < (@at - Suma::Payment.charge_negative_balances_hour_interval.hours)
+    balance_is_problem = cash_balance.negative? && time_elapsed_to_have_charged_balance
+    if balance_is_problem && !valid_instruments?
       r << Alert.new("dashboard.negative_cash_balance_no_instrument", "danger")
-    elsif cash_balance.negative?
+    elsif balance_is_problem
       r << Alert.new("dashboard.negative_cash_balance", "danger")
     elsif expiring_instruments?
       r << Alert.new("dashboard.payment_methods_expiring", "warning")

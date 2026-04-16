@@ -11,7 +11,7 @@ class Suma::Async::LedgerBalanceCharger
   include Suma::Async::JobUtils
 
   sidekiq_options(Suma::Async.cron_job_options)
-  cron "12 */3 * * *"
+  cron "12 */#{Suma::Payment.charge_negative_balances_hour_interval} * * *"
   splay 60.seconds
 
   def _perform

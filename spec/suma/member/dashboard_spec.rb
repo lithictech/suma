@@ -47,8 +47,8 @@ RSpec.describe Suma::Member::Dashboard, :db do
       Suma::Fixtures.card.member(member).expiring.create
     end
 
-    def make_balance_negative
-      Suma::Fixtures.book_transaction.from(member.payment_account!.cash_ledger!).create
+    def make_balance_negative(at: 6.hours.ago)
+      Suma::Fixtures.book_transaction.from(member.payment_account!.cash_ledger!).create(apply_at: at)
     end
 
     it "has no alerts by default" do
@@ -69,6 +69,12 @@ RSpec.describe Suma::Member::Dashboard, :db do
       expect(dashboard.alerts).to contain_exactly(
         have_attributes(localization_key: "dashboard.negative_cash_balance_no_instrument", variant: "danger"),
       )
+    end
+
+    it "does not warn about negative cash balance if last transaction is recent" do
+      add_valid_card
+      make_balance_negative(at: 1.hour.ago)
+      expect(dashboard.alerts).to be_empty
     end
 
     it "tells the user about expiring payment instruments" do
