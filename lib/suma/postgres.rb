@@ -105,6 +105,7 @@ module Suma::Postgres
     "suma/organization/membership",
     "suma/organization/membership/verification",
     "suma/organization/membership/verification/audit_log",
+    "suma/organization/registration_link",
     "suma/payment/account",
     "suma/payment/bank_account",
     "suma/payment/book_transaction",

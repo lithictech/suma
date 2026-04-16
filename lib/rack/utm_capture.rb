@@ -19,8 +19,9 @@ class Rack::UtmCapture
 
   COOKIE_EXPIRES = 30.days.to_i
 
-  def initialize(app)
+  def initialize(app, params: UTM_KEYS, extra_params: [])
     @app = app
+    @capture_params = params + extra_params
   end
 
   def call(env)
@@ -38,7 +39,7 @@ class Rack::UtmCapture
   end
 
   private def extract_utm_params(req)
-    return UTM_KEYS.each_with_object({}) do |key, acc|
+    return @capture_params.each_with_object({}) do |key, acc|
       acc[key] = req.params[key] if req.params[key]
     end
   end

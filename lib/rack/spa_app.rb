@@ -8,11 +8,17 @@ require "rack/ssl-enforcer"
 require "rack/utm_capture"
 
 class Rack::SpaApp
-  def self.dependencies(build_folder, immutable: true, enforce_ssl: true, service_worker_allowed: nil)
+  def self.dependencies(
+    build_folder,
+    immutable: true,
+    enforce_ssl: true,
+    extra_utm_params: [],
+    service_worker_allowed: nil
+  )
     result = []
     result << [Rack::SslEnforcer, {redirect_html: false, hsts: true}] if enforce_ssl
     result << [Rack::ConditionalGet, {}]
-    result << [Rack::UtmCapture, {}]
+    result << [Rack::UtmCapture, {extra_params: extra_utm_params}]
     result << [Rack::ETag, {}]
     result << [Rack::Immutable, {match: immutable.is_a?(TrueClass) ? nil : immutable}] if immutable
     result << [Rack::SpaRewrite, {index_path: "#{build_folder}/index.html", html_only: true}]

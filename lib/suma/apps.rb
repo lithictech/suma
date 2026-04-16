@@ -249,6 +249,7 @@ module Suma::Apps
       self,
       "build-webapp",
       enforce_ssl: Suma::Service.enforce_ssl,
+      extra_utm_params: [Suma::Organization::RegistrationLink::ONE_TIME_CODE_PARAM],
       service_worker_allowed: WEB_MOUNT_PATH,
     )
   end

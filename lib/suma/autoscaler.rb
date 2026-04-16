@@ -76,7 +76,7 @@ module Suma::Autoscaler
         log_message: "high_latency_requests",
         checker: Amigo::Autoscaler::Checkers::Chain.new(
           [
-            Amigo::Autoscaler::Checkers::WebLatency.new(redis: Suma::Redis.cache),
+            Amigo::Autoscaler::Checkers::WebLatency.new(redis: Suma::Redis.durable),
             self.puma_pool_usage_checker,
           ],
         ),
@@ -90,7 +90,7 @@ module Suma::Autoscaler
     end
 
     def puma_pool_usage_checker
-      @puma_pool_usage_checker ||= Amigo::Autoscaler::Checkers::PumaPoolUsage.new(redis: Suma::Redis.cache)
+      @puma_pool_usage_checker ||= Amigo::Autoscaler::Checkers::PumaPoolUsage.new(redis: Suma::Redis.durable)
       return @puma_pool_usage_checker
     end
 
