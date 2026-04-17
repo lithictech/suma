@@ -15,6 +15,7 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   many_to_one :verified_organization, class: "Suma::Organization"
   many_to_one :former_organization, class: "Suma::Organization"
   many_to_one :member, class: "Suma::Member"
+  many_to_one :registration_link, class: "Suma::Organization::RegistrationLink", key: :registration_link_id
   one_to_one :verification, class: "Suma::Organization::Membership::Verification"
 
   class << self

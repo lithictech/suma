@@ -95,6 +95,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       transition in_progress: :ineligible
     end
     event :approve do
+      transition created: :verified, if: :can_approve?
       transition in_progress: :verified, if: :can_approve?
     end
     after_transition on: :approve, do: :approve!

@@ -21,7 +21,7 @@ class Rack::UtmCapture
 
   def initialize(app, params: UTM_KEYS, extra_params: [])
     @app = app
-    @capture_params = params + extra_params
+    @capture_params = (params + extra_params).map(&:to_s)
   end
 
   def call(env)
@@ -42,6 +42,8 @@ class Rack::UtmCapture
     return @capture_params.each_with_object({}) do |key, acc|
       acc[key] = req.params[key] if req.params[key]
     end
+  rescue Rack::Multipart::EmptyContentError
+    nil
   end
 
   # Build Set-Cookie headers (but avoid overwriting existing cookie if not needed)

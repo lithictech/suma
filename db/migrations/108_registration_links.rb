@@ -15,7 +15,7 @@ Sequel.migration do
     end
 
     alter_table(:organization_memberships) do
-      add_column :registration_link_id, :organization_registration_links, index: true
+      add_foreign_key :registration_link_id, :organization_registration_links, index: true
     end
   end
 end

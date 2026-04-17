@@ -25,7 +25,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
 
-  ONE_TIME_CODE_PARAM = "suma_regcode"
+  ONE_TIME_CODE_PARAM = :suma_regcode
 
   configurable(:organization_registration_link) do
     setting :ttl, 15 * 60
@@ -35,27 +35,74 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   plugin :timestamps
 
   many_to_one :organization, class: "Suma::Organization"
-  one_to_many :memberships, class: "Suma::Organization::Membership"
+  one_to_many :memberships, class: "Suma::Organization::Membership", key: :registration_link_id
 
-  def registration_url = Suma.app_url + "/register-code/make/#{self.opaque_id}"
+  def initialize(*)
+    super
+    self[:opaque_id] ||= Suma::Secureid.new_opaque_id("rl")
+  end
 
-  # Return the URL to the partner jump page, with a UTM code that is captured
-  def make_one_time_url
+  # URL that points to this registration link.
+  # If this link is valid, this URL will 302 to the "one time url."
+  def durable_url = Suma.api_url + "/registration_links/#{self.opaque_id}"
+
+  # Store a one-time code in Redis, and return it.
+  # @return [String]
+  def set_one_time_code
     one_time_code = Suma::Secureid.rand_enc(12)
     Suma::Redis.durable.with do |c|
-      c.call("SET", "regcode/#{one_time_code}", self.id.to_s, self.class.ttl)
+      c.call("SET", "regcode/#{one_time_code}", self.id.to_s, "EX", self.class.ttl)
     end
-    return Suma.app_url + "/partner/#{self.organization.id}?#{ONE_TIME_CODE_PARAM}=#{one_time_code}"
+    return one_time_code
+  end
+
+  # Return the URL to the link used to sign up,
+  # with a query param that gets captured by the UtmCapture middleware,
+  # and can fetch the associated link through ::from_params.
+  # @param code [String] If nil, use set_one_time_code.
+  def make_one_time_url(code=nil)
+    code ||= self.set_one_time_code
+    return Suma.app_url + "/partner/#{self.organization.id}?#{ONE_TIME_CODE_PARAM}=#{code}"
   end
 
   class << self
-    def lookup_one_time_code(one_time_code)
+    def lookup_from_code(one_time_code)
       link_id = Suma::Redis.durable.with do |c|
         c.call("GET", "regcode/#{one_time_code}")
       end
       return nil if link_id.nil?
       return self[link_id]
     end
+
+    # Lookup an instance from the one-time-code in query params.
+    # Return nil if not present or the code is not valid.
+    def from_params(h)
+      code = h.symbolize_keys[ONE_TIME_CODE_PARAM.to_sym]
+      return nil unless code
+      link = self.lookup_from_code(code)
+      return link
+    end
+  end
+
+  # Ensure the member has a verified membership.
+  # - If there is an unverified membership, verify it (update the Verification object if needed).
+  # - If there is a verified membership, noop.
+  # - Otherwise (no or former membership), create a new one.
+  def ensure_verified_membership(member)
+    existing = Suma::Organization::Membership[member:, verified_organization: self.organization]
+    return existing if existing
+    unverified = Suma::Organization::Membership[member:, unverified_organization_name: self.organization.name]
+    if unverified
+      unverified.db.transaction do
+        unverified.update(verified_organization: self.organization, registration_link: self)
+        unverified.verification&.process(:approve)
+      end
+      return unverified
+    end
+    membership = Suma::Organization::Membership.create(
+      member:, verified_organization: self.organization, registration_link: self,
+    )
+    return membership
   end
 
   def rel_admin_link = "/registration_link/#{self.id}"
