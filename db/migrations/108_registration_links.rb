@@ -11,7 +11,7 @@ Sequel.migration do
       foreign_key :organization_id, :organizations, null: false, index: true, on_delete: :cascade
 
       text :opaque_id, null: false, unique: true
-      text :rrule, null: false, default: ""
+      text :ical_event, null: false, default: ""
     end
 
     alter_table(:organization_memberships) do

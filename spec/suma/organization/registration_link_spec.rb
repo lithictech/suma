@@ -35,21 +35,44 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
     it "can be looked up form a one time code" do
       link = Suma::Fixtures.organization_registration_link.create
       code = link.set_one_time_code
-      link2 = described_class.lookup_from_code(code)
+      link2 = described_class.lookup_from_code(code, at: Time.now)
       expect(link2).to be === link
     end
 
     it "is nil if there is no stored code" do
-      link = described_class.lookup_from_code("xyz")
-      expect(link).to be.nil?
+      link = described_class.lookup_from_code("xyz", at: Time.now)
+      expect(link).to be_nil
     end
 
     it "is nil if the link does not exist" do
       link = Suma::Fixtures.organization_registration_link.create
       code = link.set_one_time_code
       link.destroy
-      link2 = described_class.lookup_from_code(code)
+      link2 = described_class.lookup_from_code(code, at: Time.now)
       expect(link2).to be_nil
+    end
+
+    describe "when an ical vevent is set" do
+      it "returns nil if the given time does does not match the rrule" do
+        link = Suma::Fixtures.organization_registration_link.create(ical_event: <<~ICAL)
+          BEGIN:VEVENT
+          DTSTART:20250418T120000Z
+          DTEND:20250418T130000Z
+          RRULE:COUNT=5;INTERVAL=1;FREQ=DAILY
+          END:VEVENT
+          END:VCALENDAR
+        ICAL
+        code = link.set_one_time_code
+        Timecop.freeze("20250418T120001Z") do
+          expect(described_class.lookup_from_code(code, at: Time.now)).to be === link
+        end
+        Timecop.freeze("20260418T120001Z") do # next year, already past occurrences
+          expect(described_class.lookup_from_code(code, at: Time.now)).to be_nil
+        end
+        Timecop.freeze("20250418T140001Z") do # outside the time window (2pm)
+          expect(described_class.lookup_from_code(code, at: Time.now)).to be_nil
+        end
+      end
     end
   end
 
@@ -57,12 +80,12 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
     it "returns the link from the code" do
       link = Suma::Fixtures.organization_registration_link.create
       code = link.set_one_time_code
-      link2 = described_class.from_params({"suma_regcode" => code})
+      link2 = described_class.from_params({"suma_regcode" => code}, at: Time.now)
       expect(link2).to be === link
     end
 
     it "is nil if there is no param" do
-      expect(described_class.from_params({})).to be_nil
+      expect(described_class.from_params({}, at: Time.now)).to be_nil
     end
   end
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "icalendar"
+
 require "suma/admin_linked"
 require "suma/postgres/model"
 
@@ -66,22 +68,40 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   end
 
   class << self
-    def lookup_from_code(one_time_code)
+    def lookup_from_code(one_time_code, at:)
       link_id = Suma::Redis.durable.with do |c|
         c.call("GET", "regcode/#{one_time_code}")
       end
       return nil if link_id.nil?
-      return self[link_id]
+      link = self[link_id]
+      return nil if link.nil?
+      return nil unless link.within_schedule?(at)
+      return link
     end
 
     # Lookup an instance from the one-time-code in query params.
     # Return nil if not present or the code is not valid.
-    def from_params(h)
+    def from_params(h, at:)
       code = h.symbolize_keys[ONE_TIME_CODE_PARAM.to_sym]
       return nil unless code
-      link = self.lookup_from_code(code)
+      link = self.lookup_from_code(code, at:)
       return link
     end
+  end
+
+  def within_schedule?(at)
+    vevent = self.ical_event
+    return true if vevent.blank?
+    raise Suma::InvariantViolation, "RegistrationLink.ical_vevent must begin with BEGIN:VEVENT, got #{vevent}" unless
+      vevent.start_with?("BEGIN:VEVENT")
+    vevent = "BEGIN:VCALENDAR\nVERSION:2.0\n#{vevent}\nEND:VCALENDAR\n"
+    calendars = Icalendar::Calendar.parse(vevent)
+    event = calendars.first.events.first
+    Suma.assert { calendars.first.events.length === 1 }
+    start_time = event.dtstart.to_time.utc
+    end_time = event.dtend.to_time.utc
+    check = at.utc
+    return check >= start_time && check < end_time
   end
 
   # Ensure the member has a verified membership.
