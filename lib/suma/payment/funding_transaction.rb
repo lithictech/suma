@@ -112,7 +112,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       if strategy.nil?
         strategy = @fake_strategy.respond_to?(:call) ? @fake_strategy.call : @fake_strategy
       end
-      self.db.transaction do
+      self.db.transaction(savepoint: true) do
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         if strategy.nil?
           raise ArgumentError, ":instrument must be provided if :strategy is not" if instrument.nil?
