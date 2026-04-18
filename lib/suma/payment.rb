@@ -60,6 +60,8 @@ module Suma::Payment
     # How many hours to charge the outstanding balance of members with negative ledgers.
     setting :charge_negative_balances_hour_interval, 3
 
+    setting :charge_negative_balances_disabled, false
+
     # Disable methods if not set up with the relevant partners/processors.
     setting :supported_methods, ["bank_account", "card"], convert: lambda(&:split)
   end
