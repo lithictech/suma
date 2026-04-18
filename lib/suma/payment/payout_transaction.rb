@@ -87,7 +87,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #   (like exists in `FundingStrategy::start_new`).
     # @return [Suma::Payment::PayoutTransaction]
     def start_new(payment_account, amount:, strategy:, memo:)
-      self.db.transaction do
+      self.db.transaction(savepoint: true) do
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         strategy.check_validity!
         xaction = self.new(

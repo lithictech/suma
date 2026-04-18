@@ -33,6 +33,15 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       )
     end
 
+    it "rolls back on error" do
+      strategy = Suma::Payment::FakeStrategy.create.not_ready
+      strategy.db.transaction do
+        described_class.start_new(pacct, amount:, memo:, strategy:, collect: :must)
+      rescue StateMachines::Sequel::FailedTransition
+        expect(Suma::Payment::FundingTransaction.all).to be_empty
+      end
+    end
+
     describe "collect param" do
       describe "false" do
         it "does not try to collect", :i18n do
