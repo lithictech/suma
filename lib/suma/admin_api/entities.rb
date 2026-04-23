@@ -466,6 +466,14 @@ module Suma::AdminAPI::Entities
     expose :owner, with: MemberEntity
   end
 
+  class OrganizationRegistrationLinkEntity < BaseEntity
+    include AutoExposeBase
+
+    expose :organization, with: OrganizationEntity
+    expose :opaque_id
+    expose :ical_event
+  end
+
   class ChargeLineItemEntity < BaseEntity
     include AutoExposeBase
 

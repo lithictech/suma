@@ -61,6 +61,7 @@ require "suma/admin_api/mobility_trips"
 require "suma/admin_api/organizations"
 require "suma/admin_api/organization_membership_verifications"
 require "suma/admin_api/organization_memberships"
+require "suma/admin_api/organization_registration_links"
 require "suma/admin_api/off_platform_transactions"
 require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
@@ -128,6 +129,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Organizations
     mount Suma::AdminAPI::OrganizationMemberships
     mount Suma::AdminAPI::OrganizationMembershipVerifications
+    mount Suma::AdminAPI::OrganizationRegistrationLinks
     mount Suma::AdminAPI::OffPlatformTransactions
     mount Suma::AdminAPI::PaymentLedgers
     mount Suma::AdminAPI::PaymentTriggers

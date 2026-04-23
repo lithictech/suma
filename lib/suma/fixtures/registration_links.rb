@@ -3,12 +3,12 @@
 require "suma/fixtures"
 require "suma/organization/registration_link"
 
-module Suma::Fixtures::OrganizationRegistrationLinks
+module Suma::Fixtures::RegistrationLinks
   extend Suma::Fixtures
 
   fixtured_class Suma::Organization::RegistrationLink
 
-  base :organization_registration_link do
+  base :registration_link do
   end
 
   before_saving do |instance|

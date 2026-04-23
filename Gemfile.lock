@@ -42,6 +42,7 @@ GEM
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
       thor (~> 1.0)
+    chunky_png (1.4.0)
     clavius (1.0.4)
     clipboard (1.4.1)
     coderay (1.1.3)
@@ -260,6 +261,10 @@ GEM
     reline (0.6.3)
       io-console (~> 0.5)
     rexml (3.4.4)
+    rqrcode (3.2.0)
+      chunky_png (~> 1.0)
+      rqrcode_core (~> 2.0)
+    rqrcode_core (2.1.0)
     rspec (3.13.2)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -452,6 +457,7 @@ DEPENDENCIES
   redcarpet
   redis
   redis-client
+  rqrcode
   rspec
   rspec-eventually
   rspec-json_expectations

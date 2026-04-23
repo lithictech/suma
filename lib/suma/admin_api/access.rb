@@ -34,6 +34,7 @@ class Suma::AdminAPI::Access
     Suma::Mobility::Trip => [:mobility_trip, COMMERCE, MANAGEMENT],
     Suma::Organization::Membership => [:organization_membership, MEMBERS, MEMBERS],
     Suma::Organization::Membership::Verification => [:organization_membership_verification, MEMBERS, MEMBERS],
+    Suma::Organization::RegistrationLink => [:organization_registration_link, MEMBERS, MEMBERS],
     Suma::Organization => [:organization, MEMBERS, MANAGEMENT],
     Suma::Payment::BankAccount => [:bank_account, MEMBERS, MEMBERS],
     Suma::Payment::BookTransaction => [:book_transaction, PAYMENTS, PAYMENTS],

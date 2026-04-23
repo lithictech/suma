@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "icalendar"
+require "rqrcode"
 
 require "suma/admin_linked"
 require "suma/postgres/model"
@@ -48,6 +49,13 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   # If this link is valid, this URL will 302 to the "one time url."
   def durable_url = Suma.api_url + "/registration_links/#{self.opaque_id}"
 
+  def durable_url_qr_code_data_url(size: 120)
+    qr = RQRCode::QRCode.new(self.durable_url)
+    png = qr.as_png(size:)
+    data_url = "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"
+    return data_url
+  end
+
   # Store a one-time code in Redis, and return it.
   # @return [String]
   def set_one_time_code
@@ -92,16 +100,64 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   def within_schedule?(at)
     vevent = self.ical_event
     return true if vevent.blank?
-    raise Suma::InvariantViolation, "RegistrationLink.ical_vevent must begin with BEGIN:VEVENT, got #{vevent}" unless
+    raise Suma::InvariantViolation, "RegistrationLink.ical_event must begin with BEGIN:VEVENT, got #{vevent}" unless
       vevent.start_with?("BEGIN:VEVENT")
-    vevent = "BEGIN:VCALENDAR\nVERSION:2.0\n#{vevent}\nEND:VCALENDAR\n"
-    calendars = Icalendar::Calendar.parse(vevent)
-    event = calendars.first.events.first
-    Suma.assert { calendars.first.events.length === 1 }
-    start_time = event.dtstart.to_time.utc
-    end_time = event.dtend.to_time.utc
+    calendar = self._parse_vevent_str(vevent)
+    event = calendar.events.first
+    Suma.assert { calendar.events.length === 1 }
+    start_time = event.dtstart&.to_time&.utc
+    end_time = event.dtend&.to_time&.utc
+    return false if start_time.nil? || end_time.nil?
     check = at.utc
     return check >= start_time && check < end_time
+  end
+
+  def _parse_vevent_str(vevent)
+    raise Suma::InvariantViolation, "ical_event must begin with BEGIN:VEVENT, got #{vevent}" unless
+      vevent.start_with?("BEGIN:VEVENT")
+    vevent = "BEGIN:VCALENDAR\nVERSION:2.0\n#{vevent}\nEND:VCALENDAR\n"
+    p = Icalendar::Parser.new(vevent, true)
+    begin
+      c = p.parse
+    rescue Icalendar::Parser::ParseError
+      return nil
+    end
+    return c.first
+  end
+
+  # Set the ical event string.
+  # We handle a bunch of heuristics to just extract the first VEVENT of a string.
+  def ical_event=(s)
+    s = s.strip
+    if s.blank?
+      self[:ical_event] = s
+      return
+    end
+    if (calstart = _find_end(s, "BEGIN:VCALENDAR\n"))
+      s.slice!(0, calstart)
+    end
+    if (calend = s.index("END:VCALENDAR"))
+      s.slice!(calend, s.length)
+    end
+    if (evstart = _find_end(s, "BEGIN:VEVENT\n"))
+      s.slice!(0, evstart)
+    end
+    if (evend = s.index("END:VEVENT"))
+      s.slice!(evend, s.length)
+    end
+    s.strip!
+    if s.blank?
+      self[:ical_event] = s
+      return
+    end
+    s.prepend("BEGIN:VEVENT\n")
+    s << "\nEND:VEVENT\n"
+    self[:ical_event] = s
+  end
+
+  def _find_end(s, substr)
+    i = s.index(substr)
+    return i && (i + substr.length)
   end
 
   # Ensure the member has a verified membership.
@@ -131,5 +187,11 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
     return [
       :organization,
     ]
+  end
+
+  def validate
+    super
+    errors.add(:ical_event, "not a valid VEVENT: #{self.ical_event}") if
+      self.ical_event.present? && self._parse_vevent_str(self.ical_event).nil?
   end
 end
