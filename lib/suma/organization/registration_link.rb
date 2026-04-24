@@ -69,6 +69,36 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   many_to_one :organization, class: "Suma::Organization"
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :registration_link_id
 
+  AndCode = Struct.new(:link, :code)
+
+  class << self
+    # The app URL where users can join the org (or get redirected to signup).
+    def partner_signup_url = Suma.app_url + "/partner-signup"
+
+    # @return [Suma::Organization::RegistrationLink]
+    def lookup_from_code(one_time_code, at:)
+      link_id = Suma::Redis.durable.with do |c|
+        c.call("GET", "regcode/#{one_time_code}")
+      end
+      return nil if link_id.nil?
+      link = self[link_id]
+      return nil if link.nil?
+      return nil unless link.within_schedule?(at)
+      return link
+    end
+
+    # Lookup an instance from the one-time-code in query params.
+    # Return an array of [code string, registration link].
+    # Return nil if not present or the code is not valid.
+    # @return [AndCode,nil]
+    def from_params(h, at:)
+      code = h.symbolize_keys[ONE_TIME_CODE_PARAM.to_sym]
+      return nil unless code
+      link = self.lookup_from_code(code, at:)
+      return AndCode.new(link, code)
+    end
+  end
+
   def initialize(*)
     super
     self[:opaque_id] ||= Suma::Secureid.new_opaque_id("rl")
@@ -101,33 +131,6 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   def make_code_capture_url(code=nil)
     code ||= self.make_one_time_code
     return Suma.api_url + "/v1/registration_links/capture?#{ONE_TIME_CODE_PARAM}=#{code}"
-  end
-
-  class << self
-    # The app URL where users can join the org (or get redirected to signup).
-    def partner_signup_url = Suma.app_url + "/partner-signup"
-
-    def lookup_from_code(one_time_code, at:)
-      link_id = Suma::Redis.durable.with do |c|
-        c.call("GET", "regcode/#{one_time_code}")
-      end
-      return nil if link_id.nil?
-      link = self[link_id]
-      return nil if link.nil?
-      return nil unless link.within_schedule?(at)
-      return link
-    end
-
-    # Lookup an instance from the one-time-code in query params.
-    # Return an array of [code string, registration link].
-    # Return nil if not present or the code is not valid.
-    # @return [Array,nil]
-    def from_params(h, at:)
-      code = h.symbolize_keys[ONE_TIME_CODE_PARAM.to_sym]
-      return nil unless code
-      link = self.lookup_from_code(code, at:)
-      return [code, link]
-    end
   end
 
   def within_schedule?(at)

@@ -17,10 +17,10 @@ class Suma::API::Me < Suma::API::V1
   resource :me do
     desc "Return the current member"
     get do
-      if (reglink = current_registration_link) && reglink[1]
+      if (reg_linkcode = current_registration_link)
         [
-          ["suma-reglink-org", reglink[1].organization.name],
-          ["suma-reglink-intro", Suma::Service::Entities.render_translated_text(reglink[1].intro)],
+          ["suma-reglink-org", reg_linkcode.link.organization.name],
+          ["suma-reglink-intro", Suma::Service::Entities.render_translated_text(reg_linkcode.link.intro)],
         ].each do |(h, v)|
           header h, v
           yosoy.set_header(h, Base64.strict_encode64(v))
@@ -60,10 +60,9 @@ class Suma::API::Me < Suma::API::V1
         member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
 
         if (reglink = current_registration_link)
-          code, link = reglink
-          link.ensure_verified_membership(member, code:)
+          reglink.link.ensure_verified_membership(member, code: reglink.code)
           member.update(onboarding_verified_at: current_time)
-          member.audit_activity("autoverified", action: link)
+          member.audit_activity("autoverified", action: reglink.link)
         end
       end
       status 200

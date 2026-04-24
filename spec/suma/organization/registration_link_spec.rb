@@ -187,8 +187,8 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
     it "returns the link from the code" do
       link = Suma::Fixtures.registration_link.create
       code = link.make_one_time_code
-      link2 = described_class.from_params({"suma_regcode" => code}, at: Time.now)
-      expect(link2).to match_array([code, be === link])
+      andcode = described_class.from_params({"suma_regcode" => code}, at: Time.now)
+      expect(andcode).to have_attributes(code:, link: be === link)
     end
 
     it "is nil if there is no param" do
