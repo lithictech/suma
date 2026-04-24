@@ -54,6 +54,9 @@ module Suma::AdminAPI::Entities
       ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) } do |inst|
         inst.updated_at || inst.created_at
       end
+      ctx.expose :created_by, with: AuditMemberEntity, if: ->(o) { o.respond_to?(:created_by) } do
+        inst.created_by
+      end
       # Always expose an external links array when we mix this in
       ctx.expose :external_links do |inst|
         inst.respond_to?(:external_links) ? inst.external_links.map(&:as_json) : []
@@ -99,6 +102,7 @@ module Suma::AdminAPI::Entities
 
   class AuditMemberEntity < BaseEntity
     expose :id
+    expose :admin_label, as: :label
     expose :email
     expose :name
     expose :admin_link

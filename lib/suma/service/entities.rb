@@ -16,6 +16,16 @@ module Suma::Service::Entities
     expose :end
   end
 
+  # Render the TranslatedText instance using the current language.
+  # See i18n system for explanation of the format (include hidden formatter flag).
+  # @param [Suma::TranslatedText,nil] txt
+  # @return [String]
+  def self.render_translated_text(txt)
+    s = txt&.string || ""
+    i18n_fmt = Suma::I18n::Formatter.for(s)
+    return "#{i18n_fmt.flag}#{s}"
+  end
+
   class Base < Grape::Entity
     def current_time = self.options.fetch(:env).fetch("now")
     def current_member = self.options.fetch(:env).fetch("yosoy").authenticated_object!.public_user
@@ -60,9 +70,7 @@ module Suma::Service::Entities
     def self.expose_translated(name, *, &block)
       self.expose(name, *) do |instance, options|
         txt = self.evaluate_exposure(name, block, instance, options)
-        s = txt&.string || ""
-        i18n_fmt = Suma::I18n::Formatter.for(s)
-        "#{i18n_fmt.flag}#{s}"
+        Suma::Service::Entities.render_translated_text(txt)
       end
     end
   end

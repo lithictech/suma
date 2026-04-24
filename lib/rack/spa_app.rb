@@ -12,13 +12,15 @@ class Rack::SpaApp
     build_folder,
     immutable: true,
     enforce_ssl: true,
-    extra_utm_params: [],
-    service_worker_allowed: nil
+    service_worker_allowed: nil,
+    other_middleware: []
   )
     result = []
     result << [Rack::SslEnforcer, {redirect_html: false, hsts: true}] if enforce_ssl
     result << [Rack::ConditionalGet, {}]
-    result << [Rack::UtmCapture, {extra_params: extra_utm_params}]
+    result << [Rack::UtmCapture, {}]
+    result.concat(other_middleware)
+    result << [Rack::UtmCapture, {}]
     result << [Rack::ETag, {}]
     result << [Rack::Immutable, {match: immutable.is_a?(TrueClass) ? nil : immutable}] if immutable
     result << [Rack::SpaRewrite, {index_path: "#{build_folder}/index.html", html_only: true}]
@@ -36,8 +38,8 @@ class Rack::SpaApp
     builder.run Rack::LambdaApp.new(->(_) { raise "Should not see SpaApp fallback" })
   end
 
-  def self.run_spa_app(builder, build_folder, enforce_ssl: true, immutable: true, **kw)
-    deps = self.dependencies(build_folder, enforce_ssl:, immutable:, **kw)
+  def self.run_spa_app(builder, build_folder, **kw)
+    deps = self.dependencies(build_folder, **kw)
     self.install(builder, deps)
     self.run(builder)
   end

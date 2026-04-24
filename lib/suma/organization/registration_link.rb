@@ -63,7 +63,9 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
 
   plugin :hybrid_search
   plugin :timestamps
+  plugin :translated_text, :intro, Suma::TranslatedText
 
+  many_to_one :created_by, class: "Suma::Member"
   many_to_one :organization, class: "Suma::Organization"
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :registration_link_id
 
@@ -74,7 +76,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
 
   # URL that points to this registration link.
   # If this link is valid, this URL will 302 to the "one time url."
-  def durable_url = Suma.api_url + "/registration_links/#{self.opaque_id}"
+  def durable_url = Suma.api_url + "/v1/registration_links/#{self.opaque_id}"
 
   def durable_url_qr_code_data_url(size: 120)
     qr = RQRCode::QRCode.new(self.durable_url)

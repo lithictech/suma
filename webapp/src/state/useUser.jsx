@@ -2,14 +2,13 @@ import { UserContext } from "./UserProvider";
 import React from "react";
 
 /**
- * @returns {{user: User, setUser: function, userLoading: boolean, userError: object, userAuthed: boolean, userUnauthed: boolean}}
+ * @returns {{user: CurrentMember, setUser: function, userLoading: boolean, userError: object, userAuthed: boolean, userUnauthed: boolean, registrationSession: RegistrationSession}}
  */
 const useUser = () => React.useContext(UserContext);
 export default useUser;
 
 /**
- * @typedef User
- * @property {boolean} ongoingTrip
- * @property {string} readOnlyReason
- * @property {Array<object>} paymentInstruments
+ * @typedef RegistrationSession
+ * @property {string} organizationName
+ * @property {string} intro
  */

@@ -9,12 +9,13 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
-    expose :memberships, with: OrganizationMembershipEntity
-    expose :durable_url
-    expose :durable_url_qr_code_data_url, as: :durable_url_qr_code
     expose :currently_within_schedule do |instance, _options|
       instance.within_schedule?(Time.now)
     end
+    expose :durable_url
+    expose :durable_url_qr_code_data_url, as: :durable_url_qr_code
+    expose :intro, with: TranslatedTextEntity
+    expose :memberships, with: OrganizationMembershipEntity
   end
 
   resource :organization_registration_links do
@@ -41,6 +42,7 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
     ) do
       params do
         requires(:organization, type: JSON) { use :model_with_id }
+        requires(:intro, type: JSON) { use :translated_text }
         optional :ical_event, type: String
       end
     end
@@ -56,6 +58,7 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
       end,
     ) do
       params do
+        optional(:intro, type: JSON) { use :translated_text }
         optional :ical_event, type: String
       end
     end

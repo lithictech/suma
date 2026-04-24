@@ -101,6 +101,16 @@ module Suma::Apps
     mount Suma::API::Webhookdb
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma App API"}) if
       Suma::Service.swagger_enabled
+
+    def self.build_app(pre_middleware: [], post_middleware: [])
+      pre_middleware += [
+        [
+          Rack::UtmCapture,
+          {params: [Suma::Organization::RegistrationLink::ONE_TIME_CODE_PARAM], expires: 1.hour},
+        ],
+      ]
+      super
+    end
   end
 
   class AdminAPI < Suma::Service
@@ -253,7 +263,6 @@ module Suma::Apps
       self,
       "build-webapp",
       enforce_ssl: Suma::Service.enforce_ssl,
-      extra_utm_params: [Suma::Organization::RegistrationLink::ONE_TIME_CODE_PARAM],
       service_worker_allowed: WEB_MOUNT_PATH,
     )
   end

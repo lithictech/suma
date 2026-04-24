@@ -195,8 +195,8 @@ function AppRoutes() {
           path="/partner-signup"
           exact
           element={renderWithHocs(
-            withMetatags({ title: t("titles.onboarding") }),
-            withPageLayout(),
+            withMetatags({ title: t("titles.partner_signup") }),
+            withPageLayout({ gutters: true, top: true }),
             PartnerSignup
           )}
         />

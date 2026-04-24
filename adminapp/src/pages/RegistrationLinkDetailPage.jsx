@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Copyable from "../components/Copyable";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import formatDate from "../modules/formatDate";
@@ -10,15 +11,22 @@ export default function RegistrationLinkDetailPage() {
     <ResourceDetail
       resource="organization_registration_link"
       apiGet={api.getOrganizationRegistrationLink}
+      canEdit
+      apiDelete={api.destroyOrganizationRegistrationLink}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: formatDate(model.createdAt) },
         { label: "Updated At", value: formatDate(model.updatedAt) },
         { label: "Created By", value: <AdminLink model={model.createdBy} /> },
         { label: "Organization", value: <AdminLink model={model.organization} /> },
+        { label: "Intro EN", value: model.intro.en },
+        { label: "Intro ES", value: model.intro.es },
         { label: "ICal Event", value: model.icalEvent },
         { label: "Currently Open", value: model.currentlyWithinSchedule },
-        { label: "Durable URL", value: model.durableUrl },
+        {
+          label: "Durable URL",
+          value: <Copyable text={model.durableUrl} inline></Copyable>,
+        },
         {
           label: "QR Code",
           value: (

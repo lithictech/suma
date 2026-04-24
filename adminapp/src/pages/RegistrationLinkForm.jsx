@@ -1,7 +1,8 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
-import { Stack, TextField } from "@mui/material";
+import MultiLingualText from "../components/MultiLingualText";
+import { FormLabel, Stack, TextField } from "@mui/material";
 import React from "react";
 
 export default function RegistrationLinkForm({
@@ -36,13 +37,25 @@ export default function RegistrationLinkForm({
           onValueSelect={(org) => setField("organization", org)}
           onTextChange={() => clearField("organization")}
         />
+        <FormLabel>Intro:</FormLabel>
+        <Stack spacing={2}>
+          <MultiLingualText
+            {...register("intro")}
+            label="Intro"
+            fullWidth
+            value={resource.intro}
+            required
+            multiline
+            onChange={(v) => setField("intro", v)}
+          />
+        </Stack>
+        <FormLabel>Schedule:</FormLabel>
         <TextField
           {...register("icalEvent")}
           label="ICal Event"
-          name="description"
-          value={resource.description}
+          name="icalEvent"
+          value={resource.icalEvent}
           fullWidth
-          helperText="What does it mean for a member or organization to have this role?"
           onChange={setFieldFromInput}
         />
       </Stack>

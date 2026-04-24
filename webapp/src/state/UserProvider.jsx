@@ -1,7 +1,8 @@
 import api from "../api";
+import { base64decode } from "../shared/base64";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
-import { withSentry } from "../shared/sentry.js";
+import { withSentry } from "../shared/sentry";
 import humps from "humps";
 import get from "lodash/get";
 import React from "react";
@@ -34,18 +35,41 @@ export default function UserProvider({ children }) {
     setUserError(null);
   }, []);
 
+  const [registrationSession, setRegistrationSession] = React.useState(
+    localStorageCache.getItem(REGLINK_STORAGE_KEY, null)
+  );
+
+  const setRegistrationSessionFromResponse = React.useCallback((r) => {
+    const org = get(r, ["headers", "suma-reglink-org"]);
+    const intro = get(r, ["headers", "suma-reglink-intro"]);
+    if (!org || !intro) {
+      localStorageCache.removeItem(REGLINK_STORAGE_KEY);
+      setRegistrationSession(null);
+      return;
+    }
+    const o = {
+      organizationName: base64decode(org),
+      intro: base64decode(intro),
+    };
+    localStorageCache.setItem(REGLINK_STORAGE_KEY, o);
+    setRegistrationSession(o);
+  }, []);
+
   const fetchUser = React.useCallback(() => {
     return api
       .getMe()
-      .then(api.pickData)
-      .then(setUser)
+      .then((r) => {
+        setUser(r.data);
+        setRegistrationSessionFromResponse(r);
+      })
       .catch((e) => {
         setUserInner(null);
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
         setUserError(e);
+        setRegistrationSessionFromResponse(e.response);
       });
-  }, [setUser]);
+  }, [setRegistrationSessionFromResponse, setUser]);
 
   React.useEffect(() => {
     fetchUser().then(() => null);
@@ -54,6 +78,7 @@ export default function UserProvider({ children }) {
   // See add_current_member_header for more info.
   const handleUpdateCurrentMember = React.useCallback(
     (response) => {
+      setRegistrationSessionFromResponse(response);
       const memberBase64 = get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
         logger.error(
@@ -61,11 +86,11 @@ export default function UserProvider({ children }) {
         );
         return;
       }
-      const j = atob(memberBase64);
+      const j = base64decode(memberBase64);
       const member = JSON.parse(j);
       setUser(humps.camelizeKeys(member));
     },
-    [setUser]
+    [setRegistrationSessionFromResponse, setUser]
   );
 
   const value = React.useMemo(
@@ -77,11 +102,20 @@ export default function UserProvider({ children }) {
       userAuthed: Boolean(user),
       userUnauthed: !userLoading && !user,
       handleUpdateCurrentMember,
+      registrationSession,
     }),
-    [handleUpdateCurrentMember, setUser, user, userError, userLoading]
+    [
+      handleUpdateCurrentMember,
+      registrationSession,
+      setUser,
+      user,
+      userError,
+      userLoading,
+    ]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 const STORAGE_KEY = "sumauser";
+const REGLINK_STORAGE_KEY = "sumareglink";

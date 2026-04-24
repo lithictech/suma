@@ -18,7 +18,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
   describe "durable_url" do
     it "returns a url with the opaque id" do
       link = Suma::Fixtures.registration_link.create(opaque_id: "xyz")
-      expect(link.durable_url).to eq("http://localhost:22001/api/registration_links/xyz")
+      expect(link.durable_url).to eq("http://localhost:22001/api/v1/registration_links/xyz")
     end
 
     it "can generate a qr code" do
@@ -41,8 +41,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
 
   describe "partner_signup_url" do
     it "returns a url" do
-      link = Suma::Fixtures.registration_link.create
-      expect(link.partner_signup_url).to eq("http://localhost:22004/partner-signup")
+      expect(described_class.partner_signup_url).to eq("http://localhost:22004/partner-signup")
     end
   end
 
@@ -189,7 +188,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
       link = Suma::Fixtures.registration_link.create
       code = link.make_one_time_code
       link2 = described_class.from_params({"suma_regcode" => code}, at: Time.now)
-      expect(link2).to be === link
+      expect(link2).to match_array([code, be === link])
     end
 
     it "is nil if there is no param" do

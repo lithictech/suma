@@ -5,7 +5,7 @@ import RegistrationLinkForm from "./RegistrationLinkForm";
 import React from "react";
 
 export default function RegistrationLinkCreatePage() {
-  const empty = {};
+  const empty = { intro: formHelpers.initialTranslation };
   return (
     <ResourceCreate
       empty={empty}

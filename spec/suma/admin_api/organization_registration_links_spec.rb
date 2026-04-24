@@ -60,7 +60,7 @@ RSpec.describe Suma::AdminAPI::OrganizationRegistrationLinks, :db do
     let(:org) { Suma::Fixtures.organization.create(name: "Z") }
 
     it "creates a link" do
-      post "/v1/organization_registration_links/create", organization: {id: org.id}
+      post "/v1/organization_registration_links/create", organization: {id: org.id}, intro: {en: "tk", es: "tk"}
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")

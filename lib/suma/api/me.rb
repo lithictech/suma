@@ -8,9 +8,26 @@ require "suma/member/dashboard"
 class Suma::API::Me < Suma::API::V1
   include Suma::API::Entities
 
+  helpers do
+    def current_registration_link
+      return Suma::Organization::RegistrationLink.from_params(cookies.send(:cookies), at: current_time)
+    end
+  end
+
   resource :me do
     desc "Return the current member"
     get do
+      if (reglink = current_registration_link) && reglink[1]
+        [
+          ["suma-reglink-org", reglink[1].organization.name],
+          ["suma-reglink-intro", Suma::Service::Entities.render_translated_text(reglink[1].intro)],
+        ].each do |(h, v)|
+          header h, v
+          yosoy.set_header(h, Base64.strict_encode64(v))
+        end
+
+      end
+
       member = current_member
       if member.sessions_dataset.empty?
         # Add this as a way to backfill sessions for users that last authed before we had them.
@@ -42,9 +59,10 @@ class Suma::API::Me < Suma::API::V1
         end
         member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
 
-        if (looked_up = Suma::Organization::RegistrationLink.from_params(cookies.send(:cookies), at: current_time))
-          code, link = looked_up
+        if (reglink = current_registration_link)
+          code, link = reglink
           link.ensure_verified_membership(member, code:)
+          member.update(onboarding_verified_at: current_time)
           member.audit_activity("autoverified", action: link)
         end
       end

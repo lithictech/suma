@@ -18,10 +18,16 @@ class Rack::UtmCapture
   ].freeze
 
   COOKIE_EXPIRES = 30.days.to_i
+  DEFAULT_OPTS = {
+    params: UTM_KEYS,
+    expires: COOKIE_EXPIRES,
+  }.freeze
 
-  def initialize(app, params: UTM_KEYS, extra_params: [])
+  def initialize(app, opts={})
+    opts = DEFAULT_OPTS.merge(opts)
     @app = app
-    @capture_params = (params + extra_params).map(&:to_s)
+    @capture_params = opts.fetch(:params).map(&:to_s)
+    @expires = opts.fetch(:expires)
   end
 
   def call(env)
@@ -55,7 +61,7 @@ class Rack::UtmCapture
       next if existing_cookies[key] == value
 
       cookie_value = Rack::Utils.escape(value)
-      expires = Time.now + COOKIE_EXPIRES
+      expires = Time.now + @expires
 
       "#{key}=#{cookie_value}; path=/; expires=#{expires.httpdate}; SameSite=Lax"
     end

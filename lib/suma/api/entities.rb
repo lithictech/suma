@@ -98,6 +98,12 @@ module Suma::API::Entities
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
+  class RegistrationLinkEntity < BaseEntity
+    expose :organization_id
+    expose :organization_name, &self.delegate_to(:organization, :name)
+    expose_translated :intro
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
     expose :ongoing_trip, with: MobilityTripEntity
