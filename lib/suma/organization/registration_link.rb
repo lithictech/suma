@@ -117,12 +117,14 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
     end
 
     # Lookup an instance from the one-time-code in query params.
+    # Return an array of [code string, registration link].
     # Return nil if not present or the code is not valid.
+    # @return [Array,nil]
     def from_params(h, at:)
       code = h.symbolize_keys[ONE_TIME_CODE_PARAM.to_sym]
       return nil unless code
       link = self.lookup_from_code(code, at:)
-      return link
+      return [code, link]
     end
   end
 

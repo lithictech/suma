@@ -82,14 +82,6 @@ class Suma::API::Auth < Suma::API::V1
             prefix: "Created from API",
           )
         end
-        if (link = Suma::Organization::RegistrationLink.from_params(cookies.send(:cookies)))
-          link.ensure_verified_membership(member)
-          link.organization.audit_activity(
-            "autoverified",
-            actor: member,
-            action: link,
-          )
-        end
         Suma::Member::ResetCode.replace_active(member, transport: params[:transport])
         member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
         status 200

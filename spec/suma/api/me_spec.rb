@@ -126,6 +126,19 @@ RSpec.describe Suma::API::Me, :db do
         have_attributes(unverified_organization_name: "Hacienda ABC"),
       )
     end
+
+    it "creates a verified organization if there is a registration link for the code" do
+      link = Suma::Fixtures.registration_link.create
+      code = link.make_one_time_code
+      rack_mock_session.cookie_jar["suma_regcode"] = code
+
+      post "/v1/me/update"
+
+      expect(last_response).to have_status(200)
+      expect(member.organization_memberships).to contain_exactly(
+        have_attributes(verified_organization: be === link.organization),
+      )
+    end
   end
 
   describe "POST /v1/me/language" do

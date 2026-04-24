@@ -41,6 +41,12 @@ class Suma::API::Me < Suma::API::V1
           save_or_error!(member.legal_entity)
         end
         member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
+
+        if (looked_up = Suma::Organization::RegistrationLink.from_params(cookies.send(:cookies), at: current_time))
+          code, link = looked_up
+          link.ensure_verified_membership(member, code:)
+          member.audit_activity("autoverified", action: link)
+        end
       end
       status 200
       present member, with: CurrentMemberEntity, env:
