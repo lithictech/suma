@@ -11,6 +11,8 @@ require "suma/postgres/model"
 # An example use case would be a housing partner that wants residents to enroll at move-in;
 # they can show the resident a QR code that will verify them automatically.
 #
+# == Risks and Mitigations
+#
 # This sort of automatic verification has nontrivial risks involved,
 # especially around unauthorized sharing of the link.
 # Many partners will print out the registration link,
@@ -23,7 +25,32 @@ require "suma/postgres/model"
 # - While the QR code link is long-lived, going to it redirects to a single-use token.
 #   This will remove the long-lived code from browser history,
 #   making it harder to share without having physical access to the QR code.
+# - Calling ensure_verified_membership deletes the given one-time-code,
+#   so it cannot be reused.
 #
+# == User flow
+#
+# Once the link is created, there is the following flow.
+#
+# - Users go to /api/v1/registration_links/<opaque_id>
+# - Users get redirected to /api/v1/registration_links/capture?suma_regcode=<one time code>
+#   - This param is stored by the Rack::UtmCapture middleware,
+#     so is available to all future calls to the API.
+# - Users finally get redirected to /app/partner-signup.
+#   One of three situations are true:
+# - 1) If the code is invalid/expired/used, or not within schedule, they are shown a page
+#   that the link isn't valid.
+# - 2) If there is no user, OR the current user is not onboarded,
+#   we redirect back to the homepage.
+#   - We've capture the suma_regcode already so it'll be available later.
+#   - When we get the current user (which is used during onboardaing),
+#     we include information about the registration code.
+#   - Do not show the 'organization' dropdown if there is an active registration link.
+#   - When submitting onboarding (/api/v1/me/update), if there is no organization name,
+#     but there IS an active registration link (for the stored suma_regcode), ensure membership in that org.
+# - 3) If there is an active user who is onboarded,
+#   show them the option to accept the invitation to the organization,
+#   or they can go their dashboard.
 class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization_registration_links)
   include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
@@ -31,7 +58,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   ONE_TIME_CODE_PARAM = :suma_regcode
 
   configurable(:organization_registration_link) do
-    setting :ttl, 15 * 60
+    setting :ttl, 60.minutes.to_i
   end
 
   plugin :hybrid_search
@@ -58,7 +85,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
 
   # Store a one-time code in Redis, and return it.
   # @return [String]
-  def set_one_time_code
+  def make_one_time_code
     one_time_code = Suma::Secureid.rand_enc(12)
     Suma::Redis.durable.with do |c|
       c.call("SET", "regcode/#{one_time_code}", self.id.to_s, "EX", self.class.ttl)
@@ -66,16 +93,18 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
     return one_time_code
   end
 
-  # Return the URL to the link used to sign up,
-  # with a query param that gets captured by the UtmCapture middleware,
-  # and can fetch the associated link through ::from_params.
-  # @param code [String] If nil, use set_one_time_code.
-  def make_one_time_url(code=nil)
-    code ||= self.set_one_time_code
-    return Suma.app_url + "/partner/#{self.organization.id}?#{ONE_TIME_CODE_PARAM}=#{code}"
+  # Return the URL used to capture suma_regcode,
+  # which then redirects onto partner_signup_url.
+  # @param code [String] If nil, use make_one_time_code.
+  def make_code_capture_url(code=nil)
+    code ||= self.make_one_time_code
+    return Suma.api_url + "/v1/registration_links/capture?#{ONE_TIME_CODE_PARAM}=#{code}"
   end
 
   class << self
+    # The app URL where users can join the org (or get redirected to signup).
+    def partner_signup_url = Suma.app_url + "/partner-signup"
+
     def lookup_from_code(one_time_code, at:)
       link_id = Suma::Redis.durable.with do |c|
         c.call("GET", "regcode/#{one_time_code}")
@@ -164,7 +193,18 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   # - If there is an unverified membership, verify it (update the Verification object if needed).
   # - If there is a verified membership, noop.
   # - Otherwise (no or former membership), create a new one.
-  def ensure_verified_membership(member)
+  #
+  # @param [Suma::Member] member
+  # @param [String] code The one-time code. Is deleted after use.
+  def ensure_verified_membership(member, code:)
+    m = self._ensure_verified_membership(member, code)
+    Suma::Redis.durable.with do |c|
+      c.call("DEL", "regcode/#{code}")
+    end
+    return m
+  end
+
+  def _ensure_verified_membership(member, _code)
     existing = Suma::Organization::Membership[member:, verified_organization: self.organization]
     return existing if existing
     unverified = Suma::Organization::Membership[member:, unverified_organization_name: self.organization.name]
@@ -181,7 +221,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
     return membership
   end
 
-  def rel_admin_link = "/registration_link/#{self.id}"
+  def rel_admin_link = "/registration-link/#{self.id}"
 
   def hybrid_search_fields
     return [

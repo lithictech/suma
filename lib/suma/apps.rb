@@ -29,6 +29,7 @@ require "suma/api/mobility"
 require "suma/api/payment_instruments"
 require "suma/api/payments"
 require "suma/api/preferences"
+require "suma/api/registration_links"
 require "suma/api/support"
 require "suma/api/surveys"
 require "suma/api/system"
@@ -94,6 +95,7 @@ module Suma::Apps
     mount Suma::API::PaymentInstruments
     mount Suma::API::Payments
     mount Suma::API::Preferences
+    mount Suma::API::RegistrationLinks
     mount Suma::API::Support
     mount Suma::API::Surveys
     mount Suma::API::Webhookdb

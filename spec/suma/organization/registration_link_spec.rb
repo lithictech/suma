@@ -30,19 +30,26 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
     end
   end
 
-  describe "make_one_time_url" do
+  describe "make_code_capture_url" do
     it "returns a url with a unique code each call" do
       link = Suma::Fixtures.registration_link.create
       expect(Suma::Secureid).to receive(:rand_enc).and_return("xyz")
-      url = link.make_one_time_url
-      expect(url).to eq("http://localhost:22004/partner/#{link.organization.id}?suma_regcode=xyz")
+      url = link.make_code_capture_url
+      expect(url).to eq("http://localhost:22001/api/v1/registration_links/capture?suma_regcode=xyz")
+    end
+  end
+
+  describe "partner_signup_url" do
+    it "returns a url" do
+      link = Suma::Fixtures.registration_link.create
+      expect(link.partner_signup_url).to eq("http://localhost:22004/partner-signup")
     end
   end
 
   describe "lookup_from_code" do
     it "can be looked up form a one time code" do
       link = Suma::Fixtures.registration_link.create
-      code = link.set_one_time_code
+      code = link.make_one_time_code
       link2 = described_class.lookup_from_code(code, at: Time.now)
       expect(link2).to be === link
     end
@@ -54,7 +61,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
 
     it "is nil if the link does not exist" do
       link = Suma::Fixtures.registration_link.create
-      code = link.set_one_time_code
+      code = link.make_one_time_code
       link.destroy
       link2 = described_class.lookup_from_code(code, at: Time.now)
       expect(link2).to be_nil
@@ -69,7 +76,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
           RRULE:COUNT=5;INTERVAL=1;FREQ=DAILY
           END:VEVENT
         ICAL
-        code = link.set_one_time_code
+        code = link.make_one_time_code
         Timecop.freeze("20250418T120001Z") do
           expect(described_class.lookup_from_code(code, at: Time.now)).to be === link
         end
@@ -180,7 +187,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
   describe "from_params" do
     it "returns the link from the code" do
       link = Suma::Fixtures.registration_link.create
-      code = link.set_one_time_code
+      code = link.make_one_time_code
       link2 = described_class.from_params({"suma_regcode" => code}, at: Time.now)
       expect(link2).to be === link
     end
@@ -199,7 +206,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
       it "verifies the membership" do
         other_membership = Suma::Fixtures.organization_membership.unverified.create(member:)
         membership = Suma::Fixtures.organization_membership.unverified(org.name).create(member:)
-        expect(reglink.ensure_verified_membership(member)).to be === membership
+        expect(reglink.ensure_verified_membership(member, code: "x")).to be === membership
         expect(membership.refresh).to have_attributes(
           verified_organization: be === org,
           registration_link: be === reglink,
@@ -209,7 +216,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
       it "updates the verification" do
         membership = Suma::Fixtures.organization_membership.unverified(org.name).create(member:)
         v = membership.verification
-        reglink.ensure_verified_membership(member)
+        reglink.ensure_verified_membership(member, code: "x")
         expect(membership.refresh).to have_attributes(
           verified_organization: be === org,
           registration_link: be === reglink,
@@ -221,12 +228,12 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
     it "uses an existing verified membership" do
       other_membership = Suma::Fixtures.organization_membership.verified.create(member:)
       membership = Suma::Fixtures.organization_membership.verified(org).create(member:)
-      expect(reglink.ensure_verified_membership(member)).to be === membership
+      expect(reglink.ensure_verified_membership(member, code: "x")).to be === membership
       expect(membership.refresh).to have_attributes(registration_link: nil)
     end
 
     it "creates a verified membership if there is no membership" do
-      membership = reglink.ensure_verified_membership(member)
+      membership = reglink.ensure_verified_membership(member, code: "x")
       expect(membership).to have_attributes(
         member: be === member,
         verified_organization: be === org,
@@ -236,7 +243,7 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
 
     it "creates a verified membership if there is a former membership" do
       old = Suma::Fixtures.organization_membership.former(org).create(member:)
-      membership = reglink.ensure_verified_membership(member)
+      membership = reglink.ensure_verified_membership(member, code: "x")
       expect(old).to_not be === membership
       expect(old.refresh).to have_attributes(former_organization: be === org, member: be === member)
       expect(membership).to have_attributes(
@@ -244,6 +251,12 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
         verified_organization: be === org,
         registration_link: be === reglink,
       )
+    end
+
+    it "deletes the one-time code" do
+      code = reglink.make_one_time_code
+      reglink.ensure_verified_membership(member, code:)
+      expect(described_class.lookup_from_code(code, at: Time.now)).to be_nil
     end
   end
 end

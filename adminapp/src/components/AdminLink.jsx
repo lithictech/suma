@@ -8,7 +8,7 @@ const AdminLink = React.forwardRef(function AdminLink(
   ref
 ) {
   const [newTo, isRelative] = relativeLink(model?.adminLink || href || to || "");
-  const newProps = { ...rest, ref, children: children || model?.id };
+  const newProps = { ...rest, ref, children: children || model?.label || model?.id };
   if (isRelative) {
     newProps.component = RouterLink;
     newProps.to = newTo;

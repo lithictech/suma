@@ -94,6 +94,10 @@ import ProgramListPage from "./pages/ProgramListPage";
 import ProgramPricingCreatePage from "./pages/ProgramPricingCreatePage";
 import ProgramPricingDetailPage from "./pages/ProgramPricingDetailPage";
 import ProgramPricingEditPage from "./pages/ProgramPricingEditPage";
+import RegistrationLinkCreatePage from "./pages/RegistrationLinkCreatePage";
+import RegistrationLinkDetailPage from "./pages/RegistrationLinkDetailPage";
+import RegistrationLinkEditPage from "./pages/RegistrationLinkEditPage";
+import RegistrationLinkListPage from "./pages/RegistrationLinkListPage";
 import RoleCreatePage from "./pages/RoleCreatePage";
 import RoleDetailPage from "./pages/RoleDetailPage";
 import RoleEditPage from "./pages/RoleEditPage";
@@ -808,6 +812,44 @@ function PageSwitch() {
           OrganizationMembershipVerificationEditPage
         )}
       />
+
+      <Route
+        exact
+        path="/registration-links"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          RegistrationLinkListPage
+        )}
+      />
+      <Route
+        exact
+        path="/registration-link/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          RegistrationLinkDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/registration-link/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          RegistrationLinkCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/registration-link/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          RegistrationLinkEditPage
+        )}
+      />
+
       <Route
         exact
         path="/messages"

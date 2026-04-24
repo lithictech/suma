@@ -420,6 +420,15 @@ export default {
       ...args
     ),
 
+  getOrganizationRegistrationLinks: (data, ...args) =>
+    get(`/adminapi/v1/organization_registration_links`, data, ...args),
+  getOrganizationRegistrationLink: ({ id }) =>
+    get(`/adminapi/v1/organization_registration_links/${id}`),
+  createOrganizationRegistrationLink: (data, ...args) =>
+    post("/adminapi/v1/organization_registration_links/create", data, ...args),
+  updateOrganizationRegistrationLink: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/organization_registration_links/${id}`, data, ...args),
+
   getMobilityTrips: (data, ...args) => get(`/adminapi/v1/mobility_trips`, data, ...args),
   getMobilityTrip: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/mobility_trips/${id}`, data, ...args),
