@@ -70,8 +70,6 @@ export default {
     get(`/api/v1/meta/supported_organizations`, data, ...args),
   getLocaleFile: ({ namespace, locale, ...data }, ...args) =>
     get(`/api/v1/meta/static_strings/${locale}/${namespace}`, data, ...args),
-  getCurrentRegistrationLink: (data, ...args) =>
-    get(`/api/v1/registration_links/current`, data, ...args),
   dashboard: (data, ...args) => get("/api/v1/me/dashboard", data, ...args),
   getLedgersOverview: (data, ...args) => get("/api/v1/ledgers/overview", data, ...args),
   getLedgerLines: ({ id, ...data }, ...args) =>
