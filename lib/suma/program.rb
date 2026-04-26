@@ -113,6 +113,7 @@ require "suma/program/has"
 #  programs_description_id_fkey   | (description_id) REFERENCES translated_texts(id)
 #  programs_name_id_fkey          | (name_id) REFERENCES translated_texts(id)
 # Referenced By:
+#  eligibility_requirements_programs         | eligibility_requirements_programs_program_id_fkey         | (program_id) REFERENCES programs(id)
 #  images                                    | images_program_id_fkey                                    | (program_id) REFERENCES programs(id)
 #  program_enrollment_exclusions             | program_enrollment_exclusions_program_id_fkey             | (program_id) REFERENCES programs(id) ON DELETE CASCADE
 #  program_enrollments                       | program_enrollments_program_id_fkey                       | (program_id) REFERENCES programs(id) ON DELETE CASCADE

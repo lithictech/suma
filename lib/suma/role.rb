@@ -92,6 +92,7 @@ end
 #  roles_pkey     | PRIMARY KEY btree (id)
 #  roles_name_key | UNIQUE btree (name)
 # Referenced By:
+#  eligibility_assignments       | eligibility_assignments_role_id_fkey       | (role_id) REFERENCES roles(id) ON DELETE CASCADE
 #  program_enrollment_exclusions | program_enrollment_exclusions_role_id_fkey | (role_id) REFERENCES roles(id) ON DELETE CASCADE
 #  program_enrollments           | program_enrollments_role_id_fkey           | (role_id) REFERENCES roles(id) ON DELETE CASCADE
 #  roles_members                 | roles_members_role_id_fkey                 | (role_id) REFERENCES roles(id)

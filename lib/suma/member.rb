@@ -545,6 +545,9 @@ require "suma/member/stripe_attributes"
 #  charges                                         | charges_member_id_fkey                                        | (member_id) REFERENCES members(id)
 #  commerce_carts                                  | commerce_carts_member_id_fkey                                 | (member_id) REFERENCES members(id)
 #  commerce_order_audit_logs                       | commerce_order_audit_logs_actor_id_fkey                       | (actor_id) REFERENCES members(id) ON DELETE SET NULL
+#  eligibility_assignments                         | eligibility_assignments_created_by_id_fkey                    | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
+#  eligibility_assignments                         | eligibility_assignments_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  eligibility_requirements                        | eligibility_requirements_created_by_id_fkey                   | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  marketing_lists_members                         | marketing_lists_members_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  marketing_sms_broadcasts                        | marketing_sms_broadcasts_created_by_id_fkey                   | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  marketing_sms_dispatches                        | marketing_sms_dispatches_member_id_fkey                       | (member_id) REFERENCES members(id)
