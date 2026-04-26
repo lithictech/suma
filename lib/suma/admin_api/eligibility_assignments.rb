@@ -9,7 +9,6 @@ class Suma::AdminAPI::EligibilityAssignments < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
-    expose :created_by, with: AuditMemberEntity
     expose :member, with: MemberEntity
     expose :organization, with: OrganizationEntity
     expose :role, with: RoleEntity

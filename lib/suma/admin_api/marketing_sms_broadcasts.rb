@@ -10,7 +10,6 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
-    expose :created_by, with: MemberEntity
     expose :body, with: TranslatedTextEntity
     expose :sending_number
     expose :sending_number_formatted
