@@ -80,7 +80,9 @@ function TopAlerts({ dashboard }) {
         <SeeAlsoAlert
           alertClass="blinking-alert mb-0"
           variant="success"
-          label={t("dashboard.partner_signup_available")}
+          label={t("dashboard.partner_signup_available", {
+            organization: registrationSession.organizationName,
+          })}
           iconClass="bi-person-raised-hand"
           show
           to="/partner-signup"

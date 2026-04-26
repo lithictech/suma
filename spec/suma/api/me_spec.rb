@@ -59,7 +59,7 @@ RSpec.describe Suma::API::Me, :db do
         that_includes(ongoing_trip: include(id: trip.id))
     end
 
-    describe "returns header info about the registration link, which is extracted from cookies" do
+    describe "returns info about the registration link, which is extracted from cookies" do
       it "when the user is logged in" do
         link = Suma::Fixtures.registration_link.create
         code = link.make_one_time_code
@@ -68,7 +68,8 @@ RSpec.describe Suma::API::Me, :db do
         get "/v1/me"
 
         expect(last_response).to have_status(200)
-        expect(last_response.headers).to include("suma-reglink-org", "suma-reglink-intro")
+        expect(last_response).to have_json_body.
+          that_includes(registration_link: include(organization_name: link.organization.name))
       end
 
       it "when the user is logged out" do
@@ -82,10 +83,16 @@ RSpec.describe Suma::API::Me, :db do
         get "/v1/me"
 
         expect(last_response).to have_status(401)
-        expect(last_response.headers).to include("suma-reglink-org", "suma-reglink-intro")
-        expect(Base64.strict_decode64(last_response.headers["suma-reglink-org"])).to eq(link.organization.name)
-        # Intro is rendered text so has the invisible formatting flag.
-        expect(Base64.strict_decode64(last_response.headers["suma-reglink-intro"])).to end_with("# hi\n\nworld\n")
+        expect(last_response).to have_json_body.
+          that_includes(
+            error: include(
+              registration_link: include(
+                organization_name: link.organization.name,
+                # Intro is rendered text so has the invisible formatting flag.
+                intro: end_with("# hi\n\nworld\n"),
+              ),
+            ),
+          )
       end
     end
 

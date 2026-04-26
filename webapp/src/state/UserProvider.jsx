@@ -35,41 +35,21 @@ export default function UserProvider({ children }) {
     setUserError(null);
   }, []);
 
-  const [registrationSession, setRegistrationSession] = React.useState(
-    localStorageCache.getItem(REGLINK_STORAGE_KEY, null)
-  );
-
-  const setRegistrationSessionFromResponse = React.useCallback((r) => {
-    const org = get(r, ["headers", "suma-reglink-org"]);
-    const intro = get(r, ["headers", "suma-reglink-intro"]);
-    if (!org || !intro) {
-      localStorageCache.removeItem(REGLINK_STORAGE_KEY);
-      setRegistrationSession(null);
-      return;
-    }
-    const o = {
-      organizationName: base64decode(org),
-      intro: base64decode(intro),
-    };
-    localStorageCache.setItem(REGLINK_STORAGE_KEY, o);
-    setRegistrationSession(o);
-  }, []);
+  // When GET /me 401s, set this value, and use it if the user is unauthed.
+  const [regLinkFromError, setRegLinkFromError] = React.useState(null);
 
   const fetchUser = React.useCallback(() => {
     return api
       .getMe()
-      .then((r) => {
-        setUser(r.data);
-        setRegistrationSessionFromResponse(r);
-      })
+      .then((r) => setUser(r.data))
       .catch((e) => {
         setUserInner(null);
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
         setUserError(e);
-        setRegistrationSessionFromResponse(e.response);
+        setRegLinkFromError(e.response?.data?.error?.registrationLink);
       });
-  }, [setRegistrationSessionFromResponse, setUser]);
+  }, [setUser]);
 
   React.useEffect(() => {
     fetchUser().then(() => null);
@@ -78,7 +58,6 @@ export default function UserProvider({ children }) {
   // See add_current_member_header for more info.
   const handleUpdateCurrentMember = React.useCallback(
     (response) => {
-      setRegistrationSessionFromResponse(response);
       const memberBase64 = get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
         logger.error(
@@ -90,7 +69,12 @@ export default function UserProvider({ children }) {
       const member = JSON.parse(j);
       setUser(humps.camelizeKeys(member));
     },
-    [setRegistrationSessionFromResponse, setUser]
+    [setUser]
+  );
+
+  const registrationSession = React.useMemo(
+    () => (user ? user.registrationLink : regLinkFromError),
+    [regLinkFromError, user]
   );
 
   const value = React.useMemo(
@@ -118,4 +102,3 @@ export default function UserProvider({ children }) {
 }
 
 const STORAGE_KEY = "sumauser";
-const REGLINK_STORAGE_KEY = "sumareglink";

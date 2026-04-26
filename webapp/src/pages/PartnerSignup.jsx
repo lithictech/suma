@@ -20,7 +20,7 @@ export default function PartnerSignup() {
     if (action === UNAUTHED) {
       // Unauthed users go through the normal signup/in and onboarding flow.
       navigate("/");
-    } else if (NOT_ONBOARDED) {
+    } else if (action === NOT_ONBOARDED) {
       navigate("/onboarding/signup");
     }
   }, [navigate, userCtx]);

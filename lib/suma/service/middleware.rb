@@ -45,8 +45,6 @@ module Suma::Service::Middleware
                    "Suma-Current-Member",
                    "Suma-Events-Token",
                    "Suma-Front-Enabled",
-                   "suma-reglink-org",
-                   "suma-reglink-intro",
                  ]
       end
     end

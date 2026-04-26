@@ -8,24 +8,17 @@ require "suma/member/dashboard"
 class Suma::API::Me < Suma::API::V1
   include Suma::API::Entities
 
-  helpers do
-    def current_registration_link
-      return Suma::Organization::RegistrationLink.from_params(cookies.send(:cookies), at: current_time)
-    end
-  end
-
   resource :me do
     desc "Return the current member"
     get do
-      if (reg_linkcode = current_registration_link)
-        [
-          ["suma-reglink-org", reg_linkcode.link.organization.name],
-          ["suma-reglink-intro", Suma::Service::Entities.render_translated_text(reg_linkcode.link.intro)],
-        ].each do |(h, v)|
-          header h, v
-          yosoy.set_header(h, Base64.strict_encode64(v))
-        end
-
+      member = current_member?
+      if member.nil?
+        # The /me endpoint has special behavior for a 401. If the user is not authenticated,
+        # we need to include registration_link information in the error,
+        # so unauthed users can see the invitation from a link they followed.
+        reglink = Suma::API::Entities::RegistrationLinkEntity.link_and_code_from_env(env)&.link
+        reglink_h = reglink ? Suma::API::Entities::RegistrationLinkEntity.represent(reglink) : nil
+        unauthenticated!(registration_link: reglink_h)
       end
 
       member = current_member
@@ -59,10 +52,10 @@ class Suma::API::Me < Suma::API::V1
         end
         member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
 
-        if (reglink = current_registration_link)
-          reglink.link.ensure_verified_membership(member, code: reglink.code)
+        if (reglink_and_code = Suma::API::Entities::RegistrationLinkEntity.link_and_code_from_env(env))
+          reglink_and_code.link.ensure_verified_membership(member, code: reglink_and_code.code)
           member.update(onboarding_verified_at: current_time)
-          member.audit_activity("autoverified", action: reglink.link)
+          member.audit_activity("autoverified", action: reglink_and_code.link)
         end
       end
       status 200
