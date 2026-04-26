@@ -22,7 +22,7 @@ export default function SafeDateTimePicker({ value, seconds, views, sx, ...rest 
   }
   value = dayjsOrNull(value);
   if (!views.includes("seconds")) {
-    value = value?.second(0);
+    value = value?.second(0) || null;
   }
   return (
     <DateTimePicker
