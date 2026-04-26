@@ -8,7 +8,12 @@ module Suma::Redis
   include Appydays::Configurable
 
   class << self
+    # Redis client for caching only.
+    # Cache servers may evict old keys under pressure.
     attr_accessor :cache
+    # Redis client for durable use.
+    # Keys are not evicted under pressure (Sidekiq job servers are like this).
+    attr_accessor :durable
 
     def conn_params(url, **kw)
       params = {url:}
@@ -48,8 +53,12 @@ module Suma::Redis
     setting :cache_url, ""
     setting :cache_url_provider, "REDIS_URL"
 
+    setting :durable_url, ""
+    setting :durable_url_provider, "REDIS_URL"
+
     after_configured do
       self.cache = self.create_pool(self.cache_url_provider, self.cache_url)
+      self.durable = self.create_pool(self.durable_url_provider, self.durable_url)
     end
   end
 
