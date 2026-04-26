@@ -1,5 +1,4 @@
 import api from "../api.js";
-import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader.jsx";
 import RLink from "../components/RLink.jsx";
 import { dt, t } from "../localization/index.jsx";
@@ -13,23 +12,29 @@ import { useNavigate } from "react-router-dom";
 
 export default function PartnerSignup() {
   const navigate = useNavigate();
-  const { user, userUnauthed, userError, userLoading, registrationSession } = useUser();
+  const userCtx = useUser();
 
-  if (userLoading) {
+  React.useEffect(() => {
+    // Call navigate in a useEffect, or it may be ignored.
+    const action = calculateAction(userCtx);
+    if (action === UNAUTHED) {
+      // Unauthed users go through the normal signup/in and onboarding flow.
+      navigate("/");
+    } else if (NOT_ONBOARDED) {
+      navigate("/onboarding/signup");
+    }
+  }, [navigate, userCtx]);
+
+  const action = calculateAction(userCtx);
+  if (action === LOADING) {
     return <PageLoader buffered />;
-  }
-  if (userError || userUnauthed) {
-    // Unauthed users go through the normal signup/in and onboarding flow.
-    navigate("/");
+  } else if (action === UNAUTHED) {
     return <PageLoader buffered />;
-  }
-  if (!user.onboarded) {
+  } else if (action === NOT_ONBOARDED) {
     // If the user is not onboarded, they can finish that process
     // with this partner org pre-selected.
-    navigate("/onboarding/signup");
     return <PageLoader buffered />;
-  }
-  if (!registrationSession) {
+  } else if (action === INVALID_LINK) {
     // If there is no registration link, let the user know.
     return (
       <>
@@ -44,6 +49,32 @@ export default function PartnerSignup() {
   }
   // Give them the option to join this partner.
   return <JoinPartner />;
+}
+
+const LOADING = "loading";
+const UNAUTHED = "unauthed";
+const NOT_ONBOARDED = "not-onboarded";
+const INVALID_LINK = "invalid-link";
+const JOIN = "join";
+
+/**
+ * We need the same logic for the useEffect and render loop, so centralize it.
+ */
+function calculateAction(userCtx) {
+  const { userLoading, userError, userUnauthed, user, registrationSession } = userCtx;
+  if (userLoading) {
+    return LOADING;
+  }
+  if (userError || userUnauthed) {
+    return UNAUTHED;
+  }
+  if (!user.onboarded) {
+    return NOT_ONBOARDED;
+  }
+  if (!registrationSession) {
+    return INVALID_LINK;
+  }
+  return JOIN;
 }
 
 function JoinPartner() {

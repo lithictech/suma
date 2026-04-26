@@ -72,6 +72,7 @@
   "dashboard.intro": "Helping our community save money on things you buy the most - all in one place.",
   "dashboard.negative_cash_balance": "Your last payment to suma failed. We will retry soon. Please send a text message to $t(strings.common.suma_help_number) if you have questions.",
   "dashboard.negative_cash_balance_no_instrument": "You must add a payment method so we can charge your account. [Add a new card](/add-card) to continue accessing suma.",
+  "dashboard.partner_signup_available": "Accept your invitation from {{organization}} to see more offers and discounts.",
   "dashboard.payment_methods_expiring": "Some of your payment methods are expiring. [Add a new card](/add-card) to avoid any problems.",
   "dashboard.program_ends": "Program ends {{ date }}",
   "errors.auth_conflict": "You are already signed in. Please sign out first.",
