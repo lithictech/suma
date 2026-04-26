@@ -55,3 +55,16 @@ class Suma::Eligibility::MemberAssignment < Suma::Postgres::Model(:eligibility_m
     end
   end
 end
+
+# Table: eligibility_member_assignments
+# -----------------------------------------------------------------------------------------------------------
+# Primary Key: (member_id, attribute_id, source_type, source_member_id, source_role_id, source_membership_id)
+# Columns:
+#  member_id            | integer |
+#  attribute_id         | integer |
+#  depth                | integer |
+#  source_type          | text    |
+#  source_member_id     | integer |
+#  source_role_id       | integer |
+#  source_membership_id | integer |
+# -----------------------------------------------------------------------------------------------------------

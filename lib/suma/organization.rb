@@ -73,6 +73,7 @@ end
 # Foreign key constraints:
 #  organizations_membership_verification_member_outreach_temp_fkey | (membership_verification_member_outreach_template_id) REFERENCES translated_texts(id)
 # Referenced By:
+#  eligibility_assignments         | eligibility_assignments_organization_id_fkey           | (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 #  organization_memberships        | organization_memberships_former_organization_id_fkey   | (former_organization_id) REFERENCES organizations(id)
 #  organization_memberships        | organization_memberships_verified_organization_id_fkey | (verified_organization_id) REFERENCES organizations(id)
 #  payment_off_platform_strategies | payment_off_platform_strategies_organization_id_fkey   | (organization_id) REFERENCES organizations(id)
