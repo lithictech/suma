@@ -102,14 +102,11 @@ module Suma::Apps
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma App API"}) if
       Suma::Service.swagger_enabled
 
-    def self.build_app(pre_middleware: [], post_middleware: [])
-      pre_middleware += [
-        [
-          Rack::UtmCapture,
-          {params: [Suma::Organization::RegistrationLink::ONE_TIME_CODE_PARAM], expires: 1.hour},
-        ],
-      ]
-      super
+    def self.build_app_pre(builder)
+      builder.use(
+        Rack::UtmCapture,
+        {params: [Suma::Organization::RegistrationLink::ONE_TIME_CODE_PARAM], expires: 1.hour},
+      )
     end
   end
 

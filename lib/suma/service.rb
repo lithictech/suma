@@ -104,29 +104,21 @@ class Suma::Service < Grape::API
   end
 
   # Build the Rack app according to the configured environment.
-  # If pre and post middleware are given, add them to the beginning or end
-  # of the middleware chain.
-  # They should be be of the form:
-  # - MiddlewareClass
-  # - [MiddlewareClass]
-  # - [MiddlewareClass, options]
-  def self.build_app(pre_middleware: [], post_middleware: [])
+  # Call build_app_pre and build_app_post with the Rack::Builder,
+  # in case the app needs to run additional middleware.
+  def self.build_app
     inner_app = self
     builder = Rack::Builder.new do
-      inner_app._add_middlewares(self, pre_middleware)
+      inner_app.build_app_pre(self)
       Suma::Service::Middleware.add_middlewares(self)
-      inner_app._add_middlewares(self, post_middleware)
+      inner_app.build_app_post(self)
       run inner_app
     end
     return builder.to_app
   end
 
-  def self._add_middlewares(builder, mws)
-    mws.each do |mw|
-      mw = Suma.as_ary(mw)
-      builder.use(*mw)
-    end
-  end
+  def self.build_app_pre(_builder) = nil
+  def self.build_app_post(_builder) = nil
 
   def self.error_body(status, message, code: nil, more: {})
     error = more.merge(
