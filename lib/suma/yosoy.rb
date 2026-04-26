@@ -91,7 +91,7 @@ class Suma::Yosoy
           extra = {}
           reason = result
       else
-          return result
+          return self._inject_headers(proxy, result)
       end
       unless self.respond_to?(reason)
         msg = "#{self.class.name || 'Your custom Yosoy middleware'} does not support the thrown reason :#{reason}. " \
@@ -100,7 +100,16 @@ class Suma::Yosoy
         raise UnhandledReason, msg
       end
       response = self.send(reason, **extra)
+      response = self._inject_headers(proxy, response)
       return response
+    end
+
+    def _inject_headers(proxy, resp)
+      return resp unless resp.is_a?(Array) && resp.length == 3
+      return resp if proxy.headers.empty?
+      st, hd, bod = resp
+      hd = (hd || {}).merge(proxy.headers)
+      return st, hd, bod
     end
 
     def response(status_code, extra={})
@@ -127,6 +136,7 @@ class Suma::Yosoy
       @auth_ran = false
       @auth_obj = nil
       @last_access_set = false
+      @headers = {}
     end
 
     def rack_session
@@ -137,6 +147,7 @@ class Suma::Yosoy
       @auth_ran = false
       @auth_obj = nil
       @last_access_set = false
+      @headers.clear
     end
 
     # @return [nil,Object]
@@ -165,6 +176,13 @@ class Suma::Yosoy
 
     def unauthenticated!(**kw)
       self.throw!(:unauthenticated, **kw)
+    end
+
+    attr_reader :headers
+
+    # Set the headers included in an error response.
+    def set_header(h, v)
+      @headers[h] = v
     end
 
     def throw!(reason, **kw)

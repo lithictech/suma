@@ -88,8 +88,8 @@ module Suma::Service::Helpers
     yosoy.set_authenticated_object(session)
   end
 
-  def unauthenticated!
-    yosoy.unauthenticated!
+  def unauthenticated!(**kw)
+    yosoy.unauthenticated!(**kw)
   end
 
   def check_role_access!(member, rw, key)

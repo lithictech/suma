@@ -96,6 +96,18 @@ RSpec.describe Suma::Yosoy do
     )
   end
 
+  it "can set headers" do
+    mw = create_mw do |env|
+      yosoy = env.fetch("yosoytest")
+      yosoy.set_header("x", "y")
+      throw(:yosoytest)
+    end
+
+    st, h, _b = mw.call(req)
+    expect(st).to eq(401)
+    expect(h).to include("x" => "y")
+  end
+
   it "can use an explicit throw with a symbol" do
     mw = create_mw do |*|
       throw(:yosoytest, :custom_reason)
