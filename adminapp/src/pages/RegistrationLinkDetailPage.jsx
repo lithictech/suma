@@ -21,7 +21,9 @@ export default function RegistrationLinkDetailPage() {
         { label: "Organization", value: <AdminLink model={model.organization} /> },
         { label: "Intro EN", value: model.intro.en },
         { label: "Intro ES", value: model.intro.es },
-        { label: "ICal Event", value: model.icalEvent },
+        { label: "Event Start", value: formatDate(model.icalDtstart) },
+        { label: "Event End", value: formatDate(model.icalDtend) },
+        { label: "RRULE", value: model.icalRrule },
         { label: "Currently Open", value: model.currentlyWithinSchedule },
         {
           label: "Durable URL",
@@ -41,6 +43,13 @@ export default function RegistrationLinkDetailPage() {
       ]}
     >
       {(model) => [
+        <RelatedList
+          title="Upcoming Availabilities"
+          rows={model.scheduledAvailabilities}
+          headers={["Start", "End"]}
+          keyRowAttr="startTime"
+          toCells={(row) => [formatDate(row.startTime), formatDate(row.endTime)]}
+        />,
         <RelatedList
           title="Memberships"
           rows={model.memberships}

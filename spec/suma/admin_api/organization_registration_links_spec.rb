@@ -71,7 +71,7 @@ RSpec.describe Suma::AdminAPI::OrganizationRegistrationLinks, :db do
       expect(org.audit_activities).to contain_exactly(
         have_attributes(
           # rubocop:disable Layout/LineLength
-          summary: "z@mysuma.org performed reglink on Suma::Organization[#{org.id}] 'Z': RegistrationLink #{link.id}, ical_event=",
+          summary: "z@mysuma.org performed createreglink on Suma::Organization[#{org.id}] 'Z': RegistrationLink #{link.id}, ical_event=",
           # rubocop:enable Layout/LineLength
         ),
       )
@@ -81,11 +81,11 @@ RSpec.describe Suma::AdminAPI::OrganizationRegistrationLinks, :db do
   describe "POST /v1/organization_registration_links/:id" do
     it "can update the vevent" do
       link = Suma::Fixtures.registration_link.create
-      ical_event = "DTSTART:20250418T000000Z\nDTEND:20250418T010000Z\n"
-      post("/v1/organization_registration_links/#{link.id}", ical_event:)
+
+      post "/v1/organization_registration_links/#{link.id}", ical_dtstart: "20250418T000000Z"
 
       expect(last_response).to have_status(200)
-      expect(link.refresh).to have_attributes(ical_event: "BEGIN:VEVENT\n#{ical_event}END:VEVENT\n")
+      expect(link.refresh).to have_attributes(ical_dtstart: match_time("20250418T000000Z"))
     end
   end
 

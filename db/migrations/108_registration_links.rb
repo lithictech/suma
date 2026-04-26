@@ -12,7 +12,9 @@ Sequel.migration do
       foreign_key :intro_id, :translated_texts, null: false
 
       text :opaque_id, null: false, unique: true
-      text :ical_event, null: false, default: ""
+      timestamptz :ical_dtstart
+      timestamptz :ical_dtend
+      text :ical_rrule, null: false, default: ""
 
       column :search_content, :text
       column :search_embedding, "vector(384)"

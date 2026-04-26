@@ -5,6 +5,11 @@ require "suma/admin_api"
 class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
+  class ScheduledAvailabilityEntity < BaseEntity
+    expose :start_time
+    expose :end_time
+  end
+
   class DetailedOrganizationRegistrationLinkEntity < OrganizationRegistrationLinkEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -16,6 +21,8 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
     expose :durable_url_qr_code_data_url, as: :durable_url_qr_code
     expose :intro, with: TranslatedTextEntity
     expose :memberships, with: OrganizationMembershipEntity
+
+    expose :scheduled_availabilities, with: ScheduledAvailabilityEntity
   end
 
   resource :organization_registration_links do
@@ -37,13 +44,15 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
       DetailedOrganizationRegistrationLinkEntity,
       around: lambda do |_rt, m, &block|
         block.call
-        m.organization.audit_activity("reglink", action: "#{m.admin_label}, ical_event=#{m.ical_event}")
+        m.organization.audit_activity("createreglink", action: "#{m.admin_label}, ical_event=#{m.ical_vevent}")
       end,
     ) do
       params do
         requires(:organization, type: JSON) { use :model_with_id }
         requires(:intro, type: JSON) { use :translated_text }
-        optional :ical_event, type: String
+        optional :ical_dtstart, type: Time
+        optional :ical_dtend, type: Time
+        optional :ical_rrule, type: String
       end
     end
 
@@ -53,13 +62,15 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
       DetailedOrganizationRegistrationLinkEntity,
       around: lambda do |rt, m, &block|
         block.call
-        m.organization.audit_activity("changeregcode", action: "ical_event=#{m.ical_event}") if
-          rt.params.key?(:ical_event)
+        m.organization.audit_activity("changereglink", action: "ical_event=#{m.ical_vevent}") if
+          rt.params.keys.any? { |k| k.to_s.start_with?("ical_") }
       end,
     ) do
       params do
         optional(:intro, type: JSON) { use :translated_text }
-        optional :ical_event, type: String
+        optional :ical_dtstart, type: Time
+        optional :ical_dtend, type: Time
+        optional :ical_rrule, type: String
       end
     end
 
@@ -69,7 +80,7 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
       DetailedOrganizationRegistrationLinkEntity,
       around: lambda do |_rt, m, &block|
         block.call
-        m.organization.audit_activity("deleteregcode", action: m)
+        m.organization.audit_activity("deletereglink", action: m)
       end,
     )
   end

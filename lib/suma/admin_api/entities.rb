@@ -475,7 +475,9 @@ module Suma::AdminAPI::Entities
 
     expose :organization, with: OrganizationEntity
     expose :opaque_id
-    expose :ical_event
+    expose :ical_dtstart
+    expose :ical_dtend
+    expose :ical_rrule
   end
 
   class ChargeLineItemEntity < BaseEntity

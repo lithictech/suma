@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "icalendar"
+require "icalendar/recurrence"
 require "rqrcode"
 
 require "suma/admin_linked"
@@ -95,6 +96,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
       code = h.symbolize_keys[ONE_TIME_CODE_PARAM.to_sym]
       return nil unless code
       link = self.lookup_from_code(code, at:)
+      return nil if link.nil?
       return AndCode.new(link, code)
     end
   end
@@ -133,67 +135,59 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
     return Suma.api_url + "/v1/registration_links/capture?#{ONE_TIME_CODE_PARAM}=#{code}"
   end
 
+  # Return true if any of the ical fields are set,
+  # which indicates we should evaluate using the schedule.
+  def use_schedule? = self.ical_dtstart || self.ical_dtend || self.ical_rrule.present?
+
+  # Return a VEVENT string including fields which are set.
+  # If tags is true, include BEGIN/END tags.
+  def ical_vevent(tags: false)
+    return [
+      tags ? "BEGIN:VEVENT" : nil,
+      self.ical_dtstart ? "DTSTART:#{self._icaltime(self.ical_dtstart)}" : nil,
+      self.ical_dtend ? "DTEND:#{self._icaltime(self.ical_dtend)}" : nil,
+      self.ical_rrule.present? ? "RRULE:#{self.ical_rrule}" : nil,
+      tags ? "END:VEVENT" : nil,
+    ].compact.join("\n")
+  end
+
+  def _icaltime(t) = t.utc.strftime("%Y%m%dT%H%M%SZ")
+
+  # Return whether the given time is within the receiver's schedule.
+  # If not using a schedule, return true.
+  # If any schedule fields are set (ical start, end, rrule),
+  # but not enough to process a schedule (start and end),
+  # return false.
+  # If the rrule is invalid, return false.
+  # Otherwise return true if 'at' is during an occurrence.
   def within_schedule?(at)
-    vevent = self.ical_event
-    return true if vevent.blank?
-    raise Suma::InvariantViolation, "RegistrationLink.ical_event must begin with BEGIN:VEVENT, got #{vevent}" unless
-      vevent.start_with?("BEGIN:VEVENT")
-    calendar = self._parse_vevent_str(vevent)
-    event = calendar.events.first
-    Suma.assert { calendar.events.length === 1 }
-    start_time = event.dtstart&.to_time&.utc
-    end_time = event.dtend&.to_time&.utc
-    return false if start_time.nil? || end_time.nil?
+    return true unless self.use_schedule?
     check = at.utc
-    return check >= start_time && check < end_time
+    window = (check - 48.hours)..(check + 48.hours)
+    avails = self.scheduled_availabilities(window:)
+    ok = avails.any? do |occurrence|
+      occurrence.start_time <= check && check < occurrence.end_time
+    end
+    return ok
   end
 
-  def _parse_vevent_str(vevent)
-    raise Suma::InvariantViolation, "ical_event must begin with BEGIN:VEVENT, got #{vevent}" unless
-      vevent.start_with?("BEGIN:VEVENT")
-    vevent = "BEGIN:VCALENDAR\nVERSION:2.0\n#{vevent}\nEND:VCALENDAR\n"
-    p = Icalendar::Parser.new(vevent, true)
+  # If using an ical event, return the available events during the window.
+  # If not, return empty.
+  # If RRULE is used and invalid, return empty.
+  # @return [Array<Icalendar::Event>]
+  def scheduled_availabilities(window: Time.now..1.month.from_now)
+    return [] if self.ical_dtstart.nil? || self.ical_dtend.nil?
+    event = Icalendar::Event.new
+    event.dtstart = Icalendar::Values::DateTime.new(self.ical_dtstart)
+    event.dtend = Icalendar::Values::DateTime.new(self.ical_dtend)
+    event.rrule = Icalendar::Values::Recur.new(self.ical_rrule) if self.ical_rrule.present?
     begin
-      c = p.parse
-    rescue Icalendar::Parser::ParseError
-      return nil
+      result = event.occurrences_between(window.first, window.last)
+    rescue ArgumentError => e
+      return [] if e.to_s.include?("Invalid iCal rule component")
+      raise e
     end
-    return c.first
-  end
-
-  # Set the ical event string.
-  # We handle a bunch of heuristics to just extract the first VEVENT of a string.
-  def ical_event=(s)
-    s = s.strip
-    if s.blank?
-      self[:ical_event] = s
-      return
-    end
-    if (calstart = _find_end(s, "BEGIN:VCALENDAR\n"))
-      s.slice!(0, calstart)
-    end
-    if (calend = s.index("END:VCALENDAR"))
-      s.slice!(calend, s.length)
-    end
-    if (evstart = _find_end(s, "BEGIN:VEVENT\n"))
-      s.slice!(0, evstart)
-    end
-    if (evend = s.index("END:VEVENT"))
-      s.slice!(evend, s.length)
-    end
-    s.strip!
-    if s.blank?
-      self[:ical_event] = s
-      return
-    end
-    s.prepend("BEGIN:VEVENT\n")
-    s << "\nEND:VEVENT\n"
-    self[:ical_event] = s
-  end
-
-  def _find_end(s, substr)
-    i = s.index(substr)
-    return i && (i + substr.length)
+    return result
   end
 
   # Ensure the member has a verified membership.
@@ -234,11 +228,5 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
     return [
       :organization,
     ]
-  end
-
-  def validate
-    super
-    errors.add(:ical_event, "not a valid VEVENT: #{self.ical_event}") if
-      self.ical_event.present? && self._parse_vevent_str(self.ical_event).nil?
   end
 end

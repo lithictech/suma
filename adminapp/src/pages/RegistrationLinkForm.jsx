@@ -2,7 +2,10 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import MultiLingualText from "../components/MultiLingualText";
-import { FormLabel, Stack, TextField } from "@mui/material";
+import SafeDateTimePicker from "../components/SafeDateTimePicker";
+import { dayjs, formatOrNull } from "../modules/dayConfig";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
+import { FormHelperText, FormLabel, Stack, TextField } from "@mui/material";
 import React from "react";
 
 export default function RegistrationLinkForm({
@@ -37,7 +40,7 @@ export default function RegistrationLinkForm({
           onValueSelect={(org) => setField("organization", org)}
           onTextChange={() => clearField("organization")}
         />
-        <FormLabel>Intro:</FormLabel>
+        <FormLabel>Intro</FormLabel>
         <Stack spacing={2}>
           <MultiLingualText
             {...register("intro")}
@@ -49,15 +52,64 @@ export default function RegistrationLinkForm({
             onChange={(v) => setField("intro", v)}
           />
         </Stack>
-        <FormLabel>Schedule:</FormLabel>
+        <FormLabel>Schedule</FormLabel>
+        <FormHelperText>
+          If a link has a schedule, it can only be used during times the schedule is
+          active. The schedule is just like a calendar meeting; during the "meeting" the
+          link can be used.
+        </FormHelperText>
+        <FormHelperText>
+          Choose the begin and end times of the "meeting". If the meeting is recurring,
+          build an RRULE (recurrence rule) using{" "}
+          <SafeExternalLink href="https://icalendar.org/rrule-tool.html">
+            https://icalendar.org/rrule-tool.html
+          </SafeExternalLink>
+          , then copy the RRULE into the text box below.
+        </FormHelperText>
+        <FormHelperText>
+          Registration links without restrictions are always open.
+        </FormHelperText>
+        <SafeDateTimePicker
+          label="Event Start"
+          value={resource.icalDtstart || null}
+          onChange={(v) => setField("icalDtstart", formatOrNull(v))}
+        />
+        <SafeDateTimePicker
+          label="Event End"
+          value={resource.icalDtend || null}
+          onChange={(v) => setField("icalDtend", formatOrNull(v))}
+        />
         <TextField
-          {...register("icalEvent")}
-          label="ICal Event"
-          name="icalEvent"
-          value={resource.icalEvent}
+          {...register("icalRrule")}
+          label="RRULE"
+          name="icalRrule"
+          value={resource.icalRrule}
           fullWidth
+          helperText={
+            <>
+              Use{" "}
+              <SafeExternalLink href="https://icalendar.org/rrule-tool.html">
+                https://icalendar.org/rrule-tool.html
+              </SafeExternalLink>{" "}
+              to create an RRULE and then paste it here.
+            </>
+          }
           onChange={setFieldFromInput}
         />
+        <div>
+          Output:
+          <br />
+          <code>
+            DTSTART:
+            {resource.icalDtstart &&
+              dayjs(resource.icalDtstart).format("YYYYMMDDHHmmss[Z]")}
+            <br />
+            DTEND:
+            {resource.icalDtend && dayjs(resource.icalDtend).format("YYYYMMDDHHmmss[Z]")}
+            <br />
+            RRULE:{resource.icalRrule}
+          </code>
+        </div>
       </Stack>
     </FormLayout>
   );

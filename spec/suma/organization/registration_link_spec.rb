@@ -68,13 +68,11 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
 
     describe "when an ical vevent is set" do
       it "returns nil if the given time does does not match the rrule" do
-        link = Suma::Fixtures.registration_link.create(ical_event: <<~ICAL)
-          BEGIN:VEVENT
-          DTSTART:20250418T120000Z
-          DTEND:20250418T130000Z
-          RRULE:COUNT=5;INTERVAL=1;FREQ=DAILY
-          END:VEVENT
-        ICAL
+        link = Suma::Fixtures.registration_link.create(
+          ical_dtstart: Time.parse("20250418T120000Z"),
+          ical_dtend: Time.parse("20250418T130000Z"),
+          ical_rrule: "COUNT=5;INTERVAL=1;FREQ=DAILY",
+        )
         code = link.make_one_time_code
         Timecop.freeze("20250418T120001Z") do
           expect(described_class.lookup_from_code(code, at: Time.now)).to be === link
@@ -91,95 +89,75 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
 
   describe "within_schedule" do
     it "handles times" do
-      link = Suma::Fixtures.registration_link(ical_event: <<~ICAL).instance
-        BEGIN:VEVENT
-        DTSTART:20250418T120000Z
-        DTEND:20250418T130000Z
-        RRULE:COUNT=5;INTERVAL=1;FREQ=DAILY
-        END:VEVENT
-      ICAL
-      expect(link.within_schedule?(Time.parse("20250418T120001Z"))).to be(true)
-      expect(link.within_schedule?(Time.parse("20260418T120001Z"))).to be(false) # next year, already past occurren
-      expect(link.within_schedule?(Time.parse("20250418T140001Z"))).to be(false) # outside the time window (2).to
+      link = Suma::Fixtures.registration_link(
+        ical_dtstart: Time.parse("20250418T120000Z"),
+        ical_dtend: Time.parse("20250418T130000Z"),
+        ical_rrule: "COUNT=5;INTERVAL=1;FREQ=DAILY",
+      ).instance
+      expect(link.within_schedule?(Time.parse("20250418T120000Z"))).to be(true)
+      expect(link.within_schedule?(Time.parse("20250419T120001Z"))).to be(true) # next day
+      expect(link.within_schedule?(Time.parse("20260418T120001Z"))).to be(false) # next year, is past COUNT
+      expect(link.within_schedule?(Time.parse("20250418T140001Z"))).to be(false) # after DTEND
     end
 
-    it "handles dates" do
-      link = Suma::Fixtures.registration_link(ical_event: <<~ICAL).instance
-        BEGIN:VEVENT
-        DTSTART;VALUE=DATE:20250418
-        DTEND;VALUE=DATE:20250419
-        RRULE:COUNT=5;INTERVAL=1;FREQ=WEEKLY
-        END:VEVENT
-      ICAL
-      expect(link.within_schedule?(Time.parse("20250418T120001Z"))).to be(true)
-      expect(link.within_schedule?(Time.parse("20250419T120001Z"))).to be(false)
-    end
-
-    it "treats events missing start or end as closed" do
-      link = Suma::Fixtures.registration_link(ical_event: <<~ICAL).instance
-        BEGIN:VEVENT
-        DTSTART;VALUE=DATE:20250418
-        RRULE:COUNT=5;INTERVAL=1;FREQ=WEEKLY
-        END:VEVENT
-      ICAL
+    it "treats missing start or end as closed" do
+      link = Suma::Fixtures.registration_link.instance
+      link.ical_dtstart = Time.parse("20250418T120000Z")
       expect(link.within_schedule?(Time.parse("20250418T120001Z"))).to be(false)
+      link.ical_dtstart = nil
+      link.ical_dtend = Time.parse("20250418T130000Z")
+    end
+
+    it "treats invalid RRULE as closed" do
+      link = Suma::Fixtures.registration_link(
+        ical_dtstart: Time.parse("20250418T120000Z"),
+        ical_dtend: Time.parse("20250418T130000Z"),
+        ical_rrule: "X",
+      ).instance
+      expect(link.within_schedule?(Time.parse("20250418T120000Z"))).to be(false)
+    end
+
+    it "works without an rrule" do
+      link = Suma::Fixtures.registration_link(
+        ical_dtstart: Time.parse("20250418T120000Z"),
+        ical_dtend: Time.parse("20250418T130000Z"),
+      ).instance
+      expect(link.within_schedule?(Time.parse("20250418T120001Z"))).to be(true)
+      expect(link.within_schedule?(Time.parse("20250419T120001Z"))).to be(false) # next day
     end
   end
 
-  describe "setting the ical_event" do
-    it "allows empty values" do
-      link = Suma::Fixtures.registration_link(ical_event: " ").instance
-      expect(link).to have_attributes(ical_event: "")
-    end
-
-    it "keeps only the first vevent (removes calendar preamble or other events)" do
-      link = Suma::Fixtures.registration_link(ical_event: <<~ICAL).instance
-        BEGIN:VCALENDAR
-        VERSION:2.0
-        BEGIN:VEVENT
-        DTSTART:20250418
-        END:VEVENT
-        BEGIN:VEVENT
-        DTSTART:20150418
-        END:VEVENT
-        END:VCALENDAR
-      ICAL
-      expect(link).to have_attributes(ical_event: <<~ICAL)
-        BEGIN:VEVENT
-        DTSTART:20250418
-        END:VEVENT
-      ICAL
-    end
-
-    it "adds BEGIN and END tags if not present" do
-      link = Suma::Fixtures.registration_link(ical_event: <<~ICAL).instance
-        DTSTART:20250418
-      ICAL
-      expect(link).to have_attributes(ical_event: <<~ICAL)
-        BEGIN:VEVENT
-        DTSTART:20250418
-        END:VEVENT
-      ICAL
-    end
-
-    it "uses blank if no events" do
-      link = Suma::Fixtures.registration_link(ical_event: <<~ICAL).instance
-        BEGIN:VCALENDAR
-        END:VCALENDAR
-      ICAL
-      expect(link).to have_attributes(ical_event: "")
-    end
-
-    it "errors if the schedule cannot be parsed" do
+  describe "ical fields" do
+    it "allows mixing and matching of fields to be set and not set" do
       link = Suma::Fixtures.registration_link.create
-      expect do
-        link.update(ical_event: <<~ICAL)
-          ical_event = <<~ICAL
-            BEGIN:VEVENT
-            XY
-            END:VEVENT
-        ICAL
-      end.to raise_error(Sequel::ValidationFailed, /ical_event not a valid VEVENT/)
+      expect { link.update(ical_dtstart: Time.now, ical_dtend: nil, ical_rrule: "") }.to_not raise_error
+      expect { link.update(ical_dtstart: nil, ical_dtend: Time.now, ical_rrule: "") }.to_not raise_error
+      expect { link.update(ical_dtstart: nil, ical_dtend: nil, ical_rrule: "COUNT=5") }.to_not raise_error
+      expect { link.update(ical_dtstart: Time.now, ical_dtend: Time.now, ical_rrule: "COUNT=5") }.to_not raise_error
+    end
+
+    it "ignores an invalid rrule" do
+      link = Suma::Fixtures.registration_link.create
+      link.update(ical_rrule: "XY")
+      expect(link.within_schedule?(Time.parse("20250419T120001Z"))).to be(false)
+    end
+
+    it "can assemble an entire event" do
+      link = Suma::Fixtures.registration_link.instance
+      expect(link.ical_vevent(tags: true)).to eq(<<~VEVENT.strip)
+        BEGIN:VEVENT
+        END:VEVENT
+      VEVENT
+      link.set(
+        ical_dtstart: Time.parse("20250418T120000Z"),
+        ical_dtend: Time.parse("20250418T130000Z"),
+        ical_rrule: "COUNT=5;INTERVAL=1;FREQ=DAILY",
+      )
+      expect(link.ical_vevent(tags: false)).to eq(<<~VEVENT.strip)
+        DTSTART:20250418T120000Z
+        DTEND:20250418T130000Z
+        RRULE:COUNT=5;INTERVAL=1;FREQ=DAILY
+      VEVENT
     end
   end
 
@@ -193,6 +171,11 @@ RSpec.describe "Suma::Organization::RegistrationLink", :db do
 
     it "is nil if there is no param" do
       expect(described_class.from_params({}, at: Time.now)).to be_nil
+    end
+
+    it "is nil if the code does not map to a link" do
+      andcode = described_class.from_params({"suma_regcode" => "x"}, at: Time.now)
+      expect(andcode).to be_nil
     end
   end
 
