@@ -53,4 +53,10 @@ RSpec.describe Rack::UtmCapture do
     mw = described_class.new(app)
     expect(mw.call(Rack::MockRequest.env_for("/a"))).to eq([200, {}, []])
   end
+
+  it "does not add the header if there are no utm params (POST)" do
+    app = ->(_env) { [200, {}, []] }
+    mw = described_class.new(app)
+    expect(mw.call(Rack::MockRequest.env_for("/a"))).to eq([200, {}, []])
+  end
 end

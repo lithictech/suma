@@ -18,9 +18,16 @@ class Rack::UtmCapture
   ].freeze
 
   COOKIE_EXPIRES = 30.days.to_i
+  DEFAULT_OPTS = {
+    params: UTM_KEYS,
+    expires: COOKIE_EXPIRES,
+  }.freeze
 
-  def initialize(app)
+  def initialize(app, opts={})
+    opts = DEFAULT_OPTS.merge(opts)
     @app = app
+    @capture_params = opts.fetch(:params).map(&:to_s)
+    @expires = opts.fetch(:expires)
   end
 
   def call(env)
@@ -38,9 +45,11 @@ class Rack::UtmCapture
   end
 
   private def extract_utm_params(req)
-    return UTM_KEYS.each_with_object({}) do |key, acc|
+    return @capture_params.each_with_object({}) do |key, acc|
       acc[key] = req.params[key] if req.params[key]
     end
+  rescue Rack::Multipart::EmptyContentError
+    nil
   end
 
   # Build Set-Cookie headers (but avoid overwriting existing cookie if not needed)
@@ -52,7 +61,7 @@ class Rack::UtmCapture
       next if existing_cookies[key] == value
 
       cookie_value = Rack::Utils.escape(value)
-      expires = Time.now + COOKIE_EXPIRES
+      expires = Time.now + @expires
 
       "#{key}=#{cookie_value}; path=/; expires=#{expires.httpdate}; SameSite=Lax"
     end
