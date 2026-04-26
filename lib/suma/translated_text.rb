@@ -96,6 +96,7 @@ end
 #  i18n_static_strings                   | i18n_static_strings_text_id_fkey                                | (text_id) REFERENCES translated_texts(id) ON DELETE CASCADE
 #  images                                | images_caption_id_fkey                                          | (caption_id) REFERENCES translated_texts(id)
 #  marketing_sms_broadcasts              | marketing_sms_broadcasts_body_id_fkey                           | (body_id) REFERENCES translated_texts(id)
+#  organization_registration_links       | organization_registration_links_intro_id_fkey                   | (intro_id) REFERENCES translated_texts(id)
 #  organizations                         | organizations_membership_verification_member_outreach_temp_fkey | (membership_verification_member_outreach_template_id) REFERENCES translated_texts(id)
 #  payment_book_transactions             | payment_book_transactions_memo_id_fkey                          | (memo_id) REFERENCES translated_texts(id)
 #  payment_funding_transactions          | payment_funding_transactions_memo_id_fkey                       | (memo_id) REFERENCES translated_texts(id)
