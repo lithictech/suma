@@ -45,16 +45,16 @@ module Suma::Webhookdb
     end
 
     def each(dataset, &)
-      last_synced_pk = Suma::Redis.cache.with { |c| c.call("GET", @pk_key) }.to_i
+      last_synced_pk = Suma::Redis.durable.with { |c| c.call("GET", @pk_key) }.to_i
       rows = dataset.order(:pk).where { pk > last_synced_pk }.all
       return 0 if rows.empty?
       rows.each(&)
-      Suma::Redis.cache.with { |c| c.call("SET", @pk_key, rows.last.fetch(:pk).to_s) }
+      Suma::Redis.durable.with { |c| c.call("SET", @pk_key, rows.last.fetch(:pk).to_s) }
       return rows.size
     end
 
     def reset
-      Suma::Redis.cache.with { |c| c.call("DEL", @pk_key) }
+      Suma::Redis.durable.with { |c| c.call("DEL", @pk_key) }
     end
   end
 end
