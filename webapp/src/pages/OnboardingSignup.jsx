@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function OnboardingSignup() {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { setUser, registrationSession } = useUser();
   const {
     register,
     handleSubmit,
@@ -36,7 +36,9 @@ export default function OnboardingSignup() {
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
-  const [organizationName, setOrganizationName] = React.useState("");
+  const [organizationName, setOrganizationName] = React.useState(
+    registrationSession?.organizationName || ""
+  );
   const handleFormSubmit = () => {
     api
       .updateMe({
@@ -168,14 +170,21 @@ export default function OnboardingSignup() {
             onChange={handleZipChange}
           />
         </Row>
-        <OrganizationInputDropdown
-          organizationName={organizationName}
-          onOrganizationNameChange={(name) =>
-            runSetter("organizationName", setOrganizationName, name)
-          }
-          register={register}
-          errors={errors}
-        />
+        {registrationSession?.organizationName ? (
+          <div>
+            {t("onboarding.partner_registration")}:{" "}
+            {registrationSession?.organizationName}
+          </div>
+        ) : (
+          <OrganizationInputDropdown
+            organizationName={organizationName}
+            onOrganizationNameChange={(name) =>
+              runSetter("organizationName", setOrganizationName, name)
+            }
+            register={register}
+            errors={errors}
+          />
+        )}
         <FormError error={error} />
         <FormButtons
           variant="outline-primary"

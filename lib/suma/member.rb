@@ -564,6 +564,7 @@ require "suma/member/stripe_attributes"
 #  organization_memberships                        | organization_memberships_member_id_fkey                       | (member_id) REFERENCES members(id)
 #  organization_membership_verification_audit_logs | organization_membership_verification_audit_logs_actor_id_fkey | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  organization_membership_verifications           | organization_membership_verifications_owner_id_fkey           | (owner_id) REFERENCES members(id) ON DELETE SET NULL
+#  organization_registration_links                 | organization_registration_links_created_by_id_fkey            | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_accounts                                | payment_accounts_member_id_fkey                               | (member_id) REFERENCES members(id)
 #  payment_book_transactions                       | payment_book_transactions_actor_id_fkey                       | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_funding_transaction_audit_logs          | payment_funding_transaction_audit_logs_actor_id_fkey          | (actor_id) REFERENCES members(id) ON DELETE SET NULL

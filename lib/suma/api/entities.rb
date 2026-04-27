@@ -98,6 +98,17 @@ module Suma::API::Entities
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
+  class RegistrationLinkEntity < BaseEntity
+    expose :organization_name, &self.delegate_to(:organization, :name)
+    expose_translated :intro
+
+    def self.link_and_code_from_env(env)
+      at = env.fetch("now")
+      cookies = env.fetch("rack.request.cookie_hash")
+      return Suma::Organization::RegistrationLink.and_code_from_params(cookies, at:)
+    end
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
     expose :ongoing_trip, with: MobilityTripEntity
@@ -116,6 +127,9 @@ module Suma::API::Entities
     end
     expose :finished_survey_topics do |m|
       m.db[:member_surveys].where(member_id: m.id).select_map(:topic).sort
+    end
+    expose :registration_link, with: RegistrationLinkEntity do |_|
+      RegistrationLinkEntity.link_and_code_from_env(self.options.fetch(:env))&.link
     end
   end
 

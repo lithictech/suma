@@ -2,6 +2,7 @@ import useRoleAccess from "./useRoleAccess";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AddBusinessIcon from "@mui/icons-material/AddBusiness";
+import AddLinkIcon from "@mui/icons-material/AddLink";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import BikeScooterIcon from "@mui/icons-material/BikeScooter";
@@ -77,6 +78,11 @@ export default function useNavLinks() {
             label: "Membership Verifications",
             href: "/membership-verifications",
             icon: <PersonSearchIcon />,
+          },
+          members && {
+            label: "Registration Links",
+            href: "/registration-links",
+            icon: <AddLinkIcon />,
           },
         ].filter(Boolean),
       },

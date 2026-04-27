@@ -36,6 +36,7 @@ import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
 import OrderHistoryDetail from "./pages/OrderHistoryDetail";
 import OrderHistoryList from "./pages/OrderHistoryList";
+import PartnerSignup from "./pages/PartnerSignup.jsx";
 import PreferencesAuthed from "./pages/PreferencesAuthed";
 import PreferencesPublic from "./pages/PreferencesPublic";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -188,6 +189,15 @@ function AppRoutes() {
             withMetatags({ title: t("titles.otp") }),
             withPageLayout({ gutters: true, top: true }),
             OneTimePassword
+          )}
+        />
+        <Route
+          path="/partner-signup"
+          exact
+          element={renderWithHocs(
+            withMetatags({ title: t("titles.partner_signup") }),
+            withPageLayout({ gutters: true, top: true }),
+            PartnerSignup
           )}
         />
         <Route

@@ -15,6 +15,7 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   many_to_one :verified_organization, class: "Suma::Organization"
   many_to_one :former_organization, class: "Suma::Organization"
   many_to_one :member, class: "Suma::Member"
+  many_to_one :registration_link, class: "Suma::Organization::RegistrationLink", key: :registration_link_id
   one_to_one :verification, class: "Suma::Organization::Membership::Verification"
 
   class << self
@@ -120,11 +121,13 @@ end
 #  search_hash                  | text                     |
 #  former_organization_id       | integer                  |
 #  formerly_in_organization_at  | timestamp with time zone |
+#  registration_link_id         | integer                  |
 # Indexes:
 #  organization_memberships_pkey                           | PRIMARY KEY btree (id)
 #  unique_member_membership_in_verified_organization       | UNIQUE btree (member_id, verified_organization_id)
 #  organization_memberships_former_organization_id_index   | btree (former_organization_id)
 #  organization_memberships_member_id_index                | btree (member_id)
+#  organization_memberships_registration_link_id_index     | btree (registration_link_id)
 #  organization_memberships_search_content_trigram_index   | gist (search_content)
 #  organization_memberships_search_content_tsvector_index  | gin (to_tsvector('english'::regconfig, search_content))
 #  organization_memberships_verified_organization_id_index | btree (verified_organization_id)
@@ -134,6 +137,7 @@ end
 # Foreign key constraints:
 #  organization_memberships_former_organization_id_fkey   | (former_organization_id) REFERENCES organizations(id)
 #  organization_memberships_member_id_fkey                | (member_id) REFERENCES members(id)
+#  organization_memberships_registration_link_id_fkey     | (registration_link_id) REFERENCES organization_registration_links(id) ON DELETE SET NULL
 #  organization_memberships_verified_organization_id_fkey | (verified_organization_id) REFERENCES organizations(id)
 # Referenced By:
 #  organization_membership_verifications | organization_membership_verifications_membership_id_fkey | (membership_id) REFERENCES organization_memberships(id)
