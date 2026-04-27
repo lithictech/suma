@@ -41,6 +41,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def status
       return :expired if expired?
       return :unverified unless verified?
+      return :deleted if soft_deleted?
       return :ok
     end
 
