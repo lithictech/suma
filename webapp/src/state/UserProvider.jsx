@@ -47,7 +47,8 @@ export default function UserProvider({ children }) {
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
         setUserError(e);
-        setRegLinkFromError(e.response?.data?.error?.registrationLink);
+        const camelErr = humps.camelizeKeys(e.response?.data?.error || {});
+        setRegLinkFromError(camelErr.registrationLink);
       });
   }, [setUser]);
 
