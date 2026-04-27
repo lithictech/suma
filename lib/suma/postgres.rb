@@ -247,10 +247,10 @@ module Suma::Postgres
   end
 
   # Call block immediately if not deferring events; otherwise call it after db commit.
-  def self.defer_after_commit(db, &block)
+  def self.defer_after_commit(db, **kw, &block)
     raise LocalJumpError unless block
     return yield if self.do_not_defer_events?
-    return db.after_commit(&block)
+    return db.after_commit(**kw, &block)
   end
 end
 
