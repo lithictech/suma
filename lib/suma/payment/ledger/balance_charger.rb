@@ -46,21 +46,20 @@ class Suma::Payment::Ledger::BalanceCharger
       ledger.account.lock!
       ledger.refresh
       return nil unless ledger.balance.negative?
-      begin
-        fx = Suma::Payment::FundingTransaction.start_new(
-          ledger.account,
-          amount: -ledger.balance,
-          instrument:,
-          memo: self.memo,
-          collect: :must,
-        )
-        return fx
-      rescue StateMachines::Sequel::FailedTransition, Suma::Payment::FundingTransaction::CollectFundsFailed
-        # We don't care about failures here; we'll try again later.
-        # We can report long-term negative balances separately.
-        return nil
-      end
+      fx = Suma::Payment::FundingTransaction.start_new(
+        ledger.account,
+        amount: -ledger.balance,
+        instrument:,
+        memo: self.memo,
+        collect: :must,
+      )
+      return fx
     end
+  rescue StateMachines::Sequel::FailedTransition, Suma::Payment::FundingTransaction::CollectFundsFailed
+    # Must be OUTSIDE the db transaction.
+    # We don't care about failures here; we'll try again later.
+    # We can report long-term negative balances separately.
+    return nil
   end
 
   def memo = @memo ||= Suma::I18n::StaticString.find_text("backend", "funding_transaction_charge_balance")
