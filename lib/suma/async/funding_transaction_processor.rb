@@ -19,6 +19,6 @@ class Suma::Async::FundingTransactionProcessor
   def collect(tx)
     member = tx.originating_payment_account.member
     tags = {member_id: member&.id, member_name: member&.name, funding_transaction_id: tx.id}
-    self.with_log_tags(tags) { tx.process(:collect_funds, on_failure: :review) }
+    self.with_log_tags(tags) { tx.process(:collect_funds, on_failed: :review) }
   end
 end
