@@ -280,6 +280,64 @@ RSpec.describe "Suma::Postgres::Model", :db do
       )
     end
 
+    describe "when the event is published within a savepointed" do
+      before(:each) do
+        @o = Suma::Postgres::TestingPixie.create
+        @calls = []
+        @subscriber = Amigo.register_subscriber { |*args| @calls << args }
+      end
+
+      after(:each) do
+        Amigo.unregister_subscriber(@subscriber)
+      end
+
+      let(:calls) { @calls }
+      let(:o) { @o }
+      let(:err) { RuntimeError.new }
+
+      it "is published when the outer transaction commits" do
+        o.db.transaction do
+          o.update(name: "a")
+          o.db.transaction(savepoint: true) do
+            o.update(name: "b")
+          end
+          o.update(name: "c")
+        end
+        expect(calls).to have_length(3)
+      end
+
+      it "it does not publish if the savepoint errors and it bubbles past the outer transaction" do
+        expect(calls).to be_empty
+        expect do
+          o.db.transaction do
+            o.update(name: "a")
+            o.db.transaction(savepoint: true) do
+              o.update(name: "b")
+              raise err
+            end
+          end
+        end.to raise_error(err)
+        expect(calls).to be_empty
+      end
+
+      it "does not publish what happens within the savepoint, if it errors but the transaction eventually commits" do
+        o.db.transaction do
+          o.update(name: "a")
+          expect do
+            o.db.transaction(savepoint: true) do
+              o.update(name: "b") # This gets rolled back
+              raise err
+            end
+          end.to raise_error(err)
+          o.db.transaction(savepoint: true) do
+            o.update(name: "c")
+          end
+          o.update(name: "d")
+        end
+        expect(calls).to have_length(3)
+      end
+    end
+
     describe "model_for_event_topic" do
       it "can find the class constant for a topic" do
         cls = Suma::Postgres::TestingPixie

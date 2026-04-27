@@ -56,7 +56,7 @@ module Suma::Postgres::ModelPubsub
 
     # Publish an event in the current db's/transaction's +after_commit+ hook.
     def publish_deferred(type, *payload)
-      Suma::Postgres.defer_after_commit(self.db) do
+      Suma::Postgres.defer_after_commit(self.db, savepoint: true) do
         self.publish_immediate(type, *payload)
       end
     end
