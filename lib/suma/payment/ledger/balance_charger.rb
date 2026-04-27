@@ -12,9 +12,14 @@ class Suma::Payment::Ledger::BalanceCharger
 
   # Find all the unbalanced ledgers in the system
   def find_ledgers
-    unbalanced = Suma::Payment::PlatformStatus.new.unbalanced_ledgers_dataset.all
-    unbalanced.select! { |led| led.balance.negative? }
-    unbalanced.select! { |led| led === led.account.cash_ledger }
+    balance_view = Suma::Payment::Ledger::Balance.
+      dataset.
+      where { balance_cents < Suma::Payment.minimum_cash_balance_grace_cents }
+    unbalanced = Suma::Payment::PlatformStatus.new.
+      unbalanced_ledgers_dataset.
+      cash.
+      where(balance_view:).
+      all
     return unbalanced
   end
 

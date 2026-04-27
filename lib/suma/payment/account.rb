@@ -24,9 +24,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
               order: order_desc,
               read_only: true
   one_to_many :ledgers, class: "Suma::Payment::Ledger", order: order_assoc(:asc)
-  one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
-    ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "cash"))
-  end
+  one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true, &:cash
   many_through_many :all_book_transactions,
                     [
                       [:payment_ledgers, :account_id, :id],

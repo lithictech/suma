@@ -9,7 +9,7 @@ RSpec.describe Suma::Payment::Ledger::BalanceCharger, :db do
   let(:platform_account) { Suma::Payment::Account.lookup_platform_account }
   let(:platform_cash) { platform_account.ensure_cash_ledger }
 
-  it "charges cash ledgers with negative balance", :i18n do
+  it "charges cash ledgers with negative balance", :i18n, reset_configuration: Suma::Payment do
     food = Suma::Fixtures.vendor_service_category.create(name: "food")
 
     platform_food = platform_account.ensure_ledger_with_category(food)
@@ -18,7 +18,8 @@ RSpec.describe Suma::Payment::Ledger::BalanceCharger, :db do
     account2 = Suma::Fixtures.payment_account.create
     account3 = Suma::Fixtures.payment_account.create
     account4 = Suma::Fixtures.payment_account.create
-    [account1, account2, account3, account4].each do |account|
+    account5 = Suma::Fixtures.payment_account.create
+    [account1, account2, account3, account4, account5].each do |account|
       Suma::Fixtures.card.member(account.member).create
     end
 
@@ -26,10 +27,14 @@ RSpec.describe Suma::Payment::Ledger::BalanceCharger, :db do
     negative_cash = account2.ensure_cash_ledger
     zero_cash = account3.ensure_cash_ledger
     negative_food = account4.ensure_ledger_with_category(food)
+    # Skipped due to a balance above the grace threshold
+    Suma::Payment.minimum_cash_balance_grace_cents = -75
+    slightly_negative_cash = account3.ensure_cash_ledger
 
     Suma::Fixtures.book_transaction.from(platform_cash).to(positive_cash).create(amount: money("$5"))
     Suma::Fixtures.book_transaction.from(negative_cash).to(platform_cash).create(amount: money("$50"))
     Suma::Fixtures.book_transaction.from(negative_food).to(platform_food).create(amount: money("$500"))
+    Suma::Fixtures.book_transaction.from(slightly_negative_cash).to(platform_cash).create(amount: money("$0.50"))
 
     Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready) do
       described_class.new.run
