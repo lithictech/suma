@@ -7,7 +7,7 @@ import Button from "react-bootstrap/Button";
 export default function OnboardingFinish() {
   const { user } = useUser();
   return (
-    <>
+    <div className="mt-3">
       {user.onboarded ? (
         <p>{t("onboarding.finish_onboarded")}</p>
       ) : (
@@ -18,6 +18,6 @@ export default function OnboardingFinish() {
           {t("common.okay_ex")}
         </Button>
       </div>
-    </>
+    </div>
   );
 }

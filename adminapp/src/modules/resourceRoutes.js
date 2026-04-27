@@ -5,6 +5,7 @@ const mapping = {
   ledger: "payment-ledger",
   organizationMembership: "membership",
   organizationMembershipVerification: "membership-verification",
+  organizationRegistrationLink: "registration-link",
   memberContact: "anon-member-contact",
 };
 

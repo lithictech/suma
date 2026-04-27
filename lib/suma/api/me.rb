@@ -11,6 +11,16 @@ class Suma::API::Me < Suma::API::V1
   resource :me do
     desc "Return the current member"
     get do
+      member = current_member?
+      if member.nil?
+        # The /me endpoint has special behavior for a 401. If the user is not authenticated,
+        # we need to include registration_link information in the error,
+        # so unauthed users can see the invitation from a link they followed.
+        reglink = Suma::API::Entities::RegistrationLinkEntity.link_and_code_from_env(env)&.link
+        reglink_h = reglink ? Suma::API::Entities::RegistrationLinkEntity.represent(reglink) : nil
+        unauthenticated!(registration_link: reglink_h)
+      end
+
       member = current_member
       if member.sessions_dataset.empty?
         # Add this as a way to backfill sessions for users that last authed before we had them.
@@ -41,6 +51,12 @@ class Suma::API::Me < Suma::API::V1
           save_or_error!(member.legal_entity)
         end
         member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
+
+        if (reglink_and_code = Suma::API::Entities::RegistrationLinkEntity.link_and_code_from_env(env))
+          reglink_and_code.link.ensure_verified_membership(member, code: reglink_and_code.code)
+          member.update(onboarding_verified_at: current_time)
+          member.audit_activity("autoverified", action: reglink_and_code.link)
+        end
       end
       status 200
       present member, with: CurrentMemberEntity, env:

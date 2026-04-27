@@ -29,6 +29,7 @@ require "suma/api/mobility"
 require "suma/api/payment_instruments"
 require "suma/api/payments"
 require "suma/api/preferences"
+require "suma/api/registration_links"
 require "suma/api/support"
 require "suma/api/surveys"
 require "suma/api/system"
@@ -61,6 +62,7 @@ require "suma/admin_api/mobility_trips"
 require "suma/admin_api/organizations"
 require "suma/admin_api/organization_membership_verifications"
 require "suma/admin_api/organization_memberships"
+require "suma/admin_api/organization_registration_links"
 require "suma/admin_api/off_platform_transactions"
 require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
@@ -93,11 +95,19 @@ module Suma::Apps
     mount Suma::API::PaymentInstruments
     mount Suma::API::Payments
     mount Suma::API::Preferences
+    mount Suma::API::RegistrationLinks
     mount Suma::API::Support
     mount Suma::API::Surveys
     mount Suma::API::Webhookdb
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma App API"}) if
       Suma::Service.swagger_enabled
+
+    def self.build_app_pre(builder)
+      builder.use(
+        Rack::UtmCapture,
+        {params: [Suma::Organization::RegistrationLink::ONE_TIME_CODE_PARAM], expires: 1.hour},
+      )
+    end
   end
 
   class AdminAPI < Suma::Service
@@ -128,6 +138,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Organizations
     mount Suma::AdminAPI::OrganizationMemberships
     mount Suma::AdminAPI::OrganizationMembershipVerifications
+    mount Suma::AdminAPI::OrganizationRegistrationLinks
     mount Suma::AdminAPI::OffPlatformTransactions
     mount Suma::AdminAPI::PaymentLedgers
     mount Suma::AdminAPI::PaymentTriggers

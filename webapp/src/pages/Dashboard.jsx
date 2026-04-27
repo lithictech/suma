@@ -73,9 +73,21 @@ export default function Dashboard() {
 }
 
 function TopAlerts({ dashboard }) {
-  const { user } = useUser();
+  const { user, registrationSession } = useUser();
   return (
     <>
+      {registrationSession && (
+        <SeeAlsoAlert
+          alertClass="blinking-alert mb-0"
+          variant="success"
+          label={t("dashboard.partner_signup_available", {
+            organization: registrationSession.organizationName,
+          })}
+          iconClass="bi-person-raised-hand"
+          show
+          to="/partner-signup"
+        />
+      )}
       {user.ongoingTrip && (
         <Alert variant="danger" className="border-radius-0">
           <p>{t("dashboard.check_ongoing_trip")}</p>

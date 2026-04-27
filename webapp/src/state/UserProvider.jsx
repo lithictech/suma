@@ -1,7 +1,8 @@
 import api from "../api";
+import { base64decode } from "../shared/base64";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
-import { withSentry } from "../shared/sentry.js";
+import { withSentry } from "../shared/sentry";
 import humps from "humps";
 import get from "lodash/get";
 import React from "react";
@@ -34,16 +35,20 @@ export default function UserProvider({ children }) {
     setUserError(null);
   }, []);
 
+  // When GET /me 401s, set this value, and use it if the user is unauthed.
+  const [regLinkFromError, setRegLinkFromError] = React.useState(null);
+
   const fetchUser = React.useCallback(() => {
     return api
       .getMe()
-      .then(api.pickData)
-      .then(setUser)
+      .then((r) => setUser(r.data))
       .catch((e) => {
         setUserInner(null);
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
         setUserError(e);
+        const camelErr = humps.camelizeKeys(e.response?.data?.error || {});
+        setRegLinkFromError(camelErr.registrationLink);
       });
   }, [setUser]);
 
@@ -61,11 +66,16 @@ export default function UserProvider({ children }) {
         );
         return;
       }
-      const j = atob(memberBase64);
+      const j = base64decode(memberBase64);
       const member = JSON.parse(j);
       setUser(humps.camelizeKeys(member));
     },
     [setUser]
+  );
+
+  const registrationSession = React.useMemo(
+    () => (user ? user.registrationLink : regLinkFromError),
+    [regLinkFromError, user]
   );
 
   const value = React.useMemo(
@@ -77,8 +87,16 @@ export default function UserProvider({ children }) {
       userAuthed: Boolean(user),
       userUnauthed: !userLoading && !user,
       handleUpdateCurrentMember,
+      registrationSession,
     }),
-    [handleUpdateCurrentMember, setUser, user, userError, userLoading]
+    [
+      handleUpdateCurrentMember,
+      registrationSession,
+      setUser,
+      user,
+      userError,
+      userLoading,
+    ]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

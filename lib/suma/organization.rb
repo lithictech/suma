@@ -76,6 +76,7 @@ end
 #  eligibility_assignments         | eligibility_assignments_organization_id_fkey           | (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 #  organization_memberships        | organization_memberships_former_organization_id_fkey   | (former_organization_id) REFERENCES organizations(id)
 #  organization_memberships        | organization_memberships_verified_organization_id_fkey | (verified_organization_id) REFERENCES organizations(id)
+#  organization_registration_links | organization_registration_links_organization_id_fkey   | (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 #  payment_off_platform_strategies | payment_off_platform_strategies_organization_id_fkey   | (organization_id) REFERENCES organizations(id)
 #  program_enrollments             | program_enrollments_organization_id_fkey               | (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 #  roles_organizations             | roles_organizations_organization_id_fkey               | (organization_id) REFERENCES organizations(id)

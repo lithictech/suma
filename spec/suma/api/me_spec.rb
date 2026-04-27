@@ -22,7 +22,7 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response.headers).to include("Cache-Control" => "no-store")
     end
 
-    it "errors if the member is soft deleted" do
+    it "401s if the member is soft deleted" do
       member.soft_delete
 
       get "/v1/me"
@@ -57,6 +57,43 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(ongoing_trip: include(id: trip.id))
+    end
+
+    describe "returns info about the registration link, which is extracted from cookies" do
+      it "when the user is logged in" do
+        link = Suma::Fixtures.registration_link.create
+        code = link.make_one_time_code
+        rack_mock_session.cookie_jar["suma_regcode"] = code
+
+        get "/v1/me"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(registration_link: include(organization_name: link.organization.name))
+      end
+
+      it "when the user is logged out" do
+        link = Suma::Fixtures.registration_link.create
+        link.intro.update(en: "# hi\n\nworld\n")
+        code = link.make_one_time_code
+        rack_mock_session.cookie_jar["suma_regcode"] = code
+
+        logout
+
+        get "/v1/me"
+
+        expect(last_response).to have_status(401)
+        expect(last_response).to have_json_body.
+          that_includes(
+            error: include(
+              registration_link: include(
+                organization_name: link.organization.name,
+                # Intro is rendered text so has the invisible formatting flag.
+                intro: end_with("# hi\n\nworld\n"),
+              ),
+            ),
+          )
+      end
     end
 
     it "returns other useful information (order history, completed surveys, etc)" do
@@ -125,6 +162,21 @@ RSpec.describe Suma::API::Me, :db do
       expect(member.organization_memberships).to contain_exactly(
         have_attributes(unverified_organization_name: "Hacienda ABC"),
       )
+    end
+
+    it "creates a verified organization if there is a registration link for the code" do
+      member.update(onboarding_verified_at: nil)
+      link = Suma::Fixtures.registration_link.create
+      code = link.make_one_time_code
+      rack_mock_session.cookie_jar["suma_regcode"] = code
+
+      post "/v1/me/update"
+
+      expect(last_response).to have_status(200)
+      expect(member.organization_memberships).to contain_exactly(
+        have_attributes(verified_organization: be === link.organization),
+      )
+      expect(member.refresh).to have_attributes(onboarding_verified_at: match_time(:now))
     end
   end
 

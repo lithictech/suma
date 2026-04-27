@@ -103,15 +103,22 @@ class Suma::Service < Grape::API
     return s
   end
 
-  ### Build the Rack app according to the configured environment.
+  # Build the Rack app according to the configured environment.
+  # Call build_app_pre and build_app_post with the Rack::Builder,
+  # in case the app needs to run additional middleware.
   def self.build_app
     inner_app = self
     builder = Rack::Builder.new do
+      inner_app.build_app_pre(self)
       Suma::Service::Middleware.add_middlewares(self)
+      inner_app.build_app_post(self)
       run inner_app
     end
     return builder.to_app
   end
+
+  def self.build_app_pre(_builder) = nil
+  def self.build_app_post(_builder) = nil
 
   def self.error_body(status, message, code: nil, more: {})
     error = more.merge(
