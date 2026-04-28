@@ -17,6 +17,8 @@ const DEFAULT_SHOW_MORE = 7;
 export default function RelatedList({
   title,
   tableProps,
+  headers,
+  pushLeft,
   rows,
   showMore,
   addNewLabel,
@@ -56,6 +58,9 @@ export default function RelatedList({
   if (showMore === true) {
     showMore = DEFAULT_SHOW_MORE;
   }
+  if (pushLeft === undefined) {
+    pushLeft = headers?.length <= 2;
+  }
   const { canWriteResource } = useRoleAccess();
   const addNew = Boolean(addNewLink || onAddNewClick) && canWriteResource(addNewRole);
   if (isEmpty(rows) && !addNew && !emptyState) {
@@ -88,6 +93,8 @@ export default function RelatedList({
         ) : (
           <SimpleTable
             tableProps={tableProps}
+            headers={headers}
+            pushLeft={pushLeft}
             rows={rows}
             className={className}
             {...rest}

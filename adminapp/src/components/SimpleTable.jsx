@@ -6,6 +6,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { makeStyles } from "@mui/styles";
+import merge from "lodash/merge";
 import React from "react";
 
 /**
@@ -23,6 +24,7 @@ import React from "react";
  * @param {string|function} rowClass
  * @param className
  * @param center Center the table headers.
+ * @param pushLeft If true, push all columns left instead of stretching to fill space.
  * @constructor
  */
 export default function SimpleTable({
@@ -36,6 +38,7 @@ export default function SimpleTable({
   rowClass,
   className,
   center,
+  pushLeft,
 }) {
   const classes = useStyles();
 
@@ -48,20 +51,26 @@ export default function SimpleTable({
     }
     return cells[keyCellIndex || 0];
   }
+  const cellProps = {
+    className: classes.cell,
+    align: center ? "center" : "inherit",
+  };
+  if (pushLeft) {
+    // Add an extra column to the right to fill up space.
+    tableProps = merge({}, tableProps, { sx: { tableLayout: "auto" } });
+    cellProps.sx = { width: "1%", whiteSpace: "nowrap" };
+  }
   const tbl = (
     <TableContainer className={className}>
       <Table {...tableProps}>
         <TableHead>
           <TableRow>
             {headers.map((h) => (
-              <TableCell
-                key={h}
-                className={classes.cell}
-                align={center ? "center" : "inherit"}
-              >
+              <TableCell key={h} {...cellProps}>
                 {h}
               </TableCell>
             ))}
+            {pushLeft && <TableCell />}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -71,14 +80,11 @@ export default function SimpleTable({
             return (
               <TableRow key={key} className={toValue(rowClass, row)}>
                 {cells.map((c, i) => (
-                  <TableCell
-                    key={i}
-                    className={classes.cell}
-                    align={center ? "center" : "inherit"}
-                  >
+                  <TableCell key={i} {...cellProps}>
                     {c}
                   </TableCell>
                 ))}
+                {pushLeft && <TableCell />}
               </TableRow>
             );
           })}
