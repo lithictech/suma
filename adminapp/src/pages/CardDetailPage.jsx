@@ -2,8 +2,11 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ExternalLinks from "../components/ExternalLinks";
 import LegalEntity from "../components/LegalEntity";
+import RelatedList from "../components/RelatedList";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
+import Money from "../shared/react/Money";
 import React from "react";
 
 export default function CardDetailPage() {
@@ -35,6 +38,21 @@ export default function CardDetailPage() {
           <LegalEntity legalEntity={model.legalEntity} />
         </ResourceSummary>,
         <ExternalLinks externalLinks={model.externalLinks} />,
+        <RelatedList
+          title="Funding Transactions"
+          rows={model.originatedFundingTransactions}
+          headers={["Id", "Created", "Status", "Amount", "Originating Account"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            formatDate(row.createdAt),
+            row.status,
+            <Money key="amt">{row.amount}</Money>,
+            <AdminLink model={row.originatingPaymentAccount}>
+              {row.originatingPaymentAccount.displayName}
+            </AdminLink>,
+          ]}
+        />,
       ]}
     </ResourceDetail>
   );

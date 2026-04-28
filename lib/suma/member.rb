@@ -5,6 +5,7 @@ require "bcrypt"
 require "openssl"
 
 require "suma/admin_linked"
+require "suma/external_links"
 require "suma/has_activity_audit"
 require "suma/payment/has_account"
 require "suma/postgres/model"
@@ -16,6 +17,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   include Appydays::Configurable
   include Suma::Payment::HasAccount
   include Suma::AdminLinked
+  include Suma::ExternalLinks
   include Suma::Postgres::HybridSearch
   include Suma::HasActivityAudit
 
@@ -213,6 +215,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def rel_admin_link = "/member/#{self.id}"
+
+  def _external_links_self
+    stripe_customer_id = self.stripe.customer_id || "abcd"
+    return [
+      stripe_customer_id && self._external_link(
+        "Stripe Customer",
+        "#{Suma::Stripe.app_url}/customers/#{stripe_customer_id}",
+      ),
+    ]
+  end
 
   def onboarded?
     return self.name.present? && self.legal_entity.address_id.present?
