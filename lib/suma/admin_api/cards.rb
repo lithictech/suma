@@ -18,6 +18,7 @@ class Suma::AdminAPI::Cards < Suma::AdminAPI::V1
 
     expose :stripe_id
     expose :member, with: MemberEntity
+    expose :originated_funding_transactions, with: FundingTransactionEntity
   end
 
   resource :cards do

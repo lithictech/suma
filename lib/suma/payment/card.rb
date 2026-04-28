@@ -14,6 +14,10 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
   plugin :timestamps
   plugin :soft_deletes
 
+  one_to_many :originated_funding_stripe_card_strategies,
+              key: :originating_card_id,
+              class: "Suma::Payment::FundingTransaction::StripeCardStrategy"
+
   dataset_module do
     def usable_for_funding = self.unexpired_as_of(Time.now)
     def usable_for_payout = self.where(1 => 0)
@@ -58,6 +62,9 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     self.stripe_json = existing.as_json
     @stripe_data = nil
   end
+
+  # Could move this to an association later
+  def originated_funding_transactions = self.originated_funding_stripe_card_strategies.map(&:funding_transaction)
 
   def _external_links_self
     return [

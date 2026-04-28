@@ -5,6 +5,7 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import EligibilityAssignmentsRelatedList from "../components/EligibilityAssignmentsRelatedList";
+import ExternalLinks from "../components/ExternalLinks";
 import InlineEditField from "../components/InlineEditField";
 import OrganizationMembership from "../components/OrganizationMembership";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
@@ -156,6 +157,7 @@ export default function MemberDetailPage() {
               />
             </ResourceSummary>
           ),
+          <ExternalLinks externalLinks={model.externalLinks} />,
           <Notes notes={model.notes} model={model} setModel={setModel} />,
           <OrganizationMemberships
             memberships={model.organizationMemberships}
