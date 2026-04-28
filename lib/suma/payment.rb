@@ -50,7 +50,9 @@ module Suma::Payment
     # we can't charge them through Stripoe, which requires a $0.50 minimum charge.
     #
     # This value is that which can basically be considered "$0" for most purposes;
-    # that is, services are available and their balance is not considered problematic.
+    # It's okay for a cash ledger to be this negative,
+    # since we can't charge ledgers when this or less of a balance
+    # (so ledgers in this zone are that way due to not fault of the user).
     setting :minimum_cash_balance_grace_cents, 0
 
     # When a member creates a funding transaction to add money to their cash ledger,
@@ -93,6 +95,11 @@ module Suma::Payment
     def minimum_cash_balance_for_services = Money.new(self.minimum_cash_balance_for_services_cents)
     def minimum_cash_balance_grace = Money.new(self.minimum_cash_balance_grace_cents)
 
+    # Return true if the (cash) ledger balance amount can be charged;
+    # that is, it is less than the grace amount (see minimum_cash_balance_grace_cents).
+    # @param [Money] amount
+    def chargeable_balance?(amount) = amount < self.minimum_cash_balance_grace
+
     # Return true if +service_usage_prohibited_reason+ is nil.
     def can_use_services?(payment_account, now: Time.now)
       return self.service_usage_prohibited_reason(payment_account, now:).nil?
@@ -114,15 +121,12 @@ module Suma::Payment
       ledger = payment_account.cash_ledger!
       # We're below the minimum, so this is never ok.
       return "usage_prohibited_cash_balance" if ledger.balance < self.minimum_cash_balance_for_services
-      # Consider this the "zero" amount. It's okay to be this negative,
-      # since we can't charge ledgers when this or less of a balance
-      # (so ledgers in this zone are that way due to not fault of the user).
       zero = self.minimum_cash_balance_grace
       # We've above the minimum, and the minimum is zero or higher, so we are okay and do not need
       # to worry about grace period.
       return nil if self.minimum_cash_balance_for_services >= zero
       # The minimum is negative, but our balance is ok, so we don't need to check the grace period.
-      return nil if ledger.balance >= zero
+      return nil unless self.chargeable_balance?(ledger.balance)
       # We have a negative balance that is higher than the minimum.
       # So now we need to see if the ledger has been brought out of the red at any point
       # during the grace period (if it has, the grace period would start over).
