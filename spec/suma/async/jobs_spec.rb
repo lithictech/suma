@@ -628,62 +628,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "PaymentInstrumentChargeBalance" do
-    let!(:member) { Suma::Fixtures.member.with_cash_ledger.create }
-    let!(:bx) { Suma::Fixtures.book_transaction.from(member.payment_account!.cash_ledger!).create(amount: money("$3")) }
-    let!(:ba) { Suma::Fixtures.bank_account.member(member).verified.create }
-
-    around(:each) do |example|
-      valid_ach_processing_time = "2025-09-16T12:00:00-0500"
-      Timecop.freeze(valid_ach_processing_time) do
-        example.run
-      end
-    end
-
-    it "charges a negative cash ledger balance to the updated instrument", :i18n do
-      expect do
-        ba.update(name: "xyz")
-      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
-
-      expect(member.payment_account.originated_funding_transactions).to contain_exactly(
-        have_attributes(status: "created", amount: cost("$3")),
-      )
-    end
-
-    it "noops if the instrument is deleted" do
-      expect do
-        ba.soft_delete
-      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
-
-      expect(member.payment_account.originated_funding_transactions).to be_empty
-    end
-
-    it "noops if a payment instrument is not updated" do
-      expect do
-        Suma::Fixtures.ledger.create
-      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
-      expect(member.payment_account.originated_funding_transactions).to be_empty
-    end
-
-    it "noops if the instrument cannot be used for funding" do
-      ba.update(verified_at: nil)
-      expect do
-        ba.update(name: "xyz")
-      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
-
-      expect(member.payment_account.originated_funding_transactions).to be_empty
-    end
-
-    it "noops if there is not a negative cash balance" do
-      bx.destroy
-      expect do
-        ba.update(name: "xyz")
-      end.to perform_async_job(Suma::Async::PaymentInstrumentChargeBalance)
-
-      expect(member.payment_account.originated_funding_transactions).to be_empty
-    end
-  end
-
   describe "PaymentInstrumentExpiringScheduler" do
     it "enqueues a notifier job for each member with an expiring instrument" do
       Timecop.freeze("2025-09-09T01:00:00Z") do

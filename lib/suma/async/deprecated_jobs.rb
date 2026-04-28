@@ -14,6 +14,7 @@ Amigo::DeprecatedJobs.install(
   "Async::Emailer",
   "Async::EnsureDefaultMemberLedgersOnCreate",
   "Async::MembershipVerifiedVerifyOnboarding",
+  "Async::PaymentInstrumentChargeBalance",
   "Async::UpsertFrontappContact",
   "Async::SyncLimeFreeBikeStatusGbfs",
   "Async::SyncLimeGeofencingZonesGbfs",
