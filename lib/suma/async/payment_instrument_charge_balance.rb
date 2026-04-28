@@ -17,7 +17,7 @@ class Suma::Async::PaymentInstrumentChargeBalance
     return if pi.soft_deleted?
     return unless pi.usable_for_funding?
     balance = pi.member.payment_account!.cash_ledger!.balance
-    return unless balance.negative?
+    return unless Suma::Payment.chargeable_balance?(balance)
     Suma::Payment::FundingTransaction.start_new(
       pi.member.payment_account,
       amount: -balance,

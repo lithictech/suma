@@ -165,9 +165,10 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   def clear_compound_associations
     self.associations.delete(:originating_stats)
     self.associations.delete(:receiving_stats)
+    self.associations.delete(:balance_view)
   end
 
-  def balance = self.total_credits - self.total_debits
+  def balance = self.balance_view.balance
 
   # Return true if this ledger can be used to purchase the given service.
   # This is done by comparing the vendor service categories on each.

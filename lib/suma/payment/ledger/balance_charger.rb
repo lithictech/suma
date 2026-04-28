@@ -50,7 +50,7 @@ class Suma::Payment::Ledger::BalanceCharger
     ledger.db.transaction do
       ledger.account.lock!
       ledger.refresh
-      return nil unless ledger.balance.negative?
+      return nil unless Suma::Payment.chargeable_balance?(ledger.balance)
       fx = Suma::Payment::FundingTransaction.start_new(
         ledger.account,
         amount: -ledger.balance,

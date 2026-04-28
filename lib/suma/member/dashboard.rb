@@ -18,7 +18,7 @@ class Suma::Member::Dashboard
     # has to worry about a ledger.
     return @cash_balance ||= begin
       Suma::Payment.ensure_cash_ledger(@member)
-      @member.payment_account!.cash_ledger!.balance_view.balance
+      @member.payment_account!.cash_ledger!.balance
     end
   end
 
@@ -60,7 +60,7 @@ class Suma::Member::Dashboard
     latest_xaction_at = @member.payment_account.cash_ledger.balance_view.latest_transaction_at
     time_elapsed_to_have_charged_balance = latest_xaction_at &&
       latest_xaction_at < (@at - Suma::Payment.charge_negative_balances_hour_interval.hours)
-    balance_is_problem = cash_balance.negative? && time_elapsed_to_have_charged_balance
+    balance_is_problem = Suma::Payment.chargeable_balance?(cash_balance) && time_elapsed_to_have_charged_balance
     if balance_is_problem && !valid_instruments?
       r << Alert.new("dashboard.negative_cash_balance_no_instrument", "danger")
     elsif balance_is_problem
