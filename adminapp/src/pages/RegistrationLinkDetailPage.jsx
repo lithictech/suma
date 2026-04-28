@@ -17,8 +17,8 @@ export default function RegistrationLinkDetailPage() {
         { label: "ID", value: model.id },
         { label: "Created At", value: formatDate(model.createdAt) },
         { label: "Updated At", value: formatDate(model.updatedAt) },
-        { label: "Created By", value: <AdminLink model={model.createdBy} /> },
-        { label: "Organization", value: <AdminLink model={model.organization} /> },
+        { label: "Created By", value: <AdminLink model={model.createdBy} label /> },
+        { label: "Organization", value: <AdminLink model={model.organization} label /> },
         { label: "Intro EN", value: model.intro.en },
         { label: "Intro ES", value: model.intro.es },
         { label: "Event Start", value: formatDate(model.icalDtstart) },
@@ -56,8 +56,8 @@ export default function RegistrationLinkDetailPage() {
           headers={["Id", "Member"]}
           keyRowAttr="id"
           toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            <AdminLink key="mem" model={row.member} />,
+            <AdminLink key="id" model={row} label />,
+            <AdminLink key="mem" model={row.member} label />,
           ]}
         />,
       ]}
