@@ -125,6 +125,11 @@ module Suma::API::Entities
     expose :has_order_history do |m|
       !m.orders_dataset.empty?
     end
+    expose :chargeable_cash_balance, with: MoneyEntity do |m|
+      b = m.payment_account&.cash_ledger&.balance
+      Suma::Payment.chargeable_balance?(b || Money.new(0)) ? b : nil
+    end
+
     expose :finished_survey_topics do |m|
       m.db[:member_surveys].where(member_id: m.id).select_map(:topic).sort
     end

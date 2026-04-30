@@ -273,6 +273,8 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   end
 end
 
+require "suma/payment/ledger/balance_charger"
+
 # Table: payment_ledgers
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Columns:

@@ -64,7 +64,8 @@ class Suma::Member::Dashboard
     if balance_is_problem && !valid_instruments?
       r << Alert.new("dashboard.negative_cash_balance_no_instrument", "danger")
     elsif balance_is_problem
-      r << Alert.new("dashboard.negative_cash_balance", "danger")
+      params = {amount: {cents: cash_balance.cents.abs, currency: cash_balance.currency}}
+      r << Alert.new("dashboard.negative_cash_balance_v2", "danger", params)
     elsif expiring_instruments?
       r << Alert.new("dashboard.payment_methods_expiring", "warning")
     end

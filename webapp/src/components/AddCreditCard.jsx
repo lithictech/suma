@@ -11,6 +11,7 @@ import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useStripeErrorMessage from "../state/useStripeErrorMessage";
 import CreditCardPreview from "./CreditCardPreview.jsx";
+import NegativeBalanceAddInstrumentNotice from "./NegativeBalanceAddInstrumentNotice.jsx";
 import get from "lodash/get";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -270,6 +271,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           className="cc-animate"
           style={{ transform: `translateY(${errorOffset}px)` }}
         />
+        <NegativeBalanceAddInstrumentNotice />
         <FormButtons
           ref={buttonRowRef}
           className="mb-3 cc-animate"

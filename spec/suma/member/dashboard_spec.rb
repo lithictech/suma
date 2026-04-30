@@ -59,7 +59,7 @@ RSpec.describe Suma::Member::Dashboard, :db do
       add_valid_card
       make_balance_negative
       expect(dashboard.alerts).to contain_exactly(
-        have_attributes(localization_key: "dashboard.negative_cash_balance", variant: "danger"),
+        have_attributes(localization_key: "dashboard.negative_cash_balance_v2", variant: "danger"),
       )
     end
 
