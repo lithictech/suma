@@ -124,6 +124,8 @@ export default {
 
   createFundingPayment: (data, ...args) =>
     post(`/api/v1/payments/create_funding`, data, ...args),
+  chargeLedgerBalance: (data, ...args) =>
+    post(`/api/v1/payments/charge_balance`, data, ...args),
 
   getPrivateAccounts: (data, ...args) =>
     get(`/api/v1/anon_proxy/vendor_accounts`, data, ...args),

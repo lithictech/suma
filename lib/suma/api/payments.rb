@@ -30,6 +30,15 @@ class Suma::API::Payments < Suma::API::V1
       status 200
       present fx, with: FundingTransactionEntity
     end
+
+    post :charge_balance do
+      c = current_member
+      ledger = Suma::Payment.ensure_cash_ledger(c)
+      result = Suma::Payment::Ledger::BalanceCharger.new.charge_ledger(ledger)
+      merror!(402, "Could not charge ledger balance", code: "charge_balance") unless result.ok?
+      status 200
+      present c, with: CurrentMemberEntity
+    end
   end
 
   class FundingTransactionEntity < BaseEntity

@@ -99,6 +99,10 @@ RSpec.describe Suma::API::Me, :db do
     it "returns other useful information (order history, completed surveys, etc)" do
       member.db[:member_surveys].insert(member_id: member.id, topic: "testing")
       Suma::Fixtures.order.as_purchased_by(member).create
+      Suma::Fixtures.book_transaction.
+        from(Suma::Payment.ensure_cash_ledger(member)).
+        to(Suma::Fixtures::Ledgers.ensure_platform_cash).
+        create(amount: money("$100"), apply_at: 25.hours.ago)
 
       get "/v1/me"
 
@@ -106,6 +110,7 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_json_body.that_includes(
         finished_survey_topics: ["testing"],
         has_order_history: true,
+        chargeable_cash_balance: cost("-$100"),
       )
     end
 

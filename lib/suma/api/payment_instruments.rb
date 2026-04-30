@@ -6,6 +6,15 @@ class Suma::API::PaymentInstruments < Suma::API::V1
   include Suma::API::Entities
 
   resource :payment_instruments do
+    helpers do
+      def charge_balance(instrument)
+        me = instrument.legal_entity.member
+        Suma::Payment::Ledger::BalanceCharger.charge_balance_to(me.payment_account, instrument)
+      rescue Suma::Payment::FundingTransaction::CollectFundsFailed => e
+        raise Suma::Service::RollbackCarrier.new(e, 402, e.message, {code: e.localized_error_code})
+      end
+    end
+
     resource :bank_accounts do
       params do
         requires :name, type: String, allow_blank: false
@@ -33,8 +42,10 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           ba.verified_at ||= current_time
         end
         set_declared(ba, params)
-        save_or_error!(ba)
-        Suma::Payment::Instrument.post_create_cleanup(ba, now: current_time)
+        c.db.transaction do
+          save_or_error!(ba)
+          Suma::Payment::Instrument.post_create_cleanup(ba, now: current_time)
+        end
         add_current_member_header
         status 200
         present ba, with: MutationPaymentInstrumentEntity
@@ -81,23 +92,26 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           existing_card = me.legal_entity.cards_dataset.not_soft_deleted.all.find do |c|
             c.fingerprint === tok_fingerprint
           end
-          if existing_card
-            existing_card.refetch_remote_data
-            existing_card.save_changes
-            existing_card
-          else
-            stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
-            Suma::Payment::Card.create(
-              legal_entity: me.legal_entity,
-              stripe_json: stripe_card.to_json,
-            )
-          end
+          card = if existing_card
+                   existing_card.refetch_remote_data
+                   existing_card.save_changes
+                   existing_card
+                 else
+                   stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
+                   Suma::Payment::Card.create(
+                     legal_entity: me.legal_entity,
+                     stripe_json: stripe_card.to_json,
+                   )
+                end
+          Suma::Payment::Instrument.post_create_cleanup(card, now: current_time)
+          charge_balance(card)
+          card
         end
-        Suma::Payment::Instrument.post_create_cleanup(card, now: current_time)
         add_current_member_header
         status 200
         present card, with: MutationPaymentInstrumentEntity
       end
+
       route_param :id, type: Integer do
         helpers do
           def lookup
@@ -107,6 +121,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
             return card
           end
         end
+
         delete do
           card = lookup
           card.stripe_card.delete

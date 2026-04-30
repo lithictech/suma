@@ -251,6 +251,55 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
         expect(last_response).to have_json_body.that_includes(error: include(code: "card_permanent_failure"))
       end
     end
+
+    describe "when there is a negative cash ledger balance" do
+      before(:each) do
+        platform_account = Suma::Payment::Account.lookup_platform_account
+        platform_cash = platform_account.ensure_cash_ledger
+        cash = Suma::Payment.ensure_cash_ledger(member)
+        Suma::Fixtures.book_transaction.from(cash).to(platform_cash).create(amount: money("$50"))
+      end
+
+      it "charges the instrument", :i18n do
+        reqs = [
+          stub_token_req,
+          stub_request(:post, "https://api.stripe.com/v1/customers").
+            to_return(fixture_response("stripe/customer")),
+          stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
+            to_return(fixture_response("stripe/card")),
+          stub_request(:post, "https://api.stripe.com/v1/charges").
+            to_return(fixture_response("stripe/charge")),
+        ]
+
+        post "/v1/payment_instruments/cards/create_stripe", token: token_param
+
+        expect(last_response).to have_status(200)
+        expect(reqs).to all(have_been_made)
+        expect(Suma::Payment::FundingTransaction.all).to have_length(1)
+        expect(Suma::Payment::Card.all).to have_length(1)
+      end
+
+      it "errors (and does not save the card) if the charge fails", :i18n do
+        reqs = [
+          stub_token_req,
+          stub_request(:post, "https://api.stripe.com/v1/customers").
+            to_return(fixture_response("stripe/customer")),
+          stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
+            to_return(fixture_response("stripe/card")),
+          stub_request(:post, "https://api.stripe.com/v1/charges").
+            to_return(fixture_response("stripe/charge_error", status: 402)),
+        ]
+
+        post "/v1/payment_instruments/cards/create_stripe", token: token_param
+
+        expect(last_response).to have_status(402)
+        expect(last_response).to have_json_body.
+          that_includes(error: include(code: "card_permanent_failure"))
+        expect(reqs).to all(have_been_made)
+        expect(Suma::Payment::Card.all).to be_empty
+        expect(Suma::Payment::FundingTransaction.all).to be_empty
+      end
+    end
   end
 
   describe "DELETE /v1/payment_instruments/cards/:id" do

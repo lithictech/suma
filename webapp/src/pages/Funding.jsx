@@ -7,11 +7,13 @@ import RLink from "../components/RLink";
 import config from "../config";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig.js";
+import { scaleMoney } from "../shared/money.js";
 import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import styles from "./Funding.module.css";
 import clsx from "clsx";
 import filter from "lodash/filter";
 import React from "react";
@@ -28,7 +30,8 @@ export default function Funding() {
       <BackBreadcrumb back />
       <PageHeading>{t("payments.payment_title")}</PageHeading>
       <p>{t("payments.payment_intro.intro")}</p>
-      <p id="some">{t("payments.payment_intro.privacy_statement")}</p>
+      <p>{t("payments.payment_intro.privacy_statement")}</p>
+      <ChargeableCashBalance />
       {isPaymentMethodSupported("bank_account") && (
         <BankAccountsCard instruments={user.paymentInstruments} />
       )}
@@ -37,6 +40,41 @@ export default function Funding() {
       )}
       <AdditionalSourcesCard />
     </>
+  );
+}
+
+function ChargeableCashBalance() {
+  const { user, setUser } = useUser();
+  const [error, setError] = useError();
+  const screenLoader = useScreenLoader();
+
+  if (!user.chargeableCashBalance) {
+    return null;
+  }
+
+  function handleClick(e) {
+    screenLoader.turnOn();
+    setError(null);
+    e.preventDefault();
+    api
+      .chargeLedgerBalance()
+      .then((r) => setUser(r.data))
+      .catch((e) => setError(extractErrorCode(e)))
+      .finally(screenLoader.turnOff);
+  }
+
+  const balance = scaleMoney(user.chargeableCashBalance, -1);
+
+  return (
+    <Card className={styles["balance-warning"]}>
+      <Card.Body className="d-flex flex-column gap-4">
+        <div>{t("payments.negative_balance_warning", { amount: balance })}</div>
+        <FormError error={error} noMargin />
+        <Button variant="danger" className="align-self-center" onClick={handleClick}>
+          {t("payments.negative_balance_action", { amount: balance })}
+        </Button>
+      </Card.Body>
+    </Card>
   );
 }
 

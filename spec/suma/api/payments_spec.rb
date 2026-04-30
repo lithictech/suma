@@ -90,4 +90,53 @@ RSpec.describe Suma::API::Payments, :db do
       ))
     end
   end
+
+  describe "POST /v1/payments/charge_balance" do
+    let(:platform_account) { Suma::Payment::Account.lookup_platform_account }
+    let(:platform_cash) { platform_account.ensure_cash_ledger }
+    let(:cash) { Suma::Payment.ensure_cash_ledger(member) }
+
+    before(:each) do
+      Suma::Fixtures::Members.register_as_stripe_customer(member)
+    end
+
+    describe "when there is not a negative cash ledger balance" do
+      it "noops" do
+        Suma::Fixtures.card.member(member).create
+
+        post "/v1/payments/charge_balance"
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Payment::FundingTransaction.all).to be_empty
+      end
+    end
+
+    describe "when there is a negative cash ledger balance" do
+      before(:each) do
+        Suma::Fixtures.book_transaction.from(cash).to(platform_cash).create(amount: money("$50"))
+      end
+
+      it "runs the ledger balance charger", :i18n do
+        Suma::Fixtures.card.member(member).create
+
+        Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready) do
+          post "/v1/payments/charge_balance"
+        end
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Payment::FundingTransaction.all).to have_length(1)
+      end
+
+      it "errors if no charge is created", :i18n do
+        # No instruments, so this should fail
+
+        post "/v1/payments/charge_balance"
+
+        expect(last_response).to have_status(402)
+        expect(last_response).to have_json_body.
+          that_includes(error: include(code: "charge_balance"))
+        expect(Suma::Payment::FundingTransaction.all).to be_empty
+      end
+    end
+  end
 end

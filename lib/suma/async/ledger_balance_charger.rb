@@ -2,8 +2,6 @@
 
 require "amigo/scheduled_job"
 
-require "suma/payment/ledger/balance_charger"
-
 # Each morning, try charging ledgers with non-zero balances.
 class Suma::Async::LedgerBalanceCharger
   extend Amigo::ScheduledJob

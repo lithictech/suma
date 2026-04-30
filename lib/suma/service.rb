@@ -194,6 +194,26 @@ class Suma::Service < Grape::API
     invalid!(e.full_messages, message: e.message)
   end
 
+  # If our endpoint has a transaction, and we need to roll things back while using merror!
+  # from within the transaction, we can instead use RollbackCarrier.
+  # This will make sure the exception bubbles past the transaction boundary (rolling it back)
+  # and then hits here, turning it into a standard error shape.
+  class RollbackCarrier < StandardError
+    attr_reader :carried, :status, :message, :kwargs
+
+    def initialize(carrier, status, message, kwargs)
+      @carrier = carrier
+      @status = status
+      @message = message
+      @kwargs = kwargs
+      super(carrier.to_s)
+    end
+  end
+
+  rescue_from RollbackCarrier do |e|
+    merror!(e.status, e.message, **e.kwargs)
+  end
+
   rescue_from Suma::Member::InvalidPassword do |e|
     invalid!(e.message)
   end
