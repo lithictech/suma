@@ -10,7 +10,7 @@ require "appydays/loggable"
 class Suma::Program::ServiceRevoker
   include Appydays::Loggable
 
-  def self.check_transaction!
+  private def check_transaction!
     Suma::Postgres.check_transaction(
       Suma::Member.db,
       "Service revocation has side effects, and should be idempotent, so can/should not use a transaction.",
@@ -23,13 +23,16 @@ class Suma::Program::ServiceRevoker
   # some actionable reason.
   # In the worst case, revocation is idempotent, so calling it multiple times
   # won't have a negative impact.
-  def self.run
+  def run
     check_transaction!
     balances = Suma::Payment::Ledger::Balance
     # We only care about cash balances,
     balances = balances.where(ledger_name: "Cash")
-    # with a negative balance, or one lower than the minimal balance (which can be positive),
-    ok_balance = [Suma::Payment.minimum_cash_balance_for_services_cents, 0].max
+    # with a negative (grace) balance, or one lower than the minimal balance (which can be positive),
+    ok_balance = [
+      Suma::Payment.minimum_cash_balance_grace_cents,
+      Suma::Payment.minimum_cash_balance_for_services_cents,
+    ].max
     balances = balances.where { balance_cents < ok_balance }
     # which have changed recently (assume we've acted on things older than this)
     balances = balances.where { latest_transaction_at > (Time.now - Suma::Program.service_revoker_lookback) }
@@ -39,8 +42,9 @@ class Suma::Program::ServiceRevoker
     end
   end
 
-  def self.run_for(ledger)
-    return unless ledger.name == "Cash"
+  # @param ledger [Suma::Payment::Ledger]
+  def run_for(ledger)
+    raise Suma::InvalidPrecondition, "only run for cash ledger" unless ledger.name == "Cash"
     member = ledger.account.member
     return unless member
     if Suma::Program.service_revoker_dry_run
@@ -53,12 +57,12 @@ class Suma::Program::ServiceRevoker
     end
   end
 
-  def self._revoke_if_cannot_use(member)
+  protected def _revoke_if_cannot_use(member)
     return if Suma::Payment.can_use_services?(member.payment_account)
     self.revoke_member_service_access(member)
   end
 
-  def self.revoke_member_service_access(member)
+  def revoke_member_service_access(member)
     self.close_lime_accounts(member)
     self.revoke_all_lyft_passes(member)
   end
@@ -77,7 +81,7 @@ class Suma::Program::ServiceRevoker
   # - vendor accounts pending closure re-request a magic link (processing this is also idempotent);
   # - vendor accounts already closed no longer have a member contact so are skipped.
   #
-  def self.close_lime_accounts(member)
+  def close_lime_accounts(member)
     check_transaction!
     lime_configs = Suma::AnonProxy::VendorConfiguration.where(auth_to_vendor_key: "lime").all
     vendor_accounts = member.anon_proxy_vendor_accounts_dataset.
@@ -107,7 +111,7 @@ class Suma::Program::ServiceRevoker
   # Revoke access to all Lyft Pass programs.
   # Generally this is only used for global changes,
   # like when a user loses access to services due to a negative ledger.
-  def self.revoke_all_lyft_passes(member)
+  def revoke_all_lyft_passes(member)
     registrations = Suma::AnonProxy::VendorAccountRegistration.where(
       account: member.anon_proxy_vendor_accounts_dataset.where(
         configuration: Suma::AnonProxy::VendorConfiguration.where(auth_to_vendor_key: "lyft_pass"),
@@ -125,7 +129,7 @@ class Suma::Program::ServiceRevoker
   #   At this point, we won't try to re-revoke it.
   #
   # @param [Array<Suma::AnonProxy::VendorAccountRegistration>] registrations
-  def self.revoke_lyft_passes(registrations)
+  def revoke_lyft_passes(registrations)
     check_transaction!
     return if registrations.empty?
     lp = Suma::Lyft::Pass.from_config
