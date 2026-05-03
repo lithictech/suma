@@ -12,10 +12,13 @@ Amigo::DeprecatedJobs.install(
   # Then it can be deleted later.
   "Async::AutomationTriggerRunner",
   "Async::Emailer",
+  "Async::EnrollmentRemovalRunner",
   "Async::EnsureDefaultMemberLedgersOnCreate",
   "Async::MembershipVerifiedVerifyOnboarding",
   "Async::PaymentInstrumentChargeBalance",
   "Async::UpsertFrontappContact",
+  "Async::ServiceRevokerRunner",
+  "Async::ServiceRevokerScheduler",
   "Async::SyncLimeFreeBikeStatusGbfs",
   "Async::SyncLimeGeofencingZonesGbfs",
   "Async::SyncLyftFreeBikeStatusGbfs",
