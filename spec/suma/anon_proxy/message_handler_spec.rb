@@ -216,43 +216,20 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         vendor_account.update(pending_closure: true)
       end
 
-      it "logs in the user and deletes the contact" do
+      it "sets the magic link fields" do
         expect(vendor_account).to have_attributes(contact: be_present)
-
-        req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/login").
-          with(
-            body: {
-              "has_virtual_card" => "false",
-              "magic_link_token" => "M1ZgpMepjL5kW9XgzCmnsBKQ",
-              "user_agreement_country_code" => "US", "user_agreement_version" => "5",
-            },
-          ).to_return(fixture_response("lime/app_post_magic_link"))
 
         got = Suma::AnonProxy::MessageHandler.handle(
           Suma::AnonProxy::Relay.create!("fake-email-relay"),
           signin_message,
         )
 
-        expect(req).to have_been_made
         expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
         expect(vendor_account.refresh).to have_attributes(
-          latest_access_code: nil,
-          pending_closure: false,
-          contact: nil,
+          latest_access_code: "M1ZgpMepjL5kW9XgzCmnsBKQ",
+          pending_closure: true,
+          contact: be_present,
         )
-      end
-
-      it "ignores NoToken errors" do
-        req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/login").
-          to_return(fixture_response("lime/app_post_sign_terms"))
-
-        Suma::AnonProxy::MessageHandler.handle(
-          Suma::AnonProxy::Relay.create!("fake-email-relay"),
-          signin_message,
-        )
-
-        expect(req).to have_been_made
-        expect(vendor_account.refresh).to have_attributes(pending_closure: false)
       end
     end
 

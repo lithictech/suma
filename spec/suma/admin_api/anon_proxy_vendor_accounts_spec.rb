@@ -91,7 +91,7 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
     end
   end
 
-  describe "POST /v1/anon_proxy_vendor_accounts/:id/revoke_lime_login", reset_configuration: Suma::Program do
+  describe "POST /v1/anon_proxy_vendor_accounts/:id/revoke_lime_login" do
     it "uses the service revoker" do
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       acct = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create
@@ -104,6 +104,20 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: acct.id)
       expect(req).to have_been_made
+    end
+  end
+
+  describe "POST /v1/anon_proxy_vendor_accounts/:id/revoke_lime_login/finish" do
+    it "updates the account" do
+      vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
+      acct = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create(pending_closure: true)
+      acct.replace_access_code("x", "https://link").save_changes
+
+      post "/v1/anon_proxy_vendor_accounts/#{acct.id}/revoke_lime_login/finish"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: acct.id)
+      expect(acct.refresh).to have_attributes(contact: nil, pending_closure: false)
     end
   end
 

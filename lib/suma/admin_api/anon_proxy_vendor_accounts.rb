@@ -60,6 +60,13 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
         present a, with: DetailedVendorAccountEntity
       end
 
+      post "revoke_lime_login/finish" do
+        a = lookup!(:write)
+        a.update(pending_closure: false, contact: nil)
+        status 200
+        present a, with: DetailedVendorAccountEntity
+      end
+
       post :revoke_lyft_pass do
         a = lookup!(:write)
         a.member.audit_activity("revokelyft", action: a)

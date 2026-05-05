@@ -202,18 +202,30 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   end
 
   def _admin_actions_self
-    return [
-      self.latest_access_code_set_at && self.auth_to_vendor.class.key == :lime && self._admin_action(
-        "Revoke Lime Login",
-        "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
-        confirmation_prompt: "This will log the user out of Lime. Are you sure?",
-      ),
-      self.auth_to_vendor.class.key == :lyft_pass && self.registrations.any? && self._admin_action(
+    r = []
+    if self.auth_to_vendor.class.key == :lime && self.latest_access_code_set_at
+      r << if self.pending_closure
+             self._admin_action(
+               "Finish Lime Revocation",
+               "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login/finish",
+               confirmation_prompt: "Did you log in with the Lime magic link?",
+             )
+          else
+            self._admin_action(
+              "Revoke Lime Login",
+              "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
+              confirmation_prompt: "This will log the user out of Lime. Are you sure?",
+            )
+          end
+    elsif self.auth_to_vendor.class.key == :lyft_pass && self.registrations.any?
+      a = self._admin_action(
         "Revoke Lyft Pass",
         "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lyft_pass",
         confirmation_prompt: "This will remove the user from any associated Lyft Passes. Are you sure?",
-      ),
-    ]
+      )
+      r << a
+    end
+    return r
   end
 
   def rel_admin_link = "/vendor-account/#{self.id}"
