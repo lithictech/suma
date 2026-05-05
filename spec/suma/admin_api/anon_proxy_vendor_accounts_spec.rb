@@ -90,4 +90,51 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
       expect(m).to be_destroyed
     end
   end
+
+  describe "POST /v1/anon_proxy_vendor_accounts/:id/revoke_lime_login", reset_configuration: Suma::Program do
+    it "uses the service revoker" do
+      vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
+      acct = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create
+      acct.replace_access_code("x", "https://link").save_changes
+      req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link").
+        to_return(json_response({}))
+
+      post "/v1/anon_proxy_vendor_accounts/#{acct.id}/revoke_lime_login"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: acct.id)
+      expect(req).to have_been_made
+    end
+  end
+
+  describe "POST /v1/anon_proxy_vendor_accounts/:id/revoke_lyft_pass", no_transaction_check: true do
+    before(:each) do
+      Suma::Lyft.reset_configuration
+
+      Suma::ExternalCredential.create(
+        service: "lyft-pass-access-token",
+        expires_at: 5.hours.from_now,
+        data: {body: {}, cookies: {}}.to_json,
+      )
+
+      Suma::Lyft.pass_authorization = "Basic xyz"
+      Suma::Lyft.pass_email = "a@b.c"
+      Suma::Lyft.pass_org_id = "1234"
+    end
+
+    it "revokes registered passes" do
+      vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lyft_pass")
+      acct = Suma::Fixtures.anon_proxy_vendor_account.create(configuration: vc)
+      acct.add_registration(external_program_id: "111")
+
+      req = stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/revoke").
+        to_return(status: 200)
+
+      post "/v1/anon_proxy_vendor_accounts/#{acct.id}/revoke_lyft_pass"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: acct.id)
+      expect(req).to have_been_made
+    end
+  end
 end

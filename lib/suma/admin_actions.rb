@@ -6,13 +6,13 @@
 # The response value of the action is displayed in the admin UI.
 module Suma::AdminActions
   class Action < Suma::TypedStruct
-    attr_reader :label, :url, :params
+    attr_reader :label, :url, :params, :confirmation_prompt
 
-    def _defaults = {params: {}}
+    def _defaults = {params: {}, confirmation_prompt: ""}
   end
 
   def admin_actions = _admin_actions_self.select(&:itself)
   # @return [Array<Action>]
   def _admin_actions_self = raise NotImplementedError
-  def _admin_action(label, url, params: {}) = Action.new(label:, url:, params:)
+  def _admin_action(label, url, params: {}, **) = Action.new(label:, url:, params:, **)
 end

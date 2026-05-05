@@ -17,6 +17,13 @@ class Suma::Program::ServiceRevoker
     )
   end
 
+  def initialize(dry_run: Suma::Program.service_revoker_dry_run)
+    @dry_run = dry_run
+  end
+
+  def dry_run? = @dry_run
+  def do_dry_run(event, kw) = self.logger.warn(event, **kw)
+
   # Run service revocation for each member that cannot use services.
   # We apply a number of heuristics to avoid querying members who are not eligible
   # for revocation, and ensure we only attempt to revoke when there is
@@ -47,7 +54,7 @@ class Suma::Program::ServiceRevoker
     raise Suma::InvalidPrecondition, "only run for cash ledger" unless ledger.name == "Cash"
     member = ledger.account.member
     return unless member
-    if Suma::Program.service_revoker_dry_run
+    if self.dry_run?
       self._revoke_if_cannot_use(member)
     else
       idem_key = "service-revoker-#{member.id}-#{ledger.balance_view.latest_transaction_at}"
@@ -88,24 +95,24 @@ class Suma::Program::ServiceRevoker
       where(configuration: lime_configs).
       exclude(contact_id: nil).
       all
-    return if vendor_accounts.empty?
-    if Suma::Program.service_revoker_dry_run
-      vendor_accounts.each do |va|
-        self.logger.warn(
-          "service_revoker_dry_run",
-          action: "close_lime",
-          vendor_account_id: va.id,
-          member_name: va.member.name,
-        )
-      end
+    vendor_accounts.each do |va|
+      self.close_lime_account(va)
+    end
+  end
+
+  def close_lime_account(va)
+    if self.dry_run?
+      self.do_dry_run(
+        "service_revoker_dry_run",
+        action: "close_lime",
+        vendor_account_id: va.id,
+        member_name: va.member.name,
+      )
       return
     end
-    # Update accounts by ID to make sure we're looking at a consistent set of rows.
-    Suma::AnonProxy::VendorAccount.where(id: vendor_accounts.map(&:id)).update(pending_closure: true)
     # Request a new magic link for each account. See method doc for explanation.
-    vendor_accounts.each do |va|
-      Suma::AnonProxy::AuthToVendor::Lime.new(va).auth
-    end
+    va.replace_access_code(nil, nil, at: nil).update(pending_closure: true)
+    Suma::AnonProxy::AuthToVendor::Lime.new(va).auth
   end
 
   # Revoke access to all Lyft Pass programs.
@@ -138,8 +145,8 @@ class Suma::Program::ServiceRevoker
       member = r.account.member
       # If we're running this after member deletion, use their previous phone as what was previous valid.
       phone = member.soft_deleted? ? member.previous_phones.first : member.phone
-      if Suma::Program.service_revoker_dry_run
-        self.logger.warn(
+      if self.dry_run?
+        self.do_dry_run(
           "service_revoker_dry_run",
           action: "revoke_lyft",
           phone:,

@@ -1,4 +1,5 @@
 import api from "../api";
+import AdminActions from "../components/AdminActions";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
@@ -41,7 +42,7 @@ export default function VendorAccountDetailPage() {
         },
       ]}
     >
-      {(model) => [
+      {(model, setModel) => [
         <DetailGrid
           title="Configuration"
           properties={[
@@ -74,6 +75,7 @@ export default function VendorAccountDetailPage() {
             ]}
           />
         ),
+        <AdminActions adminActions={model.adminActions} updateModel={setModel} />,
         <RelatedList
           title="Registrations"
           rows={model.registrations}

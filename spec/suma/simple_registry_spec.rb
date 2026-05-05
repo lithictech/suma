@@ -28,6 +28,19 @@ RSpec.describe Suma::SimpleRegistry do
     expect { base_cls.registry_lookup!(" ") }.to raise_error(described_class::Unregistered, /key cannot be blank/)
   end
 
+  it "can register a class with a 'key' method" do
+    cls2 = Class.new do
+      extend Suma::SimpleRegistry
+
+      def self.key = "xyz"
+    end
+
+    base_cls.register(cls2)
+    expect(base_cls.registry_lookup!(:xyz)).to eq(cls2)
+    expect(base_cls.registry_create!(:xyz)).to be_a(cls2)
+    expect { base_cls.register(5) }.to raise_error(ArgumentError, /if value is not provided/)
+  end
+
   it "initializes classes with registered arguments" do
     base_cls.register(:sub, subclsargs, "xval", y: "yval")
     expect(base_cls.registry_lookup!(:sub)).to eq(subclsargs)

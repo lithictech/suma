@@ -42,12 +42,10 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
   end
 
   it "skips idempotency in dry run" do
-    Suma::Program.service_revoker_dry_run = true
-
     ledger = create_cash_ledger
     Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$500"), apply_at: 2.days.ago)
     member = ledger.account.member
-    sr = described_class.new
+    sr = described_class.new(dry_run: true)
     expect(sr).to receive(:close_lime_accounts).with(member)
     expect(sr).to receive(:revoke_all_lyft_passes).with(member)
     sr.run_for(ledger)
@@ -89,14 +87,12 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
     end
 
     it "logs and skips idempotency with dry run" do
-      Suma::Program.service_revoker_dry_run = true
-
       lyft_pass_config = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lyft_pass")
       lyft_pass_vendor_acct = Suma::Fixtures.anon_proxy_vendor_account.create(configuration: lyft_pass_config, member:)
       reg1 = lyft_pass_vendor_acct.add_registration(external_program_id: "111")
 
       logs = capture_logs_from(described_class.logger) do
-        described_class.new.revoke_all_lyft_passes(member)
+        described_class.new(dry_run: true).revoke_all_lyft_passes(member)
       end
       expect(logs).to have_a_line_matching(/service_revoker_dry_run/)
       expect(reg1).to_not be_destroyed
@@ -148,25 +144,24 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       contact = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
       lime_va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc, contact:).create
+      lime_va.replace_access_code('x', 'https://link').save_changes
       other_va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
       req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link").
         to_return(json_response({}))
       described_class.new.close_lime_accounts(member)
       expect(req).to have_been_made
       lime_va.refresh
-      expect(lime_va).to have_attributes(pending_closure: true)
+      expect(lime_va).to have_attributes(pending_closure: true, latest_access_code: nil)
       expect(other_va.refresh).to have_attributes(pending_closure: false)
     end
 
     it "logs and skips idempotency with dry run" do
-      Suma::Program.service_revoker_dry_run = true
-
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       contact = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
       lime_va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc, contact:).create
 
       logs = capture_logs_from(described_class.logger) do
-        described_class.new.close_lime_accounts(member)
+        described_class.new(dry_run: true).close_lime_accounts(member)
       end
       expect(logs).to have_a_line_matching(/service_revoker_dry_run/)
       expect(lime_va.refresh).to have_attributes(pending_closure: false)

@@ -6,13 +6,13 @@ class Suma::AnonProxy::AuthToVendor
   extend Suma::SimpleRegistry
 
   require_relative "auth_to_vendor/fake"
-  register(:fake, Fake)
+  register(Fake)
 
   require_relative "auth_to_vendor/lime"
-  register(:lime, Lime)
+  register(Lime)
 
   require_relative "auth_to_vendor/lyft_pass"
-  register(:lyft_pass, LyftPass)
+  register(LyftPass)
 
   # @return [Suma::AnonProxy::Provision]
   def self.create!(key, vendor_account:)

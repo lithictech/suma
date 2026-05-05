@@ -3,6 +3,8 @@
 require "suma/lyft/pass"
 
 class Suma::AnonProxy::AuthToVendor::LyftPass < Suma::AnonProxy::AuthToVendor
+  def self.key = :lyft_pass
+
   def auth(now:)
     programs = self.programs_requiring_attention(now:).to_a
     return unless programs.any?

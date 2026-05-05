@@ -42,5 +42,31 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
       Suma::AnonProxy::VendorAccount,
       DetailedVendorAccountEntity,
     )
+
+    route_param :id, type: Integer do
+      helpers do
+        def lookup!(rw)
+          check_admin_role_access!(rw, Suma::AnonProxy::VendorAccount)
+          (m = Suma::AnonProxy::VendorAccount[params[:id]]) or forbidden!
+          return m
+        end
+      end
+
+      post :revoke_lime_login do
+        a = lookup!(:write)
+        a.member.audit_activity("revokelime", action: a)
+        Suma::Program::ServiceRevoker.new(dry_run: false).close_lime_account(a)
+        status 200
+        present a, with: DetailedVendorAccountEntity
+      end
+
+      post :revoke_lyft_pass do
+        a = lookup!(:write)
+        a.member.audit_activity("revokelyft", action: a)
+        Suma::Program::ServiceRevoker.new(dry_run: false).revoke_lyft_passes(a.registrations)
+        status 200
+        present a, with: DetailedVendorAccountEntity
+      end
+    end
   end
 end
