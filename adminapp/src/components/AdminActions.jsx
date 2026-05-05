@@ -1,6 +1,5 @@
 import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import useToggle from "../shared/react/useToggle";
 import {
   Button,
   Card,
@@ -10,7 +9,6 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   Stack,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
