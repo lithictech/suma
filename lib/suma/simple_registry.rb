@@ -11,12 +11,10 @@ module Suma::SimpleRegistry
 
   def register(key, value=nil, *args, **kwargs)
     if value.nil?
-      unless key.respond_to?(:key)
-        raise ArgumentError, "if value is not provided, key '#{key.inspect}' must respond to :key"
-end
+      raise ArgumentError, "if value is not provided, key '#{key.inspect}' must respond to :key" unless
+        key.respond_to?(:key)
       value = key
       key = key.key
-
     end
     self.registry[key.to_s] = [value, args, kwargs]
   end

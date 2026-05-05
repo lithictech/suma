@@ -18,7 +18,6 @@ Amigo::DeprecatedJobs.install(
   "Async::PaymentInstrumentChargeBalance",
   "Async::UpsertFrontappContact",
   "Async::ServiceRevokerRunner",
-  "Async::ServiceRevokerScheduler",
   "Async::SyncLimeFreeBikeStatusGbfs",
   "Async::SyncLimeGeofencingZonesGbfs",
   "Async::SyncLyftFreeBikeStatusGbfs",

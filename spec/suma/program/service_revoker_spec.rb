@@ -144,7 +144,7 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       contact = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
       lime_va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc, contact:).create
-      lime_va.replace_access_code('x', 'https://link').save_changes
+      lime_va.replace_access_code("x", "https://link").save_changes
       other_va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
       req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link").
         to_return(json_response({}))

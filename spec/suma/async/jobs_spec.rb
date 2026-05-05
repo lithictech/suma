@@ -661,6 +661,14 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "ServiceRevokerScheduler" do
+    it "runs the revoker" do
+      sr = Suma::Program::ServiceRevoker.new
+      expect(Suma::Program::ServiceRevoker).to receive(:new).and_return(sr)
+      Suma::Async::ServiceRevokerScheduler.new.perform(true)
+    end
+  end
+
   describe "SignalwireProcessOptouts", reset_configuration: Suma::Signalwire do
     it "syncs refunds" do
       import_localized_message_seeds
