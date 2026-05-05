@@ -40,6 +40,10 @@ export default function VendorAccountDetailPage() {
           label: "Latest Access Code Set At",
           value: formatDate(model.latestAccessCodeSetAt),
         },
+        {
+          label: "Pending Closure",
+          value: model.pendingClosure,
+        },
       ]}
     >
       {(model, setModel) => [
@@ -70,6 +74,7 @@ export default function VendorAccountDetailPage() {
             title="Member Contact"
             properties={[
               { label: "ID", value: <AdminLink model={model.contact} /> },
+              { label: "Created At", value: formatDate(model.contact.createdAt) },
               { label: "Address", value: model.contact.formattedAddress },
               { label: "Relay Key", value: model.contact.relayKey },
             ]}

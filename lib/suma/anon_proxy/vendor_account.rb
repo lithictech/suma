@@ -210,12 +210,14 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
                "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login/finish",
                confirmation_prompt: "Did you log in with the Lime magic link?",
              )
-          else
-            self._admin_action(
-              "Revoke Lime Login",
-              "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
-              confirmation_prompt: "This will log the user out of Lime. Are you sure?",
-            )
+      else
+        prompt = "This will start logging the user out of Lime. You need to refresh the page until " \
+                 "a Magic Link is present, then log in with it, then use Finish Lime Revocation."
+        self._admin_action(
+          "Revoke Lime Login",
+          "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
+          confirmation_prompt: prompt,
+        )
           end
     elsif self.auth_to_vendor.class.key == :lyft_pass && self.registrations.any?
       a = self._admin_action(

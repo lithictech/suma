@@ -22,6 +22,7 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at
     expose :latest_access_code_magic_link
+    expose :pending_closure
     expose :contact, with: AnonProxyMemberContactEntity
     expose :registrations, with: VendorAccountRegistrationEntity
   end
@@ -56,6 +57,8 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
         a = lookup!(:write)
         a.member.audit_activity("revokelime", action: a)
         Suma::Program::ServiceRevoker.new(dry_run: false).close_lime_account(a)
+        created_resource_headers(a.id, a.admin_link)
+        admin_action_handler :update
         status 200
         present a, with: DetailedVendorAccountEntity
       end
@@ -63,6 +66,8 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
       post "revoke_lime_login/finish" do
         a = lookup!(:write)
         a.update(pending_closure: false, contact: nil)
+        created_resource_headers(a.id, a.admin_link)
+        admin_action_handler :update
         status 200
         present a, with: DetailedVendorAccountEntity
       end
@@ -71,6 +76,8 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
         a = lookup!(:write)
         a.member.audit_activity("revokelyft", action: a)
         Suma::Program::ServiceRevoker.new(dry_run: false).revoke_lyft_passes(a.registrations)
+        created_resource_headers(a.id, a.admin_link)
+        admin_action_handler :update
         status 200
         present a, with: DetailedVendorAccountEntity
       end
