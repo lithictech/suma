@@ -319,6 +319,8 @@ export default {
     get("/adminapi/v1/anon_proxy_vendor_accounts", data, ...args),
   getVendorAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/anon_proxy_vendor_accounts/${id}`, data, ...args),
+  updateVendorAccount: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/anon_proxy_vendor_accounts/${id}`, data, ...args),
   destroyVendorAccount: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/anon_proxy_vendor_accounts/${id}/destroy`, data, ...args),
 

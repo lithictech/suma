@@ -110,6 +110,7 @@ import StaticStringCreatePage from "./pages/StaticStringCreatePage";
 import StaticStringsNamespacePage from "./pages/StaticStringsNamespacePage";
 import StaticStringsPage from "./pages/StaticStringsPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
+import VendorAccountEditPage from "./pages/VendorAccountEditPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorConfigurationDetailPage from "./pages/VendorConfigurationDetailPage";
 import VendorConfigurationEditPage from "./pages/VendorConfigurationEditPage";
@@ -576,6 +577,11 @@ function PageSwitch() {
           withLayout(),
           VendorAccountDetailPage
         )}
+      />
+      <Route
+        exact
+        path="/vendor-account/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorAccountEditPage)}
       />
       <Route
         exact

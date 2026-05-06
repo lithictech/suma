@@ -16,6 +16,7 @@ export default function VendorAccountDetailPage() {
       resource="vendor_account"
       apiGet={api.getVendorAccount}
       apiDelete={api.destroyVendorAccount}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

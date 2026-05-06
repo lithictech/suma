@@ -79,6 +79,17 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
     end
   end
 
+  describe "POST /v1/anon_proxy_vendor_accounts/:id" do
+    it "updates the object" do
+      o = Suma::Fixtures.anon_proxy_vendor_account.create
+
+      post "/v1/anon_proxy_vendor_accounts/#{o.id}", pending_closure: true
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh).to have_attributes(pending_closure: true)
+    end
+  end
+
   describe "POST /v1/anon_proxy_vendor_accounts/:id/destroy" do
     it "destroys the resource" do
       m = Suma::Fixtures.anon_proxy_vendor_account.create

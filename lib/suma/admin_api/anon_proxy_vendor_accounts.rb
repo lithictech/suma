@@ -38,6 +38,20 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
       Suma::AnonProxy::VendorAccount,
       DetailedVendorAccountEntity,
     )
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::AnonProxy::VendorAccount,
+      DetailedVendorAccountEntity,
+    ) do
+      params do
+        optional :latest_access_code, type: String
+        optional :latest_access_code_magic_link, type: String
+        optional :latest_access_code_set_at, type: Time
+        optional :latest_access_code_requested_at, type: Time
+        optional :pending_closure, type: Boolean
+      end
+    end
+
     Suma::AdminAPI::CommonEndpoints.destroy(
       self,
       Suma::AnonProxy::VendorAccount,
