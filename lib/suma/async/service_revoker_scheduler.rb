@@ -9,10 +9,10 @@ class Suma::Async::ServiceRevokerScheduler
   extend Amigo::ScheduledJob
 
   sidekiq_options(Suma::Async.cron_job_options)
-  cron "4,34 * * * *" # Twice an hour
+  cron "34 12 * * *"
   splay 60.seconds
 
   def _perform
-    Suma::Program::ServiceRevoker.run
+    Suma::Program::ServiceRevoker.new.run
   end
 end

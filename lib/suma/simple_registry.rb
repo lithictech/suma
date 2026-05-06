@@ -9,7 +9,13 @@ module Suma::SimpleRegistry
   # Override the registry key used in +registry_lookup!+.
   attr_accessor :registry_override
 
-  def register(key, value, *args, **kwargs)
+  def register(key, value=nil, *args, **kwargs)
+    if value.nil?
+      raise ArgumentError, "if value is not provided, key '#{key.inspect}' must respond to :key" unless
+        key.respond_to?(:key)
+      value = key
+      key = key.key
+    end
     self.registry[key.to_s] = [value, args, kwargs]
   end
 

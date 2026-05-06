@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require "suma/admin_actions"
 require "suma/admin_linked"
 require "suma/anon_proxy"
 require "suma/postgres"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
   include Suma::Postgres::HybridSearch
+  include Suma::AdminActions
   include Suma::AdminLinked
 
   RECENT_ACCESS_CODE_CUTOFF = 10.minutes
@@ -197,6 +199,35 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     requires(all: true)
 
     def prompt_for_payment_method = self.requires_payment_method && !self.has_payment_method
+  end
+
+  def _admin_actions_self
+    r = []
+    if self.auth_to_vendor.class.key == :lime && self.latest_access_code_set_at
+      r << if self.pending_closure
+             self._admin_action(
+               "Finish Lime Revocation",
+               "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login/finish",
+               confirmation_prompt: "Did you log in with the Lime magic link?",
+             )
+      else
+        prompt = "This will start logging the user out of Lime. You need to refresh the page until " \
+                 "a Magic Link is present, then log in with it, then use Finish Lime Revocation."
+        self._admin_action(
+          "Revoke Lime Login",
+          "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
+          confirmation_prompt: prompt,
+        )
+          end
+    elsif self.auth_to_vendor.class.key == :lyft_pass && self.registrations.any?
+      a = self._admin_action(
+        "Revoke Lyft Pass",
+        "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lyft_pass",
+        confirmation_prompt: "This will remove the user from any associated Lyft Passes. Are you sure?",
+      )
+      r << a
+    end
+    return r
   end
 
   def rel_admin_link = "/vendor-account/#{self.id}"

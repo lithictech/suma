@@ -2,6 +2,8 @@
 
 class Suma::AnonProxy::AuthToVendor::Fake < Suma::AnonProxy::AuthToVendor
   class << self
+    def key = :fake
+
     attr_accessor :calls, :auth, :needs_polling
 
     def reset

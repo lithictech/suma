@@ -35,18 +35,17 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
 
     vendor_account = vendor_account_message.vendor_account
     if vendor_account.pending_closure
-      lime_atv = Suma::AnonProxy::AuthToVendor::Lime.new(vendor_account)
-      # This will log the user out of their own device, which is good enough.
-      begin
-        lime_atv.exchange_magic_link_token(token)
-      rescue Suma::AnonProxy::AuthToVendor::Lime::NoToken
-        # If when we log in, we're served with a user agreement rather than an auth token,
-        # that is good enough (we think).
-        nil
-      end
-      # This email is now trashed for 90 days; clear it out so the next time
-      # the account is linked, a new contact is generated.
-      vendor_account.update(pending_closure: false, contact: nil)
+      # As of sometime in early 2026, we can no longer exchange the magic link token;
+      # instead, it's supposed to be followed to a Cloudflare page,
+      # then a link with a new token is issued, and users follow that.
+      # So we need to log people out manually.
+      # Update the magic link, so an admin can follow the link to login manually
+      # (which will THEN trash the user's existing access).
+      # Then the admin should use the external action to mark the account
+      # as no longer pending closure, and removing the contact association,
+      # which is what used to happen here.
+      vendor_account.replace_access_code(token, magic_link)
+      vendor_account.save_changes
       result.handled = true
       return result
     elsif Suma::Payment.service_usage_prohibited_reason(vendor_account.member.payment_account)

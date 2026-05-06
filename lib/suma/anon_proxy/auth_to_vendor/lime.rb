@@ -8,6 +8,8 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
   USER_AGENT = "Android Lime/3.219.0; (com.limebike; build:3.219.0; Android 33) 4.12.0"
   APP_VERSION = "3.219.0"
 
+  def self.key = :lime
+
   def agreement_params
     return {user_agreement_version: Suma::Lime.user_agreement_version, user_agreement_country_code: "US"}
   end

@@ -85,7 +85,7 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   # @return [String]
 end
 
-require "suma/program/enrollment_remover"
+require "suma/program/service_revoker"
 require "suma/program/has"
 
 # Table: programs

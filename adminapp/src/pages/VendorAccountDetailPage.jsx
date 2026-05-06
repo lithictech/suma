@@ -1,4 +1,5 @@
 import api from "../api";
+import AdminActions from "../components/AdminActions";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
@@ -15,6 +16,7 @@ export default function VendorAccountDetailPage() {
       resource="vendor_account"
       apiGet={api.getVendorAccount}
       apiDelete={api.destroyVendorAccount}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -39,9 +41,13 @@ export default function VendorAccountDetailPage() {
           label: "Latest Access Code Set At",
           value: formatDate(model.latestAccessCodeSetAt),
         },
+        {
+          label: "Pending Closure",
+          value: model.pendingClosure,
+        },
       ]}
     >
-      {(model) => [
+      {(model, setModel) => [
         <DetailGrid
           title="Configuration"
           properties={[
@@ -69,11 +75,13 @@ export default function VendorAccountDetailPage() {
             title="Member Contact"
             properties={[
               { label: "ID", value: <AdminLink model={model.contact} /> },
+              { label: "Created At", value: formatDate(model.contact.createdAt) },
               { label: "Address", value: model.contact.formattedAddress },
               { label: "Relay Key", value: model.contact.relayKey },
             ]}
           />
         ),
+        <AdminActions adminActions={model.adminActions} updateModel={setModel} />,
         <RelatedList
           title="Registrations"
           rows={model.registrations}
