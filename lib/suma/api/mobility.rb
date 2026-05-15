@@ -12,7 +12,7 @@ class Suma::API::Mobility < Suma::API::V1
     helpers do
       def fetch_pricings(pricing_id: nil)
         dataset = Suma::Program::Pricing.where(id: pricing_id) if pricing_id
-        rows = Suma::Program::Pricing.fetch_eligible_to(current_member, as_of: current_time, dataset:)
+        rows = Suma::Program::Pricing.fetch_service_pricings_eligible_to(current_member, as_of: current_time, dataset:)
         return rows
       end
 

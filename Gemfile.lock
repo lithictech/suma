@@ -335,7 +335,7 @@ GEM
       sequel
     sequel-soft-deletes (0.1.3)
     sequel-state-machine (1.4.0)
-    sequel-tstzrange-fields (0.2.2)
+    sequel-tstzrange-fields (0.3.1)
       pg
       sequel
     sequel_pg (1.19.0)
@@ -480,7 +480,7 @@ DEPENDENCIES
   sequel-money-fields
   sequel-soft-deletes
   sequel-state-machine (~> 1.4)
-  sequel-tstzrange-fields
+  sequel-tstzrange-fields (~> 0.3)
   sequel_pg
   sidekiq (~> 8.0)
   sidekiq-amigo (~> 1.13)
