@@ -458,7 +458,7 @@ class Suma::Lyft::Pass
       receipt.undiscounted_subtotal += li.amount if li.amount.positive?
     end
 
-    Suma::Mobility::TripImporter.import(receipt:, program: pricing.program, logger: self.logger)
+    Suma::Mobility::TripImporter.import(receipt:, logger: self.logger)
     return receipt.trip.new? ? nil : receipt.trip
   end
 

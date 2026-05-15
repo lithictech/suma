@@ -223,25 +223,66 @@ RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::
       expect(Suma::Mobility::Trip.all).to be_empty
     end
 
-    it "errors if the associated program does not have pricing" do
-      program.pricings.first.destroy
-      txt = <<~CSV
-        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
-        RTOKEN1,,09/16/2024 12:01 AM,09/16/2024 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
-      CSV
-      expect do
-        described_class.new.run_for_report(txt)
-      end.to raise_error(Suma::InvalidPrecondition, /No pricing found/)
-    end
-
-    it "uses the first eligible available program pricing", :i18n do
-      Suma::Fixtures.program_pricing.create(program: program)
+    it "uses the first available, eligible available program pricing", :i18n do
+      extra_pricing = Suma::Fixtures.program_pricing.create(program: program)
       txt = <<~CSV
         TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
         RTOKEN1,,09/16/2024 12:01 AM,09/16/2024 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
       CSV
       described_class.new.run_for_report(txt)
       expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vendor_service_rate: be === rate))
+    end
+
+    describe "when there is no pricing eligible/available to the member" do
+      let(:txt) { <<~CSV }
+        TRIP_TOKEN,CONSEQUENCE,START_TIME,END_TIME,START_LATITUDE,START_LONGITUDE,END_LATITUDE,END_LONGITUDE,REGION_NAME,USER_TOKEN,USER_EMAIL,TRIP_DURATION_MINUTES,TRIP_DISTANCE_MILES,COST_TO_SUMA,UNLOCK_COST,DURATION_COST,COST_PER_MINUTE,LIME_ACCESS_COST,STANDARD_FEE,PERCENT_DISCOUNT_RATE,REFUNDED_FLAG,,,,,,
+        RTOKEN1,,09/16/2024 12:01 AM,09/16/2024 12:43 AM,45.464916,-122.647268,45.465336,-122.647118,Portland,6TWQPKZDTVI44,m1@in.mysuma.org,15.00,0.23,$1.00,$0.50,$1.05,$0.07,$1.55,$6.88,77,N,,,,,,
+      CSV
+      let(:old_period) { Time.parse("2020-01-01")..Time.parse("2020-01-02") }
+
+      def make_ineligible(pr) = Suma::Fixtures.eligibility_requirement.of(pr).attribute.create
+
+      it "uses a single available (though ineligible) pricing", :i18n do
+        make_ineligible(program)
+        described_class.new.run_for_report(txt)
+        expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vendor_service_rate: be === rate))
+      end
+
+      it "errors if there is no fallback pricing", :i18n do
+        vendor_service.update(period: old_period)
+        expect do
+          described_class.new.run_for_report(txt)
+        end.to raise_error(described_class::UnhandledScenario, /Zero pricings available/)
+      end
+
+      it "errors if there are multiple fallback pricings", :i18n do
+        make_ineligible(program)
+        extra_prog = Suma::Fixtures.program.with_pricing(vendor_service:).create(period:)
+        va.configuration.add_program(extra_prog)
+        make_ineligible(extra_prog)
+        expect do
+          described_class.new.run_for_report(txt)
+        end.to raise_error(described_class::UnhandledScenario, /Multiple pricings available/)
+      end
+
+      it "collapses redundant pricings on service/rate", :i18n do
+        make_ineligible(program)
+        # rate2 = Suma::Fixtures.vendor_service_rate.create(ordinal: -100)
+        extra_prog = Suma::Fixtures.program.with_pricing(vendor_service:, vendor_service_rate: rate).create(period:)
+        va.configuration.add_program(extra_prog)
+        make_ineligible(extra_prog)
+        described_class.new.run_for_report(txt)
+        expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vendor_service_rate: be === rate))
+      end
+
+      it "ignores pricing on closed programs", :i18n do
+        make_ineligible(program)
+        extra_prog = Suma::Fixtures.program.with_pricing(vendor_service:).create(period: old_period)
+        va.configuration.add_program(extra_prog)
+        make_ineligible(extra_prog)
+        described_class.new.run_for_report(txt)
+        expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vendor_service_rate: be === rate))
+      end
     end
 
     it "does not create duplicate trips", :i18n do

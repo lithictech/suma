@@ -17,10 +17,10 @@ class Suma::Program::Pricing < Suma::Postgres::Model(:program_pricings)
     # The result is sorted by vendor service rate ordinal, higher-first.
     # This means that if there are multiple rates for the same service,
     # the first one that appears should take precedence.
-    def fetch_eligible_to(member, as_of:, dataset: nil)
+    def fetch_service_pricings_eligible_to(member, as_of:, dataset: nil, only_eligible: true)
       ds = dataset || self.dataset
       ds = ds.where(vendor_service: Suma::Vendor::Service.dataset.available_at(as_of))
-      rows = ds.fetch_eligible_to(member, as_of:)
+      rows = only_eligible ? ds.fetch_eligible_to(member, as_of:) : ds.all
       rows.sort_by! { |pri| pri.vendor_service_rate.ordinal }
       return rows
     end

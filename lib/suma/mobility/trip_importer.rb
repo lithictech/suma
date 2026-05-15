@@ -117,11 +117,11 @@ module Suma::Mobility::TripImporter
   end
 
   # @param receipt [Receipt]
-  def self.import(receipt:, program:, logger:)
+  def self.import(receipt:, logger:)
     trip = receipt.trip
     end_trip_result = receipt.end_trip_result
     trip.db.transaction do
-      self._prepare_subsidy(receipt, program)
+      self._prepare_subsidy(receipt)
       begin
         trip.charge_trip(end_trip_result)
       rescue Sequel::UniqueConstraintViolation
@@ -161,7 +161,7 @@ module Suma::Mobility::TripImporter
   # and also shows predictive ride pricing properly.
   #
   # @param receipt [Receipt]
-  def self._prepare_subsidy(receipt, _program)
+  def self._prepare_subsidy(receipt)
     return if receipt.subsidized_off_platform_amount.zero?
     member_account = receipt.trip.member.payment_account!
     subsidizing_trigger = Suma::Payment::Trigger.

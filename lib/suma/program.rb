@@ -50,6 +50,7 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :association_array_replacer, :commerce_offerings, :anon_proxy_vendor_configurations
 
   dataset_module do
+    def available_at(t) = tstzrange_contains(t)
   end
 
   class << self
