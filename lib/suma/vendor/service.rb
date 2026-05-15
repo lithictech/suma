@@ -37,17 +37,9 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
               order: order_desc
 
   dataset_module do
-    def mobility
-      return self.with_category("mobility")
-    end
-
-    def with_category(slug)
-      return self.where(categories: Suma::Vendor::ServiceCategory.where(slug:))
-    end
-
-    def available_at(t)
-      return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
-    end
+    def mobility = self.with_category("mobility")
+    def with_category(slug) = self.where(categories: Suma::Vendor::ServiceCategory.where(slug:))
+    def available_at(t) = self.tstzrange_contains(t)
   end
 
   # Raise a +Suma::Member::ReadOnlyMode+ error there is a +usage_prohibited_reason+.

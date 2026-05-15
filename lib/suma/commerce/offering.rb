@@ -146,9 +146,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   def total_ordered_items = total_ordered_items_by_member.values.sum
 
   dataset_module do
-    def available_at(t)
-      return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
-    end
+    def available_at(t) = self.tstzrange_contains(t)
   end
 
   # @!attribute max_ordered_items_cumulative

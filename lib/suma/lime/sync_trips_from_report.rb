@@ -8,6 +8,7 @@ class Suma::Lime::SyncTripsFromReport
   include Appydays::Loggable
 
   class InvalidReportRow < StandardError; end
+  class UnhandledScenario < StandardError; end
 
   DEFAULT_VEHICLE_TYPE = Suma::Mobility::ESCOOTER
   DEFAULT_CUTOFF = 2.weeks
@@ -135,8 +136,8 @@ class Suma::Lime::SyncTripsFromReport
           # We do NOT handle the race condition with a unique violation on external_trip_id,
           # since in that case we assume we're dealing with the same code, and it isn't worth the complexity.
           if Suma::Lime.trip_report_overwrite
-            new_values = self.parse_trip_from_row(row, user_email:)[:receipt]
-            existing.update(new_values.trip.values)
+            new_receipt = self.parse_trip_from_row(row, user_email:)
+            existing.update(new_receipt.trip.values)
           end
           existing_rows += 1
           self.logger.debug("lime_trip_exists", overwritten: Suma::Lime.trip_report_overwrite)
@@ -164,29 +165,48 @@ class Suma::Lime::SyncTripsFromReport
 
   def parse_trip_from_row(row, user_email:)
     registration = Suma::AnonProxy::VendorAccountRegistration.find!(external_program_id: user_email)
-    vendor_config = registration.account.configuration
-    member = registration.account.member
     receipt_fields = self.extract_receipt_fields_from_row(row)
-    pricing = Suma::Program::Pricing.
-      fetch_eligible_to(
-        member,
-        as_of: receipt_fields.fetch(:began_at),
-        dataset: Suma::Program::Pricing.where(program: vendor_config.programs_dataset),
-      ).first
-    raise Suma::InvalidPrecondition, "No pricing found for #{vendor_config.inspect}" if pricing.nil?
-    program = pricing.program
+    pricing = self._find_pricing(registration, as_of: receipt_fields.fetch(:began_at))
     receipt = self.parse_row_to_receipt(row, receipt_fields, rate: pricing.vendor_service_rate)
     receipt.trip.set(
-      member:,
+      member: registration.account.member,
       vendor_service: pricing.vendor_service,
       vendor_service_rate: pricing.vendor_service_rate,
     )
-    return {receipt:, program:}
+    return receipt
+  end
+
+  # Figure out which pricing to use for the member trip.
+  # See code for details.
+  def _find_pricing(registration, as_of:)
+    member = registration.account.member
+    vendor_config = registration.account.configuration
+    dataset = Suma::Program::Pricing.where(program: vendor_config.programs_dataset.available_at(as_of))
+    pricing = Suma::Program::Pricing.fetch_service_pricings_eligible_to(member, as_of:, dataset:).first
+    # If we have an eligible pricing, use that.
+    return pricing if pricing
+
+    # We don't have an eligible pricing, yet they took a trip.
+    # In this case, if there is only ONE possible pricing that could have been used,
+    # go ahead and use it. If we have 0 or > 1, raise for a weird situation.
+    potential_pricings = Suma::Program::Pricing.
+      fetch_service_pricings_eligible_to(member, as_of:, dataset:, only_eligible: false)
+    potential_pricings.uniq! { |pr| [pr.vendor_service_id, pr.vendor_service_rate_id] }
+
+    if potential_pricings.empty?
+      msg = "Zero pricings available when trip was taken. Registration: #{registration.inspect}"
+      raise UnhandledScenario, msg
+    elsif potential_pricings.size > 1
+      msg = "Multiple pricings available when trip was taken. Registration: #{registration.inspect}\n" \
+            "Pricings: #{potential_pricings.inspect}"
+      raise UnhandledScenario, msg
+    end
+    return potential_pricings.first
   end
 
   def import_trip_from_row(row, user_email:)
     r = self.parse_trip_from_row(row, user_email:)
-    Suma::Mobility::TripImporter.import(receipt: r[:receipt], program: r[:program], logger: self.logger)
+    Suma::Mobility::TripImporter.import(receipt: r, logger: self.logger)
   end
 
   private def extract_receipt_fields_from_row(row)
