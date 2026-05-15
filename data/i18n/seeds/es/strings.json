@@ -287,7 +287,7 @@
   "onboarding.utilities_title": "Energia renovable",
   "otp.code_resent": "Nuevo código enviado a {{phone}}.",
   "otp.did_not_receive": "¿No recibiste un mensaje de texto?",
-  "otp.enter_code": "Introduzca código {{index}}",
+  "otp.enter_code_v2": "Dígito {{index}} de {{total}}",
   "otp.enter_code_sent_to": "Introducir el código que enviamos",
   "otp.send_new_code": "Enviar un nuevo código",
   "otp.verify": "Verificar",

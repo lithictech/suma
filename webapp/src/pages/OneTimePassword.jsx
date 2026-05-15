@@ -175,7 +175,10 @@ const OneTimePassword = () => {
                 onPaste={handleOtpPaste}
                 onFocus={(e) => e.target.select()}
                 autoFocus={index === 0}
-                aria-label={t("otp.enter_code", { index: index + 1 })}
+                aria-label={t("otp.enter_code_v2", {
+                  index: index + 1,
+                  total: OTP_LENGTH,
+                })}
                 autoComplete="one-time-code"
               />
             ))}
