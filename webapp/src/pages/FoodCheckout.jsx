@@ -314,6 +314,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
         selected={checkout.fulfillmentOptionId}
         register={register}
         errors={errors}
+        required
         onChange={(e) => handleCheckoutChange(e)}
       />
     </>
