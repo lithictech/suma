@@ -17,7 +17,7 @@ const FormError = React.forwardRef(
       className
     );
     return (
-      <Component ref={ref} className={cls} style={style}>
+      <Component ref={ref} className={cls} style={style} role="alert">
         {msg}
       </Component>
     );

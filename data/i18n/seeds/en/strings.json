@@ -287,7 +287,7 @@
   "onboarding.utilities_title": "Green Energy",
   "otp.code_resent": "New code sent to {{phone}}.",
   "otp.did_not_receive": "Didn't recieve a text message?",
-  "otp.enter_code": "Enter code {{index}}",
+  "otp.enter_code_v2": "Digit {{index}} of {{total}}",
   "otp.enter_code_sent_to": "Enter the code that we sent to",
   "otp.send_new_code": "Send a new code",
   "otp.verify": "Verify",
