@@ -11,11 +11,13 @@ require "sequel/sequel_translated_text"
 
 require "suma/rack_attack"
 require "suma/performance"
+require "suma/scout"
 
 require "suma/service" unless defined?(Suma::Service)
 
 module Suma::Service::Middleware
   def self.add_middlewares(builder)
+    builder.use(Suma::Scout::RackMiddleware)
     self.add_cors_middleware(builder)
     self.add_common_middleware(builder)
     self.add_dev_middleware(builder) if Suma::Service.devmode

@@ -316,6 +316,8 @@ GEM
       ffi (~> 1.12)
       logger
     ruby2_keywords (0.0.5)
+    scout_apm (6.2.0)
+      parser
     securerandom (0.4.1)
     semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
@@ -472,6 +474,7 @@ DEPENDENCIES
   rubocop-rake
   rubocop-sequel
   ruby-vips
+  scout_apm
   semantic_logger
   sentry-ruby
   sentry-sidekiq

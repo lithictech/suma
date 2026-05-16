@@ -5,6 +5,8 @@ require "suma/async"
 
 Suma::Async.setup_web
 
+Suma::Scout.install?
+
 map "/api" do
   run Suma::Apps::API.build_app
 end
