@@ -122,4 +122,84 @@ RSpec.describe Suma::Performance, reset_configuration: Suma::Performance do
       end
     end
   end
+
+  describe "vernier app" do
+    include Rack::Test::Methods
+
+    after(:each) do
+      app.collector&.stop
+      app.tempfile&.unlink
+    end
+
+    keyp = "?key=xy"
+
+    let(:app) { Suma::Performance::VernierRackApp.new(key: "xy") }
+
+    describe "with start=true" do
+      it "can start a collector with the given values" do
+        expect(app.collector).to be_nil
+        expect(app.tempfile).to be_nil
+
+        get "#{keyp}&start=true&mode=retained"
+
+        expect(last_response).to have_status(200)
+        expect(app.collector).to be_a(Vernier::Collector::RetainedCollector)
+        expect(app.tempfile).to be_a(Tempfile)
+      end
+
+      it "starts a collector with default values" do
+        get "#{keyp}&start=true"
+
+        expect(last_response).to have_status(200)
+        expect(app.collector).to be_a(Vernier::Collector::TimeCollector)
+      end
+
+      it "can stop and replace and existing collector" do
+        get "#{keyp}&start=true"
+
+        expect(last_response).to have_status(200)
+        expect(app.collector).to be_a(Vernier::Collector::TimeCollector)
+
+        get "#{keyp}&start=true&mode=retained"
+
+        expect(last_response).to have_status(200)
+        expect(app.collector).to be_a(Vernier::Collector::RetainedCollector)
+      end
+    end
+
+    describe "with stop=true" do
+      it "stops and reports the running collector" do
+        get "#{keyp}&start=true"
+
+        expect(last_response).to have_status(200)
+        expect(app.collector).to be_a(Vernier::Collector)
+        expect(app.tempfile).to be_present
+
+        get "#{keyp}&stop=true"
+
+        expect(last_response).to have_status(200)
+        expect(app.collector).to be_nil
+        expect(app.tempfile).to be_nil
+        expect(last_response.headers).to include(
+          "content-disposition",
+          "content-length",
+          "content-type" => "application/octet-stream",
+        )
+        expect(last_response.body).to include("\x1F")
+      end
+
+      it "errors if no collector is running" do
+        get "#{keyp}&stop=true"
+
+        expect(last_response).to have_status(400)
+        expect(last_response.body).to include("collector not running")
+      end
+    end
+
+    it "requires a valid key param" do
+      get "?key=1&start=true"
+
+      expect(last_response).to have_status(401)
+    end
+  end
 end

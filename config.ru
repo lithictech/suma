@@ -26,4 +26,9 @@ end
 map Suma::UrlShortener::ROOT_PATH do
   run Suma::Apps::UrlRedirects.to_app
 end
+if Suma::Performance.vernier_enabled
+  map Suma::Performance::VERNIER_PATH do
+    run Suma::Apps::Vernier.to_app
+  end
+end
 run Suma::Apps::Root.to_app

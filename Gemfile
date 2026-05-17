@@ -68,6 +68,7 @@ gem "state_machines"
 gem "stripe"
 gem "tsort"
 gem "twilio-ruby", "~> 5.74"
+gem "vernier"
 gem "yajl-ruby"
 
 # By default, Heroku ignores 'test' gem groups.
