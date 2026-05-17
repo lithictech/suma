@@ -2,6 +2,7 @@
 
 require "appydays/configurable"
 require "appydays/loggable"
+require "vernier"
 
 module Suma::Performance
   include Appydays::Configurable
@@ -12,9 +13,12 @@ module Suma::Performance
     setting :slow_query_seconds, 0.06
     setting :log_duplicates, true
     setting :log_slow, true
+    setting :vernier_enabled, false
+    setting :vernier_key, SecureRandom.hex(20)
   end
 
   THREAD_KEY = :suma_performance
+  VERNIER_PATH = "/_vernier"
 
   class << self
     # Is performance monitoring active within this context?
@@ -146,6 +150,64 @@ module Suma::Performance
           logged_queries << homogenized_query
         end
       end
+    end
+  end
+
+  class VernierRackApp
+    HOOKS = [
+      :activesupport,
+      :memory_usage,
+    ].freeze
+
+    attr_reader :hooks, :interval, :allocation_interval, :collector, :tempfile
+
+    def initialize(key:, hooks: HOOKS, interval: 200, allocation_interval: 100, mode: :wall)
+      @key = key
+      @hooks = hooks
+      @interval = interval
+      @allocation_interval = allocation_interval
+      @mode = mode
+      @collector = nil
+      @tempfile = nil
+    end
+
+    def call(env)
+      request = Rack::Request.new(env)
+      key = request.GET["key"]
+      return Rack::Response.new("invalid key", 401, {}).finish unless key == @key
+      start = request.GET.key?("start")
+      mode = (request.GET["mode"] || @mode).to_sym
+      interval = (request.GET["interval"] || @interval).to_i
+      allocation_interval = (request.GET["allocation_interval"] || @allocation_interval).to_i
+      stop = request.GET.key?("stop")
+
+      @tempfile = Tempfile.new("vernier", binmode: true)
+      if start
+        opts = {out: @tempfile}
+        if mode == :wall
+          opts[:interval] = interval
+          opts[:allocation_interval] = allocation_interval
+        end
+        @collector&.send(:finish) # start writes; we just want to finish collecting
+        @collector = Vernier::Collector.new(mode, opts)
+        @collector.start
+      end
+      if stop
+        return Rack::Response.new("collector not running", 400, {}).finish if @collector.nil?
+        result = @collector.stop
+        @collector = nil
+        body = result.to_firefox(gzip: true)
+        @tempfile.unlink
+        @tempfile = nil
+        filename = "#{request.path.tr('/', '_')}_#{DateTime.now.strftime('%Y-%m-%d-%H-%M-%S')}.vernier.json.gz"
+        headers = {
+          "Content-Type" => "application/octet-stream",
+          "Content-Disposition" => "attachment; filename=\"#{filename}\"",
+          "Content-Length" => body.bytesize.to_s,
+        }
+        return Rack::Response.new(body, 200, headers).finish
+      end
+      return Rack::Response.new("ok", 200, {}).finish
     end
   end
 end

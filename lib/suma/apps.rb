@@ -178,6 +178,10 @@ module Suma::Apps
     run ::UrlShortener::RackApp.new(Suma::UrlShortener.shortener)
   end
 
+  Vernier = Rack::Builder.new do
+    run Suma::Performance::VernierRackApp.new(key: Suma::Performance.vernier_key)
+  end
+
   def self.emplace_dynamic_config
     # Write some static strings into the index file.
     # Note that seeing this requires a full restart,
