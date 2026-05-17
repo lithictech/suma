@@ -49,7 +49,7 @@ class Rack::UtmCapture
       acc[key] = req.params[key] if req.params[key]
     end
   rescue Rack::Multipart::EmptyContentError
-    nil
+    return {}
   end
 
   # Build Set-Cookie headers (but avoid overwriting existing cookie if not needed)
