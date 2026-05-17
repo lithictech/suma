@@ -5,7 +5,7 @@ ruby "4.0.2"
 
 gem "activesupport", "~> 8.0"
 gem "appydays", "~> 0.13"
-gem "barnes", "~> 0.0"
+gem "barnes", "~> 1.0"
 gem "base64"
 gem "bcrypt"
 gem "biz"

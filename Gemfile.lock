@@ -27,9 +27,10 @@ GEM
       dotenv (~> 3.1)
       semantic_logger (~> 4.6)
     ast (2.4.3)
-    barnes (0.0.9)
-      multi_json (~> 1)
-      statsd-ruby (~> 1.1)
+    barnes (1.0.0)
+      json
+      logger
+      ostruct
     base64 (0.3.0)
     bcrypt (3.1.22)
     bigdecimal (4.1.0)
@@ -167,7 +168,7 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     inflecto (0.0.2)
     io-console (0.8.2)
-    json (2.19.3)
+    json (2.19.5)
     jwt (2.10.2)
       base64
     language_server-protocol (3.17.0.5)
@@ -376,7 +377,6 @@ GEM
     simplecov_json_formatter (0.1.4)
     smstools (0.2.2)
     state_machines (0.101.0)
-    statsd-ruby (1.5.0)
     stripe (19.0.0)
       bigdecimal
       logger
@@ -416,7 +416,7 @@ DEPENDENCIES
   activesupport (~> 8.0)
   amazing_print
   appydays (~> 0.13)
-  barnes (~> 0.0)
+  barnes (~> 1.0)
   base64
   bcrypt
   biz
