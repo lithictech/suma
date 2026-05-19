@@ -54,6 +54,8 @@ class Suma::Service < Grape::API
 
     setting :endpoint_caching, false
 
+    setting :related_list_size, 20
+
     setting :verify_localized_error_codes, false
 
     setting :swagger_enabled, ENV["RACK_ENV"] == "development"

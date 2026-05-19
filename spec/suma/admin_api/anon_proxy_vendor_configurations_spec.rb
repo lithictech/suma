@@ -68,7 +68,7 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorConfigurations, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: config.id)
       expect(last_response).to have_json_body.
-        that_includes(programs: have_same_ids_as(to_add))
+        that_includes(programs: include(items: have_same_ids_as(to_add)))
     end
 
     it "403s if the constraint does not exist" do

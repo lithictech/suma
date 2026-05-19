@@ -32,6 +32,38 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
   get :invalid_precond do
     raise Suma::InvalidPrecondition, "hello"
   end
+
+  class ChildEntity < Suma::Service::Entities::Base
+    expose :id
+  end
+
+  class EntityWithRelated < Suma::AdminAPI::Entities::BaseEntity
+    expose :name
+    expose_related :products, with: ChildEntity
+    expose_related :products, as: :children, with: ChildEntity
+    expose_related :defed_alias, with: ChildEntity
+  end
+
+  route_setting :skip_role_check, true
+  resource :model_with_related do
+    route_param :id do
+      get do
+        vendor = Suma::Vendor.find!(id: params[:id])
+        vendor.instance_exec do
+          def defed_alias_dataset = self.products_dataset
+        end
+        present vendor, with: EntityWithRelated
+      end
+    end
+
+    Suma::AdminAPI::CommonEndpoints.related(
+      self,
+      Suma::Vendor,
+      Suma::Commerce::Product,
+      ChildEntity,
+      :products,
+    )
+  end
 end
 
 RSpec.describe Suma::AdminAPI, :db do
@@ -109,6 +141,53 @@ RSpec.describe Suma::AdminAPI, :db do
       expect(last_response).to have_status(400)
       expect(last_response).to have_json_body.
         that_includes(error: include(message: "Hello"))
+    end
+
+    describe "related lists", reset_configuration: Suma::Service do
+      before(:each) do
+        Suma::Service.related_list_size = 4
+      end
+
+      let(:vendor) do
+        vendor = Suma::Fixtures.vendor.create(name: "foo")
+        Array.new(5) { Suma::Fixtures.product.create(vendor:) }
+        vendor
+      end
+
+      it "is exposed on the entity" do
+        get "/v1/model_with_related/#{vendor.id}"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            name: "foo",
+            products: include(
+              current_page: 1,
+              page_count: 2,
+              total_count: 5,
+              has_more: true,
+              url: "/v1/model_with_related/#{vendor.id}/products",
+              items: have_length(4),
+            ),
+            children: include(items: have_length(4)),
+            defed_alias: include(items: have_length(4)),
+          )
+      end
+
+      it "can expose a paginated list endpoint" do
+        get "/v1/model_with_related/#{vendor.id}/products", page: 2, per_page: 2
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            current_page: 2,
+            page_count: 3,
+            total_count: 5,
+            has_more: true,
+            url: "/v1/model_with_related/#{vendor.id}/products",
+            items: have_length(2),
+          )
+      end
     end
   end
 

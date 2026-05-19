@@ -82,7 +82,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(last_response).to have_status(200)
       expect(Suma::Program.all).to have_length(1)
       expect(last_response).to have_json_body.that_includes(
-        commerce_offerings: contain_exactly(include(id: offering.id)),
+        commerce_offerings: include(items: contain_exactly(include(id: offering.id))),
       )
     end
   end
@@ -97,7 +97,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: program.id,
-        commerce_offerings: contain_exactly(include(id: o.id)),
+        commerce_offerings: include(items: have_same_ids_as(o)),
       )
     end
 

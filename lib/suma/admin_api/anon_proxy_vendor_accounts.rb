@@ -24,7 +24,7 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
     expose :latest_access_code_magic_link
     expose :pending_closure
     expose :contact, with: AnonProxyMemberContactEntity
-    expose :registrations, with: VendorAccountRegistrationEntity
+    expose_related :registrations, with: VendorAccountRegistrationEntity
   end
 
   resource :anon_proxy_vendor_accounts do

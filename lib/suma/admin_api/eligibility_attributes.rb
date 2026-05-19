@@ -10,9 +10,9 @@ class Suma::AdminAPI::EligibilityAttributes < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :description
-    expose :children, with: EligibilityAttributeEntity
-    expose :assignments, with: EligibilityAssignmentEntity
-    expose :referenced_requirements, with: EligibilityRequirementEntity
+    expose_related :children, with: EligibilityAttributeEntity
+    expose_related :assignments, with: EligibilityAssignmentEntity
+    expose_related :referenced_requirements, with: EligibilityRequirementEntity
   end
 
   resource :eligibility_attributes do

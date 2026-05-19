@@ -18,11 +18,8 @@ class Suma::Payment::PlatformStatus
   def platform_ledgers
     @platform_ledgers ||= Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
   end
-  # Unbalanced ledgers. These do not belong to the platform account,
-  # since unbalanced member ledgers always mean unbalanced platform ledgers.
-  attr_accessor :unbalanced_ledgers
 
-  attr_accessor :off_platform_funding_transactions, :off_platform_payout_transactions
+  attr_accessor :off_platform_funding_transactions_dataset, :off_platform_payout_transactions_dataset
 
   def calculate
     funding_ds = Suma::Payment::FundingTransaction.dataset
@@ -34,9 +31,9 @@ class Suma::Payment::PlatformStatus
     self.funding_count -= self.refund_count
     self.member_liabilities = self.platform_ledgers.sum(&:balance) * -1
     self.assets = self.funding - self.payouts
-    self.unbalanced_ledgers = self.find_unbalanced_ledgers_ds.all
-    self.off_platform_funding_transactions = offplatform_ds(funding_ds).all
-    self.off_platform_payout_transactions = offplatform_ds(payout_ds).all
+    self.unbalanced_ledgers_dataset = self.find_unbalanced_ledgers_ds
+    self.off_platform_funding_transactions_dataset = offplatform_ds(funding_ds)
+    self.off_platform_payout_transactions_dataset = offplatform_ds(payout_ds)
     return self
   end
 
@@ -82,5 +79,7 @@ class Suma::Payment::PlatformStatus
     return Suma::Payment::Ledger.order(:account_id, :name, :id).where(id: unbalanced_ids)
   end
 
+  # Unbalanced ledgers. These do not belong to the platform account,
+  # since unbalanced member ledgers always mean unbalanced platform ledgers.
   def unbalanced_ledgers_dataset = self.find_unbalanced_ledgers_ds
 end

@@ -18,9 +18,9 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :description
-    expose :members, with: Suma::AdminAPI::Entities::MemberEntity
-    expose :organizations, with: Suma::AdminAPI::Entities::OrganizationEntity
-    expose :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose_related :members, with: Suma::AdminAPI::Entities::MemberEntity
+    expose_related :organizations, with: Suma::AdminAPI::Entities::OrganizationEntity
+    expose_related :eligibility_assignments, with: EligibilityAssignmentEntity
   end
 
   resource :roles do

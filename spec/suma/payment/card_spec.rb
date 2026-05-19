@@ -7,6 +7,16 @@ RSpec.describe "Suma::Payment::Card", :db do
 
   it_behaves_like "a payment instrument"
 
+  describe "associations" do
+    it "knows originated funding transactions" do
+      card = Suma::Fixtures.card.create
+      strategy = Suma::Payment::FundingTransaction::StripeCardStrategy.create(originating_card: card)
+      xaction = Suma::Fixtures.funding_transaction(strategy:).create
+
+      expect(card.originated_funding_transactions).to have_same_ids_as(xaction)
+    end
+  end
+
   it "knows when it is usable for funding and payouts" do
     c = Suma::Fixtures.card.create
     expect(c).to be_usable_for_funding

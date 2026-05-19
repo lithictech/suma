@@ -16,7 +16,7 @@ class Suma::AdminAPI::VendorServiceCategories < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :parent, with: VendorServiceCategoryEntity
-    expose :children, with: VendorServiceCategoryEntity
+    expose_related :children, with: VendorServiceCategoryEntity
   end
 
   resource :vendor_service_categories do

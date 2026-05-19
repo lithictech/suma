@@ -100,34 +100,34 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :opaque_id
-    expose :roles, with: RoleEntity
+    expose_related :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified
     expose :previous_phones do |instance|
       instance.previous_phones.map { |s| Suma::PhoneNumber.format_display(s) }
     end
     expose :previous_emails
 
-    expose :activities, with: ActivityEntity
-    expose :audit_activities, with: ActivityEntity
+    expose_related :activities, with: ActivityEntity
+    expose_related :audit_activities, with: ActivityEntity
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
-    expose :charges, with: ChargeEntity
-    expose :eligibility_assignments, with: EligibilityAssignmentEntity
-    expose :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
+    expose_related :charges, with: ChargeEntity
+    expose_related :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose_related :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
     expose :referral, with: ReferralEntity
-    expose :reset_codes, with: MemberResetCodeEntity
-    expose :sessions, with: MemberSessionEntity
-    expose :orders, with: MemberOrderEntity
-    expose :payment_instruments, with: PaymentInstrumentEntity
-    expose :message_deliveries, with: MessageDeliveryEntity
-    expose :combined_notes, as: :notes, with: SupportNoteEntity
+    expose_related :reset_codes, with: MemberResetCodeEntity
+    expose_related :sessions, with: MemberSessionEntity
+    expose_related :orders, with: MemberOrderEntity
+    expose_related :payment_instruments, with: PaymentInstrumentEntity
+    expose_related :message_deliveries, with: MessageDeliveryEntity
+    expose_related :combined_notes, as: :notes, with: SupportNoteEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
-    expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
-    expose :organization_memberships, with: OrganizationMembershipEntity
-    expose :marketing_lists, with: MarketingListEntity
-    expose :marketing_sms_dispatches, with: MarketingSmsDispatchEntity
-    expose :mobility_trips, with: MobilityTripEntity
+    expose_related :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
+    expose_related :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
+    expose_related :organization_memberships, with: OrganizationMembershipEntity
+    expose_related :marketing_lists, with: MarketingListEntity
+    expose_related :marketing_sms_dispatches, with: MarketingSmsDispatchEntity
+    expose_related :mobility_trips, with: MobilityTripEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)

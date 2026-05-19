@@ -28,9 +28,10 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
   class DetailedLedgerEntity < LedgerEntity
     include AutoExposeDetail
 
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
-    expose :combined_book_transactions, with: BookTransactionEntity
-    expose :find_unbalanced_counterparty_ledgers, as: :unbalanced_counterparties, with: UnbalancedCounterpartyEntity
+    expose_related :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose_related :combined_book_transactions, with: BookTransactionEntity
+    expose_related :find_unbalanced_counterparty_ledgers, as: :unbalanced_counterparties,
+                                                          with: UnbalancedCounterpartyEntity
   end
 
   resource :payment_ledgers do
