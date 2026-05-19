@@ -17,7 +17,7 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
     expose :undiscounted_price, with: MoneyEntity
     expose :closed_at
 
-    expose :orders, with: OrderEntity
+    expose_related :orders, with: OrderEntity
   end
 
   resource :commerce_offering_products do

@@ -11,11 +11,11 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
 
     expose_image :image
     expose :lyft_pass_program_id
-    expose :commerce_offerings, with: OfferingEntity
-    expose :pricings, with: ProgramPricingEntity
-    expose :anon_proxy_vendor_configurations, as: :configurations, with: AnonProxyVendorConfigurationEntity
-    expose :eligibility_requirements, with: EligibilityRequirementEntity
-    expose :audit_activities, with: ActivityEntity
+    expose_related :commerce_offerings, with: OfferingEntity
+    expose_related :pricings, with: ProgramPricingEntity
+    expose_related :anon_proxy_vendor_configurations, as: :configurations, with: AnonProxyVendorConfigurationEntity
+    expose_related :eligibility_requirements, with: EligibilityRequirementEntity
+    expose_related :audit_activities, with: ActivityEntity
   end
 
   resource :programs do

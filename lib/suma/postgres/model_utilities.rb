@@ -334,6 +334,17 @@ module Suma::Postgres::ModelUtilities
       end
       raise TypeError, "invalid association type: #{v.class}(#{v})"
     end
+
+    # Yield each row in the association to the block.
+    # Use this method when iterating associations which may be large;
+    # if the association is already loaded, it can be used (loaded: :reuse)
+    # or an error can be raised (loaded: :raise, default).
+    # If the association is not loaded, paginate with each_cursor_page.
+    def each_row_efficient(association)
+      assoc = self.class.association_reflections.fetch(association)
+
+
+    end
   end
 
   module DatasetMethods

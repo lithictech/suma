@@ -110,7 +110,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        sessions: contain_exactly(include(:ip_lookup_link)),
+        sessions: include(items: contain_exactly(include(:ip_lookup_link))),
         preferences: include(preferred_language_name: "Spanish"),
       )
     end
@@ -127,9 +127,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(
-          reset_codes: contain_exactly(
-            include(token: rc.token),
-          ),
+          reset_codes: include(items: contain_exactly(include(token: rc.token))),
         )
       end
 
@@ -142,11 +140,8 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         get "/v1/members/#{rc.member.id}"
 
         expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(
-          reset_codes: contain_exactly(
-            include(token: "******"),
-          ),
-        )
+        expect(last_response).to have_json_body.
+          that_includes(reset_codes: include(items: contain_exactly(include(token: "******"))))
       end
     end
   end
@@ -341,7 +336,9 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
+        that_includes(
+          notes: include(items: contain_exactly(include(content: "hello", author: include(id: admin.id)))),
+        )
     end
 
     it "errors without role access" do
@@ -364,7 +361,11 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
+        that_includes(
+          notes: include(
+            items: contain_exactly(include(content: "hello", author: include(id: admin.id))),
+          ),
+        )
     end
 
     it "errors without role access" do

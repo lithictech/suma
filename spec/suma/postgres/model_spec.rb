@@ -578,6 +578,20 @@ RSpec.describe "Suma::Postgres::Model", :db do
     end
   end
 
+  describe "each_row_efficient" do
+    it "yields each item without loading the association" do
+
+    end
+
+    it "yields each item in the association dataset" do
+
+    end
+
+    it "can raise if the association is loaded" do
+
+    end
+  end
+
   describe "one_to_many" do
     Suma::Postgres::Model.descendants.reject(&:anonymous?).each do |host_class|
       describe host_class.name do

@@ -71,7 +71,7 @@ RSpec.describe Suma::AdminAPI::VendorServiceRates, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: rate.id,
-        program_pricings: have_same_ids_as(pricing),
+        program_pricings: include(items: have_same_ids_as(pricing)),
       )
     end
 

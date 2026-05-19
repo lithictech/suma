@@ -9,8 +9,8 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
-    expose :programs, with: ProgramEntity
-    expose :payment_triggers, with: PaymentTriggerEntity
+    expose_related :programs, with: ProgramEntity
+    expose_related :payment_triggers, with: PaymentTriggerEntity
     expose :expression, &self.delegate_to(:expression, :serialize)
     expose :expression_tokens, &self.delegate_to(:expression, :tokenize)
   end
@@ -60,7 +60,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       EligibilityRequirementEntity,
       around: lambda do |_rt, m, &b|
         b.call
-        m.all_resources.each { |r| r.audit_activity("addeligibility", action: m) }
+        m.each_resource { |r| r.audit_activity("addeligibility", action: m) }
       end,
     ) do
       params do
@@ -108,7 +108,7 @@ class Suma::AdminAPI::EligibilityRequirements < Suma::AdminAPI::V1
       Suma::Eligibility::Requirement,
       DetailedEligibilityRequirement,
       around: lambda do |_rt, m, &b|
-        m.all_resources.each { |r| r.audit_activity("removedeligibility", action: m) }
+        m.each_resource { |r| r.audit_activity("removedeligibility", action: m) }
         b.call
       end,
     )

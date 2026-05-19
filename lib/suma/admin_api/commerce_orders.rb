@@ -43,7 +43,7 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :admin_status_label, as: :status_label
     expose :serial
     expose :charge, with: ChargeWithPricesEntity
-    expose :audit_logs, with: AuditLogEntity
+    expose_related :audit_logs, with: AuditLogEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
     expose :checkout, with: CheckoutEntity
     expose :items, with: CheckoutItemEntity, &self.delegate_to(:checkout, :items)

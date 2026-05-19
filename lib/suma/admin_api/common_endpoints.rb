@@ -238,6 +238,31 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
+  def self.related(
+    route_def,
+    model_type,
+    related_model_type,
+    related_entity,
+    association_name
+  )
+    route_def.instance_exec do
+      route_param :id, type: Integer do
+        params do
+          use :pagination
+        end
+        get association_name do
+          check_admin_role_access!(:read, model_type)
+          check_admin_role_access!(:read, related_model_type)
+          (m = model_type[params[:id]]) or forbidden!
+          assoc = m.class.association_reflections.fetch(association_name)
+          ds = m.send(assoc.fetch(:dataset_method))
+          ds = paginate(ds, params)
+          present_collection ds, with: related_entity
+        end
+      end
+    end
+  end
+
   def self.get_one(route_def, model_type, entity)
     route_def.instance_exec do
       route_param :id, type: Integer do

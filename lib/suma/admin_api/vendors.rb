@@ -11,9 +11,9 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :slug
-    expose :services, with: VendorServiceEntity
-    expose :products, with: ProductEntity
-    expose :configurations, with: AnonProxyVendorConfigurationEntity
+    expose_related :services, with: VendorServiceEntity
+    expose_related :products, with: ProductEntity
+    expose_related :configurations, with: AnonProxyVendorConfigurationEntity
     expose_image :image
   end
 

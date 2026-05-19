@@ -134,8 +134,8 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: o.id,
-        orders: have_length(1),
-        offering_products: have_length(1),
+        orders: include(items: have_length(1)),
+        offering_products: include(items: have_length(1)),
       )
     end
 
@@ -277,7 +277,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(programs: have_same_ids_as(new_program))
+        that_includes(programs: include(items: have_same_ids_as(new_program)))
     end
 
     it "403s if program does not exist" do

@@ -21,7 +21,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
-    expose :audit_activities, with: ActivityEntity
+    expose_related :audit_activities, with: ActivityEntity
     expose :match_multiplier, &self.delegate_to(:match_multiplier, :to_f)
     expose :match_fraction, &self.delegate_to(:match_fraction, :to_f)
     expose :payer_fraction, &self.delegate_to(:payer_fraction, :to_f)
@@ -32,8 +32,8 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger_name
     expose :receiving_ledger_contribution_text, with: TranslatedTextEntity
-    expose :executions, with: PaymentTriggerExecutionEntity
-    expose :eligibility_requirements, with: EligibilityRequirementEntity
+    expose_related :executions, with: PaymentTriggerExecutionEntity
+    expose_related :eligibility_requirements, with: EligibilityRequirementEntity
   end
 
   resource :payment_triggers do

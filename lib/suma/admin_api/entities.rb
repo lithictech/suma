@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require "grape_entity"
-
 require "suma/service/entities"
+require "suma/service/collection"
 
 module Suma::AdminAPI::Entities
   class MoneyEntity < Suma::Service::Entities::Money; end
@@ -25,13 +24,42 @@ module Suma::AdminAPI::Entities
   end
 
   class BaseEntity < Suma::Service::Entities::Base
-    def self.expose_image(name, &block)
-      self.expose(name, with: ImageEntity) do |instance, options|
-        evaluate_exposure(name, block, instance, options)
+    class << self
+      def expose_image(name, &block)
+        self.expose(name, with: ImageEntity) do |instance, options|
+          evaluate_exposure(name, block, instance, options)
+        end
+        self.expose("#{name}_caption", with: TranslatedTextEntity) do |instance, options|
+          img = evaluate_exposure(name, block, instance, options)
+          img&.caption
+        end
       end
-      self.expose("#{name}_caption", with: TranslatedTextEntity) do |instance, options|
-        img = evaluate_exposure(name, block, instance, options)
-        img&.caption
+
+      # Expose a list field of this entity.
+      # The field is exposed with a Collection entity so it can be paginated.
+      #
+      # NOTE: Callers must implement these collection endpoints.
+      # See CommonEndpoints.related.
+      #
+      # If dataset_method is given, it is the name of the method that returns
+      # the dataset for this exposure.
+      # Otherwise, <name>_dataset is used if defined, otherwise <name> is assumed to be an association
+      # and its configured dataset method is called.
+      def expose_related(name, with:, as: nil, dataset_method: nil)
+        collection_entity = Suma::Service::Collection.prepare_entity(with)
+        self.expose(name, as:, with: collection_entity) do |instance, options|
+          ds_method = dataset_method || "#{name}_dataset"
+          unless instance.respond_to?(ds_method)
+            assoc = instance.class.association_reflections[name]
+            raise ArgumentError, "#{instance} does not has association #{name} or dataset #{ds_method}" if assoc.nil?
+            ds_method = assoc.fetch(:dataset_method)
+          end
+          ds = instance.send(ds_method)
+          ds = ds.paginate(1, Suma::Service.related_list_size)
+          collection = Suma::Service::Collection.from_dataset(ds)
+          collection.url = options[:env].fetch("PATH_INFO") + "/#{name}"
+          collection
+        end
       end
     end
   end
@@ -196,7 +224,6 @@ module Suma::AdminAPI::Entities
   class EligibilityRequirementEntity < BaseEntity
     include AutoExposeBase
 
-    expose :all_resources, as: :resources, with: AutoExposedBaseEntity
     expose :cached_expression_string, as: :expression_formula_str
   end
 
@@ -367,8 +394,8 @@ module Suma::AdminAPI::Entities
     include AutoExposeDetail
 
     expose :currency
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
-    expose :combined_book_transactions, with: BookTransactionEntity
+    expose_related :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose_related :combined_book_transactions, with: BookTransactionEntity
     expose :balance, with: MoneyEntity
   end
 
@@ -379,10 +406,10 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity
     expose :vendor, with: VendorEntity
     expose :is_platform_account
-    expose :ledgers, with: DetailedPaymentAccountLedgerEntity
+    expose_related :ledgers, with: DetailedPaymentAccountLedgerEntity
     expose :total_balance, with: MoneyEntity
-    expose :originated_funding_transactions, with: FundingTransactionEntity
-    expose :originated_payout_transactions, with: PayoutTransactionEntity
+    expose_related :originated_funding_transactions, with: FundingTransactionEntity
+    expose_related :originated_payout_transactions, with: PayoutTransactionEntity
   end
 
   class PaymentTriggerEntity < BaseEntity

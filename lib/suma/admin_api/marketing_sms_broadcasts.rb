@@ -15,14 +15,14 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
     expose :sending_number_formatted
     expose :preferences_optout_field
     expose :preferences_optout_name
-    expose :lists, with: MarketingListEntity
+    expose_related :lists, with: MarketingListEntity
     expose :all_lists, with: MarketingListEntity do |_inst|
       Suma::Marketing::List.dataset.order(:label).all
     end
     expose :preview do |instance, opts|
       instance.preview(opts.fetch(:env).fetch("yosoy").authenticated_object!.member)
     end
-    expose :sms_dispatches, with: MarketingSmsDispatchEntity
+    expose_related :sms_dispatches, with: MarketingSmsDispatchEntity
     expose :available_sending_numbers do |_instance|
       Suma::Marketing::SmsBroadcast.available_sending_numbers
     end

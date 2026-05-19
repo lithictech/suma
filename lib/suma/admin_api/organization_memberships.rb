@@ -12,7 +12,7 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
 
     expose :matched_organization, with: OrganizationEntity
     expose :verification, with: OrganizationMembershipVerificationEntity
-    expose :audit_activities, with: ActivityEntity
+    expose_related :audit_activities, with: ActivityEntity
   end
 
   resource :organization_memberships do

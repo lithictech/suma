@@ -15,12 +15,12 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     expose :can_refund?, as: :can_refund
     expose :refundable_amount, with: MoneyEntity
     expose :refunded_amount, with: MoneyEntity
-    expose :refund_payout_transactions, with: PayoutTransactionEntity
+    expose_related :refund_payout_transactions, with: PayoutTransactionEntity
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :originated_book_transaction, with: BookTransactionEntity
     expose :reversal_book_transaction, with: BookTransactionEntity
-    expose :audit_activities, with: ActivityEntity
-    expose :audit_logs, with: AuditLogEntity
+    expose_related :audit_activities, with: ActivityEntity
+    expose_related :audit_logs, with: AuditLogEntity
     expose :strategy, with: PaymentStrategyEntity
   end
 

@@ -79,7 +79,7 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: organization.id,
-        memberships: have_same_ids_as(membership),
+        memberships: include(items: have_same_ids_as(membership)),
       )
     end
 

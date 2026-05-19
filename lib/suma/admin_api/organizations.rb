@@ -14,11 +14,11 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     expose :membership_verification_email
     expose :membership_verification_front_template_id
     expose :membership_verification_member_outreach_template, with: TranslatedTextEntity
-    expose :audit_activities, with: ActivityEntity
-    expose :memberships, with: OrganizationMembershipEntity
-    expose :former_memberships, with: OrganizationMembershipEntity
-    expose :eligibility_assignments, with: EligibilityAssignmentEntity
-    expose :roles, with: RoleEntity
+    expose_related :audit_activities, with: ActivityEntity
+    expose_related :memberships, with: OrganizationMembershipEntity
+    expose_related :former_memberships, with: OrganizationMembershipEntity
+    expose_related :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose_related :roles, with: RoleEntity
   end
 
   resource :organizations do

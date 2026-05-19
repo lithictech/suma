@@ -17,8 +17,8 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
     expose :originated_book_transaction, with: BookTransactionEntity
     expose :reversal_book_transaction, with: BookTransactionEntity
     expose :refunded_funding_transaction, with: FundingTransactionEntity
-    expose :audit_activities, with: ActivityEntity
-    expose :audit_logs, with: AuditLogEntity
+    expose_related :audit_activities, with: ActivityEntity
+    expose_related :audit_logs, with: AuditLogEntity
     expose :strategy, with: PaymentStrategyEntity
   end
 

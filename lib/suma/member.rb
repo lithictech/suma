@@ -276,14 +276,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.public_payment_instruments.find { |pi| pi.status == :ok }
   end
 
-  def combined_notes
+  def combined_notes_dataset
     ds = Suma::Support::Note.combine_datasets(
       Sequel[members: self],
       Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
         where(membership: self.organization_memberships_dataset)],
     )
-    return ds.all
+    return ds
   end
+
+  def combined_notes = self.combined_notes_dataset.all
 
   # @return [Suma::Member::StripeAttributes]
   def stripe

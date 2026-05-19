@@ -12,7 +12,7 @@ class Suma::AdminAPI::VendorServiceRates < Suma::AdminAPI::V1
     expose :unit_offset
     expose :ordinal
     expose :undiscounted_rate, with: VendorServiceRateEntity
-    expose :program_pricings, with: ProgramPricingEntity
+    expose_related :program_pricings, with: ProgramPricingEntity
   end
 
   resource :vendor_service_rates do

@@ -108,7 +108,7 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_json_body.that_includes(
         id: service.id,
         vendor: include(id: vendor.id),
-        program_pricings: have_same_ids_as(pricing),
+        program_pricings: include(items: have_same_ids_as(pricing)),
       )
     end
 
@@ -120,7 +120,7 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: service.id,
-        categories: contain_exactly(include(name: "Mobility")),
+        categories: include(items: contain_exactly(include(name: "Mobility"))),
         mobility_adapter_setting: "internal",
       )
     end
