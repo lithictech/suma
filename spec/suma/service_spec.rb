@@ -1245,4 +1245,18 @@ RSpec.describe Suma::Service, :db do
       expect(h2).to eq(h)
     end
   end
+
+  describe "vernier profiling", reset_configuration: Suma::Performance do
+    before(:each) do
+      Suma::Performance.vernier_enabled = true
+      Suma::Performance.vernier_key = "xyz"
+    end
+
+    it "can download a vernier profile" do
+      post "/echo?vernier=1&vernier_key=xyz"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Content-Type" => "application/octet-stream")
+    end
+  end
 end

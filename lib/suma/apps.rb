@@ -179,7 +179,9 @@ module Suma::Apps
   end
 
   Vernier = Rack::Builder.new do
-    run Suma::Performance::VernierRackApp.new(key: Suma::Performance.vernier_key)
+    run Suma::Performance::Vernier::RackApp.new(
+      key: Suma::Performance.vernier_key, enabled: Suma::Performance.vernier_enabled,
+    )
   end
 
   def self.emplace_dynamic_config

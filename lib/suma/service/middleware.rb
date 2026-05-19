@@ -18,6 +18,10 @@ module Suma::Service::Middleware
   def self.add_middlewares(builder)
     self.add_cors_middleware(builder)
     self.add_common_middleware(builder)
+    builder.use(
+      Suma::Performance::Vernier::RackMiddleware,
+      key: Suma::Performance.vernier_key, enabled: Suma::Performance.vernier_enabled,
+    )
     self.add_dev_middleware(builder) if Suma::Service.devmode
     self.add_ssl_middleware(builder) if Suma::Service.enforce_ssl
     self.add_rate_limiting_middleware(builder)
