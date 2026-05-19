@@ -133,7 +133,7 @@ RSpec.describe Suma::Performance, reset_configuration: Suma::Performance do
 
     keyp = "?key=xy"
 
-    let(:app) { Suma::Performance::VernierRackApp.new(key: "xy") }
+    let(:app) { Suma::Performance::Vernier::RackApp.new(key: "xy", enabled: true) }
 
     describe "with start=true" do
       it "can start a collector with the given values" do
@@ -198,6 +198,80 @@ RSpec.describe Suma::Performance, reset_configuration: Suma::Performance do
 
     it "requires a valid key param" do
       get "?key=1&start=true"
+
+      expect(last_response).to have_status(401)
+    end
+
+    it "requires a key" do
+      get "?start=true"
+
+      expect(last_response).to have_status(401)
+    end
+
+    it "requires vernier to be enabled" do
+      app.instance_variable_set(:@enabled, false)
+
+      get "#{keyp}=1&start=true"
+
+      expect(last_response).to have_status(401)
+    end
+  end
+
+  describe "vernier middleware" do
+    include Rack::Test::Methods
+
+    base_app = ->(_env) { [200, {}, ["ok"]] }
+
+    let(:app) { @app }
+
+    it "traces the inner app and returns the result" do
+      @app = Suma::Performance::Vernier::RackMiddleware.new(base_app, enabled: true, key: "xyz")
+
+      get "/foo?vernier=true&vernier_key=xyz"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("content-type" => "application/octet-stream")
+    end
+
+    it "noops if vernier param is not present" do
+      @app = Suma::Performance::Vernier::RackMiddleware.new(base_app, enabled: true, key: "xyz")
+
+      get "/foo?vernier_key=xyz"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.body).to eq("ok")
+    end
+
+    it "gets trace options fields from the request" do
+      @app = Suma::Performance::Vernier::RackMiddleware.new(base_app, enabled: true, key: "xyz")
+
+      get "/foo?vernier=true&vernier_key=xyz&vernier_interval=77"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("vernier-options" => include('"interval":77'))
+    end
+
+    it "noops if vernier is not enabled" do
+      @app = Suma::Performance::Vernier::RackMiddleware.new(base_app, enabled: false, key: "xyz")
+
+      get "/foo?vernier=1&vernier_key=wrong"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.body).to eq("ok")
+    end
+
+    it "401s for an invalid key" do
+      @app = Suma::Performance::Vernier::RackMiddleware.new(base_app, enabled: true, key: "xyz")
+
+      get "/foo?vernier=true&vernier_key=wrong"
+
+      expect(last_response).to have_status(401)
+    end
+
+    it "401s for no key" do
+      @app = Suma::Performance::Vernier::RackMiddleware.new(base_app, enabled: true, key: "xyz")
+
+      get "/foo?vernier=true"
 
       expect(last_response).to have_status(401)
     end
