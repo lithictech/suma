@@ -33,9 +33,20 @@ class Suma::AnonProxy::MessageHandler
   # It may also just take some other action, like updating a database object.
   # If the operation noops, +Result#handled+ is set to +false+.
   #
+  # NOTE: This method may be called even if the member is not longer eligible
+  # for the the vendor account/configuration. Subclasses must be sure to check
+  # if this is the case, and take appropriate action.
+  #
   # @param vendor_account_message [Suma::AnonProxy::VendorAccountMessage]
   # @return [Result]
   def handle(vendor_account_message) = raise NotImplementedError
+
+  def member_can_access_vendor_services?(vendor_account_message)
+    va = vendor_account_message.vendor_account
+    return false unless va.configuration.eligible_to?(va.member, as_of: vendor_account_message.message_timestamp)
+    return false if Suma::Payment.service_usage_prohibited_reason(va.member.payment_account)
+    return true
+  end
 
   # After the relay parses the message,
   # handle it according to who sent it.
@@ -62,21 +73,6 @@ class Suma::AnonProxy::MessageHandler
       self.logger.warn("no_vendor_account_for_message", message:, relay: relay.key)
       return nil
     end
-    unless vendor_account.configuration.eligible_to?(vendor_account.member, as_of: message.timestamp)
-      # Do not handle messages we get where the user is not eligble.
-      # Users can often request auth messages themselves, like a forgot password/magic link
-      # using their anonymous contact info, in which case it'd come to us.
-      # We want to ignore it; not send it onto the user.
-      # NOTE: There is similar code in the lime handler;
-      # maybe that should be generalized too.
-      self.logger.warn("member_cannot_access_configuration",
-                       message:,
-                       relay: relay.key,
-                       member: vendor_account.member.name,
-                       vendor_account_id: vendor_account.id,)
-      return nil
-    end
-
     vendor_account.db.transaction do
       vam = Suma::AnonProxy::VendorAccountMessage.new(
         message_id: message.message_id,

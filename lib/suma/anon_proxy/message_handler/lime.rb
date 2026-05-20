@@ -48,7 +48,8 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
       vendor_account.save_changes
       result.handled = true
       return result
-    elsif Suma::Payment.service_usage_prohibited_reason(vendor_account.member.payment_account)
+    end
+    unless self.member_can_access_vendor_services?(vendor_account_message)
       # It is possible for a Lime user who is logged out to manually request a reset code link.
       # We normally can't tell apart requests that we make, from requests that they make;
       # and since there is usually no need to, we don't worry about it.
