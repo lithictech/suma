@@ -49,18 +49,6 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(logs).to include(include_json(message: eq("no_vendor_account_for_message")))
     end
 
-    it "logs a warning and returns nil if the member cannot access the vendor configuration" do
-      stub_const("Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE", false)
-      vendor_account = Suma::Fixtures.anon_proxy_vendor_account.with_contact.create
-      fake_handler.class.can_handle_callback = proc { true }
-      msg = relay.parse_message({from: "fake-email-relay", timestamp: Time.now, to: vendor_account.contact.email})
-      logs = capture_logs_from(described_class.logger, level: :warn, formatter: :json) do
-        expect(described_class.handle(relay, msg)).to be_nil
-      end
-      expect(fake_handler.class.handled).to be_empty
-      expect(logs).to include(include_json(message: eq("member_cannot_access_configuration")))
-    end
-
     describe "with a handleable message" do
       let(:vendor_account) { Suma::Fixtures.anon_proxy_vendor_account.with_contact.create }
       let(:message) do
@@ -240,6 +228,19 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
       it "calls Sentry and does not set the url" do
         expect(Suma::Payment).to_not be_can_use_services(vendor_account.member.payment_account)
+        expect_sentry_capture(type: :message, arg_matcher: include("Prohibited Lime"))
+        got = Suma::AnonProxy::MessageHandler.handle(
+          Suma::AnonProxy::Relay.create!("fake-email-relay"),
+          signin_message,
+        )
+        expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
+        expect(vendor_account.refresh).to have_attributes(latest_access_code: nil)
+      end
+    end
+
+    describe "when the member is no longer eligible for the vendor configuration" do
+      it "logs a warning and returns nil if the member cannot access the vendor configuration" do
+        stub_const("Suma::Eligibility::RESOURCES_DEFAULT_ACCESSIBLE", false)
         expect_sentry_capture(type: :message, arg_matcher: include("Prohibited Lime"))
         got = Suma::AnonProxy::MessageHandler.handle(
           Suma::AnonProxy::Relay.create!("fake-email-relay"),
