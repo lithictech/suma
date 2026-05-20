@@ -137,7 +137,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
     it "can revoke lime access" do
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       acct = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create
-      expect(acct.admin_actions).to be_empty
+      expect(acct.admin_actions).to contain_exactly(have_attributes(label: "Revoke Lime Login"))
       acct.replace_access_code("x", "https://link")
       expect(acct.admin_actions).to contain_exactly(have_attributes(label: "Revoke Lime Login"))
     end
@@ -146,7 +146,10 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       acct = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create(pending_closure: true)
       acct.replace_access_code("x", "https://link")
-      expect(acct.admin_actions).to contain_exactly(have_attributes(label: "Finish Lime Revocation"))
+      expect(acct.admin_actions).to contain_exactly(
+        have_attributes(label: "Revoke Lime Login"),
+        have_attributes(label: "Finish Lime Revocation"),
+      )
     end
 
     it "can revoke lyft access" do

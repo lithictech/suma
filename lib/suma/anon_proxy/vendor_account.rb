@@ -203,22 +203,24 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
 
   def _admin_actions_self
     r = []
-    if self.auth_to_vendor.class.key == :lime && self.latest_access_code_set_at
-      r << if self.pending_closure
-             self._admin_action(
-               "Finish Lime Revocation",
-               "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login/finish",
-               confirmation_prompt: "Did you log in with the Lime magic link?",
-             )
-      else
-        prompt = "This will start logging the user out of Lime. You need to refresh the page until " \
-                 "a Magic Link is present, then log in with it, then use Finish Lime Revocation."
-        self._admin_action(
-          "Revoke Lime Login",
-          "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
-          confirmation_prompt: prompt,
+    if self.auth_to_vendor.class.key == :lime
+      prompt = "This will start logging the user out of Lime. You need to refresh the page until " \
+               "a Magic Link is present, then log in with it, then use Finish Lime Revocation."
+      # We cannot be sure the Lime reset link came through, so make sure we can always re-request it.
+      revoke_action = self._admin_action(
+        "Revoke Lime Login",
+        "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login",
+        confirmation_prompt: prompt,
+      )
+      r << revoke_action
+      if self.pending_closure
+        finish_action = self._admin_action(
+          "Finish Lime Revocation",
+          "/adminapi/v1/anon_proxy_vendor_accounts/#{self.id}/revoke_lime_login/finish",
+          confirmation_prompt: "Did you log in with the Lime magic link?",
         )
-          end
+        r << finish_action
+      end
     elsif self.auth_to_vendor.class.key == :lyft_pass && self.registrations.any?
       a = self._admin_action(
         "Revoke Lyft Pass",

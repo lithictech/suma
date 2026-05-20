@@ -67,23 +67,27 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
         end
       end
 
-      post :revoke_lime_login do
-        a = lookup!(:write)
-        a.member.audit_activity("revokelime", action: a)
-        Suma::Program::ServiceRevoker.new(dry_run: false).close_lime_account(a)
-        created_resource_headers(a.id, a.admin_link)
-        admin_action_handler :update
-        status 200
-        present a, with: DetailedVendorAccountEntity
-      end
+      resource :revoke_lime_login do
+        post  do
+          a = lookup!(:write)
+          a.member.audit_activity("revokelime", action: a)
+          Suma::Program::ServiceRevoker.new(dry_run: false).close_lime_account(a)
+          created_resource_headers(a.id, a.admin_link)
+          admin_action_handler :update
+          status 200
+          present a, with: DetailedVendorAccountEntity
+        end
 
-      post "revoke_lime_login/finish" do
-        a = lookup!(:write)
-        a.update(pending_closure: false, contact: nil)
-        created_resource_headers(a.id, a.admin_link)
-        admin_action_handler :update
-        status 200
-        present a, with: DetailedVendorAccountEntity
+        post :finish do
+          a = lookup!(:write)
+          adminerror!(409, "Magic link was never set on the account. Wait longer, or try revoking Lime again.") if
+            a.latest_access_code.blank?
+          a.update(pending_closure: false, contact: nil)
+          created_resource_headers(a.id, a.admin_link)
+          admin_action_handler :update
+          status 200
+          present a, with: DetailedVendorAccountEntity
+        end
       end
 
       post :revoke_lyft_pass do
