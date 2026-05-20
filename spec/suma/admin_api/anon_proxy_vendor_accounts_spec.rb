@@ -119,9 +119,10 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
   end
 
   describe "POST /v1/anon_proxy_vendor_accounts/:id/revoke_lime_login/finish" do
+    let(:vc) { Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime") }
+    let(:acct) { Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create(pending_closure: true) }
+
     it "updates the account" do
-      vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
-      acct = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create(pending_closure: true)
       acct.replace_access_code("x", "https://link").save_changes
 
       post "/v1/anon_proxy_vendor_accounts/#{acct.id}/revoke_lime_login/finish"
@@ -129,6 +130,12 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: acct.id)
       expect(acct.refresh).to have_attributes(contact: nil, pending_closure: false)
+    end
+
+    it "errors if the access code is not set" do
+      post "/v1/anon_proxy_vendor_accounts/#{acct.id}/revoke_lime_login/finish"
+
+      expect(last_response).to have_status(409)
     end
   end
 
