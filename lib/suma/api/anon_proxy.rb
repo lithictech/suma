@@ -29,12 +29,8 @@ class Suma::API::AnonProxy < Suma::API::V1
           end
         end
 
-        params do
-          optional :terms_agreed, type: Boolean
-        end
         post :process do
           apva = lookup
-          apva.auth_to_vendor.auth(now: current_time) if params[:terms_agreed]
           status 200
           present apva, with: AnonProxyVendorAccountEntity
         end
@@ -153,7 +149,10 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :needs_linking
     expose :requires_payment_method
     expose :has_payment_method
-    expose :prompt_for_payment_method
+    expose :balance_payoff_needed
+    expose :show_payment_step
+    expose :term_step_index
+    expose :link_step_index
     expose_translated :description_text
     expose_translated :terms_text
     expose_translated :help_text

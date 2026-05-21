@@ -6,12 +6,14 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink.jsx";
 import { dt, t } from "../localization";
+import { scaleMoney } from "../shared/money.js";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUnmountEffect from "../shared/react/useUnmountEffect.jsx";
-import { useError } from "../state/useError.jsx";
+import { extractErrorCode, useError } from "../state/useError.jsx";
+import useScreenLoader from "../state/useScreenLoader.jsx";
+import useUser from "../state/useUser.jsx";
 import { CanceledError } from "axios";
 import clsx from "clsx";
-import get from "lodash/get";
 import React from "react";
 import { ProgressBar } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
@@ -61,7 +63,9 @@ export default function PrivateAccountDetail() {
       </LayoutContainer>
     );
   }
-  if (view === VIEW_TERMS) {
+  if (view === VIEW_BALANCE) {
+    return <BalanceView setView={setView} />;
+  } else if (view === VIEW_TERMS) {
     return <TermsView account={account} setView={setView} />;
   } else if (view === VIEW_LINK) {
     return <LinkView account={account} setView={setView} />;
@@ -74,38 +78,55 @@ export default function PrivateAccountDetail() {
  * @param setView
  */
 function StepsView({ account, setView }) {
+  const {
+    requiresPaymentMethod,
+    hasPaymentMethod,
+    balancePayoffNeeded,
+    termStepIndex,
+    linkStepIndex,
+  } = account.uiStateV1;
+
   const primaryProps = { children: t("common.next"), variant: "primary" };
   if (account.uiStateV1.requiresPaymentMethod && !account.uiStateV1.hasPaymentMethod) {
     primaryProps.as = RLink;
     primaryProps.to = `/add-card?returnToImmediate=/private-account/${account.id}`;
   } else {
-    primaryProps.onClick = () => setView(VIEW_TERMS);
+    const nextView = balancePayoffNeeded ? VIEW_BALANCE : VIEW_TERMS;
+    primaryProps.onClick = () => setView(nextView);
   }
-  const secondStepNumber = account.uiStateV1.requiresPaymentMethod ? 2 : 1;
+  let potentialFirstStep;
+  if (requiresPaymentMethod) {
+    let checked, locKey;
+    if (balancePayoffNeeded) {
+      locKey = "private_accounts.checklist_pay_balance";
+      checked = false;
+    } else if (!hasPaymentMethod) {
+      locKey = "private_accounts.checklist_setup_payment";
+      checked = false;
+    } else {
+      locKey = "private_accounts.checklist_setup_payment";
+      checked = true;
+    }
+    potentialFirstStep = (
+      <li>
+        <i
+          className={clsx("me-2", "bi", checked ? "bi-check-square-fill" : "bi-1-square")}
+        />
+        {t(locKey)}
+      </li>
+    );
+  }
 
   return (
-    <ProgressContainer header={t("private_accounts.view_header_steps")} view={VIEW_STEPS}>
+    <ProgressContainer progress={20} header={t("private_accounts.view_header_steps")}>
       <ul className="list-unstyled mb-0">
-        {account.uiStateV1.requiresPaymentMethod && (
-          <li>
-            <i
-              className={clsx(
-                "me-2",
-                "bi",
-                account.uiStateV1.hasPaymentMethod
-                  ? "bi-check-square-fill"
-                  : "bi-1-square"
-              )}
-            />
-            {t("private_accounts.checklist_setup_payment")}
-          </li>
-        )}
+        {potentialFirstStep}
         <li>
-          <i className={clsx("me-2", `bi bi-${secondStepNumber}-square`)} />
+          <i className={clsx("me-2", `bi bi-${termStepIndex + 1}-square`)} />
           {t("private_accounts.checklist_review_terms")}
         </li>
         <li>
-          <i className={clsx("me-2", `bi bi-${secondStepNumber + 1}-square`)} />
+          <i className={clsx("me-2", `bi bi-${linkStepIndex + 1}-square`)} />
           {t("private_accounts.checklist_link_app")}
         </li>
       </ul>
@@ -118,9 +139,54 @@ function StepsView({ account, setView }) {
  * @param {AnonProxyVendorAccount} account
  * @param setView
  */
+function BalanceView({ setView }) {
+  const { user, setUser } = useUser();
+  const [error, setError] = useError();
+  const screenLoader = useScreenLoader();
+
+  function handleClick(e) {
+    screenLoader.turnOn();
+    setError(null);
+    e.preventDefault();
+    api
+      .chargeLedgerBalance()
+      .then((r) => {
+        setUser(r.data);
+        setView(VIEW_TERMS);
+      })
+      .catch((e) => setError(extractErrorCode(e)))
+      .finally(screenLoader.turnOff);
+  }
+
+  const balance = scaleMoney(user.chargeableCashBalance, -1);
+
+  return (
+    <ProgressContainer progress={40} header={t("private_accounts.checklist_pay_balance")}>
+      <div>{t("private_accounts.pay_balance_explanation", { amount: balance })}</div>
+      <FormError error={error} noMargin />
+      <FormButtons
+        margin={0}
+        secondaryProps={{
+          children: t("common.back"),
+          onClick: () => setView(VIEW_STEPS),
+        }}
+        primaryProps={{
+          children: t("payments.negative_balance_action", { amount: balance }),
+          variant: "danger",
+          onClick: handleClick,
+        }}
+      />
+    </ProgressContainer>
+  );
+}
+
+/**
+ * @param {AnonProxyVendorAccount} account
+ * @param setView
+ */
 function TermsView({ account, setView }) {
   return (
-    <ProgressContainer header={t("private_accounts.view_header_terms")} view={VIEW_TERMS}>
+    <ProgressContainer progress={60} header={t("private_accounts.view_header_terms")}>
       {dt(account.uiStateV1.termsText)}
       <FormButtons
         margin={0}
@@ -193,8 +259,7 @@ function LinkView({ account, setView }) {
     api
       .makePrivateAccountAuthRequest({ id: account.id })
       .then(pollingCallback)
-      .catch((e) => {
-        console.error(get(e, "response.data") || e);
+      .catch(() => {
         setError(<span>{t("private_accounts.auth_error")}</span>);
         setButtonStatus(LINKBTN_INITIAL);
       });
@@ -234,9 +299,8 @@ function LinkView({ account, setView }) {
 
   return (
     <ProgressContainer
+      progress={buttonStatus === LINKBTN_SENT ? 100 : 80}
       header={t("private_accounts.view_header_link")}
-      view={VIEW_LINK}
-      progress={buttonStatus === LINKBTN_SENT ? 100 : null}
     >
       {t("private_accounts.linkview_instructions")}
       <Alert variant={alertVariant} show={!!alertVariant} className="mb-0">
@@ -267,15 +331,12 @@ const LINKBTN_POLLING = "link-polling";
 const LINKBTN_SENT = "link-sent";
 
 /**
+ * @param {AnonProxyVendorAccount} account
  * @param {string} header
- * @param {string} view
- * @param {number=} progress
+ * @param {number} progress
  * @param children
  */
-function ProgressContainer({ header, view, progress, children }) {
-  if (!progress) {
-    progress = { [VIEW_STEPS]: 20, [VIEW_TERMS]: 60, [VIEW_LINK]: 80 }[view];
-  }
+function ProgressContainer({ header, progress, children }) {
   return (
     <LayoutContainer gutters className="d-flex flex-column gap-4">
       <ProgressBar now={progress} variant="info" className="mt-3" />
@@ -286,5 +347,6 @@ function ProgressContainer({ header, view, progress, children }) {
 }
 
 const VIEW_STEPS = "steps";
+const VIEW_BALANCE = "balance";
 const VIEW_TERMS = "terms";
 const VIEW_LINK = "link";

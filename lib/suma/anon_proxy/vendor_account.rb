@@ -148,11 +148,14 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
                       else
                         :relink
                       end
+    cash_ledger = self.member.payment_account&.cash_ledger!
+    balance_payoff_needed = has_payment_method && cash_ledger && Suma::Payment.chargeable_balance?(cash_ledger.balance)
     return UIStateV1.new(
       index_card_mode:,
       needs_linking:,
       requires_payment_method:,
       has_payment_method:,
+      balance_payoff_needed:,
       description_text: self.configuration.description_text,
       terms_text: self.configuration.terms_text,
       help_text: self.configuration.help_text,
@@ -186,8 +189,14 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     # True if this configuration requires a payment method (see +requires_payment_instrument?+).
     # Used to control what the potential flow is.
     attr_reader :requires_payment_method
+
     # True if the user has a default payment method.
+    # Only relevant if +requires_payment_method+.
     attr_reader :has_payment_method
+    # True if there is a default payment method,
+    # but the user's balance needs to be paid off to relink.
+    # Is always false if +has_payment_method+ is false.
+    attr_reader :balance_payoff_needed
 
     # Localized text for the card description.
     attr_reader :description_text
@@ -198,7 +207,10 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
 
     requires(all: true)
 
-    def prompt_for_payment_method = self.requires_payment_method && !self.has_payment_method
+    def show_payment_step = self.requires_payment_method
+    def term_step_index = self.show_payment_step ? 1 : 0
+    def link_step_index = self.show_payment_step ? 2 : 1
+    def step_index_progress_percentages = self.show_payment_step ? [20, 40, 60, 80] : [20, 60, 80]
   end
 
   def _admin_actions_self
