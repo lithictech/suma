@@ -29,10 +29,10 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
 
   def all_resources = self.programs + self.payment_triggers
 
-  def each_resource(&block)
+  def each_resource(&)
     [:programs, :payment_triggers].each do |assoc|
       iter = self.associations[assoc] || self.send("#{assoc}_dataset")
-      iter.each(&block)
+      iter.each(&)
     end
   end
 

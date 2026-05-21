@@ -580,15 +580,12 @@ RSpec.describe "Suma::Postgres::Model", :db do
 
   describe "each_row_efficient" do
     it "yields each item without loading the association" do
-
     end
 
     it "yields each item in the association dataset" do
-
     end
 
     it "can raise if the association is loaded" do
-
     end
   end
 

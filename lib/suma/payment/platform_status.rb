@@ -31,7 +31,6 @@ class Suma::Payment::PlatformStatus
     self.funding_count -= self.refund_count
     self.member_liabilities = self.platform_ledgers.sum(&:balance) * -1
     self.assets = self.funding - self.payouts
-    self.unbalanced_ledgers_dataset = self.find_unbalanced_ledgers_ds
     self.off_platform_funding_transactions_dataset = offplatform_ds(funding_ds)
     self.off_platform_payout_transactions_dataset = offplatform_ds(payout_ds)
     return self

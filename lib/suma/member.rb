@@ -125,6 +125,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
                join_table: :support_notes_members,
                left_key: :member_id,
                order: order_desc
+  many_to_many :combined_notes,
+               class: "Suma::Support::Note" do |_ds|
+    Suma::Support::Note.combine_datasets(
+      Sequel[members: self],
+      Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
+        where(membership: Suma::Organization::Membership.where(member: self))],
+    )
+  end
 
   one_to_many :eligibility_assignments, class: "Suma::Eligibility::Assignment", order: order_desc
   one_to_many :expanded_eligibility_assignments,
@@ -275,17 +283,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
     return self.public_payment_instruments.find { |pi| pi.status == :ok }
   end
-
-  def combined_notes_dataset
-    ds = Suma::Support::Note.combine_datasets(
-      Sequel[members: self],
-      Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
-        where(membership: self.organization_memberships_dataset)],
-    )
-    return ds
-  end
-
-  def combined_notes = self.combined_notes_dataset.all
 
   # @return [Suma::Member::StripeAttributes]
   def stripe

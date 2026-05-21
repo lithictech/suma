@@ -44,6 +44,14 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
                join_table: :support_notes_organization_membership_verifications,
                left_key: :verification_id,
                order: order_desc
+  many_to_many :combined_notes,
+               class: "Suma::Support::Note" do |_ds|
+    Suma::Support::Note.combine_datasets(
+      Sequel[members: self.membership.member],
+      Sequel[organization_membership_verifications: self],
+    )
+  end
+
   many_to_one :owner, class: "Suma::Member"
 
   many_to_one :front_partner_conversation,
@@ -339,8 +347,6 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   # Return the risk of the first duplicate, or nil.
   # Duplicates are stored sorted so we can use the 0th item.
   def duplicate_risk = self.find_duplicates.first&.max_risk
-
-  def combined_notes = Suma::Support::Note.combine_instances(self.notes, self.membership.member.notes)
 
   def rel_admin_link = "/membership-verification/#{self.id}"
 

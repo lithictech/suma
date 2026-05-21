@@ -25,13 +25,6 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
       ds = ds.order(Sequel.desc(Sequel.function(:coalesce, :edited_at, :created_at)), :id)
       return ds
     end
-
-    def combine_instances(*arrays)
-      notes = [].concat(*arrays)
-      notes.sort_by! { |n| [n.authored_at, -n.id] }
-      notes.reverse!
-      return notes
-    end
   end
 
   # Return content rendered as markdown html.

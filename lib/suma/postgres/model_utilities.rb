@@ -341,9 +341,7 @@ module Suma::Postgres::ModelUtilities
     # or an error can be raised (loaded: :raise, default).
     # If the association is not loaded, paginate with each_cursor_page.
     def each_row_efficient(association)
-      assoc = self.class.association_reflections.fetch(association)
-
-
+      self.class.association_reflections.fetch(association)
     end
   end
 

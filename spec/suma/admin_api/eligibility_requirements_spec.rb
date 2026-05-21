@@ -68,7 +68,7 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        id: requirement.id, resources: [],
+        id: requirement.id, programs: include(:items),
       )
     end
 
