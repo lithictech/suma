@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import { Button } from "@mui/material";
 import React from "react";
@@ -15,13 +15,8 @@ export default function MarketingSmsBroadcastDetailPage() {
       apiGet={api.getMarketingSmsBroadcast}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Label", value: model.label },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Created By",
-          value: <AdminLink model={model.createdBy}>{model.createdBy?.name}</AdminLink>,
-        },
         {
           label: "Sending From",
           value: model.sendingNumberFormatted || "(Blank - Will not send)",

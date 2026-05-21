@@ -6,6 +6,7 @@ import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import oneLineAddress from "../modules/oneLineAddress";
@@ -24,8 +25,7 @@ export default function OfferingDetailPage() {
       apiGet={api.getCommerceOffering}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         ...detailPageImageProperties(model.image),
         { label: "Description (En)", value: model.description.en },
         { label: "Description (Es)", value: model.description.es },

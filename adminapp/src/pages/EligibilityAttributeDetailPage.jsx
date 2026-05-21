@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
@@ -13,8 +13,7 @@ export default function EligibilityAttributeDetailPage() {
       apiGet={api.getEligibilityAttribute}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Name", value: model.name },
         { label: "Description", value: model.description },
         model.parent && {

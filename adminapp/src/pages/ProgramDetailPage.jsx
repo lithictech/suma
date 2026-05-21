@@ -5,6 +5,7 @@ import EligibilityRequirementsRelatedList from "../components/EligibilityRequire
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -18,8 +19,7 @@ export default function ProgramDetailPage() {
       apiGet={api.getProgram}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         ...detailPageImageProperties(model.image),
         { label: "Name EN", value: model.name.en },
         { label: "Name ES", value: model.name.es },

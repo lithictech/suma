@@ -8,7 +8,7 @@ import {
 } from "../components/OrganizationMembership";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import { Chip } from "@mui/material";
@@ -21,9 +21,7 @@ export default function OrganizationDetailPage() {
       apiGet={api.getOrganization}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjs(model.updatedAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Name", value: model.name },
         { label: "Ordinal", value: model.ordinal },
         { label: "Verification Email", value: model.membershipVerificationEmail },

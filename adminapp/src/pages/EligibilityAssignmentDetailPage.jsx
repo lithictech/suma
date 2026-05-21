@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
 
 export default function EligibilityAssignmentDetailPage() {
@@ -12,12 +12,7 @@ export default function EligibilityAssignmentDetailPage() {
       apiDelete={api.destroyEligibilityAssignment}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        model.createdBy && {
-          label: "Created By",
-          value: <AdminLink model={model.createdBy}>{model.createdBy.name}</AdminLink>,
-        },
+        ...resourceDetailCommonFields(model),
         {
           label: "Attribute",
           value: <AdminLink model={model.attribute}>{model.attribute.label}</AdminLink>,

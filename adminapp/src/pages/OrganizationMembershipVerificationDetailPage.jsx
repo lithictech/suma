@@ -5,8 +5,8 @@ import InlineEditField from "../components/InlineEditField";
 import OrganizationMembership from "../components/OrganizationMembership";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import membershipVerificationDuplicateRiskColor from "../modules/membershipVerificationDuplicateRiskColor";
 import oneLineAddress from "../modules/oneLineAddress";
@@ -47,9 +47,7 @@ export default function OrganizationMembershipVerificationDetailPage() {
       apiGet={api.getOrganizationMembershipVerification}
       canEdit
       properties={(model, setModel) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjs(model.updatedAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Status", value: model.status },
         {
           label: "Member",

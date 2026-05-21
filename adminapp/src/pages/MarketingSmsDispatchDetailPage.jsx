@@ -2,9 +2,9 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ExternalLinks from "../components/ExternalLinks";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { Button, CircularProgress } from "@mui/material";
 import React from "react";
@@ -34,8 +34,7 @@ export default function MarketingSmsDispatchDetailPage() {
       resource="marketing_sms_dispatch"
       apiGet={api.getMarketingSmsDispatch}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Broadcast",
           value: (

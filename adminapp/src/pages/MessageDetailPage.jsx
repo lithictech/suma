@@ -3,6 +3,7 @@ import AdminActions from "../components/AdminActions";
 import AdminLink from "../components/AdminLink";
 import ExternalLinks from "../components/ExternalLinks";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -14,7 +15,7 @@ export default function MessageDetailPage() {
       resource="message_delivery"
       apiGet={api.getMessageDelivery}
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Template", value: model.template },
         {
           label: "Transport",
@@ -22,7 +23,6 @@ export default function MessageDetailPage() {
         },
         { label: "MessageId", value: model.transportMessageId },
         { label: "Template", value: model.template },
-        { label: "CreatedAt", value: formatDate(model.createdAt) },
         { label: "SentAt", value: formatDate(model.sentAt) },
         { label: "AbortedAt", value: formatDate(model.abortedAt) },
         model.recipient && {

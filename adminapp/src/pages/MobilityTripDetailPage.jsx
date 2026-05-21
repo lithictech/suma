@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ChargeDetailGrid from "../components/ChargeDetailGrid";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import React from "react";
 
@@ -13,8 +13,7 @@ export default function MobilityTripDetailPage() {
       apiGet={api.getMobilityTrip}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Member",
           value: <AdminLink model={model.member}>{model.member?.name}</AdminLink>,

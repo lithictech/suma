@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import Copyable from "../components/Copyable";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import React from "react";
 
@@ -14,10 +15,7 @@ export default function RegistrationLinkDetailPage() {
       canEdit
       apiDelete={api.destroyOrganizationRegistrationLink}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: formatDate(model.createdAt) },
-        { label: "Updated At", value: formatDate(model.updatedAt) },
-        { label: "Created By", value: <AdminLink model={model.createdBy} label /> },
+        ...resourceDetailCommonFields(model),
         { label: "Organization", value: <AdminLink model={model.organization} label /> },
         { label: "Intro EN", value: model.intro.en },
         { label: "Intro ES", value: model.intro.es },

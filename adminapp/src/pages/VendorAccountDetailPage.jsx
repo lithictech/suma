@@ -5,7 +5,7 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
@@ -18,8 +18,7 @@ export default function VendorAccountDetailPage() {
       apiDelete={api.destroyVendorAccount}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Member",
           value: <AdminLink model={model.member}>{model.member.name}</AdminLink>,
