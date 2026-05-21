@@ -5,6 +5,7 @@ import EligibilityRequirementsRelatedList from "../components/EligibilityRequire
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { formatMoney, intToMoney } from "../shared/money";
@@ -21,10 +22,8 @@ export default function PaymentTriggerDetailPage() {
       apiGet={api.getPaymentTrigger}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Label", value: model.label },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Starting", value: dayjs(model.activeDuringBegin) },
         { label: "Ending", value: dayjs(model.activeDuringEnd) },
         {
@@ -45,11 +44,11 @@ export default function PaymentTriggerDetailPage() {
         { label: "Match Percentage", value: Math.round(model.matchFraction * 100) + "%" },
         {
           label: "Unmatched Amount",
-          value: formatMoney(intToMoney(model.unmatchedAmountCents)),
+          value: formatMoney(intToMoney(model.unmatchedAmountCents, "USD")),
         },
         {
           label: "Max Subsidy",
-          value: formatMoney(intToMoney(model.maximumCumulativeSubsidyCents)),
+          value: formatMoney(intToMoney(model.maximumCumulativeSubsidyCents, "USD")),
         },
         { label: "Act as Credit", value: model.actAsCredit },
         { label: "Memo (En)", value: model.memo.en },

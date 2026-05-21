@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import LedgerBookTransactionsRelatedList from "../components/LedgerBookTransactionRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -13,8 +13,7 @@ export default function PaymentLedgerDetailPage() {
       resource="ledger"
       apiGet={api.getPaymentLedger}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Name", value: model.name },
         { label: "Currency", value: model.currency },
         { label: "Balance", value: <Money>{model.balance}</Money> },

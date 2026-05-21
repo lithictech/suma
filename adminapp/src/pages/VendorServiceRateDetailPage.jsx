@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -13,8 +13,7 @@ export default function VendorServiceRateDetailPage() {
       apiGet={api.getVendorServiceRate}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Internal Name", value: model.internalName },
         { label: "External Name", value: model.externalName },
         { label: "Surcharge", value: <Money>{model.surcharge}</Money> },

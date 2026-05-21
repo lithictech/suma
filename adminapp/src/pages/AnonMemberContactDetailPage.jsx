@@ -4,7 +4,7 @@ import Copyable from "../components/Copyable";
 import ExternalLinks from "../components/ExternalLinks";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
 
 export default function AnonMemberContactDetailPage() {
@@ -15,8 +15,7 @@ export default function AnonMemberContactDetailPage() {
       apiDelete={api.destroyMemberContact}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Member",
           value: <AdminLink model={model.member}>{model.member.name}</AdminLink>,

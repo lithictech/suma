@@ -5,7 +5,7 @@ import ChargeDetailGrid from "../components/ChargeDetailGrid";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -17,7 +17,7 @@ export default function OrderDetailPage() {
       apiGet={api.getCommerceOrder}
       canEdit={false}
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         {
           label: "Member",
           value: (
@@ -26,7 +26,6 @@ export default function OrderDetailPage() {
             </AdminLink>
           ),
         },
-        { label: "Created At", value: dayjs(model.createdAt) },
         {
           label: "Status",
           value: model.statusLabel,

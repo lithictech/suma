@@ -4,7 +4,7 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import React from "react";
 
@@ -15,8 +15,7 @@ export default function VendorDetailPage() {
       apiGet={api.getVendor}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Name", value: model.name },
         { label: "Slug", value: model.slug },
         ...detailPageImageProperties(model.image),

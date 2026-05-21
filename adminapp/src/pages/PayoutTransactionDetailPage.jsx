@@ -6,6 +6,7 @@ import DetailGrid from "../components/DetailGrid";
 import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import { directEditRoute } from "../modules/resourceRoutes";
 import Money from "../shared/react/Money";
@@ -20,8 +21,7 @@ export default function PayoutTransactionDetailPage() {
         model.strategy.adminLink && directEditRoute(model.strategy.adminLink)
       }
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Status", value: model.status },
         { label: "Amount", value: <Money>{model.amount}</Money> },
         { label: "Classification", value: model.classification },

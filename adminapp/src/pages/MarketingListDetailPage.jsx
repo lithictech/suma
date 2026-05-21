@@ -2,9 +2,9 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { Button, CircularProgress } from "@mui/material";
 import React from "react";
@@ -36,9 +36,8 @@ export default function MarketingListDetailPage() {
       canEdit={(r) => !r.managed}
       canDelete={(r) => !r.managed}
       apiDelete={api.destroyMarketingList}
-      properties={(model, replaceModel) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+      properties={(model) => [
+        ...resourceDetailCommonFields(model),
         {
           label: "Label",
           value: model.label,

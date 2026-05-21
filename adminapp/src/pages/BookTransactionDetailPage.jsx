@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
@@ -13,8 +14,7 @@ export default function BookTransactionDetailPage() {
       resource="book_transaction"
       apiGet={api.getBookTransaction}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Apply At", value: dayjs(model.applyAt) },
         { label: "Amount", value: <Money>{model.amount}</Money> },
         { label: "Category", value: model.associatedVendorServiceCategory?.name },

@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
 
 export default function OrganizationMembershipDetailPage() {
@@ -13,9 +13,7 @@ export default function OrganizationMembershipDetailPage() {
       apiGet={api.getOrganizationMembership}
       canEdit={(model) => !model.formerOrganization}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjs(model.updatedAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Member",
           value: (

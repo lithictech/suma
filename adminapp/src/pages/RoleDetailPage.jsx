@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import EligibilityAssignmentsRelatedList from "../components/EligibilityAssignmentsRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
 
 export default function RoleDetailPage() {
@@ -11,7 +12,7 @@ export default function RoleDetailPage() {
       resource="role"
       apiGet={api.getRole}
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Name", value: model.name },
         { label: "Description", value: model.description },
       ]}

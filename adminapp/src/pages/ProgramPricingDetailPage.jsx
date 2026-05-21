@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
 
 export default function ProgramPricingDetailPage() {
@@ -13,9 +13,7 @@ export default function ProgramPricingDetailPage() {
       apiGet={api.getProgramPricing}
       apiDelete={api.destroyProgramPricing}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjs(model.updatedAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Program",
           value: <AdminLink model={model.program}>{model.program.name.en}</AdminLink>,

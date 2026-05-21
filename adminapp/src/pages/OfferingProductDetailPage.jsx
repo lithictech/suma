@@ -4,6 +4,7 @@ import BackTo from "../components/BackTo";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { resourceEditRoute } from "../modules/resourceRoutes";
@@ -20,8 +21,7 @@ export default function OfferingProductDetailPage() {
       backTo={BackTo.BACK}
       apiSoftDelete={api.closeCommerceOfferingProduct}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         { label: "Closed At", value: model.closedAt && dayjs(model.closedAt) },
         {
           label: "Offering",

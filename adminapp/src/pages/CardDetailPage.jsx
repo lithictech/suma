@@ -4,7 +4,7 @@ import ExternalLinks from "../components/ExternalLinks";
 import LegalEntity from "../components/LegalEntity";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
@@ -16,13 +16,8 @@ export default function CardDetailPage() {
       backTo={(m) => m.member.adminLink}
       apiGet={api.getCard}
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Account Name", value: model.name },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Deleted At",
-          value: model.softDeletedAt ? dayjs(model.softDeletedAt) : "",
-        },
         { label: "Brand", value: model.brand },
         { label: "Last 4", value: model.last4 },
         { label: "Expires", value: `${model.expMonth}/${model.expYear}` },

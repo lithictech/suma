@@ -7,7 +7,7 @@ import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import { directEditRoute } from "../modules/resourceRoutes";
 import Money from "../shared/react/Money";
@@ -22,8 +22,7 @@ export default function FundingTransactionDetailPage() {
         model.strategy.adminLink && directEditRoute(model.strategy.adminLink)
       }
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Originating Payment Account",
           value: (

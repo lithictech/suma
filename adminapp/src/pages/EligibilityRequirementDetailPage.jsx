@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
@@ -17,12 +17,7 @@ export default function EligibilityRequirementDetailPage() {
       apiDelete={api.destroyEligibilityRequirement}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        model.createdBy && {
-          label: "Created By",
-          value: <AdminLink model={model.createdBy}>{model.createdBy.name}</AdminLink>,
-        },
+        ...resourceDetailCommonFields(model),
         {
           label: "Formula",
           value: (

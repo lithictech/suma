@@ -4,7 +4,7 @@ import AuditActivityList from "../components/AuditActivityList";
 import BoolCheckmark from "../components/BoolCheckmark";
 import Programs from "../components/Programs";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
 
@@ -15,8 +15,7 @@ export default function VendorConfigurationDetailPage() {
       canEdit
       apiGet={api.getVendorConfiguration}
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         {
           label: "Vendor",
           value: <AdminLink model={model.vendor}>{model.vendor.name}</AdminLink>,

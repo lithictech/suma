@@ -5,6 +5,7 @@ import CategoriesRelatedList from "../components/CategoriesRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import React from "react";
 
@@ -15,8 +16,7 @@ export default function VendorServiceDetailPage() {
       apiGet={api.getVendorService}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
-        { label: "Created At", value: dayjs(model.createdAt) },
+        ...resourceDetailCommonFields(model),
         ...detailPageImageProperties(model.image),
         { label: "External Name", value: model.externalName },
         { label: "Internal Name", value: model.internalName },

@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import LegalEntity from "../components/LegalEntity";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import React from "react";
 
@@ -12,13 +13,8 @@ export default function BankAccountDetailPage() {
       apiGet={api.getBankAccount}
       backTo={(m) => m.member.adminLink}
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Account Name", value: model.name },
-        { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Deleted At",
-          value: model.softDeletedAt ? dayjs(model.softDeletedAt) : "",
-        },
         {
           label: "Verified At",
           value: model.verifiedAt ? dayjs(model.verifiedAt) : "(not verified)",

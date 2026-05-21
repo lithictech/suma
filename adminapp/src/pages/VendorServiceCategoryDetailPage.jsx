@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
 
 export default function VendorServiceCategoryDetailPage() {
@@ -11,7 +12,7 @@ export default function VendorServiceCategoryDetailPage() {
       apiGet={api.getVendorServiceCategory}
       canEdit
       properties={(model) => [
-        { label: "ID", value: model.id },
+        ...resourceDetailCommonFields(model),
         { label: "Name", value: model.name },
         { label: "Slug", value: model.slug },
         {
