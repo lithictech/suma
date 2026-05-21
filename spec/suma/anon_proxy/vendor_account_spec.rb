@@ -203,6 +203,12 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
 
     describe "ui_state_v1" do
       let!(:card) { Suma::Fixtures.card.member(member).create }
+      let!(:cash_ledger) { Suma::Payment.ensure_cash_ledger(va.member) }
+
+      before(:each) do
+        Suma::Payment.minimum_cash_balance_grace_cents = -50
+        Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$0.35"))
+      end
 
       it "represents the link state" do
         expect(va.ui_state_v1(now: as_of)).to have_attributes(
@@ -210,6 +216,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
           needs_linking: true,
           requires_payment_method: true,
           has_payment_method: true,
+          balance_payoff_needed: false,
         )
       end
 
@@ -220,6 +227,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
           needs_linking: false,
           requires_payment_method: true,
           has_payment_method: true,
+          balance_payoff_needed: false,
         )
       end
 
@@ -231,7 +239,35 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
           needs_linking: false,
           requires_payment_method: true,
           has_payment_method: false,
+          balance_payoff_needed: false,
         )
+      end
+
+      describe "with a chargeable balance", reset_configuration: Suma::Payment do
+        before(:each) do
+          Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$5"))
+        end
+
+        it "represents the negative balance state" do
+          expect(va.ui_state_v1(now: as_of)).to have_attributes(
+            index_card_mode: :link,
+            needs_linking: true,
+            requires_payment_method: true,
+            has_payment_method: true,
+            balance_payoff_needed: true,
+          )
+        end
+
+        it "does not require a balance payoff if there is no instrument" do
+          card.soft_delete
+          expect(va.ui_state_v1(now: as_of)).to have_attributes(
+            index_card_mode: :link,
+            needs_linking: true,
+            requires_payment_method: true,
+            has_payment_method: false,
+            balance_payoff_needed: false,
+          )
+        end
       end
     end
   end
