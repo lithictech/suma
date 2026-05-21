@@ -16,6 +16,10 @@ RSpec.describe Suma::API::AnonProxy, :db do
     Suma::AnonProxy::AuthToVendor::Fake.reset
   end
 
+  after(:each) do
+    Suma::AnonProxy::AuthToVendor::Fake.reset
+  end
+
   describe "GET /v1/anon_proxy/vendor_accounts" do
     it "returns vendor accounts" do
       va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
