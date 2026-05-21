@@ -8,6 +8,8 @@ import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
+import { Typography } from "@mui/material";
+import TableCell from "@mui/material/TableCell";
 import React from "react";
 
 export default function VendorAccountDetailPage() {
@@ -69,7 +71,7 @@ export default function VendorAccountDetailPage() {
             },
           ]}
         />,
-        model.contact && (
+        model.contact ? (
           <DetailGrid
             title="Member Contact"
             properties={[
@@ -77,6 +79,21 @@ export default function VendorAccountDetailPage() {
               { label: "Created At", value: formatDate(model.contact.createdAt) },
               { label: "Address", value: model.contact.formattedAddress },
               { label: "Relay Key", value: model.contact.relayKey },
+            ]}
+          />
+        ) : (
+          <DetailGrid
+            title="Member Contact"
+            properties={[
+              {
+                tableCells: (props) => (
+                  <TableCell {...props}>
+                    <Typography variant="body1">
+                      <AdminLink href="/anon-member-contact/new">Provision New</AdminLink>
+                    </Typography>
+                  </TableCell>
+                ),
+              },
             ]}
           />
         ),
