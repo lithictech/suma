@@ -84,6 +84,10 @@ class Suma::Postgres::Model
                end
                Sequel::Plugins::LargeAssociationWarning::DEFAULT_CALLBACK[m, assoc, array]
              }
+      plugin :efficient_each,
+             # Use a page size of the large warning threshold,
+             # as this is what we consider a reasonable page size.
+             page_size: self.large_association_warning_threshold
     end
   end
 
