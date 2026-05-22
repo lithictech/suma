@@ -28,28 +28,28 @@ export default function PaymentLedgerDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
-          title="Vendor Service Categories"
-          headers={["Id", "Name", "Slug"]}
-          rows={model.vendorServiceCategories}
-          keyRowAttr="id"
-          toCells={(row) => [row.id, row.name, row.slug]}
-        />,
+        // <RelatedList
+        //   title="Vendor Service Categories"
+        //   headers={["Id", "Name", "Slug"]}
+        //   rows={model.vendorServiceCategories}
+        //   keyRowAttr="id"
+        //   toCells={(row) => [row.id, row.name, row.slug]}
+        // />,
         <LedgerBookTransactionsRelatedList
           ledger={model}
           title="Book Transactions"
-          rows={model.combinedBookTransactions}
+          collection={model.combinedBookTransactions}
         />,
-        <RelatedList
-          title="Unbalanced Counterparties"
-          headers={["Name", "Balance"]}
-          rows={model.unbalancedCounterparties}
-          getKey={(row) => row.ledger.id}
-          toCells={(row) => [
-            <AdminLink model={row.ledger}>{row.ledger.label}</AdminLink>,
-            <Money>{row.amount}</Money>,
-          ]}
-        />,
+        // <RelatedList
+        //   title="Unbalanced Counterparties"
+        //   headers={["Name", "Balance"]}
+        //   rows={model.unbalancedCounterparties}
+        //   getKey={(row) => row.ledger.id}
+        //   toCells={(row) => [
+        //     <AdminLink model={row.ledger}>{row.ledger.label}</AdminLink>,
+        //     <Money>{row.amount}</Money>,
+        //   ]}
+        // />,
       ]}
     </ResourceDetail>
   );
