@@ -20,6 +20,6 @@ RSpec.describe Suma::Payment::PlatformStatus, :db do
     f1 = Suma::Fixtures.funding_transaction.with_fake_strategy.create
     f2 = Suma::Fixtures.funding_transaction.create(strategy: Suma::Fixtures.off_platform_payment_strategy.create)
     ps = described_class.new.calculate
-    expect(ps).to have_attributes(off_platform_funding_transactions: contain_exactly(have_attributes(id: f2.id)))
+    expect(ps.off_platform_funding_transactions_dataset.all).to have_same_ids_as(f2)
   end
 end

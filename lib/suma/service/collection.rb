@@ -59,6 +59,7 @@ class Suma::Service::Collection
       collection_entity = Suma::Service::Collection.collection_entity_cache[item_entity]
       if collection_entity.nil?
         collection_entity = Class.new(Suma::Service::Collection::BaseEntity) do
+          def self.name = "Suma::Service::Collection::Entity"
           expose :items, using: item_entity
         end
         Suma::Service::Collection.collection_entity_cache[item_entity] = collection_entity
