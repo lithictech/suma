@@ -57,7 +57,7 @@ module Suma::AdminAPI::Entities
           ds = instance.send(ds_method)
           ds = ds.paginate(1, Suma::Service.related_list_size)
           collection = Suma::Service::Collection.from_dataset(ds)
-          collection.url = options[:env].fetch("PATH_INFO") + "/#{name}"
+          collection.url = options[:env].fetch("REQUEST_PATH") + "/#{name}"
           collection
         end
       end

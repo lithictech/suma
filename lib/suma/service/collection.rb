@@ -25,7 +25,7 @@ class Suma::Service::Collection
     expose :total_count
     expose :more?, as: :has_more
     expose :url do |inst, opts|
-      inst.url || opts[:env].fetch("PATH_INFO")
+      inst.url || opts[:env].fetch("REQUEST_PATH")
     end
     # expose :items do |_|
     #   raise "this must be exposed by the subclass, like: `expose :items, with: MyEntity`"
