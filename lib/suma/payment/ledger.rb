@@ -230,7 +230,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   def find_unbalanced_counterparty_ledgers(include_all: false)
     platform_account = Suma::Payment::Account.lookup_platform_account
     totals_by_ledger = {}
-    self.combined_book_transactions.each do |bx|
+    self.efficient_each(:combined_book_transactions).each do |bx|
       if bx.originating_ledger === self
         counterparty = bx.receiving_ledger
         amount = bx.amount * -1
