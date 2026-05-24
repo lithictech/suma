@@ -125,6 +125,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
                join_table: :support_notes_members,
                left_key: :member_id,
                order: order_desc
+  many_to_many :combined_notes,
+               class: "Suma::Support::Note",
+               eager_loader: (lambda do |eo|
+                 eo[:rows].each { |p| p.associations[:combined_notes] = [] }
+                 ds = self.db[:support_notes_combined_view].where(member_id: eo[:id_map].keys)
+                 ds.all.each do |note|
+                   member = eo[:id_map][note[:member_id]].first
+                   member.associations[:combined_notes] << note
+                 end
+               end) do |_ds|
+    Suma::Support::Note.for_member(self)
+  end
 
   one_to_many :eligibility_assignments, class: "Suma::Eligibility::Assignment", order: order_desc
   one_to_many :expanded_eligibility_assignments,
@@ -274,15 +286,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def default_payment_instrument
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
     return self.public_payment_instruments.find { |pi| pi.status == :ok }
-  end
-
-  def combined_notes
-    ds = Suma::Support::Note.combine_datasets(
-      Sequel[members: self],
-      Sequel[organization_membership_verifications: Suma::Organization::Membership::Verification.
-        where(membership: self.organization_memberships_dataset)],
-    )
-    return ds.all
   end
 
   # @return [Suma::Member::StripeAttributes]

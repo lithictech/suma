@@ -373,7 +373,7 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  describe "#combine_notes" do
+  describe "#combined_notes" do
     it "selects and sorts all notes from related resources" do
       m = Suma::Fixtures.member.create
       v_fac = Suma::Fixtures.organization_membership_verification.member(m)

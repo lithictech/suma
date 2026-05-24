@@ -18,6 +18,63 @@ RSpec.describe "Suma::Support::Note", :db do
     expect(ver.notes).to have_same_ids_as(note)
   end
 
+  describe "combined_notes association" do
+    it "combines and sorts verification and member notes" do
+      content = "hi"
+      v = Suma::Fixtures.organization_membership_verification.create
+      m = v.membership.member
+      vn1 = v.add_note(content:, edited_at: 4.hours.ago)
+      vn2 = v.add_note(content:, created_at: 2.hours.ago)
+      vn3 = v.add_note(content:, created_at: 3.hours.ago)
+      mn1 = m.add_note(content:, created_at: 5.hours.ago)
+      mn2 = m.add_note(content:, edited_at: 1.hours.ago)
+
+      other_vn = Suma::Fixtures.organization_membership_verification.create.add_note(content:)
+
+      expect(v.combined_notes).to have_same_ids_as(mn2, vn2, vn3, vn1, mn1).ordered
+      eagered_v = refetch_for_eager(v)
+      expect(eagered_v.combined_notes).to have_same_ids_as(mn2, vn2, vn3, vn1, mn1).ordered
+
+      expect(m.combined_notes).to have_same_ids_as(mn2, vn2, vn3, vn1, mn1).ordered
+      eagered_m = refetch_for_eager(m)
+      expect(eagered_m.combined_notes).to have_same_ids_as(mn2, vn2, vn3, vn1, mn1).ordered
+    end
+
+    it "handles notes on members shared between eager loaded instances" do
+      m1 = Suma::Fixtures.member.create
+      m2 = Suma::Fixtures.member.create
+      m1v1 = Suma::Fixtures.organization_membership_verification.member(m1).create
+      m1v2 = Suma::Fixtures.organization_membership_verification.member(m1).create
+      m2v1 = Suma::Fixtures.organization_membership_verification.member(m2).create
+      m1note = m1.add_note(content: "m1note")
+      m2note = m2.add_note(content: "m2note")
+      m1v1note = m1v1.add_note(content: "m1v1note")
+      m1v2note = m1v2.add_note(content: "m1v2note")
+      m2v1note = m2v1.add_note(content: "m2v1note")
+
+      expect(m1v1.combined_notes).to have_same_ids_as(m1note, m1v1note)
+      expect(m1v2.combined_notes).to have_same_ids_as(m1note, m1v2note)
+      expect(m1.combined_notes).to have_same_ids_as(m1note, m1v1note, m1v2note)
+      expect(m2v1.combined_notes).to have_same_ids_as(m2note, m2v1note)
+      expect(m2.combined_notes).to have_same_ids_as(m2note, m2v1note)
+
+      eagered_verifications = Suma::Organization::Membership::Verification.dataset.all
+      m1v1 = eagered_verifications.find { |v| v === m1v1 }
+      m1v2 = eagered_verifications.find { |v| v === m1v2 }
+      m2v1 = eagered_verifications.find { |v| v === m2v1 }
+
+      eagered_members = Suma::Member.all
+      m1 = eagered_members.find { |m| m === m1 }
+      m2 = eagered_members.find { |m| m === m2 }
+
+      expect(m1v1.combined_notes).to have_same_ids_as(m1note, m1v1note)
+      expect(m1v2.combined_notes).to have_same_ids_as(m1note, m1v2note)
+      expect(m1.combined_notes).to have_same_ids_as(m1note, m1v1note, m1v2note)
+      expect(m2v1.combined_notes).to have_same_ids_as(m2note, m2v1note)
+      expect(m2.combined_notes).to have_same_ids_as(m2note, m2v1note)
+    end
+  end
+
   describe "rendering" do
     it "renders markdown to html" do
       m = Suma::Fixtures.member.create

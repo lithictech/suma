@@ -44,6 +44,31 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
                join_table: :support_notes_organization_membership_verifications,
                left_key: :verification_id,
                order: order_desc
+  many_to_many :combined_notes,
+               class: "Suma::Support::Note",
+               eager_loader: (lambda do |eo|
+                 eo[:rows].each { |p| p.associations[:combined_notes] = [] }
+                 verifications_for_member_ids = {}
+                 verifications_by_ids = {}
+                 eo[:rows].each do |v|
+                   verifications_for_member_ids[v.membership.member.id] ||= []
+                   verifications_for_member_ids[v.membership.member.id] << v
+                   verifications_by_ids[v.id] = v
+                 end
+                 ds = self.db[:support_notes_combined_view].where(Sequel[member_id: verifications_for_member_ids.keys])
+                 ds.all.each do |note|
+                   if (source_id = note[:verification_id])
+                     verifications_by_ids[source_id].associations[:combined_notes] << note
+                   else
+                     verifications_for_member_ids[note[:member_id]].each do |v|
+                       v.associations[:combined_notes] << note
+                     end
+                   end
+                 end
+               end) do |_ds|
+    Suma::Support::Note.for_verification(self)
+  end
+
   many_to_one :owner, class: "Suma::Member"
 
   many_to_one :front_partner_conversation,
@@ -339,8 +364,6 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   # Return the risk of the first duplicate, or nil.
   # Duplicates are stored sorted so we can use the 0th item.
   def duplicate_risk = self.find_duplicates.first&.max_risk
-
-  def combined_notes = Suma::Support::Note.combine_instances(self.notes, self.membership.member.notes)
 
   def rel_admin_link = "/membership-verification/#{self.id}"
 
