@@ -51,15 +51,15 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
         vendor = Suma::Vendor.find!(id: params[:id])
         present vendor, with: ModelEntity
       end
-    end
 
-    Suma::AdminAPI::CommonEndpoints.related(
-      self,
-      Suma::Vendor,
-      Suma::Commerce::Product,
-      ChildEntity,
-      :products,
-    )
+      Suma::AdminAPI::CommonEndpoints.related(
+        self,
+        Suma::Vendor,
+        Suma::Commerce::Product,
+        ChildEntity,
+        :products,
+      )
+    end
   end
 end
 
