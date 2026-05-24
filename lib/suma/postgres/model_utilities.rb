@@ -361,57 +361,6 @@ module Suma::Postgres::ModelUtilities
       return self.send(method, full_op)
     end
 
-    # Call a block for each row in a dataset.
-    # This is the same as paged_each or use_cursor.each, except that for each page,
-    # rows are re-fetched using self.where(primary_key => [pks]).all to enable eager loading.
-    #
-    # @param page_size [Integer] Size of each page. Smaller uses less memory.
-    # @param order [Symbol] Column to order by. Default to primary key.
-    # @param yield_page [true,false] If true, yield the page to the block, rather than individual rows.
-    #   Helpful when bulk processing.
-    #
-    # (Note that paged_each does not do eager loading, which makes enumerating model associations very slow)
-    def each_cursor_page(page_size: 500, order: nil, yield_page: false, &block)
-      raise LocalJumpError unless block
-      raise "dataset requires a use_cursor method, class may need `extension(:pagination)`" unless
-        self.respond_to?(:use_cursor)
-      model = self.model
-      pk = model.primary_key
-      order ||= pk
-      current_chunk_pks = []
-      order = [order] unless order.respond_to?(:to_ary)
-      self.naked.select(pk).order(*order).use_cursor(rows_per_fetch: page_size, hold: true).each do |row|
-        current_chunk_pks << row[pk]
-        next if current_chunk_pks.length < page_size
-        page = model.where(pk => current_chunk_pks).order(*order).all
-        current_chunk_pks.clear
-        yield_page ? yield(page) : page.each(&block)
-      end
-      remainder = model.where(pk => current_chunk_pks).order(*order).all
-      yield_page ? yield(remainder) : remainder.each(&block)
-    end
-
-    # See each_cursor_page, but takes an additional action on each chunk of returned rows.
-    # The action is called with pages of return values from the block when a page is is reached.
-    # Each call to action should return nil, a result, or an array of results (nil results are ignored).
-    #
-    # The most common case is for ETL: process one dataset, map it in a block to return new row values,
-    # and multi_insert it into a different table.
-    def each_cursor_page_action(action:, page_size: 500, order: :id)
-      raise LocalJumpError unless block_given?
-      returned_rows_chunk = []
-      self.each_cursor_page(page_size:, order:) do |instance|
-        new_row = yield(instance)
-        next if action.nil? || new_row.nil?
-        new_row.respond_to?(:to_ary) ? returned_rows_chunk.concat(new_row) : returned_rows_chunk.push(new_row)
-        if returned_rows_chunk.length >= page_size
-          action.call(returned_rows_chunk)
-          returned_rows_chunk.clear
-        end
-      end
-      action&.call(returned_rows_chunk)
-    end
-
     # Reselect is shorthandle for "ds.select(Sequel[ds.model.table_name][Sequel.lit("*")])".
     # This is useful after a join that is used in the query, but we only want to return the original model.
     def reselect

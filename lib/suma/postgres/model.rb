@@ -35,6 +35,8 @@ class Suma::Postgres::Model
 
     setting :extension_schema, "public"
 
+    setting :large_association_warning_threshold, 500
+
     # The number of (Float) seconds that should be considered "slow" for a
     # single query; queries that take longer than this amount of time will be logged
     # at `warn` level.
@@ -68,6 +70,24 @@ class Suma::Postgres::Model
       db.extension(:pg_interval)
       db.extension(:pretty_table)
       self.db = db
+
+      plugin :large_association_warning,
+             threshold: self.large_association_warning_threshold,
+             callback: lambda { |m, assoc, array|
+               Sentry.capture_message("Large association loaded") do |scope|
+                 scope.set_extras(
+                   model_pk: m.pk,
+                   model_type: m.class.name,
+                   model_association: assoc,
+                   model_association_size: array.size,
+                 )
+               end
+               Sequel::Plugins::LargeAssociationWarning::DEFAULT_CALLBACK[m, assoc, array]
+             }
+      plugin :efficient_each,
+             # Use a page size of the large warning threshold,
+             # as this is what we consider a reasonable page size.
+             page_size: self.large_association_warning_threshold
     end
   end
 
