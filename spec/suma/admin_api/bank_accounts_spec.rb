@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::BankAccounts, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/bank_accounts/#{Suma::Fixtures.bank_account.create.id}"
+    end
+  end
+
   describe "GET /v1/bank_accounts" do
     it "returns all bank_accounts" do
       c = Array.new(2) { Suma::Fixtures.bank_account.create }

@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/programs/#{Suma::Fixtures.program.create.id}"
+    end
+  end
+
   describe "GET /v1/programs" do
     it "returns all programs" do
       objs = Array.new(2) { Suma::Fixtures.program.create }

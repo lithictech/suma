@@ -8,10 +8,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
-  class MemberResetCodeEntity < BaseEntity
+  class MemberResetCodeEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::ResetCode
     expose :transport
     expose :used
     expose :expire_at
@@ -23,10 +24,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_delivery, with: MessageDeliveryEntity
   end
 
-  class MemberSessionEntity < BaseEntity
+  class MemberSessionEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::Session
     expose :user_agent
     expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
     expose :logged_out_at
@@ -42,21 +44,13 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
-  class MemberContactEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-
-    expose :formatted_address
-  end
-
-  class MemberVendorAccountEntity < BaseEntity
+  class MemberVendorAccountEntity < AnonProxyVendorAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
     expose :latest_access_code
     expose :latest_access_code_magic_link
     expose :vendor, with: VendorEntity, &self.delegate_to(:configuration, :vendor)
-    expose :contact, with: MemberContactEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity
@@ -65,7 +59,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :editable_state
   end
 
-  class PreferencesEntity < BaseEntity
+  class PreferencesEntity < BaseModelEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+
+    model Suma::Message::Preferences
     expose :public_url
     expose :subscriptions, with: PreferencesSubscriptionEntity
     expose :preferred_language_name
@@ -73,18 +71,20 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :sms_undeliverable?, as: :sms_undeliverable
   end
 
-  class ReferralEntity < BaseEntity
+  class ReferralEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::Referral
     expose :source
     expose :campaign
     expose :medium
   end
 
-  class EligibilityMemberAssignmentEntity < BaseEntity
+  class EligibilityMemberAssignmentEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
 
+    model Suma::Eligibility::MemberAssignment
     expose :unique_key
     expose :member, with: MemberEntity
     expose :attribute, with: EligibilityAttributeEntity
@@ -123,7 +123,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose_related :combined_notes, as: :notes, with: SupportNoteEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose_related :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose_related :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
+    expose_related :anon_proxy_contacts, as: :member_contacts, with: AnonProxyMemberContactEntity
     expose_related :organization_memberships, with: OrganizationMembershipEntity
     expose_related :marketing_lists, with: MarketingListEntity
     expose_related :marketing_sms_dispatches, with: MarketingSmsDispatchEntity

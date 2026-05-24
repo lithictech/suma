@@ -3,7 +3,6 @@ import { scaleMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import ForwardTo from "./ForwardTo";
-import RelatedList from "./RelatedList";
 import RelatedListRemote from "./RelatedListRemote";
 import React from "react";
 

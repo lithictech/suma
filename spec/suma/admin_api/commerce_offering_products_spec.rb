@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::CommerceOfferingProducts, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/commerce_offering_products/#{Suma::Fixtures.offering_product.create.id}"
+    end
+  end
+
   describe "POST /v1/commerce_offering_products/create" do
     it "creates the offering product" do
       o = Suma::Fixtures.offering.create

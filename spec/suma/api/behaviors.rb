@@ -156,3 +156,26 @@ RSpec.shared_examples "an endpoint capable of search" do |download: true|
     end
   end
 end
+
+RSpec.shared_examples "an endpoint with subroutes for related resources" do
+  let(:detail_route) { super() }
+  let(:api_class) { described_class }
+
+  it "has defined routes for all expose_related associations" do
+    get detail_route
+
+    expect(last_response).to have_status(200)
+
+    supported_routes = described_class.instances.first.routes.map(&:origin)
+
+    missing = []
+    j = last_response_json_body
+    j.each_value do |v|
+      next unless v.is_a?(Hash) && v[:object] == "list"
+      related = v[:url].split("/").last
+      next if supported_routes.any? { |sr| sr.end_with?(related) }
+      missing << v[:url]
+    end
+    expect(missing).to be_empty, "the following related routes are not defined, use CommonEndpoints#related: #{missing}"
+  end
+end

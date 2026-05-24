@@ -27,9 +27,10 @@ class Suma::AdminAPI::Financials < Suma::AdminAPI::V1
     expose :check_or_transaction_number, &self.delegate_to(:strategy, :check_or_transaction_number)
   end
 
-  class PlatformStatusEntity < BaseEntity
+  class PlatformStatusEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
 
+    model Suma::Payment::PlatformStatus
     expose :funding, with: MoneyEntity
     expose :funding_count
     expose :payouts, with: MoneyEntity

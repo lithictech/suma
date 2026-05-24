@@ -33,21 +33,20 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :fulfillment_option, with: OfferingFulfillmentOptionEntity
   end
 
-  class DetailedCommerceOrderEntity < BaseEntity
+  class OrderAuditLogEntity < AuditLogEntity
+    model Suma::Commerce::OrderAuditLog
+  end
+
+  class DetailedCommerceOrderEntity < OrderEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
     include AutoExposeDetail
 
-    expose :order_status
-    expose :fulfillment_status
-    expose :admin_status_label, as: :status_label
     expose :serial
     expose :charge, with: ChargeWithPricesEntity
-    expose_related :audit_logs, with: AuditLogEntity
+    expose_related :audit_logs, with: OrderAuditLogEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
     expose :checkout, with: CheckoutEntity
     expose :items, with: CheckoutItemEntity, &self.delegate_to(:checkout, :items)
-    expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
 
   resource :commerce_orders do

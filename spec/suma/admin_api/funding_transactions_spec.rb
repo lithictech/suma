@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/funding_transactions/#{Suma::Fixtures.funding_transaction.with_fake_strategy.create.id}"
+    end
+  end
+
   describe "GET /v1/funding_transactions" do
     it "returns all transactions" do
       u = Array.new(2) { Suma::Fixtures.funding_transaction.with_fake_strategy.create }

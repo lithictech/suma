@@ -5,16 +5,17 @@ require "suma/admin_api"
 class Suma::AdminAPI::OffPlatformTransactions < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class DetailedOffPlatformTransactionEntity < BaseEntity
+  class DetailedOffPlatformTransactionEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeDetail
+    include AutoExposeBase
     include AutoExposeDetail
 
+    model Suma::Payment::OffPlatformStrategy
     expose :funding_transaction, with: FundingTransactionEntity
     expose :payout_transaction, with: PayoutTransactionEntity
-    expose :transaction_admin_link, &self.delegate_to(:transaction, :admin_link)
+    expose :transaction_admin_link, &self.delegate_to(:transaction, :admin_link, safe: true)
     expose :type
-    expose :amount, with: MoneyEntity, &self.delegate_to(:transaction, :amount)
+    expose :amount, with: MoneyEntity, &self.delegate_to(:transaction, :amount, safe: true)
     expose :transacted_at
     expose :note
     expose :check_or_transaction_number

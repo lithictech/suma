@@ -6,17 +6,12 @@ require "suma/admin_api"
 class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class DetailedCommerceOfferingProductEntity < BaseEntity
+  class DetailedCommerceOfferingProductEntity < OfferingProductEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
     include AutoExposeDetail
 
     expose :offering, with: OfferingEntity
     expose :product, with: ProductEntity
-    expose :customer_price, with: MoneyEntity
-    expose :undiscounted_price, with: MoneyEntity
-    expose :closed_at
-
     expose_related :orders, with: OrderEntity
   end
 

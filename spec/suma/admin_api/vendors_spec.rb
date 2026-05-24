@@ -15,6 +15,12 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/vendors/#{Suma::Fixtures.vendor.create.id}"
+    end
+  end
+
   describe "GET /v1/vendors" do
     it "returns all vendors" do
       objs = Array.new(2) { Suma::Fixtures.vendor.create }

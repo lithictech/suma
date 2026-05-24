@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::MarketingSmsDispatches, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/marketing_sms_dispatches/#{Suma::Fixtures.marketing_sms_dispatch.create.id}"
+    end
+  end
+
   describe "GET /v1/marketing_sms_dispatches" do
     it "returns all objects" do
       u = Array.new(2) { Suma::Fixtures.marketing_sms_dispatch.create }

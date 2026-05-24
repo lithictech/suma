@@ -238,6 +238,19 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
+  def self.get_one(route_def, model_type, entity, expose_related: true)
+    route_def.instance_exec do
+      route_param :id, type: Integer do
+        get do
+          check_admin_role_access!(:read, model_type)
+          (m = model_type[params[:id]]) or forbidden!
+          present m, with: entity
+        end
+      end
+    end
+    self.all_related(route_def, entity) if expose_related
+  end
+
   def self.related(
     route_def,
     model_type,
@@ -263,15 +276,15 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.get_one(route_def, model_type, entity)
-    route_def.instance_exec do
-      route_param :id, type: Integer do
-        get do
-          check_admin_role_access!(:read, model_type)
-          (m = model_type[params[:id]]) or forbidden!
-          present m, with: entity
-        end
-      end
+  def self.all_related(route_def, entity)
+    entity.exposed_related.each do |h|
+      self.related(
+        route_def,
+        entity.model,
+        h.fetch(:with).model,
+        h.fetch(:with),
+        h.fetch(:name),
+      )
     end
   end
 

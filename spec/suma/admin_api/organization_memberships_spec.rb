@@ -11,6 +11,12 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/organization_memberships/#{Suma::Fixtures.organization_membership.verified.create.id}"
+    end
+  end
+
   describe "GET /v1/organization_memberships" do
     it "returns all organization memberships" do
       memberships = Array.new(2) { Suma::Fixtures.organization_membership.unverified.create }

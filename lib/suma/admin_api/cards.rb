@@ -6,6 +6,7 @@ class Suma::AdminAPI::Cards < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
   class CardEntity < PaymentInstrumentEntity
+    model Suma::Payment::Card
     expose :last4
     expose :brand
     expose :exp_month

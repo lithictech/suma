@@ -7,6 +7,10 @@ require "suma/admin_api"
 class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
+  class PayoutAuditLogEntity < AuditLogEntity
+    model Suma::Payment::PayoutTransaction::AuditLog
+  end
+
   class DetailedPayoutTransactionEntity < PayoutTransactionEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -18,7 +22,7 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
     expose :reversal_book_transaction, with: BookTransactionEntity
     expose :refunded_funding_transaction, with: FundingTransactionEntity
     expose_related :audit_activities, with: ActivityEntity
-    expose_related :audit_logs, with: AuditLogEntity
+    expose_related :audit_logs, with: PayoutAuditLogEntity
     expose :strategy, with: PaymentStrategyEntity
   end
 

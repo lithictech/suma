@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::EligibilityAssignments, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/eligibility_assignments/#{Suma::Fixtures.eligibility_assignment.create.id}"
+    end
+  end
+
   describe "GET /v1/eligibility_assignments" do
     it "returns all instances" do
       objs = Array.new(2) { Suma::Fixtures.eligibility_assignment.to(Suma::Fixtures.member.create).create }

@@ -6,9 +6,11 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
   include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
-  class VendorAccountRegistrationEntity < BaseEntity
+  class VendorAccountRegistrationEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+
+    model Suma::AnonProxy::VendorAccountRegistration
 
     expose :external_program_id
     expose :external_registration_id

@@ -37,11 +37,11 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
     expose :id
   end
 
-  class EntityWithRelated < Suma::AdminAPI::Entities::BaseEntity
+  class ModelEntity < Suma::AdminAPI::Entities::BaseModelEntity
+    model Suma::Vendor
     expose :name
     expose_related :products, with: ChildEntity
     expose_related :products, as: :children, with: ChildEntity
-    expose_related :defed_alias, with: ChildEntity
   end
 
   route_setting :skip_role_check, true
@@ -49,10 +49,7 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
     route_param :id do
       get do
         vendor = Suma::Vendor.find!(id: params[:id])
-        vendor.instance_exec do
-          def defed_alias_dataset = self.products_dataset
-        end
-        present vendor, with: EntityWithRelated
+        present vendor, with: ModelEntity
       end
     end
 
@@ -170,7 +167,6 @@ RSpec.describe Suma::AdminAPI, :db do
               items: have_length(4),
             ),
             children: include(items: have_length(4)),
-            defed_alias: include(items: have_length(4)),
           )
       end
 

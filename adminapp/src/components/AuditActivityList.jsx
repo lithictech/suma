@@ -1,16 +1,16 @@
 import formatDate from "../modules/formatDate";
 import AdminLink from "./AdminLink";
 import AdminMarkdown from "./AdminMarkdown";
-import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import { makeStyles } from "@mui/styles";
 import React from "react";
 
 export default function AuditActivityList({ activities }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Audit Activities"
       headers={["At", "Summary", "Message", "Member"]}
-      rows={activities}
+      collection={activities}
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),

@@ -10,6 +10,7 @@ import InlineEditField from "../components/InlineEditField";
 import OrganizationMembership from "../components/OrganizationMembership";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import ResponsiveStack from "../components/ResponsiveStack";
 import SupportNoteModal from "../components/SupportNoteModal";
@@ -99,7 +100,7 @@ export default function MemberDetailPage() {
           },
           {
             label: "Roles",
-            children: model.roles.map((role) => (
+            children: model.roles.items.map((role) => (
               <Chip key={role.id} label={role.label} sx={{ mr: 0.5 }} />
             )),
             hideEmpty: true,
@@ -182,20 +183,20 @@ export default function MemberDetailPage() {
           <MessageDeliveries messageDeliveries={model.messageDeliveries} />,
           <Sessions member={model} setMember={setModel} sessions={model.sessions} />,
           <ResetCodes resetCodes={model.resetCodes} />,
-          <RelatedList
+          <RelatedListRemote
             title="Marketing Lists"
             headers={["Id", "Label"]}
-            rows={model.marketingLists}
+            collection={model.marketingLists}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
               <AdminLink model={row}>{row.label}</AdminLink>,
             ]}
           />,
-          <RelatedList
+          <RelatedListRemote
             title="Marketing SMS Dispatches"
             headers={["Id", "Broadcast", "Status", "Sent At", "Error"]}
-            rows={model.marketingSmsDispatches}
+            collection={model.marketingSmsDispatches}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
@@ -240,10 +241,10 @@ function LegalEntity({ address }) {
 
 function OrganizationMemberships({ memberships, model }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Organization Memberships"
       headers={["Id", "Created At", "Organization"]}
-      rows={memberships}
+      collection={memberships}
       addNewLabel="Create another membership"
       addNewLink={createRelativeUrl(`/membership/new`, {
         memberId: model.id,
@@ -291,10 +292,10 @@ function Notes({ notes, model, setModel }) {
         apiParams={{ id: model.id }}
         onSubmitted={handleNoteSubmitted}
       />
-      <RelatedList
+      <RelatedListRemote
         title="Notes"
         headers={["Id", "Content", "Author", "At"]}
-        rows={notes}
+        collection={notes}
         addNewLabel="Add note"
         onAddNewClick={handleNewClick}
         addNewRole="member"
@@ -325,9 +326,9 @@ function Notes({ notes, model, setModel }) {
 
 function ExpandedEligibilityAssignments({ assignments }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Expanded Eligibility Assignments"
-      rows={assignments}
+      collection={assignments}
       headers={["Attribute", "Source Type", "Sources"]}
       keyRowAttr="uniqueKey"
       toCells={(row) => [
@@ -348,10 +349,10 @@ function ExpandedEligibilityAssignments({ assignments }) {
 
 function Activities({ activities }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Activities"
       headers={["At", "Summary", "Message"]}
-      rows={activities}
+      collection={activities}
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),
@@ -366,10 +367,10 @@ function Activities({ activities }) {
 
 function ResetCodes({ resetCodes }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used", "Delivery"]}
-      rows={resetCodes}
+      collection={resetCodes}
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),
@@ -413,14 +414,14 @@ function Sessions({ member, setMember, sessions }) {
           </Button>
         </DialogActions>
       </Dialog>
-      <RelatedList
+      <RelatedListRemote
         title="Sessions"
         addNewLabel="Log out all sessions"
         addNewRole="memberSession"
         onAddNewClick={logoutToggle.turnOn}
         headers={["Started", "IP", "User Agent", "Logged Out"]}
         keyRowAttr="id"
-        rows={sessions}
+        collection={sessions}
         toCells={(row) => [
           formatDate(row.createdAt),
           <SafeExternalLink key="ip" href={row.ipLookupLink}>
@@ -436,9 +437,9 @@ function Sessions({ member, setMember, sessions }) {
 
 function Orders({ orders }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Orders"
-      rows={orders}
+      collection={orders}
       headers={["Id", "Created At", "Items", "Offering", "Status"]}
       keyRowAttr="id"
       toCells={(row) => [
@@ -456,9 +457,9 @@ function Orders({ orders }) {
 
 function MobilityTrips({ mobilityTrips }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Trips"
-      rows={mobilityTrips}
+      collection={mobilityTrips}
       headers={["Id", "Began At", "Ended At", "Service", "Rate"]}
       keyRowAttr="id"
       toCells={(row) => [
@@ -478,11 +479,11 @@ function MobilityTrips({ mobilityTrips }) {
 
 function Charges({ charges }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Charges"
       headers={["Id", "At", "Discounted Total", "Undiscounted Total", "Opaque Id"]}
       keyRowAttr="id"
-      rows={charges}
+      collection={charges}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         formatDate(row.createdAt),
@@ -496,10 +497,10 @@ function Charges({ charges }) {
 
 function PaymentInstruments({ instruments }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Payment Methods"
       headers={["Id", "Type", "Name", "Status"]}
-      rows={instruments}
+      collection={instruments}
       getKey={(r) => `${r.id}-${r.paymentMethodType}`}
       toCells={(row) => [
         <AdminLink key="id" model={row}>
@@ -514,9 +515,6 @@ function PaymentInstruments({ instruments }) {
 }
 
 function MessagePreferences({ preferences }) {
-  if (!preferences) {
-    return null;
-  }
   const { subscriptions, publicUrl } = preferences;
   return (
     <ResponsiveStack>
@@ -559,10 +557,10 @@ function MessagePreferences({ preferences }) {
 
 function MessageDeliveries({ messageDeliveries }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Message Deliveries"
       headers={["Id", "Created", "Sent", "Template", "To"]}
-      rows={messageDeliveries}
+      collection={messageDeliveries}
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
@@ -577,7 +575,7 @@ function MessageDeliveries({ messageDeliveries }) {
 
 function VendorAccounts({ vendorAccounts }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Vendor Accounts"
       headers={[
         "Id",
@@ -587,7 +585,7 @@ function VendorAccounts({ vendorAccounts }) {
         "Latest Access Code Magic Link",
         "Latest Access Code",
       ]}
-      rows={vendorAccounts}
+      collection={vendorAccounts}
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
@@ -611,10 +609,10 @@ function VendorAccounts({ vendorAccounts }) {
 
 function MemberContacts({ memberContacts }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Member Contacts"
       headers={["Id", "Address"]}
-      rows={memberContacts}
+      collection={memberContacts}
       keyRowAttr="id"
       toCells={(row) => [<AdminLink key="id" model={row} />, row.formattedAddress]}
     />

@@ -7,11 +7,11 @@ require "suma/admin_api"
 class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class PaymentTriggerExecutionEntity < BaseEntity
+  class PaymentTriggerExecutionEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeBase
 
-    expose :id
-    expose :admin_link, &self.delegate_to(:book_transaction, :admin_link)
+    model Suma::Payment::Trigger::Execution
     expose :book_transaction_id
     expose :at, &self.delegate_to(:book_transaction, :created_at)
     expose :receiving_ledger, with: SimpleLedgerEntity, &self.delegate_to(:book_transaction, :receiving_ledger)

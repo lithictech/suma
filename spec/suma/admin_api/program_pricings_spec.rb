@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::ProgramPricings, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/program_pricings/#{Suma::Fixtures.program_pricing.create.id}"
+    end
+  end
+
   describe "POST /v1/program_pricings/create" do
     it "creates a model" do
       program = Suma::Fixtures.program.create

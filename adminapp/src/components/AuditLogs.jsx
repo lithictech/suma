@@ -1,15 +1,16 @@
 import { dayjs } from "../modules/dayConfig";
 import AdminLink from "./AdminLink";
 import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 export default function AuditLogs({ auditLogs }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Audit Logs"
       headers={["At", "Event", "By", "Context"]}
-      rows={auditLogs}
+      collection={auditLogs}
       keyRowAttr="id"
       toCells={(row) => [dayjs(row.at).format("lll"), event(row), by(row), context(row)]}
     />

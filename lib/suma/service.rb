@@ -105,6 +105,10 @@ class Suma::Service < Grape::API
     return s
   end
 
+  def self.request_path(env)
+    return env["SCRIPT_NAME"].to_s + env["PATH_INFO"].to_s
+  end
+
   # Build the Rack app according to the configured environment.
   # Call build_app_pre and build_app_post with the Rack::Builder,
   # in case the app needs to run additional middleware.

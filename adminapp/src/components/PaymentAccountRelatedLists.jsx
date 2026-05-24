@@ -6,6 +6,7 @@ import AdminLink from "./AdminLink";
 import LedgerBookTransactionsRelatedList from "./LedgerBookTransactionRelatedList";
 import Link from "./Link";
 import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import first from "lodash/first";
 import get from "lodash/get";
 import map from "lodash/map";
@@ -24,9 +25,9 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
 
   return (
     <>
-      <RelatedList
+      <RelatedListRemote
         title="Originated Funding Transactions"
-        rows={paymentAccount.originatedFundingTransactions}
+        collection={paymentAccount.originatedFundingTransactions}
         headers={["Id", "Created", "Status", "Amount"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -36,9 +37,9 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="amt">{row.amount}</Money>,
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title="Originated Payouts"
-        rows={paymentAccount.originatedPayoutTransactions}
+        collection={paymentAccount.originatedPayoutTransactions}
         headers={["Id", "Created", "Status", "Amount"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -48,10 +49,10 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="amt">{row.amount}</Money>,
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title={`Ledgers - ${formatMoney(paymentAccount.totalBalance)}`}
         headers={headers}
-        rows={paymentAccount.ledgers}
+        collection={paymentAccount.ledgers}
         keyRowAttr="id"
         toCells={(row) => {
           const cells = [
@@ -83,7 +84,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           ledger={ledger}
           title={`Ledger ${ledger.label} (${ledger.id}) - ${formatMoney(ledger.balance)}`}
           key={ledger.id}
-          rows={ledger.combinedBookTransactions}
+          collection={ledger.combinedBookTransactions}
         />
       ))}
     </>
