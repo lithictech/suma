@@ -115,11 +115,13 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         expanded_eligibility_assignments: include(url: "/v1/members/#{m.id}/expanded_eligibility_assignments"),
       )
       expect(last_response_json_body[:payment_account]).to include(
-        originated_funding_transactions: include(url: "/v1/payment_accounts/#{acct.id}/originated_funding_transactions"),
+        originated_funding_transactions: include(
+          url: "/v1/payment_accounts/#{acct.id}/originated_funding_transactions",
+        ),
         ledgers: include(url: "/v1/payment_accounts/#{acct.id}/ledgers"),
       )
       expect(last_response_json_body[:payment_account][:ledgers][:items].first).to include(
-        combined_book_transactions: include(url: "/v1/payment_ledgers/#{led.id}/combined_book_transactions"),
+        categories: include(url: "/v1/payment_ledgers/#{led.id}/vendor_service_categories"),
       )
     end
 

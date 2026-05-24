@@ -80,4 +80,14 @@ class Suma::Payment::PlatformStatus
   # Unbalanced ledgers. These do not belong to the platform account,
   # since unbalanced member ledgers always mean unbalanced platform ledgers.
   def unbalanced_ledgers_dataset = self.find_unbalanced_ledgers_ds
+
+  # Semantics for easier API usage.
+  class Calculated < self
+    def self.[](_) = self.new
+
+    def initialize
+      super
+      self.calculate
+    end
+  end
 end

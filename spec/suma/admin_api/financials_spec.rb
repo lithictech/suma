@@ -28,4 +28,14 @@ RSpec.describe Suma::AdminAPI::Financials, :db do
         that_includes(:platform_ledgers, :funding)
     end
   end
+
+  it "has related children" do
+    pa = Suma::Payment::Account.lookup_platform_account
+    cash = Suma::Payment.ensure_cash_ledger(pa)
+
+    get "/v1/financials/platform_status/platform_ledgers"
+
+    expect(last_response).to have_status(200)
+    expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(cash))
+  end
 end

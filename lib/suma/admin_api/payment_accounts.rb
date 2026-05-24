@@ -22,11 +22,13 @@ class Suma::AdminAPI::PaymentAccounts < Suma::AdminAPI::V1
   class DetailedPaymentAccountEntity < PaymentAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
     expose_related :ledgers, with: LedgerEntity
     expose :total_balance, with: MoneyEntity
     expose_related :ledgers, with: LedgerEntity
     expose_related :originated_funding_transactions, with: FundingTransactionEntity
     expose_related :originated_payout_transactions, with: PayoutTransactionEntity
+    expose_related :all_book_transactions, with: BookTransactionEntity
   end
 
   resource :payment_accounts do

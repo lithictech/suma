@@ -52,7 +52,7 @@ module Suma::AdminAPI::Entities
       def model(type=nil)
         return @model if type.nil?
         @model = type
-        @exposed_related ||= []
+        self.exposed_related ||= []
       end
 
       # Expose a list field of this entity.
@@ -314,6 +314,7 @@ module Suma::AdminAPI::Entities
 
   class VendorServiceRateUndiscountedrateEntity < BaseEntity
     include AutoExposeBase
+
     expose :internal_name
   end
 
@@ -414,6 +415,7 @@ module Suma::AdminAPI::Entities
     model Suma::Payment::Ledger
     expose :name
     expose :currency
+    expose :account_id
     expose :account_name, &self.delegate_to(:account, :display_name)
   end
 

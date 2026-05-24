@@ -48,6 +48,7 @@ class Suma::AdminAPI::Access
     Suma::Payment::Instrument => [:payment_instrument, MEMBERS, MEMBERS],
     Suma::Payment::Ledger => [:ledger, PAYMENTS, PAYMENTS],
     Suma::Payment::PayoutTransaction => [:payout_transaction, PAYMENTS, PAYMENTS],
+    Suma::Payment::PlatformStatus::Calculated => [:platform_status, PAYMENTS, PAYMENTS],
     Suma::Payment::OffPlatformStrategy => [:off_platform_payment, PAYMENTS, PAYMENTS],
     Suma::Payment::Trigger => [:payment_trigger, PAYMENTS, MANAGEMENT],
     Suma::Program => [:program, ALL, MANAGEMENT],

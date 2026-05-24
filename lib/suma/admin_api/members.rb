@@ -99,10 +99,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :balance, with: MoneyEntity
-    expose_related :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity, all: true
-    # expose_related :combined_book_transactions,
-    #   with: BookTransactionEntity,
-    #   to_path: ->(inst, _) { "/v1/payment_ledgers/#{inst.id}" }
+    expose_related :vendor_service_categories,
+                   as: :categories,
+                   with: VendorServiceCategoryEntity,
+                   all: true,
+                   to_path: ->(inst, _) { "/v1/payment_ledgers/#{inst.id}" }
   end
 
   class MemberDetailPaymentAccountEntity < SimplePaymentAccountEntity
@@ -111,18 +112,18 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
     expose :total_balance, with: MoneyEntity
     expose_related :ledgers,
-      with: MemberDetailLedgerEntity,
-      all: true,
-      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+                   with: MemberDetailLedgerEntity,
+                   all: true,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
     expose_related :originated_funding_transactions,
-      with: FundingTransactionEntity,
-      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+                   with: FundingTransactionEntity,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
     expose_related :originated_payout_transactions,
-      with: PayoutTransactionEntity,
-      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+                   with: PayoutTransactionEntity,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
     expose_related :all_book_transactions,
-      with: BookTransactionEntity,
-      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+                   with: BookTransactionEntity,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
   end
 
   class DetailedMemberEntity < MemberEntity

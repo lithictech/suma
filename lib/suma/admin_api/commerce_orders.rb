@@ -62,15 +62,17 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
       Suma::Commerce::Order,
       DetailedCommerceOrderEntity,
     )
-    Suma::AdminAPI::CommonEndpoints.related(
-      self,
-      Suma::Commerce::Order,
-      Suma::Commerce::CheckoutItem,
-      CheckoutItemEntity,
-      :checkout_items,
-      inherit_permissions: true,
-      route_name: :items,
-      dataset_method: :checkout_items_dataset
-    )
+    route_param :id, type: Integer do
+      Suma::AdminAPI::CommonEndpoints.related(
+        self,
+        Suma::Commerce::Order,
+        Suma::Commerce::CheckoutItem,
+        CheckoutItemEntity,
+        :checkout_items,
+        inherit_permissions: true,
+        route_name: :items,
+        dataset_method: :checkout_items_dataset,
+      )
+    end
   end
 end

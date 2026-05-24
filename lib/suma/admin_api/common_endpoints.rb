@@ -239,6 +239,7 @@ module Suma::AdminAPI::CommonEndpoints
   end
 
   def self.get_one(route_def, model_type, entity, expose_related: true)
+    cend = self
     route_def.instance_exec do
       route_param :id, type: Integer do
         get do
@@ -246,9 +247,9 @@ module Suma::AdminAPI::CommonEndpoints
           (m = model_type[params[:id]]) or forbidden!
           present m, with: entity
         end
+        cend.related_children(route_def, entity) if expose_related
       end
     end
-    self.related_children(route_def, entity) if expose_related
   end
 
   # Expose a related sub-resources automatically, as <resource>/:id/<name>,
@@ -269,22 +270,23 @@ module Suma::AdminAPI::CommonEndpoints
     dataset_method: nil
   )
     route_def.instance_exec do
-      route_param :id, type: Integer do
-        params do
-          use :pagination
-        end
-        get route_name || association_name do
-          check_admin_role_access!(:read, model_type)
-          check_admin_role_access!(:read, inherit_permissions ? model_type : related_model_type)
-          (m = model_type[params[:id]]) or forbidden!
-          if dataset_method.nil?
+      params do
+        use :pagination
+      end
+      get route_name || association_name do
+        check_admin_role_access!(:read, model_type)
+        check_admin_role_access!(:read, inherit_permissions ? model_type : related_model_type)
+        (m = model_type[params[:id]]) or forbidden!
+        if dataset_method.nil?
+          dataset_method = :"#{association_name}_dataset"
+          unless m.respond_to?(dataset_method)
             assoc = m.class.association_reflections.fetch(association_name)
             dataset_method = assoc.fetch(:dataset_method)
           end
-          ds = m.send(dataset_method)
-          ds = paginate(ds, params)
-          present_collection ds, with: related_entity
         end
+        ds = m.send(dataset_method)
+        ds = paginate(ds, params)
+        present_collection ds, with: related_entity
       end
     end
   end
