@@ -26,7 +26,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :fulfillment_prompt, with: TranslatedTextEntity
     expose :fulfillment_instructions, with: TranslatedTextEntity
     expose :fulfillment_confirmation, with: TranslatedTextEntity
-    expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
+    expose_related :fulfillment_options, with: OfferingFulfillmentOptionEntity, all: true
     expose :begin_fulfillment_at
     expose_image :image
     expose_related :offering_products, with: OfferingProductEntity

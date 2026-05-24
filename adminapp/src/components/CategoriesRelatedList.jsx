@@ -1,12 +1,12 @@
 import AdminLink from "./AdminLink";
-import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import React from "react";
 
 export default function CategoriesRelatedList({ categories }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Categories"
-      rows={categories}
+      collection={categories}
       headers={["Id", "Name", "Slug", "Parent"]}
       keyRowAttr="id"
       toCells={(row) => [

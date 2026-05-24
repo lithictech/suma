@@ -3,7 +3,7 @@ import AdminActions from "../components/AdminActions";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
@@ -98,9 +98,9 @@ export default function VendorAccountDetailPage() {
           />
         ),
         <AdminActions adminActions={model.adminActions} updateModel={setModel} />,
-        <RelatedList
+        <RelatedListRemote
           title="Registrations"
-          rows={model.registrations}
+          collection={model.registrations}
           headers={["Id", "Created", "Program Id", "External Id"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -110,29 +110,17 @@ export default function VendorAccountDetailPage() {
             row.externalRegistrationId,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Messages"
-          rows={model.messages}
-          headers={[
-            "Id",
-            "Created",
-            "Content",
-            "From",
-            "To",
-            "Handler Key",
-            "Relay Key",
-            "Timestamp",
-          ]}
+          collection={model.messages}
+          headers={["Id", "Timestamp", "From", "To", "Outbound"]}
           keyRowAttr="id"
           toCells={(row) => [
             row.id,
-            formatDate(row.createdAt),
-            row.messageContent,
+            formatDate(row.messageTimestamp),
             row.messageFrom,
             row.messageTo,
-            row.messageHandlerKey,
-            row.relayKey,
-            formatDate(row.messageTimestamp),
+            <AdminLink model={row.outboundDelivery} label />,
           ]}
         />,
       ]}

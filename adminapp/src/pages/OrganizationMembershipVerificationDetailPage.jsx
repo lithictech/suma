@@ -4,6 +4,7 @@ import AuditLogs from "../components/AuditLogs";
 import InlineEditField from "../components/InlineEditField";
 import OrganizationMembership from "../components/OrganizationMembership";
 import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -127,9 +128,9 @@ export default function OrganizationMembershipVerificationDetailPage() {
       ]}
     >
       {(model, setModel) => [
-        <RelatedList
+        <RelatedListRemote
           title="Notes"
-          rows={model.notes}
+          collection={model.notes}
           headers={["Id", "Note", "At", "Created by"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -137,7 +138,7 @@ export default function OrganizationMembershipVerificationDetailPage() {
             <div dangerouslySetInnerHTML={{ __html: row.contentHtml }} />,
             formatDate(row.createdAt),
             <AdminLink key="member" model={row.creator}>
-              {row.creator.name}
+              {row.creator?.name}
             </AdminLink>,
           ]}
         />,

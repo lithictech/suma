@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import CommerceOrderDetailGrid from "../components/CommerceOrderDetailGrid";
 import MobilityTripDetailGrid from "../components/MobilityTripDetailGrid";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
@@ -51,10 +51,10 @@ export default function ChargeDetailPage() {
       {(model) => [
         <MobilityTripDetailGrid isDetailGrid model={model.mobilityTrip} />,
         <CommerceOrderDetailGrid isDetailGrid model={model.commerceOrder} />,
-        <RelatedList
+        <RelatedListRemote
           title="Line Items"
           headers={["Id", "Amount", "Memo"]}
-          rows={model.lineItems}
+          collection={model.lineItems}
           keyRowAttr="id"
           toCells={(row) => [
             row.id,
@@ -64,9 +64,9 @@ export default function ChargeDetailPage() {
             row.memo.en,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Funding Transactions"
-          rows={model.associatedFundingTransactions}
+          collection={model.associatedFundingTransactions}
           headers={["Id", "Created", "Status", "Amount", "Originating Account"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -79,9 +79,9 @@ export default function ChargeDetailPage() {
             </AdminLink>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Book Transactions"
-          rows={model.contributingBookTransactions}
+          collection={model.contributingBookTransactions}
           headers={["Id", "Amount", "Receiving Ledger"]}
           keyRowAttr="id"
           toCells={(row) => [

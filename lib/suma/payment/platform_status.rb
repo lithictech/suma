@@ -15,9 +15,7 @@ class Suma::Payment::PlatformStatus
   attr_accessor :assets
 
   # Ledgers belonging to the platform account.
-  def platform_ledgers
-    @platform_ledgers ||= Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
-  end
+  def platform_ledgers_dataset = Suma::Payment::Account.lookup_platform_account.ledgers_dataset.order(:name)
 
   attr_accessor :off_platform_funding_transactions_dataset, :off_platform_payout_transactions_dataset
 
@@ -29,7 +27,8 @@ class Suma::Payment::PlatformStatus
     self.funding, self.funding_count = sumcnt(funding_ds)
     self.funding -= self.refunds
     self.funding_count -= self.refund_count
-    self.member_liabilities = self.platform_ledgers.sum(&:balance) * -1
+    liability_cents = Suma::Payment::Ledger::Balance.where(ledger: self.platform_ledgers_dataset).sum(:balance_cents)
+    self.member_liabilities = Money.new((liability_cents || 0) * -1, Suma.default_currency)
     self.assets = self.funding - self.payouts
     self.off_platform_funding_transactions_dataset = offplatform_ds(funding_ds)
     self.off_platform_payout_transactions_dataset = offplatform_ds(payout_ds)
@@ -73,7 +72,7 @@ class Suma::Payment::PlatformStatus
     unbalanced_ids = db.
       from(summed).
       exclude(total: 0).
-      exclude(ledger_id: self.platform_ledgers.map(&:id)).
+      exclude(ledger_id: self.platform_ledgers_dataset.select(:id)).
       select_map(:ledger_id)
     return Suma::Payment::Ledger.order(:account_id, :name, :id).where(id: unbalanced_ids)
   end

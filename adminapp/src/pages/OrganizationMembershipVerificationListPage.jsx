@@ -519,12 +519,12 @@ function NotesViewer({ verification, makeApiCall }) {
                     </CardContent>
                   </Card>
                 )}
-                {isEmpty(verification?.notes) && (
+                {isEmpty(verification?.notes?.items) && (
                   <Typography variant="subtitle2">
                     Add a note using the note editor.
                   </Typography>
                 )}
-                {verification?.notes.map((note) => (
+                {verification?.notes.items.map((note) => (
                   <Card key={note.id}>
                     <CardContent sx={{ padding: `${theme.spacing(1)} !important` }}>
                       <div dangerouslySetInnerHTML={{ __html: note.contentHtml }}></div>

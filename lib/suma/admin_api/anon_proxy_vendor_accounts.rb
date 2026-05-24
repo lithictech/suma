@@ -16,6 +16,22 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
     expose :external_registration_id
   end
 
+  class VendorAccountMessageEntity < BaseModelEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+
+    model Suma::AnonProxy::VendorAccountMessage
+
+    expose :message_id
+    expose :message_from
+    expose :message_to
+    expose :message_content
+    expose :message_timestamp
+    expose :relay_key
+    expose :message_handler_key
+    expose :outbound_delivery, with: MessageDeliveryEntity
+  end
+
   class DetailedVendorAccountEntity < AnonProxyVendorAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -27,6 +43,7 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
     expose :pending_closure
     expose :contact, with: AnonProxyMemberContactEntity
     expose_related :registrations, with: VendorAccountRegistrationEntity
+    expose_related :messages, with: VendorAccountMessageEntity
   end
 
   resource :anon_proxy_vendor_accounts do

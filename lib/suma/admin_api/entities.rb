@@ -486,6 +486,7 @@ module Suma::AdminAPI::Entities
   class OfferingFulfillmentOptionEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Commerce::OfferingFulfillmentOption
     expose :description, with: TranslatedTextEntity
     expose :type
     expose :ordinal

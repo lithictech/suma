@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -22,9 +22,9 @@ export default function VendorDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Services"
-          rows={model.services}
+          collection={model.services}
           headers={["Id", "Name"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -32,9 +32,9 @@ export default function VendorDetailPage() {
             <AdminLink model={row}>{row.internalName}</AdminLink>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Configuration"
-          rows={model.configurations}
+          collection={model.configurations}
           headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -44,9 +44,9 @@ export default function VendorDetailPage() {
             <BoolCheckmark>{row.enabled}</BoolCheckmark>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Products"
-          rows={model.products}
+          collection={model.products}
           headers={["Id", "Created", "Name"]}
           keyRowAttr="id"
           toCells={(row) => [

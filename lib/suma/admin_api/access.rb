@@ -15,6 +15,7 @@ class Suma::AdminAPI::Access
   MAPPING = {
     Suma::AnonProxy::MemberContact => [:member_contact, COMMERCE, COMMERCE],
     Suma::AnonProxy::VendorAccount => [:vendor_account, COMMERCE, COMMERCE],
+    Suma::AnonProxy::VendorAccountMessage => [:vendor_account_message, COMMERCE, COMMERCE],
     Suma::AnonProxy::VendorConfiguration => [:vendor_configuration, COMMERCE, COMMERCE],
     Suma::Charge => [:charge, PAYMENTS, PAYMENTS],
     Suma::Commerce::OfferingProduct => [:offering_product, COMMERCE, COMMERCE],

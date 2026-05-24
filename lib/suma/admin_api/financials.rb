@@ -39,7 +39,7 @@ class Suma::AdminAPI::Financials < Suma::AdminAPI::V1
     expose :refund_count
     expose :member_liabilities, with: MoneyEntity
     expose :assets, with: MoneyEntity
-    expose :platform_ledgers, with: LedgerEntity
+    expose_related :platform_ledgers, with: LedgerEntity
     expose_related :unbalanced_ledgers, with: LedgerEntity
     expose_related :off_platform_funding_transactions, with: OffPlatformTransactionEntity
     expose_related :off_platform_payout_transactions, with: OffPlatformTransactionEntity

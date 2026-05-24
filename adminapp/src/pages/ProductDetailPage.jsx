@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import CategoriesRelatedList from "../components/CategoriesRelatedList";
 import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -43,15 +44,15 @@ export default function ProductDetailPage() {
     >
       {(model) => [
         <CategoriesRelatedList categories={model.vendorServiceCategories} />,
-        <RelatedList
-          title={`Offering Products (${model.offeringProducts?.length})`}
+        <RelatedListRemote
+          title="Offering Products"
           addNewLabel="Create Offering Product"
           addNewLink={createRelativeUrl("/offering-product/new", {
             productId: model.id,
             productLabel: model.name.en,
           })}
           addNewRole="offering_product"
-          rows={model.offeringProducts}
+          collection={model.offeringProducts}
           headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -64,9 +65,9 @@ export default function ProductDetailPage() {
             row.isClosed ? dayjs(row.closedAt).format("lll") : "",
           ]}
         />,
-        <RelatedList
-          title={`Orders (${model.orders?.length})`}
-          rows={model.orders}
+        <RelatedListRemote
+          title="Orders"
+          collection={model.orders}
           headers={["Id", "Created At", "Status", "Member"]}
           keyRowAttr="id"
           toCells={(row) => [
