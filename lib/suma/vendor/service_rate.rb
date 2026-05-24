@@ -9,6 +9,7 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
   plugin :money_fields, :unit_amount, :surcharge
 
   many_to_one :undiscounted_rate, key: :undiscounted_rate_id, class: "Suma::Vendor::ServiceRate"
+  one_to_many :discounted_rates, key: :undiscounted_rate_id, class: "Suma::Vendor::ServiceRate"
 
   one_to_many :program_pricings,
               class: "Suma::Program::Pricing",
