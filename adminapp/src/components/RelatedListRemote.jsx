@@ -1,6 +1,7 @@
 import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
+import useDebugEffect from "../shared/react/useDebugEffect";
 import Link from "./Link";
 import "./RelatedList.css";
 import SimpleTable from "./SimpleTable";
@@ -77,6 +78,10 @@ export default function RelatedListRemote({
     pushLeft = headers?.length <= 2;
   }
   const addNew = Boolean(addNewLink || onAddNewClick) && canWriteResource(addNewRole);
+
+  useDebugEffect(() => api.get(latestCollection.url, { page: 1, pageSize: 2 }), {
+    once: true,
+  });
 
   if (!collection.totalCount && !addNew && !emptyState) {
     return null;

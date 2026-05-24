@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import EligibilityAssignmentsRelatedList from "../components/EligibilityAssignmentsRelatedList";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
@@ -18,9 +18,9 @@ export default function RoleDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Members"
-          rows={model.members}
+          collection={model.members}
           headers={["Id", "Name", "Phone"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -29,9 +29,9 @@ export default function RoleDetailPage() {
             row.formattedPhone,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Organizations"
-          rows={model.organizations}
+          collection={model.organizations}
           headers={["Id", "Name"]}
           keyRowAttr="id"
           toCells={(row) => [<AdminLink key="id" model={row} />, row.name]}

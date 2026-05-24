@@ -529,7 +529,7 @@ function NotesViewer({ verification, makeApiCall }) {
                     <CardContent sx={{ padding: `${theme.spacing(1)} !important` }}>
                       <div dangerouslySetInnerHTML={{ __html: note.contentHtml }}></div>
                       <Typography variant="caption">
-                        {note.creator?.name} at {formatDate(note.createdAt)}
+                        {note.author?.name} at {formatDate(note.createdAt)}
                       </Typography>
                       {note.editor && (
                         <Typography variant="caption">

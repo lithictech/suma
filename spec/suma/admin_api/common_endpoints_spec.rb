@@ -172,6 +172,18 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
+
+    it "automatically registers exposed related paths" do
+      v = Suma::Fixtures.vendor.create
+      service = Suma::Fixtures.vendor_service.create(vendor: v)
+
+      get "/v1/vendors/#{v.id}/services"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: have_same_ids_as(service),
+      )
+    end
   end
 
   describe "update" do

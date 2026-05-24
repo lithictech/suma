@@ -137,8 +137,8 @@ export default function OrganizationMembershipVerificationDetailPage() {
             row.id,
             <div dangerouslySetInnerHTML={{ __html: row.contentHtml }} />,
             formatDate(row.createdAt),
-            <AdminLink key="member" model={row.creator}>
-              {row.creator?.name}
+            <AdminLink key="member" model={row.author}>
+              {row.author?.name}
             </AdminLink>,
           ]}
         />,

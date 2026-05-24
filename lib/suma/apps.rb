@@ -64,6 +64,7 @@ require "suma/admin_api/organization_membership_verifications"
 require "suma/admin_api/organization_memberships"
 require "suma/admin_api/organization_registration_links"
 require "suma/admin_api/off_platform_transactions"
+require "suma/admin_api/payment_accounts"
 require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
 require "suma/admin_api/payout_transactions"
@@ -140,6 +141,7 @@ module Suma::Apps
     mount Suma::AdminAPI::OrganizationMembershipVerifications
     mount Suma::AdminAPI::OrganizationRegistrationLinks
     mount Suma::AdminAPI::OffPlatformTransactions
+    mount Suma::AdminAPI::PaymentAccounts
     mount Suma::AdminAPI::PaymentLedgers
     mount Suma::AdminAPI::PaymentTriggers
     mount Suma::AdminAPI::PayoutTransactions

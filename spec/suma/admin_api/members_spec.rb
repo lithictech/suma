@@ -98,6 +98,31 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_json_body.that_includes(:roles, id: admin.id)
     end
 
+    it "returns proper paths to related resources" do
+      m = Suma::Fixtures.member.create
+      acct = Suma::Payment.as_account(m)
+      led = Suma::Payment.ensure_cash_ledger(m)
+
+      get "/v1/members/#{m.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        roles: include(url: "/v1/members/#{m.id}/roles"),
+        activities: include(url: "/v1/members/#{m.id}/activities"),
+        payment_instruments: include(url: "/v1/members/#{m.id}/payment_instruments"),
+        notes: include(url: "/v1/members/#{m.id}/combined_notes"),
+        eligibility_assignments: include(url: "/v1/members/#{m.id}/eligibility_assignments"),
+        expanded_eligibility_assignments: include(url: "/v1/members/#{m.id}/expanded_eligibility_assignments"),
+      )
+      expect(last_response_json_body[:payment_account]).to include(
+        originated_funding_transactions: include(url: "/v1/payment_accounts/#{acct.id}/originated_funding_transactions"),
+        ledgers: include(url: "/v1/payment_accounts/#{acct.id}/ledgers"),
+      )
+      expect(last_response_json_body[:payment_account][:ledgers][:items].first).to include(
+        combined_book_transactions: include(url: "/v1/payment_ledgers/#{led.id}/combined_book_transactions"),
+      )
+    end
+
     it "403s if the member does not exist" do
       get "/v1/members/0"
 

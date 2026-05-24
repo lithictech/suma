@@ -7,6 +7,10 @@ require "suma/admin_api"
 class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
+  class FundingAuditLogEntity < AuditLogEntity
+    model Suma::Payment::FundingTransaction::AuditLog
+  end
+
   class DetailedFundingTransactionEntity < FundingTransactionEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -19,8 +23,8 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :originated_book_transaction, with: BookTransactionEntity
     expose :reversal_book_transaction, with: BookTransactionEntity
-    expose_related :audit_activities, with: ActivityEntity
-    expose_related :audit_logs, with: AuditLogEntity
+    expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
+    expose_related :audit_logs, with: FundingAuditLogEntity, inherit_permissions: true
     expose :strategy, with: PaymentStrategyEntity
   end
 

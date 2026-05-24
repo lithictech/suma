@@ -20,13 +20,14 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
-    expose_related :audit_activities, with: ActivityEntity
+    expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
     expose :confirmation_template
     expose :description, with: TranslatedTextEntity
     expose :fulfillment_prompt, with: TranslatedTextEntity
     expose :fulfillment_instructions, with: TranslatedTextEntity
     expose :fulfillment_confirmation, with: TranslatedTextEntity
-    expose_related :fulfillment_options, with: OfferingFulfillmentOptionEntity, all: true
+    expose_related :fulfillment_options,
+      with: OfferingFulfillmentOptionEntity, all: true, inherit_permissions: true
     expose :begin_fulfillment_at
     expose_image :image
     expose_related :offering_products, with: OfferingProductEntity

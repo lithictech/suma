@@ -59,11 +59,10 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :editable_state
   end
 
-  class PreferencesEntity < BaseModelEntity
+  class PreferencesEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
-    model Suma::Message::Preferences
     expose :public_url
     expose :subscriptions, with: PreferencesSubscriptionEntity
     expose :preferred_language_name
@@ -95,6 +94,37 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :source_membership, with: OrganizationMembershipEntity
   end
 
+  class MemberDetailLedgerEntity < SimpleLedgerEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+
+    expose :balance, with: MoneyEntity
+    expose_related :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity, all: true
+    # expose_related :combined_book_transactions,
+    #   with: BookTransactionEntity,
+    #   to_path: ->(inst, _) { "/v1/payment_ledgers/#{inst.id}" }
+  end
+
+  class MemberDetailPaymentAccountEntity < SimplePaymentAccountEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+
+    expose :total_balance, with: MoneyEntity
+    expose_related :ledgers,
+      with: MemberDetailLedgerEntity,
+      all: true,
+      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+    expose_related :originated_funding_transactions,
+      with: FundingTransactionEntity,
+      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+    expose_related :originated_payout_transactions,
+      with: PayoutTransactionEntity,
+      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+    expose_related :all_book_transactions,
+      with: BookTransactionEntity,
+      to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -107,10 +137,10 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     end
     expose :previous_emails
 
-    expose_related :activities, with: ActivityEntity
-    expose_related :audit_activities, with: ActivityEntity
+    expose_related :activities, with: ActivityEntity, inherit_permissions: true
+    expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
     expose :legal_entity, with: LegalEntityEntity
-    expose :payment_account, with: DetailedPaymentAccountEntity
+    expose :payment_account, with: MemberDetailPaymentAccountEntity
     expose_related :charges, with: ChargeEntity
     expose_related :eligibility_assignments, with: EligibilityAssignmentEntity
     expose_related :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
@@ -120,7 +150,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose_related :orders, with: MemberOrderEntity
     expose_related :payment_instruments, with: PaymentInstrumentEntity
     expose_related :message_deliveries, with: MessageDeliveryEntity
-    expose_related :combined_notes, as: :notes, with: SupportNoteEntity
+    expose_related :combined_notes, as: :notes, with: SupportNoteEntity, inherit_permissions: true
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose_related :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
     expose_related :anon_proxy_contacts, as: :member_contacts, with: AnonProxyMemberContactEntity

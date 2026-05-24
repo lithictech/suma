@@ -3,7 +3,6 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import HelmetTitle from "../components/HelmetTitle";
 import Link from "../components/Link";
-import RelatedList from "../components/RelatedList";
 import RelatedListRemote from "../components/RelatedListRemote";
 import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";

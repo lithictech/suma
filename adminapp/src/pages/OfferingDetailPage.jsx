@@ -2,8 +2,6 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import Link from "../components/Link";
-import Programs from "../components/Programs";
-import RelatedList from "../components/RelatedList";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";

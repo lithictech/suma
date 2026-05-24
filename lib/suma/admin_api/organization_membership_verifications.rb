@@ -16,7 +16,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
-    expose_related :combined_notes, as: :notes, with: SupportNoteEntity, all: true
+    expose_related :combined_notes, as: :notes, with: SupportNoteEntity, all: true, inherit_permissions: true
     expose :duplicate_risk
   end
 
@@ -30,7 +30,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :address, with: AddressEntity, &self.delegate_to(:membership, :member, :legal_entity, :address, safe: true)
     expose :organization_name
     expose :organization_name_editable?, as: :organization_name_editable
-    expose_related :audit_logs, with: AuditLogEntity
+    expose_related :audit_logs, with: AuditLogEntity, inherit_permissions: true
     expose :partner_outreach_front_conversation_id
     expose :member_outreach_front_conversation_id
     expose :duplicates do |instance|
@@ -99,13 +99,6 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       self,
       Suma::Organization::Membership::Verification,
       DetailedMembershipVerificationEntity,
-    )
-    Suma::AdminAPI::CommonEndpoints.related(
-      self,
-      Suma::Organization::Membership::Verification,
-      Suma::Support::Note,
-      SupportNoteEntity,
-      :combined_notes,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(

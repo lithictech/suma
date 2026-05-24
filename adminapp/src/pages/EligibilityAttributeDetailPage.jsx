@@ -1,6 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -23,9 +23,9 @@ export default function EligibilityAttributeDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Children"
-          rows={model.children}
+          collection={model.children}
           headers={["Id", "Name"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -33,9 +33,9 @@ export default function EligibilityAttributeDetailPage() {
             <AdminLink model={row}>{row.name}</AdminLink>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Assignments"
-          rows={model.assignments}
+          collection={model.assignments}
           addNewLabel="Add Assignment"
           addNewRole="eligibilityAssignment"
           addNewLink={createRelativeUrl(`/eligibility-assignment/new`, {
@@ -52,9 +52,9 @@ export default function EligibilityAttributeDetailPage() {
             row.assigneeType,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Referenced Requirements"
-          rows={model.referencedRequirements}
+          collection={model.referencedRequirements}
           headers={["Id", "Resource", "Expression"]}
           keyRowAttr="id"
           toCells={(row) => [

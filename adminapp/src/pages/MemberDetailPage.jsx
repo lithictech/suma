@@ -26,16 +26,16 @@ import useToggle from "../shared/react/useToggle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
-  Typography,
-  Switch,
   Button,
   Chip,
-  DialogTitle,
   Dialog,
-  DialogContent,
   DialogActions,
-  Stack,
+  DialogContent,
   DialogContentText,
+  DialogTitle,
+  Stack,
+  Switch,
+  Typography,
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";

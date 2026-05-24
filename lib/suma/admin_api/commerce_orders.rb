@@ -10,19 +10,21 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :total_item_count
   end
 
-  class CheckoutItemEntity < BaseEntity
+  class CheckoutItemEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
 
+    model Suma::Commerce::CheckoutItem
     expose :id
     expose :offering_product, with: OfferingProductEntity
     expose :quantity
     expose :checkout_id
   end
 
-  class CheckoutEntity < BaseEntity
+  class CheckoutEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Commerce::Checkout
     expose :undiscounted_cost, with: MoneyEntity
     expose :customer_cost, with: MoneyEntity
     expose :savings, with: MoneyEntity
@@ -31,6 +33,7 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :total, with: MoneyEntity
     expose :payment_instrument, with: PaymentInstrumentEntity
     expose :fulfillment_option, with: OfferingFulfillmentOptionEntity
+    expose_related :items, with: CheckoutItemEntity, all: true, inherit_permissions: true
   end
 
   class OrderAuditLogEntity < AuditLogEntity
@@ -43,10 +46,9 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
 
     expose :serial
     expose :charge, with: ChargeWithPricesEntity
-    expose_related :audit_logs, with: OrderAuditLogEntity
+    expose_related :audit_logs, with: OrderAuditLogEntity, inherit_permissions: true
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
     expose :checkout, with: CheckoutEntity
-    expose :items, with: CheckoutItemEntity, &self.delegate_to(:checkout, :items)
   end
 
   resource :commerce_orders do
@@ -59,6 +61,16 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Order,
       DetailedCommerceOrderEntity,
+    )
+    Suma::AdminAPI::CommonEndpoints.related(
+      self,
+      Suma::Commerce::Order,
+      Suma::Commerce::CheckoutItem,
+      CheckoutItemEntity,
+      :checkout_items,
+      inherit_permissions: true,
+      route_name: :items,
+      dataset_method: :checkout_items_dataset
     )
   end
 end

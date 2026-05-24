@@ -7,14 +7,10 @@ require "suma/admin_api"
 class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class LedgerEntity < BaseModelEntity
+  class LedgerEntity < SimpleLedgerEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
 
-    model Suma::Payment::Ledger
-    expose :name
     expose :is_platform_account, &self.delegate_to(:account, :is_platform_account)
-    expose :currency
     expose :balance, with: MoneyEntity
     expose :member, with: MemberEntity, &self.delegate_to(:account, :member)
   end

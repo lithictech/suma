@@ -5,7 +5,6 @@ import Money from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import LedgerBookTransactionsRelatedList from "./LedgerBookTransactionRelatedList";
 import Link from "./Link";
-import RelatedList from "./RelatedList";
 import RelatedListRemote from "./RelatedListRemote";
 import first from "lodash/first";
 import get from "lodash/get";
@@ -58,7 +57,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           const cells = [
             <AdminLink key="id" model={row} />,
             row.currency,
-            map(row.vendorServiceCategories, "name").join(", "),
+            AdminLink.Array(row.categories.items, (c) => <AdminLink model={c} label />),
             <Money key="balance">{row.balance}</Money>,
           ];
           if (canCreateBook) {
@@ -79,7 +78,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           return cells;
         }}
       />
-      {paymentAccount.ledgers.map((ledger) => (
+      {paymentAccount.ledgers.items.map((ledger) => (
         <LedgerBookTransactionsRelatedList
           ledger={ledger}
           title={`Ledger ${ledger.label} (${ledger.id}) - ${formatMoney(ledger.balance)}`}

@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import Link from "../components/Link";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -40,9 +40,9 @@ export default function EligibilityRequirementDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Programs"
-          rows={model.programs}
+          collection={model.programs}
           addNewLabel="Add program requirement"
           addNewRole="program"
           addNewLink={createRelativeUrl(`/eligibility-requirement/${model.id}/edit`)}
@@ -53,9 +53,9 @@ export default function EligibilityRequirementDetailPage() {
             <AdminLink model={row}>{row.label}</AdminLink>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Payment Triggers"
-          rows={model.paymentTriggers}
+          collection={model.paymentTriggers}
           addNewLabel="Add payment trigger requirement"
           addNewRole="program"
           addNewLink={createRelativeUrl(`/eligibility-requirement/${model.id}/edit`)}

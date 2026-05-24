@@ -1,6 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import useBusy from "../hooks/useBusy";
@@ -60,9 +60,9 @@ export default function MarketingListDetailPage() {
             </Button>
           </div>
         ),
-        <RelatedList
+        <RelatedListRemote
           title="Members"
-          rows={model.members}
+          collection={model.members}
           headers={["Id", "Name", "Phone"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -73,9 +73,9 @@ export default function MarketingListDetailPage() {
             row.formattedPhone,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Broadcasts"
-          rows={model.smsBroadcasts}
+          collection={model.smsBroadcasts}
           headers={["Id", "Label", "Sent At"]}
           keyRowAttr="id"
           toCells={(row) => [

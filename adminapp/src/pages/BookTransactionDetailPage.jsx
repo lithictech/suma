@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import RelatedList from "../components/RelatedList";
-import ResourceDetail from "../components/ResourceDetail";
+import DetailGrid from "../components/DetailGrid";
+import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
@@ -53,30 +53,64 @@ export default function BookTransactionDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
-          title="Funding Transactions"
-          rows={model.fundingTransactions}
-          headers={["Id", "Created", "Status", "Amount"]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            formatDate(row.createdAt),
-            row.status,
-            <Money key="amt">{row.amount}</Money>,
-          ]}
-        />,
-        <RelatedList
-          title="Charges"
-          headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
-          rows={[model.chargeContributedTo].filter(Boolean)}
-          toCells={(row) => [
-            <AdminLink model={row} />,
-            formatDate(row.createdAt),
-            <Money key={3}>{row.undiscountedSubtotal}</Money>,
-            row.opaqueId,
-          ]}
-        />,
+        relatedExternalTransaction(
+          "Originating Funding Transaction",
+          model.originatingFundingTransaction
+        ),
+        relatedExternalTransaction(
+          "Originating Payout Transaction",
+          model.originatingPayoutTransaction
+        ),
+        relatedExternalTransaction(
+          "Credited Payout Transaction",
+          model.creditedPayoutTransaction
+        ),
+        model.chargeContributedTo && (
+          <ResourceSummary>
+            <DetailGrid
+              title="Charges Contributed To"
+              properties={[
+                { label: "Id", value: <AdminLink model={model.chargeContributedTo} /> },
+                { label: "At", value: formatDate(model.chargeContributedTo.createdAt) },
+                {
+                  label: "Undiscounted Total",
+                  value: <Money>{model.chargeContributedTo.undiscountedSubtotal}</Money>,
+                },
+                { label: "Opaque ID", value: model.chargeContributedTo.opaqueId },
+              ]}
+            />
+          </ResourceSummary>
+        ),
       ]}
     </ResourceDetail>
+  );
+}
+
+function relatedExternalTransaction(title, model) {
+  if (!model) {
+    return null;
+  }
+  // Must return ResourceSummary unwrapped so child detection for layout works.
+  return (
+    <ResourceSummary>
+      <DetailGrid
+        title={title}
+        properties={[
+          {
+            label: "Id",
+            value: <AdminLink model={model} />,
+          },
+          {
+            label: "Created",
+            value: formatDate(model.createdAt),
+          },
+          { label: "Status", value: model.status },
+          {
+            label: "Amount",
+            value: <Money>{model.amount}</Money>,
+          },
+        ]}
+      />
+    </ResourceSummary>
   );
 }

@@ -1,7 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import CategoriesRelatedList from "../components/CategoriesRelatedList";
-import RelatedList from "../components/RelatedList";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";

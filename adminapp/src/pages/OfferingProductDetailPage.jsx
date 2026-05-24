@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BackTo from "../components/BackTo";
 import Link from "../components/Link";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
@@ -58,9 +58,9 @@ export default function OfferingProductDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
-          title={`Orders (${model.orders.length})`}
-          rows={model.orders}
+        <RelatedListRemote
+          title="Orders"
+          collection={model.orders}
           headers={["Id", "Created", "Member", "Items", "Status"]}
           keyRowAttr="id"
           toCells={(row) => [

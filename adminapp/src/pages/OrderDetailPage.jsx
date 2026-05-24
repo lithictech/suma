@@ -3,7 +3,6 @@ import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
 import ChargeDetailGrid from "../components/ChargeDetailGrid";
 import DetailGrid from "../components/DetailGrid";
-import RelatedList from "../components/RelatedList";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -65,7 +64,7 @@ export default function OrderDetailPage() {
         <ChargeDetailGrid isDetailGrid model={model.charge} />,
         <RelatedListRemote
           title="Items"
-          collection={model.items}
+          collection={model.checkout.items}
           headers={[
             "Quantity",
             "Offering Product",

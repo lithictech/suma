@@ -6,7 +6,6 @@ import {
   OrganizationMembershipRemovedIcon,
   OrganizationMembershipVerifiedIcon,
 } from "../components/OrganizationMembership";
-import RelatedList from "../components/RelatedList";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";

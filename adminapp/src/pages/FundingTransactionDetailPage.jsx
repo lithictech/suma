@@ -5,7 +5,6 @@ import AuditLogs from "../components/AuditLogs";
 import BookTransactionDetail from "../components/BookTransactionDetail";
 import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
-import RelatedList from "../components/RelatedList";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";

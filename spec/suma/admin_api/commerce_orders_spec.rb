@@ -76,7 +76,10 @@ RSpec.describe Suma::AdminAPI::CommerceOrders, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: o.id,
-        items: have_length(1),
+        checkout: include(items: include(
+          url: "/v1/commerce_orders/#{o.id}/items",
+          items: have_length(1),
+        )),
       )
     end
 

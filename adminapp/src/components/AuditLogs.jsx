@@ -1,6 +1,5 @@
 import { dayjs } from "../modules/dayConfig";
 import AdminLink from "./AdminLink";
-import RelatedList from "./RelatedList";
 import RelatedListRemote from "./RelatedListRemote";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
