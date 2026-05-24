@@ -19,18 +19,21 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
                left_key: :note_id,
                right_key: :member_id
 
-  class << self
-    def combine_datasets(*exprs)
-      ds = self.reduce_expr(:|, exprs)
+  dataset_module do
+    def for_verification(verification)
+      criteria = Sequel[verification_id: verification.id] |
+        Sequel[member_id: verification.membership.member_id, verification_id: nil]
+      ds = self.db[:support_notes_combined_view].where(criteria)
+      ds = self.where(id: ds.select(:id))
       ds = ds.order(Sequel.desc(Sequel.function(:coalesce, :edited_at, :created_at)), :id)
       return ds
     end
 
-    def combine_instances(*arrays)
-      notes = [].concat(*arrays)
-      notes.sort_by! { |n| [n.authored_at, -n.id] }
-      notes.reverse!
-      return notes
+    def for_member(member)
+      ds = self.db[:support_notes_combined_view].where(member_id: member.id)
+      ds = self.where(id: ds.select(:id))
+      ds = ds.order(Sequel.desc(Sequel.function(:coalesce, :edited_at, :created_at)), :id)
+      return ds
     end
   end
 
@@ -48,13 +51,13 @@ class Suma::Support::Note < Suma::Postgres::Model(:support_notes)
     c = self.content
     start_of_string_regex = %r{^https?://\S+}
     c = c.gsub(start_of_string_regex) do |url|
-      # Since this is the start of the string, we can just format as markdown.
+      # Since this is the start of the string, we can just format as Markdown.
       "[#{url}](#{url})"
     end
 
     in_string_regex = %r{\shttps?://\S+}
     c = c.gsub(in_string_regex) do |match|
-      # The leading character is a space; remove it from the url and prepend it before the markdown link.
+      # The leading character is a space; remove it from the url and prepend it before the Markdown link.
       # We do not have matchdata available so cannot use capture groups.
       url = match[1..]
       "#{match[0]}[#{url}](#{url})"
