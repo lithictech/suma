@@ -121,6 +121,21 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       expect(d.refresh).to be_canceled
     end
 
+    it "cancels dispatches for deleted users" do
+      d = Suma::Fixtures.marketing_sms_dispatch.create
+      d.member.update(soft_deleted_at: Time.now)
+      described_class.send_all
+      expect(d.refresh).to be_canceled
+    end
+
+    it "cancels dispatches for invalid phone numbers" do
+      d = Suma::Fixtures.marketing_sms_dispatch.create
+      d.member.this.update(phone: Suma::PhoneNumber.faked_unreachable_phone)
+      d.refresh
+      described_class.send_all
+      expect(d.refresh).to be_canceled
+    end
+
     it "handles errors by sending them to Sentry and moving on" do
       disp = Suma::Fixtures.marketing_sms_dispatch.create
       req = stub_request(:post, "https://sumafaketest.signalwire.com/2010-04-01/Accounts/sw-test-project/Messages.json").

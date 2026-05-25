@@ -34,41 +34,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
           broadcast: dispatch.sms_broadcast.label,
         }
         Suma::Logutil.with_tags(log_tags) do
-          if dispatch.sms_broadcast.sending_number.blank?
-            self.logger.info("sms_dispatch_no_marketing_number")
-            dispatch.cancel.save_changes
-            next
-          end
-          if dispatch.member.message_preferences!.sms_undeliverable?
-            dispatch.cancel.save_changes
-            next
-          end
-          opted_out = dispatch.sms_broadcast.preferences_optout_field.present? &&
-            dispatch.member.message_preferences.opted_out?(dispatch.sms_broadcast.preferences_optout_field,
-                                                           :sms,)
-          if opted_out
-            dispatch.cancel.save_changes
-            next
-          end
-          body = dispatch.sms_broadcast.render(member: dispatch.member, language: nil)
-          if body.blank?
-            dispatch.cancel.save_changes
-            next
-          end
-          begin
-            sw_resp = Suma::Signalwire.send_sms(
-              Suma::PhoneNumber.format_e164(dispatch.sms_broadcast.sending_number),
-              Suma::PhoneNumber.format_e164(dispatch.member.phone),
-              body,
-            )
-          rescue Twilio::REST::RestError => e
-            self.logger.error("dispatch_marketing_broadcast_error", e)
-            Sentry.capture_exception(e, tags: log_tags)
-            next
-          end
-          self.logger.info("dispatched_marketing_broadcast", signalwire_message_id: sw_resp.sid)
-          dispatch.set_sent(sw_resp.sid)
-          dispatch.save_changes
+          dispatch.dispatch!(log_tags:)
         end
       end
     end
@@ -97,6 +63,42 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
     self.sent_at = at
     self.transport_message_id = ""
     return self
+  end
+
+  def cancel!(at: Time.now) = self.cancel(at:).save_changes
+
+  def dispatch!(log_tags: {})
+    if self.sms_broadcast.sending_number.blank?
+      self.logger.info("sms_dispatch_no_marketing_number")
+      return self.cancel!
+    end
+    return self.cancel! if self.member.soft_deleted?
+    begin
+      member_number = Suma::PhoneNumber.format_e164(self.member.phone)
+    rescue Suma::PhoneNumber::BadFormat
+      return self.cancel!
+    end
+    return self.cancel! if self.member.message_preferences!.sms_undeliverable?
+    opted_out = self.sms_broadcast.preferences_optout_field.present? &&
+      self.member.message_preferences.opted_out?(self.sms_broadcast.preferences_optout_field, :sms)
+    return self.cancel! if opted_out
+    body = self.sms_broadcast.render(member: self.member, language: nil)
+    return self.cancel! if body.blank?
+    begin
+      sw_resp = Suma::Signalwire.send_sms(
+        Suma::PhoneNumber.format_e164(self.sms_broadcast.sending_number),
+        member_number,
+        body,
+      )
+    rescue Twilio::REST::RestError => e
+      self.logger.error("dispatch_marketing_broadcast_error", e)
+      Sentry.capture_exception(e, tags: log_tags)
+      self.last_error = e.to_s
+      return self
+    end
+    self.logger.info("dispatched_marketing_broadcast", signalwire_message_id: sw_resp.sid)
+    self.set_sent(sw_resp.sid)
+    return self.save_changes
   end
 
   def rel_admin_link = "/marketing-sms-dispatch/#{self.id}"
