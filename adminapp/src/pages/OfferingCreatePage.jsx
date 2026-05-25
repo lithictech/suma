@@ -1,19 +1,19 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
 import { dayjs } from "../modules/dayConfig";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import OfferingForm from "./OfferingForm";
 import React from "react";
 
 export default function OfferingCreatePage() {
   const empty = {
     image: null,
-    imageCaption: formHelpers.initialTranslation,
-    description: formHelpers.initialTranslation,
-    fulfillmentPrompt: formHelpers.initialTranslation,
-    fulfillmentConfirmation: formHelpers.initialTranslation,
-    fulfillmentInstructions: formHelpers.initialTranslation,
-    fulfillmentOptions: [],
+    imageCaption: stub.translation,
+    description: stub.translation,
+    fulfillmentPrompt: stub.translation,
+    fulfillmentConfirmation: stub.translation,
+    fulfillmentInstructions: stub.translation,
+    fulfillmentOptions: stub.collection,
     periodBegin: dayjs().format(),
     periodEnd: dayjs().add(1, "day").format(),
     beginFulfillmentAt: null,

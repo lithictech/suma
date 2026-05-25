@@ -87,9 +87,12 @@ module Suma::AdminAPI::Entities
           ds_method = assoc.fetch(:dataset_method)
         end
         self.exposed_related << {name:, with:, inherit_permissions:}
+        exposed_attr = (name || as).to_s
         self.expose(name, as:, with: collection_entity) do |instance, options|
           ds = instance.send(ds_method)
-          if all
+          # Do NOT overwrite the closure all or we get leakage/corruption
+          req_all = all || Rack::Request.new(options[:env]).GET.fetch("expand", []).include?(exposed_attr)
+          if req_all
             collection = Suma::Service::Collection.from_array(ds.all)
           else
             ds = ds.paginate(1, Suma::Service.related_list_size)

@@ -170,6 +170,22 @@ RSpec.describe Suma::AdminAPI, :db do
           )
       end
 
+      it "can be expanded" do
+        get "/v1/model_with_related/#{vendor.id}", expand: ["products"]
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            products: include(
+              current_page: 1,
+              page_count: 1,
+              total_count: 5,
+              has_more: false,
+              items: have_length(5),
+            ),
+          )
+      end
+
       it "can expose a paginated list endpoint" do
         get "/v1/model_with_related/#{vendor.id}/products", page: 2, per_page: 2
 

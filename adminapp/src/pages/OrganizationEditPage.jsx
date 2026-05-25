@@ -8,6 +8,7 @@ export default function OrganizationEditPage() {
     <ResourceEdit
       apiGet={api.getOrganization}
       apiUpdate={api.updateOrganization}
+      expand={["roles"]}
       Form={OrganizationForm}
     />
   );

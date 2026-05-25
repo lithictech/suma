@@ -4,6 +4,7 @@ import ResourceEdit from "../components/ResourceEdit";
 import ResponsiveStack from "../components/ResponsiveStack";
 import { useGlobalApiState } from "../hooks/globalApiState";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import { setCollectionItems } from "../modules/apicollection";
 import withoutAt from "../shared/withoutAt";
 import {
   Card,
@@ -33,6 +34,7 @@ export default function MarketingSmsBroadcastEditPage() {
     <ResourceEdit
       apiGet={api.getMarketingSmsBroadcast}
       apiUpdate={api.updateMarketingSmsBroadcast}
+      expand={["lists"]}
       Form={EditForm}
     />
   );
@@ -186,17 +188,17 @@ function BodyPreview({ register, resource, onBodyChange, language, preview }) {
 }
 
 function MarketingLists({ allLists, lists, setLists }) {
-  const checkedListIds = lists.map((l) => l.id);
+  const checkedListIds = lists.items.map((l) => l.id);
 
   const handleToggle = (value) => {
     const existingCheckedIdx = checkedListIds.indexOf(value);
     let newlyCheckedLists;
     if (existingCheckedIdx > -1) {
-      newlyCheckedLists = withoutAt(lists, existingCheckedIdx);
+      newlyCheckedLists = withoutAt(lists.items, existingCheckedIdx);
     } else {
-      newlyCheckedLists = [...lists, allLists.find((l) => l.id === value)];
+      newlyCheckedLists = [...lists.items, allLists.find((l) => l.id === value)];
     }
-    setLists(newlyCheckedLists);
+    setCollectionItems(setLists, newlyCheckedLists);
   };
 
   return (

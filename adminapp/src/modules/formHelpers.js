@@ -1,8 +1,6 @@
-const initialTranslation = { en: "", es: "" };
+const translation = { en: "", es: "" };
 
-const initialFulfillmentOption = { type: "pickup", description: initialTranslation };
-
-const initialAddress = {
+const address = {
   address1: "",
   address2: "",
   city: "",
@@ -10,10 +8,6 @@ const initialAddress = {
   postalCode: "",
 };
 
-const formHelpers = {
-  initialTranslation,
-  initialFulfillmentOption,
-  initialAddress,
-};
+const collection = { items: [], hasMore: false, currentPage: 1 };
 
-export default formHelpers;
+export const stub = { translation, address, collection };

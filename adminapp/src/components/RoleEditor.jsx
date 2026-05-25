@@ -1,6 +1,7 @@
 import api from "../api";
 import { useGlobalApiState } from "../hooks/globalApiState";
 import useRoleAccess from "../hooks/useRoleAccess";
+import { assertFullCollection } from "../modules/apicollection";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
@@ -14,6 +15,8 @@ import {
 import React from "react";
 
 export default function RoleEditor({ roles, setRoles }) {
+  assertFullCollection(roles);
+
   const { canWriteResource } = useRoleAccess();
   const allRoles = useGlobalApiState(api.getRoles, null, { pick: (r) => r.data.items });
 
@@ -21,18 +24,22 @@ export default function RoleEditor({ roles, setRoles }) {
     return null;
   }
 
+  function setRoleItems(items) {
+    setRoles({ ...roles, items });
+  }
+
   function deleteRole(id) {
-    const newRoles = roles.filter((c) => c.id !== id);
-    setRoles(newRoles);
+    const newRoles = roles.items.filter((c) => c.id !== id);
+    setRoleItems(newRoles);
   }
 
   function handleAdd(newRole) {
-    const newRoles = [...roles, newRole];
-    setRoles(newRoles);
+    const newRoles = [...roles.items, newRole];
+    setRoleItems(newRoles);
   }
 
   const hasRoleIds = new Set();
-  roles.forEach((r) => hasRoleIds.add(r.id));
+  roles.items.forEach((r) => hasRoleIds.add(r.id));
 
   return (
     <Box>

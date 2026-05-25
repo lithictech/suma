@@ -8,6 +8,7 @@ export default function ProductEditPage() {
     <ResourceEdit
       apiGet={api.getCommerceProduct}
       apiUpdate={api.updateCommerceProduct}
+      expand={["vendor_service_categories"]}
       Form={ProductForm}
     />
   );

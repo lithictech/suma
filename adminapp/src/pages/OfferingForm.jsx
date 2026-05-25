@@ -5,7 +5,7 @@ import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
 import SafeDateTimePicker from "../components/SafeDateTimePicker";
 import { formatOrNull } from "../modules/dayConfig";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
 import AddIcon from "@mui/icons-material/Add";
@@ -160,19 +160,24 @@ export default function OfferingForm({
   );
 }
 
+const stubFulfillmentOption = { type: "pickup", description: stub.translation };
+
 function FulfillmentOptions({ options, setOptions }) {
+  function setOptionItems(items) {
+    setOptions({ ...options, items });
+  }
   const handleAdd = () => {
-    setOptions([...options, formHelpers.initialFulfillmentOption]);
+    setOptionItems([...options.items, stubFulfillmentOption]);
   };
   const handleRemove = (index) => {
-    setOptions(withoutAt(options, index));
+    setOptionItems(withoutAt(options.items, index));
   };
   function handleChange(index, fields) {
-    setOptions(mergeAt(options, index, fields));
+    setOptionItems(mergeAt(options.items, index, fields));
   }
   return (
     <>
-      {options.map((o, i) => (
+      {options.items.map((o, i) => (
         <FulfillmentOption
           key={i}
           {...o}

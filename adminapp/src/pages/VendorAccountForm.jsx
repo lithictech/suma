@@ -29,14 +29,14 @@ export default function VendorAccountForm({
           {...register("latestAccessCode")}
           label="Latest Access Code"
           name="latestAccessCode"
-          value={resource.latestAccessCode}
+          value={resource.latestAccessCode || ""}
           onChange={setFieldFromInput}
         />
         <TextField
           {...register("latestAccessCodeMagicLink")}
           label="Latest Access Code Magic Link"
           name="latestAccessCodeMagicLink"
-          value={resource.latestAccessCodeMagicLink}
+          value={resource.latestAccessCodeMagicLink || ""}
           onChange={setFieldFromInput}
         />
         <ResponsiveStack>

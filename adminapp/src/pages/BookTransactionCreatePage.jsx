@@ -9,7 +9,7 @@ import VendorServiceCategorySelect from "../components/VendorServiceCategorySele
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import useMountEffect from "../shared/react/useMountEffect";
 import SwapHorizontalIcon from "@mui/icons-material/SwapHoriz";
 import { FormLabel, Stack } from "@mui/material";
@@ -26,7 +26,7 @@ export default function BookTransactionCreatePage() {
   const [originatingLedger, setOriginatingLedger] = React.useState(null);
   const [receivingLedger, setReceivingLedger] = React.useState(null);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
-  const [memo, setMemo] = React.useState(formHelpers.initialTranslation);
+  const [memo, setMemo] = React.useState(stub.translation);
   const [category, setCategory] = React.useState(null);
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();

@@ -1,22 +1,21 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
 import { dayjs } from "../modules/dayConfig";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import ProgramForm from "./ProgramForm";
 import React from "react";
 
 export default function ProgramCreatePage() {
   const empty = {
     image: null,
-    imageCaption: formHelpers.initialTranslation,
-    name: formHelpers.initialTranslation,
-    description: formHelpers.initialTranslation,
+    imageCaption: stub.translation,
+    name: stub.translation,
+    description: stub.translation,
     appLink: "",
-    appLinkText: formHelpers.initialTranslation,
+    appLinkText: stub.translation,
     periodBegin: dayjs().format(),
     periodEnd: dayjs().add(1, "day").format(),
-    vendorServices: [],
-    commerceOfferings: [],
+    commerceOfferings: stub.collection,
     ordinal: 0,
   };
   return (

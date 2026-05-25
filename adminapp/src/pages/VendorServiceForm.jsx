@@ -95,7 +95,7 @@ export default function VendorServiceForm({
           {...register("categories")}
           label="Categories"
           helperText="What ledger funds can be used to pay for this service?"
-          value={resource.categories}
+          collection={resource.categories}
           style={{ flex: 1 }}
           onChange={(_, c) => setField("categories", c)}
         />
@@ -136,14 +136,17 @@ export default function VendorServiceForm({
   );
 }
 
-function MobilityAdapterSelect({ ...rest }) {
+const MobilityAdapterSelect = React.forwardRef(function MobilityAdapterSelect(
+  { ...rest },
+  ref
+) {
   const data = useGlobalApiState(
     (data, ...args) => api.getVendorServiceMobilityAdapterOptions({ ...data }, ...args),
     { items: [] }
   );
 
   return (
-    <Select {...rest}>
+    <Select ref={ref} {...rest}>
       {data.items.map(({ name, value }) => (
         <MenuItem key={value} value={value}>
           {name}
@@ -151,4 +154,4 @@ function MobilityAdapterSelect({ ...rest }) {
       ))}
     </Select>
   );
-}
+});

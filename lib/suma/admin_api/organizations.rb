@@ -45,6 +45,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
         optional :membership_verification_email, type: String, allow_blank: true
         optional :membership_verification_front_template_id, type: String, allow_blank: true
         optional(:membership_verification_member_outreach_template, type: JSON) { use :translated_text, optional: true }
+        optional(:roles, type: Array[JSON]) { use :model_with_id }
       end
     end
 
@@ -71,9 +72,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
         optional :membership_verification_email, type: String, allow_blank: true
         optional :membership_verification_front_template_id, type: String, allow_blank: true
         optional(:membership_verification_member_outreach_template, type: JSON) { use :translated_text, optional: true }
-        optional :roles, type: Array[JSON] do
-          use :model_with_id
-        end
+        optional(:roles, type: Array[JSON]) { use :model_with_id }
       end
     end
   end

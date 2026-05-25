@@ -1,6 +1,7 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
 import { dayjs } from "../modules/dayConfig";
+import { stub } from "../modules/formHelpers";
 import VendorServiceForm from "./VendorServiceForm.jsx";
 import React from "react";
 
@@ -9,7 +10,7 @@ export default function VendorServiceCreatePage() {
     internalName: "",
     externalName: "",
     vendor: { name: "" },
-    categories: [],
+    categories: stub.collection,
     mobilityAdapterSetting: "no_adapter",
     periodBegin: dayjs().format(),
     periodEnd: dayjs().add(1, "day").format(),
