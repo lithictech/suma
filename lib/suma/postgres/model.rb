@@ -60,7 +60,7 @@ class Suma::Postgres::Model
         pool_timeout: self.pool_timeout,
         log_warn_duration: self.slow_query_seconds,
       }
-      if self.guard_db_reconnect(self.uri, options)
+      if self.guard_db_reconnect?(self.uri, options)
         db = Sequel.connect(self.uri, options)
         db.extension(:pagination)
         db.extension(:pg_json)
