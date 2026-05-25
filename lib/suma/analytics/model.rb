@@ -29,8 +29,10 @@ class Suma::Analytics::Model
         max_connections: self.max_connections,
         pool_timeout: self.pool_timeout,
       }
-      db = Sequel.connect(self.uri, options)
-      self.db = db
+      if self.guard_db_reconnect(self.uri, options)
+        db = Sequel.connect(self.uri, options)
+        self.db = db
+      end
     end
   end
 
