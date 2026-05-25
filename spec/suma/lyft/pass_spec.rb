@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/spec_helpers/sentry"
-
 require "suma/lyft/pass"
 
 # rubocop:disable Layout/LineLength

@@ -79,5 +79,7 @@ RSpec.configure do |config|
     config.include(Suma::SpecHelpers::Postgres)
     require "suma/spec_helpers/service"
     config.include(Suma::SpecHelpers::Service)
+    # Not widely needed so include only as needed
+    require "suma/spec_helpers/sentry"
   end
 end

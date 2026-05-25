@@ -200,6 +200,24 @@ RSpec.describe Suma::AdminAPI, :db do
             items: have_length(2),
           )
       end
+
+      it "can sniff the dataset name from an association" do
+        expect(Suma::Vendor).to receive(:method_defined?).
+          with(:products_dataset).
+          and_return(false).
+          twice
+        ent = Class.new(Suma::AdminAPI::Entities::BaseModelEntity) do
+          model Suma::Vendor
+          expose_related :products, with: Suma::AdminAPI::Entities::BaseModelEntity
+        end
+        v = Suma::Fixtures.vendor.create
+        expect(JSON.parse(ent.represent(v, {env: {}}).to_json)).to include("products" => include("items"))
+
+        get "/v1/model_with_related/#{vendor.id}/products"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(:items)
+      end
     end
   end
 

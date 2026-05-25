@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/spec_helpers/sentry"
-
 require "suma/lime/sync_trips_from_report"
 
 RSpec.describe Suma::Lime::SyncTripsFromReport, :db, reset_configuration: Suma::Lime do

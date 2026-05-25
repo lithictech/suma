@@ -279,7 +279,7 @@ module Suma::AdminAPI::CommonEndpoints
         (m = model_type[params[:id]]) or forbidden!
         if dataset_method.nil?
           dataset_method = :"#{association_name}_dataset"
-          unless m.respond_to?(dataset_method)
+          unless m.class.method_defined?(dataset_method)
             assoc = m.class.association_reflections.fetch(association_name)
             dataset_method = assoc.fetch(:dataset_method)
           end
