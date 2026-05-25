@@ -15,7 +15,19 @@ RSpec.describe Sequel::Plugins::LargeAssociationWarning, :db do
     @db.disconnect
   end
 
-  it "undefines generated setters and skips their saving" do
+  it "can use its default callback" do
+    cls = Class.new(Sequel::Model(:largeassocwarn)) do
+      plugin :large_association_warning, threshold: 2
+      many_to_one :parent, class: self
+      one_to_many :children, class: self, key: :parent_id
+    end
+
+    parent = cls.create
+    Array.new(3) { cls.create(parent:) }
+    parent.refresh.children
+  end
+
+  it "warns about large associations" do
     calls = []
     cls = Class.new(Sequel::Model(:largeassocwarn)) do
       plugin :large_association_warning, threshold: 5, callback: ->(*args) { calls << args }

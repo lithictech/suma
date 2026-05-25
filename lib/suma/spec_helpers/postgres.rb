@@ -23,7 +23,7 @@ module Suma::SpecHelpers::Postgres
   SPECDIR = BASEDIR + "spec"
   DATADIR = SPECDIR + "data"
 
-  SNIFF_LEAKY_TESTS = false
+  SNIFF_LEAKY_TESTS = ENV["SNIFF_LEAKY_TESTS"] == "true"
 
   Suma::Postgres.register_model("suma/postgres/testing_pixie")
   SequelHybridSearch.indexing_mode = :off
@@ -47,24 +47,15 @@ module Suma::SpecHelpers::Postgres
         Suma::SpecHelpers::Postgres.wrap_example_in_transactions(example)
       else
         example.run
+        truncate_all if example.metadata[:db] == :no_transaction
       end
-      has_leaked = SNIFF_LEAKY_TESTS && (
-        !Suma::Member.empty? ||
-          !Suma::TranslatedText.empty?
-      )
-      if has_leaked
-        puts "Database is not cleaned up, failing for diagnosis."
-        puts "Check this or the spec that ran before: #{example.metadata[:full_description]}"
-        exit
-      end
+      SNIFF_LEAKY_TESTS && Suma::SpecHelpers::Postgres.check_for_leaky_tests
     end
 
     context.after(:each) do |example|
       Suma::Postgres.do_not_defer_events = false if example.metadata[:do_not_defer_events]
       Suma::Postgres.unsafe_skip_transaction_check = false if example.metadata[:no_transaction_check]
       SequelHybridSearch.embedding_generator = nil if example.metadata[:hybrid_search]
-
-      truncate_all if example.metadata[:db] == :no_transaction
     end
 
     super
@@ -80,6 +71,28 @@ module Suma::SpecHelpers::Postgres
       proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
     end
     wrapped_proc.call
+  end
+
+  def self.check_for_leaky_tests
+    raise "why is DB still in a transaction?" if Suma::Member.db.in_transaction?
+    ok_tables = [:schema_info, :uploaded_file_blobs, :roles]
+    bad_tables = {}
+    Suma::Postgres::Model.descendants.reject(&:anonymous?).each do |cls|
+      tbl = cls.table_name
+      next if ok_tables.include?(tbl)
+      next unless cls.db.table_exists?(tbl)
+      rows = cls.dataset.naked.all
+      next if rows.empty?
+      bad_tables[tbl] = rows
+    end
+    return if bad_tables.empty?
+    puts "Database is not cleaned up, failing for diagnosis."
+    puts "Check the last spec that ran"
+    bad_tables.each do |tbl, rows|
+      puts tbl
+      rows.each { |r| puts r }
+    end
+    exit
   end
 
   singleton_attr_accessor :current_test_model_uid

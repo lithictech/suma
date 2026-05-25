@@ -47,6 +47,17 @@ module Suma::Postgres::ModelUtilities
       end
     end
 
+    def guard_db_reconnect?(uri, options)
+      if self.instance_variable_get(:@db).nil?
+        @original_options = [self.uri, options]
+        return true
+      end
+      raise Suma::InvalidPrecondition, "cannot modify DB at runtime" unless Suma.test?
+      raise Suma::InvalidPrecondition, "cannot modify DB with new parameters" unless
+        @original_options == [uri, options]
+      return false
+    end
+
     # Some model classes just map Sequel models onto readonly connections.
     # These models should override this method and return true.
     def read_only? = false

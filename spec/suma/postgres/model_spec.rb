@@ -22,6 +22,24 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(subclass.db).to eq(described_class.db)
     end
 
+    describe "reconfiguring/replacing the database" do
+      it "allows modification of non-DB configuration", db: false do
+        subclass = create_model(:conn_setter)
+        expect(subclass.db).to equal(described_class.db)
+
+        described_class.reset_configuration(large_association_warning_threshold: 1)
+
+        expect do
+          described_class.reset_configuration(pool_timeout: 1)
+        end.to raise_error(Suma::InvalidPrecondition)
+      end
+
+      it "errors if not in test env" do
+        stub_const("Suma::RACK_ENV", "development")
+        expect { described_class.reset_configuration }.to raise_error(Suma::InvalidPrecondition)
+      end
+    end
+
     it "registers a topological dependency for associations" do
       subclass = create_model(:allergies)
       other_class = create_model(:food_preferences)
@@ -550,6 +568,18 @@ RSpec.describe "Suma::Postgres::Model", :db do
             end
           end
         end
+      end
+    end
+  end
+
+  describe "large association plugin", reset_configuration: described_class, db: false do
+    it "warns to sentry" do
+      described_class.reset_configuration(large_association_warning_threshold: 3)
+      expect(Sentry).to receive(:capture_message).with("Large association loaded")
+      described_class.db.transaction(rollback: :always) do
+        vendor = Suma::Fixtures.vendor.create
+        Array.new(4) { Suma::Fixtures.vendor_service(vendor:).create }
+        vendor.refresh.services
       end
     end
   end

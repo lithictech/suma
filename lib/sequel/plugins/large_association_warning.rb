@@ -2,7 +2,7 @@
 
 module Sequel::Plugins::LargeAssociationWarning
   DEFAULT_CALLBACK = lambda do |m, assoc, array|
-    m.logger.warn(
+    Appydays::Loggable[m].warn(
       "large_assocation_loaded",
       model_pk: m.primary_key,
       model_type: m.class.name,

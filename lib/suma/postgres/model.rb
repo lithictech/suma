@@ -60,16 +60,18 @@ class Suma::Postgres::Model
         pool_timeout: self.pool_timeout,
         log_warn_duration: self.slow_query_seconds,
       }
-      db = Sequel.connect(self.uri, options)
-      db.extension(:pagination)
-      db.extension(:pg_json)
-      db.extension(:pg_inet)
-      db.extension(:pg_array)
-      db.extension(:pg_streaming)
-      db.extension(:pg_range)
-      db.extension(:pg_interval)
-      db.extension(:pretty_table)
-      self.db = db
+      if self.guard_db_reconnect(self.uri, options)
+        db = Sequel.connect(self.uri, options)
+        db.extension(:pagination)
+        db.extension(:pg_json)
+        db.extension(:pg_inet)
+        db.extension(:pg_array)
+        db.extension(:pg_streaming)
+        db.extension(:pg_range)
+        db.extension(:pg_interval)
+        db.extension(:pretty_table)
+        self.db = db
+      end
 
       plugin :large_association_warning,
              threshold: self.large_association_warning_threshold,
