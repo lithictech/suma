@@ -7,7 +7,16 @@ require "suma/mobility/trip_importer"
 class Suma::Lime::SyncTripsFromReport
   include Appydays::Loggable
 
-  class InvalidReportRow < StandardError; end
+  class InvalidReportRow < StandardError
+    attr_reader :cause, :extra
+
+    def initialize(cause, msg, extra)
+      @cause = cause
+      @extra = extra
+      super(msg)
+    end
+  end
+
   class UnhandledScenario < StandardError; end
 
   DEFAULT_VEHICLE_TYPE = Suma::Mobility::ESCOOTER
@@ -147,9 +156,11 @@ class Suma::Lime::SyncTripsFromReport
         begin
           self.import_trip_from_row(row, user_email:)
           imported_rows += 1
-        rescue InvalidReportRow
-          self.logger.error("lime_report_missing_field")
-          Sentry.capture_message("Lime trip row missing necessary fields")
+        rescue InvalidReportRow => e
+          self.logger.error(e.cause, e.extra)
+          Sentry.capture_message(e.message) do |scope|
+            scope.set_extras(e.extra)
+          end
           invalid_rows += 1
         end
       end
@@ -222,7 +233,13 @@ class Suma::Lime::SyncTripsFromReport
       external_trip_id: row.fetch(TRIP_TOKEN),
       our_cost: parsemoney(row.fetch(COST_TO_SUMA)),
     }
-    raise InvalidReportRow if fields.values.any?(&:nil?)
+    if (empty = fields.select { |_k, v| v.nil? }.map { |k, _v| k }).present?
+      raise InvalidReportRow.new(
+        "lime_report_missing_field",
+        "Lime trip row missing necessary fields",
+        {missing_fields: empty},
+      )
+    end
     return fields
   end
 
@@ -275,7 +292,13 @@ class Suma::Lime::SyncTripsFromReport
       return Time.strptime(trimmed, "%a %b %d %Y %H:%M:%S GMT%z")
     end
     datepart, timepart = t.split(" ", 2)
-    raise ArgumentError, "invalid time: #{t.inspect}" unless timepart && datepart
+    unless timepart && datepart
+      raise InvalidReportRow.new(
+        "lime_report_invalid_time",
+        "Lime trip row has an invalid time value",
+        {time_value: t},
+      )
+    end
     # Handle 01/31/2020 and 2020/01/31.
     datefmt = /\d\d\d\d$/.match?(datepart) ? "%m/%d/%Y" : "%Y/%m/%d"
 
