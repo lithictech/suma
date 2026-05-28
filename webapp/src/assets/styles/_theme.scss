@@ -40,15 +40,11 @@ $btn-border-radius-sm: 50px;
 $btn-border-radius-lg: 50px;
 $btn-font-weight: bold;
 
+
 $headings-font-weight: 700;
 $headings-font-family: $font-family-serif;
 
-$input-btn-padding-y: .5rem;
-$input-btn-padding-x: 1rem;
-$input-border-color: lighten($primary, 20%);
-$input-border-width: 2px;
-$input-border-radius: 0;
-$input-placeholder-color: $gray-500;
+
 
 @import "bootstrap/scss/_variables";
 @import "bootstrap/scss/_maps";
@@ -56,6 +52,27 @@ $input-placeholder-color: $gray-500;
 @import "bootstrap/scss/_utilities";
 @import "bootstrap/scss/_root";
 @import "bootstrap/scss/_reboot";
+
+// variable overrides
+
+
+
+// general inputs
+$input-btn-padding-y: .5rem;
+$input-btn-padding-x: 1rem;
+$input-border-color: lighten($primary, 20%);
+$input-border-width: 2px;
+$input-border-radius: $border-radius-lg;
+$input-placeholder-color: $gray-500;
+
+// checkbox
+$form-check-padding-start: 2rem;
+$form-check-input-width: 24px;
+.form-check-input {
+  cursor: pointer;
+  margin-top: 0 !important;
+}
+$form-check-input-border: $primary solid 2px;
 
 // Layout & components
 @import "bootstrap/scss/_accordion";

@@ -3,8 +3,14 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 
 export default function SignupAgreement({ checked, onCheckedChanged, ...rest }) {
+  const handleClick = (e) => {
+    if (e.target.closest("button, input, label, a")) {
+      return;
+    }
+    onCheckedChanged(!checked);
+  };
   return (
-    <div className="d-flex">
+    <div className="d-flex agreement-component" onClick={handleClick}>
       <Form.Check
         type="checkbox"
         checked={checked}
@@ -12,7 +18,7 @@ export default function SignupAgreement({ checked, onCheckedChanged, ...rest }) 
         aria-label={t("auth.agree_aria_label")}
         {...rest}
       />
-      <div id="signup-agreement" className="ms-2 text-secondary small">
+      <div id="signup-agreement" className="ms-2 small">
         {t("auth.sign_up_agreement", { buttonLabel: t("forms.continue") })}
       </div>
     </div>

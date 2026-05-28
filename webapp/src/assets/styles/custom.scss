@@ -1,4 +1,10 @@
+@import "./_fonts";
 @import "./theme.scss";
+@import "bootstrap/scss/_functions";
+@import "bootstrap/scss/_variables";
+@import "bootstrap/scss/_maps";
+@import "bootstrap/scss/_utilities";
+@import "bootstrap/scss/_root";
 
 .main-container {
     max-width: 500px;
@@ -104,3 +110,32 @@
         text-shadow: 1px 0 0 $dark;
     }
 }
+
+// Onboarding changes
+.agreement-component {
+    background-color: lighten($primary, 35%);
+    border: lighten($primary,20%) 1px solid;
+    border-radius: $border-radius-lg;
+    box-sizing: border-box;
+    color: $gray-700;
+    cursor: pointer;
+    padding: map-get($spacers, 3);
+
+    // to help balance the weird label thing
+    .form-check-input {
+        flex: 0 0 auto;
+        margin-left: 0;
+        margin-top: 0.2em;
+    }
+    
+    a {
+        // this needs to be replaced eventually...
+        color: darken($blue, 5%) !important;
+        cursor: auto;
+    }
+}
+.agreement-component:hover {
+    background-color: lighten($primary, 28%);
+    border: lighten($primary,2%) 1px solid;
+}
+
