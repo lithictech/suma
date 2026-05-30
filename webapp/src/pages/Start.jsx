@@ -99,6 +99,8 @@ export default function Start() {
         </p>
         <SignupAgreement
           checked={agreementChecked}
+          register={register}
+          errors={errors}
           onCheckedChanged={setAgreementChecked}
         />
         <FormError error={error} />
@@ -106,7 +108,7 @@ export default function Start() {
           back
           primaryProps={{
             children: t("forms.continue"),
-            disabled: submitDisabled.isOn || !agreementChecked,
+            disabled: submitDisabled.isOn,
           }}
         />
       </Form>
