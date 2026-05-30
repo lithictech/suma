@@ -141,13 +141,15 @@ export default function ContactListAdd() {
         </div>
         <SignupAgreement
           checked={agreementChecked}
+          register={register}
+          errors={errors}
           onCheckedChanged={setAgreementChecked}
         />
         <FormError error={error} />
         <FormButtons
           variant="outline-primary"
           back
-          primaryProps={{ children: t("forms.submit"), disabled: !agreementChecked }}
+          primaryProps={{ children: t("forms.submit") }}
         />
       </Form>
       <ContactListTags />
