@@ -24,7 +24,7 @@ export default function RegistrationLinkListPage() {
           label: "Organization",
           align: "left",
           sortable: true,
-          render: (c) => <AdminLink model={c.organization} />,
+          render: (c) => <AdminLink model={c.organization} label />,
         },
         {
           id: "durableUrl",

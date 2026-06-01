@@ -1,6 +1,7 @@
 import api from "../api";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import { isCollection } from "../modules/apicollection";
 import HelmetTitle from "./HelmetTitle";
 import assign from "lodash/assign";
 import isArray from "lodash/isArray";
@@ -61,18 +62,29 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
     [changes]
   );
 
-  const resource = mergeWith({}, baseResource, changes, (obj, src) => {
-    // Since `_.merge()` only merges array indexes and does not replace arrays,
-    // we need to check for empty arrays and return them, also return src when
-    // it's an image or not an object (like a string).
-    // This allows nested resources and sub-nested resources to be removed/set
-    const isEmptyArray = isArray(src) && !isNil(src);
-    if (!isObject(src) || isEmptyArray || src instanceof File) {
-      return src;
+  const resource = mergeWith(
+    {},
+    baseResource,
+    changes,
+    (objValue, srcValue, _key, _object, _source, _stack) => {
+      // Since `_.merge()` only merges array indexes and does not replace arrays,
+      // we need to check for empty arrays and return them, also return src when
+      // it's an image or not an object (like a string).
+      // This allows nested resources and sub-nested resources to be removed/set
+      const isArrayValue = isArray(srcValue) && !isNil(srcValue);
+      const isCollectionValue = isCollection(srcValue);
+      if (
+        !isObject(srcValue) ||
+        isArrayValue ||
+        isCollectionValue ||
+        srcValue instanceof File
+      ) {
+        return srcValue;
+      }
+      // Otherwise, return default object and src merge
+      return merge({}, objValue, srcValue);
     }
-    // Otherwise, return default object and src merge
-    return merge({}, obj, src);
-  });
+  );
   return (
     <>
       <HelmetTitle

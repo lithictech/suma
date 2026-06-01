@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::EligibilityAttributes, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/eligibility_attributes/#{Suma::Fixtures.eligibility_attribute.create.id}"
+    end
+  end
+
   describe "GET /v1/eligibility_attributes" do
     it "returns all rows" do
       objs = Array.new(2) { Suma::Fixtures.eligibility_attribute.create }

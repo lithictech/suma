@@ -8,6 +8,7 @@ export default function ProgramEditPage() {
     <ResourceEdit
       apiGet={api.getProgram}
       apiUpdate={api.updateProgram}
+      expand={["commerce_offerings"]}
       Form={ProgramForm}
     />
   );

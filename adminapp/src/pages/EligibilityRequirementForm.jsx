@@ -26,14 +26,14 @@ export default function EligibilityRequirementForm({
       <Stack spacing={2}>
         <OneToManyEditor
           title="Program"
-          items={resource.programs}
-          setItems={(o) => setField("programs", o)}
+          collection={resource.programs}
+          setCollection={(o) => setField("programs", o)}
           apiItemSearch={api.searchPrograms}
         />
         <OneToManyEditor
           title="Payment Trigger"
-          items={resource.paymentTriggers}
-          setItems={(o) => setField("paymentTriggers", o)}
+          collection={resource.paymentTriggers}
+          setCollection={(o) => setField("paymentTriggers", o)}
           apiItemSearch={api.searchPaymentTriggers}
         />
       </Stack>

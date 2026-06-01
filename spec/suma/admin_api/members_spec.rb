@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::Members, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/members/#{Suma::Fixtures.member.create.id}"
+    end
+  end
+
   describe "GET /v1/members" do
     it "returns all members" do
       u = Array.new(2) { Suma::Fixtures.member.create }
@@ -92,6 +98,33 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_json_body.that_includes(:roles, id: admin.id)
     end
 
+    it "returns proper paths to related resources" do
+      m = Suma::Fixtures.member.create
+      acct = Suma::Payment.as_account(m)
+      led = Suma::Payment.ensure_cash_ledger(m)
+
+      get "/v1/members/#{m.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        roles: include(url: "/v1/members/#{m.id}/roles"),
+        activities: include(url: "/v1/members/#{m.id}/activities"),
+        payment_instruments: include(url: "/v1/members/#{m.id}/payment_instruments"),
+        notes: include(url: "/v1/members/#{m.id}/combined_notes"),
+        eligibility_assignments: include(url: "/v1/members/#{m.id}/eligibility_assignments"),
+        expanded_eligibility_assignments: include(url: "/v1/members/#{m.id}/expanded_eligibility_assignments"),
+      )
+      expect(last_response_json_body[:payment_account]).to include(
+        originated_funding_transactions: include(
+          url: "/v1/payment_accounts/#{acct.id}/originated_funding_transactions",
+        ),
+        ledgers: include(url: "/v1/payment_accounts/#{acct.id}/ledgers"),
+      )
+      expect(last_response_json_body[:payment_account][:ledgers][:items].first).to include(
+        categories: include(url: "/v1/payment_ledgers/#{led.id}/vendor_service_categories"),
+      )
+    end
+
     it "403s if the member does not exist" do
       get "/v1/members/0"
 
@@ -110,7 +143,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        sessions: contain_exactly(include(:ip_lookup_link)),
+        sessions: include(items: contain_exactly(include(:ip_lookup_link))),
         preferences: include(preferred_language_name: "Spanish"),
       )
     end
@@ -127,9 +160,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(
-          reset_codes: contain_exactly(
-            include(token: rc.token),
-          ),
+          reset_codes: include(items: contain_exactly(include(token: rc.token))),
         )
       end
 
@@ -142,11 +173,8 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         get "/v1/members/#{rc.member.id}"
 
         expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(
-          reset_codes: contain_exactly(
-            include(token: "******"),
-          ),
-        )
+        expect(last_response).to have_json_body.
+          that_includes(reset_codes: include(items: contain_exactly(include(token: "******"))))
       end
     end
   end
@@ -341,7 +369,9 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
+        that_includes(
+          notes: include(items: contain_exactly(include(content: "hello", author: include(id: admin.id)))),
+        )
     end
 
     it "errors without role access" do
@@ -364,7 +394,11 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(notes: contain_exactly(include(content: "hello", author: include(id: admin.id))))
+        that_includes(
+          notes: include(
+            items: contain_exactly(include(content: "hello", author: include(id: admin.id))),
+          ),
+        )
     end
 
     it "errors without role access" do

@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/payment_triggers/#{Suma::Fixtures.payment_trigger.create.id}"
+    end
+  end
+
   describe "GET /v1/payment_triggers" do
     it "returns all objects" do
       u = Array.new(2) { Suma::Fixtures.payment_trigger.create }
@@ -75,7 +81,8 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
       get "/v1/payment_triggers/#{o.id}"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: o.id, executions: have_length(1))
+      expect(last_response).to have_json_body.
+        that_includes(id: o.id, executions: include(items: have_length(1)))
     end
 
     it "403s if the item does not exist" do

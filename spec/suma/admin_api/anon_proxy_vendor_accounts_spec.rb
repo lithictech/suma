@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorAccounts, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/anon_proxy_vendor_accounts/#{Suma::Fixtures.anon_proxy_vendor_account.create.id}"
+    end
+  end
+
   describe "GET /v1/anon_proxy_vendor_accounts" do
     it "returns all anon proxy vendor accounts" do
       objs = Array.new(2) { Suma::Fixtures.anon_proxy_vendor_account.create }

@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::OffPlatformTransactions, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/off_platform_transactions/#{Suma::Fixtures.off_platform_payment_strategy.create.id}"
+    end
+  end
+
   describe "POST /v1/off_platform_transactions/create" do
     it "can create and process an off-platform funding transaction", :i18n do
       post "/v1/off_platform_transactions/create",

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/spec_helpers/sentry"
 require "suma/spec_helpers/testing_helpers"
 
 RSpec.describe Suma::SpecHelpers::Sentry do

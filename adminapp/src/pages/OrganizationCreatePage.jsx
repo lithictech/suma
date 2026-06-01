@@ -1,6 +1,6 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import OrganizationForm from "./OrganizationForm";
 import React from "react";
 
@@ -10,8 +10,8 @@ export default function OrganizationCreatePage() {
     ordinal: 0,
     membershipVerificationEmail: "",
     membershipVerificationFrontTemplateId: "",
-    membershipVerificationMemberOutreachTemplate: formHelpers.initialTranslation,
-    roles: [],
+    membershipVerificationMemberOutreachTemplate: stub.translation,
+    roles: stub.collection,
   };
 
   return (

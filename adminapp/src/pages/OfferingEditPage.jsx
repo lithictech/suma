@@ -8,6 +8,7 @@ export default function OfferingEditPage() {
     <ResourceEdit
       apiGet={api.getCommerceOffering}
       apiUpdate={api.updateCommerceOffering}
+      expand={["fulfillment_options"]}
       Form={OfferingForm}
     />
   );

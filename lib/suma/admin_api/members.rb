@@ -8,10 +8,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
-  class MemberResetCodeEntity < BaseEntity
+  class MemberResetCodeEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::ResetCode
     expose :transport
     expose :used
     expose :expire_at
@@ -23,10 +24,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_delivery, with: MessageDeliveryEntity
   end
 
-  class MemberSessionEntity < BaseEntity
+  class MemberSessionEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::Session
     expose :user_agent
     expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
     expose :logged_out_at
@@ -42,21 +44,13 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
-  class MemberContactEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-
-    expose :formatted_address
-  end
-
-  class MemberVendorAccountEntity < BaseEntity
+  class MemberVendorAccountEntity < AnonProxyVendorAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
     expose :latest_access_code
     expose :latest_access_code_magic_link
     expose :vendor, with: VendorEntity, &self.delegate_to(:configuration, :vendor)
-    expose :contact, with: MemberContactEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity
@@ -66,6 +60,9 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   end
 
   class PreferencesEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+
     expose :public_url
     expose :subscriptions, with: PreferencesSubscriptionEntity
     expose :preferred_language_name
@@ -73,18 +70,20 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :sms_undeliverable?, as: :sms_undeliverable
   end
 
-  class ReferralEntity < BaseEntity
+  class ReferralEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::Referral
     expose :source
     expose :campaign
     expose :medium
   end
 
-  class EligibilityMemberAssignmentEntity < BaseEntity
+  class EligibilityMemberAssignmentEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
 
+    model Suma::Eligibility::MemberAssignment
     expose :unique_key
     expose :member, with: MemberEntity
     expose :attribute, with: EligibilityAttributeEntity
@@ -95,39 +94,71 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :source_membership, with: OrganizationMembershipEntity
   end
 
+  class MemberDetailLedgerEntity < SimpleLedgerEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+
+    expose :balance, with: MoneyEntity
+    expose_related :vendor_service_categories,
+                   as: :categories,
+                   with: VendorServiceCategoryEntity,
+                   all: true,
+                   to_path: ->(inst, _) { "/v1/payment_ledgers/#{inst.id}" }
+  end
+
+  class MemberDetailPaymentAccountEntity < SimplePaymentAccountEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+
+    expose :total_balance, with: MoneyEntity
+    expose_related :ledgers,
+                   with: MemberDetailLedgerEntity,
+                   all: true,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+    expose_related :originated_funding_transactions,
+                   with: FundingTransactionEntity,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+    expose_related :originated_payout_transactions,
+                   with: PayoutTransactionEntity,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+    expose_related :all_book_transactions,
+                   with: BookTransactionEntity,
+                   to_path: ->(inst, _) { "/v1/payment_accounts/#{inst.id}" }
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
     expose :opaque_id
-    expose :roles, with: RoleEntity
+    expose_related :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified
     expose :previous_phones do |instance|
       instance.previous_phones.map { |s| Suma::PhoneNumber.format_display(s) }
     end
     expose :previous_emails
 
-    expose :activities, with: ActivityEntity
-    expose :audit_activities, with: ActivityEntity
+    expose_related :activities, with: ActivityEntity, inherit_permissions: true
+    expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
     expose :legal_entity, with: LegalEntityEntity
-    expose :payment_account, with: DetailedPaymentAccountEntity
-    expose :charges, with: ChargeEntity
-    expose :eligibility_assignments, with: EligibilityAssignmentEntity
-    expose :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
+    expose :payment_account, with: MemberDetailPaymentAccountEntity
+    expose_related :charges, with: ChargeEntity
+    expose_related :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose_related :expanded_eligibility_assignments, with: EligibilityMemberAssignmentEntity
     expose :referral, with: ReferralEntity
-    expose :reset_codes, with: MemberResetCodeEntity
-    expose :sessions, with: MemberSessionEntity
-    expose :orders, with: MemberOrderEntity
-    expose :payment_instruments, with: PaymentInstrumentEntity
-    expose :message_deliveries, with: MessageDeliveryEntity
-    expose :combined_notes, as: :notes, with: SupportNoteEntity
+    expose_related :reset_codes, with: MemberResetCodeEntity
+    expose_related :sessions, with: MemberSessionEntity
+    expose_related :orders, with: MemberOrderEntity
+    expose_related :payment_instruments, with: PaymentInstrumentEntity
+    expose_related :message_deliveries, with: MessageDeliveryEntity
+    expose_related :combined_notes, as: :notes, with: SupportNoteEntity, inherit_permissions: true
     expose :preferences!, as: :preferences, with: PreferencesEntity
-    expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
-    expose :organization_memberships, with: OrganizationMembershipEntity
-    expose :marketing_lists, with: MarketingListEntity
-    expose :marketing_sms_dispatches, with: MarketingSmsDispatchEntity
-    expose :mobility_trips, with: MobilityTripEntity
+    expose_related :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
+    expose_related :anon_proxy_contacts, as: :member_contacts, with: AnonProxyMemberContactEntity
+    expose_related :organization_memberships, with: OrganizationMembershipEntity
+    expose_related :marketing_lists, with: MarketingListEntity
+    expose_related :marketing_sms_dispatches, with: MarketingSmsDispatchEntity
+    expose_related :mobility_trips, with: MobilityTripEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)

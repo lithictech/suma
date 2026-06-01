@@ -573,9 +573,11 @@ RSpec.describe "Suma::Postgres::Model", :db do
   end
 
   describe "large association plugin", reset_configuration: described_class, db: false do
+    include Suma::SpecHelpers::Sentry
+
     it "warns to sentry" do
       described_class.reset_configuration(large_association_warning_threshold: 3)
-      expect(Sentry).to receive(:capture_message).with("Large association loaded")
+      expect_sentry_capture(type: :message, arg_matcher: eq("Large association loaded"))
       described_class.db.transaction(rollback: :always) do
         vendor = Suma::Fixtures.vendor.create
         Array.new(4) { Suma::Fixtures.vendor_service(vendor:).create }

@@ -238,7 +238,8 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.get_one(route_def, model_type, entity)
+  def self.get_one(route_def, model_type, entity, expose_related: true)
+    cend = self
     route_def.instance_exec do
       route_param :id, type: Integer do
         get do
@@ -246,7 +247,62 @@ module Suma::AdminAPI::CommonEndpoints
           (m = model_type[params[:id]]) or forbidden!
           present m, with: entity
         end
+        cend.related_children(route_def, entity) if expose_related
       end
+    end
+  end
+
+  # Expose a related sub-resources automatically, as <resource>/:id/<name>,
+  # which uses pagination over the dataset or association.
+  #
+  # @param include_permissions [true,false] If true, use model_type for the role check,
+  #   instead of the related entity model. Needed for related resources like support notes.
+  # @param route_name [Symbol] The route name to use instead of association_name.
+  # @param dataset_method [Symbol] The dataset method to use, where there is no associaiton with the given name.
+  def self.related(
+    route_def,
+    model_type,
+    related_model_type,
+    related_entity,
+    association_name,
+    inherit_permissions: false,
+    route_name: nil,
+    dataset_method: nil
+  )
+    route_def.instance_exec do
+      params do
+        use :pagination
+      end
+      get route_name || association_name do
+        check_admin_role_access!(:read, model_type)
+        check_admin_role_access!(:read, inherit_permissions ? model_type : related_model_type)
+        (m = model_type[params[:id]]) or forbidden!
+        if dataset_method.nil?
+          dataset_method = :"#{association_name}_dataset"
+          unless m.class.method_defined?(dataset_method)
+            assoc = m.class.association_reflections.fetch(association_name)
+            dataset_method = assoc.fetch(:dataset_method)
+          end
+        end
+        ds = m.send(dataset_method)
+        ds = paginate(ds, params)
+        present_collection ds, with: related_entity
+      end
+    end
+  end
+
+  # Expose related child entities, like `/charge/:id/items.
+  def self.related_children(route_def, entity)
+    entity.exposed_related.each do |h|
+      related_entity = h.fetch(:with)
+      self.related(
+        route_def,
+        entity.model,
+        related_entity.model,
+        related_entity,
+        h.fetch(:name),
+        inherit_permissions: h.fetch(:inherit_permissions),
+      )
     end
   end
 

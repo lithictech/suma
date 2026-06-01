@@ -6,7 +6,7 @@ import {
   OrganizationMembershipRemovedIcon,
   OrganizationMembershipVerifiedIcon,
 } from "../components/OrganizationMembership";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
@@ -39,7 +39,7 @@ export default function OrganizationDetailPage() {
         },
         {
           label: "Roles",
-          children: model.roles.map((role) => (
+          children: model.roles.items.map((role) => (
             <Chip key={role.id} label={role.label} sx={{ mr: 0.5 }} />
           )),
           hideEmpty: true,
@@ -47,14 +47,14 @@ export default function OrganizationDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title={
             <>
               <OrganizationMembershipVerifiedIcon />
-              &nbsp;Memberships ({model.memberships.length}){" "}
+              Memberships
             </>
           }
-          rows={model.memberships}
+          collection={model.memberships}
           addNewLabel="Create another membership"
           addNewLink={createRelativeUrl(`/membership/new`, {
             organizationId: model.id,
@@ -71,14 +71,14 @@ export default function OrganizationDetailPage() {
             formatDate(row.createdAt),
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title={
             <>
               <OrganizationMembershipRemovedIcon />
-              &nbsp;Former Memberships ({model.formerMemberships.length})
+              Former Memberships
             </>
           }
-          rows={model.formerMemberships}
+          collection={model.formerMemberships}
           headers={["Id", "Member", "Added At", "Removed At"]}
           keyRowAttr="id"
           toCells={(row) => [

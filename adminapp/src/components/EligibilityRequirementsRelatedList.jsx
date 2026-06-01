@@ -1,13 +1,13 @@
 import createRelativeUrl from "../shared/createRelativeUrl";
 import AdminLink from "./AdminLink";
-import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import React from "react";
 
 export default function EligibilityRequirementsRelatedList({ model, type }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title="Eligibility Requirements"
-      rows={model.eligibilityRequirements}
+      collection={model.eligibilityRequirements}
       addNewLabel="Add requirement"
       addNewLink={createRelativeUrl(`/eligibility-requirement/new`, {
         resourceId: model.id,

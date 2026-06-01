@@ -20,7 +20,7 @@ class Suma::AdminAPI::OrganizationRegistrationLinks < Suma::AdminAPI::V1
     expose :durable_url
     expose :durable_url_qr_code_data_url, as: :durable_url_qr_code
     expose :intro, with: TranslatedTextEntity
-    expose :memberships, with: OrganizationMembershipEntity
+    expose_related :memberships, with: OrganizationMembershipEntity
 
     expose :scheduled_availabilities, with: ScheduledAvailabilityEntity
   end

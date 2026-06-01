@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/api/anon_proxy"
-require "suma/spec_helpers/sentry"
 
 RSpec.describe Suma::API::AnonProxy, :db do
   include Rack::Test::Methods

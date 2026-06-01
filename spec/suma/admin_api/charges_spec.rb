@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::Charges, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/charges/#{Suma::Fixtures.charge.create.id}"
+    end
+  end
+
   describe "GET /v1/charges" do
     it "returns all charges" do
       c = Array.new(2) { Suma::Fixtures.charge.create }

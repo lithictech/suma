@@ -15,6 +15,12 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/vendors/#{Suma::Fixtures.vendor.create.id}"
+    end
+  end
+
   describe "GET /v1/vendors" do
     it "returns all vendors" do
       objs = Array.new(2) { Suma::Fixtures.vendor.create }
@@ -84,8 +90,8 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: v.id,
-        services: have_same_ids_as(service),
-        products: have_same_ids_as(*product_objs),
+        services: include(items: have_same_ids_as(service)),
+        products: include(items: have_same_ids_as(*product_objs)),
       )
     end
 

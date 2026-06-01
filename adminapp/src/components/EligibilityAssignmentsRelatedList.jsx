@@ -1,13 +1,13 @@
 import createRelativeUrl from "../shared/createRelativeUrl";
 import AdminLink from "./AdminLink";
-import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import React from "react";
 
 export default function EligibilityAssignmentsRelatedList({ model, type, title }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title={title || "Eligibility Assignments"}
-      rows={model.eligibilityAssignments}
+      collection={model.eligibilityAssignments}
       addNewLabel="Assign attribute"
       addNewLink={createRelativeUrl(`/eligibility-assignment/new`, {
         assigneeId: model.id,

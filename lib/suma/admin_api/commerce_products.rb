@@ -25,11 +25,11 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       expose :quantity_on_hand, &self.delegate_to(:inventory!, :quantity_on_hand)
       expose :quantity_pending_fulfillment, &self.delegate_to(:inventory!, :quantity_pending_fulfillment)
     end
-    expose :offerings, with: OfferingEntity
-    expose :orders, with: OrderEntity
-    expose :offering_products, with: OfferingProductWithOfferingEntity
+    expose_related :offerings, with: OfferingEntity
+    expose_related :orders, with: OrderEntity
+    expose_related :offering_products, with: OfferingProductWithOfferingEntity
     expose_image :image
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose_related :vendor_service_categories, with: VendorServiceCategoryEntity
   end
 
   resource :commerce_products do

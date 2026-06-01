@@ -14,6 +14,12 @@ RSpec.describe Suma::AdminAPI::PaymentLedgers, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/payment_ledgers/#{Suma::Fixtures.ledger.create.id}"
+    end
+  end
+
   describe "GET /v1/payment_ledgers" do
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)

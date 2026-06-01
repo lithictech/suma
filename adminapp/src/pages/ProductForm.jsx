@@ -99,7 +99,7 @@ export default function ProductForm({
           {...register("category")}
           label="Category"
           helperText="What ledger funds can be used to purchase this product?"
-          value={resource.vendorServiceCategories}
+          collection={resource.vendorServiceCategories}
           style={{ flex: 1 }}
           onChange={(_, c) => setField("vendorServiceCategories", c)}
         />

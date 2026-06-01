@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/eligibility_requirements/#{Suma::Fixtures.eligibility_requirement.create.id}"
+    end
+  end
+
   describe "GET /v1/eligibility_requirements" do
     it "returns all instances" do
       objs = Array.new(2) { Suma::Fixtures.eligibility_requirement.create }
@@ -68,7 +74,7 @@ RSpec.describe Suma::AdminAPI::EligibilityRequirements, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        id: requirement.id, resources: [],
+        id: requirement.id, programs: include(:items),
       )
     end
 

@@ -13,6 +13,9 @@ class Suma::Service::Collection
 
   attr_reader :current_page, :items, :page_count, :total_count, :last_page
 
+  # Url for the collection. Use the current URL (PATH_INFO) if nil.
+  attr_accessor :url
+
   class BaseEntity < Suma::Service::Entities::Base
     expose :object do |_|
       "list"
@@ -21,6 +24,9 @@ class Suma::Service::Collection
     expose :page_count
     expose :total_count
     expose :more?, as: :has_more
+    expose :url do |inst, opts|
+      inst.url || Suma::Service.request_path(opts[:env])
+    end
     # expose :items do |_|
     #   raise "this must be exposed by the subclass, like: `expose :items, with: MyEntity`"
     # end
@@ -43,6 +49,25 @@ class Suma::Service::Collection
     return self.new(array, current_page: 1, page_count: 1, total_count: array.size, last_page: true)
   end
 
+  # Given the entity for an item in the collection,
+  # return the collection entity using that subentity for each item.
+  def self.prepare_entity(item_entity)
+    # We can't use is_a? here, Grape entity is weird.
+    if item_entity&.ancestors&.include?(Suma::Service::Collection::BaseEntity)
+      collection_entity = item_entity
+    else
+      collection_entity = Suma::Service::Collection.collection_entity_cache[item_entity]
+      if collection_entity.nil?
+        collection_entity = Class.new(Suma::Service::Collection::BaseEntity) do
+          def self.name = "Suma::Service::Collection::Entity"
+          expose :items, using: item_entity
+        end
+        Suma::Service::Collection.collection_entity_cache[item_entity] = collection_entity
+      end
+    end
+    return collection_entity
+  end
+
   def initialize(items, current_page:, page_count:, total_count:, last_page:)
     @items = items
     @current_page = current_page
@@ -57,18 +82,7 @@ class Suma::Service::Collection
   module Helpers
     def present_collection(collection, opts={})
       passed_entity = opts.delete(:with) || opts.delete(:using)
-      # We can't use is_a? here, Grape entity is weird.
-      if passed_entity&.ancestors&.include?(Suma::Service::Collection::BaseEntity)
-        collection_entity = passed_entity
-      else
-        collection_entity = Suma::Service::Collection.collection_entity_cache[passed_entity]
-        if collection_entity.nil?
-          collection_entity = Class.new(Suma::Service::Collection::BaseEntity) do
-            expose :items, using: passed_entity
-          end
-          Suma::Service::Collection.collection_entity_cache[passed_entity] = collection_entity
-        end
-      end
+      collection_entity = Suma::Service::Collection.prepare_entity(passed_entity)
       opts[:with] = collection_entity
 
       wrapped =

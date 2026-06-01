@@ -54,6 +54,8 @@ class Suma::Service < Grape::API
 
     setting :endpoint_caching, false
 
+    setting :related_list_size, 5
+
     setting :verify_localized_error_codes, false
 
     setting :swagger_enabled, ENV["RACK_ENV"] == "development"
@@ -101,6 +103,10 @@ class Suma::Service < Grape::API
     dc = cookie_app.encryptors.first
     s = dc.encrypt(h)
     return s
+  end
+
+  def self.request_path(env, path_info=nil)
+    return env["SCRIPT_NAME"].to_s + (path_info || env["PATH_INFO"]).to_s
   end
 
   # Build the Rack app according to the configured environment.

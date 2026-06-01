@@ -2,8 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import Link from "../components/Link";
-import Programs from "../components/Programs";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -76,9 +75,9 @@ export default function OfferingDetailPage() {
       ]}
     >
       {(model, setModel) => [
-        <RelatedList
+        <RelatedListRemote
           title="Fulfillment Options"
-          rows={model.fulfillmentOptions}
+          collection={model.fulfillmentOptions}
           headers={["Id", "Description", "Type", "Address"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -88,22 +87,22 @@ export default function OfferingDetailPage() {
             row.address && oneLineAddress(row.address, false),
           ]}
         />,
-        <Programs
-          resource="offering"
-          programs={model.programs}
-          modelId={model.id}
-          replaceModelData={setModel}
-          makeUpdateRequest={api.updateOfferingPrograms}
-        />,
-        <RelatedList
-          title={`Offering Products (${model.offeringProducts.length})`}
+        // <Programs
+        //   resource="offering"
+        //   programs={model.programs}
+        //   modelId={model.id}
+        //   replaceModelData={setModel}
+        //   makeUpdateRequest={api.updateOfferingPrograms}
+        // />,
+        <RelatedListRemote
+          title="Offering Products"
           addNewLabel="Create Offering Product"
           addNewLink={createRelativeUrl("/offering-product/new", {
             offeringId: model.id,
             offeringLabel: model.description.en,
           })}
           addNewRole="offering_product"
-          rows={model.offeringProducts}
+          collection={model.offeringProducts}
           headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
           keyRowAttr="id"
           rowClass={(row) => (row.closedAt ? classes.closed : "")}
@@ -117,9 +116,9 @@ export default function OfferingDetailPage() {
             <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
           ]}
         />,
-        <RelatedList
-          title={`Orders (${model.orders.length})`}
-          rows={model.orders}
+        <RelatedListRemote
+          title="Orders"
+          collection={model.orders}
           headers={["Id", "Created", "Member", "Items", "Status"]}
           keyRowAttr="id"
           toCells={(row) => [

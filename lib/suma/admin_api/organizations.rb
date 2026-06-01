@@ -14,11 +14,11 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     expose :membership_verification_email
     expose :membership_verification_front_template_id
     expose :membership_verification_member_outreach_template, with: TranslatedTextEntity
-    expose :audit_activities, with: ActivityEntity
-    expose :memberships, with: OrganizationMembershipEntity
-    expose :former_memberships, with: OrganizationMembershipEntity
-    expose :eligibility_assignments, with: EligibilityAssignmentEntity
-    expose :roles, with: RoleEntity
+    expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
+    expose_related :memberships, with: OrganizationMembershipEntity
+    expose_related :former_memberships, with: OrganizationMembershipEntity
+    expose_related :eligibility_assignments, with: EligibilityAssignmentEntity
+    expose_related :roles, with: RoleEntity
   end
 
   resource :organizations do
@@ -45,6 +45,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
         optional :membership_verification_email, type: String, allow_blank: true
         optional :membership_verification_front_template_id, type: String, allow_blank: true
         optional(:membership_verification_member_outreach_template, type: JSON) { use :translated_text, optional: true }
+        optional(:roles, type: Array[JSON]) { use :model_with_id }
       end
     end
 
@@ -71,9 +72,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
         optional :membership_verification_email, type: String, allow_blank: true
         optional :membership_verification_front_template_id, type: String, allow_blank: true
         optional(:membership_verification_member_outreach_template, type: JSON) { use :translated_text, optional: true }
-        optional :roles, type: Array[JSON] do
-          use :model_with_id
-        end
+        optional(:roles, type: Array[JSON]) { use :model_with_id }
       end
     end
   end

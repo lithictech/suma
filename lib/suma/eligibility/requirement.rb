@@ -29,6 +29,13 @@ class Suma::Eligibility::Requirement < Suma::Postgres::Model(:eligibility_requir
 
   def all_resources = self.programs + self.payment_triggers
 
+  def each_resource(&)
+    [:programs, :payment_triggers].each do |assoc|
+      iter = self.associations[assoc] || self.send("#{assoc}_dataset")
+      iter.each(&)
+    end
+  end
+
   # Replace an expression with a serialized version (usually from an endpoint).
   # If the serialized version is the same as the current serialized expression, noop.
   # Otherwise, delete the current expression (and all children)

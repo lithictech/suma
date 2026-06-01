@@ -1,6 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import Money from "../shared/react/Money";
@@ -31,9 +31,21 @@ export default function VendorServiceRateDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
+          title="Discounted Children"
+          collection={model.discountedRates}
+          headers={["Id", "Name", "Surcharge", "Unit"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row}>{row.id}</AdminLink>,
+            <AdminLink model={row}>{row.internalName}</AdminLink>,
+            <Money>{row.surcharge}</Money>,
+            <Money>{row.unitAmount}</Money>,
+          ]}
+        />,
+        <RelatedListRemote
           title="Program Pricings"
-          rows={model.programPricings}
+          collection={model.programPricings}
           headers={["Id", "Program", "Service"]}
           keyRowAttr="id"
           toCells={(row) => [

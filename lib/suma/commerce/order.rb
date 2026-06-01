@@ -125,6 +125,8 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   delegate :undiscounted_cost, :customer_cost, :savings, :handling, :taxable_cost, :tax, :total,
            to: :checkout
 
+  def checkout_items_dataset = self.checkout.items_dataset
+
   def after_open_order_canceled
     return if self.fulfillment_status == "fulfilled"
     self.items_and_product_inventories.each do |ci, inv|

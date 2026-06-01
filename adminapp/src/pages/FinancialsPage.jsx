@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import HelmetTitle from "../components/HelmetTitle";
 import Link from "../components/Link";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -69,9 +69,9 @@ export default function FinancialsPage() {
       <Button component={Link} href={"/payment-off-platform/create"}>
         Create Off-Platform Funding/Payout
       </Button>
-      <RelatedList
+      <RelatedListRemote
         title="Unbalanced Ledgers"
-        rows={platformStatus.unbalancedLedgers}
+        collection={platformStatus.unbalancedLedgers}
         headers={["Id", "Account", "Ledger", "Balance", "Debits", "Credits"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -83,9 +83,9 @@ export default function FinancialsPage() {
           ...ledgerMonies(row),
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title="Platform Ledgers"
-        rows={platformStatus.platformLedgers}
+        collection={platformStatus.platformLedgers}
         headers={["Id", "Ledger", "Balance", "Debits", "Credits"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -94,9 +94,9 @@ export default function FinancialsPage() {
           ...ledgerMonies(row),
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title="Off Platform Funding"
-        rows={platformStatus.offPlatformFundingTransactions}
+        collection={platformStatus.offPlatformFundingTransactions}
         headers={["Id", "At", "Amount", "Note"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -106,9 +106,9 @@ export default function FinancialsPage() {
           row.note,
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title="Off Platform Payouts"
-        rows={platformStatus.offPlatformPayoutTransactions}
+        collection={platformStatus.offPlatformPayoutTransactions}
         headers={["Id", "At", "Amount", "Note"]}
         keyRowAttr="id"
         toCells={(row) => [

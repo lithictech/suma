@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/message_deliveries/#{Suma::Fixtures.message_delivery.create.id}"
+    end
+  end
+
   describe "GET /v1/message_deliveries" do
     it "returns all deliveries (no bodies)" do
       deliveries = Array.new(2) { Suma::Fixtures.message_delivery.create }

@@ -13,7 +13,7 @@ class Suma::AdminAPI::AnonProxyMemberContacts < Suma::AdminAPI::V1
     expose :phone
     expose :email
     expose :external_relay_id
-    expose :vendor_accounts, with: AnonProxyVendorAccountEntity
+    expose_related :vendor_accounts, with: AnonProxyVendorAccountEntity
   end
 
   resource :anon_proxy_member_contacts do

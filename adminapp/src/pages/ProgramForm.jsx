@@ -117,8 +117,8 @@ export default function ProgramForm({
         />
         <OneToManyEditor
           title="Commerce Offering"
-          items={resource.commerceOfferings}
-          setItems={(o) => setField("commerceOfferings", o)}
+          collection={resource.commerceOfferings}
+          setCollection={(o) => setField("commerceOfferings", o)}
           apiItemSearch={api.searchCommerceOffering}
         />
       </Stack>

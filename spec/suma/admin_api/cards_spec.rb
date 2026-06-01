@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::Cards, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/cards/#{Suma::Fixtures.card.create.id}"
+    end
+  end
+
   describe "GET /v1/cards" do
     it "returns all cards" do
       c = Array.new(2) { Suma::Fixtures.card.create }

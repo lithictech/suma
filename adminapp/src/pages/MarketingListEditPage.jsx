@@ -3,6 +3,7 @@ import FormLayout from "../components/FormLayout";
 import ResourceEdit from "../components/ResourceEdit";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import { assertFullCollection, setCollectionItems } from "../modules/apicollection";
 import useMountEffect from "../shared/react/useMountEffect";
 import AddIcon from "@mui/icons-material/Add";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -35,6 +36,7 @@ export default function MarketingListEditPage() {
   return (
     <ResourceEdit
       apiGet={api.getMarketingList}
+      expand={["members"]}
       apiUpdate={api.updateMarketingList}
       Form={EditForm}
     />
@@ -71,6 +73,7 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
 }
 
 function Members({ members, setMembers }) {
+  assertFullCollection(members);
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const [allMembers, setAllMembers] = React.useState([]);
   const [search, setSearchInner] = React.useState("");
@@ -101,24 +104,24 @@ function Members({ members, setMembers }) {
 
   useMountEffect(() => getMembersDebounced());
 
-  const currentMemberIds = members.map(({ id }) => id);
+  const currentMemberIds = members.items.map(({ id }) => id);
   const eligibleMembers = allMembers.filter((m) => !currentMemberIds.includes(m.id));
 
   function handleAdd(m) {
-    setMembers([...members, m]);
+    setCollectionItems(setMembers, [...members.items, m]);
   }
 
   function handleAddAll() {
-    setMembers([...members, ...eligibleMembers]);
+    setCollectionItems(setMembers, [...members.items, ...eligibleMembers]);
   }
 
   function handleRemoveAll() {
-    setMembers([]);
+    setCollectionItems(setMembers, []);
   }
 
   function handleRemove(m) {
-    const without = members.filter((m2) => m2.id !== m.id);
-    setMembers(without);
+    const without = members.items.filter((m2) => m2.id !== m.id);
+    setCollectionItems(setMembers, without);
   }
 
   return (
@@ -127,17 +130,17 @@ function Members({ members, setMembers }) {
         <CardContent>
           <Stack gap={1}>
             <Typography variant="h6" color="secondary">
-              List Members ({members.length})
+              List Members ({members.items.length})
             </Typography>
             <BulkActionButton
-              disabled={members.length === 0}
+              disabled={members.items === 0}
               startIcon={<RemoveCircleOutlineIcon />}
               onClick={handleRemoveAll}
             >
               Remove all members
             </BulkActionButton>
             <MemberList>
-              {members.map((m) => (
+              {members.items.map((m) => (
                 <ListItem key={m.id} disablePadding dense>
                   <ListItemButton onClick={() => handleRemove(m)} dense>
                     <ListItemIcon>

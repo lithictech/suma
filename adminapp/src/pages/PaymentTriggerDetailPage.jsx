@@ -3,13 +3,12 @@ import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import EligibilityRequirementsRelatedList from "../components/EligibilityRequirementsRelatedList";
 import Link from "../components/Link";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { formatMoney, intToMoney } from "../shared/money";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useUrlMarshal from "../shared/react/useUrlMarshal";
 import HorizontalSplitIcon from "@mui/icons-material/HorizontalSplit";
 import React from "react";
@@ -74,9 +73,9 @@ export default function PaymentTriggerDetailPage() {
     >
       {(model) => [
         <EligibilityRequirementsRelatedList model={model} type="payment_trigger" />,
-        <RelatedList
+        <RelatedListRemote
           title="Executions"
-          rows={model.executions}
+          collection={model.executions}
           keyRowAttr="id"
           headers={["Id", "At", "To"]}
           toCells={(row) => [
@@ -87,33 +86,6 @@ export default function PaymentTriggerDetailPage() {
             <AdminLink key="recledger" model={row}>
               {row.receivingLedger.label}
             </AdminLink>,
-          ]}
-        />,
-        <RelatedList
-          title="Vendor Configurations"
-          rows={model.configurations}
-          keyRowAttr="id"
-          headers={[
-            "Id",
-            "Created",
-            "Vendor",
-            "App Install Link",
-            "Uses Email",
-            "Uses SMS",
-            "Enabled",
-          ]}
-          toCells={(row) => [
-            row.id,
-            formatDate(row.createdAt),
-            <AdminLink key={row.vendor.name} model={row.vendor}>
-              {row.vendor.name}
-            </AdminLink>,
-            <SafeExternalLink key={1} href={row.appInstallLink}>
-              {row.appInstallLink}
-            </SafeExternalLink>,
-            row.usesEmail ? "Yes" : "No",
-            row.usesSms ? "Yes" : "No",
-            row.enabled ? "Yes" : "No",
           ]}
         />,
         <AuditActivityList activities={model.auditActivities} />,

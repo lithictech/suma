@@ -1,5 +1,6 @@
 import api from "../api";
 import { useGlobalApiState } from "../hooks/globalApiState";
+import { assertFullCollection, itemsToCollection } from "../modules/apicollection";
 import {
   Box,
   Chip,
@@ -20,9 +21,10 @@ import React from "react";
  */
 const VendorServiceCategoryMultiSelect = React.forwardRef(
   function VendorServiceCategoryMultiSelect(
-    { value, helperText, label, className, style, onChange, ...rest },
+    { collection, helperText, label, className, style, onChange, ...rest },
     ref
   ) {
+    assertFullCollection(collection);
     const theme = useTheme();
     const categories = useGlobalApiState(
       api.getVendorServiceCategoriesMeta,
@@ -43,7 +45,7 @@ const VendorServiceCategoryMultiSelect = React.forwardRef(
           idCounts[c.id] = (idCounts[c.id] || 0) + 1;
         });
         const nonDupeValues = values.filter((c) => idCounts[c.id] === 1);
-        onChange(e, nonDupeValues);
+        onChange(e, itemsToCollection(nonDupeValues));
       },
       [onChange]
     );
@@ -55,7 +57,7 @@ const VendorServiceCategoryMultiSelect = React.forwardRef(
           id="vscategory-select"
           multiple
           ref={ref}
-          value={value}
+          value={collection.items}
           label={label}
           input={<OutlinedInput label={label} />}
           renderValue={(selected) => (
@@ -70,7 +72,11 @@ const VendorServiceCategoryMultiSelect = React.forwardRef(
           {...rest}
         >
           {categories.map((c) => (
-            <MenuItem key={c.label} value={c} style={menuItemStyle(c, value, theme)}>
+            <MenuItem
+              key={c.label}
+              value={c}
+              style={menuItemStyle(c, collection.items, theme)}
+            >
               {c.label}
             </MenuItem>
           ))}

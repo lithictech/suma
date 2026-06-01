@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorConfigurations, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/anon_proxy_vendor_configurations/#{Suma::Fixtures.anon_proxy_vendor_configuration.create.id}"
+    end
+  end
+
   describe "GET /v1/anon_proxy_vendor_configurations" do
     it "returns all anon proxy vendor configurations" do
       objs = Array.new(2) { Suma::Fixtures.anon_proxy_vendor_configuration.create }
@@ -68,7 +74,7 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorConfigurations, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: config.id)
       expect(last_response).to have_json_body.
-        that_includes(programs: have_same_ids_as(to_add))
+        that_includes(programs: include(items: have_same_ids_as(to_add)))
     end
 
     it "403s if the constraint does not exist" do

@@ -1,6 +1,6 @@
 import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import PaymentTriggerForm from "./PaymentTriggerForm";
 import dayjs from "dayjs";
 import React from "react";
@@ -8,13 +8,10 @@ import React from "react";
 export default function PaymentTriggerCreatePage() {
   const empty = {
     label: "",
-    description: formHelpers.initialTranslation,
+    description: stub.translation,
     receivingLedgerName: "",
-    receivingLedgerContributionText: formHelpers.initialTranslation,
-    memo: formHelpers.initialTranslation,
-    fulfillmentPrompt: formHelpers.initialTranslation,
-    fulfillmentConfirmation: formHelpers.initialTranslation,
-    fulfillmentOptions: [formHelpers.initialFulfillmentOption],
+    receivingLedgerContributionText: stub.translation,
+    memo: stub.translation,
     activeDuringBegin: dayjs().format(),
     activeDuringEnd: dayjs().add(1, "day").format(),
     matchMultiplier: 1,

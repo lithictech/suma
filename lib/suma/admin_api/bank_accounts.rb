@@ -6,6 +6,7 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
   class BankAccountEntity < PaymentInstrumentEntity
+    model Suma::Payment::BankAccount
     expose :verified_at
     expose :routing_number
     expose :masked_account_number

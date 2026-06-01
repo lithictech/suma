@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import Copyable from "../components/Copyable";
 import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
@@ -48,9 +49,9 @@ export default function RegistrationLinkDetailPage() {
           keyRowAttr="startTime"
           toCells={(row) => [formatDate(row.startTime), formatDate(row.endTime)]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Memberships"
-          rows={model.memberships}
+          collection={model.memberships}
           headers={["Id", "Member"]}
           keyRowAttr="id"
           toCells={(row) => [

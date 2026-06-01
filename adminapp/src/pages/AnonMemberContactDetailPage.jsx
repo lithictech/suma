@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import Copyable from "../components/Copyable";
 import ExternalLinks from "../components/ExternalLinks";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
@@ -30,9 +30,9 @@ export default function AnonMemberContactDetailPage() {
     >
       {(model) => [
         <ExternalLinks externalLinks={model.externalLinks} />,
-        <RelatedList
+        <RelatedListRemote
           title="Extenal Accounts"
-          rows={model.vendorAccounts}
+          collection={model.vendorAccounts}
           headers={["Id", "Vendor"]}
           keyRowAttr="id"
           toCells={(row) => [

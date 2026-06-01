@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import LedgerBookTransactionsRelatedList from "../components/LedgerBookTransactionRelatedList";
 import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import Money from "../shared/react/Money";
@@ -28,17 +29,17 @@ export default function PaymentLedgerDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Vendor Service Categories"
           headers={["Id", "Name", "Slug"]}
-          rows={model.vendorServiceCategories}
+          collection={model.vendorServiceCategories}
           keyRowAttr="id"
           toCells={(row) => [row.id, row.name, row.slug]}
         />,
         <LedgerBookTransactionsRelatedList
           ledger={model}
           title="Book Transactions"
-          rows={model.combinedBookTransactions}
+          collection={model.combinedBookTransactions}
         />,
         <RelatedList
           title="Unbalanced Counterparties"

@@ -12,6 +12,12 @@ RSpec.describe Suma::AdminAPI::Roles, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/roles/#{Suma::Fixtures.role.create.id}"
+    end
+  end
+
   describe "GET /v1/roles" do
     it "returns all roles" do
       c = Suma::Role.create(name: "c")

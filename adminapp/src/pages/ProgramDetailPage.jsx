@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import EligibilityRequirementsRelatedList from "../components/EligibilityRequirementsRelatedList";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -35,9 +35,9 @@ export default function ProgramDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Commerce Offerings"
-          rows={model.commerceOfferings}
+          collection={model.commerceOfferings}
           headers={["Id", "Description", "Opening Date", "Closing Date"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -47,7 +47,7 @@ export default function ProgramDetailPage() {
             formatDate(row.periodEnd),
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Pricings"
           addNewLabel="Add Program Pricing"
           addNewLink={createRelativeUrl(`/program-pricing/new`, {
@@ -55,7 +55,7 @@ export default function ProgramDetailPage() {
             programLabel: `(${model.id}) ${model.name.en || "-"}`,
           })}
           addNewRole="programPricing"
-          rows={model.pricings}
+          collection={model.pricings}
           headers={["Id", "Service", "Rate"]}
           keyRowAttr="id"
           toCells={(row) => [
@@ -68,9 +68,9 @@ export default function ProgramDetailPage() {
             </AdminLink>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Vendor Configurations"
-          rows={model.configurations}
+          collection={model.configurations}
           keyRowAttr="id"
           headers={[
             "Id",

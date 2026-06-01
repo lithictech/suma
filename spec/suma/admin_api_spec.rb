@@ -32,6 +32,35 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
   get :invalid_precond do
     raise Suma::InvalidPrecondition, "hello"
   end
+
+  class ChildEntity < Suma::Service::Entities::Base
+    expose :id
+  end
+
+  class ModelEntity < Suma::AdminAPI::Entities::BaseModelEntity
+    model Suma::Vendor
+    expose :name
+    expose_related :products, with: ChildEntity
+    expose_related :products, as: :children, with: ChildEntity
+  end
+
+  route_setting :skip_role_check, true
+  resource :model_with_related do
+    route_param :id do
+      get do
+        vendor = Suma::Vendor.find!(id: params[:id])
+        present vendor, with: ModelEntity
+      end
+
+      Suma::AdminAPI::CommonEndpoints.related(
+        self,
+        Suma::Vendor,
+        Suma::Commerce::Product,
+        ChildEntity,
+        :products,
+      )
+    end
+  end
 end
 
 RSpec.describe Suma::AdminAPI, :db do
@@ -109,6 +138,86 @@ RSpec.describe Suma::AdminAPI, :db do
       expect(last_response).to have_status(400)
       expect(last_response).to have_json_body.
         that_includes(error: include(message: "Hello"))
+    end
+
+    describe "related lists", reset_configuration: Suma::Service do
+      before(:each) do
+        Suma::Service.related_list_size = 4
+      end
+
+      let(:vendor) do
+        vendor = Suma::Fixtures.vendor.create(name: "foo")
+        Array.new(5) { Suma::Fixtures.product.create(vendor:) }
+        vendor
+      end
+
+      it "is exposed on the entity" do
+        get "/v1/model_with_related/#{vendor.id}"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            name: "foo",
+            products: include(
+              current_page: 1,
+              page_count: 2,
+              total_count: 5,
+              has_more: true,
+              url: "/v1/model_with_related/#{vendor.id}/products",
+              items: have_length(4),
+            ),
+            children: include(items: have_length(4)),
+          )
+      end
+
+      it "can be expanded" do
+        get "/v1/model_with_related/#{vendor.id}", expand: ["products"]
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            products: include(
+              current_page: 1,
+              page_count: 1,
+              total_count: 5,
+              has_more: false,
+              items: have_length(5),
+            ),
+          )
+      end
+
+      it "can expose a paginated list endpoint" do
+        get "/v1/model_with_related/#{vendor.id}/products", page: 2, per_page: 2
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            current_page: 2,
+            page_count: 3,
+            total_count: 5,
+            has_more: true,
+            url: "/v1/model_with_related/#{vendor.id}/products",
+            items: have_length(2),
+          )
+      end
+
+      it "can sniff the dataset name from an association" do
+        expect(Suma::Vendor).to receive(:method_defined?).
+          with(:products_dataset).
+          and_return(false).
+          twice
+        ent = Class.new(Suma::AdminAPI::Entities::BaseModelEntity) do
+          model Suma::Vendor
+          expose_related :products, with: Suma::AdminAPI::Entities::BaseModelEntity
+        end
+        v = Suma::Fixtures.vendor.create
+        expect(JSON.parse(ent.represent(v, {env: {}}).to_json)).to include("products" => include("items"))
+
+        get "/v1/model_with_related/#{vendor.id}/products"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(:items)
+      end
     end
   end
 

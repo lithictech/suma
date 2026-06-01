@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import CategoriesRelatedList from "../components/CategoriesRelatedList";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -34,9 +34,9 @@ export default function VendorServiceDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Program Pricings"
-          rows={model.programPricings}
+          collection={model.programPricings}
           headers={["Id", "Program", "Rate"]}
           keyRowAttr="id"
           toCells={(row) => [

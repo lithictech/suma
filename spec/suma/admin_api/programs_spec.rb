@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/programs/#{Suma::Fixtures.program.create.id}"
+    end
+  end
+
   describe "GET /v1/programs" do
     it "returns all programs" do
       objs = Array.new(2) { Suma::Fixtures.program.create }
@@ -82,7 +88,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(last_response).to have_status(200)
       expect(Suma::Program.all).to have_length(1)
       expect(last_response).to have_json_body.that_includes(
-        commerce_offerings: contain_exactly(include(id: offering.id)),
+        commerce_offerings: include(items: contain_exactly(include(id: offering.id))),
       )
     end
   end
@@ -97,7 +103,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: program.id,
-        commerce_offerings: contain_exactly(include(id: o.id)),
+        commerce_offerings: include(items: have_same_ids_as(o)),
       )
     end
 

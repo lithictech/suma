@@ -1,14 +1,13 @@
 import useRoleAccess from "../hooks/useRoleAccess";
 import { dayjs } from "../modules/dayConfig";
-import { formatMoney } from "../shared/money";
+import formatDate from "../modules/formatDate";
+import { formatMoney, scaleMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import AdminLink from "./AdminLink";
-import LedgerBookTransactionsRelatedList from "./LedgerBookTransactionRelatedList";
 import Link from "./Link";
-import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import first from "lodash/first";
 import get from "lodash/get";
-import map from "lodash/map";
 import React from "react";
 
 export default function PaymentAccountRelatedLists({ paymentAccount }) {
@@ -24,9 +23,9 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
 
   return (
     <>
-      <RelatedList
+      <RelatedListRemote
         title="Originated Funding Transactions"
-        rows={paymentAccount.originatedFundingTransactions}
+        collection={paymentAccount.originatedFundingTransactions}
         headers={["Id", "Created", "Status", "Amount"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -36,9 +35,9 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="amt">{row.amount}</Money>,
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title="Originated Payouts"
-        rows={paymentAccount.originatedPayoutTransactions}
+        collection={paymentAccount.originatedPayoutTransactions}
         headers={["Id", "Created", "Status", "Amount"]}
         keyRowAttr="id"
         toCells={(row) => [
@@ -48,16 +47,16 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="amt">{row.amount}</Money>,
         ]}
       />
-      <RelatedList
+      <RelatedListRemote
         title={`Ledgers - ${formatMoney(paymentAccount.totalBalance)}`}
         headers={headers}
-        rows={paymentAccount.ledgers}
+        collection={paymentAccount.ledgers}
         keyRowAttr="id"
         toCells={(row) => {
           const cells = [
             <AdminLink key="id" model={row} />,
             row.currency,
-            map(row.vendorServiceCategories, "name").join(", "),
+            AdminLink.Array(row.categories.items, (c) => <AdminLink model={c} label />),
             <Money key="balance">{row.balance}</Money>,
           ];
           if (canCreateBook) {
@@ -78,14 +77,24 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           return cells;
         }}
       />
-      {paymentAccount.ledgers.map((ledger) => (
-        <LedgerBookTransactionsRelatedList
-          ledger={ledger}
-          title={`Ledger ${ledger.label} (${ledger.id}) - ${formatMoney(ledger.balance)}`}
-          key={ledger.id}
-          rows={ledger.combinedBookTransactions}
-        />
-      ))}
+      <RelatedListRemote
+        title="All Book Transactions"
+        collection={paymentAccount.allBookTransactions}
+        headers={["Id", "Applied", "Amount", "Originating", "Receiving"]}
+        keyRowAttr="id"
+        toCells={(row) => [
+          row.id,
+          formatDate(row.appliedAt),
+          <Money>
+            {scaleMoney(
+              row.amount,
+              row.originatingLedger.accountId === paymentAccount.id ? -1 : 1
+            )}
+          </Money>,
+          <AdminLink model={row.originatingLedger} label />,
+          <AdminLink model={row.receivingLedger} label />,
+        ]}
+      />
     </>
   );
 }

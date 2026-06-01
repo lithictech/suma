@@ -1,6 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import React from "react";
@@ -22,9 +22,9 @@ export default function VendorServiceCategoryDetailPage() {
       ]}
     >
       {(model) => [
-        <RelatedList
+        <RelatedListRemote
           title="Children"
-          rows={model.children}
+          collection={model.children}
           headers={["Id", "Name", "Slug"]}
           keyRowAttr="id"
           toCells={(row) => [

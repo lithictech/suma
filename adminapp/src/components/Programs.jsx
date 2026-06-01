@@ -40,7 +40,7 @@ export default function Programs({
   }
 
   const combinedProgramStates = {};
-  programs.forEach((c) => (combinedProgramStates[c.id] = true));
+  programs.items.forEach((c) => (combinedProgramStates[c.id] = true));
   merge(combinedProgramStates, newProgramStates);
 
   if (editing.isOff) {
@@ -58,8 +58,8 @@ export default function Programs({
       // whether the program is associated with the resource.
       // If all programs aren't loaded yet,
       // show just the ones associated with the resource.
-      const iterablePrograms = allPrograms || programs;
-      iterablePrograms?.forEach((c) =>
+      const iterablePrograms = allPrograms || programs.items;
+      iterablePrograms.forEach((c) =>
         displayables.push({
           key: c.id,
           label: c.name.en || c.name,

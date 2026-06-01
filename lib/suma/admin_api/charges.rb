@@ -13,9 +13,9 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
     expose :member, with: MemberEntity
     expose :mobility_trip, with: MobilityTripEntity
     expose :commerce_order, with: OrderEntity
-    expose :line_items, with: ChargeLineItemEntity
-    expose :associated_funding_transactions, with: FundingTransactionEntity
-    expose :contributing_book_transactions, with: BookTransactionEntity
+    expose_related :line_items, with: ChargeLineItemEntity, all: true, inherit_permissions: true
+    expose_related :associated_funding_transactions, with: FundingTransactionEntity
+    expose_related :contributing_book_transactions, with: BookTransactionEntity
   end
 
   class ChargeEntityWithMember < ChargeEntity

@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import Link from "../components/Link";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
@@ -46,9 +46,9 @@ export default function MarketingSmsBroadcastDetailPage() {
         >
           Review and {model.sentAt ? "Re-Send" : "Send"}
         </Button>,
-        <RelatedList
+        <RelatedListRemote
           title="Lists"
-          rows={model.lists}
+          collection={model.lists}
           keyRowAttr="id"
           headers={["Id", "Label"]}
           toCells={(row) => [
@@ -58,9 +58,9 @@ export default function MarketingSmsBroadcastDetailPage() {
             </AdminLink>,
           ]}
         />,
-        <RelatedList
+        <RelatedListRemote
           title="Dispatches"
-          rows={model.smsDispatches}
+          collection={model.smsDispatches}
           keyRowAttr="id"
           headers={["Id", "Member", "Status", "Message ID", "Error"]}
           toCells={(row) => [

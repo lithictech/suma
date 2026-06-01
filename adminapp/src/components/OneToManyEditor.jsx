@@ -1,3 +1,4 @@
+import { assertFullCollection, setCollectionItems } from "../modules/apicollection";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
 import AutocompleteSearch from "./AutocompleteSearch";
@@ -7,20 +8,27 @@ import { Box, FormLabel, Icon, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import React from "react";
 
-export default function OneToManyEditor({ title, items, setItems, apiItemSearch }) {
+export default function OneToManyEditor({
+  title,
+  collection,
+  setCollection,
+  apiItemSearch,
+}) {
+  assertFullCollection(collection);
+
   const handleAdd = () => {
-    setItems([...items, { id: 0 }]);
+    setCollectionItems(setCollection, [...collection.items, { id: 0 }]);
   };
   const handleRemove = (index) => {
-    setItems(withoutAt(items, index));
+    setCollectionItems(setCollection, withoutAt(collection.items, index));
   };
   function handleChange(index, fields) {
-    setItems(mergeAt(items, index, fields));
+    setCollectionItems(setCollection, mergeAt(collection.items, index, fields));
   }
   return (
     <>
       <FormLabel>{`${title}s`}</FormLabel>
-      {items?.map((o, i) => (
+      {collection.items?.map((o, i) => (
         <ModelItem
           key={i + title}
           {...o}

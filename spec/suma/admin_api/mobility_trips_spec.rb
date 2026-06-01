@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::MobilityTrips, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/mobility_trips/#{Suma::Fixtures.mobility_trip.create.id}"
+    end
+  end
+
   describe "GET /v1/mobility_trips" do
     it "returns all mobility trips" do
       objs = Array.new(2) { Suma::Fixtures.mobility_trip.create }
@@ -95,6 +101,8 @@ RSpec.describe Suma::AdminAPI::MobilityTrips, :db do
       trip = Suma::Fixtures.mobility_trip.create
 
       post "/v1/mobility_trips/#{trip.id}",
+           period_begin: "2024-07-01T00:00:00-0700",
+           period_end: "2024-07-02T00:00:00-0700",
            begin_lat: 1,
            begin_lng: 1,
            end_lat: 2,

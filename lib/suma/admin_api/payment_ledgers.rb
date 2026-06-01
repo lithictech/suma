@@ -7,13 +7,10 @@ require "suma/admin_api"
 class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class LedgerEntity < BaseEntity
+  class LedgerEntity < SimpleLedgerEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
 
-    expose :name
     expose :is_platform_account, &self.delegate_to(:account, :is_platform_account)
-    expose :currency
     expose :balance, with: MoneyEntity
     expose :member, with: MemberEntity, &self.delegate_to(:account, :member)
   end
@@ -28,8 +25,8 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
   class DetailedLedgerEntity < LedgerEntity
     include AutoExposeDetail
 
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
-    expose :combined_book_transactions, with: BookTransactionEntity
+    expose_related :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose_related :combined_book_transactions, with: BookTransactionEntity
     expose :find_unbalanced_counterparty_ledgers, as: :unbalanced_counterparties, with: UnbalancedCounterpartyEntity
   end
 

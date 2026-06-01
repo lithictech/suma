@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ExternalLinks from "../components/ExternalLinks";
 import LegalEntity from "../components/LegalEntity";
-import RelatedList from "../components/RelatedList";
+import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
@@ -33,9 +33,9 @@ export default function CardDetailPage() {
           <LegalEntity legalEntity={model.legalEntity} />
         </ResourceSummary>,
         <ExternalLinks externalLinks={model.externalLinks} />,
-        <RelatedList
+        <RelatedListRemote
           title="Funding Transactions"
-          rows={model.originatedFundingTransactions}
+          collection={model.originatedFundingTransactions}
           headers={["Id", "Created", "Status", "Amount", "Originating Account"]}
           keyRowAttr="id"
           toCells={(row) => [

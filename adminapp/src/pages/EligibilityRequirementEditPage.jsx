@@ -8,6 +8,7 @@ export default function EligibilityRequirementEditPage() {
     <ResourceEdit
       apiGet={api.getEligibilityRequirement}
       apiUpdate={api.updateEligibilityRequirement}
+      expand={["programs", "payment_triggers"]}
       Form={EligibilityRequirementForm}
     />
   );

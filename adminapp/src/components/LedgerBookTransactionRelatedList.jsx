@@ -3,19 +3,19 @@ import { scaleMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import ForwardTo from "./ForwardTo";
-import RelatedList from "./RelatedList";
+import RelatedListRemote from "./RelatedListRemote";
 import React from "react";
 
-export default function LedgerBookTransactionsRelatedList({ ledger, title, rows }) {
+export default function LedgerBookTransactionsRelatedList({ ledger, title, collection }) {
   return (
-    <RelatedList
+    <RelatedListRemote
       title={
         <span>
           {title} <ForwardTo to={ledger.adminLink} />
         </span>
       }
       headers={["Id", "Applied", "Amount", "Originating", "Receiving"]}
-      rows={rows}
+      collection={collection}
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,

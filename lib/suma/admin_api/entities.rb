@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require "grape_entity"
-
 require "suma/service/entities"
+require "suma/service/collection"
 
 module Suma::AdminAPI::Entities
   class MoneyEntity < Suma::Service::Entities::Money; end
@@ -25,13 +24,84 @@ module Suma::AdminAPI::Entities
   end
 
   class BaseEntity < Suma::Service::Entities::Base
-    def self.expose_image(name, &block)
-      self.expose(name, with: ImageEntity) do |instance, options|
-        evaluate_exposure(name, block, instance, options)
+    class << self
+      def expose_image(name, &block)
+        self.expose(name, with: ImageEntity) do |instance, options|
+          evaluate_exposure(name, block, instance, options)
+        end
+        self.expose("#{name}_caption", with: TranslatedTextEntity) do |instance, options|
+          img = evaluate_exposure(name, block, instance, options)
+          img&.caption
+        end
       end
-      self.expose("#{name}_caption", with: TranslatedTextEntity) do |instance, options|
-        img = evaluate_exposure(name, block, instance, options)
-        img&.caption
+    end
+  end
+
+  # Base class for models. Allows exposure of related associations via #expore_related,
+  # and automatic route create during CommonEndpoints.get_one.
+  class BaseModelEntity < BaseEntity
+    class << self
+      attr_accessor :exposed_related
+
+      def inherited(subclass)
+        super
+        subclass.exposed_related = self.exposed_related.dup
+        subclass.model(self.model)
+      end
+
+      def model(type=nil)
+        return @model if type.nil?
+        @model = type
+        self.exposed_related ||= []
+      end
+
+      # Expose a list field of this entity.
+      # The field is exposed with a Collection entity so it can be paginated.
+      #
+      # NOTE: Callers must implement these collection endpoints, usually through CommonEndpoints.get_one.
+      # See CommonEndpoints.related.
+      #
+      # @param name [Symbol] Related name. The subroute gets this name if exposed with CommonEndpoints.get_one.
+      #   The instance must have a <name>_dataset method or name must be an association.
+      # @param with [Class<BaseEntity>] Entity to use in the expsoure.
+      # @param as [Symbol] The field on the entity will get this name.
+      # @param all [true,false] If true, load all items from the dataset when loading the collection.
+      #   This preserves the 'collection' format exposure but does not require pagination.
+      #   Useful when we always want to load all resources in admin.
+      # @param inherit_permissions [true,false] Some resources, like notes or audit logs,
+      #   should inherit the permissions of their parent.
+      #   If inherit_permissions is true, the permissions of the parent model are used,
+      #   rather than the subresource.
+      # @param to_path [Proc] If given, this is called with (instance, options)
+      #   to get the PATH_INFO (ie, /members/123) part of the route.
+      #   Used for nested related exposures, so /member/123
+      #   can nest to something like /payment_accounts/123/ledgers.
+      def expose_related(name, with:, as: nil, all: false, inherit_permissions: false, to_path: nil)
+        collection_entity = Suma::Service::Collection.prepare_entity(with)
+        ds_method = :"#{name}_dataset"
+        unless self.model.method_defined?(ds_method)
+          raise ArgumentError, "must call #model before using expose_related, got: #{self.model.inspect}" unless
+            self.model.respond_to?(:association_reflections)
+          assoc = self.model.association_reflections[name]
+          raise ArgumentError, "#{self.model} does not has association #{name} or dataset #{ds_method}" if assoc.nil?
+          ds_method = assoc.fetch(:dataset_method)
+        end
+        self.exposed_related << {name:, with:, inherit_permissions:}
+        exposed_attr = (name || as).to_s
+        self.expose(name, as:, with: collection_entity) do |instance, options|
+          ds = instance.send(ds_method)
+          # Do NOT overwrite the closure all or we get leakage/corruption
+          req_all = all || Rack::Request.new(options[:env]).GET.fetch("expand", []).include?(exposed_attr)
+          if req_all
+            collection = Suma::Service::Collection.from_array(ds.all)
+          else
+            ds = ds.paginate(1, Suma::Service.related_list_size)
+            collection = Suma::Service::Collection.from_dataset(ds)
+          end
+          path_info = to_path ? to_path[instance, options] : nil
+          collection.url = Suma::Service.request_path(options[:env], path_info) + "/#{name}"
+          collection
+        end
       end
     end
   end
@@ -78,21 +148,24 @@ module Suma::AdminAPI::Entities
     end
   end
 
-  class RoleEntity < BaseEntity
+  class RoleEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Role
     expose :name
   end
 
-  class OrganizationEntity < BaseEntity
+  class OrganizationEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Organization
     expose :name
   end
 
-  class PaymentInstrumentEntity < BaseEntity
+  class PaymentInstrumentEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Payment::Instrument
     expose :payment_method_type
     expose :legal_entity, with: LegalEntityEntity
     expose :institution_name
@@ -108,7 +181,7 @@ module Suma::AdminAPI::Entities
     expose :admin_link
   end
 
-  class AuditLogEntity < BaseEntity
+  class AuditLogEntity < BaseModelEntity
     expose :id
     expose :at
     expose :event
@@ -119,20 +192,22 @@ module Suma::AdminAPI::Entities
     expose :actor, with: AuditMemberEntity
   end
 
-  class SupportNoteEntity < BaseEntity
+  class SupportNoteEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Support::Note
     expose :author, with: AuditMemberEntity
     expose :authored_at
     expose :content
     expose :content_html
   end
 
-  class ActivityEntity < BaseEntity
+  class ActivityEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Member::Activity
     expose :member, with: AuditMemberEntity
     expose :message_name
     expose :message_vars
@@ -140,9 +215,10 @@ module Suma::AdminAPI::Entities
     expose :summary_md
   end
 
-  class MemberEntity < BaseEntity
+  class MemberEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Member
     expose :email
     expose :name
     expose :phone
@@ -151,9 +227,10 @@ module Suma::AdminAPI::Entities
     expose :onboarding_verified_at
   end
 
-  class MessageDeliveryEntity < BaseEntity
+  class MessageDeliveryEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Message::Delivery
     expose :template
     expose :transport_type
     expose :carrier_key
@@ -165,9 +242,10 @@ module Suma::AdminAPI::Entities
     expose :recipient, with: MemberEntity
   end
 
-  class ProgramEntity < BaseEntity
+  class ProgramEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Program
     expose :name, with: TranslatedTextEntity
     expose :description, with: TranslatedTextEntity
     expose :period_begin
@@ -177,38 +255,47 @@ module Suma::AdminAPI::Entities
     expose :app_link_text, with: TranslatedTextEntity
   end
 
-  class EligibilityAttributeEntity < BaseEntity
+  class EligibilityAttributeEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Eligibility::Attribute
     expose :name
     expose :parent, with: self
   end
 
-  class EligibilityAssignmentEntity < BaseEntity
+  class EligibilityAssignmentEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Eligibility::Assignment
     expose :assignee, with: AutoExposedBaseEntity
     expose :assignee_label
     expose :assignee_type
     expose :attribute, with: EligibilityAttributeEntity
   end
 
-  class EligibilityRequirementEntity < BaseEntity
+  class EligibilityRequirementResourceEntity < BaseEntity
     include AutoExposeBase
-
-    expose :all_resources, as: :resources, with: AutoExposedBaseEntity
-    expose :cached_expression_string, as: :expression_formula_str
   end
 
-  class VendorEntity < BaseEntity
+  class EligibilityRequirementEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Eligibility::Requirement
+    expose :cached_expression_string, as: :expression_formula_str
+    expose :all_resources, as: :resources, with: EligibilityRequirementResourceEntity
+  end
+
+  class VendorEntity < BaseModelEntity
+    include AutoExposeBase
+
+    model Suma::Vendor
     expose :name
   end
 
-  class VendorServiceEntity < BaseEntity
+  class VendorServiceEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Vendor::Service
     expose :internal_name
     expose :external_name
     expose :vendor, with: VendorEntity
@@ -216,9 +303,10 @@ module Suma::AdminAPI::Entities
     expose :period_end
   end
 
-  class VendorServiceCategoryTerminalEntity < BaseEntity
+  class VendorServiceCategoryTerminalEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Vendor::ServiceCategory
     expose :name
     expose :slug
   end
@@ -228,41 +316,48 @@ module Suma::AdminAPI::Entities
   end
 
   class VendorServiceRateUndiscountedrateEntity < BaseEntity
-    expose :id
-    expose :internal_name
-  end
-
-  class VendorServiceRateEntity < BaseEntity
     include AutoExposeBase
 
     expose :internal_name
+  end
+
+  class VendorServiceRateEntity < BaseModelEntity
+    include AutoExposeBase
+
+    model Suma::Vendor::ServiceRate
+    expose :internal_name
     expose :external_name
+    expose :unit_offset
+    expose :ordinal
     expose :unit_amount, with: MoneyEntity
     expose :surcharge, with: MoneyEntity
     expose :undiscounted_rate, with: VendorServiceRateUndiscountedrateEntity
   end
 
-  class ProgramPricingEntity < BaseEntity
+  class ProgramPricingEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Program::Pricing
     expose :program, with: ProgramEntity
     expose :vendor_service, with: VendorServiceEntity
     expose :vendor_service_rate, with: VendorServiceRateEntity
   end
 
-  class AnonProxyVendorConfigurationEntity < BaseEntity
+  class AnonProxyVendorConfigurationEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::AnonProxy::VendorConfiguration
     expose :vendor, with: VendorEntity
     expose :app_install_link
     expose :auth_to_vendor_key
     expose :enabled
   end
 
-  class AnonProxyMemberContactEntity < BaseEntity
+  class AnonProxyMemberContactEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::AnonProxy::MemberContact
     expose :member, with: MemberEntity
     expose :formatted_address
     expose :relay_key
@@ -275,18 +370,20 @@ module Suma::AdminAPI::Entities
     expose :formatted_address
   end
 
-  class AnonProxyVendorAccountEntity < BaseEntity
+  class AnonProxyVendorAccountEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::AnonProxy::VendorAccount
     expose :member, with: MemberEntity
     expose :configuration, with: AnonProxyVendorConfigurationEntity
     expose :contact, with: AnonProxyVendorAccountMemberContactEntity
   end
 
-  class ChargeEntity < BaseEntity
+  class ChargeEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Charge
     expose :opaque_id
     expose :discounted_subtotal, with: MoneyEntity
     expose :undiscounted_subtotal, with: MoneyEntity
@@ -298,9 +395,10 @@ module Suma::AdminAPI::Entities
     expose :noncash_paid_from_ledger, with: MoneyEntity
   end
 
-  class MobilityTripEntity < BaseEntity
+  class MobilityTripEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Mobility::Trip
     expose :vehicle_id
     expose :begin_lat
     expose :begin_lng
@@ -314,16 +412,20 @@ module Suma::AdminAPI::Entities
     expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
   end
 
-  class SimpleLedgerEntity < BaseEntity
+  class SimpleLedgerEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Payment::Ledger
     expose :name
+    expose :currency
+    expose :account_id
     expose :account_name, &self.delegate_to(:account, :display_name)
   end
 
-  class SimplePaymentAccountEntity < BaseEntity
+  class SimplePaymentAccountEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Payment::Account
     expose :display_name
   end
 
@@ -333,26 +435,29 @@ module Suma::AdminAPI::Entities
     expose :admin_details_typed, as: :admin_details
   end
 
-  class FundingTransactionEntity < BaseEntity
+  class FundingTransactionEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Payment::FundingTransaction
     expose :status
     expose :amount, with: MoneyEntity
     expose :originating_payment_account, with: SimplePaymentAccountEntity
   end
 
-  class PayoutTransactionEntity < BaseEntity
+  class PayoutTransactionEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Payment::PayoutTransaction
     expose :status
     expose :classification
     expose :amount, with: MoneyEntity
     expose :originating_payment_account, with: SimplePaymentAccountEntity
   end
 
-  class BookTransactionEntity < BaseEntity
+  class BookTransactionEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Payment::BookTransaction
     expose :apply_at
     expose :amount, with: MoneyEntity
     expose :memo, with: TranslatedTextEntity
@@ -362,48 +467,54 @@ module Suma::AdminAPI::Entities
     expose :actor, with: AuditMemberEntity
   end
 
-  class DetailedPaymentAccountLedgerEntity < BaseEntity
-    include AutoExposeBase
-    include AutoExposeDetail
+  # class DetailedPaymentAccountLedgerEntity < BaseModelEntity
+  #   include AutoExposeBase
+  #   include AutoExposeDetail
+  #
+  #   model Suma::Payment::Ledger
+  #   route :payment_ledgers
+  #   expose :currency
+  #   expose_related :vendor_service_categories, with: VendorServiceCategoryEntity
+  #   expose_related :combined_book_transactions, with: BookTransactionEntity
+  #   expose :balance, with: MoneyEntity
+  # end
+  #
+  # class DetailedPaymentAccountEntity < BaseModelEntity
+  #   include AutoExposeBase
+  #   include AutoExposeDetail
+  #
+  #   model Suma::Payment::Account
+  #   expose :member, with: MemberEntity
+  #   expose :vendor, with: VendorEntity
+  #   expose :is_platform_account
+  #   expose :ledgers, with: DetailedPaymentAccountLedgerEntity
+  #   expose :total_balance, with: MoneyEntity
+  #   expose_related :originated_funding_transactions, with: FundingTransactionEntity
+  #   expose_related :originated_payout_transactions, with: PayoutTransactionEntity
+  # end
 
-    expose :currency
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
-    expose :combined_book_transactions, with: BookTransactionEntity
-    expose :balance, with: MoneyEntity
-  end
-
-  class DetailedPaymentAccountEntity < BaseEntity
-    include AutoExposeBase
-    include AutoExposeDetail
-
-    expose :member, with: MemberEntity
-    expose :vendor, with: VendorEntity
-    expose :is_platform_account
-    expose :ledgers, with: DetailedPaymentAccountLedgerEntity
-    expose :total_balance, with: MoneyEntity
-    expose :originated_funding_transactions, with: FundingTransactionEntity
-    expose :originated_payout_transactions, with: PayoutTransactionEntity
-  end
-
-  class PaymentTriggerEntity < BaseEntity
+  class PaymentTriggerEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Payment::Trigger
     expose :active_during_begin
     expose :active_during_end
   end
 
-  class OfferingEntity < BaseEntity
+  class OfferingEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Commerce::Offering
     expose :description, with: TranslatedTextEntity
     expose :period_end
     expose :period_begin
   end
 
-  class OfferingFulfillmentOptionEntity < BaseEntity
+  class OfferingFulfillmentOptionEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Commerce::OfferingFulfillmentOption
     expose :description, with: TranslatedTextEntity
     expose :type
     expose :ordinal
@@ -411,9 +522,10 @@ module Suma::AdminAPI::Entities
     expose :address, with: AddressEntity, safe: true
   end
 
-  class OfferingProductEntity < BaseEntity
+  class OfferingProductEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Commerce::OfferingProduct
     expose :closed_at
     expose :product_id
     expose_translated :product_name, &self.delegate_to(:product, :name)
@@ -423,17 +535,19 @@ module Suma::AdminAPI::Entities
     expose :closed?, as: :is_closed
   end
 
-  class ProductEntity < BaseEntity
+  class ProductEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Commerce::Product
     expose :vendor, with: VendorEntity
     expose :name, with: TranslatedTextEntity
     expose :description, with: TranslatedTextEntity
   end
 
-  class OrderEntity < BaseEntity
+  class OrderEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Commerce::Order
     expose :order_status
     expose :fulfillment_status
     expose :admin_status_label, as: :status_label
@@ -449,9 +563,10 @@ module Suma::AdminAPI::Entities
     expose :owner, with: MemberEntity
   end
 
-  class OrganizationMembershipEntity < BaseEntity
+  class OrganizationMembershipEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Organization::Membership
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
@@ -462,17 +577,19 @@ module Suma::AdminAPI::Entities
     expose :verification, with: BaseOrganizationMembershipVerificationEntity
   end
 
-  class OrganizationMembershipVerificationEntity < BaseEntity
+  class OrganizationMembershipVerificationEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Organization::Membership::Verification
     expose :status
     expose :membership, with: OrganizationMembershipEntity
     expose :owner, with: MemberEntity
   end
 
-  class OrganizationRegistrationLinkEntity < BaseEntity
+  class OrganizationRegistrationLinkEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Organization::RegistrationLink
     expose :organization, with: OrganizationEntity
     expose :opaque_id
     expose :ical_dtstart
@@ -480,9 +597,10 @@ module Suma::AdminAPI::Entities
     expose :ical_rrule
   end
 
-  class ChargeLineItemEntity < BaseEntity
+  class ChargeLineItemEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Charge::LineItem
     expose :charge_id
     expose :amount, with: MoneyEntity
     expose :memo, with: TranslatedTextEntity
@@ -496,22 +614,25 @@ module Suma::AdminAPI::Entities
     expose :admin_link
   end
 
-  class MarketingListEntity < BaseEntity
+  class MarketingListEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Marketing::List
     expose :managed
   end
 
-  class MarketingSmsBroadcastEntity < BaseEntity
+  class MarketingSmsBroadcastEntity < BaseModelEntity
     include AutoExposeBase
 
+    model Suma::Marketing::SmsBroadcast
     expose :sent_at
   end
 
-  class MarketingSmsDispatchEntity < BaseEntity
+  class MarketingSmsDispatchEntity < BaseModelEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
 
+    model Suma::Marketing::SmsDispatch
     expose :member, with: MarketingMemberEntity
     expose :sms_broadcast, with: MarketingSmsBroadcastEntity
     expose :sent_at

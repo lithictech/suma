@@ -13,6 +13,12 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
     login_as(admin)
   end
 
+  it_behaves_like "an endpoint with subroutes for related resources" do
+    let(:detail_route) do
+      "/v1/organizations/#{Suma::Fixtures.organization.create.id}"
+    end
+  end
+
   describe "GET /v1/organizations" do
     it "returns all organizations" do
       orgs = Array.new(2) { Suma::Fixtures.organization.create }
@@ -79,7 +85,7 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: organization.id,
-        memberships: have_same_ids_as(membership),
+        memberships: include(items: have_same_ids_as(membership)),
       )
     end
 

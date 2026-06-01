@@ -1,6 +1,6 @@
 import api from "../api";
 import { useGlobalApiState } from "../hooks/globalApiState";
-import formHelpers from "../modules/formHelpers";
+import { stub } from "../modules/formHelpers";
 import ResponsiveStack from "./ResponsiveStack";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -23,7 +23,7 @@ export default function AddressInputs({ address, onFieldChange }) {
     onFieldChange({ address: { ...address, ...a } });
   }
   function handleAddressOn() {
-    onFieldChange({ address: formHelpers.initialAddress });
+    onFieldChange({ address: stub.address });
   }
   function handleAddressOff() {
     onFieldChange({ address: null });

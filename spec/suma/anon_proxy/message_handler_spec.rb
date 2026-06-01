@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "url_shortener/spec_helpers"
-require "suma/spec_helpers/sentry"
 
 RSpec.describe Suma::AnonProxy::MessageHandler, :db do
   include UrlShortener::SpecHelpers
