@@ -52,7 +52,7 @@ class Suma::Service::EntityJsdocWriter
     end
 
     # Documentation hint (e.g. documentation: { type: "String" })
-    (type = documentation[:type].to_s) if documentation.is_a?(Hash) && documentation[:type]
+    (type = getname(documentation[:type])) if documentation.is_a?(Hash) && documentation[:type]
 
     return "?" unless type
 
@@ -146,12 +146,14 @@ class Suma::Service::EntityJsdocWriter
 
   # Derive a clean JSDoc identifier from an entity class name.
   protected def jsdoc_entity_name(klass)
-    name = klass.respond_to?(:name) ? klass.name : klass.to_s
+    name = getname(klass)
     # We don't want namespaces
     name = name.split("::").last
     # Strip trailing "Entity" suffix for brevity, e.g. UserEntity → User
     return name.sub(/_?Entity$/, "")
   end
+
+  protected def getname(x) = x.respond_to?(:name) ? x.name : x.to_s
 
   # Build JSDoc typedef for a single entity class
   protected def typedef_for(entity_class)

@@ -17,14 +17,14 @@ class Suma::Service::Collection
   attr_accessor :url
 
   class BaseEntity < Suma::Service::Entities::Base
-    expose :object do |_|
+    expose :object, documentation: {type: String} do |_|
       "list"
     end
-    expose :current_page
-    expose :page_count
-    expose :total_count
-    expose :more?, as: :has_more
-    expose :url do |inst, opts|
+    expose :current_page, documentation: {type: Integer}
+    expose :page_count, documentation: {type: Integer}
+    expose :total_count, documentation: {type: Integer}
+    expose :more?, as: :has_more, documentation: {type: "Boolean"}
+    expose :url, documentation: {type: String} do |inst, opts|
       inst.url || Suma::Service.request_path(opts[:env])
     end
     # expose :items do |_|
@@ -59,7 +59,8 @@ class Suma::Service::Collection
       collection_entity = Suma::Service::Collection.collection_entity_cache[item_entity]
       if collection_entity.nil?
         collection_entity = Class.new(Suma::Service::Collection::BaseEntity) do
-          def self.name = "Suma::Service::Collection::Entity"
+          entity_name = item_entity.respond_to?(:name) ? item_entity.name : item_entity
+          define_singleton_method(:name) { "#{entity_name}Collection" }
           expose :items, using: item_entity
         end
         Suma::Service::Collection.collection_entity_cache[item_entity] = collection_entity
