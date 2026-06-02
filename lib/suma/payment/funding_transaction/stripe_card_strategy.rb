@@ -133,7 +133,8 @@ end
 #  originating_card_id | integer                  | NOT NULL
 #  charge_json         | jsonb                    |
 # Indexes:
-#  payment_funding_transaction_stripe_card_strategies_pkey | PRIMARY KEY btree (id)
+#  payment_funding_transaction_stripe_card_strategies_pkey         | PRIMARY KEY btree (id)
+#  payment_funding_transaction_stripe_card_strategies_originating_ | btree (originating_card_id)
 # Foreign key constraints:
 #  payment_funding_transaction_stripe_car_originating_card_id_fkey | (originating_card_id) REFERENCES payment_cards(id)
 # Referenced By:
