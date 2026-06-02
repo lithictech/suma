@@ -74,9 +74,9 @@ end
 #  external_relay_id | text                     | NOT NULL DEFAULT ''::text
 # Indexes:
 #  anon_proxy_member_contacts_pkey                          | PRIMARY KEY btree (id)
-#  anon_proxy_member_contacts_email_relay_key_key           | UNIQUE btree (email, relay_key)
-#  anon_proxy_member_contacts_phone_relay_key_key           | UNIQUE btree (phone, relay_key)
+#  anon_proxy_member_contacts_email_index                   | btree (email)
 #  anon_proxy_member_contacts_member_id_index               | btree (member_id)
+#  anon_proxy_member_contacts_phone_index                   | btree (phone)
 #  anon_proxy_member_contacts_search_content_trigram_index  | gist (search_content)
 #  anon_proxy_member_contacts_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:

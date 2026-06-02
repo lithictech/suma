@@ -1,5 +1,5 @@
 // Auto-generated JSDoc typedefs from Grape::Entity
-// Generated: 2026-04-26 10:37:07
+// Generated: 2026-06-02 15:30:02
 // Entities: Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::LedgerEntity, Suma::API::Entities::LedgerLineEntity, Suma::API::Entities::LedgerLineUsageDetailsEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::ProgramEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity
 
 /**
@@ -28,7 +28,10 @@
  * @property {boolean} needsLinking
  * @property {?} requiresPaymentMethod
  * @property {?} hasPaymentMethod
- * @property {?} promptForPaymentMethod
+ * @property {?} balancePayoffNeeded
+ * @property {?} showPaymentStep
+ * @property {?} termStepIndex
+ * @property {?} linkStepIndex
  * @property {?} descriptionText
  * @property {?} termsText
  * @property {?} helpText
@@ -225,11 +228,12 @@
 /**
  * @typedef {Object} OrderHistoryCollection
  * @description Auto-generated from Suma::API::Commerce::OrderHistoryCollection
- * @property {?} object
- * @property {?} currentPage
+ * @property {string} object
+ * @property {number} currentPage
  * @property {number} pageCount
  * @property {number} totalCount
- * @property {?} hasMore
+ * @property {boolean} hasMore
+ * @property {string} url
  * @property {SimpleOrderHistory} items
  * @property {DetailedOrderHistory} detailedOrders
  */
@@ -288,11 +292,12 @@
 /**
  * @typedef {Object} UnclaimedOrderCollection
  * @description Auto-generated from Suma::API::Commerce::UnclaimedOrderCollection
- * @property {?} object
- * @property {?} currentPage
+ * @property {string} object
+ * @property {number} currentPage
  * @property {number} pageCount
  * @property {number} totalCount
- * @property {?} hasMore
+ * @property {boolean} hasMore
+ * @property {string} url
  * @property {DetailedOrderHistory} items
  */
 
@@ -339,6 +344,7 @@
  * @property {?} showPrivateAccounts
  * @property {MemberPreferences} preferences
  * @property {?} hasOrderHistory
+ * @property {Money} chargeableCashBalance
  * @property {?} finishedSurveyTopics
  * @property {RegistrationLink} registrationLink
  */
@@ -481,11 +487,12 @@
 /**
  * @typedef {Object} LedgerLines
  * @description Auto-generated from Suma::API::Ledgers::LedgerLinesEntity
- * @property {?} object
- * @property {?} currentPage
+ * @property {string} object
+ * @property {number} currentPage
  * @property {number} pageCount
  * @property {number} totalCount
- * @property {?} hasMore
+ * @property {boolean} hasMore
+ * @property {string} url
  * @property {LedgerLine} items
  * @property {number} ledgerId
  */
@@ -589,11 +596,12 @@
 /**
  * @typedef {Object} MobilityTripCollection
  * @description Auto-generated from Suma::API::Mobility::MobilityTripCollectionEntity
- * @property {?} object
- * @property {?} currentPage
+ * @property {string} object
+ * @property {number} currentPage
  * @property {number} pageCount
  * @property {number} totalCount
- * @property {?} hasMore
+ * @property {boolean} hasMore
+ * @property {string} url
  * @property {MobilityTrip} items
  * @property {MobilityTrip} ongoing
  * @property {?} weeks
