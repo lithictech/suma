@@ -37,7 +37,7 @@ RSpec.describe Suma::Payment, :db do
       expect(described_class.service_usage_prohibited_reason(acct)).to eq("non_member_account")
     end
 
-    it "is cash_balance when the cash balance is >= minimum amount" do
+    it "is cash_balance when the cash balance is < minimum amount" do
       described_class.minimum_cash_balance_for_services_cents = 0
       expect(described_class.service_usage_prohibited_reason(account)).to be_nil
       described_class.minimum_cash_balance_for_services_cents = -5
@@ -82,6 +82,21 @@ RSpec.describe Suma::Payment, :db do
       expect(described_class.service_usage_prohibited_reason(account)).to be_nil
 
       described_class.minimum_cash_balance_grace_cents = -2_00
+      expect(described_class.service_usage_prohibited_reason(account)).to eq("usage_prohibited_cash_balance")
+    end
+
+    it "is nil when the min charge amount is not 0, min service cash balance is 0, but balance is ok" do
+      described_class.minimum_cash_balance_for_services_cents = 0
+      described_class.minimum_cash_balance_grace_cents = -50
+
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
+
+      fixtures.book_transaction.from(ledger).create(apply_at: 40.hours.ago, amount: money("$0.45"))
+      account.refresh
+      expect(described_class.service_usage_prohibited_reason(account)).to be_nil
+
+      fixtures.book_transaction.from(ledger).create(apply_at: 40.hours.ago, amount: money("$0.45"))
+      account.refresh
       expect(described_class.service_usage_prohibited_reason(account)).to eq("usage_prohibited_cash_balance")
     end
 
