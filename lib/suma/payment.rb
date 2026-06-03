@@ -49,7 +49,8 @@ module Suma::Payment
     # For example, if someone takes a $0.45 scooter ride,
     # we can't charge them through Stripoe, which requires a $0.50 minimum charge.
     #
-    # This value is that which can basically be considered "$0" for most purposes;
+    # This value is that which can basically be considered "$0" for most purposes.
+    # For Stripe, with a $0.50 minimum charge, this would be -50.
     # It's okay for a cash ledger to be this negative,
     # since we can't charge ledgers when this or less of a balance
     # (so ledgers in this zone are that way due to not fault of the user).
@@ -119,8 +120,16 @@ module Suma::Payment
       return "unhandled_error" if payment_account.nil?
       return "non_member_account" if payment_account.member_id.nil?
       ledger = payment_account.cash_ledger!
+      # Minimum for services is whatever is less between what's set (usually 0) and what we can actually charge
+      # (usually less than 0).
+      min_for_services = self.minimum_cash_balance_for_services
+      if self.minimum_cash_balance_grace.nonzero?
+        Suma.assert { [self.minimum_cash_balance_grace.negative?, "minimum_cash_balance_grace must be negative"] }
+        min_for_services = [min_for_services, self.minimum_cash_balance_grace].min
+      end
+
       # We're below the minimum, so this is never ok.
-      return "usage_prohibited_cash_balance" if ledger.balance < self.minimum_cash_balance_for_services
+      return "usage_prohibited_cash_balance" if ledger.balance < min_for_services
       zero = self.minimum_cash_balance_grace
       # We've above the minimum, and the minimum is zero or higher, so we are okay and do not need
       # to worry about grace period.
