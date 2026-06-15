@@ -43,6 +43,13 @@ export default function VendorConfigurationForm({
           checked={resource.enabled}
           onChange={setFieldFromInput}
         />
+        <FormControlLabel
+          control={<Switch />}
+          label="Platform Payment Never Required"
+          name="platformPaymentNeverRequired"
+          checked={resource.platformPaymentNeverRequired}
+          onChange={setFieldFromInput}
+        />
         <FormLabel>Description</FormLabel>
         <ResponsiveStack>
           <MultiLingualText

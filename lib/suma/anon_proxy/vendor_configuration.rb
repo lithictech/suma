@@ -32,6 +32,12 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   # True if the instance is enabled/should show in the UI.
   def enabled? = self.enabled
 
+  # True if this vendor configuration will never process payments over Suma;
+  # that is, the integration has the member pay natively in the 3rd party app,
+  # NOT through suma. Vendor service rates end up describing the off-platform cost
+  # but can otherwise be ignored (for example, we would not limit service access).
+  def platform_payment_never_required? = self.platform_payment_never_required
+
   def rel_admin_link = "/vendor-configuration/#{self.id}"
 
   def hybrid_search_fields

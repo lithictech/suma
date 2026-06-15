@@ -30,6 +30,10 @@ export default function VendorConfigurationDetailPage() {
         },
         { label: "Auth-to-Vendor", value: model.authToVendorKey },
         { label: "Enabled", value: <BoolCheckmark>{model.enabled}</BoolCheckmark> },
+        {
+          label: "Platform Payment Never Required",
+          value: <BoolCheckmark>{model.platformPaymentNeverRequired}</BoolCheckmark>,
+        },
         { label: "Description (En)", value: model.descriptionText.en },
         { label: "Description (Es)", value: model.descriptionText.es },
         { label: "Help (En)", value: model.helpText.en },

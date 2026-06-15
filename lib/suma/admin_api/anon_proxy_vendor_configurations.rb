@@ -12,6 +12,7 @@ class Suma::AdminAPI::AnonProxyVendorConfigurations < Suma::AdminAPI::V1
 
     expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
     expose_related :programs, with: ProgramEntity
+    expose :platform_payment_never_required
     expose :description_text, with: TranslatedTextEntity
     expose :help_text, with: TranslatedTextEntity
     expose :terms_text, with: TranslatedTextEntity
@@ -38,6 +39,7 @@ class Suma::AdminAPI::AnonProxyVendorConfigurations < Suma::AdminAPI::V1
     ) do
       params do
         optional :enabled, type: Boolean
+        optional :platform_payment_never_required, type: Boolean
         optional :app_install_link, type: String
         optional(:description_text, type: JSON) { use :translated_text }
         optional(:help_text, type: JSON) { use :translated_text }
