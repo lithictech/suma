@@ -63,12 +63,12 @@ class Suma::Analytics::Model
     #   - A +Proc+, called with the transactional model instance.
     #   - An +Array+, which is a shorthand for denormalization. Each item in the array is one of:
     #     - A +Symbol+, like `:name`,
-    #       which would add a cell for `name=model.name`.
-    #     - A tuple of symbols, like `[:id, :member_id]`,
-    #       which would add a cell for `member_id=model_id`.
-    #     - A tuple of a symbol and a symbol array, like `[:id, [:member, :id]]`,
-    #       which would add a cell for `member_id=member.id`.
-    #     - A tuple of a symbol and proc, like `[:email, ->(m) { m.email.upcase }]`,
+    #       which would add a cell for `name=tmodel.name`.
+    #     - A tuple of symbols, like `[:member_id, :id]`,
+    #       which would add a cell for `member_id=tmodel.id`.
+    #     - A tuple of a symbol and a symbol array, like `[:member_id, [:member, :id]]`,
+    #       which would add a cell for `member_id=tmodel.member.id`.
+    #     - A tuple of a symbol and proc, like `[:email, ->(tmodel) { tmodel.email.upcase }]`,
     #       called with the model instance, which would add a cell like `email='A@B.C'`.
     def denormalize(transactional_model_class, with:)
       self.denormalizers[transactional_model_class] = with

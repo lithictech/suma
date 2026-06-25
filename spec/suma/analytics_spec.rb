@@ -139,28 +139,25 @@ RSpec.describe Suma::Analytics, :db do
   end
 
   describe "Charge" do
-    it "denormalizes from order charges" do
-      o = Suma::Fixtures.charge.create
-      Suma::Analytics.upsert_from_transactional_model(o)
-      expect(Suma::Analytics::Charge.dataset.all).to contain_exactly(
-        include(charge_id: o.id),
-      )
-    end
-
-    it "denormalizes from order charges" do
-      o = Suma::Fixtures.charge.create
+    it "denormalizes from trip charges" do
+      t = trunc_time(1.hour.ago)
+      trip = Suma::Fixtures.mobility_trip.ended.create(ended_at: t)
+      o = Suma::Fixtures.charge.create(mobility_trip: trip)
       expect(o.mobility_trip).to_not be_nil
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Charge.dataset.all).to contain_exactly(
-        include(charge_id: o.id),
+        include(charge_id: o.id, trip_id: trip.id, incurred_at: t),
       )
     end
 
     it "denormalizes from order charges" do
-      o = Suma::Fixtures.charge.create(commerce_order: Suma::Fixtures.order.create)
+      order = Suma::Fixtures.order.create
+      t = trunc_time(1.hour.ago)
+      order.update(created_at: t)
+      o = Suma::Fixtures.charge.create(commerce_order: order)
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Charge.dataset.all).to contain_exactly(
-        include(charge_id: o.id),
+        include(charge_id: o.id, order_id: order.id, incurred_at: t),
       )
     end
   end
