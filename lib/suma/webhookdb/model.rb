@@ -15,6 +15,8 @@ class Suma::Webhookdb::Model
   extend Suma::Postgres::ModelUtilities
 
   class << self
+    def schema = :public
+
     def db
       # If models are enabled, assume the configured tables existing in WebhookDB.
       # If models are not enabled, we can mock out the connection with a mock:// database connection

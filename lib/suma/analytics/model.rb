@@ -36,6 +36,8 @@ class Suma::Analytics::Model
     end
   end
 
+  def self.schema = :analytics
+
   def self.inherited(subclass)
     super
     subclass.extend(ClassMethods)

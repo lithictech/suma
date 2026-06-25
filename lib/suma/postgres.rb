@@ -235,6 +235,17 @@ module Suma::Postgres
     end
   end
 
+  # Drop all tables in the database for all model superclasses.
+  def self.drop_all_tables
+    self.load_superclasses
+    self.model_superclasses.reject(&:read_only?).each do |sc|
+      schemaname = sc.schema.to_s
+      sc.db[:pg_tables].where(schemaname:).each do |tbl|
+        sc.db.execute("DROP TABLE #{schemaname}.#{tbl[:tablename]} CASCADE")
+      end
+    end
+  end
+
   # Return 'Time.now' as an expression suitable for Sequel/SQL.
   # In some cases (like range @> expressions) you need to cast to a timestamptz explicitly,
   # the implicit cast isn't enough.

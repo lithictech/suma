@@ -8,9 +8,7 @@ RSpec.describe Suma::Tasks::DB do
 
   describe "drop_tables" do
     it "drops all tables" do
-      expect(described_class).to receive(:exec).
-        with(be_a(Sequel::Database), match(/DROP TABLE [\w.]+ CASCADE/)).
-        at_least(10).times
+      expect(Suma::Postgres).to receive(:drop_all_tables)
       invoke_rake_task("db:drop_tables")
     end
   end
