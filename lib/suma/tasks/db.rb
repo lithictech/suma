@@ -11,18 +11,7 @@ class Suma::Tasks::DB < Rake::TaskLib
       desc "Drop all tables in the public schema."
       task :drop_tables do
         require "suma/postgres"
-        Suma::Postgres.load_superclasses
-        # We cannot use load_models to get the schemas they use, in case the models cannot load correctly.
-        # So just hard-code the known schemas that we use.
-        schemas = ["public", "analytics"]
-        Suma::Postgres.model_superclasses.reject(&:read_only?).each do |sc|
-          next if sc == Suma::Webhookdb::Model && Suma::RACK_ENV != "test"
-          schemas.each do |schemaname|
-            sc.db[:pg_tables].where(schemaname:).each do |tbl|
-              Suma::Tasks::DB.exec(sc.db, "DROP TABLE #{schemaname}.#{tbl[:tablename]} CASCADE")
-            end
-          end
-        end
+        Suma::Postgres.drop_all_tables
       end
 
       desc "Remove all data from application schemas"

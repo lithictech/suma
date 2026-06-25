@@ -93,6 +93,8 @@ class Suma::Postgres::Model
     end
   end
 
+  def self.schema = :public
+
   def self.extensions
     return [
       "citext",

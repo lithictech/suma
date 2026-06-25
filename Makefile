@@ -6,6 +6,8 @@ production_app:=suma-production
 OUT ?= -
 MESSAGE_LANG ?=
 MESSAGE_TRANSPORT ?=
+DBDUMP = temp/latest.dump
+DBURL_LOCAL = postgres://suma:suma@localhost:22005/suma
 
 install:
 	bundle install
@@ -102,7 +104,7 @@ annotate:
 	RACK_ENV=test LOG_LEVEL=info bundle exec rake annotate
 
 psql: cmd-exists-pgcli
-	pgcli postgres://suma:suma@localhost:22005/suma
+	pgcli $(DBURL_LOCAL)
 psql-test: cmd-exists-pgcli
 	pgcli postgres://suma:suma@localhost:22006/suma_test
 psql-%: cmd-exists-pgcli
@@ -142,26 +144,28 @@ take-production-db-snapshot:
 
 download-production-dump:
 	@mkdir -p temp
-	@rm -f latest.dump
-	heroku pg:backups:download --app $(production_app)
-	@mv latest.dump temp/latest.dump
+	@rm -f $(DBDUMP)
+	heroku pg:backups:download -o $(DBDUMP) --app $(production_app)
+	@./bin/notify "Downloaded production dump"
 
-restore-db-from-dump:
+restore-dump-for-local-db:
 	@bundle exec rake db:drop_tables
-	@mkdir -p temp
-	@PGPASSWORD=suma psql postgres://suma:suma@localhost:22005/suma -c "CREATE SCHEMA IF NOT EXISTS heroku_ext; ALTER DATABASE suma SET search_path TO public,heroku_ext;"
-	PGPASSWORD=suma pg_restore --clean --no-acl --no-owner -h 127.0.0.1 -p 22005 -U suma -d suma temp/latest.dump || true
-	@PGPASSWORD=suma psql postgres://suma:suma@localhost:22005/suma -c "ALTER EXTENSION citext SET SCHEMA public"
+	@PGPASSWORD=suma psql $(DBURL_LOCAL) -c "CREATE SCHEMA IF NOT EXISTS heroku_ext; ALTER DATABASE suma SET search_path TO public,heroku_ext;"
+	PGPASSWORD=suma pg_restore --clean --if-exists --no-acl --no-owner -d $(DBURL_LOCAL) $(DBDUMP) || true
+	@PGPASSWORD=suma psql $(DBURL_LOCAL) -c "ALTER EXTENSION citext SET SCHEMA public"
 	@bundle exec rake release:prepare_prod_db_for_local
-	@./bin/notify "Finished restoring database from production"
+	@./bin/notify "Finished restoring database from dump"
 
+restore-dump-for-staging-db:
+	@bundle exec rake release:restore_staging_db_from_dump[$(DBDUMP)]
+	@./bin/notify "Finished restoring staging from dump"
 
 reinit-db-from-dump:
 	docker compose down -v
 	docker compose up -d
 	sleep 5
-	make restore-db-from-dump
-	@echo "Remember to migrate your test DB before running tests by running 'make migrate-test'"
+	make restore-dump-for-local-db
+	make migrate-test
 
 build-webapp:
 	@bundle exec rake frontend:build_webapp

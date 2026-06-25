@@ -95,4 +95,16 @@ RSpec.describe Suma::Postgres do
       described_class.run_all_migrations
     end
   end
+
+  describe "drop_all_tables" do
+    it "tries to drop all tables" do
+      sc = Suma::Postgres::Model
+      described_class.register_model_superclass(sc)
+      sc.db.transaction(rollback: :always) do
+        expect(sc.db.tables.count).to be > 10
+        described_class.drop_all_tables
+        expect(sc.db.tables.count).to be < 10
+      end
+    end
+  end
 end
