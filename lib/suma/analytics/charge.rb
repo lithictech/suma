@@ -7,19 +7,26 @@ class Suma::Analytics::Charge < Suma::Analytics::Model(Sequel[:analytics][:charg
 
   destroy_from Suma::Charge
 
-  denormalize Suma::Charge, with: [
-    [:charge_id, :id],
-    :opaque_id,
-    :created_at,
-    :member_id,
-    [:order_id, :commerce_order_id],
-    [:trip_id, :mobility_trip_id],
-    :undiscounted_subtotal,
-    :discounted_subtotal,
-    :discount_amount,
-    [:cash_paid, :cash_paid_from_ledger],
-    [:noncash_paid, :noncash_paid_from_ledger],
-  ]
+  denormalize Suma::Charge, with: :denormalize_charge
+
+  def self.denormalize_charge(charge)
+    # one or the other must be set
+    incurred_at = charge.mobility_trip&.ended_at || charge.commerce_order.created_at
+    return {
+      charge_id: charge.id,
+      opaque_id: charge.opaque_id,
+      created_at: charge.created_at,
+      member_id: charge.member_id,
+      order_id: charge.commerce_order_id,
+      trip_id: charge.mobility_trip_id,
+      incurred_at:,
+      undiscounted_subtotal: charge.undiscounted_subtotal,
+      discounted_subtotal: charge.discounted_subtotal,
+      discount_amount: charge.discount_amount,
+      cash_paid: charge.cash_paid_from_ledger,
+      noncash_paid: charge.noncash_paid_from_ledger,
+    }
+  end
 end
 
 # Table: analytics.charges

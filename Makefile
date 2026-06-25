@@ -134,6 +134,9 @@ analytics-reimport:
 	@bundle exec rake analytics:truncate
 	@bundle exec rake analytics:import
 
+analytics-reimport-production:
+	heroku run:detached bundle exec rake analytics:import --app $(production_app)
+
 take-production-db-snapshot:
 	heroku pg:backups:capture --app $(production_app)
 
