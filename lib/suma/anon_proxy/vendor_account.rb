@@ -77,6 +77,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   # If we have any results from this, we probably need pricing,
   # and can ask the user to set up payment before provisioning/linking a vendor account.
   def require_payment_instrument?(as_of:)
+    return false if self.configuration.platform_payment_never_required?
     programs = self.configuration.programs_eligible_to(self.member, as_of:)
     nonzero_same_vendor_programs = Suma::Program.where(id: programs.map(&:id)).
       where(
@@ -149,7 +150,11 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
                         :relink
                       end
     cash_ledger = self.member.payment_account&.cash_ledger!
-    balance_payoff_needed = has_payment_method && cash_ledger && Suma::Payment.chargeable_balance?(cash_ledger.balance)
+    balance_payoff_needed =
+      requires_payment_method &&
+      has_payment_method &&
+      cash_ledger &&
+      Suma::Payment.chargeable_balance?(cash_ledger.balance)
     return UIStateV1.new(
       index_card_mode:,
       needs_linking:,

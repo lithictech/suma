@@ -151,13 +151,26 @@ RSpec.describe Suma::API::AnonProxy, :db do
       expect(last_response).to have_json_body.that_includes(error: include(message: match(/config is not enabled/)))
     end
 
-    it "402s if the member cannot use services" do
-      Suma::Payment.minimum_cash_balance_for_services_cents = 5
-      expect(Suma::Payment).to_not be_can_use_services(member.payment_account)
+    describe "when the member cannot use services due to balance" do
+      before(:each) do
+        Suma::Payment.minimum_cash_balance_for_services_cents = 5
+        expect(Suma::Payment).to_not be_can_use_services(member.payment_account)
+      end
 
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
+      it "402s" do
+        post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
-      expect(last_response).to have_status(402)
+        expect(last_response).to have_status(402)
+      end
+
+      it "succeeds if the configuration does not use off-platform payments" do
+        va.configuration.update(platform_payment_never_required: true)
+
+        post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
+
+        expect(last_response).to have_status(200)
+        expect(Suma::AnonProxy::AuthToVendor::Fake.calls).to eq(1)
+      end
     end
 
     it "auths to vendor and marks the code as requested" do

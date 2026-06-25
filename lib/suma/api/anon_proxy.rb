@@ -38,6 +38,7 @@ class Suma::API::AnonProxy < Suma::API::V1
         post :make_auth_request do
           apva = lookup
           if (code = Suma::Payment.service_usage_prohibited_reason(apva.member.payment_account))
+            if code == "usage_prohibited_cash_balance" &&
             merror!(402, "Account cannot use services", code:)
           end
           apva.auth_to_vendor.auth(now: current_time)

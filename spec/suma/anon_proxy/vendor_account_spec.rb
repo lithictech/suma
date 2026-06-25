@@ -198,6 +198,11 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
           Suma::Eligibility::Assignment.dataset.delete
           expect(va).to_not be_require_payment_instrument(as_of:)
         end
+
+        it "the vendor config never uses platform payments" do
+          vc.update(platform_payment_never_required: true)
+          expect(va).to_not be_require_payment_instrument(as_of:)
+        end
       end
     end
 
@@ -265,6 +270,17 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
             needs_linking: true,
             requires_payment_method: true,
             has_payment_method: false,
+            balance_payoff_needed: false,
+          )
+        end
+
+        it "does not require a balance payoff if the vendor config does not use platform payments" do
+          va.configuration.update(platform_payment_never_required: true)
+          expect(va.ui_state_v1(now: as_of)).to have_attributes(
+            index_card_mode: :link,
+            needs_linking: true,
+            requires_payment_method: false,
+            has_payment_method: true,
             balance_payoff_needed: false,
           )
         end
