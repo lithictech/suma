@@ -20,8 +20,10 @@ class Suma::Tasks::Release < Rake::TaskLib
     end
 
     namespace :release do
-      desc "Set every user password to #{PASSWORD}."
-      task :prepare_prod_db_for_testing do
+      desc "Prepare the current database dump for local development by " \
+           "setting every user password to #{PASSWORD} and " \
+           "undeleting the admin@lithic.tech user."
+      task :prepare_prod_db_for_local do
         # Do NOT use load_app. We may have local migrations not applied to the dump,
         # and we'll error trying to load those models.
         require "suma/member"
@@ -39,6 +41,7 @@ class Suma::Tasks::Release < Rake::TaskLib
         end
       end
 
+      desc "Randomize all member passwords."
       task :randomize_passwords do
         Suma.load_app?
         Suma::Member.exclude(email: nil).each do |m|

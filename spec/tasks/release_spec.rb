@@ -19,12 +19,12 @@ RSpec.describe Suma::Tasks::Release, :db do
     end
   end
 
-  describe "prepare_prod_db_for_testing", db: :no_transaction do
+  describe "prepare_prod_db_for_local", db: :no_transaction do
     it "cleans passwords, stripe json, and un-deletes superadmin" do
       m = Suma::Fixtures.member.create(password: SecureRandom.hex(20), stripe_customer_json: "{}")
       expect(m.authenticate?("suma1234")).to be(false)
       admin = Suma::Fixtures.member.create(email: "admin@lithic.tech", soft_deleted_at: Time.now)
-      invoke_rake_task("release:prepare_prod_db_for_testing")
+      invoke_rake_task("release:prepare_prod_db_for_local")
       expect(m.refresh.authenticate?("Password1!")).to be(true)
       expect(m.stripe_customer_json).to be_nil
       expect(admin.refresh).to_not be_soft_deleted
