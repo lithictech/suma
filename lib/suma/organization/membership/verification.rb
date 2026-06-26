@@ -418,7 +418,7 @@ require_relative "verification/duplicate_finder"
 # Check constraints:
 #  non_empty_account_number | (account_number IS NULL OR account_number <> ''::text)
 # Foreign key constraints:
-#  organization_membership_verifications_membership_id_fkey | (membership_id) REFERENCES organization_memberships(id)
+#  organization_membership_verifications_membership_id_fkey | (membership_id) REFERENCES organization_memberships(id) ON DELETE CASCADE
 #  organization_membership_verifications_owner_id_fkey      | (owner_id) REFERENCES members(id) ON DELETE SET NULL
 # Referenced By:
 #  organization_membership_verification_audit_logs     | organization_membership_verification_audit_verification_id_fkey | (verification_id) REFERENCES organization_membership_verifications(id) ON DELETE CASCADE

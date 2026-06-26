@@ -58,8 +58,8 @@ end
 # Check constraints:
 #  positive_quantity | (quantity > 0)
 # Foreign key constraints:
-#  commerce_cart_items_cart_id_fkey    | (cart_id) REFERENCES commerce_carts(id)
-#  commerce_cart_items_product_id_fkey | (product_id) REFERENCES commerce_products(id)
+#  commerce_cart_items_cart_id_fkey    | (cart_id) REFERENCES commerce_carts(id) ON DELETE CASCADE
+#  commerce_cart_items_product_id_fkey | (product_id) REFERENCES commerce_products(id) ON DELETE CASCADE
 # Referenced By:
 #  commerce_checkout_items | commerce_checkout_items_cart_item_id_fkey | (cart_item_id) REFERENCES commerce_cart_items(id)
 # ------------------------------------------------------------------------------------------------------------------------

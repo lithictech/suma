@@ -557,8 +557,8 @@ require "suma/member/stripe_attributes"
 # Referenced By:
 #  anon_proxy_member_contacts                      | anon_proxy_member_contacts_member_id_fkey                     | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  anon_proxy_vendor_accounts                      | anon_proxy_vendor_accounts_member_id_fkey                     | (member_id) REFERENCES members(id) ON DELETE CASCADE
-#  charges                                         | charges_member_id_fkey                                        | (member_id) REFERENCES members(id)
-#  commerce_carts                                  | commerce_carts_member_id_fkey                                 | (member_id) REFERENCES members(id)
+#  charges                                         | charges_member_id_fkey                                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  commerce_carts                                  | commerce_carts_member_id_fkey                                 | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  commerce_order_audit_logs                       | commerce_order_audit_logs_actor_id_fkey                       | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  eligibility_assignments                         | eligibility_assignments_created_by_id_fkey                    | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  eligibility_assignments                         | eligibility_assignments_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
@@ -574,9 +574,9 @@ require "suma/member/stripe_attributes"
 #  member_sessions                                 | member_sessions_member_id_fkey                                | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_surveys                                  | member_surveys_member_id_fkey                                 | (member_id) REFERENCES members(id)
 #  message_deliveries                              | message_deliveries_recipient_id_fkey                          | (recipient_id) REFERENCES members(id) ON DELETE SET NULL
-#  message_preferences                             | message_preferences_member_id_fkey                            | (member_id) REFERENCES members(id)
-#  mobility_trips                                  | mobility_trips_member_id_fkey                                 | (member_id) REFERENCES members(id)
-#  organization_memberships                        | organization_memberships_member_id_fkey                       | (member_id) REFERENCES members(id)
+#  message_preferences                             | message_preferences_member_id_fkey                            | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  mobility_trips                                  | mobility_trips_member_id_fkey                                 | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  organization_memberships                        | organization_memberships_member_id_fkey                       | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  organization_membership_verification_audit_logs | organization_membership_verification_audit_logs_actor_id_fkey | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  organization_membership_verifications           | organization_membership_verifications_owner_id_fkey           | (owner_id) REFERENCES members(id) ON DELETE SET NULL
 #  organization_registration_links                 | organization_registration_links_created_by_id_fkey            | (created_by_id) REFERENCES members(id) ON DELETE SET NULL

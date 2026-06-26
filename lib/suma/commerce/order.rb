@@ -245,5 +245,5 @@ end
 #  commerce_orders_checkout_id_fkey | (checkout_id) REFERENCES commerce_checkouts(id)
 # Referenced By:
 #  charges                   | charges_commerce_order_id_fkey          | (commerce_order_id) REFERENCES commerce_orders(id) ON DELETE SET NULL
-#  commerce_order_audit_logs | commerce_order_audit_logs_order_id_fkey | (order_id) REFERENCES commerce_orders(id)
+#  commerce_order_audit_logs | commerce_order_audit_logs_order_id_fkey | (order_id) REFERENCES commerce_orders(id) ON DELETE CASCADE
 # --------------------------------------------------------------------------------------------------------------------------------------------

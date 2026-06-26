@@ -44,6 +44,7 @@ end
 #  undiscounted_subtotal | numeric                  |
 #  cash_paid             | numeric                  |
 #  noncash_paid          | numeric                  |
+#  incurred_at           | timestamp with time zone |
 # Indexes:
 #  charges_pkey          | PRIMARY KEY btree (pk)
 #  charges_charge_id_key | UNIQUE btree (charge_id)

@@ -153,7 +153,7 @@ end
 #  associated_object_set | (commerce_order_id IS NOT NULL OR mobility_trip_id IS NOT NULL)
 # Foreign key constraints:
 #  charges_commerce_order_id_fkey | (commerce_order_id) REFERENCES commerce_orders(id) ON DELETE SET NULL
-#  charges_member_id_fkey         | (member_id) REFERENCES members(id)
+#  charges_member_id_fkey         | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  charges_mobility_trip_id_fkey  | (mobility_trip_id) REFERENCES mobility_trips(id) ON DELETE SET NULL
 # Referenced By:
 #  charge_line_items                       | charge_line_items_charge_id_fkey                       | (charge_id) REFERENCES charges(id) ON DELETE CASCADE

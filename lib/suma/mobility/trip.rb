@@ -255,7 +255,7 @@ end
 # Check constraints:
 #  end_fields_set_together | (end_lat IS NULL AND end_lng IS NULL AND ended_at IS NULL OR end_lat IS NOT NULL AND end_lng IS NOT NULL AND ended_at IS NOT NULL)
 # Foreign key constraints:
-#  mobility_trips_member_id_fkey              | (member_id) REFERENCES members(id)
+#  mobility_trips_member_id_fkey              | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  mobility_trips_vendor_service_id_fkey      | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE RESTRICT
 #  mobility_trips_vendor_service_rate_id_fkey | (vendor_service_rate_id) REFERENCES vendor_service_rates(id) ON DELETE RESTRICT
 # Referenced By:

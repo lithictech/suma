@@ -136,9 +136,9 @@ end
 #  unambiguous_verification_status | (verified_organization_id IS NOT NULL AND former_organization_id IS NULL AND unverified_organization_name IS NULL OR verified_organization_id IS NULL AND former_organization_id IS NOT NULL AND unverified_organization_name IS NULL OR verified_organization_id IS NULL AND former_organization_id IS NULL AND unverified_organization_name IS NOT NULL)
 # Foreign key constraints:
 #  organization_memberships_former_organization_id_fkey   | (former_organization_id) REFERENCES organizations(id)
-#  organization_memberships_member_id_fkey                | (member_id) REFERENCES members(id)
+#  organization_memberships_member_id_fkey                | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  organization_memberships_registration_link_id_fkey     | (registration_link_id) REFERENCES organization_registration_links(id) ON DELETE SET NULL
 #  organization_memberships_verified_organization_id_fkey | (verified_organization_id) REFERENCES organizations(id)
 # Referenced By:
-#  organization_membership_verifications | organization_membership_verifications_membership_id_fkey | (membership_id) REFERENCES organization_memberships(id)
+#  organization_membership_verifications | organization_membership_verifications_membership_id_fkey | (membership_id) REFERENCES organization_memberships(id) ON DELETE CASCADE
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

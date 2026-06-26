@@ -129,5 +129,5 @@ end
 #  message_preferences_access_token_key | UNIQUE btree (access_token)
 #  message_preferences_member_id_key    | UNIQUE btree (member_id)
 # Foreign key constraints:
-#  message_preferences_member_id_fkey | (member_id) REFERENCES members(id)
+#  message_preferences_member_id_fkey | (member_id) REFERENCES members(id) ON DELETE CASCADE
 # -------------------------------------------------------------------------------------------------------
