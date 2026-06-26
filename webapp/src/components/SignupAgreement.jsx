@@ -3,29 +3,34 @@ import FormError from "./FormError.jsx";
 import React from "react";
 import Form from "react-bootstrap/Form";
 
-export default function SignupAgreement({
-  checked,
-  errors,
-  register,
-  onCheckedChanged,
-  ...rest
-}) {
-  function handleClick() {
-    onCheckedChanged(!checked);
+export default function SignupAgreement({ errors, register, ...rest }) {
+  const inputRef = React.useRef(null);
+
+  const { ref: rhfRef, ...registerRest } = register("agree", {
+    validate: (value) => value === true || t("common.agree_to_continue"),
+  });
+
+  function handleDivClick(e) {
+    // avoid double-toggling if the user clicked the input/label directly
+    if (e.target === inputRef.current) {
+      return;
+    }
+    inputRef.current?.click();
   }
+
   return (
-    <div className="d-flex signup-agreement-component" onClick={handleClick}>
+    <div className="d-flex signup-agreement-component" onClick={handleDivClick}>
       <Form.Check
         type="checkbox"
-        checked={checked}
         aria-label={t("auth.agree_aria_label")}
         required
         isInvalid={!!errors.agree}
-        {...register("agree", {
-          validate: (value) => value === true || t("common.agree_to_continue"),
-        })}
+        {...registerRest}
+        ref={(el) => {
+          rhfRef(el);
+          inputRef.current = el;
+        }}
         {...rest}
-        onChange={(e) => onCheckedChanged(e.target.checked)}
       />
       <div className="d-flex flex-column">
         <div id="signup-agreement" className="ms-2 small">

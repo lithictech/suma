@@ -38,7 +38,6 @@ export default function ContactListAdd() {
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
   const [organizationName, setOrganizationName] = React.useState("");
-  const [agreementChecked, setAgreementChecked] = React.useState(false);
   const handleFormSubmit = () => {
     api
       .authContactList({
@@ -139,12 +138,7 @@ export default function ContactListAdd() {
             errors={errors}
           />
         </div>
-        <SignupAgreement
-          checked={agreementChecked}
-          register={register}
-          errors={errors}
-          onCheckedChanged={setAgreementChecked}
-        />
+        <SignupAgreement register={register} errors={errors} />
         <FormError error={error} />
         <FormButtons
           variant="outline-primary"
