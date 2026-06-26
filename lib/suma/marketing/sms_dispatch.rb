@@ -94,11 +94,13 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
       self.logger.error("dispatch_marketing_broadcast_error", e)
       Sentry.capture_exception(e, tags: log_tags)
       self.last_error = e.to_s
+      self.save_changes
       return self
     end
     self.logger.info("dispatched_marketing_broadcast", signalwire_message_id: sw_resp.sid)
     self.set_sent(sw_resp.sid)
-    return self.save_changes
+    self.save_changes
+    return self
   end
 
   def rel_admin_link = "/marketing-sms-dispatch/#{self.id}"
