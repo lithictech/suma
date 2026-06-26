@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import FileUploadInput from "../components/FileUploadInput";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
@@ -22,6 +23,14 @@ export default function MarketingListDetailPage() {
       .rebuildMarketingList({ id })
       .then((r) => setModel(r.data))
       .catch(enqueueErrorSnackbar)
+      .finally(notBusy);
+  }
+
+  function handleCsvUpload(file, setModel) {
+    busy();
+    api
+      .uploadingMarketingListCsv({ id, file })
+      .then((r) => setModel(r.data))
       .finally(notBusy);
   }
 
@@ -49,6 +58,11 @@ export default function MarketingListDetailPage() {
       ]}
     >
       {(model, setModel) => [
+        <FileUploadInput
+          accept=".csv"
+          label="Choose ID/Name/Email CSV"
+          onUpload={(f) => handleCsvUpload(f, setModel)}
+        />,
         model.managed && (
           <div>
             <Button

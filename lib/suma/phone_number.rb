@@ -6,17 +6,27 @@ module Suma::PhoneNumber
   class US
     REGEXP = /^1[0-9]{10}$/
 
+    # Normalize s. May not be valid.
     def self.normalize(s)
       norm = Phony.normalize(s, cc: "1")
       norm = "1#{norm}" if norm.length == 10 && norm.first == "1"
       return norm
     end
 
+    # Return the normalized version of s if valid, nil if invalid.
+    def self.normalize_valid(s)
+      norm = self.normalize(s)
+      return norm if self.valid_normalized?(norm)
+      return nil
+    end
+
+    # Return true if s is valid once normalized.
     def self.valid?(s)
       return false if s.nil?
       return self.valid_normalized?(self.normalize(s))
     end
 
+    # Return true if s is a valid normalized number.
     def self.valid_normalized?(s)
       return REGEXP.match?(s)
     end

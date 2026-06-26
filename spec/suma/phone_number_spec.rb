@@ -11,6 +11,18 @@ RSpec.describe Suma::PhoneNumber do
       expect { described_class.format("3334445555") }.to raise_error(Suma::PhoneNumber::BadFormat)
       expect(described_class.format?("3334445555")).to be_nil
     end
+
+    it "handles normalization and validity" do
+      expect(described_class.normalize("333")).to eq("1333")
+      expect(described_class.normalize("3334445555")).to eq("13334445555")
+      expect(described_class.normalize_valid("333")).to be_nil
+      expect(described_class.normalize_valid("3334445555")).to eq("13334445555")
+      expect(described_class.valid?("333")).to be(false)
+      expect(described_class.valid?("3334445555")).to be(true)
+      expect(described_class.valid_normalized?("333")).to be(false)
+      expect(described_class.valid_normalized?("3334445555")).to be(false)
+      expect(described_class.valid_normalized?("13334445555")).to be(true)
+    end
   end
 
   describe "format_e164" do

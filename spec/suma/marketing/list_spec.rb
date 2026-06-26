@@ -141,4 +141,26 @@ RSpec.describe "Suma::Marketing::List", :db do
       expect(list.members).to contain_exactly(be === member1, be === member3)
     end
   end
+
+  describe "update_from_csv" do
+    it "adds members based on their phone, email, or id" do
+      list = Suma::Fixtures.marketing_list.create
+      existing = Suma::Fixtures.member.create
+      m2 = Suma::Fixtures.member.create
+      m3 = Suma::Fixtures.member.create
+      m4 = Suma::Fixtures.member.create
+      m5 = Suma::Fixtures.member.create
+      _not_on_list = Suma::Fixtures.member.create
+
+      list.add_member(existing)
+      csv = <<~CSV
+        #{m2.id} ,  #{m3.phone}  ,  #{m4.email}
+        #{m5.us_phone}  ,00,a@b.z
+        999-999-999999,,33-33
+      CSV
+
+      list.update_from_csv(csv)
+      expect(list.members).to have_same_ids_as(existing, m2, m3, m4, m5)
+    end
+  end
 end

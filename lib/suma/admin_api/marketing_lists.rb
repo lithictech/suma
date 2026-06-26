@@ -13,6 +13,16 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
     expose_related :sms_broadcasts, with: MarketingSmsBroadcastEntity
   end
 
+  helpers do
+    def must_be_unmanaged!(m)
+      adminerror!(403, "Managed lists cannot be edited", code: "marketing_list_managed") if m.managed?
+    end
+
+    def must_be_managed!(m)
+      adminerror!(403, "Only managed lists can be rebuilt", code: "marketing_list_unmanaged") unless m.managed?
+    end
+  end
+
   resource :marketing_lists do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
@@ -41,7 +51,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
       Suma::Marketing::List,
       DetailedListEntity,
       around: lambda do |rt, m, &block|
-        rt.adminerror!(403, "Managed lists cannot be edited", code: "marketing_list_managed") if m.managed?
+        rt.must_be_unmanaged!(m)
         members = rt.params.delete(:members)
         block.call
         m.member_pks = members.map { |l| l.fetch(:id) } if
@@ -70,8 +80,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
       post :rebuild do
         check_admin_role_access!(:read, :marketing_sms)
         list = lookup
-        sleep(1)
-        adminerror!(403, "Only managed lists can be rebuilt", code: "marketing_list_unmanaged") unless list.managed
+        must_be_managed!(list)
         spec = Suma::Marketing::List::Specification.gather_all.find { |spec| spec.full_label == list.label }
         if spec.nil?
           msg = "Could not find a list specification- this list should be unmanaged, please alert a developer"
@@ -79,6 +88,19 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
         end
         Suma::Marketing::List.rebuild(spec)
         list.refresh
+        status 200
+        present list, with: DetailedListEntity
+      end
+
+      params do
+        requires :file, type: File
+      end
+      post :upload_csv do
+        check_admin_role_access!(:write, :marketing_sms)
+        list = lookup
+        must_be_unmanaged!(list)
+        csv = params[:file].fetch(:tempfile).read
+        list.update_from_csv(csv)
         status 200
         present list, with: DetailedListEntity
       end
