@@ -48,7 +48,7 @@ RSpec.describe Suma::Tasks::Release, :db do
       admin = Suma::Fixtures.member.admin.create
       expect(Suma::Member.dataset.all).to have_length(2)
       expect(described_class::StagingAnonymizer).to receive(:drop_all_tables)
-      expect(described_class::StagingAnonymizer).to receive(:run_pgrestore).twice
+      expect(described_class::StagingAnonymizer).to receive(:run_pgrestore)
       invoke_rake_task("release:restore_staging_db_from_dump", "dump.dump")
       expect(Suma::Member.dataset.all).to have_same_ids_as(admin)
     end
