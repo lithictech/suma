@@ -209,13 +209,6 @@ class Suma::Tasks::Release < Rake::TaskLib
           anon_proxy_vendor_account_messages: [
             :anon_proxy_vendor_account_messages_outbound_delivery_id_fkey,
           ],
-          commerce_carts: [ # TODO: migration
-            :commerce_carts_member_id_fkey,
-          ],
-          commerce_cart_items: [ # TODO: migration
-            :commerce_cart_items_cart_id_fkey,
-            :commerce_cart_items_product_id_fkey,
-          ],
           commerce_checkouts: [
             :commerce_checkouts_bank_account_id_fkey,
             :commerce_checkouts_card_id_fkey,
@@ -227,26 +220,8 @@ class Suma::Tasks::Release < Rake::TaskLib
           commerce_orders: [
             :commerce_orders_checkout_id_fkey,
           ],
-          commerce_order_audit_logs: [
-            :commerce_order_audit_logs_order_id_fkey, # TODO: migration
-          ],
           marketing_sms_dispatches: [
             :marketing_sms_dispatches_member_id_fkey,
-          ],
-          member_reset_codes: [
-            :member_reset_codes_message_delivery_id_fkey,
-          ],
-          message_preferences: [
-            :message_preferences_member_id_fkey,
-          ],
-          mobility_trips: [
-            :mobility_trips_member_id_fkey,
-          ],
-          organization_memberships: [
-            :organization_memberships_member_id_fkey,
-          ],
-          organization_membership_verifications: [
-            :organization_membership_verifications_membership_id_fkey, # TODO: migrate
           ],
           payment_accounts: [
             :payment_accounts_member_id_fkey,
@@ -311,11 +286,13 @@ class Suma::Tasks::Release < Rake::TaskLib
     def tables_to_truncate
       return {
         public: [
+          :idempotencies,
+          :external_credentials,
           :message_deliveries,
           :member_reset_codes,
           :member_sessions,
           :member_activities, # these could contain data from members, so clear them out
-          :organization_registration_links,
+          :organization_registration_links, # would be a security issue
           :support_notes,
           :support_tickets,
 
