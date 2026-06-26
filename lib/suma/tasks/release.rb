@@ -66,7 +66,9 @@ class Suma::Tasks::Release < Rake::TaskLib
         anon = StagingAnonymizer.new(args.fetch(:path))
         require "suma/postgres"
         anon.drop_all_tables
-        anon.run_pgrestore("--clean --if-exists --schema-only")
+        # Need to load schema and data together, otherwise we get errors.
+        # These errors can be bypassed with --disable-triggers, but that isn't available on Heroku.
+        anon.run_pgrestore("--clean --if-exists --no-comments")
 
         Suma.load_app?
         anon.init
@@ -74,7 +76,6 @@ class Suma::Tasks::Release < Rake::TaskLib
           anon.cascade_constraint(schema, tbl, con)
         end
 
-        anon.run_pgrestore("--data-only --disable-triggers")
         anon.truncate_analytics
 
         anon.tables_to_truncate.each do |schema, tables|
@@ -92,7 +93,7 @@ class Suma::Tasks::Release < Rake::TaskLib
   class StagingAnonymizer
     def initialize(dump)
       @dump = dump
-      @dburl = ENV.fetch('DATABASE_URL')
+      @dburl = ENV.fetch("DATABASE_URL")
       @constraint_originals = {}
     end
 
