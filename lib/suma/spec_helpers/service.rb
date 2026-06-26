@@ -415,5 +415,9 @@ module Suma::SpecHelpers::Service
       j = Yajl::Encoder.encode(params)
       return env, j
     end
+
+    def in_memory_rack_file(str, content_type="text/plain", binary: false, filename: "inmemory")
+      return Rack::Test::UploadedFile.new(StringIO.new(str), content_type, binary, original_filename: filename)
+    end
   end
 end

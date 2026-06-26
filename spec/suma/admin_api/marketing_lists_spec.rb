@@ -144,4 +144,33 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "marketing_list_spec_missing"))
     end
   end
+
+  describe "POST /v1/marketing_lists/:id/upload_csv" do
+    it "updates the members" do
+      m1 = Suma::Fixtures.member.create(phone: "15552223333")
+      m2 = Suma::Fixtures.member.create(email: "a@b.c")
+      m3 = Suma::Fixtures.member.create
+
+      csv_str = "#{m1.us_phone},#{m2.email}\n#{m3.id},garbage\n000,x@y.z\n"
+      attachment = in_memory_rack_file(csv_str, "text/csv")
+
+      o = Suma::Fixtures.marketing_list.create
+
+      post "/v1/marketing_lists/#{o.id}/upload_csv", file: attachment
+
+      expect(last_response).to have_status(200)
+      expect(o.members).to have_same_ids_as(m1, m2, m3)
+    end
+
+    it "errors if the list is managed" do
+      attachment = in_memory_rack_file("", "text/csv")
+
+      o = Suma::Fixtures.marketing_list.create(managed: true)
+
+      post "/v1/marketing_lists/#{o.id}/upload_csv", file: attachment
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "marketing_list_managed"))
+    end
+  end
 end

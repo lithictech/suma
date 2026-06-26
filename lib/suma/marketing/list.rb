@@ -55,6 +55,39 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
 
   def managed? = self.managed
 
+  # Given a CSV string, treat each cell as an ID, phone, or email.
+  # Add any members we find to the list.
+  def update_from_csv(txt)
+    csv = CSV.parse(txt)
+    ids = []
+    emails = []
+    phones = []
+    csv.each do |row|
+      row.each do |cell|
+        next if cell.blank?
+        cell = cell.strip
+        if cell.include?("@")
+          emails << cell
+        else
+          ids << cell.to_i if /^\d+$/.match?(cell)
+          if (norm = Suma::PhoneNumber::US.normalize_valid(cell))
+            phones << norm
+          end
+        end
+      end
+    end
+    ds = self.db[:members].where(Sequel[id: ids] | Sequel[email: emails] | Sequel[phone: phones])
+    ds = ds.exclude(id: self.members_dataset.select(:id))
+
+    self.db[:marketing_lists_members].
+      import(
+        [:marketing_list_id, :member_id],
+        ds.select(Sequel.as(self.id, :marketing_list_id), Sequel[:id].as(:member_id)),
+      )
+
+    self.refresh
+  end
+
   def rel_admin_link = "/marketing-list/#{self.id}"
 
   def hybrid_search_fields
