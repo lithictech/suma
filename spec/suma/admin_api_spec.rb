@@ -205,7 +205,9 @@ RSpec.describe Suma::AdminAPI, :db do
         expect(Suma::Vendor).to receive(:method_defined?).
           with(:products_dataset).
           and_return(false).
-          twice
+          # Not entirely sure why but this can be called once or twice
+          # Run the specs in this file repeatedly to reproduce (depends on seed).
+          at_least(:once)
         ent = Class.new(Suma::AdminAPI::Entities::BaseModelEntity) do
           model Suma::Vendor
           expose_related :products, with: Suma::AdminAPI::Entities::BaseModelEntity
