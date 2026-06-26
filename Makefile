@@ -6,7 +6,7 @@ production_app:=suma-production
 OUT ?= -
 MESSAGE_LANG ?=
 MESSAGE_TRANSPORT ?=
-DBDUMP = temp/latest.dump
+DBDUMP ?= temp/latest.dump
 DBURL_LOCAL = postgres://suma:suma@localhost:22005/suma
 
 install:

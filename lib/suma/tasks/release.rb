@@ -69,6 +69,7 @@ class Suma::Tasks::Release < Rake::TaskLib
         anon.run_pgrestore("--clean --if-exists --schema-only")
 
         Suma.load_app?
+        anon.init
         anon.each_fk_constraint do |schema, tbl, con|
           anon.cascade_constraint(schema, tbl, con)
         end
@@ -91,9 +92,14 @@ class Suma::Tasks::Release < Rake::TaskLib
   class StagingAnonymizer
     def initialize(dump)
       @dump = dump
-      @dburl = Suma::Postgres::Model.uri
-      @db = Suma::Member.db
+      @dburl = ENV.fetch('DATABASE_URL')
       @constraint_originals = {}
+    end
+
+    def init
+      # Must wait until after the app is loaded.
+      # We want to reuse the member DB so unit test transactions work.
+      @db = Suma::Member.db
     end
 
     def drop_all_tables = self.class.drop_all_tables
@@ -288,10 +294,13 @@ class Suma::Tasks::Release < Rake::TaskLib
         public: [
           :idempotencies,
           :external_credentials,
-          :message_deliveries,
+
           :member_reset_codes,
+          :message_deliveries, # Must be after reset codes
+
           :member_sessions,
           :member_activities, # these could contain data from members, so clear them out
+
           :organization_registration_links, # would be a security issue
           :support_notes,
           :support_tickets,
