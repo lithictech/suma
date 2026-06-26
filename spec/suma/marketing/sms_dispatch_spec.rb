@@ -153,6 +153,8 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       expect(disp.refresh).to have_attributes(
         sent?: false,
         transport_message_id: nil,
+        status: :pending,
+        last_error: start_with("[HTTP 400] 123"),
       )
     end
 
