@@ -20,7 +20,6 @@ export default function Start() {
   const navigate = useNavigate();
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
-  const [agreementChecked, setAgreementChecked] = React.useState(false);
   const [error, setError] = useError();
   const [phone, setPhone] = useState("");
 
@@ -97,12 +96,7 @@ export default function Start() {
             }
           )}
         </p>
-        <SignupAgreement
-          checked={agreementChecked}
-          register={register}
-          errors={errors}
-          onCheckedChanged={setAgreementChecked}
-        />
+        <SignupAgreement register={register} errors={errors} />
         <FormError error={error} />
         <FormButtons
           back
