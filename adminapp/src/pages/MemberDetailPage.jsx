@@ -332,7 +332,7 @@ function ExpandedEligibilityAssignments({ assignments }) {
       headers={["Attribute", "Source Type", "Sources"]}
       keyRowAttr="uniqueKey"
       toCells={(row) => [
-        <AdminLink key="attr" model={row.attribute} />,
+        <AdminLink key="attr" model={row.attribute} label />,
         row.sourceType,
         [row.sourceMember, row.sourceMembership, row.sourceRole]
           .filter(Boolean)
