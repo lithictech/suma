@@ -24,7 +24,7 @@ class Suma::AnonProxy::AuthToVendor::LyftPass < Suma::AnonProxy::AuthToVendor
   # - There is a lyft program id on its program
   # - The lyft program id is not part of this vendor account's registrations
   def programs_requiring_attention(now:)
-    registered_ids = self.vendor_account.registrations.map(&:external_program_id)
+    registered_ids = self.vendor_account.registrations.reject(&:unregistered?).map(&:external_program_id)
     unregistered_programs = Suma::Lyft::Pass.programs_dataset.exclude(lyft_pass_program_id: registered_ids)
     rows = unregistered_programs.fetch_eligible_to(self.vendor_account.member, as_of: now)
     return rows

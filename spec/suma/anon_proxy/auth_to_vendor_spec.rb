@@ -196,6 +196,11 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
       Suma::Fixtures.program.create(lyft_pass_program_id: "1234")
       expect(va.auth_to_vendor).to be_needs_linking(now:)
+      reg2 = va.add_registration(external_program_id: "1234")
+      expect(va.auth_to_vendor).to_not be_needs_linking(now:)
+
+      reg2.update(unregistered_at: Time.now)
+      expect(va.auth_to_vendor).to be_needs_linking(now:)
     end
   end
 end
