@@ -11,6 +11,8 @@ class Suma::AnonProxy::VendorAccountRegistration < Suma::Postgres::Model(:anon_p
 
   many_to_one :account, class: "Suma::AnonProxy::VendorAccount"
 
+  def unregistered? = !self.unregistered_at.nil?
+
   # The account this registration belongs to.
   # @!attribute account
   # @return [Suma::AnonProxy::VendorAccount]

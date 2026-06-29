@@ -17,9 +17,12 @@ class Suma::Program::ServiceRevoker
     )
   end
 
-  def initialize(dry_run: Suma::Program.service_revoker_dry_run)
+  def initialize(dry_run: Suma::Program.service_revoker_dry_run, now: Time.now)
     @dry_run = dry_run
+    @now = now
   end
+
+  attr_reader :now
 
   def dry_run? = @dry_run
   def do_dry_run(event, kw) = self.logger.warn(event, **kw)
@@ -42,7 +45,8 @@ class Suma::Program::ServiceRevoker
     ].max
     balances = balances.where { balance_cents < ok_balance }
     # which have changed recently (assume we've acted on things older than this)
-    balances = balances.where { latest_transaction_at > (Time.now - Suma::Program.service_revoker_lookback) }
+    now = self.now
+    balances = balances.where { latest_transaction_at > (now - Suma::Program.service_revoker_lookback) }
     balances = balances.all
     balances.each do |balance|
       self.run_for(balance.ledger)
@@ -157,7 +161,7 @@ class Suma::Program::ServiceRevoker
         )
       else
         lp.revoke_member(r.account.member, program_id: r.external_program_id, phone:) if phone
-        r.destroy
+        r.update(unregistered_at: self.now)
       end
     end
   end

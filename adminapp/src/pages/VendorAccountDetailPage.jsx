@@ -101,13 +101,14 @@ export default function VendorAccountDetailPage() {
         <RelatedListRemote
           title="Registrations"
           collection={model.registrations}
-          headers={["Id", "Created", "Program Id", "External Id"]}
+          headers={["Id", "Created", "Program Id", "External Id", "Unregistered"]}
           keyRowAttr="id"
           toCells={(row) => [
             row.id,
             formatDate(row.createdAt),
             row.externalProgramId,
             row.externalRegistrationId,
+            formatDate(row.unregisteredAt),
           ]}
         />,
         <RelatedListRemote

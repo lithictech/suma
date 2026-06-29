@@ -14,6 +14,7 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
 
     expose :external_program_id
     expose :external_registration_id
+    expose :unregistered_at
   end
 
   class VendorAccountMessageEntity < BaseModelEntity

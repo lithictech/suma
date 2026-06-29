@@ -67,7 +67,7 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
       Suma::Lyft.pass_org_id = "1234"
     end
 
-    it "revokes lyft pass and destroys registrations for lyft pass program ids" do
+    it "revokes lyft pass and unregisters registrations for lyft pass program ids" do
       lyft_pass_config = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lyft_pass")
       lyft_pass_vendor_acct = Suma::Fixtures.anon_proxy_vendor_account.create(configuration: lyft_pass_config, member:)
       reg1 = lyft_pass_vendor_acct.add_registration(external_program_id: "111")
@@ -82,8 +82,8 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
 
       expect(req1).to have_been_made
       expect(req2).to have_been_made
-      expect(reg1).to be_destroyed
-      expect(reg2).to be_destroyed
+      expect(reg1.refresh).to be_unregistered
+      expect(reg2.refresh).to be_unregistered
     end
 
     it "logs and skips idempotency with dry run" do
@@ -95,7 +95,7 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
         described_class.new(dry_run: true).revoke_all_lyft_passes(member)
       end
       expect(logs).to have_a_line_matching(/service_revoker_dry_run/)
-      expect(reg1).to_not be_destroyed
+      expect(reg1.refresh).to have_attributes(unregistered_at: nil)
     end
 
     describe "when a member is soft deleted" do
@@ -116,7 +116,7 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
         described_class.new.revoke_all_lyft_passes(member)
 
         expect(req).to have_been_made
-        expect(reg).to be_destroyed
+        expect(reg.refresh).to be_unregistered
       end
 
       it "does not revoke if there is no previous number" do
@@ -128,7 +128,7 @@ RSpec.describe Suma::Program::ServiceRevoker, :db, :no_transaction_check do
 
         described_class.new.revoke_all_lyft_passes(member)
 
-        expect(reg).to be_destroyed
+        expect(reg.refresh).to be_unregistered
       end
     end
   end
