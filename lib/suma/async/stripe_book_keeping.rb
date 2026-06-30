@@ -4,7 +4,7 @@ require "amigo/scheduled_job"
 require "suma/async"
 require "suma/webhookdb"
 
-class Suma::Async::StripeRefundsBackfiller
+class Suma::Async::StripeBookKeeping
   extend Amigo::ScheduledJob
 
   sidekiq_options(Suma::Async.cron_job_options)
@@ -13,5 +13,6 @@ class Suma::Async::StripeRefundsBackfiller
 
   def _perform
     Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy.backfill_payouts_from_webhookdb
+    Suma::Payment::FundingTransaction::StripeCardStrategy.refund_unassociated_charges
   end
 end

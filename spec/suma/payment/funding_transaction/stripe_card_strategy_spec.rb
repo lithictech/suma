@@ -180,4 +180,52 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       )
     end
   end
+
+  describe "refund_unassociated_charges" do
+    def insert(
+      stripe_id,
+      metadata: {},
+      created: 5.hours.ago,
+      status: "succeeded",
+      funding_transaction_id: 0,
+      captured: true,
+      refunded: false,
+      **more_data
+    )
+      data = {}
+      data.merge!(more_data)
+      data[:id] = stripe_id
+      data[:created] = created.to_i
+      data[:status] = status
+      data[:captured] = captured
+      data[:refunded] = refunded
+      metadata[:suma_funding_transaction_id] = funding_transaction_id.to_s
+      data[:metadata] = metadata
+      data[:source] = {}
+      kw = {stripe_id: stripe_id, status:, created:, data: data.to_json}
+      Suma::Webhookdb.stripe_charges_dataset.insert(kw)
+    end
+
+    it "refunds charges which meet the selection criteria", :no_transaction_check do
+      insert("ch_needsrefund")
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      insert("ch_hasfunding", funding_transaction_id: fx.id.to_s)
+      insert("ch_uncaptured", captured: false)
+      insert("ch_failed", status: "failed")
+      insert("ch_refunded", refunded: true)
+      insert("ch_old", created: 4.weeks.ago)
+      insert("ch_new", created: 2.minutes.ago)
+
+      req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+        with(body: {"charge" => "ch_needsrefund"}).
+        to_return(fixture_response("stripe/charge"))
+
+      described_class.refund_unassociated_charges
+
+      expect(req).to have_been_made
+      expect(Suma::Support::Ticket.all).to contain_exactly(
+        have_attributes(subject: "Refunding Unassociated Stripe Charge"),
+      )
+    end
+  end
 end

@@ -11,6 +11,7 @@ module Suma::Webhookdb
     def dataset_for_table(table) = self.connection[Sequel[self.schema][table]]
 
     def postmark_inbound_messages_dataset = self.dataset_for_table(self.postmark_inbound_messages_table)
+    def stripe_charges_dataset = self.dataset_for_table(self.stripe_charges_table)
     def stripe_refunds_dataset = self.dataset_for_table(self.stripe_refunds_table)
     def signalwire_messages_dataset = self.dataset_for_table(self.signalwire_messages_table)
   end
@@ -24,6 +25,7 @@ module Suma::Webhookdb
     setting :front_messages_table, :front_message_v1_fixture
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
     setting :postmark_inbound_messages_secret, "fakesecret-#{SecureRandom.hex(3)}"
+    setting :stripe_charges_table, :stripe_charge_v1_fixture
     setting :stripe_refunds_table, :stripe_refund_v1_fixture
     setting :stripe_refunds_secret, "fakesecret-#{SecureRandom.hex(3)}"
     setting :signalwire_messages_table, :signalwire_message_v1_fixture
@@ -45,13 +47,24 @@ module Suma::Webhookdb
     end
 
     def each(dataset, &)
-      last_synced_pk = Suma::Redis.durable.with { |c| c.call("GET", @pk_key) }.to_i
+      last_synced_pk = self._last_synced_pk
       rows = dataset.order(:pk).where { pk > last_synced_pk }.all
       return 0 if rows.empty?
       rows.each(&)
       Suma::Redis.durable.with { |c| c.call("SET", @pk_key, rows.last.fetch(:pk).to_s) }
       return rows.size
     end
+
+    def each_page(dataset)
+      last_synced_pk = self._last_synced_pk
+      dataset = dataset.where { pk > last_synced_pk }
+      Sequel::Plugins::EfficientEach.each_cursor_page(dataset, page_size: 200, pk: :pk, yield_page: true) do |page|
+        yield(page)
+        Suma::Redis.durable.with { |c| c.call("SET", @pk_key, page.last.fetch(:pk).to_s) }
+      end
+    end
+
+    protected def _last_synced_pk = Suma::Redis.durable.with { |c| c.call("GET", @pk_key) }.to_i
 
     def reset
       Suma::Redis.durable.with { |c| c.call("DEL", @pk_key) }

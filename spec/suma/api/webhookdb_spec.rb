@@ -14,7 +14,7 @@ RSpec.describe Suma::API::Webhookdb, :db do
       post "/v1/webhookdb/stripe_refund_v1", {x: 1}
 
       expect(last_response).to have_status(202)
-      expect(Suma::Async::StripeRefundsBackfiller.jobs).to have_length(1)
+      expect(Suma::Async::StripeBookKeeping.jobs).to have_length(1)
     end
 
     it "errors if the webhook header does not match" do

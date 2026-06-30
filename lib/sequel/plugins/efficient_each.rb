@@ -36,26 +36,31 @@ module Sequel::Plugins::EfficientEach
     #   Helpful when bulk processing.
     #
     # (Note that paged_each does not do eager loading, which makes enumerating model associations very slow)
-    def each_cursor_page(page_size: nil, order: nil, yield_page: false, &block)
-      raise LocalJumpError unless block
-      raise "dataset requires a use_cursor method, class may need `extension(:pagination)`" unless
-        self.respond_to?(:use_cursor)
+    def each_cursor_page(page_size: nil, order: nil, yield_page: false, &)
       model = self.model
       page_size ||= model.efficient_each_page_size
       pk = model.primary_key
       order ||= pk
-      current_chunk_pks = []
-      order = [order] unless order.respond_to?(:to_ary)
-      self.naked.select(pk).order(*order).use_cursor(rows_per_fetch: page_size, hold: true).each do |row|
-        current_chunk_pks << row[pk]
-        next if current_chunk_pks.length < page_size
-        page = model.where(pk => current_chunk_pks).order(*order).all
-        current_chunk_pks.clear
-        yield_page ? yield(page) : page.each(&block)
-      end
-      remainder = model.where(pk => current_chunk_pks).order(*order).all
-      yield_page && !remainder.empty? ? yield(remainder) : remainder.each(&block)
+      Sequel::Plugins::EfficientEach.each_cursor_page(self, pk:, page_size:, yield_page:, order:, &)
     end
+  end
+
+  def self.each_cursor_page(dataset, pk:, page_size:, yield_page:, order: nil, &block)
+    raise LocalJumpError unless block
+    raise "dataset requires a use_cursor method, class may need `extension(:pagination)`" unless
+      dataset.respond_to?(:use_cursor)
+    order ||= pk
+    current_chunk_pks = []
+    order = [order] unless order.respond_to?(:to_ary)
+    dataset.naked.select(pk).order(*order).use_cursor(rows_per_fetch: page_size, hold: true).each do |row|
+      current_chunk_pks << row[pk]
+      next if current_chunk_pks.length < page_size
+      page = dataset.where(pk => current_chunk_pks).order(*order).all
+      current_chunk_pks.clear
+      yield_page ? yield(page) : page.each(&block)
+    end
+    remainder = dataset.where(pk => current_chunk_pks).order(*order).all
+    yield_page && !remainder.empty? ? yield(remainder) : remainder.each(&block)
   end
 
   module InstanceMethods

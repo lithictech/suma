@@ -3,7 +3,7 @@
 require "suma/api"
 
 require "suma/async/signalwire_process_optouts"
-require "suma/async/stripe_refunds_backfiller"
+require "suma/async/stripe_book_keeping"
 
 class Suma::API::Webhookdb < Suma::API::V1
   include Suma::API::Entities
@@ -12,7 +12,7 @@ class Suma::API::Webhookdb < Suma::API::V1
     post :stripe_refund_v1 do
       h = env["HTTP_WHDB_WEBHOOK_SECRET"]
       unauthenticated! unless h == Suma::Webhookdb.stripe_refunds_secret
-      Suma::Async::StripeRefundsBackfiller.perform_async
+      Suma::Async::StripeBookKeeping.perform_async
       status 202
       present({o: "k"})
     end

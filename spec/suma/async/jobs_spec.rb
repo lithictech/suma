@@ -713,7 +713,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "StripeRefundsBackfiller" do
+  describe "StripeBookKeeping" do
     it "syncs refunds" do
       Suma::Webhookdb.stripe_refunds_dataset.insert(
         stripe_id: "re_abc",
@@ -728,7 +728,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         charge_json: {id: "ch_abc"}.to_json,
       )
       Suma::Fixtures.funding_transaction(strategy: funding_strategy).create
-      Suma::Async::StripeRefundsBackfiller.new.perform
+      Suma::Async::StripeBookKeeping.new.perform
       expect(Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy.all).to contain_exactly(
         have_attributes(stripe_charge_id: "ch_abc"),
       )
