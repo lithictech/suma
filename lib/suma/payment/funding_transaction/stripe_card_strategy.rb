@@ -122,6 +122,93 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
   def _external_link_deps
     return [self.originating_card]
   end
+
+  class UnassociatedChargeRefunder
+    attr_reader :row_iterator
+
+    def initialize(newer_than: 2.weeks, older_than: 2.hours)
+      @newer_than = newer_than # Do not look back indefinitely
+      @older_than = older_than # In theory this could be 30 seconds
+      @row_iterator = Suma::Webhookdb::RowIterator.new("stripe/unassociatedchargerefunder/pk")
+    end
+
+    # Yield each row in the dataset that we need to process.
+    # Since the webhookdb table is in a separate DB from the funding transactions,
+    # we cannot do this with a simple query in the dataset.
+    # So we pull all the rows,
+    # so we need to run this check here.
+    def each
+      ds = self.dataset
+      @row_iterator.each_page(ds) do |page|
+        fx_ids_from_stripe = page.to_set do |r|
+          r.fetch(:data).fetch("metadata").fetch("suma_funding_transaction_id").to_i
+        end
+        fx_ids_in_suma = Suma::Payment::FundingTransaction.where(id: fx_ids_from_stripe).select_map(:id)
+        page.each do |row|
+          fx_id = row.fetch(:data).fetch("metadata").fetch("suma_funding_transaction_id").to_i
+          yield(row) unless fx_ids_in_suma.include?(fx_id)
+        end
+      end
+    end
+
+    def run
+      self.each do |row|
+        stripe_charge_id = row.fetch(:stripe_id)
+        Suma::Idempotency.once_ever.under_key("refund-unassociated-stripe-charge-#{stripe_charge_id}") do
+          member_name = row.fetch(:data).fetch("source").fetch("name", "")
+          member_id = row.fetch(:data).fetch("source").fetch("metadata", {})["suma_member_id"] || "<unknown>"
+          body_lines = [
+            "Suma charged a member, but an error in the backend caused the charge to be lost.",
+            "We have refunded the charge, and it will take about 5 business days to appear.",
+            "No action is necessary, but please let the member know if they contact support.",
+            "See this charge in Stripe: #{Suma::Stripe.app_url}/payments/#{stripe_charge_id}",
+            "Member Name: #{member_name}",
+            "Suma Member Id: #{member_id}",
+          ]
+          Suma::Support::Ticket.create(
+            subject: "Refunding Unassociated Stripe Charge",
+            body: body_lines.join("\n"),
+            external_id: "refund-#{stripe_charge_id}",
+          )
+          Stripe::Refund.create(charge: row.fetch(:stripe_id))
+        end
+      end
+    end
+
+    def dataset
+      data = Sequel.pg_jsonb(:data)
+      newer_than = @newer_than.ago
+      older_than = @older_than.ago
+      # rubocop:disable Style/PreferredHashMethods
+      ds = Suma::Webhookdb.stripe_charges_dataset.
+        where(status: "succeeded").
+        where { created > newer_than }.
+        where { created < older_than }.
+        where(
+          data.get("metadata").has_key?("suma_funding_transaction_id") &
+            Sequel[data.get_text("captured") => "true"] &
+            Sequel[data.get_text("refunded") => "false"],
+        )
+      # rubocop:enable Style/PreferredHashMethods
+      return ds
+    end
+  end
+
+  # It is possible that we create captured Stripe charges,
+  # but the transaction fails due to a database outage or other error,
+  # and the suma side never commits.
+  #
+  # We can detect this has happened by looking for charges which:
+  # - Are captured,
+  # - Have the expected metadata ('suma_funding_transaction_id'),
+  # - Do not have a corresponding strategy row.
+  #
+  # These charges can be refunded. We track where this happens with a support ticket,
+  # both to make sure it isn't common,
+  # and because a user may reach out about the charge in the meantime.
+  def self.refund_unassociated_charges
+    UnassociatedChargeRefunder.new.run
+  end
 end
 
 # Table: payment_funding_transaction_stripe_card_strategies
