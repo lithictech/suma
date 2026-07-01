@@ -49,6 +49,8 @@ $input-border-color: lighten($primary, 20%);
 $input-border-width: 2px;
 $input-border-radius: 0;
 $input-placeholder-color: $gray-500;
+$border-color: $gray-600;
+$link-color: darken($primary, 16%);
 
 @import "bootstrap/scss/_variables";
 @import "bootstrap/scss/_maps";
