@@ -31,7 +31,7 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
   end
 
   describe "collect_funds" do
-    it "captures a change" do
+    it "creates a captured charge" do
       xaction.update(amount_cents: 2000)
       req = stub_request(:post, "https://api.stripe.com/v1/charges").
         with(
@@ -65,6 +65,59 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       end.to raise_error(Suma::Payment::FundingTransaction::CollectFundsFailed, "Your card was declined.")
       expect(req).to have_been_made
       expect(strategy.charge_id).to be_nil
+    end
+
+    describe "with charges in webhookdb" do
+      let(:amount) { 2000 }
+
+      def insert_charge(id, **kw)
+        charge = load_fixture_data("stripe/charge").deep_symbolize_keys
+        charge[:id] = id.to_s
+        charge[:amount] = amount
+        charge[:customer] = member.stripe.customer_id
+        charge[:created] = Time.now
+        charge[:metadata]["suma_funding_transaction_id"] = "0"
+        charge[:captured] = true
+        charge[:refunded] = false
+        charge[:source][:id] = "card_123"
+        charge.merge!(kw)
+        Suma::Webhookdb.stripe_charges_dataset.
+          insert(
+            stripe_id: charge.fetch(:id),
+            status: charge[:status],
+            amount: charge[:amount],
+            customer: charge[:customer],
+            created: charge[:created],
+            data: charge.to_json,
+          )
+      end
+
+      it "reuses a recent, unassociated charge for the same amount if found" do
+        xaction.update(amount_cents: amount)
+        insert_charge("ch_1")
+        strategy.collect_funds
+        expect(strategy.charge_id).to eq("ch_1")
+      end
+
+      it "does not find false-positive unassociated charges" do
+        xaction.update(amount_cents: amount)
+        insert_charge("failed", status: "failed")
+        insert_charge("wrong_amt", amount: 1999)
+        insert_charge("wrong_customer", customer: "abcdcustomer")
+        insert_charge("old", created: 2.hours.ago)
+        insert_charge("refunded", refunded: true)
+        insert_charge("captured", captured: false)
+        insert_charge("wrong_card", source: {id: "card_another"})
+        other_fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+        insert_charge("associated_fx", metadata: {suma_funding_transaction_id: other_fx.id.to_s})
+
+        req = stub_request(:post, "https://api.stripe.com/v1/charges").
+          to_return(**fixture_response("stripe/charge"))
+
+        strategy.collect_funds
+        expect(req).to have_been_made
+        expect(strategy.charge_id).to eq("ch_1Cgkfs2eZvKYlo2CVPsK4I3f")
+      end
     end
   end
 
