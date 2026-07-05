@@ -46,6 +46,12 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
 
   def collect_funds
     return if self.charge_id.present?
+    if (lost_charge = self._find_existing_lost_charge)
+      self.charge_json = lost_charge.fetch(:data).as_json
+      charge_id_set!(Suma::InvalidPostcondition)
+      return
+    end
+
     begin
       charge = self.originating_card.member.stripe.charge_card(
         card: self.originating_card,
@@ -64,8 +70,42 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
         localized_error_code: Suma::Stripe.localized_error_code(e),
       )
     end
+
     self.charge_json = charge.as_json
     charge_id_set!(Suma::InvalidPostcondition)
+  end
+
+  # It's possible we already charged this user but lost a reference to the charge
+  # due to a DB outage (see UnassociatedChargeRefunder).
+  # In this case, let's find recent candidate charges from this card;
+  # if any of them are unassociated, use it instead of a new charge.
+  #
+  # NOTE: We cannot use idempotency since that key is based on the strategy identity;
+  # but we never committed the strategy because of the DB error.
+  def _find_existing_lost_charge
+    cutoff = 1.hour.ago
+    data = Sequel.pg_jsonb(:data)
+    # rubocop:disable Style/PreferredHashMethods
+    ds = Suma::Webhookdb.stripe_charges_dataset.
+      where(
+        status: "succeeded",
+        amount: self.funding_transaction.amount.cents,
+        customer: self.originating_card.member.stripe.customer_id,
+      ).
+      where { created > cutoff }.
+      where(
+        data.get("metadata").has_key?("suma_funding_transaction_id") &
+        Sequel[data.get_text("captured") => "true"] &
+        Sequel[data.get_text("refunded") => "false"] &
+        Sequel[data.get("source").get_text("id") => self.originating_card.stripe_id],
+      )
+    # rubocop:enable Style/PreferredHashMethods
+    ds.each do |row|
+      fx_id = row.fetch(:data).fetch("metadata").fetch("suma_funding_transaction_id").to_i
+      next unless Suma::Payment::FundingTransaction.where(id: fx_id).empty?
+      return row
+    end
+    return nil
   end
 
   def funds_cleared?
