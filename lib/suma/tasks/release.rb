@@ -86,6 +86,9 @@ class Suma::Tasks::Release < Rake::TaskLib
         anon.each_fk_constraint do |schema, tbl, con|
           anon.restore_constraint(schema, tbl, con)
         end
+        # Members need to be reregistered in the dev environment.
+        Suma::Member.dataset.update(stripe_customer_json: nil)
+        Suma::Payment::Card.dataset.where(soft_deleted_at: nil).update(soft_deleted_at: Time.now)
       end
     end
   end
