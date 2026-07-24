@@ -92,7 +92,7 @@ module Suma::Service::Entities
   end
 
   class Multirange < Base
-    expose :begin
+    expose :begin, as: :start
     expose :end
   end
 

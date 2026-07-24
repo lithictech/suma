@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function PaymentTriggerListPage() {
@@ -26,13 +26,15 @@ export default function PaymentTriggerListPage() {
           render: (c) => <AdminLink model={c}>{c.label}</AdminLink>,
         },
         {
-          id: "active_during",
-          label: "Active During",
+          id: "next_active_during",
+          label: "Next Active",
           sortable: true,
           render: (c) =>
-            `${dayjs(c.activeDuringBegin).format("ll")} - ${dayjs(
-              c.activeDuringEnd
-            ).format("ll")}`,
+            c.nextActiveDuring
+              ? `${formatDate(c.nextActiveDuring.start)} - ${formatDate(
+                  c.nextActiveDuring.end
+                )}`
+              : "(expired)",
         },
       ]}
     />

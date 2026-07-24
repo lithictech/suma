@@ -2,19 +2,18 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import EligibilityRequirementsRelatedList from "../components/EligibilityRequirementsRelatedList";
-import Link from "../components/Link";
-import RelatedListRemote from "../components/RelatedListRemote";
+import RelatedListRemote, { ListTitle } from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
+import SimpleTable from "../components/SimpleTable";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { formatMoney, intToMoney } from "../shared/money";
-import useUrlMarshal from "../shared/react/useUrlMarshal";
-import HorizontalSplitIcon from "@mui/icons-material/HorizontalSplit";
+import { CardContent, Card } from "@mui/material";
 import React from "react";
 
 export default function PaymentTriggerDetailPage() {
-  const { marshalToUrl } = useUrlMarshal();
+  const now = dayjs();
   return (
     <ResourceDetail
       resource="payment_trigger"
@@ -57,6 +56,22 @@ export default function PaymentTriggerDetailPage() {
     >
       {(model) => [
         <EligibilityRequirementsRelatedList model={model} type="payment_trigger" />,
+        <Card>
+          <CardContent>
+            <ListTitle title="Active During" count={model.activeDuring.length} />
+            <SimpleTable
+              rows={model.activeDuring}
+              headers={["Start", "End"]}
+              toCells={(row) => [formatDate(row.start), formatDate(row.end)]}
+              rowSx={(row) =>
+                dayjs(row.end).isBefore(now)
+                  ? { "& .MuiTableCell-root": { color: "text.disabled" } }
+                  : {}
+              }
+              tableProps={{ size: "small" }}
+            />
+          </CardContent>
+        </Card>,
         <RelatedListRemote
           title="Executions"
           collection={model.executions}

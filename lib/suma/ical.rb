@@ -36,5 +36,38 @@ module Suma::Ical
       event.rrule = Icalendar::Values::Recur.new(rrule) if rrule.present?
       return event
     end
+
+    # Create an event and return all projections.
+    def project(dtstart, dtend, rrule, enum: :all_occurrences)
+      ev = self.event(dtstart, dtend, rrule)
+      occ = ev.send(enum)
+      result = self.combine_occurrences(occ)
+      return result
+    end
+
+    # Extract [start, end) pairs — Postgres tstzrange defaults to inclusive-start,
+    # exclusive-end, so treat dtend as exclusive to match that normalization behavior.
+    def combine_occurrences(occurrences)
+      intervals = occurrences.
+        map { |e| [e.start_time, e.end_time, e.parent] }.
+        sort_by(&:first)
+
+      merged = []
+      intervals.each do |start, finish, parent|
+        if merged.empty?
+          merged << [start, finish, parent]
+          next
+        end
+
+        last_start, last_finish, last_parent = merged.last
+        # Overlapping or exactly adjacent ([a,b) + [b,c) => [a,c)) - merge.
+        if start <= last_finish
+          merged[-1] = [last_start, [last_finish, finish].max, last_parent]
+        else
+          merged << [start, finish, parent]
+        end
+      end
+      return merged.map { |r| Icalendar::Recurrence::Occurrence.new(*r) }
+    end
   end
 end

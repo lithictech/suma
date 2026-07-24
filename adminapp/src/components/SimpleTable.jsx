@@ -22,6 +22,7 @@ import React from "react";
  *   Takes precedence over keyRowAttr.
  * @param tableProps Props passed to the Table component.
  * @param {string|function} rowClass
+ * @param {object|function} rowSx
  * @param className
  * @param center Center the table headers.
  * @param pushLeft If true, push all columns left instead of stretching to fill space.
@@ -36,6 +37,7 @@ export default function SimpleTable({
   getKey,
   tableProps,
   rowClass,
+  rowSx,
   className,
   center,
   pushLeft,
@@ -78,7 +80,11 @@ export default function SimpleTable({
             const cells = toCells(row);
             const key = getKeyFunc(row, cells);
             return (
-              <TableRow key={key} className={toValue(rowClass, row)}>
+              <TableRow
+                key={key}
+                className={toValue(rowClass, row)}
+                sx={toValue(rowSx, row)}
+              >
                 {cells.map((c, i) => (
                   <TableCell key={i} {...cellProps}>
                     {c}

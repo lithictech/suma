@@ -11,7 +11,7 @@ export default function Output({ start, end, rrule }) {
   const project = React.useCallback(
     () =>
       api.projectIcalEvents({
-        begin: start?.format(),
+        start: start?.format(),
         end: end?.format(),
         rrule: rruleStr,
       }),
@@ -39,9 +39,9 @@ export default function Output({ start, end, rrule }) {
         Occurrences ({size(state.occurrences)}):
       </Typography>
       <ul style={{ marginTop: 0 }}>
-        {state.occurrences?.map(({ begin, end }) => (
-          <li key={begin + end}>
-            {formatDate(begin)} - {formatDate(end)}
+        {state.occurrences?.map(({ start, end }) => (
+          <li key={start + end}>
+            {formatDate(start)} - {formatDate(end)}
           </li>
         ))}
       </ul>

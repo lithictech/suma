@@ -289,7 +289,7 @@ module Suma::Service::Helpers
   end
 
   params :tstzmultirange do |_|
-    requires :begin, type: Time
+    requires :start, type: Time
     requires :end, type: Time
   end
 

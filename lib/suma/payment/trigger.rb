@@ -233,10 +233,14 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   end
 
   def project_from_ical_event(tstart, tend, rrule)
-    event = Suma::Ical.event(tstart, tend, rrule)
-    recurrences = event.all_occurrences
-    ranges = recurrences.map { |r| r.start_time..r.end_time }
+    occurrences = Suma::Ical.project(tstart, tend, rrule)
+    ranges = occurrences.map { |r| r.start_time..r.end_time }
     self.active_during = ranges
+  end
+
+  # @return [Range,nil]
+  def next_active_during(now: Time.now)
+    return self.active_during.select { |r| r.end > now }.min_by(&:end)
   end
 
   def rel_admin_link = "/payment-trigger/#{self.id}"
