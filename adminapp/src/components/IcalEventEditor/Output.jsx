@@ -11,8 +11,8 @@ export default function Output({ start, end, rrule }) {
   const project = React.useCallback(
     () =>
       api.projectIcalEvents({
-        begin: start.format(),
-        end: end.format(),
+        begin: start?.format(),
+        end: end?.format(),
         rrule: rruleStr,
       }),
     [end, rruleStr, start]

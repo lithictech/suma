@@ -23,22 +23,6 @@ export default function PaymentTriggerDetailPage() {
       properties={(model) => [
         ...resourceDetailCommonFields(model),
         { label: "Label", value: model.label },
-        { label: "Starting", value: dayjs(model.activeDuringBegin) },
-        { label: "Ending", value: dayjs(model.activeDuringEnd) },
-        {
-          label: "Subdivide",
-          value: (
-            <Link
-              to={`/payment-trigger/${model.id}/subdivide?${marshalToUrl(
-                "model",
-                model
-              )}`}
-            >
-              <HorizontalSplitIcon sx={{ verticalAlign: "middle", marginRight: 1 }} />
-              Subdivide
-            </Link>
-          ),
-        },
         { label: "Match Multiplier", value: model.matchMultiplier },
         { label: "Match Percentage", value: Math.round(model.matchFraction * 100) + "%" },
         {

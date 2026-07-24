@@ -288,6 +288,11 @@ module Suma::Service::Helpers
     send(meth, :es, type: String, allow_blank: blank)
   end
 
+  params :tstzmultirange do |_|
+    requires :begin, type: Time
+    requires :end, type: Time
+  end
+
   params :model_with_id do
     requires :id, type: Integer
   end
