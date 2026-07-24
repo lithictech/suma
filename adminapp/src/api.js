@@ -96,6 +96,8 @@ export default {
     get(`/adminapi/v1/meta/resource_access`, data, ...args),
   getStateMachine: ({ name, ...data }, ...args) =>
     get(`/adminapi/v1/meta/state_machines/${name}`, data, ...args),
+  projectIcalEvents: ({ name, ...data }, ...args) =>
+    post(`/adminapi/v1/meta/icalendar/project`, data, ...args),
 
   getBankAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),

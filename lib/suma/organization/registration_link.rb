@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require "icalendar"
-require "icalendar/recurrence"
 require "rqrcode"
 
 require "suma/admin_linked"
+require "suma/ical"
 require "suma/postgres/model"
 
 # Registration links are links (QR codes) that organizations can point users to;
@@ -141,17 +140,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
 
   # Return a VEVENT string including fields which are set.
   # If tags is true, include BEGIN/END tags.
-  def ical_vevent(tags: false)
-    return [
-      tags ? "BEGIN:VEVENT" : nil,
-      self.ical_dtstart ? "DTSTART:#{self._icaltime(self.ical_dtstart)}" : nil,
-      self.ical_dtend ? "DTEND:#{self._icaltime(self.ical_dtend)}" : nil,
-      self.ical_rrule.present? ? "RRULE:#{self.ical_rrule}" : nil,
-      tags ? "END:VEVENT" : nil,
-    ].compact.join("\n")
-  end
-
-  def _icaltime(t) = t.utc.strftime("%Y%m%dT%H%M%SZ")
+  def ical_vevent(tags: false) = Suma::Ical.event_str(self.ical_dtstart, self.ical_dtend, self.ical_rrule, tags:)
 
   # Return whether the given time is within the receiver's schedule.
   # If not using a schedule, return true.
@@ -177,10 +166,7 @@ class Suma::Organization::RegistrationLink < Suma::Postgres::Model(:organization
   # @return [Array<Icalendar::Event>]
   def scheduled_availabilities(window: Time.now..1.month.from_now)
     return [] if self.ical_dtstart.nil? || self.ical_dtend.nil?
-    event = Icalendar::Event.new
-    event.dtstart = Icalendar::Values::DateTime.new(self.ical_dtstart)
-    event.dtend = Icalendar::Values::DateTime.new(self.ical_dtend)
-    event.rrule = Icalendar::Values::Recur.new(self.ical_rrule) if self.ical_rrule.present?
+    event = Suma::Ical.event(self.ical_dtstart, self.ical_dtend, self.ical_rrule)
     begin
       result = event.occurrences_between(window.first, window.last)
     rescue ArgumentError => e
