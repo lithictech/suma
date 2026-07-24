@@ -1,23 +1,27 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
+import {
+  icalRruleState,
+  parseIcalRrule,
+  renderRruleState,
+} from "../components/IcalEventEditor/icalconstants";
+import IcalEventEditor from "../components/IcalEventEditor/index.jsx";
 import MultiLingualText from "../components/MultiLingualText";
-import SafeDateTimePicker from "../components/SafeDateTimePicker";
-import { dayjs, formatOrNull } from "../modules/dayConfig";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
-import { FormHelperText, FormLabel, Stack, TextField } from "@mui/material";
+import { CardContent, Card, FormHelperText, FormLabel, Stack } from "@mui/material";
 import React from "react";
 
 export default function RegistrationLinkForm({
   isCreate,
   resource,
-  setFieldFromInput,
   setField,
   clearField,
   register,
   isBusy,
   onSubmit,
 }) {
+  const parsedRrule = parseIcalRrule(resource.icalRrule);
   return (
     <FormLayout
       title={isCreate ? "Create a Registration Link" : "Update Registration Link"}
@@ -52,64 +56,41 @@ export default function RegistrationLinkForm({
             onChange={(v) => setField("intro", v)}
           />
         </Stack>
-        <FormLabel>Schedule</FormLabel>
-        <FormHelperText>
-          If a link has a schedule, it can only be used during times the schedule is
-          active. The schedule is just like a calendar meeting; during the "meeting" the
-          link can be used.
-        </FormHelperText>
-        <FormHelperText>
-          Choose the begin and end times of the "meeting". If the meeting is recurring,
-          build an RRULE (recurrence rule) using{" "}
-          <SafeExternalLink href="https://icalendar.org/rrule-tool.html">
-            https://icalendar.org/rrule-tool.html
-          </SafeExternalLink>
-          , then copy the RRULE into the text box below.
-        </FormHelperText>
-        <FormHelperText>
-          Registration links without restrictions are always open.
-        </FormHelperText>
-        <SafeDateTimePicker
-          label="Event Start"
-          value={resource.icalDtstart || null}
-          onChange={(v) => setField("icalDtstart", formatOrNull(v))}
-        />
-        <SafeDateTimePicker
-          label="Event End"
-          value={resource.icalDtend || null}
-          onChange={(v) => setField("icalDtend", formatOrNull(v))}
-        />
-        <TextField
-          {...register("icalRrule")}
-          label="RRULE"
-          name="icalRrule"
-          value={resource.icalRrule}
-          fullWidth
-          helperText={
-            <>
-              Use{" "}
+        <Card>
+          <CardContent>
+            <FormLabel>Schedule</FormLabel>
+            <FormHelperText>
+              If a link has a schedule, it can only be used during times the schedule is
+              active. The schedule is just like a calendar meeting; during the "meeting"
+              the link can be used.
+            </FormHelperText>
+            <FormHelperText>
+              Choose the begin and end times of the "meeting". If the meeting is
+              recurring, build an RRULE (recurrence rule) using{" "}
               <SafeExternalLink href="https://icalendar.org/rrule-tool.html">
                 https://icalendar.org/rrule-tool.html
-              </SafeExternalLink>{" "}
-              to create an RRULE and then paste it here.
-            </>
-          }
-          onChange={setFieldFromInput}
-        />
-        <div>
-          Output:
-          <br />
-          <code>
-            DTSTART:
-            {resource.icalDtstart &&
-              dayjs(resource.icalDtstart).format("YYYYMMDDHHmmss[Z]")}
-            <br />
-            DTEND:
-            {resource.icalDtend && dayjs(resource.icalDtend).format("YYYYMMDDHHmmss[Z]")}
-            <br />
-            RRULE:{resource.icalRrule}
-          </code>
-        </div>
+              </SafeExternalLink>
+              , then copy the RRULE into the text box below.
+            </FormHelperText>
+            <FormHelperText>
+              Registration links without restrictions are always open.
+            </FormHelperText>
+            <IcalEventEditor
+              start={resource.icalDtstart}
+              end={resource.icalDtend}
+              rrule={{ ...icalRruleState(), ...parsedRrule }}
+              onChange={(f, val) => {
+                if (f === "start") {
+                  setField("icalDtstart", val);
+                } else if (f === "end") {
+                  setField("icalDtend", val);
+                } else {
+                  setField("icalRrule", renderRruleState({ ...parsedRrule, ...val }));
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
       </Stack>
     </FormLayout>
   );
