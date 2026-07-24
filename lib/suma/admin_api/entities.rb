@@ -8,6 +8,7 @@ module Suma::AdminAPI::Entities
   class LegalEntityEntity < Suma::Service::Entities::LegalEntityEntity; end
   class AddressEntity < Suma::Service::Entities::Address; end
   MultirangeEntity = Suma::Service::Entities::Multirange
+  TimeRangeEntity = Suma::Service::Entities::TimeRange
 
   class TranslatedTextEntity < Suma::Service::Entities::Base
     expose :en
@@ -500,6 +501,7 @@ module Suma::AdminAPI::Entities
 
     model Suma::Payment::Trigger
     expose :active_during, with: MultirangeEntity
+    expose :next_active_during, with: TimeRangeEntity
   end
 
   class OfferingEntity < BaseModelEntity

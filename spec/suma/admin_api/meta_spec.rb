@@ -107,31 +107,31 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
 
   describe "GET /v1/meta/icalendar/project" do
     it "projects ical fields into ranges" do
-      post "/v1/meta/icalendar/project", begin: Time.at(1), end: Time.at(200), rrule: "COUNT=2;INTERVAL=1;FREQ=DAILY"
+      post "/v1/meta/icalendar/project", start: Time.at(1), end: Time.at(200), rrule: "COUNT=2;INTERVAL=1;FREQ=DAILY"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         occurrences: [
-          {begin: "1970-01-01T00:00:01.000Z", end: "1970-01-01T00:03:20.000Z"},
-          {begin: "1970-01-02T00:00:01.000Z", end: "1970-01-02T00:03:20.000Z"},
+          {start: "1970-01-01T00:00:01.000Z", end: "1970-01-01T00:03:20.000Z"},
+          {start: "1970-01-02T00:00:01.000Z", end: "1970-01-02T00:03:20.000Z"},
         ],
       )
     end
 
     it "returns empty results for missing times" do
-      post "/v1/meta/icalendar/project", begin: nil, end: Time.now, rrule: "COUNT=2;INTERVAL=1;FREQ=DAILY"
+      post "/v1/meta/icalendar/project", start: nil, end: Time.now, rrule: "COUNT=2;INTERVAL=1;FREQ=DAILY"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(occurrences: [])
 
-      post "/v1/meta/icalendar/project", begin: Time.now, end: nil, rrule: "COUNT=2;INTERVAL=1;FREQ=DAILY"
+      post "/v1/meta/icalendar/project", start: Time.now, end: nil, rrule: "COUNT=2;INTERVAL=1;FREQ=DAILY"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(occurrences: [])
     end
 
     it "returns the empty for a bad rrule" do
-      post "/v1/meta/icalendar/project", begin: Time.at(0), end: Time.now, rrule: "COUNT=2;INTERVAL=1;FREQ=DAIL"
+      post "/v1/meta/icalendar/project", start: Time.at(0), end: Time.now, rrule: "COUNT=2;INTERVAL=1;FREQ=DAIL"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(occurrences: [])

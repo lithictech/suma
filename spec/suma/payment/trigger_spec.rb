@@ -344,15 +344,29 @@ RSpec.describe "Suma::Payment::Trigger", :db do
   end
 
   describe "#project_from_ical_event" do
-    let(:tr) do
-    end
-
     it "can replace active_during from an ical vevent" do
       tr = Suma::Fixtures.payment_trigger.create
       t = Time.at(100)
       tr.project_from_ical_event(t, t + 1.hour, "FREQ=DAILY;COUNT=10")
       tr.save_changes.refresh
       expect(tr.active_during).to have_length(10)
+    end
+  end
+
+  describe "next_active_during" do
+    it "gets the next active range" do
+      tr = Suma::Fixtures.payment_trigger.create(active_during: [])
+      expect(tr.next_active_during).to be_nil
+      tr.active_during = [2.years.ago..1.year.ago]
+      expect(tr.next_active_during).to be_nil
+      tr.active_during = [
+        100.hours.ago..99.hours.ago,
+        4.hours.from_now..5.hours.from_now,
+        1.hour.ago..1.hour.from_now,
+        2.hours.from_now..3.hours.from_now,
+        98.hours.ago..97.hours.ago,
+      ].shuffle
+      expect(tr.next_active_during).to have_attributes(begin: match_time(1.hour.ago), end: match_time(1.hour.from_now))
     end
   end
 end

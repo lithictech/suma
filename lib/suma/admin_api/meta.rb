@@ -65,20 +65,20 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
 
     resource :icalendar do
       params do
-        requires :begin, type: Time
+        requires :start, type: Time
         requires :end, type: Time
         optional :rrule, type: String
       end
       post :project do
         check_admin_role_access!(:read, :admin_access)
         occurrences = []
-        if params[:begin] && params[:end]
-          ev = Suma::Ical.event(params[:begin], params[:end], params[:rrule])
+        if params[:start] && params[:end]
           begin
-            occurrences = ev.all_occurrences
+            occurrences = Suma::Ical.project(params[:start], params[:end], params[:rrule])
           rescue ArgumentError
             nil
           end
+          occurrences = Suma::Ical.combine_occurrences(occurrences)
         end
         status 200
         present({occurrences:}, with: IcalProjectionEntity)
@@ -108,7 +108,7 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
   end
 
   class IcalOccurrenceEntity < BaseEntity
-    expose :start_time, as: :begin
+    expose :start_time, as: :start
     expose :end_time, as: :end
   end
 

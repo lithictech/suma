@@ -92,11 +92,7 @@ export default function RelatedListRemote({
   return (
     <Card {...cardProps}>
       <CardContent sx={{ paddingBottom: "0 !important", marginBottom: 1 }}>
-        {title && (
-          <Typography variant="h6" gutterBottom>
-            {title} <ListCount count={latestCollection.totalCount} />
-          </Typography>
-        )}
+        <ListTitle title={title} count={latestCollection.totalCount} />
         {addNew && (
           <Link to={addNewLink} onClick={onAddNewClick}>
             <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
@@ -130,7 +126,17 @@ export default function RelatedListRemote({
   );
 }
 
-function ListCount({ count }) {
+export function ListTitle({ title, count }) {
+  if (!title) {
+    return null;
+  }
+  return (
+    <Typography variant="h6" gutterBottom>
+      {title} <ListCount count={count} />
+    </Typography>
+  );
+}
+export function ListCount({ count }) {
   if (!count) {
     return null;
   }

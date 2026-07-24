@@ -140,7 +140,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        active_during: contain_exactly(include(begin: match_time(period.begin), end: match_time(period.end))),
+        active_during: contain_exactly(include(start: match_time(period.begin), end: match_time(period.end))),
       )
       expect(o.refresh).to have_attributes(
         active_during: contain_exactly(have_attributes(begin: match_time(period.begin), end: match_time(period.end))),
