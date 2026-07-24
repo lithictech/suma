@@ -7,6 +7,7 @@ module Suma::AdminAPI::Entities
   class MoneyEntity < Suma::Service::Entities::Money; end
   class LegalEntityEntity < Suma::Service::Entities::LegalEntityEntity; end
   class AddressEntity < Suma::Service::Entities::Address; end
+  MultirangeEntity = Suma::Service::Entities::Multirange
 
   class TranslatedTextEntity < Suma::Service::Entities::Base
     expose :en
@@ -498,8 +499,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
 
     model Suma::Payment::Trigger
-    expose :active_during_begin
-    expose :active_during_end
+    expose :active_during, with: MultirangeEntity
   end
 
   class OfferingEntity < BaseModelEntity
@@ -592,6 +592,7 @@ module Suma::AdminAPI::Entities
     model Suma::Organization::RegistrationLink
     expose :organization, with: OrganizationEntity
     expose :opaque_id
+    expose :durable_url
     expose :ical_dtstart
     expose :ical_dtend
     expose :ical_rrule
