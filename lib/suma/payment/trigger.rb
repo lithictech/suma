@@ -170,7 +170,11 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     if self.maximum_cumulative_subsidy_cents.positive?
       max_subsidy_cents = self.maximum_cumulative_subsidy_cents
       cents_received_already = context.cached_get("trigger-funded-amt-from-#{self.id}-to-#{receiving.id}") do
+        # We want to total only funds received for the CURRENT 'active during' window.
+        # Each window 'resets' the max subsidy received.
+        current_window = self.current_active_during(now: context.apply_at)
         Suma::Payment::Trigger::Execution.where(trigger: self).
+          where(Sequel.pg_range(current_window).op.contains(:apply_execution_at)).
           join(
             Suma::Payment::BookTransaction.where(receiving_ledger: receiving),
             {id: :book_transaction_id},
@@ -229,7 +233,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       memo: self.memo,
       **,
     )
-    return Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: self)
+    return Suma::Payment::Trigger::Execution.create(book_transaction:, apply_execution_at: apply_at, trigger: self)
   end
 
   def project_from_ical_event(tstart, tend, rrule)
@@ -238,6 +242,13 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     self.active_during = ranges
   end
 
+  # Return the current time range.
+  # @return [Range,nil]
+  def current_active_during(now: Time.now)
+    return self.active_during.find { |r| r.cover?(now) }
+  end
+
+  # Return the current, or next-up, time range.
   # @return [Range,nil]
   def next_active_during(now: Time.now)
     return self.active_during.select { |r| r.end > now }.min_by(&:end)

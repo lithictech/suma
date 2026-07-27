@@ -176,15 +176,17 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         )
       end
 
-      it "takes previous trigger executions into account" do
+      it "takes previous trigger executions to the same ledger into account" do
         t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
         receiving = t.ensure_receiving_ledger(account)
         to_same_ledger = Suma::Payment::Trigger::Execution.create(
           trigger: t,
+          apply_execution_at: Time.now,
           book_transaction: Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$7")),
         )
         to_diff_ledger = Suma::Payment::Trigger::Execution.create(
           trigger: t,
+          apply_execution_at: Time.now,
           book_transaction: Suma::Fixtures.book_transaction.create(amount: money("$5")),
         )
         unassociated_book_xaction = Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$0.50"))
@@ -192,6 +194,29 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         plan = gather(money("$100"))
         expect(plan.steps).to contain_exactly(
           have_attributes(amount: money("$13"), trigger: t),
+        )
+      end
+
+      it "takes previous trigger executions only within the same time window into account" do
+        t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
+        t.active_during = [
+          50.days.ago..40.days.ago,
+          30.days.ago..20.days.ago,
+          2.days.ago..2.days.from_now,
+          10.days.from_now..20.days.from_now,
+        ]
+        receiving = t.ensure_receiving_ledger(account)
+        t.active_during.each do |trange|
+          Suma::Payment::Trigger::Execution.create(
+            trigger: t,
+            apply_execution_at: trange.begin + 1.day,
+            book_transaction: Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$5")),
+          )
+        end
+
+        plan = gather(money("$100"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$15"), trigger: t),
         )
       end
     end
@@ -353,12 +378,20 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     end
   end
 
-  describe "next_active_during" do
-    it "gets the next active range" do
+  describe "active_during helpers" do
+    it "gets the correct range" do
       tr = Suma::Fixtures.payment_trigger.create(active_during: [])
+      expect(tr.current_active_during).to be_nil
       expect(tr.next_active_during).to be_nil
+
       tr.active_during = [2.years.ago..1.year.ago]
+      expect(tr.current_active_during).to be_nil
       expect(tr.next_active_during).to be_nil
+
+      tr.active_during = [1.hour.from_now..5.hours.from_now]
+      expect(tr.current_active_during).to be_nil
+      expect(tr.next_active_during).to have_attributes(begin: match_time(1.hour.from_now))
+
       tr.active_during = [
         100.hours.ago..99.hours.ago,
         4.hours.from_now..5.hours.from_now,
@@ -367,6 +400,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         98.hours.ago..97.hours.ago,
       ].shuffle
       expect(tr.next_active_during).to have_attributes(begin: match_time(1.hour.ago), end: match_time(1.hour.from_now))
+      expect(tr.current_active_during).to have_attributes(begin: match_time(1.hour.ago))
     end
   end
 end
