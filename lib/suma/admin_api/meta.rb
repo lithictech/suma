@@ -62,6 +62,28 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
         end
       end
     end
+
+    resource :icalendar do
+      params do
+        requires :start, type: Time
+        requires :end, type: Time
+        optional :rrule, type: String
+      end
+      post :project do
+        check_admin_role_access!(:read, :admin_access)
+        occurrences = []
+        if params[:start] && params[:end]
+          begin
+            occurrences = Suma::Ical.project(params[:start], params[:end], params[:rrule])
+          rescue ArgumentError
+            nil
+          end
+          occurrences = Suma::Ical.combine_occurrences(occurrences)
+        end
+        status 200
+        present({occurrences:}, with: IcalProjectionEntity)
+      end
+    end
   end
 
   class CurrencyEntity < BaseEntity
@@ -83,5 +105,14 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     expose :name do |o|
       o.name.en
     end
+  end
+
+  class IcalOccurrenceEntity < BaseEntity
+    expose :start_time, as: :start
+    expose :end_time, as: :end
+  end
+
+  class IcalProjectionEntity < BaseEntity
+    expose :occurrences, with: IcalOccurrenceEntity
   end
 end

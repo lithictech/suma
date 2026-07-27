@@ -2,6 +2,7 @@
 
 require "suma/postgres/model"
 require "suma/eligibility"
+require "suma/ical"
 require "suma/has_activity_audit"
 
 class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
@@ -12,7 +13,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   plugin :hybrid_search
   plugin :timestamps
   plugin :association_pks
-  plugin :tstzrange_fields, :active_during
+  plugin :tstzmultirange_fields, :active_during
   plugin :translated_text, :memo, Suma::TranslatedText
   plugin :translated_text, :receiving_ledger_contribution_text, Suma::TranslatedText
   plugin Suma::Eligibility::Resource,
@@ -169,7 +170,11 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     if self.maximum_cumulative_subsidy_cents.positive?
       max_subsidy_cents = self.maximum_cumulative_subsidy_cents
       cents_received_already = context.cached_get("trigger-funded-amt-from-#{self.id}-to-#{receiving.id}") do
+        # We want to total only funds received for the CURRENT 'active during' window.
+        # Each window 'resets' the max subsidy received.
+        current_window = self.current_active_during(now: context.apply_at)
         Suma::Payment::Trigger::Execution.where(trigger: self).
+          where(Sequel.pg_range(current_window).op.contains(:apply_execution_at)).
           join(
             Suma::Payment::BookTransaction.where(receiving_ledger: receiving),
             {id: :book_transaction_id},
@@ -228,50 +233,25 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       memo: self.memo,
       **,
     )
-    return Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: self)
+    return Suma::Payment::Trigger::Execution.create(book_transaction:, apply_execution_at: apply_at, trigger: self)
   end
 
-  # Modify this instance so +active_during_end+ is +interval+ after +active_during_begin+.
-  # Create new trigger instances with the same values, but each one is +interval+ after the last.
-  # The last trigger has the same +active_during_end+ of the original instance.
-  # @param unit [Symbol] Must be an active support duration, like :week, :day, :month, etc.
-  # @param amount [Integer] Number of units in duration each resulting trigger is.
-  # @return [Array<Suma::Payment::Trigger>]
-  def subdivide(unit:, amount:)
-    interval = amount.send(unit)
-    created = [self]
-    return created if self.active_during_end <= (self.active_during_begin + interval)
-    unit_lbl = amount == 1 ? unit.to_s : unit.to_s.pluralize
-    self.db.transaction do
-      original_end = self.active_during_end
-      original_label = self.label
-      self.active_during_end = self.active_during_begin + interval
-      first_lbl_duration = amount == 1 ? "1" : "1-#{amount}"
-      self.label = "#{self.label} (#{unit_lbl} #{first_lbl_duration})"
-      self.save_changes
-      loop do
-        last_instance = created.last
-        if last_instance.active_during_end >= original_end
-          last_instance.active_during_end = original_end
-          break
-        end
-        tvals = self.values.dup
-        tvals.delete(:id)
-        instance = self.class.new(tvals)
-        interval_lbl = if amount == 1
-                         (created.count + 1).to_s
-                       else
-                         interval_start = created.count * amount
-                         "#{interval_start + 1}-#{interval_start + amount}"
-                        end
-        instance.label = "#{original_label} (#{unit_lbl} #{interval_lbl})"
-        instance.active_during_begin = last_instance.active_during_end
-        instance.active_during_end = instance.active_during_begin + interval
-        instance.save_changes
-        created << instance
-      end
-      return created
-    end
+  def project_from_ical_event(tstart, tend, rrule)
+    occurrences = Suma::Ical.project(tstart, tend, rrule)
+    ranges = occurrences.map { |r| r.start_time..r.end_time }
+    self.active_during = ranges
+  end
+
+  # Return the current time range.
+  # @return [Range,nil]
+  def current_active_during(now: Time.now)
+    return self.active_during.find { |r| r.cover?(now) }
+  end
+
+  # Return the current, or next-up, time range.
+  # @return [Range,nil]
+  def next_active_during(now: Time.now)
+    return self.active_during.select { |r| r.end > now }.min_by(&:end)
   end
 
   def rel_admin_link = "/payment-trigger/#{self.id}"
@@ -279,8 +259,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   def hybrid_search_fields
     return [
       :label,
-      :active_during_begin,
-      :active_during_end,
       :memo,
       :receiving_ledger_name,
       ["Originating ledger", self.originating_ledger.admin_label],
@@ -292,7 +270,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # @return [String]
 
   # @!attribute active_during
-  # @return [Range]
+  # @return [Array<Range>]
 
   # @!attribute match_multiplier
   # Amount to multiply a transaction amount against, to get the trigger amount.

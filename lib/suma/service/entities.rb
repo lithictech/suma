@@ -91,6 +91,11 @@ module Suma::Service::Entities
     expose :lng
   end
 
+  class Multirange < Base
+    expose :begin, as: :start
+    expose :end
+  end
+
   class CurrentMember < Base
     expose :id
     expose :created_at

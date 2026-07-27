@@ -10,7 +10,7 @@ module Suma::Fixtures::PaymentTriggers
 
   base :payment_trigger do
     self.active_during ||=
-      Faker::Number.between(from: 50, to: 2).days.ago..Faker::Number.between(from: 2, to: 50).days.from_now
+      [Faker::Number.between(from: 50, to: 2).days.ago..Faker::Number.between(from: 2, to: 50).days.from_now]
     self.label ||= Faker::Lorem.sentence
     self.match_multiplier ||= Faker::Number.between(from: 0.25, to: 4)
     self.maximum_cumulative_subsidy_cents ||= Faker::Number.between(from: 100_00, to: 100_000)
@@ -25,8 +25,7 @@ module Suma::Fixtures::PaymentTriggers
   end
 
   decorator :inactive do
-    self.active_during_begin = 4.days.ago
-    self.active_during_end = 2.days.ago
+    self.active_during = [4.days.ago..2.days.ago]
   end
 
   decorator :matching do |n=1|
@@ -65,7 +64,7 @@ module Suma::Fixtures::PaymentTriggers
       book_x[:originating_ledger] ||= self.originating_ledger
       book_x = Suma::Fixtures.book_transaction.create(book_x)
     end
-    self.add_execution(book_transaction: book_x)
+    self.add_execution(book_transaction: book_x, apply_execution_at: book_x.apply_at)
   end
 
   decorator :memo do |en, es: en|

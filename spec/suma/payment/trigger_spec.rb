@@ -94,7 +94,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       plan = gather(money("$10"))
       expect(plan.steps).to have_length(1)
 
-      t.update(active_during_end: 1.minute.ago)
+      t.update(active_during: [])
       plan = gather(money("$10"))
       expect(plan.steps).to be_empty
     end
@@ -176,15 +176,17 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         )
       end
 
-      it "takes previous trigger executions into account" do
+      it "takes previous trigger executions to the same ledger into account" do
         t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
         receiving = t.ensure_receiving_ledger(account)
         to_same_ledger = Suma::Payment::Trigger::Execution.create(
           trigger: t,
+          apply_execution_at: Time.now,
           book_transaction: Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$7")),
         )
         to_diff_ledger = Suma::Payment::Trigger::Execution.create(
           trigger: t,
+          apply_execution_at: Time.now,
           book_transaction: Suma::Fixtures.book_transaction.create(amount: money("$5")),
         )
         unassociated_book_xaction = Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$0.50"))
@@ -192,6 +194,30 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         plan = gather(money("$100"))
         expect(plan.steps).to contain_exactly(
           have_attributes(amount: money("$13"), trigger: t),
+        )
+      end
+
+      it "takes previous trigger executions only within the same time window into account" do
+        t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create(
+          active_during: [
+            50.days.ago..40.days.ago,
+            30.days.ago..20.days.ago,
+            2.days.ago..2.days.from_now,
+            10.days.from_now..20.days.from_now,
+          ],
+        )
+        receiving = t.ensure_receiving_ledger(account)
+        t.active_during.each do |trange|
+          Suma::Payment::Trigger::Execution.create(
+            trigger: t,
+            apply_execution_at: trange.begin + 1.day,
+            book_transaction: Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$5")),
+          )
+        end
+
+        plan = gather(money("$100"))
+        expect(plan.steps).to contain_exactly(
+          have_attributes(amount: money("$15"), trigger: t),
         )
       end
     end
@@ -343,113 +369,39 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     end
   end
 
-  describe "#subdivide" do
-    let(:tr) do
-      Suma::Fixtures.payment_trigger.create(
-        label: "MyTrigger",
-        active_during: Time.parse("2025-01-01T00:00:00Z")..Time.parse("2025-01-02T00:00:00Z"),
-      )
+  describe "#project_from_ical_event" do
+    it "can replace active_during from an ical vevent" do
+      tr = Suma::Fixtures.payment_trigger.create
+      t = Time.at(100)
+      tr.project_from_ical_event(t, t + 1.hour, "FREQ=DAILY;COUNT=10")
+      tr.save_changes.refresh
+      expect(tr.active_during).to have_length(10)
     end
+  end
 
-    it "can subdivide evenly" do
-      created = tr.subdivide(amount: 6, unit: :hour)
-      expect(created).to have_length(4)
-      expect(created.first).to be === tr
-      expect(created).to match_array(
-        [
-          have_attributes(
-            label: "MyTrigger (hours 1-6)",
-            active_during_begin: match_time("2025-01-01T00:00:00Z"),
-            active_during_end: match_time("2025-01-01T06:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hours 7-12)",
-            active_during_begin: match_time("2025-01-01T06:00:00Z"),
-            active_during_end: match_time("2025-01-01T12:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hours 13-18)",
-            active_during_begin: match_time("2025-01-01T12:00:00Z"),
-            active_during_end: match_time("2025-01-01T18:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hours 19-24)",
-            active_during_begin: match_time("2025-01-01T18:00:00Z"),
-            active_during_end: match_time("2025-01-02T00:00:00Z"),
-          ),
-        ],
-      )
-    end
+  describe "active_during helpers" do
+    it "gets the correct range" do
+      tr = Suma::Fixtures.payment_trigger.create(active_during: [])
+      expect(tr.current_active_during).to be_nil
+      expect(tr.next_active_during).to be_nil
 
-    it "returns [self] with an interval larger than the active_during" do
-      created = tr.subdivide(amount: 31, unit: :hour)
-      expect(created).to contain_exactly(be === tr)
-      expect(created.first).to have_attributes(
-        label: "MyTrigger",
-        active_during_begin: match_time("2025-01-01T00:00:00Z"),
-        active_during_end: match_time("2025-01-02T00:00:00Z"),
-      )
-    end
+      tr.active_during = [2.years.ago..1.year.ago]
+      expect(tr.current_active_during).to be_nil
+      expect(tr.next_active_during).to be_nil
 
-    it "returns [self] with an interval equal to active_during" do
-      created = tr.subdivide(amount: 24, unit: :hour)
-      expect(created).to contain_exactly(be === tr)
-      expect(created.first).to have_attributes(
-        label: "MyTrigger",
-        active_during_begin: match_time("2025-01-01T00:00:00Z"),
-        active_during_end: match_time("2025-01-02T00:00:00Z"),
-      )
-    end
+      tr.active_during = [1.hour.from_now..5.hours.from_now]
+      expect(tr.current_active_during).to be_nil
+      expect(tr.next_active_during).to have_attributes(begin: match_time(1.hour.from_now))
 
-    it "can subdivide with an interval that does not divide evenly into the active_during" do
-      created = tr.subdivide(amount: 13, unit: :hour)
-      expect(created).to have_length(2)
-      expect(created.first).to be === tr
-      expect(created).to match_array(
-        [
-          have_attributes(
-            label: "MyTrigger (hours 1-13)",
-            active_during_begin: match_time("2025-01-01T00:00:00Z"),
-            active_during_end: match_time("2025-01-01T13:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hours 14-26)",
-            active_during_begin: match_time("2025-01-01T13:00:00Z"),
-            active_during_end: match_time("2025-01-02T00:00:00Z"),
-          ),
-        ],
-      )
-    end
-
-    it "uses a singular label when the amount is 1" do
-      tr.update(active_during_end: Time.parse("2025-01-01T04:00:00Z"))
-      created = tr.subdivide(amount: 1, unit: :hour)
-      expect(created).to have_length(4)
-      expect(created.first).to be === tr
-      expect(created).to match_array(
-        [
-          have_attributes(
-            label: "MyTrigger (hour 1)",
-            active_during_begin: match_time("2025-01-01T00:00:00Z"),
-            active_during_end: match_time("2025-01-01T01:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hour 2)",
-            active_during_begin: match_time("2025-01-01T01:00:00Z"),
-            active_during_end: match_time("2025-01-01T02:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hour 3)",
-            active_during_begin: match_time("2025-01-01T02:00:00Z"),
-            active_during_end: match_time("2025-01-01T03:00:00Z"),
-          ),
-          have_attributes(
-            label: "MyTrigger (hour 4)",
-            active_during_begin: match_time("2025-01-01T03:00:00Z"),
-            active_during_end: match_time("2025-01-01T04:00:00Z"),
-          ),
-        ],
-      )
+      tr.active_during = [
+        100.hours.ago..99.hours.ago,
+        4.hours.from_now..5.hours.from_now,
+        1.hour.ago..1.hour.from_now,
+        2.hours.from_now..3.hours.from_now,
+        98.hours.ago..97.hours.ago,
+      ].shuffle
+      expect(tr.next_active_during).to have_attributes(begin: match_time(1.hour.ago), end: match_time(1.hour.from_now))
+      expect(tr.current_active_during).to have_attributes(begin: match_time(1.hour.ago))
     end
   end
 end

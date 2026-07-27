@@ -56,8 +56,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     ) do
       params do
         requires :label, type: String
-        requires :active_during_begin, type: Time
-        requires :active_during_end, type: Time
+        requires(:active_during, type: Array[JSON]) { use :tstzmultirange }
         requires :match_multiplier, type: Float
         requires :maximum_cumulative_subsidy_cents, type: Integer
         requires :unmatched_amount_cents, type: Integer
@@ -76,8 +75,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
     ) do
       params do
         optional :label, type: String
-        optional :active_during_begin, type: Time
-        optional :active_during_end, type: Time
+        optional(:active_during, type: Array[JSON]) { use :tstzmultirange }
         optional :match_multiplier, type: Float
         optional :maximum_cumulative_subsidy_cents, type: Integer
         optional :unmatched_amount_cents, type: Integer
@@ -86,21 +84,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         optional(:originating_ledger, type: JSON) { use :model_with_id }
         optional :receiving_ledger_name, type: String
         optional(:receiving_ledger_contribution_text, type: JSON) { use :translated_text }
-      end
-    end
-
-    route_param :id, type: Integer do
-      params do
-        requires :amount, type: Integer
-        requires :unit, type: Symbol, values: [:day, :week, :month]
-      end
-      post :subdivide do
-        check_admin_role_access!(:write, Suma::Payment::Trigger)
-        (tr = Suma::Payment::Trigger[params[:id]]) or forbidden!
-        tr.subdivide(amount: params[:amount], unit: params[:unit])
-        created_resource_headers(tr.id, tr.admin_link)
-        status 200
-        present tr, with: DetailedPaymentTriggerEntity
       end
     end
   end

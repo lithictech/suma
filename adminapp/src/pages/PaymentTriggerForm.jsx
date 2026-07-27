@@ -2,20 +2,25 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
+import IcalEventOccurrencesEditor from "../components/IcalEventEditor/IcalEventOccurrencesEditor";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
-import SafeDateTimePicker from "../components/SafeDateTimePicker";
+import SimpleCard from "../components/SimpleCard";
 import config from "../config";
-import { formatOrNull } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import { intToMoney } from "../shared/money";
+import useToggle from "../shared/react/useToggle";
 import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  FormLabel,
   Stack,
   Switch,
   TextField,
+  Button,
 } from "@mui/material";
+import size from "lodash/size";
 import React from "react";
 
 export default function PaymentTriggerForm({
@@ -51,6 +56,8 @@ export default function PaymentTriggerForm({
     setMatchFraction(Number(e.target.value) / 100.0);
   };
 
+  const activeDuringEdit = useToggle();
+
   return (
     <FormLayout
       title={isCreate ? "Create a Payment Trigger" : "Update Payment Trigger"}
@@ -69,156 +76,173 @@ export default function PaymentTriggerForm({
           required
           onChange={setFieldFromInput}
         />
-        <ResponsiveStack>
-          <SafeDateTimePicker
-            label="Active starting"
-            value={resource.activeDuringBegin}
-            onChange={(v) => setField("activeDuringBegin", formatOrNull(v))}
-          />
-          <SafeDateTimePicker
-            label="Active ending"
-            value={resource.activeDuringEnd}
-            onChange={(v) => setField("activeDuringEnd", formatOrNull(v))}
-          />
-        </ResponsiveStack>
-        <ResponsiveStack>
-          <TextField
-            {...register("matchMultiplier")}
-            label="Match Multiplier"
-            helperText="For each dollar put in, how much do we give the member?"
-            name="matchMultiplier"
-            value={resource.matchMultiplier}
-            type="number"
-            variant="outlined"
-            required
-            disabled={resource.actAsCredit}
-            style={{ flex: 1 }}
-            inputProps={{ step: 0.01 }}
-            onChange={setFieldFromInput}
-          />
-          <TextField
-            {...register("matchPercentage")}
-            label="Match Percentage"
-            helperText="For each dollar of cost, how much we we subsidize?"
-            name="matchPercentage"
-            value={matchPercent}
-            type="number"
-            variant="outlined"
-            required
-            disabled={resource.actAsCredit}
-            style={{ flex: 1 }}
-            onChange={setMatchPercent}
-          />
-          <TextField
-            {...register("payerPercentage")}
-            label="Payer Percentage"
-            helperText="For each dollar of cost, how much does the member pay?"
-            name="payerPercentage"
-            value={payerPercent}
-            type="number"
-            variant="outlined"
-            required
-            disabled={resource.actAsCredit}
-            style={{ flex: 1 }}
-            onChange={setPayerPercent}
-          />
-        </ResponsiveStack>
-        <ResponsiveStack>
-          <CurrencyTextField
-            {...register("unmatchedAmountCents")}
-            label="Unmatched Amount"
-            helperText="How much of a member's payment is unmatched?
+        <SimpleCard spacing={2}>
+          <ResponsiveStack>
+            <TextField
+              {...register("matchMultiplier")}
+              label="Match Multiplier"
+              helperText="For each dollar put in, how much do we give the member?"
+              name="matchMultiplier"
+              value={resource.matchMultiplier}
+              type="number"
+              variant="outlined"
+              required
+              disabled={resource.actAsCredit}
+              style={{ flex: 1 }}
+              inputProps={{ step: 0.01 }}
+              onChange={setFieldFromInput}
+            />
+            <TextField
+              {...register("matchPercentage")}
+              label="Match Percentage"
+              helperText="For each dollar of cost, how much we we subsidize?"
+              name="matchPercentage"
+              value={matchPercent}
+              type="number"
+              variant="outlined"
+              required
+              disabled={resource.actAsCredit}
+              style={{ flex: 1 }}
+              onChange={setMatchPercent}
+            />
+            <TextField
+              {...register("payerPercentage")}
+              label="Payer Percentage"
+              helperText="For each dollar of cost, how much does the member pay?"
+              name="payerPercentage"
+              value={payerPercent}
+              type="number"
+              variant="outlined"
+              required
+              disabled={resource.actAsCredit}
+              style={{ flex: 1 }}
+              onChange={setPayerPercent}
+            />
+          </ResponsiveStack>
+          <ResponsiveStack>
+            <CurrencyTextField
+              {...register("unmatchedAmountCents")}
+              label="Unmatched Amount"
+              helperText="How much of a member's payment is unmatched?
             For example, using $10 as unmatched, and setting Act As Credit true,
             would subsidize everything above $10."
-            money={intToMoney(resource.unmatchedAmountCents, config.defaultCurrency.code)}
+              money={intToMoney(
+                resource.unmatchedAmountCents,
+                config.defaultCurrency.code
+              )}
+              required
+              style={{ flex: 1 }}
+              onMoneyChange={(v) => setField("unmatchedAmountCents", v.cents)}
+            />
+            <CurrencyTextField
+              {...register("maximumCumulativeSubsidyCents")}
+              label="Max Subsidy"
+              helperText="What is the total amount that can be given to a member from this trigger? $0 is unlimited."
+              money={intToMoney(
+                resource.maximumCumulativeSubsidyCents,
+                config.defaultCurrency.code
+              )}
+              required
+              style={{ flex: 1 }}
+              onMoneyChange={(v) => setField("maximumCumulativeSubsidyCents", v.cents)}
+            />
+          </ResponsiveStack>
+          <FormControl style={{ flex: 2 }}>
+            <FormControlLabel
+              control={<Switch />}
+              label="Act as Credit"
+              name="actAsCredit"
+              checked={resource.actAsCredit}
+              onChange={setFieldFromInput}
+            />
+            <FormHelperText>
+              Triggers that act as credits do not respect Match Multiplier. Instead, they
+              contribute up to the maximum subsidy (unlimited if $0), without requiring
+              the member to put in any cash to match.
+            </FormHelperText>
+          </FormControl>
+        </SimpleCard>
+        <SimpleCard spacing={2}>
+          <ResponsiveStack>
+            <MultiLingualText
+              {...register("memo")}
+              label="Memo"
+              fullWidth
+              value={resource.memo}
+              required
+              onChange={(v) => setField("memo", v)}
+            />
+          </ResponsiveStack>
+          <FormHelperText>
+            This Memo appears on all subsidy transactions between the originated and
+            receiving ledgers specified below. Sometimes this is the same as the
+            Contribution Text below, but more often it should be focused on the
+            Originating Ledger. For example, a holiday meal subsidy could originate from
+            the "Holiday Meal 2020" ledger, have a Memo of "Subsidy from local funders",
+            and have a Contribution Text of "Food". To the user, this would appear as a
+            transaction on their Food ledger; to the platform, it would track the subsidy
+            came from a dedicated ledger.
+          </FormHelperText>
+          <AutocompleteSearch
+            {...register("originatingLedger")}
+            label="Originating Ledger"
+            helperText="Where is the money coming from?"
+            value={resource.originatingLedger?.label || ""}
             required
-            style={{ flex: 1 }}
-            onMoneyChange={(v) => setField("unmatchedAmountCents", v.cents)}
+            search={api.searchLedgers}
+            style={{ flex: 1, width: "100%" }}
+            searchEmpty
+            onValueSelect={(v) => setField("originatingLedger.id", v.id)}
           />
-          <CurrencyTextField
-            {...register("maximumCumulativeSubsidyCents")}
-            label="Max Subsidy"
-            helperText="What is the total amount that can be given to a member from this trigger? $0 is unlimited."
-            money={intToMoney(
-              resource.maximumCumulativeSubsidyCents,
-              config.defaultCurrency.code
-            )}
+          <TextField
+            {...register("receivingLedgerName")}
+            label="Receiving Ledger"
+            helperText="The internal name of the ledger created for the member. Not shown to members."
+            name="receivingLedgerName"
+            value={resource.receivingLedgerName}
+            variant="outlined"
+            fullWidth
             required
-            style={{ flex: 1 }}
-            onMoneyChange={(v) => setField("maximumCumulativeSubsidyCents", v.cents)}
-          />
-        </ResponsiveStack>
-        <FormControl style={{ flex: 2 }}>
-          <FormControlLabel
-            control={<Switch />}
-            label="Act as Credit"
-            name="actAsCredit"
-            checked={resource.actAsCredit}
             onChange={setFieldFromInput}
           />
+          <ResponsiveStack>
+            <MultiLingualText
+              {...register("receivingLedgerContributionText")}
+              label="Contribution Text"
+              fullWidth
+              value={resource.receivingLedgerContributionText}
+              required
+              onChange={(v) => setField("receivingLedgerContributionText", v)}
+            />
+          </ResponsiveStack>
           <FormHelperText>
-            Triggers that act as credits do not respect Match Multiplier. Instead, they
-            contribute up to the maximum subsidy (unlimited if $0), without requiring the
-            member to put in any cash to match.
+            The 'ledger name' shown to the member. This appears when viewing their
+            transaction history for a specific ledger, or as a description along with the
+            Memo specified above. See Memo helper text for more info.
           </FormHelperText>
-        </FormControl>
-        <ResponsiveStack>
-          <MultiLingualText
-            {...register("memo")}
-            label="Memo"
-            fullWidth
-            value={resource.memo}
-            required
-            onChange={(v) => setField("memo", v)}
+        </SimpleCard>
+        <SimpleCard spacing={2}>
+          <FormLabel>Active During ({size(resource.activeDuring)})</FormLabel>
+          <FormHelperText>
+            Set up a one-time or recurring schedule when this trigger is active.
+          </FormHelperText>
+          <ul>
+            {resource.activeDuring.map(({ start, end }) => (
+              <li key={start + end}>
+                {formatDate(start)} - {formatDate(end)}
+              </li>
+            ))}
+          </ul>
+          <IcalEventOccurrencesEditor
+            toggle={activeDuringEdit}
+            title="Active During"
+            ranges={resource.activeDuring}
+            onCommit={(ranges) => setField("activeDuring", ranges)}
           />
-        </ResponsiveStack>
-        <FormHelperText>
-          This Memo appears on all subsidy transactions between the originated and
-          receiving ledgers specified below. Sometimes this is the same as the
-          Contribution Text below, but more often it should be focused on the Originating
-          Ledger. For example, a holiday meal subsidy could originate from the "Holiday
-          Meal 2020" ledger, have a Memo of "Subsidy from local funders", and have a
-          Contribution Text of "Food". To the user, this would appear as a transaction on
-          their Food ledger; to the platform, it would track the subsidy came from a
-          dedicated ledger.
-        </FormHelperText>
-        <AutocompleteSearch
-          {...register("originatingLedger")}
-          label="Originating Ledger"
-          helperText="Where is the money coming from?"
-          value={resource.originatingLedger?.label || ""}
-          required
-          search={api.searchLedgers}
-          style={{ flex: 1, width: "100%" }}
-          searchEmpty
-          onValueSelect={(v) => setField("originatingLedger.id", v.id)}
-        />
-        <TextField
-          {...register("receivingLedgerName")}
-          label="Receiving Ledger"
-          helperText="The internal name of the ledger created for the member. Not shown to members."
-          name="receivingLedgerName"
-          value={resource.receivingLedgerName}
-          variant="outlined"
-          fullWidth
-          required
-          onChange={setFieldFromInput}
-        />
-        <ResponsiveStack>
-          <MultiLingualText
-            {...register("receivingLedgerContributionText")}
-            label="Contribution Text"
-            fullWidth
-            value={resource.receivingLedgerContributionText}
-            required
-            onChange={(v) => setField("receivingLedgerContributionText", v)}
-          />
-        </ResponsiveStack>
-        <FormHelperText>
-          The 'ledger name' shown to the member. This appears when viewing their
-          transaction history for a specific ledger, or as a description along with the
-          Memo specified above. See Memo helper text for more info.
-        </FormHelperText>
+          <Button variant="contained" onClick={activeDuringEdit.turnOn}>
+            Edit
+          </Button>
+        </SimpleCard>
       </Stack>
     </FormLayout>
   );

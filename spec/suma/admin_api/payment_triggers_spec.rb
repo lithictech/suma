@@ -95,12 +95,10 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
   describe "POST /v1/payment_triggers/create" do
     it "creates the trigger" do
       orig = Suma::Fixtures.ledger.create
-      period = 2.days.ago..3.days.from_now
 
       post "/v1/payment_triggers/create",
            label: "hi",
-           active_during_begin: period.begin,
-           active_during_end: period.end,
+           active_during: [],
            match_multiplier: 2.5,
            unmatched_amount_cents: 500,
            maximum_cumulative_subsidy_cents: 500,
@@ -113,8 +111,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Payment::Trigger[id: last_response_json_body[:id]]).to have_attributes(
         label: "hi",
-        active_during_begin: match_time(period.begin),
-        active_during_end: match_time(period.end),
+        active_during: [],
         match_multiplier: 2.5,
         maximum_cumulative_subsidy_cents: 500,
         memo: have_attributes(en: "hello"),
@@ -134,25 +131,20 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
       expect(last_response).to have_status(200)
       expect(o.refresh).to have_attributes(label: "test")
     end
-  end
 
-  describe "POST /v1/payment_triggers/:id/subdivide" do
-    it "subdivides the trigger" do
-      pt = Suma::Fixtures.payment_trigger.create(
-        active_during: Time.parse("2024-04-01T00:00:00Z")..Time.parse("2024-04-20T00:00:00Z"),
-      )
+    it "can set active_during" do
+      o = Suma::Fixtures.payment_trigger.create
+      period = Time.at(1)..Time.at(100)
 
-      post "/v1/payment_triggers/#{pt.id}/subdivide", amount: 2, unit: "week"
+      post "/v1/payment_triggers/#{o.id}", active_during: [{start: period.begin, end: period.end}]
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: pt.id)
-      expect(Suma::Payment::Trigger.all).to have_length(2)
-    end
-
-    it "403s if the trigger does not exist" do
-      post "/v1/payment_triggers/0/subdivide", amount: 1, unit: "day"
-
-      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(
+        active_during: contain_exactly(include(start: match_time(period.begin), end: match_time(period.end))),
+      )
+      expect(o.refresh).to have_attributes(
+        active_during: contain_exactly(have_attributes(begin: match_time(period.begin), end: match_time(period.end))),
+      )
     end
   end
 end

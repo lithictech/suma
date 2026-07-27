@@ -96,6 +96,8 @@ export default {
     get(`/adminapi/v1/meta/resource_access`, data, ...args),
   getStateMachine: ({ name, ...data }, ...args) =>
     get(`/adminapi/v1/meta/state_machines/${name}`, data, ...args),
+  projectIcalEvents: ({ name, ...data }, ...args) =>
+    post(`/adminapi/v1/meta/icalendar/project`, data, ...args),
 
   getBankAccount: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),
@@ -146,8 +148,6 @@ export default {
     get(`/adminapi/v1/payment_triggers/${id}`, data, ...args),
   updatePaymentTrigger: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/payment_triggers/${id}`, data, ...args),
-  subdividePaymentTrigger: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/payment_triggers/${id}/subdivide`, data, ...args),
 
   getCommerceOfferings: (data, ...args) =>
     get("/adminapi/v1/commerce_offerings", data, ...args),

@@ -80,7 +80,6 @@ import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
 import PaymentTriggerDetailPage from "./pages/PaymentTriggerDetailPage";
 import PaymentTriggerEditPage from "./pages/PaymentTriggerEditPage";
 import PaymentTriggerListPage from "./pages/PaymentTriggerListPage";
-import PaymentTriggerSubdividePage from "./pages/PaymentTriggerSubdividePage";
 import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
 import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
 import ProductCreatePage from "./pages/ProductCreatePage";
@@ -385,15 +384,6 @@ function PageSwitch() {
         exact
         path="/payment-trigger/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), PaymentTriggerEditPage)}
-      />
-      <Route
-        exact
-        path="/payment-trigger/:id/subdivide"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          PaymentTriggerSubdividePage
-        )}
       />
       <Route
         exact

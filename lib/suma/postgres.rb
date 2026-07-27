@@ -42,6 +42,7 @@ module Suma::Postgres
     :pg_json_ops,
     :pg_range,
     :pg_range_ops,
+    :pg_multirange,
     :symbol_as_refinement,
   )
   Sequel::Model.plugin(:force_encoding, "UTF-8")

@@ -68,6 +68,7 @@ class Suma::Postgres::Model
         db.extension(:pg_array)
         db.extension(:pg_streaming)
         db.extension(:pg_range)
+        db.extension(:pg_multirange)
         db.extension(:pg_interval)
         db.extension(:pretty_table)
         self.db = db

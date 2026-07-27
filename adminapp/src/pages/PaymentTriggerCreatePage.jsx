@@ -2,7 +2,6 @@ import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
 import { stub } from "../modules/formHelpers";
 import PaymentTriggerForm from "./PaymentTriggerForm";
-import dayjs from "dayjs";
 import React from "react";
 
 export default function PaymentTriggerCreatePage() {
@@ -12,8 +11,7 @@ export default function PaymentTriggerCreatePage() {
     receivingLedgerName: "",
     receivingLedgerContributionText: stub.translation,
     memo: stub.translation,
-    activeDuringBegin: dayjs().format(),
-    activeDuringEnd: dayjs().add(1, "day").format(),
+    activeDuring: [],
     matchMultiplier: 1,
     maximumCumulativeSubsidyCents: 100_00,
     unmatchedAmountCents: 0,
