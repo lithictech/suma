@@ -2,7 +2,6 @@ import api from "../api";
 import ResourceCreate from "../components/ResourceCreate";
 import { stub } from "../modules/formHelpers";
 import PaymentTriggerForm from "./PaymentTriggerForm";
-import dayjs from "dayjs";
 import React from "react";
 
 export default function PaymentTriggerCreatePage() {

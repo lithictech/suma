@@ -132,11 +132,11 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
       expect(o.refresh).to have_attributes(label: "test")
     end
 
-    it "can set active_during the object" do
+    it "can set active_during" do
       o = Suma::Fixtures.payment_trigger.create
       period = Time.at(1)..Time.at(100)
 
-      post "/v1/payment_triggers/#{o.id}", active_during: [{begin: period.begin, end: period.end}]
+      post "/v1/payment_triggers/#{o.id}", active_during: [{start: period.begin, end: period.end}]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(

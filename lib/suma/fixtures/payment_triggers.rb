@@ -64,7 +64,7 @@ module Suma::Fixtures::PaymentTriggers
       book_x[:originating_ledger] ||= self.originating_ledger
       book_x = Suma::Fixtures.book_transaction.create(book_x)
     end
-    self.add_execution(book_transaction: book_x)
+    self.add_execution(book_transaction: book_x, apply_execution_at: book_x.apply_at)
   end
 
   decorator :memo do |en, es: en|
