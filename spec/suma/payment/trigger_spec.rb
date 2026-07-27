@@ -198,13 +198,14 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       end
 
       it "takes previous trigger executions only within the same time window into account" do
-        t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
-        t.active_during = [
-          50.days.ago..40.days.ago,
-          30.days.ago..20.days.ago,
-          2.days.ago..2.days.from_now,
-          10.days.from_now..20.days.from_now,
-        ]
+        t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create(
+          active_during: [
+            50.days.ago..40.days.ago,
+            30.days.ago..20.days.ago,
+            2.days.ago..2.days.from_now,
+            10.days.from_now..20.days.from_now,
+          ],
+        )
         receiving = t.ensure_receiving_ledger(account)
         t.active_during.each do |trange|
           Suma::Payment::Trigger::Execution.create(
