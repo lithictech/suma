@@ -192,6 +192,8 @@ module Suma::Postgres::ModelUtilities
     end
   end
 
+  INSPECT_KEY_PRIORITY = [:id, :name, :label, :title].freeze
+
   module InstanceMethods
     # Return a human-readable representation of the object as a String suitable for debugging.
     def inspect
@@ -208,7 +210,12 @@ module Suma::Postgres::ModelUtilities
       rescue NoMethodError
         nil
       end
-      values = values.map do |(k, v)|
+      keys = values.keys.sort_by do |(k, _v)|
+        idx = INSPECT_KEY_PRIORITY.index(k)
+        [idx || INSPECT_KEY_PRIORITY.length, k]
+      end
+      values = keys.map do |k|
+        v = values[k]
         k = k.to_s
         v = if v.is_a?(Time)
               self.inspect_time(v)

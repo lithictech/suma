@@ -86,6 +86,12 @@ class Suma::Payment::CalculationContext
     return self.class.new(self.apply_at, adjustments:, adjustments_computed:)
   end
 
+  def inspect
+    return "#<%p %s>" % [self.class, @adjustments]
+  end
+
+  alias to_s inspect if ENV["DEBUGGER_HOST"]
+
   class Adjustment < Suma::TypedStruct
     attr_accessor :ledger, :amount, :trigger, :type
 
