@@ -464,6 +464,11 @@ RSpec.describe "Suma::Postgres::Model", :db do
       state.values[:foo_base64] = Base64.strict_encode64("abc")
       expect(state.inspect).to include("foo_base64: (4)")
     end
+
+    it "puts a name/label/title fields first" do
+      m = Suma::Fixtures.member.create(name: "hi")
+      expect(m.inspect).to start_with("#<Suma::Member id: #{m.id}, name: \"hi\"")
+    end
   end
 
   describe "resource_lock!" do
