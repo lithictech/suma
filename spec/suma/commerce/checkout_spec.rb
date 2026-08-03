@@ -408,7 +408,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       end
     end
 
-    it "handles a bug" do
+    it "calculates the correct subsidy for multiple products from the same subsidy" do
       member = Suma::Fixtures.member.onboarding_verified.create
 
       cash_vsc = Suma::Vendor::ServiceCategory.cash
@@ -439,9 +439,9 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         create
       ctx = Suma::Payment::CalculationContext.new(Time.now)
       ci = cart.cost_info(ctx)
-      expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost('$25')
-      expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost('$25')
-      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost('$50'))
+      expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+      expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
     end
 
     describe "inventory behavior" do
