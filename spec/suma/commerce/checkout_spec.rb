@@ -439,9 +439,105 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         create
       ctx = Suma::Payment::CalculationContext.new(Time.now)
       ci = cart.cost_info(ctx)
+      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
       expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
       expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
-      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
+    end
+
+    it "does not include a negative cash ledger balance in subsidy matching or charging" do
+      member = Suma::Fixtures.member.onboarding_verified.create
+
+      cash_vsc = Suma::Vendor::ServiceCategory.cash
+      food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
+
+      cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+      food_ledger = Suma::Fixtures.ledger.member(member).
+        with_categories(food_vsc).
+        create(name: "food")
+
+      Suma::Payment::Account.lookup_platform_account.ensure_cash_ledger
+      platform_food_ledger = Suma::Fixtures.ledger.
+        with_categories(food_vsc).
+        create(name: "food", account: Suma::Payment::Account.lookup_platform_account)
+
+      offering = Suma::Fixtures.offering.create
+      product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+      op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+      trigger = Suma::Fixtures.payment_trigger.matching(1).
+        from(platform_food_ledger).
+        create
+
+      Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$10"))
+
+      cart = Suma::Fixtures.cart(offering:, member:).
+        with_product(product1, 1).
+        create
+      ctx = Suma::Payment::CalculationContext.new(Time.now)
+      ci = cart.cost_info(ctx)
+      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$25"), cash_cost: cost("$25"))
+      ch = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+      order = create_order(money("$25"), checkout_: ch)
+      expect(order.charge).to have_attributes(
+        discounted_subtotal: cost("$50"),
+        undiscounted_subtotal: cost("$50"),
+      )
+      expect(order.charge.contributing_book_transactions).to contain_exactly(
+        have_attributes(originating_ledger: be === cash_ledger, amount: cost("$25")),
+        have_attributes(originating_ledger: be === food_ledger, amount: cost("$25")),
+      )
+      expect(order.charge.associated_funding_transactions).to contain_exactly(
+        have_attributes(amount: cost("$25"), status: "collecting"),
+      )
+      expect(food_ledger.refresh).to(have_attributes(balance: be_zero))
+      expect(cash_ledger.refresh).to(have_attributes(balance: cost("-$10")))
+    end
+
+    it "does match subsidies against a postive cash ledger balance" do
+      member = Suma::Fixtures.member.onboarding_verified.create
+
+      cash_vsc = Suma::Vendor::ServiceCategory.cash
+      food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
+
+      cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+      food_ledger = Suma::Fixtures.ledger.member(member).
+        with_categories(food_vsc).
+        create(name: "food")
+
+      Suma::Payment::Account.lookup_platform_account.ensure_cash_ledger
+      platform_food_ledger = Suma::Fixtures.ledger.
+        with_categories(food_vsc).
+        create(name: "food", account: Suma::Payment::Account.lookup_platform_account)
+
+      offering = Suma::Fixtures.offering.create
+      product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+      op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+      trigger = Suma::Fixtures.payment_trigger.matching(1).
+        from(platform_food_ledger).
+        create
+
+      Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$10"))
+
+      cart = Suma::Fixtures.cart(offering:, member:).
+        with_product(product1, 1).
+        create
+      ctx = Suma::Payment::CalculationContext.new(Time.now)
+      ci = cart.cost_info(ctx)
+      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$25"), cash_cost: cost("$25"))
+      ch = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+      order = create_order(money("$15"), checkout_: ch)
+      expect(order.charge).to have_attributes(
+        discounted_subtotal: cost("$50"),
+        undiscounted_subtotal: cost("$50"),
+      )
+      expect(order.charge.contributing_book_transactions).to contain_exactly(
+        have_attributes(originating_ledger: be === cash_ledger, amount: cost("$25")),
+        have_attributes(originating_ledger: be === food_ledger, amount: cost("$25")),
+      )
+      expect(order.charge.associated_funding_transactions).to contain_exactly(
+        have_attributes(amount: cost("$15"), status: "collecting"),
+      )
+      expect(food_ledger.refresh).to(have_attributes(balance: be_zero))
+      expect(cash_ledger.refresh).to(have_attributes(balance: be_zero))
     end
 
     describe "inventory behavior" do
