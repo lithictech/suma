@@ -258,15 +258,18 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
         has_vnd_svc_categories,
         amount,
       )
-      candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
-      # Figure out how much 'additional' cash is needed, by taking the amount we need to cover the bill,
-      # and subtracting what we'd contribute without any additional funds (this is normally the balance).
+
       # If the additional funds we need to charge, is equal to the candidate, then this is ideal, because:
       # - If the additional funds to charge is less than the candidate, we added too much cash,
       #   and we have extra balance on our cash ledger, which we don't want.
       # - If we need more funds (there is a remainder), the candidate was not high enough.
-      additional_cash = candidate_charges.cash.amount - charges_using_existing_ledgers.cash.amount
-      return candidate_charges if !candidate_charges.remainder? && candidate == additional_cash
+      # Note that (for now) we WANT to include existing cash funds in what we calculate a subsidy against;
+      # we call this "cash is cash" (that is, if it's on the cash ledger, it's as good as cash coming in).
+      additional_cash = candidate_charges.cash.amount
+      if !candidate_charges.remainder? && candidate == additional_cash
+        candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
+        return candidate_charges
+      end
       step = amount / (2**loop_number)
       if step.zero?
         # It may be that there is no whole cent cash contribution that will yield amount exactly.
@@ -275,6 +278,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
         #   $3 + $x + ($x * 3.8) = $24
         # In this case, we just use whatever we tried last. In testing,
         # this seems to work, but we should in the future try some more mathematical proofs.
+        candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
         return candidate_charges
       end
       needs_more_cash = candidate_charges.remainder?
