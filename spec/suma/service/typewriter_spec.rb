@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "suma/service/entity_jsdoc_writer"
+require "suma/service/typewriter"
 require "suma/admin_api"
 
-RSpec.describe Suma::Service::EntityJsdocWriter do
+RSpec.describe Suma::Service::Typewriter do
   it "writes entities" do
     Class.new(Grape::Entity) do
       define_singleton_method(:name) { "TestEntity" }

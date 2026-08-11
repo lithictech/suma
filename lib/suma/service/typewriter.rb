@@ -3,7 +3,7 @@
 require "suma/service"
 require "grape_entity"
 
-class Suma::Service::EntityJsdocWriter
+class Suma::Service::Typewriter
   GRAPE_TO_JSDOC = {
     # Primitives
     Integer => "number",
