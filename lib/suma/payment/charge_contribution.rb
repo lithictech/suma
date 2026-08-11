@@ -49,7 +49,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # for example, if you have a -$5 balance on your cash ledger,
   # we could calculate the cost of your cart with an additional $5 'cash product' ("existing ledger balance")
   # you'd have to pay for.
-  private def _nonnegative_balance = [Money.new(0, self.amount.currency), self.ledger.balance].max
+  private def _nonnegative_balance = Money.new([0, self.ledger&.balance&.cents || 0].max, self.amount.currency)
 
   def amount? = !self.amount.zero?
 
@@ -103,7 +103,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
 
     # If, when calculating the collection, payment trigger contributions were used,
     # these were the steps relating to the contributions.
-    # @return [Array<Suma::Payment::Trigger::Step>]
+    # @return [Array<Suma::Payment::Trigger::PlanStep>]
     attr_accessor :relevant_trigger_steps
 
     # @param [Suma::Payment::Trigger::Plan] funding_plan
@@ -177,6 +177,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
           end
         end
       end
+      result.relevant_trigger_steps.reject! { |step| step.amount.zero? }
       return result
     end
   end
@@ -225,7 +226,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     charges_using_existing_ledgers = self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
     return charges_using_existing_ledgers unless charges_using_existing_ledgers.remainder?
 
-    # We do not worry about existing negative balances on the ledger.
+    # We do not worry about existing negative balances on the cash ledger.
     # See _nonnegative_balance above.
     # This is especially important here, because we may call find_ideal_cash_contribution
     # for each product in a cart; the contributions for the first product create a negative ledger balance.
@@ -236,9 +237,11 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     #
     # Get the original balance, and if it's negative, treat it as a 'credit' so we don't calculate it.
     original_cash_balance = [context.balance(cash), Money.new(0, amount.currency)].min
+    context = context.apply_credits({ledger: cash, amount: -original_cash_balance}) if
+      original_cash_balance.negative?
 
     # We'll need to run triggers to calculate subsidy.
-    triggers = context.cached_get("triggers-#{account.id}") do
+    triggers = context.nonvarying_cached_get("triggers-#{account.id}") do
       Suma::Payment::Trigger.gather(account, active_as_of: context.apply_at)
     end
     # Bisect until we find a funding amount that results in no remainder,
@@ -251,22 +254,25 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       subsidy_plan = triggers.funding_plan(context, amount: candidate, up_to: amount)
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
-          {ledger: cash, amount: candidate + -original_cash_balance},
+          {ledger: cash, amount: candidate},
           *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount, trigger: st.trigger} },
         ),
         account,
         has_vnd_svc_categories,
         amount,
       )
-      candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
-      # Figure out how much 'additional' cash is needed, by taking the amount we need to cover the bill,
-      # and subtracting what we'd contribute without any additional funds (this is normally the balance).
+
       # If the additional funds we need to charge, is equal to the candidate, then this is ideal, because:
       # - If the additional funds to charge is less than the candidate, we added too much cash,
       #   and we have extra balance on our cash ledger, which we don't want.
       # - If we need more funds (there is a remainder), the candidate was not high enough.
-      additional_cash = candidate_charges.cash.amount - charges_using_existing_ledgers.cash.amount
-      return candidate_charges if !candidate_charges.remainder? && candidate == additional_cash
+      # Note that (for now) we WANT to include existing cash funds in what we calculate a subsidy against;
+      # we call this "cash is cash" (that is, if it's on the cash ledger, it's as good as cash coming in).
+      additional_cash = candidate_charges.cash.amount
+      if !candidate_charges.remainder? && candidate == additional_cash
+        candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
+        return candidate_charges
+      end
       step = amount / (2**loop_number)
       if step.zero?
         # It may be that there is no whole cent cash contribution that will yield amount exactly.
@@ -275,6 +281,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
         #   $3 + $x + ($x * 3.8) = $24
         # In this case, we just use whatever we tried last. In testing,
         # this seems to work, but we should in the future try some more mathematical proofs.
+        candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
         return candidate_charges
       end
       needs_more_cash = candidate_charges.remainder?
@@ -289,6 +296,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   end
 
   # Helper to maintain signature parity with +find_ideal_cash_contribution+.
+  # @return [Suma::Payment::ChargeContribution::Collection]
   def self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
     return account.calculate_charge_contributions(context, has_vnd_svc_categories, amount)
   end

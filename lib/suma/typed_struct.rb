@@ -76,9 +76,19 @@ class Suma::TypedStruct
   end
 
   def inspect
-    kvps = self.class._accessors.map { |m| "#{m}: #{self.send(m).inspect}" }.join(", ")
-    return "#{self.class.name}(#{kvps})"
+    kvps = self.class._accessors.map do |m|
+      v = self.send(m)
+      s = if v.is_a?(Money)
+            v.format
+        else
+          v.inspect
+        end
+      "#{m}: #{s}"
+    end.join(", ")
+    return "#<#{self.class.name} #{kvps}>"
   end
+
+  alias to_s inspect if ENV["DEBUGGER_HOST"]
 
   def to_h = self.class._accessors.to_h { |k| [k, self[k]] }
   def as_json = self.to_h.as_json

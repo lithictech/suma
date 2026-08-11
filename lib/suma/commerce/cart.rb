@@ -185,6 +185,12 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
       @context = context
     end
 
+    # Return the subsidies for this offering product.
+    # NOTE: The subsidies here may DUPLICATE those in other products;
+    # this is because cart products need to show as subsidized independently
+    # so we can show them in the UI for example on product pages.
+    # Only their total subsidy (#noncash_ledger_contribution_amount) will be correct,
+    # as will it be correct during checkout.
     def product_noncash_ledger_contribution_amount(offering_product)
       contribs = Suma::Payment::ChargeContribution.find_ideal_cash_contribution(
         @context,

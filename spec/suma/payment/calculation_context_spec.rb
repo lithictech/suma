@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Suma::Payment::CalculationContext, :db do
+  it "can be inspected" do
+    expect(described_class.new(Time.now).inspect).to(eq("#<Suma::Payment::CalculationContext {}>"))
+  end
   it "can return adjusted and unadjusted ledger balances" do
     l1, l2 = "ab".chars.map { |c| Suma::Fixtures.ledger.create(name: c) }
     ctx = described_class.new(Time.now)

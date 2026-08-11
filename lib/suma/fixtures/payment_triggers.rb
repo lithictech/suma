@@ -33,6 +33,7 @@ module Suma::Fixtures::PaymentTriggers
   end
 
   decorator :up_to do |m|
+    m = Suma::SpecHelpers.money(m)
     self.maximum_cumulative_subsidy_cents = m.cents
   end
 

@@ -169,18 +169,22 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     )
     if self.maximum_cumulative_subsidy_cents.positive?
       max_subsidy_cents = self.maximum_cumulative_subsidy_cents
-      cents_received_already = context.cached_get("trigger-funded-amt-from-#{self.id}-to-#{receiving.id}") do
+      funded_cache_key = "trigger-funded-amt-from-#{self.id}-to-#{receiving.id}"
+      money_received_already_db = context.nonvarying_cached_get(funded_cache_key) do
         # We want to total only funds received for the CURRENT 'active during' window.
         # Each window 'resets' the max subsidy received.
         current_window = self.current_active_during(now: context.apply_at)
-        Suma::Payment::Trigger::Execution.where(trigger: self).
+        cents = Suma::Payment::Trigger::Execution.where(trigger: self).
           where(Sequel.pg_range(current_window).op.contains(:apply_execution_at)).
           join(
             Suma::Payment::BookTransaction.where(receiving_ledger: receiving),
             {id: :book_transaction_id},
           ).sum(:amount_cents)
+        Money.new(cents || 0)
       end
-      max_subsidy_cents -= cents_received_already if cents_received_already
+      money_received_already_ctx = context.contributions_from_trigger(self, receiving)
+      money_received_already = money_received_already_db + money_received_already_ctx
+      max_subsidy_cents -= money_received_already.cents
       max_subsidy = Money.new(max_subsidy_cents, subsidy.currency)
       subsidy = [subsidy, max_subsidy].min
     end
