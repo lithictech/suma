@@ -264,21 +264,25 @@ class Suma::Service::Typewriter
 
     formatter.open_typedef(type_name, source_name)
     exposures = entity_class.root_exposures
+    property_type_and_desc_for_name = {}
     exposures.each do |exposure|
       # Each exposure may represent a single field or a nested block.
       # We walk recursively if the exposure responds to `nested_exposures`.
-      self.walk_exposure(formatter, exposure)
+      self.walk_exposure(property_type_and_desc_for_name, exposure)
+    end
+    property_type_and_desc_for_name.each do |jsname, (jstype, desc)|
+      formatter.add_property(jstype, jsname, desc)
     end
     formatter.close_typedef
   end
 
   # Build JSDoc typedef for a single entity class
-  # @param [Formatter] formatter
-  protected def walk_exposure(formatter, exposure)
+  # @param [Hash] property_type_and_desc_for_name
+  protected def walk_exposure(property_type_and_desc_for_name, exposure)
     # Nested / merge block
     if exposure.respond_to?(:nested_exposures) && exposure.nested_exposures.any?
       exposure.nested_exposures.each do |nested|
-        self.walk_exposure(formatter, nested)
+        self.walk_exposure(property_type_and_desc_for_name, nested)
       end
       return
     end
@@ -300,7 +304,7 @@ class Suma::Service::Typewriter
     desc_text = doc.is_a?(Hash) ? (doc[:desc] || doc[:description]).to_s : ""
 
     js_name = attr_name.to_s.camelize(:lower)
-    formatter.add_property(js_type, js_name, desc_text)
+    property_type_and_desc_for_name[js_name] = [js_type, desc_text]
   end
 
   def build(entity_classes, formatter: JSDocFormatter.new)

@@ -61,6 +61,25 @@ RSpec.describe Suma::Service::Typewriter do
     STR
   end
 
+  it "uses the last exposure for an overridden field" do
+    base = Class.new(Grape::Entity) do
+      define_singleton_method(:name) { "DupeExposureEntityBase" }
+      expose :doc, documentation: {type: "String"}
+    end
+    sub = Class.new(base) do
+      define_singleton_method(:name) { "DupeExposureEntitySub" }
+      expose :doc, documentation: {type: "Integer"}
+    end
+    s = described_class.new.build([sub])
+    expect(s).to include(<<~STR)
+      /**
+       * @typedef {object} DupeExposureEntitySub
+       * @description Auto-generated from DupeExposureEntitySub
+       * @property {number} doc
+       */
+    STR
+  end
+
   it "writes admin model entities" do
     activity_entity = Class.new(Suma::AdminAPI::Entities::BaseModelEntity) do
       define_singleton_method(:name) { "AdminTestActivityEntity" }
