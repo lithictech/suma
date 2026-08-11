@@ -19,13 +19,34 @@ RSpec.describe Suma::Service::Typewriter do
     s = described_class.new.build(cls)
     expect(s).to include(<<~STR)
       /**
-       * @typedef {Object} Test
+       * @typedef {object} Test
        * @description Auto-generated from TestEntity
-       * @property {?} x
+       * @property {any} x
        * @property {Test} y
        * @property {string} doc - Help text
        * @property {TestEntity} docT - Help text
-       * @property {?} n1
+       * @property {any} n1
+       */
+    STR
+  end
+
+  it "can include extra entities" do
+    cls = described_class.extra_admin_classes
+    s = described_class.new.build(cls)
+    expect(s).to include(<<~STR)
+      /**
+       * @typedef {object} AdminAction
+       * @description Auto-generated from AdminAction
+       * @property {string} label
+       * @property {string} url
+       * @property {Hash} params
+       */
+
+      /**
+       * @typedef {object} ExternalLink
+       * @description Auto-generated from ExternalLink
+       * @property {string} url
+       * @property {string} label
        */
     STR
   end
@@ -47,13 +68,13 @@ RSpec.describe Suma::Service::Typewriter do
     s = described_class.new.build(cls)
     expect(s).to include(<<~STR)
       /**
-       * @typedef {Object} AdminTestActivity
+       * @typedef {object} AdminTestActivity
        * @description Auto-generated from AdminTestActivityEntity
        * @property {number} id
        */
 
       /**
-       * @typedef {Object} AdminTestActivityEntityCollection
+       * @typedef {object} AdminTestActivityEntityCollection
        * @description Auto-generated from AdminTestActivityEntityCollection
        * @property {string} object
        * @property {number} currentPage
@@ -65,7 +86,7 @@ RSpec.describe Suma::Service::Typewriter do
        */
 
       /**
-       * @typedef {Object} AdminTestMember
+       * @typedef {object} AdminTestMember
        * @description Auto-generated from AdminTestMemberEntity
        * @property {AdminTestActivityEntityCollection} activities
        */

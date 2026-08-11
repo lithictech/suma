@@ -4,7 +4,47 @@ require "suma/service"
 require "grape_entity"
 
 class Suma::Service::Typewriter
-  GRAPE_TO_JSDOC = {
+  class Formatter
+    attr_reader :lines
+
+    def initialize
+      @lines = []
+    end
+
+    def preamble(classes)
+      @lines << "// Auto-generated typedefs from Grape::Entity"
+      @lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
+      @lines << "// Entities: #{classes.map(&:name).join(', ')}"
+      @lines << ""
+    end
+
+    def open_typedef(typename, sourcename) = raise NotImplementedError
+    def add_property(js_type, js_name, desc_text) = raise NotImplementedError
+    def close_typedef = raise NotImplementedError
+
+    def string = @lines.join("\n")
+  end
+
+  class JSDocFormatter < Formatter
+    def open_typedef(typename, sourcename)
+      self.lines << "/**"
+      self.lines << " * @typedef {object} #{typename}"
+      self.lines << " * @description Auto-generated from #{sourcename}"
+    end
+
+    def add_property(js_type, js_name, desc_text)
+      prop_tag  = "@property {#{js_type}} #{js_name}"
+      prop_tag += " - #{desc_text}" unless desc_text.empty?
+      self.lines << " * #{prop_tag}"
+    end
+
+    def close_typedef
+      self.lines << " */"
+      self.lines << ""
+    end
+  end
+
+  GRAPE_TO_JSTYPE = {
     # Primitives
     Integer => "number",
     Float => "number",
@@ -28,8 +68,8 @@ class Suma::Service::Typewriter
     Time => "string",
 
     # Collections
-    Array => "Array",
-    Hash => "Object",
+    Array => "any[]",
+    Hash => "any",
   }.freeze
 
   def self.gather_entity_classes(glob: nil, prefix: nil)
@@ -54,10 +94,10 @@ class Suma::Service::Typewriter
     # Documentation hint (e.g. documentation: { type: "String" })
     (type = getname(documentation[:type])) if documentation.is_a?(Hash) && documentation[:type]
 
-    return "?" unless type
+    return "any" unless type
 
     # Grape uses :type as a class, string, or symbol
-    mapped = GRAPE_TO_JSDOC[type]
+    mapped = GRAPE_TO_JSTYPE[type]
     return mapped if mapped
 
     # If it's a Grape::Entity subclass, reference it by name
@@ -156,31 +196,29 @@ class Suma::Service::Typewriter
   protected def getname(x) = x.respond_to?(:name) ? x.name : x.to_s
 
   # Build JSDoc typedef for a single entity class
-  protected def typedef_for(entity_class)
-    lines = []
+  # @param [Formatter] formatter
+  # @param [Class] entity_class
+  protected def write_typedef(formatter, entity_class)
     type_name = self.jsdoc_entity_name(entity_class)
     source_name = entity_class.name
 
-    lines << "/**"
-    lines << " * @typedef {Object} #{type_name}"
-    lines << " * @description Auto-generated from #{source_name}"
-
+    formatter.open_typedef(type_name, source_name)
     exposures = entity_class.root_exposures
     exposures.each do |exposure|
       # Each exposure may represent a single field or a nested block.
       # We walk recursively if the exposure responds to `nested_exposures`.
-      self.walk_exposure(exposure, lines)
+      self.walk_exposure(formatter, exposure)
     end
-
-    lines << " */"
-    lines
+    formatter.close_typedef
   end
 
-  protected def walk_exposure(exposure, lines)
+  # Build JSDoc typedef for a single entity class
+  # @param [Formatter] formatter
+  protected def walk_exposure(formatter, exposure)
     # Nested / merge block
     if exposure.respond_to?(:nested_exposures) && exposure.nested_exposures.any?
       exposure.nested_exposures.each do |nested|
-        self.walk_exposure(nested, lines)
+        self.walk_exposure(formatter, nested)
       end
       return
     end
@@ -197,47 +235,38 @@ class Suma::Service::Typewriter
     attr_name = name_as || attr_name
 
     js_type = self.jsdoc_type(using, doc)
-    js_type = self.guess_jsdoc_type(attr_name) if js_type == "?"
+    js_type = self.guess_jsdoc_type(attr_name) if js_type == "any"
 
     desc_text = doc.is_a?(Hash) ? (doc[:desc] || doc[:description]).to_s : ""
 
     js_name = attr_name.to_s.camelize(:lower)
-    prop_tag  = "@property {#{js_type}} #{js_name}"
-    prop_tag += " - #{desc_text}" unless desc_text.empty?
-
-    lines << " * #{prop_tag}"
+    formatter.add_property(js_type, js_name, desc_text)
   end
 
-  def build(entity_classes, extra: "")
-    output_lines = []
-    output_lines << "// Auto-generated JSDoc typedefs from Grape::Entity"
-    output_lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
-    output_lines << "// Entities: #{entity_classes.map(&:name).join(', ')}"
-    output_lines << ""
-    output_lines << extra if extra.present?
+  def build(entity_classes, formatter: JSDocFormatter.new)
+    formatter.preamble(entity_classes)
 
     entity_classes.each do |klass|
-      output_lines.concat(typedef_for(klass))
-      output_lines << ""
+      self.write_typedef(formatter, klass)
     end
 
-    output = output_lines.join("\n")
+    output = formatter.string
     return output
   end
 
-  # language=js
-  ADMIN_EXTRA = <<~JS
-    /**
-     * @typedef AdminAction
-     * @property {string} label
-     * @property {string} url
-     * @property {object} params
-     */
-
-    /**
-     * @typedef ExternalLink
-     * @property {string} url
-     * @property {string} label
-     */
-  JS
+  def self.extra_admin_classes
+    return [
+      Class.new(Grape::Entity) do
+        define_singleton_method(:name) { "AdminAction" }
+        expose :label, documentation: {type: "String"}
+        expose :url, documentation: {type: "String"}
+        expose :params, documentation: {type: "Hash"}
+      end,
+      Class.new(Grape::Entity) do
+        define_singleton_method(:name) { "ExternalLink" }
+        expose :url, documentation: {type: "String"}
+        expose :label, documentation: {type: "String"}
+      end,
+    ]
+  end
 end
