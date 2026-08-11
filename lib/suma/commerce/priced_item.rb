@@ -24,8 +24,9 @@ module Suma::Commerce::PricedItem
   # @param context [Suma::Payment::CalculationContext]
   # @return [Suma::Payment::ChargeContribution::Collection]
   def self.ledger_charge_contributions(context, payment_account:, priced_items:, mode:)
+    calc_ctx = context
     collections = priced_items.map do |item|
-      args = [context, payment_account, item.offering_product.product, item.customer_cost]
+      args = [calc_ctx, payment_account, item.offering_product.product, item.customer_cost]
       coll = case mode
         when :ideal
           Suma::Payment::ChargeContribution.find_ideal_cash_contribution(*args)
@@ -34,7 +35,21 @@ module Suma::Commerce::PricedItem
         else
           raise ArgumentError, "invalid mode: #{mode}"
       end
-      context = context.apply_debits(*coll.all)
+      calc_ctx = calc_ctx.apply_debits(*coll.all)
+      calc_ctx = calc_ctx.record_trigger_step_contributions(coll.relevant_trigger_steps)
+      # This is tricky. When we are processing multiple items,
+      # and there are trigger subsidies, we will add the subsidy to a ledger.
+      # But then the next items will see this positive balance and try to use it.
+      # Instead, we need to debit *only the added subsidy* for future subsidy calculations.
+      # We want to make sure:
+      # 1) existing subsidy (not due to a trigger) is used,
+      # 2) added subsidy due to a trigger is not used for future steps,
+      # 3) figuring out the subsidy keeps track of what was subsidized
+      #   (see #record_trigger_step_contributions).
+      subsidy_readjustments = coll.relevant_trigger_steps.map do |step|
+        {ledger: step.receiving_ledger, amount: step.amount, trigger: step.trigger}
+      end
+      calc_ctx = calc_ctx.apply_credits(*subsidy_readjustments)
       coll
     end
     consolidated_contributions = Suma::Payment::ChargeContribution::Collection.consolidate(context, collections)

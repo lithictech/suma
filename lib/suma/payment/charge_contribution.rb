@@ -103,7 +103,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
 
     # If, when calculating the collection, payment trigger contributions were used,
     # these were the steps relating to the contributions.
-    # @return [Array<Suma::Payment::Trigger::Step>]
+    # @return [Array<Suma::Payment::Trigger::PlanStep>]
     attr_accessor :relevant_trigger_steps
 
     # @param [Suma::Payment::Trigger::Plan] funding_plan
@@ -177,6 +177,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
           end
         end
       end
+      result.relevant_trigger_steps.reject! { |step| step.amount.zero? }
       return result
     end
   end
@@ -225,7 +226,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     charges_using_existing_ledgers = self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
     return charges_using_existing_ledgers unless charges_using_existing_ledgers.remainder?
 
-    # We do not worry about existing negative balances on the ledger.
+    # We do not worry about existing negative balances on the cash ledger.
     # See _nonnegative_balance above.
     # This is especially important here, because we may call find_ideal_cash_contribution
     # for each product in a cart; the contributions for the first product create a negative ledger balance.
@@ -236,9 +237,11 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     #
     # Get the original balance, and if it's negative, treat it as a 'credit' so we don't calculate it.
     original_cash_balance = [context.balance(cash), Money.new(0, amount.currency)].min
+    context = context.apply_credits({ledger: cash, amount: -original_cash_balance}) if
+      original_cash_balance.negative?
 
     # We'll need to run triggers to calculate subsidy.
-    triggers = context.cached_get("triggers-#{account.id}") do
+    triggers = context.nonvarying_cached_get("triggers-#{account.id}") do
       Suma::Payment::Trigger.gather(account, active_as_of: context.apply_at)
     end
     # Bisect until we find a funding amount that results in no remainder,
@@ -251,7 +254,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       subsidy_plan = triggers.funding_plan(context, amount: candidate, up_to: amount)
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
-          {ledger: cash, amount: candidate + -original_cash_balance},
+          {ledger: cash, amount: candidate},
           *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount, trigger: st.trigger} },
         ),
         account,
@@ -293,6 +296,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   end
 
   # Helper to maintain signature parity with +find_ideal_cash_contribution+.
+  # @return [Suma::Payment::ChargeContribution::Collection]
   def self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
     return account.calculate_charge_contributions(context, has_vnd_svc_categories, amount)
   end

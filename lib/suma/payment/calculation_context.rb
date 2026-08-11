@@ -15,21 +15,49 @@
 # if we mutated the context, it would make running the same calculation code
 # non-idempotent.
 class Suma::Payment::CalculationContext
-  def initialize(apply_at, adjustments: {}, adjustments_computed: {})
+  EMPTY_HASH = {}.freeze
+
+  def initialize(apply_at)
     @apply_at = apply_at
-    @adjustments = adjustments.freeze
-    @adjustments_computed = adjustments_computed.freeze
+    @adjustments = EMPTY_HASH
+    @adjustments_computed = EMPTY_HASH
+    @trigger_contributions = EMPTY_HASH
     @cache = {}
   end
 
   # @return [Time]
   attr_reader :apply_at
 
+  # Return an instance using the new fields.
+  # Mutable fields (like the cache) as shared.
+  def duplicate_with(adjustments: nil, adjustments_computed: nil, trigger_contributions: nil)
+    d = self.class.new(self.apply_at)
+    adjustments ||= @adjustments
+    adjustments_computed ||= @adjustments_computed
+    trigger_contributions ||= @trigger_contributions
+    d.instance_variable_set(:@adjustments, adjustments.freeze)
+    d.instance_variable_set(:@adjustments_computed, adjustments_computed.freeze)
+    d.instance_variable_set(:@trigger_contributions, trigger_contributions.freeze)
+    d.instance_variable_set(:@cache, @cache)
+    return d
+  end
+
+  # Return each of the adjusted ledgers.
+  # @return [Array<Suma::Payment::Ledger]
+  def ledgers = @adjustments.values.map { |adjs| adjs.first.ledger }
+
   # Invoke the yielded block to get the value stored at key,
-  # and then return that value for the lifetime of the context.
+  # and then return that value for the lifetime of the context,
+  # and all spawned contexts.
+  #
   # Can be used to avoid re-querying the database when the same database-querying method
   # needs to be called many times.
-  def cached_get(key, &)
+  #
+  # IMPORTANT: This must only be used for queries that do not change over the context
+  # (or child context) lifetimes, since the cache is shared.
+  # That is, it should not be used for things like balances, or in calculations that vary
+  # during the calculation (like payment trigger contributions via executions).
+  def nonvarying_cached_get(key, &)
     return @cache[key] if @cache.include?(key)
     v = yield
     @cache[key] = v
@@ -47,9 +75,7 @@ class Suma::Payment::CalculationContext
     return balance
   end
 
-  def adjustments_for(ledger)
-    return @adjustments.fetch(ledger.id, [])
-  end
+  def adjustments_for(ledger) = @adjustments.fetch(ledger.id, [])
 
   # Apply an adjustment so that when calculating the balance for the given +contrib.ledger+,
   # the given +contrib.amount+ is taken from the ledger's balance. For example, if +ledger+ has a balance of $0,
@@ -83,7 +109,25 @@ class Suma::Payment::CalculationContext
       these_adj = adjustments[ledger_id] ||= []
       these_adj << adj
     end
-    return self.class.new(self.apply_at, adjustments:, adjustments_computed:)
+    return self.duplicate_with(adjustments:, adjustments_computed:)
+  end
+
+  def contributions_from_trigger(trigger, ledger)
+    contrib = @trigger_contributions[trigger.id]
+    return Money.zero if contrib.nil?
+    return contrib.fetch(ledger.id, Money.zero)
+  end
+
+  # Record trigger executions in-memory so they can be used later when figuring out trigger plans.
+  # @param [Array<Suma::Payment::Trigger::PlanStep>] steps
+  def record_trigger_step_contributions(steps)
+    d = @trigger_contributions.dup
+    steps.each do |step|
+      d[step.trigger.id] ||= {}
+      d[step.trigger.id][step.ledger.id] ||= Money.zero
+      d[step.trigger.id][step.ledger.id] += step.amount
+    end
+    return self.duplicate_with(trigger_contributions: d)
   end
 
   def inspect

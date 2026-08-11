@@ -283,16 +283,18 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         cash_op = Suma::Fixtures.offering_product(product: cash_product, offering:).costing("$4", "$5").create
 
         cart = Suma::Fixtures.cart(offering:, member:).
-          with_product(food_product1, 2).
-          with_product(food_product2, 1).
-          with_product(holiday_product, 1).
-          with_product(cash_product, 1).
+          with_product(food_product1, 2). # $800
+          with_product(food_product2, 1). # $400
+          with_product(holiday_product, 1). # $40
+          with_product(cash_product, 1). # #4
           create
         checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
           populate_items.
           create
 
+        # See above for how we get this
         customer_cost = money("$1244")
+        # Cost minus what is on their ledgers, which should be used first.
         chargeable_total = customer_cost - book_cash.amount - book_food.amount - book_holiday.amount
         order = create_order(chargeable_total, checkout_: checkout)
         expect(order.charge).to have_attributes(
@@ -401,24 +403,97 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       end
     end
 
-    it "calculates the correct subsidy for multiple products from the same subsidy" do
-      product1 = Suma::Fixtures.product.with_categories(food_vsc).create
-      op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
-      product2 = Suma::Fixtures.product.with_categories(food_vsc).create
-      op2 = Suma::Fixtures.offering_product(product: product2, offering:).costing("$50", "$50").create
-      trigger = Suma::Fixtures.payment_trigger.matching(1).
-        from(platform_food_ledger).
-        create
+    describe "with multiple products from the same subsidy ledger" do
+      it "calculates the correct subsidy from triggers" do
+        product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+        product2 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op2 = Suma::Fixtures.offering_product(product: product2, offering:).costing("$50", "$50").create
+        trigger = Suma::Fixtures.payment_trigger.matching(1).
+          from(platform_food_ledger).
+          create
 
-      cart = Suma::Fixtures.cart(offering:, member:).
-        with_product(product1, 1).
-        with_product(product2, 1).
-        create
-      ctx = Suma::Payment::CalculationContext.new(Time.now)
-      ci = cart.cost_info(ctx)
-      expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
-      expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
-      expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(product1, 1).
+          with_product(product2, 1).
+          create
+        ctx = Suma::Payment::CalculationContext.new(Time.now)
+        ci = cart.cost_info(ctx)
+        expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
+        expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+      end
+
+      it "applies maximum trigger match properly (hit on first item)" do
+        product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+        product2 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op2 = Suma::Fixtures.offering_product(product: product2, offering:).costing("$50", "$50").create
+        trigger = Suma::Fixtures.payment_trigger.matching(1).
+          up_to("$20").
+          from(platform_food_ledger).
+          create
+
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(product1, 1).
+          with_product(product2, 1).
+          create
+        ctx = Suma::Payment::CalculationContext.new(Time.now)
+        ci = cart.cost_info(ctx)
+        expect(ci).to have_attributes(cash_cost: cost("80"), noncash_ledger_contribution_amount: cost("$20"))
+        expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$20")
+        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$20")
+        # TODO: This method is unsafe, rename it
+        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$20")
+      end
+
+      it "applies maximum trigger match properly (hit on later items)" do
+        product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+        product2 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op2 = Suma::Fixtures.offering_product(product: product2, offering:).costing("$50", "$50").create
+        product3 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op3 = Suma::Fixtures.offering_product(product: product3, offering:).costing("$50", "$50").create
+        trigger = Suma::Fixtures.payment_trigger.matching(1).
+          up_to("$60").
+          from(platform_food_ledger).
+          create
+
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(product1, 1).
+          with_product(product2, 1).
+          with_product(product3, 1).
+          create
+        ctx = Suma::Payment::CalculationContext.new(Time.now)
+        ci = cart.cost_info(ctx)
+        expect(ci).to have_attributes(cash_cost: cost("90"), noncash_ledger_contribution_amount: cost("$60"))
+        # TODO: This method is unsafe, rename it
+        expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+        expect(ci.product_noncash_ledger_contribution_amount(op3)).to cost("$25")
+      end
+
+      it "uses what is available on the subsidy ledger" do
+        product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op1 = Suma::Fixtures.offering_product(product: product1, offering:).costing("50", "$50").create
+        product2 = Suma::Fixtures.product.with_categories(food_vsc).create
+        op2 = Suma::Fixtures.offering_product(product: product2, offering:).costing("$50", "$50").create
+        trigger = Suma::Fixtures.payment_trigger.matching(1).
+          up_to("$30").
+          from(platform_food_ledger).
+          create
+        Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$10"))
+
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(product1, 1).
+          with_product(product2, 1).
+          create
+        ctx = Suma::Payment::CalculationContext.new(Time.now)
+        ci = cart.cost_info(ctx)
+        expect(ci).to have_attributes(cash_cost: cost("$60"), noncash_ledger_contribution_amount: cost("$40"))
+        # TODO: This method is unsafe, rename it
+        # expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+      end
     end
 
     it "does not include a negative cash ledger balance in subsidy matching or charging" do
