@@ -11,16 +11,18 @@ class Suma::Service::Typewriter
       @lines = []
     end
 
-    def preamble(classes)
+    def metadata(classes)
       @lines << "// Auto-generated typedefs from Grape::Entity"
       @lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
       @lines << "// Entities: #{classes.map(&:name).join(', ')}"
       @lines << ""
     end
 
+    def preamble = nil
     def open_typedef(typename, sourcename) = raise NotImplementedError
     def add_property(js_type, js_name, desc_text) = raise NotImplementedError
     def close_typedef = raise NotImplementedError
+    def postamble = nil
 
     def string = @lines.join("\n")
   end
@@ -43,6 +45,34 @@ class Suma::Service::Typewriter
       self.lines << ""
     end
   end
+
+  class TypescriptFormatter < Formatter
+    def preamble
+      self.lines << "declare global {"
+    end
+
+    def postamble
+      self.lines << "}"
+      self.lines << ""
+    end
+
+    def open_typedef(typename, sourcename)
+      self.lines << "  /** Auto-generated from #{sourcename} */"
+      self.lines << "  interface #{typename} {"
+    end
+
+    def add_property(js_type, js_name, desc_text)
+      self.lines << "    /** #{desc_text} */" unless desc_text.empty?
+      self.lines << "    #{js_name}: #{js_type};"
+    end
+
+    def close_typedef
+      self.lines << "  }"
+      self.lines << ""
+    end
+  end
+
+  ANYTYPE = "any"
 
   GRAPE_TO_JSTYPE = {
     # Primitives
@@ -68,8 +98,8 @@ class Suma::Service::Typewriter
     Time => "string",
 
     # Collections
-    Array => "any[]",
-    Hash => "any",
+    Array => "#{ANYTYPE}[]",
+    Hash => ANYTYPE,
   }.freeze
 
   def self.gather_entity_classes(glob: nil, prefix: nil)
@@ -94,7 +124,7 @@ class Suma::Service::Typewriter
     # Documentation hint (e.g. documentation: { type: "String" })
     (type = getname(documentation[:type])) if documentation.is_a?(Hash) && documentation[:type]
 
-    return "any" unless type
+    return ANYTYPE unless type
 
     # Grape uses :type as a class, string, or symbol
     mapped = GRAPE_TO_JSTYPE[type]
@@ -122,7 +152,7 @@ class Suma::Service::Typewriter
     return "ExternalLink[]" if attr == "external_links"
     return "AdminAction[]" if attr == "admin_actions"
 
-    return "?"
+    return ANYTYPE
   end
 
   NUM_PREFIXES = [
@@ -235,7 +265,7 @@ class Suma::Service::Typewriter
     attr_name = name_as || attr_name
 
     js_type = self.jsdoc_type(using, doc)
-    js_type = self.guess_jsdoc_type(attr_name) if js_type == "any"
+    js_type = self.guess_jsdoc_type(attr_name) if js_type == ANYTYPE
 
     desc_text = doc.is_a?(Hash) ? (doc[:desc] || doc[:description]).to_s : ""
 
@@ -244,11 +274,13 @@ class Suma::Service::Typewriter
   end
 
   def build(entity_classes, formatter: JSDocFormatter.new)
-    formatter.preamble(entity_classes)
+    formatter.metadata(entity_classes)
 
+    formatter.preamble
     entity_classes.each do |klass|
       self.write_typedef(formatter, klass)
     end
+    formatter.postamble
 
     output = formatter.string
     return output

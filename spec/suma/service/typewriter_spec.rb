@@ -16,8 +16,8 @@ RSpec.describe Suma::Service::Typewriter do
       end
     end
     cls = described_class.gather_entity_classes(prefix: "TestEntity")
-    s = described_class.new.build(cls)
-    expect(s).to include(<<~STR)
+    jsdoc = described_class.new.build(cls)
+    expect(jsdoc).to include(<<~STR)
       /**
        * @typedef {object} Test
        * @description Auto-generated from TestEntity
@@ -27,6 +27,23 @@ RSpec.describe Suma::Service::Typewriter do
        * @property {TestEntity} docT - Help text
        * @property {any} n1
        */
+    STR
+
+    typescript = described_class.new.build(cls, formatter: described_class::TypescriptFormatter.new)
+    expect(typescript).to include(<<~STR)
+      declare global {
+        /** Auto-generated from TestEntity */
+        interface Test {
+          x: any;
+          y: Test;
+          /** Help text */
+          doc: string;
+          /** Help text */
+          docT: TestEntity;
+          n1: any;
+        }
+
+      }
     STR
   end
 
