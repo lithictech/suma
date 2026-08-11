@@ -49,7 +49,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # for example, if you have a -$5 balance on your cash ledger,
   # we could calculate the cost of your cart with an additional $5 'cash product' ("existing ledger balance")
   # you'd have to pay for.
-  private def _nonnegative_balance = [Money.new(0, self.amount.currency), self.ledger.balance].max
+  private def _nonnegative_balance = Money.new([0, self.ledger&.balance&.cents || 0].max, self.amount.currency)
 
   def amount? = !self.amount.zero?
 

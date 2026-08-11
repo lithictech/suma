@@ -3,6 +3,9 @@
 RSpec.describe Suma::Payment::ChargeContribution, :db do
   it "has defaults" do
     expect(described_class.new).to have_attributes(amount: Money.new(0))
+    expect(described_class.new.inspect).to start_with(
+      "#<Suma::Payment::ChargeContribution amount: $0.00, apply_at: nil, category: nil",
+    )
   end
 
   it "calculates outstanding and from_balance from its balance" do

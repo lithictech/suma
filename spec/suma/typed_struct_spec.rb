@@ -21,6 +21,14 @@ RSpec.describe Suma::TypedStruct do
       expect(t.new(x: 1).x).to eq(1)
       expect(t.new(x: 1)[:x]).to eq(1)
     end
+
+    it "has some special-case value formats" do
+      t = Class.new(described_class) do
+        def m = Money.new(23)
+        def t = Time.at(1).utc
+      end
+      expect(t.new.inspect).to eq("#< m: $0.23, t: 1970-01-01 00:00:01 UTC>")
+    end
   end
 
   describe "as_json" do

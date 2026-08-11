@@ -76,7 +76,15 @@ class Suma::TypedStruct
   end
 
   def inspect
-    kvps = self.class._accessors.map { |m| "#{m}: #{self.send(m).inspect}" }.join(", ")
+    kvps = self.class._accessors.map do |m|
+      v = self.send(m)
+      s = if v.is_a?(Money)
+            v.format
+        else
+          v.inspect
+        end
+      "#{m}: #{s}"
+    end.join(", ")
     return "#<#{self.class.name} #{kvps}>"
   end
 
