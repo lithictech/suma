@@ -292,7 +292,7 @@ class Suma::Service::Typewriter
         define_singleton_method(:name) { "AdminAction" }
         expose :label, documentation: {type: "String"}
         expose :url, documentation: {type: "String"}
-        expose :params, documentation: {type: "Hash"}
+        expose :params, documentation: {type: "Object"}
       end,
       Class.new(Grape::Entity) do
         define_singleton_method(:name) { "ExternalLink" }
