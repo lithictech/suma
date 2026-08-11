@@ -36,6 +36,7 @@ end
 #  account_id               | integer                  | NOT NULL
 #  external_program_id      | text                     | NOT NULL
 #  external_registration_id | text                     |
+#  unregistered_at          | timestamp with time zone |
 # Indexes:
 #  anon_proxy_vendor_account_registrations_pkey             | PRIMARY KEY btree (id)
 #  anon_proxy_vendor_account_registrations_account_id_index | btree (account_id)
