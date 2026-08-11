@@ -124,8 +124,8 @@ class Suma::Payment::CalculationContext
     d = @trigger_contributions.dup
     steps.each do |step|
       d[step.trigger.id] ||= {}
-      d[step.trigger.id][step.ledger.id] ||= Money.zero
-      d[step.trigger.id][step.ledger.id] += step.amount
+      d[step.trigger.id][step.receiving_ledger.id] ||= Money.zero
+      d[step.trigger.id][step.receiving_ledger.id] += step.amount
     end
     return self.duplicate_with(trigger_contributions: d)
   end
