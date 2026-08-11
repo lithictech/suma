@@ -48,7 +48,7 @@ RSpec.describe Suma::Service::Typewriter do
   end
 
   it "can include extra entities" do
-    cls = described_class.extra_admin_classes
+    cls = described_class.gather_admin_entity_classes
     s = described_class.new.build(cls)
     expect(s).to include(<<~STR)
       /**
@@ -56,14 +56,7 @@ RSpec.describe Suma::Service::Typewriter do
        * @description Auto-generated from AdminAction
        * @property {string} label
        * @property {string} url
-       * @property {Hash} params
-       */
-
-      /**
-       * @typedef {object} ExternalLink
-       * @description Auto-generated from ExternalLink
-       * @property {string} url
-       * @property {string} label
+       * @property {any} params
        */
     STR
   end

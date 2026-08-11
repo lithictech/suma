@@ -78,30 +78,28 @@ class Suma::Service::Typewriter
 
   GRAPE_TO_JSTYPE = {
     # Primitives
-    Integer => "number",
-    Float => "number",
-    BigDecimal => "number",
-    Numeric => "number",
-    String => "string",
-    Symbol => "string",
-    "String" => "string",
-    "Integer" => "number",
-    "Float" => "number",
+    Integer: "number",
+    Float: "number",
+    BigDecimal: "number",
+    Numeric: "number",
+    String: "string",
+    Symbol: "string",
 
     # Booleans (grape-entity uses these symbols/strings)
-    :boolean => "boolean",
-    "Boolean" => "boolean",
-    TrueClass => "boolean",
-    FalseClass => "boolean",
+    boolean: "boolean",
+    Boolean: "boolean",
+    TrueClass: "boolean",
+    FalseClass: "boolean",
 
     # Date / time
-    Date => "string",
-    DateTime => "string",
-    Time => "string",
+    Date: "string",
+    DateTime: "string",
+    Time: "string",
 
     # Collections
-    Array => "#{ANYTYPE}[]",
-    Hash => ANYTYPE,
+    Array: "#{ANYTYPE}[]",
+    Hash: ANYTYPE,
+    Object: ANYTYPE,
   }.freeze
 
   def self.gather_web_entity_classes
@@ -112,7 +110,7 @@ class Suma::Service::Typewriter
         expose :currency, documentation: {type: "String"}
       end,
     ]
-    cls.extend(*self.gather_entity_classes(glob: "suma/api/*.rb", prefix: "Suma::API::"))
+    cls.concat(self.gather_entity_classes(glob: "suma/api/*.rb", prefix: "Suma::API::"))
     return cls
   end
 
@@ -130,7 +128,7 @@ class Suma::Service::Typewriter
         expose :label, documentation: {type: "String"}
       end,
     ]
-    cls.extend(*self.gather_entity_classes(glob: "suma/admin_api/*.rb", prefix: "Suma::AdminAPI::"))
+    cls.concat(self.gather_entity_classes(glob: "suma/admin_api/*.rb", prefix: "Suma::AdminAPI::"))
     return cls
   end
 
@@ -159,7 +157,7 @@ class Suma::Service::Typewriter
     return ANYTYPE unless type
 
     # Grape uses :type as a class, string, or symbol
-    mapped = GRAPE_TO_JSTYPE[type]
+    mapped = GRAPE_TO_JSTYPE[type.to_s.to_sym]
     return mapped if mapped
 
     # If it's a Grape::Entity subclass, reference it by name
