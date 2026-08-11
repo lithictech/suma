@@ -142,6 +142,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
+    let(:apply_at) { Time.now }
 
     let(:member) { Suma::Fixtures.member.onboarding_verified.registered_as_stripe_customer.create }
     let(:ledger_fac) { Suma::Fixtures.ledger.member(member) }
@@ -288,9 +289,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           with_product(holiday_product, 1). # $40
           with_product(cash_product, 1). # #4
           create
-        checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
-          populate_items.
-          create
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
 
         # See above for how we get this
         customer_cost = money("$1244")
@@ -349,9 +348,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           with_product(intro_product, 1).
           with_product(match_product, 15).
           create
-        checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
-          populate_items.
-          create
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
 
         # $54 total = $30 in match vouchers + $24 in intro vouchers
         # $20 charge = $15 match voucher cash cost + $5 into voucher cash cost
@@ -384,9 +381,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         cart = Suma::Fixtures.cart(offering:, member:).
           with_product(low_product, 1).
           create
-        checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
-          populate_items.
-          create
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
 
         order = create_order(checkout_: checkout)
         expect(order.charge).to have_attributes(
@@ -418,10 +413,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           with_product(product2, 1).
           create
         ctx = Suma::Payment::CalculationContext.new(Time.now)
-        ci = cart.cost_info(ctx)
-        expect(ci).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
-        expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
-        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+        cart_costinfo = cart.cost_info(ctx)
+        expect(cart_costinfo).to have_attributes(noncash_ledger_contribution_amount: cost("$50"))
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+        contribs = checkout.predicted_charge_contributions(apply_at:)
+        expect(contribs.cash.amount).to cost("$50")
+        expect(contribs.rest.sum(&:amount)).to cost("$50")
       end
 
       it "applies maximum trigger match properly (hit on first item)" do
@@ -439,12 +438,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           with_product(product2, 1).
           create
         ctx = Suma::Payment::CalculationContext.new(Time.now)
-        ci = cart.cost_info(ctx)
-        expect(ci).to have_attributes(cash_cost: cost("80"), noncash_ledger_contribution_amount: cost("$20"))
-        expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$20")
-        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$20")
-        # TODO: This method is unsafe, rename it
-        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$20")
+        cart_costinfo = cart.cost_info(ctx)
+        expect(cart_costinfo).to have_attributes(cash_cost: cost("80"), noncash_ledger_contribution_amount: cost("$20"))
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op1)).to cost("$20")
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op2)).to cost("$20")
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+        contribs = checkout.predicted_charge_contributions(apply_at:)
+        expect(contribs.cash.amount).to cost("$80")
+        expect(contribs.rest.sum(&:amount)).to cost("$20")
       end
 
       it "applies maximum trigger match properly (hit on later items)" do
@@ -465,12 +466,15 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           with_product(product3, 1).
           create
         ctx = Suma::Payment::CalculationContext.new(Time.now)
-        ci = cart.cost_info(ctx)
-        expect(ci).to have_attributes(cash_cost: cost("90"), noncash_ledger_contribution_amount: cost("$60"))
-        # TODO: This method is unsafe, rename it
-        expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
-        expect(ci.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
-        expect(ci.product_noncash_ledger_contribution_amount(op3)).to cost("$25")
+        cart_costinfo = cart.cost_info(ctx)
+        expect(cart_costinfo).to have_attributes(cash_cost: cost("90"), noncash_ledger_contribution_amount: cost("$60"))
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op2)).to cost("$25")
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op3)).to cost("$25")
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+        contribs = checkout.predicted_charge_contributions(apply_at:)
+        expect(contribs.cash.amount).to cost("$90")
+        expect(contribs.rest.sum(&:amount)).to cost("$60")
       end
 
       it "uses what is available on the subsidy ledger" do
@@ -489,10 +493,16 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           with_product(product2, 1).
           create
         ctx = Suma::Payment::CalculationContext.new(Time.now)
-        ci = cart.cost_info(ctx)
-        expect(ci).to have_attributes(cash_cost: cost("$60"), noncash_ledger_contribution_amount: cost("$40"))
-        # TODO: This method is unsafe, rename it
-        # expect(ci.product_noncash_ledger_contribution_amount(op1)).to cost("$25")
+        cart_costinfo = cart.cost_info(ctx)
+        expect(cart_costinfo).to have_attributes(
+          cash_cost: cost("$60"), noncash_ledger_contribution_amount: cost("$40"),
+        )
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op1)).to cost("$30")
+        expect(cart_costinfo.product_noncash_ledger_contribution_amount(op2)).to cost("$30")
+        checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+        contribs = checkout.predicted_charge_contributions(apply_at:)
+        expect(contribs.cash.amount).to cost("$60")
+        expect(contribs.rest.sum(&:amount)).to cost("$40")
       end
     end
 
