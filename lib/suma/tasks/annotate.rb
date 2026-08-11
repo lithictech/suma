@@ -55,9 +55,7 @@ class Suma::Tasks::Annotate < Rake::TaskLib
         require "suma"
         Suma.load_app?
         require "suma/service/typewriter"
-        classes = Suma::Service::Typewriter.
-          gather_entity_classes(glob: "suma/admin_api/*.rb", prefix: "Suma::AdminAPI::")
-        classes.prepend(*Suma::Service::Typewriter.extra_admin_classes)
+        classes = Suma::Service::Typewriter.gather_admin_entity_classes
         s = Suma::Service::Typewriter.new.build(classes)
         self.class.write_typedefs(Suma::ROOT_DIR + "adminapp/src/typedefs.js", s)
       end
@@ -67,8 +65,7 @@ class Suma::Tasks::Annotate < Rake::TaskLib
         require "suma"
         Suma.load_app?
         require "suma/service/typewriter"
-        classes = Suma::Service::Typewriter.
-          gather_entity_classes(glob: "suma/api/*.rb", prefix: "Suma::API::")
+        classes = Suma::Service::Typewriter.gather_web_entity_classes
         jsd = Suma::Service::Typewriter.new.build(classes)
         self.class.write_typedefs(Suma::ROOT_DIR + "webapp/src/typedefs.js", jsd)
         ts = Suma::Service::Typewriter.new.build(classes, formatter: Suma::Service::Typewriter::TypescriptFormatter.new)

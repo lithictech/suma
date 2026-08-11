@@ -54,6 +54,8 @@ class Suma::Service::Typewriter
     def postamble
       self.lines << "}"
       self.lines << ""
+      self.lines << "export {};"
+      self.lines << ""
     end
 
     def open_typedef(typename, sourcename)
@@ -101,6 +103,36 @@ class Suma::Service::Typewriter
     Array => "#{ANYTYPE}[]",
     Hash => ANYTYPE,
   }.freeze
+
+  def self.gather_web_entity_classes
+    cls = [
+      Class.new(Grape::Entity) do
+        define_singleton_method(:name) { "Money" }
+        expose :cents, documentation: {type: "Integer"}
+        expose :currency, documentation: {type: "String"}
+      end,
+    ]
+    cls.extend(*self.gather_entity_classes(glob: "suma/api/*.rb", prefix: "Suma::API::"))
+    return cls
+  end
+
+  def self.gather_admin_entity_classes
+    cls = [
+      Class.new(Grape::Entity) do
+        define_singleton_method(:name) { "AdminAction" }
+        expose :label, documentation: {type: "String"}
+        expose :url, documentation: {type: "String"}
+        expose :params, documentation: {type: "Object"}
+      end,
+      Class.new(Grape::Entity) do
+        define_singleton_method(:name) { "ExternalLink" }
+        expose :url, documentation: {type: "String"}
+        expose :label, documentation: {type: "String"}
+      end,
+    ]
+    cls.extend(*self.gather_entity_classes(glob: "suma/admin_api/*.rb", prefix: "Suma::AdminAPI::"))
+    return cls
+  end
 
   def self.gather_entity_classes(glob: nil, prefix: nil)
     Dir.glob(Suma::SELF_DIR + glob).each { |f| require f } if glob
@@ -284,21 +316,5 @@ class Suma::Service::Typewriter
 
     output = formatter.string
     return output
-  end
-
-  def self.extra_admin_classes
-    return [
-      Class.new(Grape::Entity) do
-        define_singleton_method(:name) { "AdminAction" }
-        expose :label, documentation: {type: "String"}
-        expose :url, documentation: {type: "String"}
-        expose :params, documentation: {type: "Object"}
-      end,
-      Class.new(Grape::Entity) do
-        define_singleton_method(:name) { "ExternalLink" }
-        expose :url, documentation: {type: "String"}
-        expose :label, documentation: {type: "String"}
-      end,
-    ]
   end
 end
