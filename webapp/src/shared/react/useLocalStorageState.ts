@@ -1,7 +1,10 @@
 import { localStorageCache } from "../localStorageHelper";
 import React from "react";
 
-export default function useLocalStorageState<T>(key: string, defaultVal: T) {
+export default function useLocalStorageState<T>(
+  key: string,
+  defaultVal: T
+): [T, (x: T) => void] {
   const [state, setStateInner] = React.useState(
     localStorageCache.getItem(key, defaultVal)
   );
