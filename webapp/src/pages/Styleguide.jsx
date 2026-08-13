@@ -26,6 +26,7 @@ export default function Styleguide() {
           </Button>
         ))}
       </Stack>
+      <hr />
       <Section eventKey="typography" activeKey={activeKey}>
         <h1>H1 Heading</h1>
         <h2>H2 Heading</h2>
@@ -37,36 +38,15 @@ export default function Styleguide() {
         <p className="lead">Lead Text</p>
       </Section>
       <Section eventKey="buttons" activeKey={activeKey}>
-        {["sm", undefined, "lg"].map((size) => {
-          const variants = [
-            "primary",
-            "secondary",
-            "success",
-            "danger",
-            "warning",
-            "info",
-            "dark",
-            "light",
-            "link",
-            "outline-primary",
-            "outline-secondary",
-            "outline-success",
-            "outline-danger",
-            "outline-warning",
-            "outline-info",
-            "outline-dark",
-            "outline-light",
-          ];
-          return (
-            <div key={size}>
-              {variants.map((v) => (
-                <Button key={v} variant={v} size={size} className="m-1">
-                  {v}
-                </Button>
+        <Stack direction="vertical" gap={3}>
+          {BUTTON_PROPS.map((props) => (
+            <Stack key={JSON.stringify(props)} gap={2}>
+              {BUTTON_STATES.map((st) => (
+                <Button key={st} className={st} {...props}></Button>
               ))}
-            </div>
-          );
-        })}
+            </Stack>
+          ))}
+        </Stack>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
         <PageLoader buffered />
@@ -90,6 +70,16 @@ export default function Styleguide() {
     </Container>
   );
 }
+
+const BUTTON_PROPS = [
+  { children: "Continue", variant: "primary" },
+  { children: "Back", variant: "secondary" },
+  { children: "Skip for now", variant: "text" },
+  { children: "Add", variant: "outline", size: "sm" },
+  { children: "Large Btn", size: "lg" },
+];
+
+const BUTTON_STATES = ["", "is-hover", "is-focus-visible", "is-disabled"];
 
 function Section({ eventKey, activeKey, children }) {
   if (eventKey !== activeKey) {

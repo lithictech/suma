@@ -1,32 +1,32 @@
 
 :root {
     /* ---- Color palette ---- */
-    --color-primary: #2563eb;
+    --color-primary: #36569C;
     --color-primary-hover: #1d4ed8;
     --color-primary-contrast: #ffffff;
 
-    --color-secondary: #6b7280;
-    --color-secondary-hover: #4b5563;
-    --color-secondary-contrast: #ffffff;
+    --color-secondary: #F4EFE7;
+    --color-secondary-hover: #EEE8DC;
+    --color-secondary-contrast: #2B2620;
 
-    --color-success: #16a34a;
-    --color-danger: #dc2626;
-    --color-warning: #d97706;
-    --color-info: #0891b2;
+    --color-info: #CFDAF0;
+    --color-success: #DCE2C9;
+    --color-danger: #F3D0B8;
+    --color-warning: #FAD6AC;
 
-    --color-bg: #ffffff;
-    --color-bg-subtle: #f9fafb;
-    --color-surface: #ffffff;
-    --color-border: #d1d5db;
-    --color-border-strong: #9ca3af;
+    --color-bg: #FFEDD8;
+    --color-bg-subtle: #FFEDD8;
+    --color-surface: #FFEDD8;
+    --color-border: #DFD5C3;
+    --color-border-strong: #DFD5C3;
 
     --color-text: #111827;
-    --color-text-muted: #6b7280;
-    --color-text-inverse: #ffffff;
+    --color-text-muted: #6B5B49;
+    --color-text-inverse: #FFFAF2;
     --color-link: var(--color-primary);
     --color-link-hover: var(--color-primary-hover);
 
-    --color-disabled-bg: #e5e7eb;
+    --color-disabled-bg: #D2C5AE;
     --color-disabled-text: #9ca3af;
 
     /* ---- Typography ---- */
@@ -49,14 +49,14 @@
     --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
     --font-size-base: 16px;
-    --font-size-sm: 0.875rem;
+    --font-size-sm: 0.8rem;
     --font-size-lg: 1.125rem;
     --font-size-xl: 1.5rem;
     --font-size-xxl: 2rem;
 
     --font-weight-normal: 400;
     --font-weight-medium: 500;
-    --font-weight-bold: 700;
+    --font-weight-bold: 600;
 
     --line-height-base: 1.5;
     --line-height-heading: 1.25;
@@ -86,8 +86,7 @@
     --transition-base: 150ms ease-in-out;
 
     /* ---- Layout ---- */
-    --container-max-width: 1140px;
-    --focus-ring-color: rgba(37, 99, 235, 0.4);
+    --focus-ring-color: var(--color-primary-hover);
     --focus-ring-width: 3px;
 
     /* ---- Component sizing ---- */

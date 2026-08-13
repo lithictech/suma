@@ -1,6 +1,5 @@
 .container {
     width: 100%;
-    max-width: var(--container-max-width);
     margin-inline: auto;
     padding-inline: var(--space-4);
 }
@@ -8,9 +7,11 @@
 .row {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4);
 }
 
 .col {
     flex: 1 1 0;
 }
+
+.flex-column { flex-direction: column; }
+.flex-row { flex-direction: row; }

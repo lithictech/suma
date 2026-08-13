@@ -67,7 +67,8 @@ img {
 }
 
 /* Consistent focus ring for keyboard users */
-:focus-visible {
+:focus-visible,
+.is-focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: 2px;
+    outline-offset: -1px;
 }
