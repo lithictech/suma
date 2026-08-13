@@ -18,7 +18,7 @@ export default function CheckableCard({
   className,
   children,
 }) {
-  const cls = clsx("card checkable-card", className);
+  const cls = clsx("card checkable-card checkable-card-hidecheck", className);
   return (
     <label className={cls}>
       <input

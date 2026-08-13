@@ -3,10 +3,9 @@ import Button from "../ui/Button";
 import Card from "../ui/Card.jsx";
 import CardBody from "../ui/CardBody.jsx";
 import CardText from "../ui/CardText.jsx";
-import CheckCard from "../ui/CheckCard.jsx";
-import CheckRow from "../ui/CheckRow.jsx";
 import CheckableCard from "../ui/CheckableCard.jsx";
 import Checkbox from "../ui/Checkbox.jsx";
+import { CheckboxCard } from "../ui/CheckboxCard.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
 import ProgressBar from "../ui/ProgressBar.jsx";
@@ -133,8 +132,11 @@ export default function Styleguide() {
             <Switch label="Switch 1" onChange={noop} />
             <Switch onChange={noop} />
           </Stack>
-          <CheckRow title="When an order is ready" text="A text the morning it lands" />
-          <CheckRow
+          <CheckboxCard
+            title="When an order is ready"
+            text="A text the morning it lands"
+          />
+          <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
             checked
@@ -148,8 +150,6 @@ export default function Styleguide() {
             text="Standard message rates apply"
             checked
           />
-          <CheckCard title="Rosewood commons" text="Affordable housing" />
-          <CheckCard title="Rosewood commons" text="Affordable housing" checked />
         </Stack>
       </Section>
       <Section eventKey="misc" activeKey={activeKey}>

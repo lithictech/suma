@@ -17,7 +17,7 @@ export default function Checkbox({ label, checked, onChange, name, disabled = fa
         name={name}
         checked={checked}
         disabled={disabled}
-        onChange={(e) => onChange(e.target.checked)}
+        onChange={onChange}
       />
       <span>{label}</span>
     </label>

@@ -6,6 +6,7 @@
     font-size: var(--font-size-base);
     line-height: 145%;
     border: none;
+    cursor: pointer;
 }
 
 .btn:disabled,
