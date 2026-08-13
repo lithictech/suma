@@ -1,0 +1,327 @@
+
+:root {
+    /* ---- Color palette ---- */
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-contrast: #ffffff;
+
+    --color-secondary: #6b7280;
+    --color-secondary-hover: #4b5563;
+    --color-secondary-contrast: #ffffff;
+
+    --color-success: #16a34a;
+    --color-danger: #dc2626;
+    --color-warning: #d97706;
+    --color-info: #0891b2;
+
+    --color-bg: #ffffff;
+    --color-bg-subtle: #f9fafb;
+    --color-surface: #ffffff;
+    --color-border: #d1d5db;
+    --color-border-strong: #9ca3af;
+
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-text-inverse: #ffffff;
+    --color-link: var(--color-primary);
+    --color-link-hover: var(--color-primary-hover);
+
+    --color-disabled-bg: #e5e7eb;
+    --color-disabled-text: #9ca3af;
+
+    /* ---- Typography ---- */
+    --font-family-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --font-size-base: 16px;
+    --font-size-sm: 0.875rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.5rem;
+    --font-size-xxl: 2rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    --line-height-base: 1.5;
+    --line-height-heading: 1.25;
+
+    /* ---- Spacing scale ---- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-8: 3rem;
+
+    /* ---- Borders / radius ---- */
+    --border-width: 1px;
+    --border-radius-sm: 0.25rem;
+    --border-radius: 0.375rem;
+    --border-radius-lg: 0.5rem;
+    --border-radius-pill: 999px;
+
+    /* ---- Shadows ---- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    /* ---- Transitions ---- */
+    --transition-fast: 100ms ease-in-out;
+    --transition-base: 150ms ease-in-out;
+
+    /* ---- Layout ---- */
+    --container-max-width: 1140px;
+    --focus-ring-color: rgba(37, 99, 235, 0.4);
+    --focus-ring-width: 3px;
+
+    /* ---- Component sizing ---- */
+    --input-height: 2.5rem;
+    --input-padding-x: var(--space-3);
+    --input-padding-y: var(--space-2);
+    --btn-padding-x: var(--space-4);
+    --btn-padding-y: var(--space-2);
+}
+
+/* =============================================================
+   Theming — light / dark / high-contrast
+   =============================================================
+   Themes are controlled by a `data-theme` attribute on <html>:
+     <html data-theme="dark">
+     <html data-theme="light">
+     <html data-theme="high-contrast">
+     <html data-theme="high-contrast-dark">
+   With no attribute set, the theme follows the OS setting
+   (prefers-color-scheme / prefers-contrast) automatically.
+   A tiny toggle script only needs to set/remove that attribute
+   (and optionally persist the choice) — no other JS required.
+   ============================================================= */
+
+/* Let native controls (scrollbars, date/time pickers, etc.) follow theme too */
+:root {
+    color-scheme: light dark;
+}
+
+[data-theme="light"],
+[data-theme="high-contrast"] {
+    color-scheme: light;
+}
+
+[data-theme="dark"],
+[data-theme="high-contrast-dark"] {
+    color-scheme: dark;
+}
+
+/* ---- Dark mode: system preference (used when no data-theme is set) ---- */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --color-primary: #3b82f6;
+        --color-primary-hover: #60a5fa;
+        --color-secondary: #9ca3af;
+        --color-secondary-hover: #d1d5db;
+
+        --color-bg: #111827;
+        --color-bg-subtle: #1f2937;
+        --color-surface: #1f2937;
+        --color-border: #374151;
+        --color-border-strong: #4b5563;
+
+        --color-text: #f3f4f6;
+        --color-text-muted: #9ca3af;
+        --color-text-inverse: #111827;
+
+        --color-disabled-bg: #374151;
+        --color-disabled-text: #6b7280;
+
+        --focus-ring-color: rgba(96, 165, 250, 0.5);
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5), 0 4px 6px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* ---- Dark mode: explicit override via data-theme="dark" ---- */
+[data-theme="dark"] {
+    --color-primary: #3b82f6;
+    --color-primary-hover: #60a5fa;
+    --color-secondary: #9ca3af;
+    --color-secondary-hover: #d1d5db;
+
+    --color-bg: #111827;
+    --color-bg-subtle: #1f2937;
+    --color-surface: #1f2937;
+    --color-border: #374151;
+    --color-border-strong: #4b5563;
+
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-text-inverse: #111827;
+
+    --color-disabled-bg: #374151;
+    --color-disabled-text: #6b7280;
+
+    --focus-ring-color: rgba(96, 165, 250, 0.5);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5), 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Explicit light override (wins even if OS is set to dark) ---- */
+[data-theme="light"] {
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-secondary: #6b7280;
+    --color-secondary-hover: #4b5563;
+
+    --color-bg: #ffffff;
+    --color-bg-subtle: #f9fafb;
+    --color-surface: #ffffff;
+    --color-border: #d1d5db;
+    --color-border-strong: #9ca3af;
+
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-text-inverse: #ffffff;
+
+    --color-disabled-bg: #e5e7eb;
+    --color-disabled-text: #9ca3af;
+
+    --focus-ring-color: rgba(37, 99, 235, 0.4);
+}
+
+/* ---- High contrast: system preference (light base) ---- */
+@media (prefers-contrast: more) {
+    :root:not([data-theme]) {
+        --color-primary: #0043ce;
+        --color-primary-hover: #002d99;
+        --color-secondary: #000000;
+        --color-secondary-hover: #262626;
+
+        --color-success: #0f7a33;
+        --color-danger: #b30000;
+        --color-warning: #8a5300;
+        --color-info: #005a8a;
+
+        --color-bg: #ffffff;
+        --color-surface: #ffffff;
+        --color-bg-subtle: #ffffff;
+        --color-border: #000000;
+        --color-border-strong: #000000;
+
+        --color-text: #000000;
+        --color-text-muted: #262626;
+        --color-text-inverse: #ffffff;
+
+        --color-disabled-bg: #e0e0e0;
+        --color-disabled-text: #595959;
+
+        --border-width: 2px;
+        --focus-ring-color: #0043ce;
+        --focus-ring-width: 3px;
+
+        --shadow-sm: none;
+        --shadow: none;
+        --shadow-lg: none;
+    }
+}
+
+/* ---- High contrast: explicit light-based theme ---- */
+[data-theme="high-contrast"] {
+    --color-primary: #0043ce;
+    --color-primary-hover: #002d99;
+    --color-secondary: #000000;
+    --color-secondary-hover: #262626;
+
+    --color-success: #0f7a33;
+    --color-danger: #b30000;
+    --color-warning: #8a5300;
+    --color-info: #005a8a;
+
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-bg-subtle: #ffffff;
+    --color-border: #000000;
+    --color-border-strong: #000000;
+
+    --color-text: #000000;
+    --color-text-muted: #262626;
+    --color-text-inverse: #ffffff;
+
+    --color-disabled-bg: #e0e0e0;
+    --color-disabled-text: #595959;
+
+    --border-width: 2px;
+    --focus-ring-color: #0043ce;
+    --focus-ring-width: 3px;
+
+    --shadow-sm: none;
+    --shadow: none;
+    --shadow-lg: none;
+}
+
+/* ---- High contrast: explicit dark-based theme ---- */
+[data-theme="high-contrast-dark"] {
+    --color-primary: #6ea8ff;
+    --color-primary-hover: #9cc2ff;
+    --color-secondary: #ffffff;
+    --color-secondary-hover: #d9d9d9;
+
+    --color-success: #4ade80;
+    --color-danger: #ff6b6b;
+    --color-warning: #ffc94d;
+    --color-info: #5fd0ff;
+
+    --color-bg: #000000;
+    --color-surface: #000000;
+    --color-bg-subtle: #000000;
+    --color-border: #ffffff;
+    --color-border-strong: #ffffff;
+
+    --color-text: #ffffff;
+    --color-text-muted: #d9d9d9;
+    --color-text-inverse: #000000;
+
+    --color-disabled-bg: #262626;
+    --color-disabled-text: #a6a6a6;
+
+    --border-width: 2px;
+    --focus-ring-color: #6ea8ff;
+    --focus-ring-width: 3px;
+
+    --shadow-sm: none;
+    --shadow: none;
+    --shadow-lg: none;
+}
+
+/* Ensure interactive components always keep a visible border in any
+   high-contrast theme, even where the base rule relies on shadow alone. */
+[data-theme="high-contrast"] .card,
+[data-theme="high-contrast-dark"] .card,
+[data-theme="high-contrast"] .btn,
+[data-theme="high-contrast-dark"] .btn {
+    box-shadow: none;
+    border-width: var(--border-width);
+}
+
+
+/* ---- Windows/OS forced-colors mode ----
+   Don't fight the user's forced palette; just make sure structural
+   borders remain visible and let the OS choose actual colors. */
+@media (forced-colors: active) {
+    .btn,
+    .form-control,
+    input,
+    textarea,
+    select,
+    .card {
+        forced-color-adjust: auto;
+        border: 1px solid CanvasText;
+    }
+
+    :focus-visible {
+        outline: 2px solid Highlight;
+    }
+}
