@@ -8,13 +8,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const logger = new Logger("hashselector");
 
-export default function useHashSelector(items, property) {
+export default function useHashSelector(items: any[], property: string) {
   if (!property) {
     logger.error("property cannot be empty");
   }
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedItem, setSelectedItem] = React.useState(null);
+  const [selectedItem, setSelectedItem] = React.useState<any>(null);
   React.useEffect(() => {
     if (!location.hash) {
       return;
@@ -27,7 +27,7 @@ export default function useHashSelector(items, property) {
   }, [location, items, property]);
 
   const onHashItemSelected = React.useCallback(
-    (event, item) => {
+    (event: { preventDefault: () => void } | undefined, item: any) => {
       event && event.preventDefault();
       const hash = item ? item[property] : "#";
       navigate(relativeUrl({ location: setUrlPart({ location, hash }) }), {

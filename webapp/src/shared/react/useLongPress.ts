@@ -1,4 +1,4 @@
-import useToggle from "./useToggle";
+import useToggle, { Toggle } from "./useToggle";
 import React from "react";
 
 /**
@@ -7,14 +7,13 @@ import React from "react";
  * You can start/stop the countdown timer using isPressed toggle methods.
  * @param callback Returned after ms countdown is complete
  * @param ms Countdown wait time in milliseconds
- * @returns {Toggle}
  */
 
-export default function useLongPress(callback, ms) {
+export default function useLongPress(callback: () => void, ms: number): Toggle {
   const isPressed = useToggle(false);
 
   React.useEffect(() => {
-    let timerId = null;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
     if (isPressed.isOff) {
       clearTimeout(timerId);
       return;

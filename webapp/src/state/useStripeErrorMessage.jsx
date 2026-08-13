@@ -1,6 +1,6 @@
 import { Lookup } from "../localization/index.jsx";
 import useI18n from "../localization/useI18n.jsx";
-import useMountEffect from "../shared/react/useMountEffect.jsx";
+import useMountEffect from "../shared/react/useMountEffect";
 import get from "lodash/get.js";
 import React from "react";
 

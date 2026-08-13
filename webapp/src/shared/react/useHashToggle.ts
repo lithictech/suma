@@ -1,21 +1,21 @@
 import relativeUrl from "../relativeUrl";
 import setUrlPart from "../setUrlPart";
+import { Toggle } from "./useToggle";
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Location, useLocation, useNavigate } from "react-router-dom";
 
 /**
  * Like useToggle, but on/off is controlled by the current URL has value
  * being equal to hashValue. Usually this is used to turn internal page state
  * like modals showing on or off.
  *
- * @param {string} hashValue If the hash of the location is this value, the toggle is on.
- * @return {Toggle}
+ * @param hashValue If the hash of the location is this value, the toggle is on.
  */
-export default function useHashToggle(hashValue) {
+export default function useHashToggle(hashValue: string): Toggle {
   const location = useLocation();
   const navigate = useNavigate();
   const doNav = React.useCallback(
-    (hash) => {
+    (hash: string) => {
       navigate(setRelativeUrlPart({ location, hash }), { replace: true });
     },
     [location, navigate]
@@ -34,6 +34,6 @@ export default function useHashToggle(hashValue) {
   };
 }
 
-function setRelativeUrlPart(arg) {
+function setRelativeUrlPart(arg: { location: Location; hash: string }) {
   return relativeUrl({ location: setUrlPart(arg) });
 }

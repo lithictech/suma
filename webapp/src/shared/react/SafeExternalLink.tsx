@@ -1,5 +1,15 @@
 import React from "react";
 
+interface SafeExternalLinkProps {
+  href: string;
+  className?: string;
+  children?: React.ReactNode;
+  opener?: boolean;
+  referrer?: boolean;
+  component?: React.ElementType;
+  [key: string]: any;
+}
+
 export default function SafeExternalLink({
   href,
   className,
@@ -8,7 +18,7 @@ export default function SafeExternalLink({
   referrer,
   component: Component,
   ...rest
-}) {
+}: SafeExternalLinkProps) {
   Component = Component || "a";
   return (
     <Component

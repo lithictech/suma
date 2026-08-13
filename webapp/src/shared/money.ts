@@ -4,7 +4,7 @@ import merge from "lodash/merge";
 
 const logger = new Logger("money");
 
-interface FormatMoneyOptions {
+export interface FormatMoneyOptions {
   /**
    * If true, use smart rounding. 0 cents will use no extra digits (ie, $1) and
    * nonzero cents will have 2 extra digits (ie, $1.05). Ie, you'll never get $1.00.

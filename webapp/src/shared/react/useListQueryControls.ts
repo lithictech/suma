@@ -10,7 +10,7 @@ export default function useListQueryControls() {
   const search = params.get("search");
   const order = params.get("order");
   const orderBy = params.get("orderby");
-  function setListQueryParams(arg, more) {
+  function setListQueryParams(arg: Record<string, any>, more?: Record<string, any>) {
     const sp = new URLSearchParams(params);
     each(urlKeysAndProps, (attr, key) => {
       if (has(arg, attr)) {
