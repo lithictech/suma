@@ -6,7 +6,7 @@ import { initSentry } from "./shared/sentry";
 // We won't have sumaDynamicEnv set (by Rack::DynamicConfigWriter) when running
 // the development server of React during local dev,
 // or if this app is built and deployed separately as a static app.
-const env = window.sumaDynamicEnv || import.meta.env;
+const env: Record<string, any> = window.sumaDynamicEnv || import.meta.env;
 
 // If the API host is configured, use that.
 // If it's '/', assume we mean 'the same server',
@@ -19,7 +19,7 @@ if (apiHost === "/") {
   apiHost = `http://localhost:22001`;
 }
 
-function parseIfSet(key) {
+function parseIfSet(key: string): Record<string, string> {
   const s = env[key];
   if (!s) {
     return {};
@@ -32,7 +32,25 @@ function parseIfSet(key) {
   }
 }
 
-const config = {
+interface AppConfig {
+  apiHost: string;
+  chaos: any;
+  debug: any;
+  environment: string;
+  release: string;
+  sentryDsn: string | undefined;
+  stripePublicKey: string;
+  devCardDetails: Record<string, string>;
+  devBankAccountDetails: Record<string, string>;
+  featureMobility: any;
+  featureMobilityRestricted: any;
+  featureAddFunds: any;
+  mapboxAccessToken: string | undefined;
+  metricsEndpoint: string | undefined;
+  tracingSampleRate: number;
+}
+
+const config: AppConfig = {
   apiHost: apiHost,
   chaos: env.VITE_CHAOS,
   debug: env.VITE_DEBUG,
