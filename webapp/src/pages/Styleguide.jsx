@@ -13,6 +13,7 @@ import Stack from "../ui/Stack";
 import Switch from "../ui/Switch.jsx";
 import SwitchRow from "../ui/SwitchRow.jsx";
 import TextInput from "../ui/TextInput.jsx";
+import Tile from "../ui/Tile.jsx";
 import noop from "lodash/noop";
 import React from "react";
 
@@ -88,6 +89,22 @@ export default function Styleguide() {
               <CardText>This card is disabled.</CardText>
             </CardBody>
           </CheckableCard>
+          <Stack gap={3}>
+            <CheckableCard checked={false} onChange={noop} style={{ maxWidth: 150 }}>
+              <CardBody>
+                <Tile>RC</Tile>
+                <CardText variant="subtitle">Rosewod Commons</CardText>
+                <CardText variant="subtext">Affordable housing</CardText>
+              </CardBody>
+            </CheckableCard>
+            <CheckableCard checked onChange={noop} style={{ maxWidth: 150 }}>
+              <CardBody>
+                <Tile>RC</Tile>
+                <CardText variant="subtitle">Rosewod Commons</CardText>
+                <CardText variant="subtext">Affordable housing</CardText>
+              </CardBody>
+            </CheckableCard>
+          </Stack>
         </Stack>
       </Section>
       <Section eventKey="chips" activeKey={activeKey}>

@@ -16,11 +16,12 @@ export default function CheckableCard({
   name,
   disabled = false,
   className,
+  style,
   children,
 }) {
   const cls = clsx("card checkable-card checkable-card-hidecheck", className);
   return (
-    <label className={cls}>
+    <label className={cls} style={style}>
       <input
         type="checkbox"
         name={name}
