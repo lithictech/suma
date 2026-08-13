@@ -12,6 +12,28 @@ import "leaflet/dist/leaflet.css";
 import isUndefined from "lodash/isUndefined";
 
 export default class MapBuilder {
+  mapHost;
+  _l;
+  _minZoom;
+  _maxZoom;
+  _zoomTo;
+  _mapCache;
+  _saveMapCacheField;
+  _latOffset;
+  _map;
+  _restrictedAreasGroup;
+  _mcg;
+  _lastLocation;
+  _locationMarker;
+  _locationAccuracyCircle;
+  _animationTimeoutId;
+  _refreshId;
+  _clickedVehicle;
+  _onVehicleClick;
+  _onSelectedVehicleRemoved;
+  _lastExtendedVehicleBounds;
+  _lastExtendedStaticBounds;
+
   constructor(host) {
     this.mapHost = host;
     this._l = leaflet;
@@ -431,11 +453,16 @@ export default class MapBuilder {
   }
 
   /**
-   * @param onLocationFound {function} Called with the leaflet LocationEvent
-   * @param onLocationError {function} Called with (this, {error, cachedLocation: {lat, lng} | null}
-   * @returns {MapBuilder}
+   * @param onLocationFound Called with the leaflet LocationEvent
+   * @param onLocationError Called with (this, {error, cachedLocation: {lat, lng} | null})
    */
-  startTrackingLocation({ onLocationFound, onLocationError }) {
+  startTrackingLocation({
+    onLocationFound,
+    onLocationError,
+  }: {
+    onLocationFound: (location: any) => void;
+    onLocationError: (self: MapBuilder, info: { error: any; cachedLocation: any }) => void;
+  }): MapBuilder {
     // 'watch' is true, so "locationfound" event is called multiple times.
     // We set lastLoc and create the movement line on the first location found;
     // then we update lastLoc, and append to the movement line, on subsequent location finds.
@@ -596,7 +623,7 @@ function boundsToParams(bounds) {
 }
 
 const refreshTimer = (function () {
-  let timer = 0;
+  let timer: any = 0;
   // Because the inner function is bound to the refreshTimer variable,
   // it will remain in scope and will allow the timer variable to be manipulated
   return function (cb, ms) {

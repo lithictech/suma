@@ -2,7 +2,7 @@ import { Logger } from "../shared/logger";
 
 const logger = new Logger("idempotency");
 
-const store = {};
+const store: Record<string, Promise<any> | null> = {};
 
 /**
  * Run a callback function that returns a promise,
@@ -13,7 +13,7 @@ const store = {};
  *
  *   runAsync('somefunc', () => api.sendMoney())
  */
-function runAsync(key, callback) {
+function runAsync(key: string, callback: () => Promise<any>) {
   if (store[key]) {
     logger.context({ idempotency: key }).debug("idempotency_hit");
     return store[key];

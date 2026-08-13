@@ -1,6 +1,11 @@
 import config from "../config.js";
 
-export function countEvent(name) {
+interface MetricVars {
+  path?: string;
+  event?: boolean;
+}
+
+export function countEvent(name: string) {
   countMetric({ path: name, event: true });
 }
 
@@ -12,9 +17,8 @@ export function countEvent(name) {
  *
  * Vars can be used to specify a different path, the event name, etc.
  * For events, use recordEven, since how goatcounter handles events is not super straightforward.
- * @param {{path: string=, event: boolean=}=} vars
  */
-export function countMetric(vars) {
+export function countMetric(vars?: MetricVars) {
   if (!config.metricsEndpoint) {
     // Do nothing if metrics are not configured.
     return;
@@ -31,7 +35,10 @@ export function countMetric(vars) {
 }
 
 function shouldFilter() {
-  if ("visibilityState" in document && document.visibilityState === "prerender") {
+  if (
+    "visibilityState" in document &&
+    (document.visibilityState as string) === "prerender"
+  ) {
     return "visibilityState";
   }
   if (location !== parent.location) {
@@ -43,9 +50,9 @@ function shouldFilter() {
 /**
  * Get all data we're going to send off to the counter endpoint.
  */
-function getData(vars) {
+function getData(vars?: MetricVars) {
   vars = vars || {};
-  const data = {
+  const data: Record<string, any> = {
     p: vars.path || getPath(),
     r: document.referrer,
     t: document.title,
@@ -63,8 +70,8 @@ function getData(vars) {
  */
 function isBot() {
   // Headless browsers are probably a bot.
-  const w = window;
-  const d = document;
+  const w = window as any;
+  const d = document as any;
   if (w.callPhantom || w._phantom || w.phantom) return 150;
   if (w.__nightmare) return 151;
   if (d.__selenium_unwrapped || d.__webdriver_evaluate || d.__driver_evaluate) return 152;
@@ -72,7 +79,7 @@ function isBot() {
   return 0;
 }
 
-function getUrl(vars) {
+function getUrl(vars?: MetricVars) {
   const data = getData(vars);
   if (data.p === null) {
     return;
@@ -89,17 +96,17 @@ function getUrl(vars) {
 /**
  * Object to urlencoded string, starting with a ?.
  */
-function urlencode(obj) {
-  const p = [];
-  for (let k in obj)
+function urlencode(obj: Record<string, any>) {
+  const p: string[] = [];
+  for (const k in obj)
     if (obj[k] !== "" && obj[k] !== null && obj[k] !== undefined && obj[k] !== false)
       p.push(encodeURIComponent(k) + "=" + encodeURIComponent(obj[k]));
   return "?" + p.join("&");
 }
 
 function getPath() {
-  let loc = window.location;
-  let c = document.querySelector('link[rel="canonical"][href]');
+  let loc: Location | HTMLAnchorElement = window.location;
+  const c = document.querySelector<HTMLAnchorElement>('link[rel="canonical"][href]');
   if (c) {
     // May be relative or point to different domain.
     const a = document.createElement("a");
@@ -110,6 +117,6 @@ function getPath() {
   return loc.pathname + loc.search || "/";
 }
 
-function warn(msg) {
+function warn(msg: any) {
   console.warn("goatcounter: ", msg);
 }

@@ -26,7 +26,7 @@ const defaultIconsLookup = {
   escooter: limeEscooterIcon,
 };
 
-export function vehicleIconForVendorService(vehicleType, vendorServiceSlug) {
+export function vehicleIconForVendorService(vehicleType: string, vendorServiceSlug: string) {
   const icons = iconNameLookup[vehicleType] || {};
   return (
     icons[vendorServiceSlug] || defaultIconsLookup[vehicleType] || unknownVehicleIcon

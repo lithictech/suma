@@ -1,4 +1,4 @@
-export const maskPhoneNumber = (num) => {
+export const maskPhoneNumber = (num: string): string => {
   if (!num || num.startsWith("0") || num.startsWith("1")) {
     return "";
   }

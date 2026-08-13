@@ -2,6 +2,12 @@ import cct from "credit-card-type";
 import luhn from "luhn";
 
 export class PaymentCardInfo {
+  number;
+  expiry;
+  cvc;
+  ccts;
+  cct;
+
   constructor(number, expiry, cvc) {
     this.number = keepDigits(number);
     this.expiry = keepDigits(expiry);
@@ -24,18 +30,26 @@ const Invalid = {
   FORMAT: "format",
 };
 
+type CardField = "number" | "expiry" | "cvc";
+
+interface CardSeed {
+  number?: string;
+  expiry?: string;
+  cvc?: string;
+}
+
 /**
  * Given a function like invalidCardNumberReason,
  * return a function that takes a string, creates a PaymentCardInfo
  * using the seed and the given string,
  * and returns true if valid and false if not.
- * @param {'number'|'expiry'|'cvc'} field
- * @param {function(PaymentCardInfo): string} reasonFunc
- * @param {{number: string=, expiry: string=, cvc: string=}} seed
- *   If given, use this as data
- * @return {function(string): boolean}
+ * @param seed If given, use this as data
  */
-function validator(field, reasonFunc, seed) {
+function validator(
+  field: CardField,
+  reasonFunc: (ci: PaymentCardInfo) => string,
+  seed?: CardSeed
+): (s: string) => boolean {
   return (s) => {
     const arg = { ...seed, [field]: s };
     const pci = new PaymentCardInfo(arg.number, arg.expiry, arg.cvc);
@@ -46,10 +60,8 @@ function validator(field, reasonFunc, seed) {
 /**
  * Return the reason a card number is invalid,
  * or empty string if valid.
- * @param {PaymentCardInfo} ci
- * @returns {string}
  */
-function invalidCardNumberReason(ci) {
+function invalidCardNumberReason(ci: PaymentCardInfo): string {
   const number = keepDigits(ci.number);
   if (!luhn.validate(number) || !ci.cct) {
     return Invalid.FORMAT;
@@ -63,11 +75,8 @@ function invalidCardNumberReason(ci) {
 /**
  * Return the reason a card expiry is invalid,
  * or empty string if valid.
- * @param {PaymentCardInfo} ci
- * @param {Date} today
- * @returns {string}
  */
-function invalidCardExpiryReason(ci, today = new Date()) {
+function invalidCardExpiryReason(ci: PaymentCardInfo, today: Date = new Date()): string {
   const exp = parseExpiry(ci.expiry);
   if (!exp?.year) {
     return Invalid.FORMAT;
@@ -80,17 +89,19 @@ function invalidCardExpiryReason(ci, today = new Date()) {
   return "";
 }
 
-/**
- * @param {string} s
- * @returns {{month: number, year: number|null, full: boolean}|null}
- */
-function parseExpiry(s) {
+interface ParsedExpiry {
+  month: number;
+  year: number | null;
+  full: boolean;
+}
+
+function parseExpiry(s: string): ParsedExpiry | null {
   const digits = keepDigits(s);
   if (digits.length <= 1) {
     return null;
   }
-  let month;
-  let year = null;
+  let month: number;
+  let year: number | null = null;
   let full = false;
   switch (digits.length) {
     case 2:
@@ -124,10 +135,8 @@ function parseExpiry(s) {
 /**
  * Return the reason a card CVC is invalid,
  * or empty string if valid.
- * @param {PaymentCardInfo} ci
- * @returns {string}
  */
-function invalidCardCvcReason(ci) {
+function invalidCardCvcReason(ci: PaymentCardInfo): string {
   const cvc = keepDigits(ci.cvc);
   if (!ci.cct || cvc.length !== ci.cct.code.size) {
     return Invalid.FORMAT;
@@ -135,22 +144,27 @@ function invalidCardCvcReason(ci) {
   return "";
 }
 
+interface FormatOptions {
+  /**
+   * If true, use this as a placeholder for missing values.
+   * format(number='4242', placeholder='x') would result in '4242 xxxx xxxx xxxx'.
+   */
+  placeholder?: string;
+  /**
+   * If true, if the length of the value is equal to a number gap, add a space.
+   * So '4242 4' would become '4242 ' so the user's next input would start a new
+   * space-separated string.
+   */
+  editing?: boolean;
+}
+
 /**
  * Format the card info number, using the placeholder to pad it out if needed.
- * @param {PaymentCardInfo} ci
- * @param {object=} options
- * @param {string=} options.placeholder If true, use this as a placeholder
- *   for missing values. format(number='4242', placeholder='x')
- *   would result in '4242 xxxx xxxx xxxx'.
- * @param {boolean=} options.editing If true, if the length of the value
- *   is equal to a number gap, add a space. So '4242 4' would become '4242 ' so the user's
- *   next input would start a new space-separated string.
- * @returns {string}
  */
-function formatCardNumber(ci, options) {
+function formatCardNumber(ci: PaymentCardInfo, options?: FormatOptions): string {
   const cct = ci.cct || DEFAULT_CCT;
   const s = keepDigits(ci.number).substring(0, Math.max(...cct.lengths));
-  const parts = [];
+  const parts: string[] = [];
   let lastIdx = 0;
   [...cct.gaps, Math.max(Math.min(...cct.lengths), s.length)].forEach((gapIdx) => {
     let part = s.substring(lastIdx, gapIdx);
@@ -167,22 +181,21 @@ function formatCardNumber(ci, options) {
   return result;
 }
 
+interface FormatExpiryOptions extends FormatOptions {
+  /**
+   * By default, this function will format the expiry only using the input string-
+   * that is, '120' is '12/0'. If infer is true, the format will be inferred as per
+   * parseExpiry, and this method would return '01/20'. This is mostly useful when an
+   * input loses focus and we want to try to create a fully valid expiry using partial entry.
+   */
+  infer?: boolean;
+}
+
 /**
  * Format the card info expiry, using the placeholder to pad it out if needed.
- * @param {PaymentCardInfo} ci
- * @param {object=} options
- * @param {string=} options.placeholder
- * @param {boolean=} options.editing
- * @param {boolean=} options.infer By default, this function will format the expiry
- *   only using the input string- that is, '120' is '12/0'.
- *   If infer is true, the format will be inferred as per parseExpiry,
- *   and this method would return '01/20'.
- *   This is mostly useful when an input loses focus and we want to try
- *   to create a fully valid expiry using partial entry.
- * @returns {string}
  */
-function formatCardExpiry(ci, options) {
-  let mpart, ypart;
+function formatCardExpiry(ci: PaymentCardInfo, options?: FormatExpiryOptions): string {
+  let mpart: string, ypart: string;
   if (options?.infer) {
     const parseResult = parseExpiry(ci.expiry);
     if (!parseResult) {
@@ -212,13 +225,9 @@ function formatCardExpiry(ci, options) {
 
 /**
  * Format the card info cvc, using the placeholder to pad it out if needed.
- * @param {PaymentCardInfo} ci
- * @param {object=} options
- * @param {string=} options.placeholder
- * @param {boolean=} options.editing Currently unused.
- * @returns {string}
+ * options.editing is currently unused.
  */
-function formatCardCvc(ci, options) {
+function formatCardCvc(ci: PaymentCardInfo, options?: FormatOptions): string {
   const cct = ci.cct || DEFAULT_CCT;
   const maxCodeLen = cct.code.size;
   let s = keepDigits(ci.cvc).substring(0, maxCodeLen);
@@ -230,6 +239,18 @@ function formatCardCvc(ci, options) {
 
 const DEFAULT_CCT = cct.getTypeInfo("visa");
 
+interface DigitInputEvent {
+  target: { name?: string; value: string };
+  inputType?: string;
+}
+
+interface DigitInputOptions {
+  /** The card info being changed. */
+  pci: PaymentCardInfo;
+  /** The name of the field being changed. Default to ev.target.name. */
+  field?: CardField;
+}
+
 /**
  * Use this when changing card number, expiry, and cvc inputs.
  * This is necessary because the inputs have formatting automatically applied
@@ -239,14 +260,11 @@ const DEFAULT_CCT = cct.getTypeInfo("visa");
  * This method will:
  * - Preserve only digits.
  * - If some text is being deleted (backspace), remove the last digit.
- * @param {InputEvent} ev
- * @param {object} options
- * @param {PaymentCardInfo} options.pci The card info being changed.
- * @param {'number'|'expiry'|'cvc'=} options.field The name of the field being changed.
- *   Default to ev.target.name.
- * @return {string}
  */
-function handleDigitInputWithFormatting(ev, options) {
+function handleDigitInputWithFormatting(
+  ev: DigitInputEvent,
+  options: DigitInputOptions
+): string {
   const formatter = FORMATTERS[options.field || ev.target.name];
   const previousFormattedValue = formatter(options.pci, { editing: true });
   const d = keepDigits(ev.target.value);
@@ -265,9 +283,9 @@ const FORMATTERS = {
   cvc: formatCardCvc,
 };
 
-const last = (x) => x[x.length - 1];
-const keepDigits = (s) => (s || "").replace(/\D/g, "");
-const isDigit = (s) => (s || "").match(/\d/);
+const last = (x: string) => x[x.length - 1];
+const keepDigits = (s: string) => (s || "").replace(/\D/g, "");
+const isDigit = (s: string) => (s || "").match(/\d/);
 
 const Payment = {
   CardInfo: PaymentCardInfo,

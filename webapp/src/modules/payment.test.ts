@@ -77,7 +77,7 @@ describe("invalidCardExpiryReason", () => {
 });
 
 describe("invalidCardCvcReason", () => {
-  const getreason = (x, number) =>
+  const getreason = (x, number?) =>
     Payment.invalidCardCvcReason(new PCI(number || visa, "", x));
   it("fails for an invalid format", () => {
     expect(getreason("11")).toEqual(Payment.Invalid.FORMAT);
@@ -108,7 +108,7 @@ describe("validator", () => {
 });
 
 describe("formatCardNumber", () => {
-  const fmt = (x, opts) => Payment.formatCardNumber(new PCI(x, "", ""), opts);
+  const fmt = (x, opts?) => Payment.formatCardNumber(new PCI(x, "", ""), opts);
   it("formats a full number", () => {
     expect(fmt("4242 4242 4242 4242")).toEqual("4242 4242 4242 4242");
     expect(fmt("4242-4242-42424242")).toEqual("4242 4242 4242 4242");
@@ -145,7 +145,7 @@ describe("formatCardNumber", () => {
 });
 
 describe("formatCardExpiry", () => {
-  const fmt = (x, opts) => Payment.formatCardExpiry(new PCI("", x, ""), opts);
+  const fmt = (x, opts?) => Payment.formatCardExpiry(new PCI("", x, ""), opts);
   it("formats a full number", () => {
     expect(fmt("0123")).toEqual("01 / 23");
     expect(fmt("1223")).toEqual("12 / 23");
@@ -195,7 +195,7 @@ describe("formatCardExpiry", () => {
 });
 
 describe("formatCardCvc", () => {
-  const fmt = (x, opts, number) =>
+  const fmt = (x, opts?, number?) =>
     Payment.formatCardCvc(new PCI(number || visa, "", x), opts);
   it("formats a full number", () => {
     expect(fmt("123")).toEqual("123");

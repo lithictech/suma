@@ -1,5 +1,6 @@
 import { t } from "../localization";
 import isArray from "lodash/isArray";
+import type { ReactElement } from "react";
 
 /**
  * Return the translated read-only reason on the user.
@@ -10,12 +11,13 @@ import isArray from "lodash/isArray";
  *
  * This method is mostly useful because the fallback reason of technical
  * errors will get translated.
- * @param user
- * @param oneOf {string, Array<string>} Read-only reason to look for.
- * @param unlocalized {boolean=}
- * @return {string}
+ * @param oneOf Read-only reason to look for.
  */
-export default function readOnlyReason(user, oneOf, unlocalized) {
+export default function readOnlyReason(
+  user: CurrentMember,
+  oneOf: string | string[],
+  unlocalized?: boolean
+): string | ReactElement {
   const r = user.readOnlyReason;
   if (!r) {
     return "";
