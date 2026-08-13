@@ -461,7 +461,10 @@ export default class MapBuilder {
     onLocationError,
   }: {
     onLocationFound: (location: any) => void;
-    onLocationError: (self: MapBuilder, info: { error: any; cachedLocation: any }) => void;
+    onLocationError: (
+      self: MapBuilder,
+      info: { error: any; cachedLocation: any }
+    ) => void;
   }): MapBuilder {
     // 'watch' is true, so "locationfound" event is called multiple times.
     // We set lastLoc and create the movement line on the first location found;

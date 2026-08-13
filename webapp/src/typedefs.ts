@@ -288,8 +288,7 @@ declare global {
   }
 
   /** Auto-generated from Suma::API::Entities::BaseEntity */
-  interface Base {
-  }
+  interface Base {}
 
   /** Auto-generated from Suma::API::Entities::CurrencyEntity */
   interface Currency {
@@ -610,7 +609,6 @@ declare global {
     phone: string;
     preferences: PublicPrefs;
   }
-
 }
 
 export {};

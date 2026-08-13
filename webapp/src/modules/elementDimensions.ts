@@ -1,9 +1,12 @@
 /**
  * Thanks to https://stackoverflow.com/a/23749355
  */
-export default function elementDimensions(
-  elOrSelector?: string | HTMLElement | null
-): { h: number; w: number; mx: number; my: number } {
+export default function elementDimensions(elOrSelector?: string | HTMLElement | null): {
+  h: number;
+  w: number;
+  mx: number;
+  my: number;
+} {
   if (!elOrSelector) {
     return { h: 0, w: 0, mx: 0, my: 0 };
   }

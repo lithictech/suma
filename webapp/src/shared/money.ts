@@ -120,7 +120,10 @@ export function moneySign(m: Money): number {
   return -1;
 }
 
-const optionedFormatters: Record<string, (opts: Intl.NumberFormatOptions) => Intl.NumberFormat> & {
+const optionedFormatters: Record<
+  string,
+  (opts: Intl.NumberFormatOptions) => Intl.NumberFormat
+> & {
   default?: (opts: Intl.NumberFormatOptions) => Intl.NumberFormat;
 } = {
   USD: (opts) =>
