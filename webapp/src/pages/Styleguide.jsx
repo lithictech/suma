@@ -1,11 +1,12 @@
 import PageLoader from "../components/PageLoader";
 import Button from "../ui/Button";
+import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
 import Stack from "../ui/Stack";
 import React from "react";
 
 export default function Styleguide() {
-  const keys = ["typography", "buttons", "loaders"];
+  const keys = ["typography", "buttons", "chips", "loaders"];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
   );
@@ -19,10 +20,10 @@ export default function Styleguide() {
         {keys.map((k) => (
           <Button
             key={k}
-            variant={k === activeKey ? `primary` : "outline-primary"}
+            variant={k === activeKey ? `primary` : "text"}
             onClick={() => changeKey(k)}
           >
-            {k}
+            {k[0].toUpperCase() + k.substring(1)}
           </Button>
         ))}
       </Stack>
@@ -46,6 +47,14 @@ export default function Styleguide() {
               ))}
             </Stack>
           ))}
+        </Stack>
+      </Section>
+      <Section eventKey="chips" activeKey={activeKey}>
+        <Stack gap={2}>
+          <Chip variant="secondary">Available now</Chip>
+          <Chip variant="info">Ready for pickup</Chip>
+          <Chip variant="danger">2 left</Chip>
+          <Chip variant="success">Picked up</Chip>
         </Stack>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>

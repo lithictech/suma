@@ -4,6 +4,7 @@ import "./alerts.css";
 import "./animated-checkmark.css";
 import "./buttons.css";
 import "./cards.css";
+import "./chips.css";
 import "./colors.css";
 import "./forms.css";
 import "./funding.css";
