@@ -6,14 +6,13 @@ import { t } from "../localization";
  * @param errors Errors from react-hook-form.
  * @param validations Object like {required: true, minLength: 3}.
  * @param additionalErrorKeys Object like {min: "forms.invalid_min_amount"}.
- * @returns {null|string}
  */
 export default function useValidationError(
-  name,
-  errors,
-  validations,
-  additionalErrorKeys = {}
-) {
+  name: string,
+  errors: any,
+  validations: any,
+  additionalErrorKeys: Record<string, string> = {}
+): string | null {
   const err = errors && errors[name];
   if (!err) {
     return null;

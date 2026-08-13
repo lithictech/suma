@@ -9,22 +9,33 @@ import React from "react";
 
 const logger = new Logger("user");
 
-export const UserContext = React.createContext();
+export interface UserContextValue {
+  user: CurrentMember | null;
+  setUser: (u: CurrentMember | null) => void;
+  userLoading: boolean;
+  userError: any;
+  userAuthed: boolean;
+  userUnauthed: boolean;
+  handleUpdateCurrentMember: (response: any) => void;
+  registrationSession: RegistrationLink | null;
+}
 
-export default function UserProvider({ children }) {
+export const UserContext = React.createContext<UserContextValue>({} as UserContextValue);
+
+export default function UserProvider({ children }: { children: React.ReactNode }) {
   // Store the current user in the local storage cache.
   // Load from the cache optimistically; if we have a cached user,
   // use it immediately while we go and fetch from the backend.
   // This avoids blocking doing anything while we wait on the user,
   // which normally won't change in a meaningful way
   // (and when it does change, the app will react to its new state properly).
-  const [user, setUserInner] = React.useState(
+  const [user, setUserInner] = React.useState<CurrentMember | null>(
     localStorageCache.getItem(STORAGE_KEY, null)
   );
   const [userLoading, setUserLoading] = React.useState(!user);
-  const [userError, setUserError] = React.useState(null);
+  const [userError, setUserError] = React.useState<any>(null);
 
-  const setUser = React.useCallback((u) => {
+  const setUser = React.useCallback((u: CurrentMember | null) => {
     withSentry((sentry) => {
       const user = u ? { id: u.id, email: u.email, username: u.name } : null;
       sentry.setUser(user);
@@ -36,13 +47,15 @@ export default function UserProvider({ children }) {
   }, []);
 
   // When GET /me 401s, set this value, and use it if the user is unauthed.
-  const [regLinkFromError, setRegLinkFromError] = React.useState(null);
+  const [regLinkFromError, setRegLinkFromError] = React.useState<RegistrationLink | null>(
+    null
+  );
 
   const fetchUser = React.useCallback(() => {
     return api
       .getMe()
-      .then((r) => setUser(r.data))
-      .catch((e) => {
+      .then((r: any) => setUser(r.data))
+      .catch((e: any) => {
         setUserInner(null);
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
@@ -58,7 +71,7 @@ export default function UserProvider({ children }) {
 
   // See add_current_member_header for more info.
   const handleUpdateCurrentMember = React.useCallback(
-    (response) => {
+    (response: any) => {
       const memberBase64 = get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
         logger.error(

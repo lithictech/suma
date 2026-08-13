@@ -2,18 +2,33 @@ import api from "../api";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import React from "react";
 
-export const OfferingContext = React.createContext({});
+interface OfferingContextValue {
+  initializeToOffering: (offeringId: any) => void;
+  offering: any;
+  setOfferingFromResponse: (data: any) => void;
+  vendors: any[];
+  products: any[];
+  listableProducts: any[];
+  cart: any;
+  loading: boolean;
+  error: any;
+  reset: () => void;
+}
+
+export const OfferingContext = React.createContext<OfferingContextValue>(
+  {} as OfferingContextValue
+);
 
 const NOOP = Symbol("noop");
 
-export default function OfferingProvider({ children }) {
-  const [offering, setOfferingInner] = React.useState({});
-  const [vendors, setVendorsInner] = React.useState([]);
+export default function OfferingProvider({ children }: { children: React.ReactNode }) {
+  const [offering, setOfferingInner] = React.useState<any>({});
+  const [vendors, setVendorsInner] = React.useState<any[]>([]);
   // Do not store things in local storage here:
   // because carts depend on everything else being loaded,
   // saving just the cart causes errors.
-  const [cart, setCartInner] = React.useState({ items: [] });
-  const [products, setProductsInner] = React.useState([]);
+  const [cart, setCartInner] = React.useState<any>({ items: [] });
+  const [products, setProductsInner] = React.useState<any[]>([]);
 
   const reset = React.useCallback(() => {
     setOfferingInner({});
@@ -26,7 +41,7 @@ export default function OfferingProvider({ children }) {
   }, []);
 
   const fetchOfferingProducts = React.useCallback(
-    (id) => {
+    (id: any) => {
       id = parseInt(id, 10);
       if (id === offering?.id) {
         return Promise.resolve(NOOP);
@@ -41,7 +56,7 @@ export default function OfferingProvider({ children }) {
     doNotFetchOnInit: true,
   });
 
-  const setOfferingFromResponse = React.useCallback((data) => {
+  const setOfferingFromResponse = React.useCallback((data: any) => {
     setOfferingInner(data.offering);
     setVendorsInner(data.vendors);
     setCartInner(data.cart);
@@ -49,8 +64,8 @@ export default function OfferingProvider({ children }) {
   }, []);
 
   const initializeToOffering = React.useCallback(
-    (offeringId) => {
-      asyncFetch(offeringId).then((resp) => {
+    (offeringId: any) => {
+      asyncFetch(offeringId).then((resp: any) => {
         if (resp === NOOP) {
           return;
         }

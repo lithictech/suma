@@ -5,7 +5,7 @@ import RLink from "../components/RLink";
 import TranslationToggle from "../components/TranslationToggle";
 import { dt, imageAltT, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
-import useUser from "../state/useUser.jsx";
+import useUser from "../state/useUser";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";

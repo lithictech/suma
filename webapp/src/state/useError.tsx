@@ -6,24 +6,17 @@ import React from "react";
 
 const logger = new Logger("form-error");
 
-export function useError(initialState) {
+export function useError(initialState?: any): [any, (e?: any) => null] {
   const [error, setErrorInner] = React.useState(initialState || null);
 
-  /**
-   * @param {any=} e
-   * @return {null}
-   */
-  const setError = React.useCallback(function setError(e) {
+  const setError = React.useCallback(function setError(e?: any) {
     setErrorInner(e);
     return null;
   }, []);
   return [error, setError];
 }
 
-/**
- * @return {string|null}
- */
-export function extractErrorCode(error) {
+export function extractErrorCode(error: any): any {
   if (!error || isString(error)) {
     return error;
   }
@@ -51,12 +44,10 @@ const defaultCode = "unhandled_error";
  * then render it in a localized element.
  * Uses special casing to localize the error message
  * using information returned from 'error'.
- * @param error
- * @returns {JSX.Element}
  */
-export function extractLocalizedError(error) {
+export function extractLocalizedError(error: any) {
   const code = extractErrorCode(error);
-  const opts = {};
+  const opts: Record<string, any> = {};
   if (code === "too_many_requests") {
     opts.seconds = Number(get(error, "response.data.error.retryAfter", 60));
   }

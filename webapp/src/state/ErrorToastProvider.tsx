@@ -5,10 +5,16 @@ import React from "react";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 
-export const ErrorToastContext = React.createContext({});
+interface ErrorToastContextValue {
+  showErrorToast: (e: any, opts?: { extract?: boolean }) => void;
+}
 
-export default function ErrorToastProvider({ children }) {
-  const [state, setState] = React.useState(null);
+export const ErrorToastContext = React.createContext<ErrorToastContextValue>(
+  {} as ErrorToastContextValue
+);
+
+export default function ErrorToastProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = React.useState<React.ReactNode>(null);
   const { appNav, topNav } = useGlobalViewState();
   const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
 
@@ -21,7 +27,7 @@ export default function ErrorToastProvider({ children }) {
   }, []);
 
   const showErrorToast = React.useCallback(
-    (e, opts) => {
+    (e: any, opts?: { extract?: boolean }) => {
       if (opts?.extract) {
         e = extractErrorCode(e);
       }

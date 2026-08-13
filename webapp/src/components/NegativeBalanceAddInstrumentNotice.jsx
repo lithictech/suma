@@ -1,6 +1,6 @@
 import { t } from "../localization";
 import { scaleMoney } from "../shared/money.js";
-import useUser from "../state/useUser.jsx";
+import useUser from "../state/useUser";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 

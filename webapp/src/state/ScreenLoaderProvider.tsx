@@ -1,11 +1,15 @@
 import "../assets/styles/screenloader.scss";
 import ScreenLoader from "../components/ScreenLoader";
-import useToggle from "../shared/react/useToggle";
+import useToggle, { Toggle } from "../shared/react/useToggle";
 import React from "react";
 
-export const ScreenLoaderContext = React.createContext({});
+export const ScreenLoaderContext = React.createContext<Toggle>({} as Toggle);
 
-export default function ScreenLoaderProvider({ children }) {
+export default function ScreenLoaderProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const toggle = useToggle(false);
 
   return (

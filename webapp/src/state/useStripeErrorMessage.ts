@@ -19,7 +19,6 @@ import React from "react";
  * - If the code is unmapped, log a normal missing localization error,
  *   but use data.error.message instead of the localization key.
  *   This is a nicer fallback.
- * @returns {{localizeStripeError: ((function(*): void)|*)}}
  */
 export default function useStripeErrorMessage() {
   const { loadLanguageFileUnsafe } = useI18n();
@@ -32,7 +31,7 @@ export default function useStripeErrorMessage() {
   );
 
   const localizeStripeError = React.useCallback(
-    (data) => {
+    (data: any) => {
       if (!get(data, "error.type")) {
         return null;
       } else if (!loaded) {

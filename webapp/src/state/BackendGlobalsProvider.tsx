@@ -2,9 +2,21 @@ import api from "../api";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import React from "react";
 
-export const BackendGlobalsContext = React.createContext({});
+interface BackendGlobalsContextValue {
+  supportedLocales: { items: any[] };
+  supportedPaymentMethods: { items: any[] };
+  isPaymentMethodSupported: (pm: any) => boolean;
+}
 
-export default function BackendGlobalsProvider({ children }) {
+export const BackendGlobalsContext = React.createContext<BackendGlobalsContextValue>(
+  {} as BackendGlobalsContextValue
+);
+
+export default function BackendGlobalsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { state: supportedLocales } = useAsyncFetch(api.getSupportedLocales, {
     default: { items: [] },
     pickData: true,
@@ -18,7 +30,7 @@ export default function BackendGlobalsProvider({ children }) {
   );
 
   const isPaymentMethodSupported = React.useCallback(
-    (pm) => supportedPaymentMethods.items.includes(pm),
+    (pm: any) => supportedPaymentMethods.items.includes(pm),
     [supportedPaymentMethods]
   );
 

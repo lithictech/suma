@@ -4,11 +4,11 @@ import React from "react";
 const REDIRECT_LINK_SESSION_KEY = "sumaNextUrl";
 
 export default function useLoginRedirectLink() {
-  const [redirectLink, setRedirectLinkInner] = useSessionStorageState(
+  const [redirectLink, setRedirectLinkInner] = useSessionStorageState<string>(
     REDIRECT_LINK_SESSION_KEY
   );
   const setRedirectLink = React.useCallback(
-    (x) => {
+    (x: string) => {
       if (x !== redirectLink) {
         setRedirectLinkInner(x);
       }
