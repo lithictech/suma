@@ -1,0 +1,37 @@
+/* =============================================================
+   Checkable card
+   ============================================================= */
+.checkable-card {
+    display: block;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Real checkbox stays functional/accessible but is visually hidden;
+   the card's own border/background communicate checked state. */
+.checkable-card input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.checkable-card:has(input:checked) {
+    border-color: var(--color-primary);
+    background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
+}
+
+.checkable-card:has(input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+.checkable-card:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

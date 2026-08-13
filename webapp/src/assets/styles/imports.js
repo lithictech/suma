@@ -1,7 +1,6 @@
 import "./01_theme.css";
 import "./02_baseline.css";
 import "./animated-checkmark.css";
-import "./cards.css";
 import "./colors.css";
 import "./forms.css";
 import "./funding.css";

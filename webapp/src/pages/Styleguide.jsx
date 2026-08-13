@@ -1,7 +1,11 @@
 import PageLoader from "../components/PageLoader";
 import Button from "../ui/Button";
+import Card from "../ui/Card.jsx";
+import CardBody from "../ui/CardBody.jsx";
+import CardText from "../ui/CardText.jsx";
 import CheckCard from "../ui/CheckCard.jsx";
 import CheckRow from "../ui/CheckRow.jsx";
+import CheckableCard from "../ui/CheckableCard.jsx";
 import Checkbox from "../ui/Checkbox.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
@@ -14,7 +18,7 @@ import noop from "lodash/noop";
 import React from "react";
 
 export default function Styleguide() {
-  const keys = ["typography", "buttons", "chips", "inputs", "misc", "loaders"];
+  const keys = ["typography", "buttons", "cards", "chips", "inputs", "misc", "loaders"];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
   );
@@ -55,6 +59,36 @@ export default function Styleguide() {
               ))}
             </Stack>
           ))}
+        </Stack>
+      </Section>
+      <Section eventKey="cards" activeKey={activeKey}>
+        <Stack gap={2} direction="vertical">
+          <Card>
+            <CardBody>
+              <CardText variant="title">Your savings so far</CardText>
+              <CardText>Across every offer you have used</CardText>
+            </CardBody>
+          </Card>
+          <CheckableCard checked onChange={noop}>
+            <CardBody>
+              <CardText>This card is checked.</CardText>
+            </CardBody>
+          </CheckableCard>
+          <CheckableCard checked={false} onChange={noop}>
+            <CardBody>
+              <CardText>This card is unchecked.</CardText>
+            </CardBody>
+          </CheckableCard>
+          <CheckableCard checked={false} className="is-focus-visible" onChange={noop}>
+            <CardBody>
+              <CardText>This card has focus.</CardText>
+            </CardBody>
+          </CheckableCard>
+          <CheckableCard checked={false} disabled onChange={noop}>
+            <CardBody>
+              <CardText>This card is disabled.</CardText>
+            </CardBody>
+          </CheckableCard>
         </Stack>
       </Section>
       <Section eventKey="chips" activeKey={activeKey}>
