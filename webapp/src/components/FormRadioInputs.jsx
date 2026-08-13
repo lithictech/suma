@@ -1,7 +1,7 @@
 import useValidationError from "../state/useValidationError";
+import Form from "../ui/Form";
 import FormText from "./FormText";
 import React from "react";
-import Form from "react-bootstrap/Form";
 
 /**
  * Represents a list of Bootstrap Form.Check radio inputs that passes

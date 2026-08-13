@@ -6,9 +6,9 @@ import { t } from "../localization";
 import { vehicleIconForVendorService } from "../modules/mobilityIconLookup.js";
 import Money from "../shared/react/Money.jsx";
 import useUrlMarshal from "../shared/react/useUrlMarshal.js";
+import Stack from "../ui/Stack";
 import dayjs from "dayjs";
 import React from "react";
-import Stack from "react-bootstrap/Stack";
 
 export default function TripDetail() {
   const { unmarshalFromUrl } = useUrlMarshal();

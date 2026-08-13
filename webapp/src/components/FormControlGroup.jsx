@@ -1,10 +1,10 @@
 import setRef from "../shared/setRef";
 import useValidationError from "../state/useValidationError";
+import Form from "../ui/Form";
+import InputGroup from "../ui/InputGroup";
 import FormText from "./FormText";
 import isString from "lodash/isString";
 import React from "react";
-import Form from "react-bootstrap/Form";
-import InputGroup from "react-bootstrap/InputGroup";
 
 /**
  * Represents a Bootstrap Form.Group, Form.Control, and related components.

@@ -1,11 +1,11 @@
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import Card from "../ui/Card";
+import Stack from "../ui/Stack";
 import RLink from "./RLink";
 import SumaImage from "./SumaImage";
 import clsx from "clsx";
 import React from "react";
-import Card from "react-bootstrap/Card";
-import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
 export default function VendibleCard({

@@ -8,9 +8,9 @@ import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractLocalizedError, useError } from "../state/useError";
 import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Form from "../ui/Form";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const OneTimePassword = () => {

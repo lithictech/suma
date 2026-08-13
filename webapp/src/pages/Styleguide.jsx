@@ -1,23 +1,31 @@
 import PageLoader from "../components/PageLoader";
+import Button from "../ui/Button";
+import Container from "../ui/Container";
+import Stack from "../ui/Stack";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Nav from "react-bootstrap/Nav";
 
 export default function Styleguide() {
-  const [activeKey, setActiveKey] = React.useState("typography");
+  const keys = ["typography", "buttons", "loaders"];
+  const [activeKey, setActiveKey] = React.useState(
+    window.location.hash.substring(1) || keys[0]
+  );
+  function changeKey(k) {
+    setActiveKey(k);
+    window.location.hash = k;
+  }
   return (
-    <div className="mt-2">
-      <Nav variant="tabs" activeKey={activeKey} onSelect={(v) => setActiveKey(v)}>
-        <Nav.Item>
-          <Nav.Link eventKey="typography">Typography</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="buttons">Buttons</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="loaders">Loaders</Nav.Link>
-        </Nav.Item>
-      </Nav>
+    <Container className="mt-2">
+      <Stack direction="horizontal" gap={2}>
+        {keys.map((k) => (
+          <Button
+            key={k}
+            variant={k === activeKey ? `primary` : "outline-primary"}
+            onClick={() => changeKey(k)}
+          >
+            {k}
+          </Button>
+        ))}
+      </Stack>
       <Section eventKey="typography" activeKey={activeKey}>
         <h1>H1 Heading</h1>
         <h2>H2 Heading</h2>
@@ -79,7 +87,7 @@ export default function Styleguide() {
           <PageLoader overlay />
         </div>
       </Section>
-    </div>
+    </Container>
   );
 }
 

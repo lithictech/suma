@@ -6,14 +6,14 @@ import useBackendGlobals from "../state/useBackendGlobals";
 import useGlobalViewState from "../state/useGlobalViewState";
 import useOnlineStatus from "../state/useOnlineStatus";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import ButtonGroup from "../ui/ButtonGroup";
+import Container from "../ui/Container";
+import Navbar from "../ui/Navbar";
 import ExternalLink from "./ExternalLink";
 import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
 import { Link, useLocation } from "react-router-dom";
 
 export default function TopNav() {

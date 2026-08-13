@@ -1,10 +1,10 @@
 import { t } from "../localization";
+import Button from "../ui/Button";
+import Toast from "../ui/Toast";
+import ToastContainer from "../ui/ToastContainer";
 import clsx from "clsx";
 import isNumber from "lodash/isNumber";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Toast from "react-bootstrap/Toast";
-import ToastContainer from "react-bootstrap/ToastContainer";
 
 export default function Copyable({ className, children, delay, inline, text }) {
   delay = isNumber(delay) ? delay : 2000;

@@ -1,8 +1,8 @@
 import RLink from "../components/RLink";
 import { t } from "../localization";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function OnboardingFinish() {
   const { user } = useUser();

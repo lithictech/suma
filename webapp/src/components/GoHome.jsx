@@ -1,7 +1,7 @@
 import { t } from "../localization";
+import Button from "../ui/Button";
 import RLink from "./RLink";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function GoHome({ href, label }) {
   return (

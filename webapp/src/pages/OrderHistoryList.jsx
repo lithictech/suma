@@ -11,12 +11,12 @@ import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Stack from "../ui/Stack";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Stack from "react-bootstrap/Stack";
 import { useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {

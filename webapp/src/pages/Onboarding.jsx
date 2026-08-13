@@ -3,9 +3,9 @@ import onboardingMobility from "../assets/images/onboarding-mobility.jpg";
 import onboardingUtilities from "../assets/images/onboarding-utilities.jpg";
 import RLink from "../components/RLink";
 import { imageAltT, t } from "../localization";
+import Button from "../ui/Button";
+import Carousel from "../ui/Carousel";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Carousel from "react-bootstrap/Carousel";
 
 const Onboarding = () => {
   return (

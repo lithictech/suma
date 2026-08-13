@@ -1,8 +1,8 @@
 import RLink from "../components/RLink";
 import config from "../config";
 import { t } from "../localization";
+import Button from "../ui/Button.jsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function AddFundsLinkButton() {
   if (!config.featureAddFunds) {

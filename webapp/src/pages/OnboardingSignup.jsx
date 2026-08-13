@@ -9,10 +9,10 @@ import keepDigits from "../modules/keepDigits";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
 import useUser from "../state/useUser";
+import Col from "../ui/Col";
+import Form from "../ui/Form";
+import Row from "../ui/Row";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 

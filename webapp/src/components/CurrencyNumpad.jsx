@@ -1,6 +1,6 @@
+import Button from "../ui/Button";
 import isNumber from "lodash/isNumber";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }) {
   if (!whole) {

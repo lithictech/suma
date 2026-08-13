@@ -21,16 +21,16 @@ import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "../shared/react/useMountEffect";
 import useGlobalViewState from "../state/useGlobalViewState";
+import Col from "../ui/Col";
+import Container from "../ui/Container";
+import Nav from "../ui/Nav";
+import Navbar from "../ui/Navbar";
+import Row from "../ui/Row";
+import Stack from "../ui/Stack";
 import TranslationToggle from "./TranslationToggle";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Row from "react-bootstrap/Row";
-import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 
 export default function PrivacyPolicyContent({ mobile }) {

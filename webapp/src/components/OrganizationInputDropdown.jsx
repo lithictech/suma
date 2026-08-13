@@ -1,10 +1,10 @@
 import api from "../api";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import Form from "../ui/Form";
 import FormControlGroup from "./FormControlGroup";
 import FormText from "./FormText";
 import React from "react";
-import Form from "react-bootstrap/Form";
 
 export default function OrganizationInputDropdown({
   organizationName,

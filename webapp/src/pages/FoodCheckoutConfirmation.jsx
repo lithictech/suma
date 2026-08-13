@@ -7,10 +7,10 @@ import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import Alert from "../ui/Alert";
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function FoodCheckoutConfirmation() {

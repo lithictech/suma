@@ -12,11 +12,11 @@ import useUnmountEffect from "../shared/react/useUnmountEffect.jsx";
 import { extractErrorCode, useError } from "../state/useError.jsx";
 import useScreenLoader from "../state/useScreenLoader.jsx";
 import useUser from "../state/useUser.jsx";
+import Alert from "../ui/Alert";
+import ProgressBar from "../ui/ProgressBar";
 import { CanceledError } from "axios";
 import clsx from "clsx";
 import React from "react";
-import { ProgressBar } from "react-bootstrap";
-import Alert from "react-bootstrap/Alert";
 import { useParams } from "react-router-dom";
 
 /**

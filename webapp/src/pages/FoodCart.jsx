@@ -11,10 +11,10 @@ import { dt, t } from "../localization";
 import { anyMoney } from "../shared/money";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function FoodCart() {

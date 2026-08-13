@@ -10,8 +10,8 @@ import { dayjs } from "../modules/dayConfig";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
+import Form from "../ui/Form";
 import React, { useState } from "react";
-import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 

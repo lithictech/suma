@@ -4,9 +4,9 @@ import RLink from "../components/RLink";
 import { imageAltT, t } from "../localization";
 import useI18n from "../localization/useI18n";
 import useBackendGlobals from "../state/useBackendGlobals";
+import Button from "../ui/Button";
+import Container from "../ui/Container";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListHome() {

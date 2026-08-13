@@ -1,8 +1,8 @@
 import { t } from "../../localization";
+import Button from "../../ui/Button";
 import FormError from "../FormError";
 import DrawerContents from "./DrawerContents";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function PostTrip({ endTrip, onCloseTrip, error }) {
   const { totalCost, discountAmount, provider } = endTrip;

@@ -1,7 +1,7 @@
 import { t } from "../localization";
+import Form from "../ui/Form";
 import FormError from "./FormError.jsx";
 import React from "react";
-import Form from "react-bootstrap/Form";
 
 export default function SignupAgreement({ errors, register, ...rest }) {
   const inputRef = React.useRef(null);

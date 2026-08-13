@@ -10,14 +10,14 @@ import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useHashSelector from "../shared/react/useHashSelector";
 import useListQueryControls from "../shared/react/useListQueryControls";
+import Dropdown from "../ui/Dropdown";
+import Stack from "../ui/Stack";
+import Table from "../ui/Table";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import Stack from "react-bootstrap/Stack";
-import Table from "react-bootstrap/Table";
 
 export default function LedgersOverview() {
   const { params, page, setListQueryParams } = useListQueryControls();

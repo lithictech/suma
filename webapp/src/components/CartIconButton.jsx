@@ -1,8 +1,8 @@
+import Button from "../ui/Button";
 import CartIcon from "./CartIcon";
 import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 /**
  * Render CartIcon within a button that can navigate to its cart page,

@@ -1,8 +1,8 @@
 import { t } from "../localization";
+import Pagination from "../ui/Pagination";
 import clsx from "clsx";
 import { clamp } from "lodash/number";
 import React from "react";
-import Pagination from "react-bootstrap/Pagination";
 
 export default function ForwardBackPagination({
   page,

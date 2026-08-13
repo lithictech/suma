@@ -1,9 +1,9 @@
 import { t } from "../localization";
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import clsx from "clsx";
 import isUndefined from "lodash/isUndefined";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 
 const FormButtons = React.forwardRef(
   ({ primaryProps, secondaryProps, variant, margin, back, className, style }, ref) => {

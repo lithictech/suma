@@ -1,7 +1,7 @@
 import { t } from "../localization";
+import Stack from "../ui/Stack";
 import ExternalLink from "./ExternalLink";
 import React from "react";
-import Stack from "react-bootstrap/Stack";
 
 export default function ContactListTags() {
   return (

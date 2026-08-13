@@ -10,10 +10,10 @@ import WaitingList from "../components/WaitingList";
 import { imageAltT, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 
 export default function Food() {
   const {

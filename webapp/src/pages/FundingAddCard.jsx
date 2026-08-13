@@ -8,9 +8,9 @@ import { t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function FundingAddCard() {

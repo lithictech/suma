@@ -22,6 +22,9 @@ import useOffering from "../state/useOffering";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import useValidationError from "../state/useValidationError";
+import Alert from "../ui/Alert";
+import Form from "../ui/Form";
+import Stack from "../ui/Stack";
 import clsx from "clsx";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -29,9 +32,6 @@ import map from "lodash/map";
 import merge from "lodash/merge";
 import sum from "lodash/sum";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Form from "react-bootstrap/Form";
-import Stack from "react-bootstrap/Stack";
 import { useForm } from "react-hook-form";
 import {
   Link,

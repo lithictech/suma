@@ -5,15 +5,15 @@ import xIcon from "../assets/images/ui-x-thick.svg";
 import { t } from "../localization";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
+import Button from "../ui/Button";
+import ButtonGroup from "../ui/ButtonGroup";
+import Dropdown from "../ui/Dropdown";
 import SoldOutText from "./SoldOutText";
 import clsx from "clsx";
 import find from "lodash/find";
 import noop from "lodash/noop";
 import times from "lodash/times";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Dropdown from "react-bootstrap/Dropdown";
 
 export default function FoodCartWidget({ product, size, onQuantityChange }) {
   size = size || "sm";

@@ -8,10 +8,11 @@ import useI18n from "../localization/useI18n";
 import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Form from "../ui/Form";
+import FormCheck from "../ui/FormCheck";
+import FormLabel from "../ui/FormLabel";
 import React from "react";
-import { FormCheck, FormLabel } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 
 /**
  * @param {SurveySpec} survey

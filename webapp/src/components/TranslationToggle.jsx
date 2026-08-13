@@ -1,7 +1,7 @@
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
+import Button from "../ui/Button";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function TranslationToggle({ classes }) {
   const { currentLanguage } = useI18n();

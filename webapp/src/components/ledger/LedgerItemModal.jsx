@@ -1,11 +1,11 @@
 import { t } from "../../localization";
 import Money from "../../shared/react/Money";
+import Button from "../../ui/Button";
+import Modal from "../../ui/Modal";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 
 export default function LedgerItemModal({ item, onClose }) {
   const { amount, at, opaqueId, usageDetails } = item || {};

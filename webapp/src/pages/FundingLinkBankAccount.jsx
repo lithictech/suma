@@ -14,13 +14,13 @@ import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Col from "../ui/Col";
+import Form from "../ui/Form";
+import Modal from "../ui/Modal";
+import Row from "../ui/Row";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
-import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 

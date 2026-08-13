@@ -13,11 +13,11 @@ import makeTitle from "../modules/makeTitle";
 import { anyMoney, intToMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import useOffering from "../state/useOffering";
+import Col from "../ui/Col";
+import Row from "../ui/Row";
 import clsx from "clsx";
 import find from "lodash/find";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 

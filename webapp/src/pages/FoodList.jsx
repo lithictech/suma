@@ -12,11 +12,11 @@ import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import useOffering from "../state/useOffering";
+import Button from "../ui/Button";
+import Col from "../ui/Col";
+import Row from "../ui/Row";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 

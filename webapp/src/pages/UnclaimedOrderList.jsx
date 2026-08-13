@@ -13,13 +13,13 @@ import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import Badge from "../ui/Badge";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Modal from "../ui/Modal";
+import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Badge from "react-bootstrap/Badge";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Modal from "react-bootstrap/Modal";
-import Stack from "react-bootstrap/Stack";
 
 export default function UnclaimedOrderList() {
   const [claimedOrder, setClaimedOrder] = React.useState({});

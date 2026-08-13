@@ -13,14 +13,14 @@ import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Dropdown from "../ui/Dropdown";
+import Modal from "../ui/Modal";
 import styles from "./Funding.module.css";
 import clsx from "clsx";
 import filter from "lodash/filter";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Dropdown from "react-bootstrap/Dropdown";
-import Modal from "react-bootstrap/Modal";
 
 export default function Funding() {
   const { user } = useUser();

@@ -11,14 +11,14 @@ import useToggle from "../shared/react/useToggle";
 import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Alert from "../ui/Alert";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Form from "../ui/Form";
+import Stack from "../ui/Stack";
 import PressAndHold from "./PressAndHold";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Form from "react-bootstrap/Form";
-import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ order, setOrder, gutters }) {
   return (

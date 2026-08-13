@@ -1,6 +1,6 @@
 import { t } from "../../localization/index.jsx";
+import Badge from "../../ui/Badge";
 import React from "react";
-import Badge from "react-bootstrap/Badge";
 
 export default function MicromobilityRate({ rate }) {
   let disc,

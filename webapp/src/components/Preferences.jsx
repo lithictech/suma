@@ -1,10 +1,10 @@
 import { t } from "../localization";
 import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
+import Form from "../ui/Form";
 import FormButtons from "./FormButtons";
 import has from "lodash/has";
 import React from "react";
-import Form from "react-bootstrap/Form";
 
 export default function Preferences({ user, onApiSubmit, children, onSaved }) {
   const { showErrorToast } = useErrorToast();

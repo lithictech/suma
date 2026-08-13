@@ -1,7 +1,7 @@
+import Button from "../ui/Button";
 import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 /**
  * Render '< children' or 'children >' as a link button.

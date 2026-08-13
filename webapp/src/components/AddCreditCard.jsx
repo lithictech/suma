@@ -10,13 +10,13 @@ import Payment from "../modules/payment";
 import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useStripeErrorMessage from "../state/useStripeErrorMessage";
+import Col from "../ui/Col";
+import Form from "../ui/Form.jsx";
+import Row from "../ui/Row";
 import CreditCardPreview from "./CreditCardPreview.jsx";
 import NegativeBalanceAddInstrumentNotice from "./NegativeBalanceAddInstrumentNotice.jsx";
 import get from "lodash/get";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 
 export default function AddCreditCard({ onSuccess, error, setError }) {

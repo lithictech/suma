@@ -7,9 +7,9 @@ import RLink from "../components/RLink.jsx";
 import { t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { extractLocalizedError, useError } from "../state/useError";
+import Button from "../ui/Button";
+import Form from "../ui/Form";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 

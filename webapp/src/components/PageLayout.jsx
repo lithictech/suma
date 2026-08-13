@@ -2,11 +2,11 @@ import AppNav from "../components/AppNav";
 import TopNav from "../components/TopNav";
 import { guttersClass, topMarginClass } from "../modules/constants";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
+import Col from "../ui/Col";
+import Container from "../ui/Container";
+import Row from "../ui/Row";
 import clsx from "clsx";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
 
 /**
  * Configure the layout associated with the page.

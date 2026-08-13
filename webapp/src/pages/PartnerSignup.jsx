@@ -5,8 +5,8 @@ import { dt, t } from "../localization/index.jsx";
 import useToggle from "../shared/react/useToggle.jsx";
 import useErrorToast from "../state/useErrorToast.jsx";
 import useUser from "../state/useUser.jsx";
+import Button from "../ui/Button";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 

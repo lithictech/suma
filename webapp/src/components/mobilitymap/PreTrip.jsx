@@ -1,4 +1,5 @@
 import { t } from "../../localization";
+import Button from "../../ui/Button";
 import FormError from "../FormError";
 import RLink from "../RLink";
 import DrawerContents from "./DrawerContents";
@@ -6,7 +7,6 @@ import DrawerLoading from "./DrawerLoading";
 import DrawerTitle from "./DrawerTitle";
 import MicromobilityRate from "./MicromobilityRate.jsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 /**
  * Card that shows when you click a scooter on the map.

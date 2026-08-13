@@ -6,9 +6,9 @@ import TranslationToggle from "../components/TranslationToggle";
 import { dt, imageAltT, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import useUser from "../state/useUser.jsx";
+import Button from "../ui/Button";
+import Container from "../ui/Container";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
 
 export default function Home() {
   const { registrationSession } = useUser();

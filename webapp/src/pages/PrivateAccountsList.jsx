@@ -10,12 +10,12 @@ import { dt, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Modal from "../ui/Modal";
+import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Modal from "react-bootstrap/Modal";
-import Stack from "react-bootstrap/Stack";
 
 export default function PrivateAccountsList() {
   const {
