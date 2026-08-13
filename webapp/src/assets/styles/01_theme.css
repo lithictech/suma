@@ -9,25 +9,25 @@
     --color-secondary-hover: #EEE8DC;
     --color-secondary-contrast: #2B2620;
 
-    --color-info: #CFDAF0;
-    --color-success: #DCE2C9;
-    --color-danger: #F3D0B8;
-    --color-warning: #FAD6AC;
+    --color-success: #4D6B44;
+    --color-danger: #A3521F;
+
+    --tint-primary: #CFDAF0;
+    --tint-secondary: #FAD6AC;
+    --tint-success: #DCE2C9;
+    --tint-danger: #F3D0B8;
 
     --color-bg: #FFEDD8;
     --color-bg-subtle: #FFEDD8;
-    --color-surface: #FFEDD8;
-    --color-border: #DFD5C3;
-    --color-border-strong: #DFD5C3;
+    --color-surface: #FDFCFA;
+    --color-border: #D2C5AE;
+    --color-border-strong: #D2C5AE;
 
     --color-text: #111827;
     --color-text-muted: #6B5B49;
     --color-text-inverse: #FFFAF2;
     --color-link: var(--color-primary);
     --color-link-hover: var(--color-primary-hover);
-
-    --color-disabled-bg: #D2C5AE;
-    --color-disabled-text: #9ca3af;
 
     /* ---- Typography ---- */
     @font-face {
@@ -96,5 +96,8 @@
     --input-padding-y: var(--space-2);
     --btn-padding-x: var(--space-4);
     --btn-padding-y: var(--space-2);
+
+    --input-background-color: var(--color-surface);
+    --input-placeholder-color: #a58b6f;
 }
 

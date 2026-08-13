@@ -5,22 +5,22 @@
     font-weight: var(--font-weight-bold);
 }
 
-.chip-secondary {
-    background-color: var(--color-secondary);
+.chip-info {
+    background-color: var(--tint-primary);
     color: var(--color-secondary-contrast);
 }
 
-.chip-info {
-    background-color: var(--color-info);
+.chip-secondary {
+    background-color: var(--tint-secondary);
     color: var(--color-secondary-contrast);
 }
 
 .chip-success {
-    background-color: var(--color-success);
+    background-color: var(--tint-success);
     color: var(--color-secondary-contrast);
 }
 
 .chip-danger {
-    background-color: var(--color-danger);
+    background-color: var(--tint-danger);
     color: var(--color-secondary-contrast);
 }

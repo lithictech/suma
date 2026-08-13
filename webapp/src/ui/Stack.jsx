@@ -1,8 +1,13 @@
 import clsx from "clsx";
 import React from "react";
 
-export default function Stack({ direction, gap, children }) {
-  const cls = clsx(`gap-${gap || 0}`, `d-flex`, FLEX_CLS[direction || "horizontal"]);
+export default function Stack({ direction, gap, wrap, children }) {
+  const cls = clsx(
+    `gap-${gap || 0}`,
+    `d-flex`,
+    FLEX_CLS[direction || "horizontal"],
+    wrap && "flex-wrap"
+  );
   return <div className={cls}>{children}</div>;
 }
 

@@ -1,13 +1,17 @@
 import PageLoader from "../components/PageLoader";
 import Button from "../ui/Button";
+import CheckCard from "../ui/CheckCard.jsx";
+import CheckRow from "../ui/CheckRow.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
 import ProgressBar from "../ui/ProgressBar.jsx";
 import Stack from "../ui/Stack";
+import SwitchRow from "../ui/SwitchRow.jsx";
+import TextInput from "../ui/TextInput.jsx";
 import React from "react";
 
 export default function Styleguide() {
-  const keys = ["typography", "buttons", "chips", "misc", "loaders"];
+  const keys = ["typography", "buttons", "chips", "inputs", "misc", "loaders"];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
   );
@@ -17,7 +21,7 @@ export default function Styleguide() {
   }
   return (
     <Container className="mt-2">
-      <Stack direction="horizontal" gap={2}>
+      <Stack direction="horizontal" gap={2} wrap>
         {keys.map((k) => (
           <Button
             key={k}
@@ -57,6 +61,44 @@ export default function Styleguide() {
           <Chip variant="danger">2 left</Chip>
           <Chip variant="success">Picked up</Chip>
         </Stack>
+      </Section>
+      <Section eventKey="inputs" activeKey={activeKey}>
+        <h2>Inputs</h2>
+        <Stack gap={2} wrap>
+          <TextInput
+            label="Zip"
+            helpText="Five digits."
+            placeholder="12345 (placeholder)"
+          />
+          <TextInput
+            label="Zip"
+            helpText="Five digits."
+            value="97211"
+            className="is-focus-visible"
+          />
+          <TextInput label="Zip" helpText="Five digits." value="9721" disabled />
+          <TextInput
+            label="Zip"
+            helpText="Five digits."
+            value="9721"
+            error="Zip code is 5 digits."
+          />
+        </Stack>
+        <h2>Checkboxes</h2>
+        <CheckRow title="When an order is ready" text="A text the morning it lands" />
+        <CheckRow
+          title="When an order is ready"
+          text="A text the morning it lands"
+          checked
+        />
+        <SwitchRow title="Text me about my orders" text="Standard message rates apply" />
+        <SwitchRow
+          title="Text me about my orders"
+          text="Standard message rates apply"
+          checked
+        />
+        <CheckCard title="Rosewood commons" text="Affordable housing" />
+        <CheckCard title="Rosewood commons" text="Affordable housing" checked />
       </Section>
       <Section eventKey="misc" activeKey={activeKey}>
         <Stack direction="vertical" gap={1}>

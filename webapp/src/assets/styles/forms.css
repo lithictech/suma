@@ -16,6 +16,12 @@ label,
     color: var(--color-text-muted);
 }
 
+input::placeholder,
+textarea::placeholder {
+    color: var(--input-placeholder-color);
+    opacity: 1; /* Firefox applies a lower default opacity; this normalizes it */
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -35,7 +41,7 @@ select,
     font-size: var(--font-size-base);
     line-height: var(--line-height-base);
     color: var(--color-text);
-    background-color: var(--color-surface);
+    background-color: var(--input-background-color);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
     transition: border-color var(--transition-base), box-shadow var(--transition-base);
@@ -58,9 +64,8 @@ select:focus {
 input:disabled,
 textarea:disabled,
 select:disabled {
-    background-color: var(--color-disabled-bg);
-    color: var(--color-disabled-text);
     cursor: not-allowed;
+    opacity: 50%;
 }
 
 input.is-invalid,
@@ -70,9 +75,6 @@ select.is-invalid {
 }
 
 .invalid-feedback {
-    display: block;
-    margin-top: var(--space-1);
-    font-size: var(--font-size-sm);
     color: var(--color-danger);
 }
 
