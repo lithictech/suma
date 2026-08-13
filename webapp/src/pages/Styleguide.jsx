@@ -6,6 +6,8 @@ import CardText from "../ui/CardText.jsx";
 import CheckableCard from "../ui/CheckableCard.jsx";
 import Checkbox from "../ui/Checkbox.jsx";
 import { CheckboxCard } from "../ui/CheckboxCard.jsx";
+import Checklist from "../ui/Checklist.jsx";
+import ChecklistItem from "../ui/ChecklistItem.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
 import Progress from "../ui/Progress.jsx";
@@ -18,7 +20,16 @@ import noop from "lodash/noop";
 import React from "react";
 
 export default function Styleguide() {
-  const keys = ["typography", "buttons", "cards", "chips", "inputs", "misc", "loaders"];
+  const keys = [
+    "typography",
+    "buttons",
+    "cards",
+    "chips",
+    "inputs",
+    "checklist",
+    "progress",
+    "loaders",
+  ];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
   );
@@ -168,7 +179,7 @@ export default function Styleguide() {
           />
         </Stack>
       </Section>
-      <Section eventKey="misc" activeKey={activeKey}>
+      <Section eventKey="progress" activeKey={activeKey}>
         <h2>Progress</h2>
         <Stack direction="vertical" gap={1}>
           <Progress value={0} />
@@ -184,6 +195,18 @@ export default function Styleguide() {
             <Progress variant="circle" value={100} />
           </Stack>
         </Stack>
+      </Section>
+      <Section eventKey="checklist" activeKey={activeKey}>
+        <h2>Checklist</h2>
+        <Checklist>
+          <ChecklistItem variant="checked">How it works</ChecklistItem>
+          <ChecklistItem variant="checked">Agree</ChecklistItem>
+          <ChecklistItem variant="current" step={3} current>
+            Get text
+          </ChecklistItem>
+          <ChecklistItem step={4}>Get link</ChecklistItem>
+          <ChecklistItem step={5}>Finish linking</ChecklistItem>
+        </Checklist>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
         <PageLoader buffered />
