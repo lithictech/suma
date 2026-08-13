@@ -34,7 +34,7 @@ export default function PageLoader({
   className,
 }) {
   const cls = clsx(
-    overlay && "position-absolute top-0 start-50 translate-middle-x",
+    overlay && "position-absolute top-0 left-50 translate-middle-x",
     buffered && "my-5",
     className
   );

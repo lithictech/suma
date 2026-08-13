@@ -6,7 +6,7 @@ import Stack from "../ui/Stack";
 import React from "react";
 
 export default function Styleguide() {
-  const keys = ["typography", "buttons", "chips", "loaders"];
+  const keys = ["typography", "buttons", "chips", "misc", "loaders"];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
   );
@@ -61,18 +61,7 @@ export default function Styleguide() {
         <PageLoader buffered />
         <hr />
         <div className="position-relative">
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sed ligula
-            blandit, dictum massa quis, lobortis metus. Nunc ac justo nec ante tincidunt
-            euismod ut vel libero. Sed gravida porta malesuada. Sed iaculis pretium urna
-            vel elementum. Sed vel egestas nisi, eget molestie diam. Vivamus urna elit,
-            elementum ut justo et, cursus interdum tortor. Proin suscipit ac neque sit
-            amet iaculis. In ut erat in mauris feugiat ornare. Sed condimentum non enim ut
-            lacinia. Fusce ac libero cursus magna vulputate rutrum. Nullam dapibus enim eu
-            facilisis cursus. Mauris vel est a lacus venenatis sollicitudin et eget
-            turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc at
-            viverra tellus. Nunc vitae nulla nisl.
-          </p>
+          <p>{LOREM_IPSUM}</p>
           <PageLoader overlay />
         </div>
       </Section>
@@ -96,3 +85,14 @@ function Section({ eventKey, activeKey, children }) {
   }
   return <div className="mt-2 mx-2">{children}</div>;
 }
+
+const LOREM_IPSUM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sed ligula
+blandit, dictum massa quis, lobortis metus. Nunc ac justo nec ante tincidunt
+euismod ut vel libero. Sed gravida porta malesuada. Sed iaculis pretium urna
+vel elementum. Sed vel egestas nisi, eget molestie diam. Vivamus urna elit,
+elementum ut justo et, cursus interdum tortor. Proin suscipit ac neque sit
+amet iaculis. In ut erat in mauris feugiat ornare. Sed condimentum non enim ut
+lacinia. Fusce ac libero cursus magna vulputate rutrum. Nullam dapibus enim eu
+facilisis cursus. Mauris vel est a lacus venenatis sollicitudin et eget
+turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc at
+viverra tellus. Nunc vitae nulla nisl.`;

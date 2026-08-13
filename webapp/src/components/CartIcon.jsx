@@ -30,7 +30,7 @@ export default function CartIcon({ className, cart }) {
       <img
         src={loaderRing}
         className={clsx(
-          "cart-icon-loader start-50 translate-middle-x h-100",
+          "cart-icon-loader left-50 translate-middle-x h-100",
           cartLoading && "loading"
         )}
         alt=""
