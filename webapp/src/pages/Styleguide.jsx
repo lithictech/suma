@@ -2,12 +2,15 @@ import PageLoader from "../components/PageLoader";
 import Button from "../ui/Button";
 import CheckCard from "../ui/CheckCard.jsx";
 import CheckRow from "../ui/CheckRow.jsx";
+import Checkbox from "../ui/Checkbox.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
 import ProgressBar from "../ui/ProgressBar.jsx";
 import Stack from "../ui/Stack";
+import Switch from "../ui/Switch.jsx";
 import SwitchRow from "../ui/SwitchRow.jsx";
 import TextInput from "../ui/TextInput.jsx";
+import noop from "lodash/noop";
 import React from "react";
 
 export default function Styleguide() {
@@ -85,20 +88,35 @@ export default function Styleguide() {
           />
         </Stack>
         <h2>Checkboxes</h2>
-        <CheckRow title="When an order is ready" text="A text the morning it lands" />
-        <CheckRow
-          title="When an order is ready"
-          text="A text the morning it lands"
-          checked
-        />
-        <SwitchRow title="Text me about my orders" text="Standard message rates apply" />
-        <SwitchRow
-          title="Text me about my orders"
-          text="Standard message rates apply"
-          checked
-        />
-        <CheckCard title="Rosewood commons" text="Affordable housing" />
-        <CheckCard title="Rosewood commons" text="Affordable housing" checked />
+        <Stack direction="vertical" gap={2}>
+          <Stack gap={2}>
+            <Checkbox label="Checkbox 1" onChange={noop} />
+            <Checkbox label="Checkbox 2" checked onChange={noop} />
+            <Checkbox onChange={noop} />
+          </Stack>
+          <Stack gap={2}>
+            <Switch label="Switch 1" onChange={noop} />
+            <Switch label="Switch 1" onChange={noop} />
+            <Switch onChange={noop} />
+          </Stack>
+          <CheckRow title="When an order is ready" text="A text the morning it lands" />
+          <CheckRow
+            title="When an order is ready"
+            text="A text the morning it lands"
+            checked
+          />
+          <SwitchRow
+            title="Text me about my orders"
+            text="Standard message rates apply"
+          />
+          <SwitchRow
+            title="Text me about my orders"
+            text="Standard message rates apply"
+            checked
+          />
+          <CheckCard title="Rosewood commons" text="Affordable housing" />
+          <CheckCard title="Rosewood commons" text="Affordable housing" checked />
+        </Stack>
       </Section>
       <Section eventKey="misc" activeKey={activeKey}>
         <Stack direction="vertical" gap={1}>

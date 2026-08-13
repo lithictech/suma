@@ -99,5 +99,10 @@
 
     --input-background-color: var(--color-surface);
     --input-placeholder-color: #a58b6f;
+
+    --switch-width: 2.5rem;
+    --switch-height: 1.5rem;
+    --switch-thumb-size: 1.25rem;
+    --switch-thumb-gap: 0.125rem;
 }
 
