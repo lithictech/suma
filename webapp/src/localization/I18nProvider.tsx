@@ -21,7 +21,7 @@ interface I18nContextValue {
   initializing: boolean;
   currentLanguage: string;
   changeLanguage: (language: string) => Promise<any> | null;
-  loadLanguageFileUnsafe?: (namespace: string, options?: LoadLanguageFileOptions) => any;
+  loadLanguageFileUnsafe: (namespace: string, options?: LoadLanguageFileOptions) => any;
   loadLanguageFile: (namespace: string, options?: LoadLanguageFileOptions) => any;
 }
 
@@ -30,6 +30,8 @@ export const I18nContext = React.createContext<I18nContextValue>({
   currentLanguage: "",
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   changeLanguage: (_lng) => null,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  loadLanguageFileUnsafe: (_ns, _opts) => null,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadLanguageFile: (_ns, _opts) => null,
 });
