@@ -4,23 +4,18 @@ import merge from "lodash/merge";
 
 const logger = new Logger("money");
 
-/**
- * @typedef MoneyEntity
- * @property {number} cents
- * @property {string} currency
- */
+interface FormatMoneyOptions {
+  /**
+   * If true, use smart rounding. 0 cents will use no extra digits (ie, $1) and
+   * nonzero cents will have 2 extra digits (ie, $1.05). Ie, you'll never get $1.00.
+   */
+  rounded?: boolean;
+  /** If given, strip off the leading currency symbol. */
+  noCurrency?: boolean;
+}
 
-/**
- * @param {MoneyEntity} entity
- * @param {object=} options
- * @param {boolean=} options.rounded If true, use smart rounding.
- *   0 cents will use no extra digits (ie, $1) and nonzero cents
- *   will have 2 extra digits (ie, $1.05). Ie, you'll never get $1.00.
- * @param {boolean=} options.noCurrency If given, strip off the leading currency symbol.
- * @returns {string}
- */
-export const formatMoney = (entity, options) => {
-  const formatterOpts = {};
+export const formatMoney = (entity: Money, options?: FormatMoneyOptions): string => {
+  const formatterOpts: Intl.NumberFormatOptions = {};
   options = options || {};
   if (options.rounded) {
     const hasCents = entity.cents % 100 > 0;
@@ -43,13 +38,10 @@ export const formatMoney = (entity, options) => {
 };
 
 /**
- * Return a MoneyEntity with the given fraction, which represents dollars
+ * Return a Money with the given fraction, which represents dollars
  * (ie, 1.5 is $1.50).
- * @param {number} f
- * @param {string} currency
- * @returns {MoneyEntity}
  */
-export function floatToMoney(f, currency) {
+export function floatToMoney(f: number, currency: string): Money {
   return {
     cents: f * 100,
     currency,
@@ -57,12 +49,9 @@ export function floatToMoney(f, currency) {
 }
 
 /**
- * Return a MoneyEntity with the given cents and currency.
- * @param {number} cents
- * @param {string} currency
- * @returns {MoneyEntity}
+ * Return a Money with the given cents and currency.
  */
-export function intToMoney(cents, currency) {
+export function intToMoney(cents: number, currency: string): Money {
   return {
     cents,
     currency,
@@ -72,12 +61,12 @@ export function intToMoney(cents, currency) {
 /**
  * Apply a two-operand mathematical function to the two monies.
  * Money entities must have the same currency.
- * @param {MoneyEntity} m1
- * @param {MoneyEntity} m2
- * @param {function} t
- * @returns {MoneyEntity}
  */
-export function mathMoney(m1, m2, t) {
+export function mathMoney(
+  m1: Money,
+  m2: Money,
+  t: (a: number, b: number) => number
+): Money {
   // noinspection JSUnresolvedVariable
   if (window.__DEV__) {
     if (m1.currency !== m2.currency) {
@@ -90,31 +79,18 @@ export function mathMoney(m1, m2, t) {
   };
 }
 
-/**
- * @param {MoneyEntity} m1
- * @param {MoneyEntity} m2
- * @returns {MoneyEntity}
- */
-export function addMoney(m1, m2) {
+export function addMoney(m1: Money, m2: Money): Money {
   return mathMoney(m1, m2, (x, y) => x + y);
 }
 
-/**
- * @param {MoneyEntity} m1
- * @param {MoneyEntity} m2
- * @returns {MoneyEntity}
- */
-export function subtractMoney(m1, m2) {
+export function subtractMoney(m1: Money, m2: Money): Money {
   return mathMoney(m1, m2, (x, y) => x - y);
 }
 
 /**
  * Multiply the number of cents by the given factor.
- * @param {MoneyEntity} m
- * @param {number} n
- * @returns {MoneyEntity}
  */
-export function scaleMoney(m, n) {
+export function scaleMoney(m: Money, n: number): Money {
   return {
     cents: m.cents * n,
     currency: m.currency,
@@ -123,19 +99,15 @@ export function scaleMoney(m, n) {
 
 /**
  * Return true if m is present and its cents are non-zero.
- * @param {MoneyEntity} m
- * @returns {boolean}
  */
-export function anyMoney(m) {
+export function anyMoney(m: Money): boolean {
   return moneySign(m) !== 0;
 }
 
 /**
  * Return -1 if money is negative, 0 if zero or falsey, 1 if positive.
- * @param m
- * @return {number}
  */
-export function moneySign(m) {
+export function moneySign(m: Money): number {
   if (!m) {
     return 0;
   }
@@ -148,7 +120,9 @@ export function moneySign(m) {
   return -1;
 }
 
-const optionedFormatters = {
+const optionedFormatters: Record<string, (opts: Intl.NumberFormatOptions) => Intl.NumberFormat> & {
+  default?: (opts: Intl.NumberFormatOptions) => Intl.NumberFormat;
+} = {
   USD: (opts) =>
     new Intl.NumberFormat(
       "en-US",
@@ -163,7 +137,9 @@ const optionedFormatters = {
 };
 optionedFormatters.default = optionedFormatters.USD;
 
-const defaultFormatters = {
-  USD: optionedFormatters.USD(),
+const defaultFormatters: Record<string, Intl.NumberFormat> & {
+  default?: Intl.NumberFormat;
+} = {
+  USD: optionedFormatters.USD({}),
 };
 defaultFormatters.default = defaultFormatters.USD;

@@ -1,7 +1,7 @@
 import identity from "lodash/identity";
 import React from "react";
 
-const makeCache = (store) => {
+const makeCache = (store: Storage) => {
   return {
     /**
      * Return parsed JSON from local storage,
@@ -12,13 +12,13 @@ const makeCache = (store) => {
      * either due to versioning issues, or browser stuff.
      * So always check or assign default values of complex objects.
      */
-    getItem: (field, defaultValue = {}) => {
+    getItem: <T = any>(field: string, defaultValue: T = {} as T): T => {
       return getItem(store, field, defaultValue);
     },
-    setItem: (field, item) => {
+    setItem: (field: string, item: any) => {
       setItem(store, field, item);
     },
-    removeItem: (field) => {
+    removeItem: (field: string) => {
       try {
         store.removeItem(field);
       } catch (err) {
@@ -32,10 +32,16 @@ const makeCache = (store) => {
         console.log("Clear cache error:", err);
       }
     },
-    useState: (field, initialValue, convert) => {
+    useState: <T = any>(
+      field: string,
+      initialValue: T,
+      convert?: (v: any) => T
+    ): [T, (v: T) => void] => {
       convert = convert || identity;
-      const [val, setVal] = React.useState(convert(getItem(store, field, initialValue)));
-      const setValAndCache = (v) => {
+      const [val, setVal] = React.useState<T>(
+        convert(getItem(store, field, initialValue))
+      );
+      const setValAndCache = (v: T) => {
         setItem(store, field, v);
         return setVal(v);
       };
@@ -47,7 +53,7 @@ const makeCache = (store) => {
 export const localStorageCache = makeCache(window.localStorage);
 export const sessionStorageCache = makeCache(window.sessionStorage);
 
-function getItem(store, field, defaultValue) {
+function getItem<T>(store: Storage, field: string, defaultValue: T): T {
   try {
     const cachedJSON = store.getItem(field);
     if (!cachedJSON) {
@@ -60,7 +66,7 @@ function getItem(store, field, defaultValue) {
   }
 }
 
-function setItem(store, field, item) {
+function setItem(store: Storage, field: string, item: any) {
   try {
     const itemJSON = JSON.stringify(item);
     store.setItem(field, itemJSON);

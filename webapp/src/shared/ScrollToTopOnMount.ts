@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ScrollTopOnMount({ top }) {
+export default function ScrollTopOnMount({ top }: { top?: number }) {
   React.useEffect(() => {
     // Not sure when or why this broke, but it seems like we need
     // to defer this call. This is just introducing a race condition,

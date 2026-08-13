@@ -1,7 +1,30 @@
-export function installPromiseExtras(Promise) {
-  Promise.delay = function delay(durationMs, p) {
+interface DelayOrOptions {
+  buffer?: number;
+}
+
+declare global {
+  interface Promise<T> {
+    delay(durationMs: number): Promise<T>;
+    delayOr(durationMs: number, options?: DelayOrOptions): Promise<T>;
+    tap(f: (value: T) => void): Promise<T>;
+    tapCatch(f: (reason: any) => void): Promise<T>;
+    tapTap(f: (value: any) => void): Promise<T>;
+  }
+
+  interface PromiseConstructor {
+    delay<T>(durationMs: number, p?: Promise<T>): Promise<T>;
+    delayOr<T>(
+      durationMs: number,
+      otherPromise: Promise<T>,
+      options?: DelayOrOptions
+    ): Promise<T>;
+  }
+}
+
+export function installPromiseExtras(Promise: PromiseConstructor) {
+  Promise.delay = function delay(durationMs, p: any) {
     p = p || Promise.resolve();
-    return p.then((r) => {
+    return p.then((r: any) => {
       return new Promise((resolve) => {
         window.setTimeout(() => resolve(r), durationMs);
       });
@@ -20,11 +43,11 @@ export function installPromiseExtras(Promise) {
       const stillLeftToWait = durationMs - waited;
       // If we have a number of milliseconds or less than buffer left to wait,
       // we can return the original result without delay, because we know we took about durationMs.
-      if (stillLeftToWait <= options.buffer) {
+      if (stillLeftToWait <= (options.buffer as number)) {
         return r;
       }
       // Otherwise, we should delay until the intended elapsed time has been reached.
-      return Promise.delay(stillLeftToWait, r);
+      return Promise.delay(stillLeftToWait, r as any);
     });
   };
 

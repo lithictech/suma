@@ -1,4 +1,5 @@
 import { Logger } from "./logger";
+import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import get from "lodash/get";
 import identity from "lodash/identity";
 import omit from "lodash/omit";
@@ -6,18 +7,18 @@ import omit from "lodash/omit";
 const reqLogger = new Logger("api.requests");
 const respLogger = new Logger("api.responses");
 
-function reqSuccessDebug(config) {
+function reqSuccessDebug(config: InternalAxiosRequestConfig) {
   // https://github.com/axios/axios#request-config
   reqLogger.tags({ method: method(config), url: config.url }).debug("api_request");
   return config;
 }
 
-function reqError(error) {
+function reqError(error: any) {
   reqLogger.error(error);
   return Promise.reject(error);
 }
 
-function respSuccessDebug(response) {
+function respSuccessDebug(response: AxiosResponse) {
   // https://github.com/axios/axios#response-schema
   let body = JSON.stringify(response.data);
   if (body.length > 103) {
@@ -34,14 +35,14 @@ function respSuccessDebug(response) {
   return response;
 }
 
-function respErrorDebug(error) {
+function respErrorDebug(error: AxiosError) {
   if (error.response) {
     respSuccessDebug(error.response);
   } else {
     respLogger
       .tags({
-        method: method(error.config),
-        url: error.config.url,
+        method: method(error.config as InternalAxiosRequestConfig),
+        url: error.config?.url,
         non_http_response_error: true,
       })
       .error(error.message);
@@ -49,18 +50,27 @@ function respErrorDebug(error) {
   return Promise.reject(error);
 }
 
-function method(c) {
-  return c.method.toUpperCase();
+function method(c: InternalAxiosRequestConfig) {
+  return c.method?.toUpperCase();
 }
 
-export const debugRequestLogger = [reqSuccessDebug, reqError];
-export const debugResponseLogger = [respSuccessDebug, respErrorDebug];
+export const debugRequestLogger: [typeof reqSuccessDebug, typeof reqError] = [
+  reqSuccessDebug,
+  reqError,
+];
+export const debugResponseLogger: [typeof respSuccessDebug, typeof respErrorDebug] = [
+  respSuccessDebug,
+  respErrorDebug,
+];
 
-function respErrorFull(error) {
+function respErrorFull(error: AxiosError) {
   if (get(error, "response.status") === 401) {
     return Promise.reject(error);
   }
-  let tags = { method: method(error.config), url: error.config.url };
+  let tags: Record<string, any> = {
+    method: method(error.config as InternalAxiosRequestConfig),
+    url: error.config?.url,
+  };
   if (!error.response) {
     tags.non_http_response_error = true;
     respLogger.tags(tags).error(error.message);
@@ -78,4 +88,7 @@ function respErrorFull(error) {
   return Promise.reject(error);
 }
 
-export const errorResponseLogger = [identity, respErrorFull];
+export const errorResponseLogger: [typeof identity, typeof respErrorFull] = [
+  identity,
+  respErrorFull,
+];

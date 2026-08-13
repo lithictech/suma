@@ -3,12 +3,30 @@ import {
   debugResponseLogger,
   errorResponseLogger,
 } from "./apilogger";
-import axios, { AxiosError, CanceledError } from "axios";
+import axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  CanceledError,
+  InternalAxiosRequestConfig,
+} from "axios";
 import humps from "humps";
 import get from "lodash/get";
 import noop from "lodash/noop";
 
-function create(apiHost, config) {
+declare module "axios" {
+  interface AxiosRequestConfig {
+    // Custom flag consumed by the response interceptor below; set false to
+    // skip camelCase-ing a response body.
+    camelize?: boolean;
+  }
+}
+
+interface CreateOptions extends AxiosRequestConfig {
+  debug?: boolean;
+  chaos?: any;
+}
+
+function create(apiHost: string, config?: CreateOptions) {
   const { debug, chaos, ...rest } = config || {};
   const instance = axios.create({
     baseURL: apiHost,
@@ -16,9 +34,9 @@ function create(apiHost, config) {
     withCredentials: true,
     transformRequest: [
       (data) => humps.decamelizeKeys(data),
-      ...axios.defaults.transformRequest,
+      ...([] as any[]).concat(axios.defaults.transformRequest),
     ],
-    transformResponse: [...axios.defaults.transformResponse],
+    transformResponse: ([] as any[]).concat(axios.defaults.transformResponse),
     ...rest,
   });
   instance.interceptors.response.use((response) => {
@@ -46,9 +64,9 @@ function create(apiHost, config) {
   return instance;
 }
 
-function requestChaos(chaos) {
+function requestChaos(chaos: any) {
   const chaosMult = isNaN(Number(chaos)) ? 1 : Number(chaos);
-  return (reqConfig) => {
+  return (reqConfig: InternalAxiosRequestConfig) => {
     // Add some delay into api calls to simulate real-world behavior.
     let debugDelay = 250 + Math.random() * 1000;
     // Add some p90 and p95 latencies
@@ -63,8 +81,8 @@ function requestChaos(chaos) {
   };
 }
 
-function handleStatus(status, cb) {
-  return (error) => {
+function handleStatus(status: number, cb: (error: any) => any) {
+  return (error: any) => {
     if (get(error, "response.data.error.status") === status) {
       return cb(error);
     }
@@ -72,12 +90,12 @@ function handleStatus(status, cb) {
   };
 }
 
-function mergeParams(params, o) {
+function mergeParams(params: Record<string, any> | undefined, o: Record<string, any>) {
   const cased = humps.decamelizeKeys(params || {});
   return { params: cased, ...o };
 }
 
-function isAxiosTimeout(r) {
+function isAxiosTimeout(r: unknown) {
   if (r instanceof CanceledError) {
     return true;
   }
@@ -92,7 +110,7 @@ export default {
   handleStatus,
   isAxiosTimeout,
   mergeParams,
-  pick: (s) => (o) => get(o, s),
-  pickData: (o) => o.data,
-  swallow: (status) => handleStatus(status, noop),
+  pick: (s: string) => (o: any) => get(o, s),
+  pickData: (o: any) => o.data,
+  swallow: (status: number) => handleStatus(status, noop),
 };
