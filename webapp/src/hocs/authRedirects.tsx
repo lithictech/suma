@@ -4,10 +4,18 @@ import useUser from "../state/useUser";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-function redirectUnless(to, test, options) {
+interface RedirectUnlessOptions {
+  setRedirectLinkOnTestFalse?: boolean;
+}
+
+function redirectUnless(
+  to: string,
+  test: (userCtx: any) => boolean,
+  options?: RedirectUnlessOptions
+) {
   const { setRedirectLinkOnTestFalse } = options || {};
-  return (Wrapped) => {
-    return (props) => {
+  return (Wrapped: React.ComponentType<any>) => {
+    return (props: any) => {
       const userCtx = useUser();
       const { pathname } = useLocation();
       const { setRedirectLink } = useLoginRedirectLink();
