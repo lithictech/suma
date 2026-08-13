@@ -8,7 +8,7 @@ import RLink from "../components/RLink.jsx";
 import { dt, t } from "../localization";
 import { scaleMoney } from "../shared/money.js";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useUnmountEffect from "../shared/react/useUnmountEffect.jsx";
+import useUnmountEffect from "../shared/react/useUnmountEffect";
 import { extractErrorCode, useError } from "../state/useError.jsx";
 import useScreenLoader from "../state/useScreenLoader.jsx";
 import useUser from "../state/useUser.jsx";
