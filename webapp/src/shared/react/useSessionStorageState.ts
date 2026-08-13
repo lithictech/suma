@@ -1,7 +1,10 @@
 import { sessionStorageCache } from "../localStorageHelper";
 import React from "react";
 
-export default function useSessionStorageState<T>(key: string, defaultVal: T) {
+export default function useSessionStorageState<T = any>(
+  key: string,
+  defaultVal?: T
+): [T, (x: T) => void] {
   const [state, setStateInner] = React.useState(
     sessionStorageCache.getItem(key, defaultVal)
   );
