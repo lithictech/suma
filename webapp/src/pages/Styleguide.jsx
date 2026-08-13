@@ -8,7 +8,7 @@ import Checkbox from "../ui/Checkbox.jsx";
 import { CheckboxCard } from "../ui/CheckboxCard.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
-import ProgressBar from "../ui/ProgressBar.jsx";
+import Progress from "../ui/Progress.jsx";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch.jsx";
 import SwitchRow from "../ui/SwitchRow.jsx";
@@ -47,8 +47,7 @@ export default function Styleguide() {
         <h4>H4 Heading</h4>
         <h5>H5 Heading</h5>
         <h6>H6 Heading</h6>
-        <p>Paragraph text</p>
-        <p className="lead">Lead Text</p>
+        <p>{LOREM_IPSUM}</p>
       </Section>
       <Section eventKey="buttons" activeKey={activeKey}>
         <Stack direction="vertical" gap={3}>
@@ -170,13 +169,20 @@ export default function Styleguide() {
         </Stack>
       </Section>
       <Section eventKey="misc" activeKey={activeKey}>
+        <h2>Progress</h2>
         <Stack direction="vertical" gap={1}>
-          <h2>Progress</h2>
-          <ProgressBar value={0} />
-          <ProgressBar value={37} />
-          <ProgressBar value={50} />
-          <ProgressBar value={96} />
-          <ProgressBar value={100} />
+          <Progress value={0} />
+          <Progress value={37} />
+          <Progress value={50} />
+          <Progress value={96} />
+          <Progress value={100} />
+          <Stack gap={2}>
+            <Progress variant="circle" value={0} />
+            <Progress variant="circle" value={37} />
+            <Progress variant="circle" value={50} />
+            <Progress variant="circle" value={96} />
+            <Progress variant="circle" value={100} />
+          </Stack>
         </Stack>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
@@ -208,13 +214,16 @@ function Section({ eventKey, activeKey, children }) {
   return <div className="mt-2 mx-2">{children}</div>;
 }
 
-const LOREM_IPSUM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sed ligula
-blandit, dictum massa quis, lobortis metus. Nunc ac justo nec ante tincidunt
-euismod ut vel libero. Sed gravida porta malesuada. Sed iaculis pretium urna
-vel elementum. Sed vel egestas nisi, eget molestie diam. Vivamus urna elit,
-elementum ut justo et, cursus interdum tortor. Proin suscipit ac neque sit
-amet iaculis. In ut erat in mauris feugiat ornare. Sed condimentum non enim ut
-lacinia. Fusce ac libero cursus magna vulputate rutrum. Nullam dapibus enim eu
-facilisis cursus. Mauris vel est a lacus venenatis sollicitudin et eget
-turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc at
-viverra tellus. Nunc vitae nulla nisl.`;
+const LOREM_IPSUM = (
+  <span>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sed ligula blandit,
+    dictum massa quis, lobortis metus. Nunc ac justo nec ante tincidunt euismod ut vel
+    libero. <a href="#">Sed gravida porta malesuada.</a> Sed iaculis pretium urna vel
+    elementum. Sed vel egestas nisi, eget molestie diam. Vivamus urna elit, elementum ut
+    justo et, cursus interdum tortor. Proin suscipit ac neque sit amet iaculis. In ut erat
+    in mauris feugiat ornare. Sed condimentum non enim ut lacinia. Fusce ac libero cursus
+    magna vulputate rutrum. Nullam dapibus enim eu facilisis cursus. Mauris vel est a
+    lacus venenatis sollicitudin et eget turpis. Lorem ipsum dolor sit amet, consectetur
+    adipiscing elit. Nunc at viverra tellus. Nunc vitae nulla nisl.
+  </span>
+);

@@ -13,7 +13,7 @@ import { extractErrorCode, useError } from "../state/useError.jsx";
 import useScreenLoader from "../state/useScreenLoader.jsx";
 import useUser from "../state/useUser.jsx";
 import Alert from "../ui/Alert";
-import ProgressBar from "../ui/ProgressBar";
+import Progress from "../ui/Progress.jsx";
 import { CanceledError } from "axios";
 import clsx from "clsx";
 import React from "react";
@@ -339,7 +339,7 @@ const LINKBTN_SENT = "link-sent";
 function ProgressContainer({ header, progress, children }) {
   return (
     <LayoutContainer gutters className="d-flex flex-column gap-4">
-      <ProgressBar now={progress} variant="info" className="mt-3" />
+      <Progress now={progress} variant="info" className="mt-3" />
       <h2 className="mb-0">{header}</h2>
       {children}
     </LayoutContainer>
