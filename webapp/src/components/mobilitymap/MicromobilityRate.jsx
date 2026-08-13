@@ -1,4 +1,4 @@
-import { t } from "../../localization/index.jsx";
+import { t } from "../../localization";
 import React from "react";
 import Badge from "react-bootstrap/Badge";
 

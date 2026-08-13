@@ -1,7 +1,7 @@
 import api from "../api.js";
 import PageLoader from "../components/PageLoader.jsx";
 import RLink from "../components/RLink.jsx";
-import { dt, t } from "../localization/index.jsx";
+import { dt, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import useErrorToast from "../state/useErrorToast.jsx";
 import useUser from "../state/useUser.jsx";

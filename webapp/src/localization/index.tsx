@@ -1,16 +1,23 @@
-import SumaMarkdown from "../components/SumaMarkdown";
+import SumaMarkdownUntyped from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
 import { Logger } from "../shared/logger";
 import i18n from "./i18n";
 import { capitalize } from "lodash";
 import React from "react";
 
+// SumaMarkdown is still untyped (.jsx); TS's JS-inference for it drops
+// `children` from the inferred prop type, so cast it here as a stopgap.
+// eslint-disable-next-line react-refresh/only-export-components
+const SumaMarkdown = SumaMarkdownUntyped as React.ComponentType<any>;
+
 const runChecks = import.meta.env.DEV;
 
 const logger = new Logger("i18n");
 
 export class Lookup {
-  constructor(prefix) {
+  prefix: string;
+
+  constructor(prefix: string) {
     this.prefix = prefix + ".";
   }
   /**
@@ -34,7 +41,11 @@ export class Lookup {
    * and 3) use a Link with 'replace' if the href includes ##.
    * So ## can be used, for example, to trigger modals controlled by the hash.
    */
-  t = (key, i18noptions = {}, { markdown } = {}) => {
+  t = (
+    key: string,
+    i18noptions: Record<string, any> = {},
+    { markdown }: { markdown?: Record<string, any> } = {}
+  ): any => {
     if (runChecks) {
       this.checkKeyName(key);
     }
@@ -45,7 +56,7 @@ export class Lookup {
     if (formatter === "s") {
       return localized;
     }
-    const mdopts = { ...markdown };
+    const mdopts: Record<string, any> = { ...markdown };
     if (formatter === "m") {
       mdopts.forceWrapper = true;
       mdopts.wrapper = React.Fragment;
@@ -55,7 +66,7 @@ export class Lookup {
     return <SumaMarkdown options={mdopts}>{localized}</SumaMarkdown>;
   };
 
-  checkKeyName(key) {
+  checkKeyName(key: string) {
     if (key.startsWith(this.prefix)) {
       logger
         .context({ string_key: key })
@@ -73,10 +84,9 @@ export const t = lu.t;
  * Applies image alt 'best practices' to localization strings like
  * punctuation and capitalization, then returns it.
  * @param altKey the key to find the localized string
- * @param i18noptions
- * @returns {string} i18n localized alt string
+ * @returns i18n localized alt string
  */
-export function imageAltT(altKey, i18noptions = {}) {
+export function imageAltT(altKey: string, i18noptions: Record<string, any> = {}): string {
   let altStr = t("alts." + altKey, i18noptions);
   const lastChar = altStr[altStr.length - 1];
   if (lastChar !== ".") {
@@ -89,10 +99,8 @@ export function imageAltT(altKey, i18noptions = {}) {
  * Render the dynamic translated string.
  * Use the formatter specified by the flag at the start of the string.
  * See Suma::I18n::ResourceRewriter for more info.
- * @param {string} s
- * @return {string|JSX.Element}
  */
-export function dt(s) {
+export function dt(s: string): React.ReactNode {
   if (!s) {
     return s;
   }

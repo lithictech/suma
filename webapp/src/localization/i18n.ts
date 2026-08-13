@@ -2,11 +2,25 @@ import { withSentry } from "../shared/sentry.js";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 
+declare global {
+  interface Window {
+    i18n?: I18n;
+  }
+}
+
+interface LocOpt {
+  k?: string;
+  f?: string;
+  t?: string;
+}
+
 class I18n {
+  cache: Record<string, Record<string, any>> = {};
+  formatters: Record<string, (value: any) => any> = {};
+  language = "";
+  debugStaticStrings: boolean;
+
   constructor() {
-    this.cache = {};
-    this.formatters = {};
-    this.language = "";
     this.debugStaticStrings = new URLSearchParams(window.location.search).has(
       "debugstaticstrings"
     );
@@ -16,20 +30,20 @@ class I18n {
    * Register a formatter.
    * For example, the localized string "amount: {{amount, currency}}",
    * would use the "currency" formatter.
-   * @param {string} key Identify the formatter (ie, "currency").
-   * @param {function} func Called with the resolved value.
+   * @param key Identify the formatter (ie, "currency").
+   * @param func Called with the resolved value.
    */
-  addFormatter = (key, func) => {
+  addFormatter = (key: string, func: (value: any) => any) => {
     this.formatters[key] = func;
   };
 
   /**
    * When a formatted strings file is loaded (see i18n.rb), add it here.
-   * @param {string} language like "en", "es", etc.
-   * @param {string} namespace name of the file ("strings")
-   * @param {object} body Contents of the loaded file.
+   * @param language like "en", "es", etc.
+   * @param namespace name of the file ("strings")
+   * @param body Contents of the loaded file.
    */
-  putFile = (language, namespace, body) => {
+  putFile = (language: string, namespace: string, body: any) => {
     if (!this.language) {
       this.language = language;
     }
@@ -41,11 +55,8 @@ class I18n {
   /**
    * Return true if the file has been added.
    * See `putFile`.
-   * @param {string} language
-   * @param {string} namespace
-   * @returns {boolean}
    */
-  hasFile = (language, namespace) => {
+  hasFile = (language: string, namespace: string): boolean => {
     const strings = this.cache[language];
     if (!strings) {
       return false;
@@ -61,14 +72,13 @@ class I18n {
    * return the "formatter" (m, mp, s) and the localized string
    * with values templated in. Like i18next.t,
    * but with markdown formatting info.
-   * @param {string} key Full key, like 'strings.navigation.title'.
-   * @param {object} opts Options to pass to the interpolator.
+   * @param key Full key, like 'strings.navigation.title'.
+   * @param opts Options to pass to the interpolator.
    *   For example, a string like "Hello, {{name}}" would be called with
    *   `t("dashboard.greeting", {name: user.name})`.
-   * @returns {Array<string>} Tuple of the formatter ("m", "mp", or "s")
-   *   and the resolved string.
+   * @returns Tuple of the formatter ("m", "mp", or "s") and the resolved string.
    */
-  resolve = (key, opts) => {
+  resolve = (key: string, opts?: Record<string, any>): [string, string] => {
     if (this.debugStaticStrings) {
       return ["s", key];
     }
@@ -102,7 +112,7 @@ class I18n {
     // eslint-disable-next-line no-unused-vars
     const [formatter, template, ...locOpts] = value;
     let finalStr = template;
-    locOpts.forEach(({ k, f, t }) => {
+    locOpts.forEach(({ k, f, t }: LocOpt) => {
       let resolved;
       if (t) {
         // This is a pointer to another string, like $t(xyz).
@@ -125,17 +135,17 @@ class I18n {
     return [formatter, finalStr];
   };
 
-  formatter = (key) => {
+  formatter = (key: string) => {
     const fqn = this.fqn(key, "0");
     return get(this.cache, fqn);
   };
 
-  t = (key, opts) => {
+  t = (key: string, opts?: Record<string, any>): string => {
     const [, str] = this.resolve(key, opts);
     return str;
   };
 
-  fqn = (...args) => {
+  fqn = (...args: string[]): string => {
     const suffix = args.join(".");
     const fqn = `${this.language}.${suffix}`;
     return fqn;
@@ -146,4 +156,4 @@ const instance = new I18n();
 export default instance;
 window.i18n = instance;
 
-const alertedMissingFqns = {};
+const alertedMissingFqns: Record<string, boolean> = {};

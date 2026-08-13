@@ -13,16 +13,28 @@ import React from "react";
 
 const logger = new Logger("i18n.hook");
 
-export const I18nContext = React.createContext({
+interface LoadLanguageFileOptions {
+  language?: string;
+}
+
+interface I18nContextValue {
+  initializing: boolean;
+  currentLanguage: string;
+  changeLanguage: (language: string) => Promise<any> | null;
+  loadLanguageFileUnsafe?: (namespace: string, options?: LoadLanguageFileOptions) => any;
+  loadLanguageFile: (namespace: string, options?: LoadLanguageFileOptions) => any;
+}
+
+export const I18nContext = React.createContext<I18nContextValue>({
   initializing: true,
   currentLanguage: "",
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   changeLanguage: (_lng) => null,
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadLanguageFile: (_ns, _opts) => null,
 });
 
-export default function I18nProvider({ children }) {
+export default function I18nProvider({ children }: { children: React.ReactNode }) {
   const [initializing, setInitializing] = React.useState(true);
   const [currentLanguage, setCurrentLanguage] = useCurrentLanguage();
   const { userAuthed } = useUser();
@@ -34,7 +46,7 @@ export default function I18nProvider({ children }) {
    * But in some cases we need to know if the load failed.
    */
   const loadLanguageFileUnsafe = React.useCallback(
-    (namespace, { language } = {}) => {
+    (namespace: string, { language }: LoadLanguageFileOptions = {}) => {
       language = language || currentLanguage;
       if (i18n.hasFile(language, namespace)) {
         return Promise.resolve();
@@ -57,12 +69,11 @@ export default function I18nProvider({ children }) {
   /**
    * Loads the given language file by making an HTTP request.
    * The promise resolves when the language file is loaded or fails to load.
-   * @param {string} namespace Name of the file, like 'strings'.
-   * @param {string} language Language ('en', 'es') or empty to use current language.
-   * @return {Promise}
+   * @param namespace Name of the file, like 'strings'.
+   * @param language Language ('en', 'es') or empty to use current language.
    */
   const loadLanguageFile = React.useCallback(
-    (namespace, { language } = {}) => {
+    (namespace: string, { language }: LoadLanguageFileOptions = {}) => {
       return loadLanguageFileUnsafe(namespace, { language }).catch(() => null);
     },
     [loadLanguageFileUnsafe]
@@ -71,12 +82,11 @@ export default function I18nProvider({ children }) {
   /**
    * Change the current language by updating the user in the backend,
    * loading the language file, and changing other locale info.
-   * @param {string} language 'en', 'es', etc.
-   * @return {Promise} Resolves when the language is changed.
+   * @param language 'en', 'es', etc.
    */
   const changeLanguage = React.useCallback(
-    (language) => {
-      const promises = [];
+    (language: string) => {
+      const promises: Promise<any>[] = [];
       if (userAuthed) {
         promises.push(
           api

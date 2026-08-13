@@ -1,4 +1,4 @@
-import { t } from "../localization/index.jsx";
+import { t } from "../localization";
 import { scaleMoney } from "../shared/money.js";
 import useUser from "../state/useUser.jsx";
 import React from "react";
