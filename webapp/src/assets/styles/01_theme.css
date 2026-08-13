@@ -30,7 +30,22 @@
     --color-disabled-text: #9ca3af;
 
     /* ---- Typography ---- */
-    --font-family-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    @font-face {
+        font-family: 'SourceSansPro';
+        font-style: normal;
+        font-weight: 400;
+        src: local("Source Sans Pro"), url("../fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf") format('truetype');
+    }
+
+    @font-face {
+        font-family: 'Raleway';
+        font-style: normal;
+        font-weight: 400;
+        src: local("Raleway"), url("../fonts/Raleway/Raleway-VariableFont_wght.ttf") format('truetype');
+    }
+
+    --font-family-base: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-family-title: 'Raleway' "Source Serif Pro", Georgia, Cambria, "Times New Roman", Times, serif;
     --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
     --font-size-base: 16px;
@@ -53,7 +68,6 @@
     --space-4: 1rem;
     --space-5: 1.5rem;
     --space-6: 2rem;
-    --space-8: 3rem;
 
     /* ---- Borders / radius ---- */
     --border-width: 1px;

@@ -12,7 +12,7 @@ import transparencyIcon from "../assets/images/privacypolicy/overview-transparen
 import trustIcon from "../assets/images/privacypolicy/overview-trust-icon.svg";
 import policyChanges from "../assets/images/privacypolicy/policy-changes.svg";
 import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access.svg";
-import "../assets/styles/privacy-policy.scss";
+import "../assets/styles/privacy-policy.css";
 import ELink from "../components/ELink";
 import LayoutContainer from "../components/LayoutContainer";
 import ScreenLoader from "../components/ScreenLoader";

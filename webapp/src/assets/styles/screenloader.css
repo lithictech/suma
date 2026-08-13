@@ -1,14 +1,9 @@
-@import "./theme";
-@import "bootstrap/scss/_functions";
-@import "bootstrap/scss/_variables";
-@import "bootstrap/scss/_mixins";
-
 .screen-loader {
   width: 100vw;
   height: 100vh;
   z-index: 5000;
   position: fixed;
-  background-color: rgba(map-get($theme-colors, "light"), 0.3);
+  background-color: rgba(var(--color-text), 0.3);
   display: none;
   top: 0;
   left: 0;

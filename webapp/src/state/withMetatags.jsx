@@ -1,4 +1,3 @@
-import "../assets/styles/screenloader.scss";
 import { t } from "../localization";
 import React from "react";
 import { Helmet } from "react-helmet-async";

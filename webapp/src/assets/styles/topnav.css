@@ -1,11 +1,9 @@
-@import "./theme";
-
 .brand-text {
   text-transform: uppercase;
   font-weight: 500;
-  font-family: $font-family-sans-serif;
+  font-family: var(--font-family-base);
   font-size: 1.5rem;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   margin-bottom: 0;
   z-index: 1;
 }
@@ -20,9 +18,9 @@
   display: block;
   margin: 8px auto;
   position: relative;
-  background-color: $light;
-  @include border-radius(10px);
-  @include transition(.4s);
+  background-color: var(--color-success);
+  /*@include border-radius(10px);*/
+  /*@include transition(.4s);*/
 }
 
 .navbar-toggler {
@@ -67,12 +65,12 @@
 }
 
 .navbar-collapse {
-  background: $light-darker;
+  background: var(--color-success);
 }
 
 .offline-status {
   transition: opacity 1s ease-out;
-  background-color: $danger;
+  background-color: var(--color-danger);
   border-radius: 50px;
   width: 32px;
   height: 32px;
@@ -95,12 +93,12 @@
 }
 
 .nav-lang-btn-group > .btn:first-child {
-  border-top-left-radius: $border-radius !important;
-  border-top-right-radius: $border-radius !important;
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
 }
 .nav-lang-btn-group > .btn:last-child {
-  border-bottom-left-radius: $border-radius !important;
-  border-bottom-right-radius: $border-radius !important;
+  border-bottom-left-radius: var(--border-radius) !important;
+  border-bottom-right-radius: var(--border-radius) !important;
 }
 
 .nav-menu-button {
@@ -112,6 +110,6 @@
 }
 
 .nav-collapse {
-  background-color: $light;
-  border-bottom: $btn-border-width $primary solid;
+  background-color: var(--color-success);
+  border-bottom: var(--border-width) var(--color-primary) solid;
 }

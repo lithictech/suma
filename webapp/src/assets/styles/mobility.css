@@ -1,5 +1,3 @@
-@import "./theme";
-
 .mobility-drawer {
   position: absolute;
   top: 0;
@@ -9,14 +7,14 @@
 }
 
 .mobility-drawer-main {
-  background-color: map-get($theme-colors, "light");
-  padding: map-get($spacers, 4);
+  background-color: var(--color-text);
+  padding: var(--space-4);
 }
 
 .mobility-drawer-footer {
-  background-color: map-get($theme-colors, "light");
-  border-bottom-left-radius: $border-radius * 4;
-  border-bottom-right-radius: $border-radius * 4;
+  background-color: var(--color-bg);
+  border-bottom-left-radius: var(--border-radius-lg);
+  border-bottom-right-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 
@@ -29,7 +27,7 @@
 }
 
 .leaflet-container {
-  font-family: $font-family-sans-serif !important;
+  font-family: var(--font-family-base) !important;
   font-size: 0.85rem;
 }
 
@@ -58,7 +56,7 @@
   padding: 1rem 1rem!important;
 
   p {
-    color: $gray-600;
+    color: var(--color-text);
   }
 }
 
@@ -67,9 +65,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: $danger;
-  color: $white;
-  font-size: $h6-font-size;
+  background-color: var(--color-danger);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-sm);
   width: 24px!important;
   height: 24px!important;
 }
@@ -84,7 +82,7 @@
   height: 36px !important;
   font-size: 16px;
   border-radius: 50%;
-  color: $primary;
+  color: var(--color-primary);
   background-color: #fafafa;
   /* lower than scooter value (240) */
   z-index: 230;
@@ -119,13 +117,13 @@
 }
 
 .trips-week-divider {
-  background-color: $info-light;
-  height: map-get($spacers, 2);
+  background-color: var(--color-text-muted);
+  height: var(--space-2);
   width: 100%;
 }
 
 .trips-image-vehicle {
   border-radius: 50%;
-  background-color: $info-light;
+  background-color: var(--color-text-muted);
   padding: 2px;
 }

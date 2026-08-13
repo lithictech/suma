@@ -1,14 +1,7 @@
-.text-muted {
-    color: var(--color-text-muted);
+.border-radius-0 {
+    border-radius: 0 !important;
 }
 
-.text-center {
-    text-align: center;
-}
-
-.text-right {
-    text-align: right;
-}
 
 .d-none {
     display: none;
@@ -16,28 +9,4 @@
 
 .d-flex {
     display: flex;
-}
-
-.gap-2 {
-    gap: var(--space-2);
-}
-
-.gap-3 {
-    gap: var(--space-3);
-}
-
-.mt-2 {
-    margin-top: var(--space-2);
-}
-
-.mt-3 {
-    margin-top: var(--space-3);
-}
-
-.mb-2 {
-    margin-bottom: var(--space-2);
-}
-
-.mb-3 {
-    margin-bottom: var(--space-3);
 }
