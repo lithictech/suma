@@ -2,6 +2,7 @@ import PageLoader from "../components/PageLoader";
 import Button from "../ui/Button";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
+import ProgressBar from "../ui/ProgressBar.jsx";
 import Stack from "../ui/Stack";
 import React from "react";
 
@@ -55,6 +56,16 @@ export default function Styleguide() {
           <Chip variant="info">Ready for pickup</Chip>
           <Chip variant="danger">2 left</Chip>
           <Chip variant="success">Picked up</Chip>
+        </Stack>
+      </Section>
+      <Section eventKey="misc" activeKey={activeKey}>
+        <Stack direction="vertical" gap={1}>
+          <h2>Progress</h2>
+          <ProgressBar value={0} />
+          <ProgressBar value={37} />
+          <ProgressBar value={50} />
+          <ProgressBar value={96} />
+          <ProgressBar value={100} />
         </Stack>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
