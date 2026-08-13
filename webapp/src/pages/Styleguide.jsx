@@ -1,4 +1,5 @@
 import PageLoader from "../components/PageLoader";
+import BrandCard from "../ui/BrandCard.jsx";
 import Button from "../ui/Button";
 import Card from "../ui/Card.jsx";
 import CardBody from "../ui/CardBody.jsx";
@@ -115,6 +116,23 @@ export default function Styleguide() {
               </CardBody>
             </CheckableCard>
           </Stack>
+          <BrandCard
+            pillText={<span>IN REVIEW &bull; Aug 7, 2026</span>}
+            title={<span>We&rsquo;re verifying your details</span>}
+            text="Our staff is verifying your details with Roseway Commons.
+            We will message you when we’ve confirmed."
+            helpText={
+              <span>Call or text (555) 123-1234 &bull; 9am - 5pm, Monday to Friday</span>
+            }
+          >
+            <Button className="mt-4">Contact Support</Button>
+          </BrandCard>
+          <BrandCard text="Are you ready to claim your order at Local Farmers Market?">
+            <Button className="mt-4 w-100">Yes</Button>
+            <Button variant="outline" className="mt-2 w-100">
+              Back
+            </Button>
+          </BrandCard>
         </Stack>
       </Section>
       <Section eventKey="chips" activeKey={activeKey}>
