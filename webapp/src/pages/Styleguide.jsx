@@ -1,3 +1,4 @@
+import StorefrontIcon from "../assets/images/icons/storefront.svg?react";
 import PageLoader from "../components/PageLoader";
 import BrandCard from "../ui/BrandCard.jsx";
 import Button from "../ui/Button";
@@ -11,6 +12,8 @@ import Checklist from "../ui/Checklist.jsx";
 import ChecklistItem from "../ui/ChecklistItem.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
+import Nav from "../ui/Nav.jsx";
+import NavOption from "../ui/NavOption.jsx";
 import Progress from "../ui/Progress.jsx";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch.jsx";
@@ -29,6 +32,7 @@ export default function Styleguide() {
     "inputs",
     "checklist",
     "progress",
+    "nav",
     "loaders",
   ];
   const [activeKey, setActiveKey] = React.useState(
@@ -174,7 +178,7 @@ export default function Styleguide() {
           </Stack>
           <Stack gap={2}>
             <Switch label="Switch 1" onChange={noop} />
-            <Switch label="Switch 1" onChange={noop} />
+            <Switch label="Switch 2" checked onChange={noop} />
             <Switch onChange={noop} />
           </Stack>
           <CheckboxCard
@@ -225,6 +229,14 @@ export default function Styleguide() {
           <ChecklistItem step={4}>Get link</ChecklistItem>
           <ChecklistItem step={5}>Finish linking</ChecklistItem>
         </Checklist>
+      </Section>
+      <Section eventKey="nav" activeKey={activeKey}>
+        <Nav>
+          <NavOption name="home" label="Home" Icon={StorefrontIcon} />
+          <NavOption name="offers" label="Offers" Icon={StorefrontIcon} active />
+          <NavOption name="map" label="Map" Icon={StorefrontIcon} />
+          <NavOption name="more" label="More" Icon={StorefrontIcon} />
+        </Nav>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
         <PageLoader buffered />
