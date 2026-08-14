@@ -2,7 +2,6 @@ import { t } from "../localization";
 import Form from "../ui/Form";
 import FormError from "./FormError";
 import React from "react";
-import Form from "react-bootstrap/Form";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface SignupAgreementProps {

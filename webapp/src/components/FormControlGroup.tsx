@@ -5,8 +5,6 @@ import InputGroup from "../ui/InputGroup";
 import FormText from "./FormText";
 import isString from "lodash/isString";
 import React from "react";
-import Form from "react-bootstrap/Form";
-import InputGroup from "react-bootstrap/InputGroup";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface FormControlGroupProps {

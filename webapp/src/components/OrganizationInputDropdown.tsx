@@ -5,7 +5,6 @@ import Form from "../ui/Form";
 import FormControlGroup from "./FormControlGroup";
 import FormText from "./FormText";
 import React from "react";
-import Form from "react-bootstrap/Form";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface OrganizationInputDropdownProps {
