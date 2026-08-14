@@ -24,6 +24,7 @@
 
     --color-success: #4D6B44;
     --color-danger: #A3521F;
+    --color-accent: #F5A98D;
 
     --tint-primary: #CFDAF0;
     --tint-secondary: #FAD6AC;
@@ -105,5 +106,10 @@
     --switch-height: 1.5rem;
     --switch-thumb-size: 1.25rem;
     --switch-thumb-gap: 0.125rem;
+
+    --select-arrow-size: 0.75rem;
+
+    --z-index-dialog: 10;
+    --z-index-loader: 20;
 }
 

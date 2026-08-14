@@ -1,5 +1,4 @@
 import StorefrontIcon from "../assets/images/icons/storefront.svg?react";
-import PageLoader from "../components/PageLoader";
 import useToggle from "../shared/react/useToggle.jsx";
 import BrandCard from "../ui/BrandCard.jsx";
 import Button from "../ui/Button";
@@ -16,6 +15,7 @@ import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
 import { Dialog } from "../ui/Dialog.jsx";
 import DialogHeader from "../ui/DialogHeader.jsx";
+import IndeterminateLoader from "../ui/IndeterminateLoader.jsx";
 import Nav from "../ui/Nav.jsx";
 import NavOption from "../ui/NavOption.jsx";
 import Progress from "../ui/Progress.jsx";
@@ -282,12 +282,16 @@ export default function Styleguide() {
         <Button onClick={dialogToggle.turnOn}>Open Dialog</Button>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
-        <PageLoader buffered />
-        <hr />
+        <Stack gap={3}>
+          <IndeterminateLoader variant="plain" size={20} />
+          <IndeterminateLoader variant="plain" size={40} />
+          <IndeterminateLoader variant="plain" />
+        </Stack>
         <div className="position-relative">
           <p>{LOREM_IPSUM}</p>
-          <PageLoader overlay />
+          <IndeterminateLoader variant="content" />
         </div>
+        <IndeterminateLoader variant="screen" style={{ marginTop: 80 }} />
       </Section>
     </Container>
   );

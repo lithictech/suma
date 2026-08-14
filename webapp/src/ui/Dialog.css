@@ -55,7 +55,7 @@ dialog.dialog::backdrop {
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
-    z-index: 1;
+    z-index: var(--z-index-dialog);
     display: flex;
     align-items: center;
     justify-content: center;
