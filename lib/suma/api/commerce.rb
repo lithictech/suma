@@ -343,7 +343,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    expose_array :items do |_, opts|
+    expose_array :items, PricedOfferingProductEntity do |_, opts|
       opts.fetch(:items)
     end
     expose_array :vendors, VendorEntity do |_, opts|
