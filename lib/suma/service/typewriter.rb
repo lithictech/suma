@@ -4,6 +4,9 @@ require "suma/service"
 require "grape_entity"
 
 class Suma::Service::Typewriter
+  class Error < StandardError; end
+  class UntypedError < Error; end
+
   class Formatter
     attr_reader :lines
 
@@ -262,7 +265,8 @@ class Suma::Service::Typewriter
   # Build JSDoc typedef for a single entity class
   # @param [Formatter] formatter
   # @param [Class] entity_class
-  protected def write_typedef(formatter, entity_class)
+  # @param [true,false] strict
+  protected def write_typedef(formatter, entity_class, strict:)
     type_name = self.jsdoc_entity_name(entity_class)
     source_name = entity_class.name
 
@@ -275,6 +279,7 @@ class Suma::Service::Typewriter
       self.walk_exposure(property_type_and_desc_for_name, exposure)
     end
     property_type_and_desc_for_name.each do |jsname, (jstype, desc)|
+      raise UntypedError, "exposure was untyped: #{type_name}.#{jsname}" if strict && jstype.start_with?(ANYTYPE)
       formatter.add_property(jstype, jsname, desc)
     end
     formatter.close_typedef
@@ -312,12 +317,12 @@ class Suma::Service::Typewriter
     property_type_and_desc_for_name[js_name] = [js_type, desc_text]
   end
 
-  def build(entity_classes, formatter: JSDocFormatter.new)
+  def build(entity_classes, formatter: JSDocFormatter.new, strict: false)
     formatter.metadata(entity_classes)
 
     formatter.preamble
     entity_classes.each do |klass|
-      self.write_typedef(formatter, klass)
+      self.write_typedef(formatter, klass, strict:)
     end
     formatter.postamble
 

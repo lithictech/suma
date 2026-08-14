@@ -83,6 +83,16 @@ RSpec.describe Suma::Service::Typewriter do
     STR
   end
 
+  it "can use a strict mode" do
+    cls = Class.new(Suma::Service::Entities::Base) do
+      define_singleton_method(:name) { "StrictEntity" }
+      expose :x
+    end
+    expect do
+      described_class.new.build([cls], strict: true)
+    end.to raise_error(described_class::UntypedError, "exposure was untyped: Strict.x")
+  end
+
   it "writes admin model entities" do
     activity_entity = Class.new(Suma::AdminAPI::Entities::BaseModelEntity) do
       define_singleton_method(:name) { "AdminTestActivityEntity" }

@@ -102,6 +102,8 @@ integration-test-task:
 
 annotate:
 	RACK_ENV=test LOG_LEVEL=info bundle exec rake annotate
+annotate-web:
+	RACK_ENV=test LOG_LEVEL=info bundle exec rake annotate:webapp
 
 psql: cmd-exists-pgcli
 	pgcli $(DBURL_LOCAL)
