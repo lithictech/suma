@@ -55,7 +55,7 @@ RSpec.describe Suma::Service::Typewriter do
 
   it "uses the jsdoc_type method on the type class" do
     t = Class.new do
-      define_singleton_method(:jsdoc_type) { "number[]" }
+      define_singleton_method(:js_type) { "number[]" }
     end
 
     cls = Class.new(Suma::Service::Entities::Base) do
