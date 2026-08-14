@@ -1,6 +1,6 @@
 // Auto-generated typedefs from Grape::Entity
-// Generated: 2026-08-14 10:26:17
-// Entities: Money, Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::LedgerEntity, Suma::API::Entities::LedgerLineEntity, Suma::API::Entities::LedgerLineUsageDetailsEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::ProgramEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity
+// Generated: 2026-08-14 13:29:29
+// Entities: Money, Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::LedgerEntity, Suma::API::Entities::LedgerLineEntity, Suma::API::Entities::LedgerLineUsageDetailsEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::MobilityTripParsedAddressEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::ProgramEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionBoundsEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::MobilityTripCollectionWeekEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity
 
 declare global {
   /** Auto-generated from Money */
@@ -21,7 +21,7 @@ declare global {
 
   /** Auto-generated from Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity */
   interface AnonProxyVendorAccountPollResult {
-    foundChange: any;
+    foundChange: boolean;
     successInstructions: string;
     vendorAccount: AnonProxyVendorAccount;
   }
@@ -32,7 +32,7 @@ declare global {
     needsLinking: boolean;
     requiresPaymentMethod: boolean;
     hasPaymentMethod: boolean;
-    balancePayoffNeeded: any;
+    balancePayoffNeeded: boolean;
     showPaymentStep: boolean;
     termStepIndex: number;
     linkStepIndex: number;
@@ -58,12 +58,12 @@ declare global {
 
   /** Auto-generated from Suma::API::Commerce::CartEntity */
   interface Cart {
-    cartHash: any;
+    cartHash: string;
     items: CartItem[];
     customerCost: Money;
     noncashLedgerContributionAmount: Money;
     cashCost: Money;
-    cartFull: any;
+    cartFull: boolean;
   }
 
   /** Auto-generated from Suma::API::Commerce::CartItemEntity */
@@ -139,9 +139,9 @@ declare global {
     productId: number;
     vendor: Vendor;
     images: Image[];
-    listable: any;
+    listable: boolean;
     maxQuantity: number;
-    outOfStock: any;
+    outOfStock: boolean;
     outOfStockReason: string;
     outOfStockReasonText: string;
     displayableNoncashLedgerContributionAmount: Money;
@@ -155,7 +155,7 @@ declare global {
   /** Auto-generated from Suma::API::Commerce::DetailedOrderHistoryEntity */
   interface DetailedOrderHistory {
     id: number;
-    serial: any;
+    serial: string;
     createdAt: string;
     fulfilledAt: string;
     total: Money;
@@ -167,7 +167,7 @@ declare global {
     fulfillmentConfirmation: string;
     fulfillmentOption: FulfillmentOption;
     fulfillmentOptionsForEditing: FulfillmentOption[];
-    fulfillmentOptionEditable: any;
+    fulfillmentOptionEditable: boolean;
     orderStatus: string;
     canClaim: boolean;
     customerCost: Money;
@@ -181,7 +181,7 @@ declare global {
 
   /** Auto-generated from Suma::API::Commerce::FulfillmentOptionAddressEntity */
   interface FulfillmentOptionAddress {
-    oneLineAddress: any;
+    oneLineAddress: string;
   }
 
   /** Auto-generated from Suma::API::Commerce::FulfillmentOptionEntity */
@@ -246,9 +246,9 @@ declare global {
     productId: number;
     vendor: Vendor;
     images: Image[];
-    listable: any;
+    listable: boolean;
     maxQuantity: number;
-    outOfStock: any;
+    outOfStock: boolean;
     outOfStockReason: string;
     outOfStockReasonText: string;
     displayableNoncashLedgerContributionAmount: Money;
@@ -262,7 +262,7 @@ declare global {
   /** Auto-generated from Suma::API::Commerce::SimpleOrderHistoryEntity */
   interface SimpleOrderHistory {
     id: number;
-    serial: any;
+    serial: string;
     createdAt: string;
     fulfilledAt: string;
     total: Money;
@@ -293,13 +293,13 @@ declare global {
 
   /** Auto-generated from Suma::API::Entities::CurrencyEntity */
   interface Currency {
-    symbol: any;
+    symbol: string;
     code: string;
     fundingMinimumCents: number;
     fundingMaximumCents: number;
     fundingStepCents: number;
-    centsInDollar: any;
-    paymentMethodTypes: any;
+    centsInDollar: number;
+    paymentMethodTypes: string[];
   }
 
   /** Auto-generated from Suma::API::Entities::CurrentMemberEntity */
@@ -309,11 +309,11 @@ declare global {
     email: string;
     name: string;
     phone: string;
-    onboarded: any;
-    roleAccess: any;
+    onboarded: boolean;
+    roleAccess: Suma::Service::Entities::RoleAccessType;
     unclaimedOrdersCount: number;
     ongoingTrip: MobilityTrip;
-    readOnlyMode: string;
+    readOnlyMode: boolean;
     readOnlyReason: string;
     paymentInstruments: PaymentInstrument[];
     adminMember: CurrentMember;
@@ -321,7 +321,7 @@ declare global {
     preferences: MemberPreferences;
     hasOrderHistory: boolean;
     chargeableCashBalance: Money;
-    finishedSurveyTopics: any;
+    finishedSurveyTopics: string[];
     registrationLink: RegistrationLink;
   }
 
@@ -352,14 +352,14 @@ declare global {
   /** Auto-generated from Suma::API::Entities::LedgerLineUsageDetailsEntity */
   interface LedgerLineUsageDetails {
     code: string;
-    args: any;
+    args: Suma::Service::Entities::RecordString;
   }
 
   /** Auto-generated from Suma::API::Entities::LocaleEntity */
   interface Locale {
     code: string;
-    language: any;
-    native: any;
+    language: string;
+    native: string;
   }
 
   /** Auto-generated from Suma::API::Entities::MemberPreferencesEntity */
@@ -389,16 +389,22 @@ declare global {
     provider: VendorService;
     beginLat: number;
     beginLng: number;
-    beginAddress: any;
+    beginAddress: MobilityTripParsedAddress;
     beganAt: string;
     endLat: number;
     endLng: number;
-    endAddress: any;
+    endAddress: MobilityTripParsedAddress;
     endedAt: string;
-    ongoing: any;
+    ongoing: boolean;
     charge: MobilityCharge;
-    minutes: any;
+    minutes: number;
     image: Image;
+  }
+
+  /** Auto-generated from Suma::API::Entities::MobilityTripParsedAddressEntity */
+  interface MobilityTripParsedAddress {
+    part1: string;
+    part2: string;
   }
 
   /** Auto-generated from Suma::API::Entities::PaymentInstrumentEntity */
@@ -407,10 +413,10 @@ declare global {
     createdAt: string;
     paymentInstrumentId: number;
     paymentMethodType: string;
-    usableForFunding: any;
+    usableForFunding: boolean;
     status: string;
     expiresAt: string;
-    institution: any;
+    institution: string;
     name: string;
     last4: string;
     key: string;
@@ -419,7 +425,7 @@ declare global {
   /** Auto-generated from Suma::API::Entities::PreferencesSubscriptionEntity */
   interface PreferencesSubscription {
     key: string;
-    optedIn: any;
+    optedIn: boolean;
     editableState: string;
   }
 
@@ -469,8 +475,8 @@ declare global {
   /** Auto-generated from Suma::API::Me::DashboardAlertEntity */
   interface DashboardAlert {
     localizationKey: string;
-    localizationParams: any;
-    variant: any;
+    localizationParams: Suma::Service::Entities::RecordString;
+    variant: string;
   }
 
   /** Auto-generated from Suma::API::Me::DashboardEntity */
@@ -493,21 +499,21 @@ declare global {
 
   /** Auto-generated from Suma::API::Mobility::MobilityDetailedVehicleEntity */
   interface MobilityDetailedVehicle {
-    precision: any;
+    precision: number;
     vendorService: VendorService;
-    vehicleId: number;
-    loc: any;
+    vehicleId: string;
+    loc: number[];
     rate: Rate;
-    subsidyMatchPercentage: any;
-    deeplink: any;
-    gotoPrivateAccount: any;
+    subsidyMatchPercentage: number;
+    deeplink: string;
+    gotoPrivateAccount: string;
     usageProhibitedReason: string;
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapEntity */
   interface MobilityMap {
-    precision: any;
-    refresh: any;
+    precision: number;
+    refresh: number;
     providers: MobilityMapProvider[];
     escooter: MobilityMapVehicle;
     ebike: MobilityMapVehicle;
@@ -529,19 +535,24 @@ declare global {
     usageProhibitedReason: string;
   }
 
+  /** Auto-generated from Suma::API::Mobility::MobilityMapRestrictionBoundsEntity */
+  interface MobilityMapRestrictionBounds {
+    ne: Suma::Service::Entities::GeoLatLng;
+    sw: Suma::Service::Entities::GeoLatLng;
+  }
+
   /** Auto-generated from Suma::API::Mobility::MobilityMapRestrictionEntity */
   interface MobilityMapRestriction {
-    restriction: any;
-    multipolygon: any;
-    bounds: any;
+    restriction: string;
+    multipolygon: Suma::Service::Entities::GeoMultiPolygon;
+    bounds: MobilityMapRestrictionBounds;
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapVehicleEntity */
   interface MobilityMapVehicle {
-    c: any;
-    p: any;
-    d: any;
-    o: any;
+    c: number[];
+    p: number;
+    d: string;
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityTripCollectionEntity */
@@ -554,7 +565,15 @@ declare global {
     url: string;
     items: MobilityTrip[];
     ongoing: MobilityTrip;
-    weeks: any;
+    weeks: MobilityTripCollectionWeek[];
+  }
+
+  /** Auto-generated from Suma::API::Mobility::MobilityTripCollectionWeekEntity */
+  interface MobilityTripCollectionWeek {
+    beginAt: string;
+    endAt: string;
+    beginIndex: number;
+    endIndex: number;
   }
 
   /** Auto-generated from Suma::API::Mobility::RateEntity */
@@ -579,10 +598,10 @@ declare global {
     createdAt: string;
     paymentInstrumentId: number;
     paymentMethodType: string;
-    usableForFunding: any;
+    usableForFunding: boolean;
     status: string;
     expiresAt: string;
-    institution: any;
+    institution: string;
     name: string;
     last4: string;
     key: string;
