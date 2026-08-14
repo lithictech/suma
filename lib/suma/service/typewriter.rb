@@ -191,6 +191,7 @@ class Suma::Service::Typewriter
     "cents",
     "count",
     "fraction",
+    "index",
     "lat",
     "lng",
     "length",
@@ -239,10 +240,12 @@ class Suma::Service::Typewriter
     "need",
     "needs",
     "has",
+    "requires",
     "show",
   ].freeze
   BOOL_SUFFIXES = [
     "enabled",
+    "needed",
   ].freeze
 
   # Derive a clean JSDoc identifier from an entity class name.
