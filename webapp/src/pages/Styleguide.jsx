@@ -19,6 +19,7 @@ import IndeterminateLoader from "../ui/IndeterminateLoader.jsx";
 import Nav from "../ui/Nav.jsx";
 import NavOption from "../ui/NavOption.jsx";
 import Progress from "../ui/Progress.jsx";
+import Select from "../ui/Select.jsx";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch.jsx";
 import SwitchRow from "../ui/SwitchRow.jsx";
@@ -206,6 +207,18 @@ export default function Styleguide() {
             text="Standard message rates apply"
             checked
           />
+        </Stack>
+        <h2>Select</h2>
+        <Stack direction="vertical" gap={2}>
+          <Select
+            label="Select"
+            options={[
+              { label: "Option A", value: "opta" },
+              { label: "Option B", value: "optb" },
+              { label: "Option C", value: "optc" },
+              { label: "Option D", value: "optd" },
+            ]}
+          ></Select>
         </Stack>
       </Section>
       <Section eventKey="progress" activeKey={activeKey}>
