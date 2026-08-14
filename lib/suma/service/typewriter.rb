@@ -146,6 +146,14 @@ class Suma::Service::Typewriter
     return classes
   end
 
+  # @param [Formatter] formatter
+  # @param [true,false] strict
+  def initialize(formatter=JSDocFormatter.new, strict: false)
+    @formatter = formatter
+    @strict = strict
+    @strict_errors = []
+  end
+
   # Convert a grape-entity :using or :type value to a JSDoc type string.
   protected def jsdoc_type(using, documentation)
     # Explicit :using — references another entity
@@ -263,14 +271,12 @@ class Suma::Service::Typewriter
   protected def getname(x) = x.respond_to?(:name) ? x.name : x.to_s
 
   # Build JSDoc typedef for a single entity class
-  # @param [Formatter] formatter
   # @param [Class] entity_class
-  # @param [true,false] strict
-  protected def write_typedef(formatter, entity_class, strict:)
+  protected def write_typedef(entity_class)
     type_name = self.jsdoc_entity_name(entity_class)
     source_name = entity_class.name
 
-    formatter.open_typedef(type_name, source_name)
+    @formatter.open_typedef(type_name, source_name)
     exposures = entity_class.root_exposures
     property_type_and_desc_for_name = {}
     exposures.each do |exposure|
@@ -278,17 +284,11 @@ class Suma::Service::Typewriter
       # We walk recursively if the exposure responds to `nested_exposures`.
       self.walk_exposure(property_type_and_desc_for_name, exposure)
     end
-    if strict
-      errors = []
-      property_type_and_desc_for_name.each do |jsname, (jstype, _desc)|
-        errors << "#{type_name}.#{jsname}" if jstype.start_with?(ANYTYPE)
-      end
-      raise UntypedError, "exposure was untyped: " + errors.join("\n") if errors.any?
-    end
     property_type_and_desc_for_name.each do |jsname, (jstype, desc)|
-      formatter.add_property(jstype, jsname, desc)
+      @strict_errors << "#{type_name}.#{jsname}" if @strict && jstype.start_with?(ANYTYPE)
+      @formatter.add_property(jstype, jsname, desc)
     end
-    formatter.close_typedef
+    @formatter.close_typedef
   end
 
   # Build JSDoc typedef for a single entity class
@@ -323,16 +323,18 @@ class Suma::Service::Typewriter
     property_type_and_desc_for_name[js_name] = [js_type, desc_text]
   end
 
-  def build(entity_classes, formatter: JSDocFormatter.new, strict: false)
-    formatter.metadata(entity_classes)
+  def build(entity_classes)
+    @formatter.metadata(entity_classes)
 
-    formatter.preamble
+    @formatter.preamble
     entity_classes.each do |klass|
-      self.write_typedef(formatter, klass, strict:)
+      self.write_typedef(klass)
     end
-    formatter.postamble
+    @formatter.postamble
 
-    output = formatter.string
+    raise UntypedError, ("exposures were untyped:\n" + @strict_errors.join("\n")) if @strict_errors.any?
+
+    output = @formatter.string
     return output
   end
 end

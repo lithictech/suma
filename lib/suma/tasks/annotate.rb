@@ -66,11 +66,10 @@ class Suma::Tasks::Annotate < Rake::TaskLib
         Suma.load_app?
         require "suma/service/typewriter"
         classes = Suma::Service::Typewriter.gather_web_entity_classes
-        ts = Suma::Service::Typewriter.new.build(
-          classes,
-          formatter: Suma::Service::Typewriter::TypescriptFormatter.new,
+        ts = Suma::Service::Typewriter.new(
+          Suma::Service::Typewriter::TypescriptFormatter.new,
           strict: true,
-        )
+        ).build(classes)
         self.class.write_typedefs(Suma::ROOT_DIR + "webapp/src/typedefs.ts", ts)
       end
     end

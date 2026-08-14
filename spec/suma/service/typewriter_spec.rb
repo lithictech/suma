@@ -31,7 +31,7 @@ RSpec.describe Suma::Service::Typewriter do
        */
     STR
 
-    typescript = described_class.new.build(cls, formatter: described_class::TypescriptFormatter.new)
+    typescript = described_class.new(described_class::TypescriptFormatter.new).build(cls)
     expect(typescript).to include(<<~STR)
       declare global {
         /** Auto-generated from TestEntity */
@@ -89,8 +89,8 @@ RSpec.describe Suma::Service::Typewriter do
       expose :x
     end
     expect do
-      described_class.new.build([cls], strict: true)
-    end.to raise_error(described_class::UntypedError, "exposure was untyped: Strict.x")
+      described_class.new(strict: true).build([cls])
+    end.to raise_error(described_class::UntypedError, "exposures were untyped:\nStrict.x")
   end
 
   it "writes admin model entities" do
