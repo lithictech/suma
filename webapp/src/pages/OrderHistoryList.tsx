@@ -25,8 +25,8 @@ export default function OrderHistoryList() {
     state: orderHistory,
     loading,
     error,
-  } = useAsyncFetch<any>(api.getOrderHistory, {
-    default: {},
+  } = useAsyncFetch<OrderHistoryCollection>(api.getOrderHistory, {
+    default: {} as OrderHistoryCollection,
     pickData: true,
   });
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export default function OrderHistoryList() {
       </LayoutContainer>
     );
   }
-  function handleNavigate(e: React.MouseEvent, order: any) {
+  function handleNavigate(e: React.MouseEvent, order: SimpleOrderHistory) {
     const detailed = find(orderHistory.detailedOrders, { id: order.id });
     if (!detailed) {
       return;
@@ -66,7 +66,7 @@ export default function OrderHistoryList() {
           <PageLoader />
         ) : !isEmpty(orderHistory?.items) ? (
           <Stack gap={3}>
-            {orderHistory?.items.map((o: any) => (
+            {orderHistory?.items.map((o) => (
               <Order
                 key={o.id}
                 {...o}
@@ -89,15 +89,8 @@ export default function OrderHistoryList() {
   );
 }
 
-interface OrderProps {
-  id: number;
-  createdAt: string;
-  total: Money;
-  image?: Image;
-  serial: any;
-  fulfilledAt?: string;
+interface OrderProps extends SimpleOrderHistory {
   onNavigate: (e: React.MouseEvent) => void;
-  availableForPickupAt?: string;
 }
 
 function Order({

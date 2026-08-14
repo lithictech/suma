@@ -20,7 +20,7 @@ export default function Food() {
     state: offerings,
     loading: offeringsLoading,
     error: offeringsError,
-  } = useAsyncFetch<any>(api.getCommerceOfferings, {
+  } = useAsyncFetch<{ items: Offering[] }>(api.getCommerceOfferings, {
     pickData: true,
   });
   if (offeringsError) {
@@ -56,7 +56,7 @@ export default function Food() {
       <LayoutContainer gutters>
         <h4 className="mb-3">{t("food.current_offerings")}</h4>
         <Stack gap={3}>
-          {items.map((it: any) => (
+          {items.map((it) => (
             <VendibleCard key={it.id} {...it} />
           ))}
         </Stack>

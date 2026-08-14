@@ -21,19 +21,17 @@ import Table from "react-bootstrap/Table";
 
 export default function LedgersOverview() {
   const { params, page, setListQueryParams } = useListQueryControls();
-  const { state: ledgersOverview, loading: ledgersOverviewLoading } = useAsyncFetch<any>(
-    api.getLedgersOverview,
-    {
-      default: {},
+  const { state: ledgersOverview, loading: ledgersOverviewLoading } =
+    useAsyncFetch<LedgersView>(api.getLedgersOverview, {
+      default: {} as LedgersView,
       pickData: true,
-    }
-  );
+    });
   const {
     state: ledgerLines,
     loading: ledgerLinesLoading,
     asyncFetch: ledgerLinesFetch,
-  } = useAsyncFetch<any>(api.getLedgerLines, {
-    default: {},
+  } = useAsyncFetch<LedgerLines>(api.getLedgerLines, {
+    default: {} as LedgerLines,
     pickData: true,
     doNotFetchOnInit: true,
     cache: true,
@@ -41,7 +39,7 @@ export default function LedgersOverview() {
   const ledgerIdParam = Number(params.get("ledger")) || 0;
 
   // If we don't have a ledgerId parameter, or it's invalid, use 'recent lines'.
-  let activeLedger: any;
+  let activeLedger: Ledger | undefined;
   if (ledgerIdParam) {
     activeLedger = find(ledgersOverview.ledgers, { id: ledgerIdParam });
   }
@@ -127,11 +125,11 @@ export default function LedgersOverview() {
 
 // 'Fake' ledger we can use as the active ledger to indicate
 // we should show recent lines instead.
-const RECENT_LINES_LEDGER = { id: 0 };
+const RECENT_LINES_LEDGER = { id: 0 } as Ledger;
 
 interface LedgerSelectProps {
-  activeLedger: any;
-  ledgers: any[];
+  activeLedger: Ledger;
+  ledgers: Ledger[];
   onLedgerSelected: (ledgerId: number) => void;
 }
 
@@ -164,7 +162,7 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectP
         >
           {t("payments.recent_ledger_lines")}
         </Dropdown.Item>
-        {ledgers.map((led: any) => (
+        {ledgers.map((led) => (
           <Dropdown.Item
             key={led.id}
             as={Stack}
@@ -213,7 +211,7 @@ function LedgerLinesTable({
   lines,
   linesLoading,
 }: {
-  lines: any[];
+  lines: LedgerLine[];
   linesLoading?: boolean;
 }) {
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
@@ -230,7 +228,7 @@ function LedgerLinesTable({
         )}
       >
         <tbody>
-          {lines.map((line: any) => (
+          {lines.map((line) => (
             <tr key={line.id}>
               <td className="pt-3 pb-3">
                 <div className="d-flex justify-content-between align-items-center gap-3 mb-1">

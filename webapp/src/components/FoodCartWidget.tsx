@@ -16,7 +16,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 
 interface FoodCartWidgetProps {
-  product: any;
+  product: PricedOfferingProduct;
   size?: "sm" | "lg";
   onQuantityChange?: (q: number) => void;
 }
@@ -33,10 +33,7 @@ export default function FoodCartWidget({
 
   const changeAbortController = React.useRef(new AbortController());
   const [quantity, setQuantity] = React.useState(() => {
-    const item = find(
-      cart.items,
-      ({ productId }: any) => productId === product.productId
-    );
+    const item = find(cart.items, ({ productId }) => productId === product.productId);
     return item?.quantity || 0;
   });
   const handleQuantityChange = (q: number) => {

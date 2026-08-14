@@ -102,7 +102,7 @@ function LanguageButtons({ className }: { className?: string }) {
   }
   return (
     <ButtonGroup vertical className={clsx("nav-lang-btn-group", className)}>
-      {supportedLocales.items.map(({ code, native }: any) => (
+      {supportedLocales.items.map(({ code, native }) => (
         <Button
           key={code}
           variant="outline-primary"

@@ -22,14 +22,16 @@ import Modal from "react-bootstrap/Modal";
 import Stack from "react-bootstrap/Stack";
 
 export default function UnclaimedOrderList() {
-  const [claimedOrder, setClaimedOrder] = React.useState<any>({});
+  const [claimedOrder, setClaimedOrder] = React.useState<
+    DetailedOrderHistory | Record<string, never>
+  >({});
   const {
     state: unclaimedOrders,
     replaceState,
     loading,
     error,
-  } = useAsyncFetch<any>(api.getUnclaimedOrderHistory, {
-    default: {},
+  } = useAsyncFetch<UnclaimedOrderCollection>(api.getUnclaimedOrderHistory, {
+    default: {} as UnclaimedOrderCollection,
     pickData: true,
   });
 
@@ -40,10 +42,11 @@ export default function UnclaimedOrderList() {
       </LayoutContainer>
     );
   }
-  const handleOrderClaim = (o: any) => {
+  const handleOrderClaim = (o: DetailedOrderHistory) => {
     setClaimedOrder(o);
     replaceState({
-      items: unclaimedOrders.items.filter((order: any) => order.id !== o.id),
+      ...unclaimedOrders,
+      items: unclaimedOrders.items.filter((order) => order.id !== o.id),
     });
   };
   const { items } = unclaimedOrders;
@@ -61,10 +64,10 @@ export default function UnclaimedOrderList() {
           <>
             {!isEmpty(items) && (
               <Stack gap={3}>
-                {items.map((o: any) => (
+                {items.map((o) => (
                   <Card key={o.id} className="p-0">
                     <Card.Body className="px-2 pb-4">
-                      <OrderDetail order={o} setOrder={(o: any) => handleOrderClaim(o)} />
+                      <OrderDetail order={o} setOrder={(o) => handleOrderClaim(o)} />
                     </Card.Body>
                   </Card>
                 ))}
@@ -99,7 +102,7 @@ function ClaimedOrderModal({
   claimedOrder,
   onHide,
 }: {
-  claimedOrder: any;
+  claimedOrder: DetailedOrderHistory | Record<string, never>;
   onHide: () => void;
 }) {
   return (
@@ -120,29 +123,31 @@ function ClaimedOrderModal({
             })}
           </p>
           <Stack gap={3}>
-            {claimedOrder?.items?.map(({ image, name, customerPrice, quantity }: any) => (
-              <Card key={name}>
-                <Card.Body>
-                  <Stack direction="horizontal" gap={3} className="align-items-start">
-                    <SumaImage
-                      image={image}
-                      width={80}
-                      height={80}
-                      className="border rounded"
-                    />
-                    <div className="text-align-start">
-                      <div className="lead">{name}</div>
-                      <Badge bg="secondary" className="fs-6">
-                        {t("food.price_times_quantity", {
-                          price: customerPrice,
-                          quantity,
-                        })}
-                      </Badge>
-                    </div>
-                  </Stack>
-                </Card.Body>
-              </Card>
-            ))}
+            {(claimedOrder as DetailedOrderHistory)?.items?.map(
+              ({ image, name, customerPrice, quantity }) => (
+                <Card key={name}>
+                  <Card.Body>
+                    <Stack direction="horizontal" gap={3} className="align-items-start">
+                      <SumaImage
+                        image={image}
+                        width={80}
+                        height={80}
+                        className="border rounded"
+                      />
+                      <div className="text-align-start">
+                        <div className="lead">{name}</div>
+                        <Badge bg="secondary" className="fs-6">
+                          {t("food.price_times_quantity", {
+                            price: customerPrice,
+                            quantity,
+                          })}
+                        </Badge>
+                      </div>
+                    </Stack>
+                  </Card.Body>
+                </Card>
+              )
+            )}
           </Stack>
           <div className="mt-2">
             <FormButtons

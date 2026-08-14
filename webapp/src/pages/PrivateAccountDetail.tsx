@@ -43,8 +43,8 @@ export default function PrivateAccountDetail() {
     state: account,
     loading: accountLoading,
     error: accountError,
-  } = useAsyncFetch<any>(makeRequest, {
-    default: {},
+  } = useAsyncFetch<AnonProxyVendorAccount>(makeRequest, {
+    default: {} as AnonProxyVendorAccount,
     pickData: true,
   });
   const [view, setView] = React.useState(VIEW_STEPS);
@@ -217,7 +217,8 @@ function LinkView({
   const pollingController = React.useRef(new AbortController());
   const [buttonStatus, setButtonStatus] = React.useState(LINKBTN_INITIAL);
   const [error, setError] = useError(null);
-  const [pollingSuccessResponse, setPollingSuccessResponse] = React.useState<any>(null);
+  const [pollingSuccessResponse, setPollingSuccessResponse] =
+    React.useState<AnonProxyVendorAccountPollResult | null>(null);
 
   useUnmountEffect(() => {
     pollingController.current.abort();

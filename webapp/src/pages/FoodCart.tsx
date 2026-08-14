@@ -44,8 +44,8 @@ export default function FoodCart() {
       .then((d: any) => navigate(`/checkout/${d.id}`, { state: { checkout: d } }))
       .catch((e: any) => showErrorToast(e, { extract: true }));
   }
-  const productsById = Object.fromEntries(products.map((p: any) => [p.productId, p]));
-  const vendorsById = Object.fromEntries(vendors.map((v: any) => [v.id, v]));
+  const productsById = Object.fromEntries(products.map((p) => [p.productId, p]));
+  const vendorsById = Object.fromEntries(vendors.map((v) => [v.id, v]));
   const { items } = cart;
   return (
     <>
@@ -60,7 +60,7 @@ export default function FoodCart() {
       <LayoutContainer gutters>
         {!isEmpty(items) ? (
           <Stack gap={4}>
-            {items.map((item: any) => {
+            {items.map((item) => {
               const product = productsById[item.productId];
               const vendor = vendorsById[product.vendor.id];
               return (
@@ -119,8 +119,8 @@ export default function FoodCart() {
 
 interface CartItemProps {
   offeringId?: string;
-  product: any;
-  vendor: any;
+  product: PricedOfferingProduct;
+  vendor: Vendor;
 }
 
 function CartItem({ offeringId, product, vendor }: CartItemProps) {

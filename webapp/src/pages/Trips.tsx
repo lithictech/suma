@@ -13,13 +13,20 @@ import React from "react";
 import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
+interface WeekSpec {
+  beginAt: string;
+  endAt: string;
+  beginIndex: number;
+  endIndex: number;
+}
+
 export default function Trips() {
   const {
     state: trips,
     loading: tripsLoading,
     error: tripsError,
-  } = useAsyncFetch<any>(api.getMobilityTrips, {
-    default: {},
+  } = useAsyncFetch<MobilityTripCollection>(api.getMobilityTrips, {
+    default: {} as MobilityTripCollection,
     pickData: true,
   });
 
@@ -44,7 +51,7 @@ export default function Trips() {
       ) : (
         <LayoutContainer className="px-0">
           <Stack>
-            {trips.weeks.map((w: any) => (
+            {(trips.weeks as WeekSpec[]).map((w) => (
               <React.Fragment key={w.beginAt}>
                 <div className="trips-week-divider" />
                 <Week items={trips.items} {...w}></Week>
@@ -57,12 +64,8 @@ export default function Trips() {
   );
 }
 
-interface WeekProps {
-  items: any[];
-  beginAt: string;
-  endAt: string;
-  beginIndex: number;
-  endIndex: number;
+interface WeekProps extends WeekSpec {
+  items: MobilityTrip[];
 }
 
 function Week({ items, beginAt, endAt, beginIndex, endIndex }: WeekProps) {
@@ -82,7 +85,7 @@ function Week({ items, beginAt, endAt, beginIndex, endIndex }: WeekProps) {
   );
 }
 
-function Trip({ trip }: { trip: any }) {
+function Trip({ trip }: { trip: MobilityTrip }) {
   const { marshalToUrl } = useUrlMarshal();
   const { id, vehicleType, provider, beganAt, charge } = trip;
   return (

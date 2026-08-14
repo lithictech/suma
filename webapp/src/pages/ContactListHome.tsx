@@ -35,7 +35,7 @@ function LanguageButtons({ eventName }: { eventName: string | null }) {
   if (!supportedLocales.items) {
     return null;
   }
-  return supportedLocales.items.map(({ code, native }: any) => (
+  return supportedLocales.items.map(({ code, native }) => (
     <Button
       key={code}
       as={RLink}

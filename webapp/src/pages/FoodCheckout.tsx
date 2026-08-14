@@ -59,8 +59,8 @@ export default function FoodCheckout() {
     state: fetchedCheckout,
     loading,
     error,
-  } = useAsyncFetch<any>(getCheckout, {
-    default: {},
+  } = useAsyncFetch<Checkout>(getCheckout, {
+    default: {} as Checkout,
     pickData: true,
     pullFromState: "checkout",
     location,
@@ -76,10 +76,10 @@ export default function FoodCheckout() {
   );
 
   const [checkoutMutations, setCheckoutMutations] = React.useState({});
-  const checkout = merge({}, fetchedCheckout, checkoutMutations);
+  const checkout: Checkout = merge({}, fetchedCheckout, checkoutMutations);
 
   const [manuallySelectedInstrument, setManuallySelectedInstrument] =
-    React.useState<any>(null);
+    React.useState<PaymentInstrument | null>(null);
   const instrumentFromUrl = find(checkout.availablePaymentInstruments, {
     id: Number(searchParams.get("instrumentId")),
     paymentMethodType: searchParams.get("instrumentType"),
@@ -129,7 +129,7 @@ export default function FoodCheckout() {
               <CheckoutPayment
                 checkout={checkout}
                 selectedInstrument={chosenInstrument}
-                onSelectedInstrumentChange={(pi: any) =>
+                onSelectedInstrumentChange={(pi: PaymentInstrument) =>
                   runSetter("paymentOption", setManuallySelectedInstrument, pi)
                 }
                 register={register}
@@ -174,9 +174,9 @@ export default function FoodCheckout() {
 }
 
 interface CheckoutPaymentProps {
-  checkout: any;
-  selectedInstrument: any;
-  onSelectedInstrumentChange: (pi: any) => void;
+  checkout: Checkout;
+  selectedInstrument?: PaymentInstrument | null;
+  onSelectedInstrumentChange: (pi: PaymentInstrument) => void;
   register: (name: string, options?: any) => any;
   errors: any;
 }
@@ -216,11 +216,11 @@ function CheckoutPayment({
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const instrumentKey = e.target.value;
     const instrument = checkout.availablePaymentInstruments.find(
-      (pi: any) => pi.key === instrumentKey
+      (pi) => pi.key === instrumentKey
     );
-    onSelectedInstrumentChange(instrument);
+    onSelectedInstrumentChange(instrument as PaymentInstrument);
   }
-  const inputs = checkout.availablePaymentInstruments.map((pi: any) => ({
+  const inputs = checkout.availablePaymentInstruments.map((pi) => ({
     id: pi.key,
     label: <PaymentLabel {...pi} />,
   }));
@@ -229,8 +229,8 @@ function CheckoutPayment({
       <h5>{t("food.payment_title")}</h5>
       <Stack gap={2}>
         {checkout.unavailablePaymentInstruments
-          .filter((pi: any) => pi.status === "expired")
-          .map((pi: any) => (
+          .filter((pi) => pi.status === "expired")
+          .map((pi) => (
             <Stack key={pi.id} direction="horizontal" className="opacity-50">
               <PaymentLabel {...pi} />
             </Stack>
@@ -267,12 +267,7 @@ function CheckoutPayment({
   );
 }
 
-interface PaymentLabelProps {
-  institution: any;
-  last4: string;
-  name: string;
-  status?: string;
-}
+type PaymentLabelProps = PaymentInstrument;
 
 function PaymentLabel({ institution, last4, name, status }: PaymentLabelProps) {
   name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
@@ -296,7 +291,7 @@ function PaymentLabel({ institution, last4, name, status }: PaymentLabelProps) {
 }
 
 interface CheckoutFulfillmentProps {
-  checkout: any;
+  checkout: Checkout;
   onCheckoutChange: (attrs: any) => void;
   register: (name: string, options?: any) => any;
   errors: any;
@@ -322,8 +317,8 @@ function CheckoutFulfillment({
       api.updateCheckoutFulfillment({ checkoutId: checkout.id, optionId: id })
     );
   };
-  const inputs = checkout.availableFulfillmentOptions.map((fo: any) => ({
-    id: fo.id,
+  const inputs = checkout.availableFulfillmentOptions.map((fo) => ({
+    id: String(fo.id),
     label: <FulfillmentOptionLabel {...fo} />,
   }));
   return (
@@ -337,7 +332,7 @@ function CheckoutFulfillment({
       <FormRadioInputs
         inputs={inputs}
         name="fulfillmentOption"
-        selected={checkout.fulfillmentOptionId}
+        selected={String(checkout.fulfillmentOptionId)}
         register={register}
         errors={errors}
         required
@@ -370,11 +365,11 @@ function FulfillmentOptionLabel({
   );
 }
 
-function CheckoutItems({ checkout }: { checkout: any }) {
+function CheckoutItems({ checkout }: { checkout: Checkout }) {
   return (
     <>
       <h5>{t("food.checkout_items_title")}</h5>
-      {checkout.items?.map((it: any, idx: number) => {
+      {checkout.items?.map((it, idx: number) => {
         return (
           <React.Fragment key={it.product.productId}>
             {idx > 0 && <hr className="my-3" />}
@@ -393,7 +388,7 @@ function CheckoutItems({ checkout }: { checkout: any }) {
 }
 
 interface OrderSummaryProps {
-  checkout: any;
+  checkout: Checkout;
   chosenInstrument: any;
   formState: any;
 }
@@ -426,7 +421,7 @@ function OrderSummary({ checkout, chosenInstrument, formState }: OrderSummaryPro
           price={checkout.taxableCost}
         />
         <SummaryLine label={t("food.labels.tax")} price={checkout.tax} />
-        {checkout.existingFundsAvailable.map(({ amount, name }: any) => (
+        {checkout.existingFundsAvailable.map(({ amount, name }) => (
           <SummaryLine key={name} label={name} price={amount} subtract credit />
         ))}
         <hr className="mt-1 mb-2" />
@@ -494,7 +489,7 @@ function SummaryLine({ label, price, subtract, className, credit }: SummaryLineP
   );
 }
 
-function CheckoutItem({ item }: { item: any }) {
+function CheckoutItem({ item }: { item: CheckoutItem }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">

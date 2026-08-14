@@ -13,24 +13,37 @@ import DrawerContents from "./DrawerContents";
 import DrawerTitle from "./DrawerTitle";
 import MicromobilityRate from "./MicromobilityRate";
 import PreTrip from "./PreTrip";
-import Trip from "./Trip";
+import Trip, { MapLocation } from "./Trip";
 import React from "react";
+
+interface SelectedMapVehicle {
+  loc: any;
+  provider: MobilityMapProvider;
+  disambiguator: any;
+  type: any;
+}
 
 export default function Map() {
   const { appNav, topNav } = useGlobalViewState();
   const mapRef = React.useRef<HTMLDivElement>(null);
   const { user, handleUpdateCurrentMember } = useUser();
   const [loadedMap, setLoadedMap] = React.useState<MapBuilder | null>(null);
-  const [selectedMapVehicle, setSelectedMapVehicle] = React.useState<any>(null);
-  const [loadedVehicle, setLoadedVehicle] = React.useState<any>(null);
-  const [lastMarkerLocation, setLastMarkerLocation] = React.useState<any>(null);
-  const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
+  const [selectedMapVehicle, setSelectedMapVehicle] =
+    React.useState<SelectedMapVehicle | null>(null);
+  const [loadedVehicle, setLoadedVehicle] =
+    React.useState<MobilityDetailedVehicle | null>(null);
+  const [lastMarkerLocation, setLastMarkerLocation] = React.useState<MapLocation | null>(
+    null
+  );
+  const [ongoingTrip, setOngoingTrip] = React.useState<MobilityTrip | null>(
+    user.ongoingTrip
+  );
   const [reserveError, setReserveError] = useError();
   const [locationPermissionsError, setLocationPermissionsError] = useError("");
   const [error, setError] = useError();
 
   const handleVehicleClick = React.useCallback(
-    (mapVehicle: any) => {
+    (mapVehicle: SelectedMapVehicle | null) => {
       setError(null);
       setReserveError(null);
       setSelectedMapVehicle(mapVehicle);
@@ -61,7 +74,7 @@ export default function Map() {
 
   const handleVehicleRemove = React.useCallback(() => setSelectedMapVehicle(null), []);
   const handleLocationFound = React.useCallback(
-    (lastLocation: any) => setLastMarkerLocation(lastLocation),
+    (lastLocation: MapLocation) => setLastMarkerLocation(lastLocation),
     []
   );
 
@@ -109,7 +122,7 @@ export default function Map() {
   );
 
   const handleReserve = React.useCallback(
-    (vehicle: any) => {
+    (vehicle: MobilityDetailedVehicle) => {
       api
         .beginMobilityTrip({
           providerId: vehicle.vendorService.id,
@@ -259,10 +272,16 @@ function defaultDrawerContents() {
   );
 }
 
+interface UserAgentInfo {
+  device: string;
+  isIos: any;
+  isAndroid: any;
+}
+
 /**
  * Returns browser location permissions instructions url if found or null.
  */
-function getLocationPermissionsInstructionsUrl(browser: any): string | null {
+function getLocationPermissionsInstructionsUrl(browser: UserAgentInfo): string | null {
   const device = browser.device.toLowerCase();
   if (device === "chrome") {
     // Using chrome in ios/android/desktop

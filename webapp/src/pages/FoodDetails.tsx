@@ -32,8 +32,8 @@ export default function FoodDetails() {
     initializeToOffering(offeringId);
   }, [initializeToOffering, offeringId]);
 
-  const product = find(products, (p: any) => p.productId === productId);
-  const item = find(cart.items, (item: any) => item.productId === productId);
+  const product = find(products, (p) => p.productId === productId);
+  const item = find(cart.items, (item) => item.productId === productId);
 
   React.useEffect(() => {
     if (!item) {
@@ -66,7 +66,7 @@ export default function FoodDetails() {
     );
   }
 
-  const vendor = find(vendors, (v: any) => v.id === product.vendor.id);
+  const vendor = find(vendors, (v) => v.id === product.vendor.id);
   const title = makeTitle(product.name, vendor.name, t("food.title"));
   return (
     <PageLayout

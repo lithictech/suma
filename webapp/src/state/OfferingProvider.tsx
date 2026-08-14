@@ -4,12 +4,12 @@ import React from "react";
 
 interface OfferingContextValue {
   initializeToOffering: (offeringId: any) => void;
-  offering: any;
+  offering: Offering;
   setOfferingFromResponse: (data: any) => void;
-  vendors: any[];
-  products: any[];
-  listableProducts: any[];
-  cart: any;
+  vendors: Vendor[];
+  products: PricedOfferingProduct[];
+  listableProducts: PricedOfferingProduct[];
+  cart: Cart;
   loading: boolean;
   error: any;
   reset: () => void;
@@ -22,21 +22,21 @@ export const OfferingContext = React.createContext<OfferingContextValue>(
 const NOOP = Symbol("noop");
 
 export default function OfferingProvider({ children }: { children: React.ReactNode }) {
-  const [offering, setOfferingInner] = React.useState<any>({});
-  const [vendors, setVendorsInner] = React.useState<any[]>([]);
+  const [offering, setOfferingInner] = React.useState<Offering>({} as Offering);
+  const [vendors, setVendorsInner] = React.useState<Vendor[]>([]);
   // Do not store things in local storage here:
   // because carts depend on everything else being loaded,
   // saving just the cart causes errors.
-  const [cart, setCartInner] = React.useState<any>({ items: [] });
-  const [products, setProductsInner] = React.useState<any[]>([]);
+  const [cart, setCartInner] = React.useState<Cart>({ items: [] } as unknown as Cart);
+  const [products, setProductsInner] = React.useState<PricedOfferingProduct[]>([]);
 
   const reset = React.useCallback(() => {
-    setOfferingInner({});
+    setOfferingInner({} as Offering);
     setVendorsInner([]);
     // Do not store things in local storage here:
     // because carts depend on everything else being loaded,
     // saving just the cart causes errors.
-    setCartInner({ items: [] });
+    setCartInner({ items: [] } as unknown as Cart);
     setProductsInner([]);
   }, []);
 

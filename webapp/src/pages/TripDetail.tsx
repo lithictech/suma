@@ -12,9 +12,9 @@ import Stack from "react-bootstrap/Stack";
 
 export default function TripDetail() {
   const { unmarshalFromUrl } = useUrlMarshal();
-  let trip;
+  let trip: MobilityTrip;
   try {
-    trip = unmarshalFromUrl("trip", window.location.href);
+    trip = unmarshalFromUrl("trip", window.location.href) as MobilityTrip;
   } catch (e) {
     return (
       <LayoutContainer top>
@@ -67,7 +67,7 @@ export default function TripDetail() {
       <div className="trips-week-divider" />
       <Stack direction="vertical" gap={3} className="p-3">
         <h4>{t("trips.payment")}</h4>
-        {charge.lineItems.map(({ memo, amount }: any) => (
+        {charge.lineItems.map(({ memo, amount }) => (
           <Stack key={memo} direction="horizontal" className="justify-content-between">
             <div>{memo}</div>
             <Money>{amount}</Money>

@@ -2,6 +2,7 @@ import useValidationError from "../state/useValidationError";
 import FormText from "./FormText";
 import React from "react";
 import Form from "react-bootstrap/Form";
+import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface FormRadioInputsProps {
   /** List of objects with id and label props of the radio inputs to render. The id will
@@ -20,9 +21,9 @@ interface FormRadioInputsProps {
   /** Adds react-hook-form validation */
   required?: boolean;
   /** The react-hook-form register function. */
-  register: (name: string, options?: any) => any;
+  register: UseFormRegister<FieldValues>;
   /** Something like `formState: { errors }` from react-hook-form. */
-  errors?: any;
+  errors?: FieldErrors;
   [rest: string]: any;
 }
 

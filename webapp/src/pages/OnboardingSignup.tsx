@@ -16,6 +16,16 @@ import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
+interface SupportedGeography {
+  label: string;
+  value: string;
+}
+
+interface SupportedGeographies {
+  countries?: SupportedGeography[];
+  provinces?: SupportedGeography[];
+}
+
 export default function OnboardingSignup() {
   const navigate = useNavigate();
   const { setUser, registrationSession } = useUser();
@@ -79,7 +89,7 @@ export default function OnboardingSignup() {
     runSetter(e.target.name, setZipCode, v);
   };
 
-  const { state: supportedGeographies } = useAsyncFetch<any>(
+  const { state: supportedGeographies } = useAsyncFetch<SupportedGeographies>(
     api.getSupportedGeographies,
     {
       default: {},
@@ -163,7 +173,7 @@ export default function OnboardingSignup() {
             <option disabled value="">
               {t("forms.choose_state")}
             </option>
-            {supportedGeographies.provinces?.map((state: any) => (
+            {supportedGeographies.provinces?.map((state) => (
               <option key={state.value} value={state.value}>
                 {state.label}
               </option>

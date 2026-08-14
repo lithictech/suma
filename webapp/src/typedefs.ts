@@ -1,6 +1,14 @@
 // Auto-generated typedefs from Grape::Entity
 // Generated: 2026-08-11 15:39:14
 // Entities: Money, Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::LedgerEntity, Suma::API::Entities::LedgerLineEntity, Suma::API::Entities::LedgerLineUsageDetailsEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::ProgramEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity
+//
+// NOTE: The generator (lib/suma/service/typewriter.rb) emits the referenced entity's bare
+// type for any `expose :x, with: SomeEntity` field, even when `x` is actually a collection
+// (Grape::Entity detects array-ness at serialization time, which the generator can't see
+// statically). The array annotations below (marked "manually corrected") were hand-fixed
+// by cross-referencing the `with:`/`using:` exposures in lib/suma/api/*.rb against actual
+// array usage in the webapp. Re-running the generator will clobber these fixes; the real
+// fix belongs in typewriter.rb (e.g. tracking `is_array` on the exposure).
 
 declare global {
   /** Auto-generated from Money */
@@ -53,13 +61,15 @@ declare global {
     offeringId: number;
     productId: number;
     vendor: Vendor;
-    images: Image;
+    /** manually corrected: array (with: ImageEntity) */
+    images: Image[];
   }
 
   /** Auto-generated from Suma::API::Commerce::CartEntity */
   interface Cart {
     cartHash: any;
-    items: CartItem;
+    /** manually corrected: array (with: CartItemEntity) */
+    items: CartItem[];
     customerCost: Money;
     noncashLedgerContributionAmount: Money;
     cashCost: Money;
@@ -81,7 +91,8 @@ declare global {
   /** Auto-generated from Suma::API::Commerce::CheckoutConfirmationEntity */
   interface CheckoutConfirmation {
     id: number;
-    items: CheckoutConfirmationItem;
+    /** manually corrected: array (with: CheckoutConfirmationItemEntity) */
+    items: CheckoutConfirmationItem[];
     offering: Offering;
     fulfillmentOption: FulfillmentOption;
   }
@@ -99,19 +110,24 @@ declare global {
     offeringId: number;
     productId: number;
     vendor: Vendor;
-    images: Image;
+    /** manually corrected: array (with: ImageEntity) */
+    images: Image[];
   }
 
   /** Auto-generated from Suma::API::Commerce::CheckoutEntity */
   interface Checkout {
     id: number;
-    items: CheckoutItem;
+    /** manually corrected: array (with: CheckoutItemEntity) */
+    items: CheckoutItem[];
     offering: Offering;
     fulfillmentOptionId: number;
-    availableFulfillmentOptions: FulfillmentOption;
+    /** manually corrected: array (with: FulfillmentOptionEntity) */
+    availableFulfillmentOptions: FulfillmentOption[];
     paymentInstrument: PaymentInstrument;
-    availablePaymentInstruments: PaymentInstrument;
-    unavailablePaymentInstruments: PaymentInstrument;
+    /** manually corrected: array (with: PaymentInstrumentEntity) */
+    availablePaymentInstruments: PaymentInstrument[];
+    /** manually corrected: array (with: PaymentInstrumentEntity) */
+    unavailablePaymentInstruments: PaymentInstrument[];
     customerCost: Money;
     undiscountedCost: Money;
     savings: Money;
@@ -122,7 +138,8 @@ declare global {
     chargeableTotal: Money;
     requiresPaymentInstrument: any;
     checkoutProhibitedReason: string;
-    existingFundsAvailable: ChargeContribution;
+    /** manually corrected: array (with: ChargeContributionEntity) */
+    existingFundsAvailable: ChargeContribution[];
   }
 
   /** Auto-generated from Suma::API::Commerce::CheckoutItemEntity */
@@ -138,7 +155,8 @@ declare global {
     offeringId: number;
     productId: number;
     vendor: Vendor;
-    images: Image;
+    /** manually corrected: array (with: ImageEntity) */
+    images: Image[];
     listable: any;
     maxQuantity: number;
     outOfStock: any;
@@ -161,12 +179,14 @@ declare global {
     total: Money;
     image: Image;
     availableForPickupAt: string;
-    items: OrderHistoryItem;
+    /** manually corrected: array (with: OrderHistoryItemEntity) */
+    items: OrderHistoryItem[];
     offeringId: number;
     offeringDescription: string;
     fulfillmentConfirmation: any;
     fulfillmentOption: FulfillmentOption;
-    fulfillmentOptionsForEditing: FulfillmentOption;
+    /** manually corrected: array (with: FulfillmentOptionEntity) */
+    fulfillmentOptionsForEditing: FulfillmentOption[];
     fulfillmentOptionEditable: any;
     orderStatus: string;
     canClaim: boolean;
@@ -176,7 +196,8 @@ declare global {
     handling: Money;
     taxableCost: Money;
     tax: Money;
-    fundingTransactions: OrderHistoryFundingTransaction;
+    /** manually corrected: array (with: OrderHistoryFundingTransactionEntity) */
+    fundingTransactions: OrderHistoryFundingTransaction[];
   }
 
   /** Auto-generated from Suma::API::Commerce::FulfillmentOptionAddressEntity */
@@ -206,8 +227,10 @@ declare global {
   /** Auto-generated from Suma::API::Commerce::OfferingWithContextEntity */
   interface OfferingWithContext {
     offering: Offering;
-    items: any;
-    vendors: Vendor;
+    /** manually corrected: array of PricedOfferingProduct (block-exposed, no entity reference to infer from) */
+    items: PricedOfferingProduct[];
+    /** manually corrected: array (with: VendorEntity) */
+    vendors: Vendor[];
     cart: Cart;
   }
 
@@ -219,8 +242,10 @@ declare global {
     totalCount: number;
     hasMore: boolean;
     url: string;
-    items: SimpleOrderHistory;
-    detailedOrders: DetailedOrderHistory;
+    /** manually corrected: array (with: SimpleOrderHistoryEntity) */
+    items: SimpleOrderHistory[];
+    /** manually corrected: array (with: DetailedOrderHistoryEntity) */
+    detailedOrders: DetailedOrderHistory[];
   }
 
   /** Auto-generated from Suma::API::Commerce::OrderHistoryFundingTransactionEntity */
@@ -245,7 +270,8 @@ declare global {
     offeringId: number;
     productId: number;
     vendor: Vendor;
-    images: Image;
+    /** manually corrected: array (with: ImageEntity) */
+    images: Image[];
     listable: any;
     maxQuantity: number;
     outOfStock: any;
@@ -278,7 +304,8 @@ declare global {
     totalCount: number;
     hasMore: boolean;
     url: string;
-    items: DetailedOrderHistory;
+    /** manually corrected: array (with: DetailedOrderHistoryEntity) */
+    items: DetailedOrderHistory[];
   }
 
   /** Auto-generated from Suma::API::Commerce::VendorEntity */
@@ -314,7 +341,8 @@ declare global {
     ongoingTrip: MobilityTrip;
     readOnlyMode: any;
     readOnlyReason: string;
-    paymentInstruments: PaymentInstrument;
+    /** manually corrected: array (with: PaymentInstrumentEntity) */
+    paymentInstruments: PaymentInstrument[];
     adminMember: CurrentMember;
     showPrivateAccounts: any;
     preferences: MemberPreferences;
@@ -345,7 +373,8 @@ declare global {
     at: string;
     memo: any;
     amount: Money;
-    usageDetails: LedgerLineUsageDetails;
+    /** manually corrected: array (with: LedgerLineUsageDetailsEntity) */
+    usageDetails: LedgerLineUsageDetails[];
   }
 
   /** Auto-generated from Suma::API::Entities::LedgerLineUsageDetailsEntity */
@@ -363,7 +392,8 @@ declare global {
 
   /** Auto-generated from Suma::API::Entities::MemberPreferencesEntity */
   interface MemberPreferences {
-    subscriptions: PreferencesSubscription;
+    /** manually corrected: array (with: PreferencesSubscriptionEntity) */
+    subscriptions: PreferencesSubscription[];
   }
 
   /** Auto-generated from Suma::API::Entities::MobilityChargeEntity */
@@ -371,7 +401,8 @@ declare global {
     undiscountedCost: Money;
     customerCost: Money;
     savings: Money;
-    lineItems: MobilityChargeLineItem;
+    /** manually corrected: array (with: MobilityChargeLineItemEntity) */
+    lineItems: MobilityChargeLineItem[];
   }
 
   /** Auto-generated from Suma::API::Entities::MobilityChargeLineItemEntity */
@@ -453,7 +484,8 @@ declare global {
     totalCount: number;
     hasMore: boolean;
     url: string;
-    items: LedgerLine;
+    /** manually corrected: array (with: LedgerLineEntity) */
+    items: LedgerLine[];
     ledgerId: number;
   }
 
@@ -461,8 +493,10 @@ declare global {
   interface LedgersView {
     totalBalance: Money;
     lifetimeSavings: Money;
-    ledgers: Ledger;
-    recentLines: LedgerLine;
+    /** manually corrected: array (with: LedgerEntity) */
+    ledgers: Ledger[];
+    /** manually corrected: array (with: LedgerLineEntity) */
+    recentLines: LedgerLine[];
   }
 
   /** Auto-generated from Suma::API::Me::DashboardAlertEntity */
@@ -475,8 +509,10 @@ declare global {
   /** Auto-generated from Suma::API::Me::DashboardEntity */
   interface Dashboard {
     cashBalance: Money;
-    programs: Program;
-    alerts: DashboardAlert;
+    /** manually corrected: array (with: ProgramEntity) */
+    programs: Program[];
+    /** manually corrected: array (with: DashboardAlertEntity) */
+    alerts: DashboardAlert[];
   }
 
   /** Auto-generated from Suma::API::Me::ProgramEntity */
@@ -507,14 +543,16 @@ declare global {
   interface MobilityMap {
     precision: any;
     refresh: any;
-    providers: MobilityMapProvider;
+    /** manually corrected: array (with: MobilityMapProviderEntity) */
+    providers: MobilityMapProvider[];
     escooter: MobilityMapVehicle;
     ebike: MobilityMapVehicle;
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapFeaturesEntity */
   interface MobilityMapFeatures {
-    restrictions: MobilityMapRestriction;
+    /** manually corrected: array (with: MobilityMapRestrictionEntity) */
+    restrictions: MobilityMapRestriction[];
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapProviderEntity */
@@ -551,7 +589,8 @@ declare global {
     totalCount: number;
     hasMore: boolean;
     url: string;
-    items: MobilityTrip;
+    /** manually corrected: array (with: MobilityTripEntity) */
+    items: MobilityTrip[];
     ongoing: MobilityTrip;
     weeks: any;
   }
@@ -585,7 +624,8 @@ declare global {
     name: string;
     last4: string;
     key: string;
-    allPaymentInstruments: PaymentInstrument;
+    /** manually corrected: array (with: PaymentInstrumentEntity) */
+    allPaymentInstruments: PaymentInstrument[];
   }
 
   /** Auto-generated from Suma::API::Payments::FundingTransactionEntity */
@@ -599,7 +639,8 @@ declare global {
 
   /** Auto-generated from Suma::API::Preferences::PublicPrefsEntity */
   interface PublicPrefs {
-    subscriptions: PreferencesSubscription;
+    /** manually corrected: array (with: PreferencesSubscriptionEntity) */
+    subscriptions: PreferencesSubscription[];
   }
 
   /** Auto-generated from Suma::API::Preferences::PublicPrefsMemberEntity */

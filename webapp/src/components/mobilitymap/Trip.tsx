@@ -11,16 +11,20 @@ import PostTrip from "./PostTrip";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
+export interface MapLocation {
+  latlng: { lat: number; lng: number };
+}
+
 interface TripProps {
-  trip: any;
+  trip: MobilityTrip;
   onCloseTrip: () => void;
   onEndTrip: () => void;
-  lastLocation: any;
+  lastLocation: MapLocation;
 }
 
 export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }: TripProps) {
   const { handleUpdateCurrentMember } = useUser();
-  const [endTrip, setEndTrip] = React.useState<any>(null);
+  const [endTrip, setEndTrip] = React.useState<MobilityTrip | null>(null);
   const [error, setError] = useError();
   if (!endTrip && !lastLocation) {
     return <DrawerLoading />;

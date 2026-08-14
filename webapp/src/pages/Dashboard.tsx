@@ -24,8 +24,8 @@ export default function Dashboard() {
     state: dashboard,
     loading: dashboardLoading,
     error: dashboardError,
-  } = useAsyncFetch<any>(api.dashboard, {
-    default: {},
+  } = useAsyncFetch<Dashboard>(api.dashboard, {
+    default: {} as Dashboard,
     pickData: true,
   });
   if (dashboardError) {
@@ -62,7 +62,7 @@ export default function Dashboard() {
       ) : (
         <LayoutContainer gutters>
           <Stack gap={3}>
-            {dashboard.programs.map((program: any) => (
+            {dashboard.programs.map((program) => (
               <ProgramCard key={program.name} {...program} />
             ))}
           </Stack>
@@ -72,7 +72,7 @@ export default function Dashboard() {
   );
 }
 
-function TopAlerts({ dashboard }: { dashboard: any }) {
+function TopAlerts({ dashboard }: { dashboard: Dashboard }) {
   const { user, registrationSession } = useUser();
   return (
     <>
@@ -118,7 +118,7 @@ function TopAlerts({ dashboard }: { dashboard: any }) {
           to="/unclaimed-orders"
         />
       )}
-      {dashboard?.alerts?.map(({ localizationKey, localizationParams, variant }: any) => (
+      {dashboard?.alerts?.map(({ localizationKey, localizationParams, variant }) => (
         <Alert
           key={localizationKey}
           variant={variant}

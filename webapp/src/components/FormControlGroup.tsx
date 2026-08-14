@@ -5,6 +5,7 @@ import isString from "lodash/isString";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface FormControlGroupProps {
   inputRef?: React.Ref<any>;
@@ -25,7 +26,7 @@ interface FormControlGroupProps {
   /** Applied to Input element. */
   inputClass?: string;
   /** The react-hook-form register function. */
-  register: (name: string, options?: any) => any;
+  register: UseFormRegister<FieldValues>;
   /**
    * Arguments passed to `register`.
    * Normally something like `{validate: (value) => value === otherValue}`,
@@ -33,7 +34,7 @@ interface FormControlGroupProps {
    */
   registerOptions?: Record<string, any>;
   /** Something like `formState: { errors }` from react-hook-form. */
-  errors?: any;
+  errors?: FieldErrors;
   /**
    * See useValidationError. Some default error messages for validations are supported;
    * if you need a custom message, you can pass in something like: `{min: "forms.invalid_min_amount"}`.

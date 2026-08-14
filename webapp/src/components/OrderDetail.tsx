@@ -21,8 +21,8 @@ import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 
 interface OrderDetailProps {
-  order: any;
-  setOrder: (order: any) => void;
+  order: DetailedOrderHistory;
+  setOrder: (order: DetailedOrderHistory) => void;
   gutters?: boolean;
 }
 
@@ -39,7 +39,7 @@ export default function OrderDetail({ order, setOrder, gutters }: OrderDetailPro
             id={order.id}
             canClaim={order.canClaim}
             offeringDescription={order.offeringDescription}
-            onOrderClaim={(o: any) => setOrder(o)}
+            onOrderClaim={(o) => setOrder(o)}
           />
           <p className="mb-0">
             {t("food.labels.price", { price: order.customerCost })}
@@ -52,7 +52,7 @@ export default function OrderDetail({ order, setOrder, gutters }: OrderDetailPro
             {t("food.labels.fees_and_taxes", { fees: order.handling, taxes: order.tax })}
             <br />
             {t("food.labels.total", { total: order.total })}
-            {order.fundingTransactions.map(({ label, amount }: any) => (
+            {order.fundingTransactions.map(({ label, amount }) => (
               <React.Fragment key={label}>
                 <br />
                 {label}: <Money>{amount}</Money>
@@ -87,7 +87,7 @@ export default function OrderDetail({ order, setOrder, gutters }: OrderDetailPro
             {t("food.labels.items_count", { itemCount: order.items.length })}
           </Card.Text>
           {order.items.map(
-            ({ name, description, customerPrice, quantity }: any, i: number) => (
+            ({ name, description, customerPrice, quantity }, i: number) => (
               <Stack
                 key={i}
                 className="justify-content-between align-items-start"
@@ -111,8 +111,8 @@ export default function OrderDetail({ order, setOrder, gutters }: OrderDetailPro
 }
 
 interface FulfillmentOptionProps {
-  order: any;
-  onOrderUpdated: (order: any) => void;
+  order: DetailedOrderHistory;
+  onOrderUpdated: (order: DetailedOrderHistory) => void;
 }
 
 function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
@@ -175,17 +175,17 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
       });
   }
   const chosenFulfillmentValid = order.fulfillmentOptionsForEditing.some(
-    ({ id }: any) => id === optionId
+    ({ id }) => id === optionId
   );
 
   return (
     <Form noValidate>
       <Form.Group>
         <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>
-        {order.fulfillmentOptionsForEditing.map((fo: any) => (
+        {order.fulfillmentOptionsForEditing.map((fo) => (
           <Form.Check
             key={fo.id}
-            id={fo.id}
+            id={String(fo.id)}
             name={fo.description}
             type="radio"
             label={fo.description}
@@ -208,7 +208,7 @@ interface PressAndHoldToClaimProps {
   id: number;
   canClaim: boolean;
   offeringDescription: string;
-  onOrderClaim: (order: any) => void;
+  onOrderClaim: (order: DetailedOrderHistory) => void;
 }
 
 function PressAndHoldToClaim({

@@ -24,17 +24,21 @@ import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 
+type LinkedBankAccount = Omit<SuccessProps, "returnTo">;
+
 export default function FundingLinkBankAccount() {
-  const [submitSuccessful, setSubmitSuccessful] = React.useState<any>({});
+  const [submitSuccessful, setSubmitSuccessful] = React.useState<
+    LinkedBankAccount | Record<string, never>
+  >({});
   const [params] = useSearchParams();
   const returnTo = params.get("returnTo");
   return (
     <>
       {!isEmpty(submitSuccessful) ? (
-        <Success {...submitSuccessful} returnTo={returnTo} />
+        <Success {...(submitSuccessful as LinkedBankAccount)} returnTo={returnTo} />
       ) : (
         <LinkBankAccount
-          onSuccess={(bankAccountData: any) =>
+          onSuccess={(bankAccountData: LinkedBankAccount) =>
             setSubmitSuccessful({ ...bankAccountData })
           }
           returnTo={returnTo}
@@ -73,7 +77,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
 }
 
 interface LinkBankAccountProps {
-  onSuccess: (bankAccountData: any) => void;
+  onSuccess: (bankAccountData: LinkedBankAccount) => void;
   returnTo: string | null;
 }
 

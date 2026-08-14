@@ -5,12 +5,13 @@ import FormControlGroup from "./FormControlGroup";
 import FormText from "./FormText";
 import React from "react";
 import Form from "react-bootstrap/Form";
+import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface OrganizationInputDropdownProps {
   organizationName: string;
   onOrganizationNameChange: (name: string) => void;
-  register: (name: string, options?: any) => any;
-  errors?: any;
+  register: UseFormRegister<FieldValues>;
+  errors?: FieldErrors;
 }
 
 export default function OrganizationInputDropdown({

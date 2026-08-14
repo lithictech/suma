@@ -34,21 +34,21 @@ export default function FundingAddFunds() {
     state: currenciesResp,
     loading: currenciesLoading,
     error: currenciesError,
-  } = useAsyncFetch<any>(api.getSupportedCurrencies, {
+  } = useAsyncFetch<{ items: Currency[] }>(api.getSupportedCurrencies, {
     default: { items: [] },
     pickData: true,
   });
-  const instrument: any =
+  const instrument: PaymentInstrument =
     find(user.paymentInstruments, {
       id: Number(params.get("id")),
       paymentMethodType: params.get("paymentMethodType"),
-    }) || {};
+    }) || ({} as PaymentInstrument);
   const screenLoader = useScreenLoader();
   // Once we have multiple currencies, we'll need to figure out how to select one
-  const validCurrencies = filter(currenciesResp.items, (c: any) =>
+  const validCurrencies = filter(currenciesResp.items, (c) =>
     includes(c.paymentMethodTypes, instrument.paymentMethodType)
   );
-  const selectedCurrency: any =
+  const selectedCurrency: Currency | undefined =
     find(validCurrencies, { code: selectedCurrencyCode }) || first(validCurrencies);
 
   const handleFormSubmit = (e: React.FormEvent) => {

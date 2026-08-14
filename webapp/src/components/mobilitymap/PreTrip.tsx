@@ -10,8 +10,8 @@ import Button from "react-bootstrap/Button";
 
 interface PreTripProps {
   loading?: boolean;
-  vehicle: any;
-  onReserve: (vehicle: any) => void;
+  vehicle: MobilityDetailedVehicle;
+  onReserve: (vehicle: MobilityDetailedVehicle) => void;
   reserveError?: any;
 }
 

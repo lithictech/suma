@@ -25,8 +25,8 @@ export default function FoodCheckoutConfirmation() {
     state: checkout,
     loading,
     error,
-  } = useAsyncFetch<any>(getCheckoutConfirmation, {
-    default: {},
+  } = useAsyncFetch<CheckoutConfirmation>(getCheckoutConfirmation, {
+    default: {} as CheckoutConfirmation,
     pickData: true,
     pullFromState: "checkout",
     location,
@@ -51,7 +51,7 @@ export default function FoodCheckoutConfirmation() {
       </div>
       <LayoutContainer gutters top>
         <h4 className="mb-3">{t("food.confirmation_my_order")}</h4>
-        {items.map((p: any, idx: number) => (
+        {items.map((p, idx: number) => (
           <Item key={idx} item={p} />
         ))}
         {user.unclaimedOrdersCount !== 0 && (
@@ -91,7 +91,7 @@ export default function FoodCheckoutConfirmation() {
   );
 }
 
-function Item({ item }: { item: any }) {
+function Item({ item }: { item: CheckoutConfirmationItem }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="mb-3 align-items-start">

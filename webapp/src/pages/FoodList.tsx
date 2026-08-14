@@ -99,7 +99,7 @@ export default function FoodList() {
           </>
         ) : (
           <Row>
-            {listableProducts.map((p: any) => (
+            {listableProducts.map((p) => (
               <Product
                 key={p.productId}
                 cart={cart}
@@ -115,9 +115,9 @@ export default function FoodList() {
 }
 
 interface ProductProps {
-  product: any;
+  product: PricedOfferingProduct;
   offeringId?: string;
-  cart: any;
+  cart: Cart;
 }
 
 function Product({ product, offeringId, cart }: ProductProps) {

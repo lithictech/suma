@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 interface CurrencyNumpadProps {
   onCentsChange: (cents: number) => void;
   whole: boolean;
-  currency: any;
+  currency: Currency;
   cents?: number;
 }
 
@@ -38,7 +38,7 @@ export default function CurrencyNumpad({
 
 interface NumpadProps {
   cents?: number;
-  currency: any;
+  currency: Currency;
   onNumberClick: (x: string | number) => void;
 }
 

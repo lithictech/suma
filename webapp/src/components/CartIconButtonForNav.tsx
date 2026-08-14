@@ -7,7 +7,7 @@ import React from "react";
  */
 export default function CartIconButtonForNav(props: {
   offeringId: number | string;
-  cart: any;
+  cart: Cart;
 }) {
   return (
     <div

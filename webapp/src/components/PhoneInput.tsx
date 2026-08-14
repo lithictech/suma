@@ -1,11 +1,12 @@
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import FormControlGroup from "./FormControlGroup";
 import React from "react";
+import { FieldValues, UseFormRegister } from "react-hook-form";
 
 interface PhoneInputProps {
   onPhoneChange?: (e: React.ChangeEvent<HTMLInputElement>, formattedNum: string) => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  register: (name: string, options?: any) => any;
+  register: UseFormRegister<FieldValues>;
   [rest: string]: any;
 }
 

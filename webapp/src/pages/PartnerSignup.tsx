@@ -3,6 +3,7 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { dt, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
+import { UserContextValue } from "../state/UserProvider";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
 import React from "react";
@@ -60,7 +61,7 @@ const JOIN = "join";
 /**
  * We need the same logic for the useEffect and render loop, so centralize it.
  */
-function calculateAction(userCtx: any) {
+function calculateAction(userCtx: UserContextValue) {
   const { userLoading, userError, userUnauthed, user, registrationSession } = userCtx;
   if (userLoading) {
     return LOADING;

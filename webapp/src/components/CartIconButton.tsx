@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 
 interface CartIconButtonProps {
   offeringId: number | string;
-  cart: any;
+  cart: Cart;
 }
 
 /**

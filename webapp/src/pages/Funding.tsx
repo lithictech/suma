@@ -78,7 +78,7 @@ function ChargeableCashBalance() {
   );
 }
 
-function BankAccountsCard({ instruments }: { instruments: any }) {
+function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] }) {
   const bankAccounts = filter(instruments, { paymentMethodType: "bank_account" });
   return (
     <PaymentsCard header={t("payments.bank_accounts")}>
@@ -91,7 +91,7 @@ function BankAccountsCard({ instruments }: { instruments: any }) {
         </>
       ) : (
         <>
-          {bankAccounts.map((ba: any) => (
+          {bankAccounts.map((ba) => (
             <InstrumentLine key={ba.id} instrument={ba} />
           ))}
           <hr className="my-4" />
@@ -104,7 +104,7 @@ function BankAccountsCard({ instruments }: { instruments: any }) {
   );
 }
 
-function InstrumentLine({ instrument }: { instrument: any }) {
+function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
   const showDelete = useToggle(false);
   return (
     <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
@@ -182,7 +182,7 @@ function InstrumentLine({ instrument }: { instrument: any }) {
   );
 }
 
-function InstrumentStatus({ instrument }: { instrument: any }) {
+function InstrumentStatus({ instrument }: { instrument: PaymentInstrument }) {
   let cls, locKey;
   if (instrument.status === "ok") {
     cls = "bi-check2-circle text-success";
@@ -201,7 +201,7 @@ function InstrumentStatus({ instrument }: { instrument: any }) {
 }
 
 interface DeleteInstrumentProps {
-  instrument: any;
+  instrument: PaymentInstrument;
   apiMethod: (...args: any[]) => any;
   showDelete: Toggle;
 }
@@ -229,7 +229,7 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }: DeleteInstrumen
 }
 
 interface DeleteInstrumentModalProps {
-  instrument: any;
+  instrument: PaymentInstrument;
   apiMethod: (...args: any[]) => any;
   toggle: Toggle;
 }
@@ -281,7 +281,7 @@ function DeleteInstrumentModal({
   );
 }
 
-function CardsCard({ instruments }: { instruments: any }) {
+function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
   const cards = filter(instruments, { paymentMethodType: "card" });
   return (
     <PaymentsCard header={t("payments.cards")}>
@@ -294,7 +294,7 @@ function CardsCard({ instruments }: { instruments: any }) {
         </>
       ) : (
         <>
-          {cards.map((c: any) => (
+          {cards.map((c) => (
             <InstrumentLine key={c.id} instrument={c} />
           ))}
           <hr className="my-4" />

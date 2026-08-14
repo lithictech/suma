@@ -22,8 +22,8 @@ export default function PrivateAccountsList() {
     state: accounts,
     loading: accountsLoading,
     error: accountsError,
-  } = useAsyncFetch<any>(api.getPrivateAccounts, {
-    default: {},
+  } = useAsyncFetch<{ items: AnonProxyVendorAccount[] }>(api.getPrivateAccounts, {
+    default: { items: [] },
     pickData: true,
   });
 

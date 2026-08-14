@@ -2,7 +2,13 @@ import loaderRing from "../assets/images/loader-ring.svg";
 import clsx from "clsx";
 import React from "react";
 
-export default function CartIcon({ className, cart }: { className?: string; cart: any }) {
+export default function CartIcon({
+  className,
+  cart,
+}: {
+  className?: string;
+  cart: Cart;
+}) {
   const [cartLoading, setCartLoading] = React.useState(false);
   const lastHash = React.useRef(cart.cartHash);
   const [innerItemCount, setInnerItemCount] = React.useState(cart.items?.length || 0);

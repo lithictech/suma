@@ -12,12 +12,15 @@ export default function OrderHistoryDetail() {
   const { id } = useParams();
   const location = useLocation();
   const getOrderDetails = React.useCallback(() => api.getOrderDetails({ id }), [id]);
-  const { state, replaceState, loading, error } = useAsyncFetch<any>(getOrderDetails, {
-    default: {},
-    pickData: true,
-    pullFromState: "order",
-    location,
-  });
+  const { state, replaceState, loading, error } = useAsyncFetch<DetailedOrderHistory>(
+    getOrderDetails,
+    {
+      default: {} as DetailedOrderHistory,
+      pickData: true,
+      pullFromState: "order",
+      location,
+    }
+  );
 
   if (error) {
     return (

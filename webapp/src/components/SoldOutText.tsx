@@ -1,8 +1,8 @@
 import { t } from "../localization";
 
 interface SoldOutTextProps {
-  cart: any;
-  product: any;
+  cart: Cart;
+  product: PricedOfferingProduct;
 }
 
 export default function SoldOutText({ cart, product }: SoldOutTextProps) {
