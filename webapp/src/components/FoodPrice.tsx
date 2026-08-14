@@ -8,8 +8,8 @@ import Stack from "react-bootstrap/Stack";
 interface FoodPriceProps {
   isDiscounted?: boolean;
   undiscountedPrice: Money;
-  discountAmount: Money;
-  displayableNoncashLedgerContributionAmount: Money;
+  discountAmount?: Money;
+  displayableNoncashLedgerContributionAmount?: Money;
   displayableCashPrice: Money;
   vendorName?: string;
   fs?: number | string;
