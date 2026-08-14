@@ -39,23 +39,21 @@ export default function Preferences({
     <Form onSubmit={handleSubmit}>
       <h4>{t("preferences.title")}</h4>
       <p>{t("preferences.intro")}</p>
-      {(user.preferences.subscriptions as any as PreferencesSubscription[]).map(
-        (sub, idx) => {
-          const optedIn = has(subscriptions, sub.key)
-            ? subscriptions[sub.key]
-            : sub.optedIn;
-          return (
-            <Subscription
-              key={sub.key}
-              index={idx}
-              subscriptionKey={sub.key}
-              optedIn={optedIn}
-              editableState={sub.editableState}
-              onCheckChange={(ch) => setSubscriptions({ [sub.key]: ch })}
-            />
-          );
-        }
-      )}
+      {user.preferences.subscriptions.map((sub, idx) => {
+        const optedIn = has(subscriptions, sub.key)
+          ? subscriptions[sub.key]
+          : sub.optedIn;
+        return (
+          <Subscription
+            key={sub.key}
+            index={idx}
+            subscriptionKey={sub.key}
+            optedIn={optedIn}
+            editableState={sub.editableState}
+            onCheckChange={(ch) => setSubscriptions({ [sub.key]: ch })}
+          />
+        );
+      })}
       {children}
       <FormButtons variant="success" primaryProps={{ children: t("forms.save") }} />
     </Form>
@@ -65,7 +63,7 @@ export default function Preferences({
 interface SubscriptionProps {
   index?: number;
   subscriptionKey: string;
-  optedIn: any;
+  optedIn: boolean;
   editableState: string;
   onCheckChange: (checked: boolean) => void;
 }

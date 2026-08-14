@@ -29,11 +29,9 @@ export default function LedgerItemModal({ item, onClose }: LedgerItemModalProps)
                 {amount}
               </Money>
             </p>
-            {(usageDetails as any as LedgerLineUsageDetails[]).map(
-              ({ code, args }, i) => (
-                <p key={i}>{t("ledgerusage." + code, { ...args })}</p>
-              )
-            )}
+            {usageDetails.map(({ code, args }, i) => (
+              <p key={i}>{t("ledgerusage." + code, { ...args })}</p>
+            ))}
             <p className="mb-1">{dayjs(at).format("LLL")}</p>
             <p>
               {t("common.reference_id")}: {opaqueId}

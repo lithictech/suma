@@ -200,6 +200,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :c, documentation: {type: Integer, array: true}
     expose :p, documentation: {type: Integer}
     expose :d, expose_nil: false, documentation: {type: String}
+    expose :o, expose_nil: false, documentation: {type: Integer, array: true}
   end
 
   class SimpleRateEntity < BaseEntity

@@ -33,6 +33,12 @@ module Suma::API::Entities
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 
+  class InstitutionEntity < BaseEntity
+    expose :name, documentation: {type: String}
+    expose :logo_src, documentation: {type: String}
+    expose :color, documentation: {type: String}
+  end
+
   class PaymentInstrumentEntity < BaseEntity
     expose :id
     expose :created_at
@@ -41,7 +47,7 @@ module Suma::API::Entities
     expose :usable_for_funding?, as: :usable_for_funding
     expose :status
     expose :expires_at
-    expose :institution, documentation: {type: String}
+    expose :institution, with: InstitutionEntity
     expose :name
     expose :last4
     expose :key do |inst|

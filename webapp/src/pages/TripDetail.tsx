@@ -80,7 +80,7 @@ export default function TripDetail() {
 
 interface StartEndProps {
   t: string;
-  address?: { part1?: string; part2?: string };
+  address?: MobilityTripParsedAddress;
   label: React.ReactNode;
 }
 
