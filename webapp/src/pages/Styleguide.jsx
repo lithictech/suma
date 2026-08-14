@@ -1,7 +1,9 @@
 import StorefrontIcon from "../assets/images/icons/storefront.svg?react";
 import PageLoader from "../components/PageLoader";
+import useToggle from "../shared/react/useToggle.jsx";
 import BrandCard from "../ui/BrandCard.jsx";
 import Button from "../ui/Button";
+import ButtonGroup from "../ui/ButtonGroup.jsx";
 import Card from "../ui/Card.jsx";
 import CardBody from "../ui/CardBody.jsx";
 import CardText from "../ui/CardText.jsx";
@@ -12,6 +14,8 @@ import Checklist from "../ui/Checklist.jsx";
 import ChecklistItem from "../ui/ChecklistItem.jsx";
 import Chip from "../ui/Chip.jsx";
 import Container from "../ui/Container";
+import { Dialog } from "../ui/Dialog.jsx";
+import DialogHeader from "../ui/DialogHeader.jsx";
 import Nav from "../ui/Nav.jsx";
 import NavOption from "../ui/NavOption.jsx";
 import Progress from "../ui/Progress.jsx";
@@ -33,15 +37,18 @@ export default function Styleguide() {
     "checklist",
     "progress",
     "nav",
+    "dialogs",
     "loaders",
   ];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
   );
+  const dialogToggle = useToggle();
   function changeKey(k) {
     setActiveKey(k);
     window.location.hash = k;
   }
+  const dialogFocusRef = React.useRef(null);
   return (
     <Container className="mt-2">
       <Stack direction="horizontal" gap={2} wrap>
@@ -237,6 +244,42 @@ export default function Styleguide() {
           <NavOption name="map" label="Map" Icon={StorefrontIcon} />
           <NavOption name="more" label="More" Icon={StorefrontIcon} />
         </Nav>
+      </Section>
+      <Section eventKey="dialogs" activeKey={activeKey}>
+        <Dialog
+          open={dialogToggle.isOn}
+          onClose={dialogToggle.turnOff}
+          labelledBy="delete-confirm"
+          initialFocusRef={dialogFocusRef}
+        >
+          <Card>
+            <CardBody>
+              <Stack direction="vertical" gap={3}>
+                <DialogHeader id="delete-confirm">
+                  Are you sure you want to delete this item?
+                </DialogHeader>
+                <p>This cannot be undone.</p>
+                <ButtonGroup>
+                  <Button
+                    variant="text"
+                    ref={dialogFocusRef}
+                    className="btn btn-secondary"
+                    onClick={() => console.log("canceled") || dialogToggle.turnOff()}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => console.log("confirmed") || dialogToggle.turnOff()}
+                  >
+                    Delete
+                  </Button>
+                </ButtonGroup>
+              </Stack>
+            </CardBody>
+          </Card>
+        </Dialog>
+        <Button onClick={dialogToggle.turnOn}>Open Dialog</Button>
       </Section>
       <Section eventKey="loaders" activeKey={activeKey}>
         <PageLoader buffered />
