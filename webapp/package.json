@@ -11,8 +11,6 @@
     "@sentry/tracing": "^7.102.0",
     "axios": "^1.2.3",
     "axios-retry": "^4.5.0",
-    "bootstrap": "^5.2.3",
-    "bootstrap-icons": "^1.10.3",
     "clsx": "^1.2.1",
     "credit-card-type": "^10.1.0",
     "dayjs": "^1.11.7",
