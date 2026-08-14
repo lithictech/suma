@@ -62,7 +62,7 @@ class Suma::API::Preferences < Suma::API::V1
   end
 
   class PublicPrefsEntity < BaseEntity
-    expose :subscriptions, with: Suma::API::Entities::PreferencesSubscriptionEntity
+    expose_array :subscriptions, Suma::API::Entities::PreferencesSubscriptionEntity
   end
 
   class PublicPrefsMemberEntity < BaseEntity

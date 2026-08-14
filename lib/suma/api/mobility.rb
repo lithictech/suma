@@ -241,7 +241,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :refresh do |_|
       30_000
     end
-    expose :program_pricings, as: :providers, with: MobilityMapProviderEntity
+    expose_array :program_pricings, as: :providers, with: MobilityMapProviderEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
@@ -253,7 +253,7 @@ class Suma::API::Mobility < Suma::API::V1
   end
 
   class MobilityMapFeaturesEntity < BaseEntity
-    expose :restrictions, with: MobilityMapRestrictionEntity
+    expose_array :restrictions, MobilityMapRestrictionEntity
   end
 
   class MobilityDetailedVehicleEntity < BaseEntity
@@ -292,7 +292,7 @@ class Suma::API::Mobility < Suma::API::V1
   class MobilityTripCollectionEntity < Suma::Service::Collection::BaseEntity
     include Suma::API::Entities
 
-    expose :items, with: MobilityTripEntity
+    expose_array :items, MobilityTripEntity
     expose :ongoing, with: MobilityTripEntity do |_, opts|
       opts.fetch(:ongoing)
     end

@@ -36,7 +36,7 @@ class Suma::API::Ledgers < Suma::API::V1
   class LedgerLinesEntity < Suma::Service::Collection::BaseEntity
     include Suma::API::Entities
 
-    expose :items, with: LedgerLineEntity
+    expose_array :items, LedgerLineEntity
     expose :ledger_id do |_, opts|
       opts.fetch(:ledger).id
     end
@@ -47,7 +47,7 @@ class Suma::API::Ledgers < Suma::API::V1
 
     expose :total_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
-    expose :ledgers, with: LedgerEntity
-    expose :recent_lines, with: LedgerLineEntity
+    expose_array :ledgers, LedgerEntity
+    expose_array :recent_lines, LedgerLineEntity
   end
 end

@@ -5,10 +5,11 @@ require "suma/admin_api"
 
 RSpec.describe Suma::Service::Typewriter do
   it "writes entities" do
-    Class.new(Grape::Entity) do
+    Class.new(Suma::Service::Entities::Base) do
       define_singleton_method(:name) { "TestEntity" }
       expose :x
       expose :y, using: self
+      expose_array :z, self
       expose :doc, documentation: {type: "String", desc: "Help text"}
       expose :doc_t, documentation: {type: self, desc: "Help text"}
       expose :nested do
@@ -23,6 +24,7 @@ RSpec.describe Suma::Service::Typewriter do
        * @description Auto-generated from TestEntity
        * @property {any} x
        * @property {Test} y
+       * @property {Test[]} z
        * @property {string} doc - Help text
        * @property {TestEntity} docT - Help text
        * @property {any} n1
@@ -36,6 +38,7 @@ RSpec.describe Suma::Service::Typewriter do
         interface Test {
           x: any;
           y: Test;
+          z: Test[];
           /** Help text */
           doc: string;
           /** Help text */
@@ -71,6 +74,21 @@ RSpec.describe Suma::Service::Typewriter do
       expose :doc, documentation: {type: "Integer"}
     end
     s = described_class.new.build([sub])
+    expect(s).to include(<<~STR)
+      /**
+       * @typedef {object} DupeExposureEntitySub
+       * @description Auto-generated from DupeExposureEntitySub
+       * @property {number} doc
+       */
+    STR
+  end
+
+  it "errors if a using/with exposure does not declare is_array" do
+    cls = Class.new(Grape::Entity) do
+      define_singleton_method(:name) { "MissingIsArray" }
+      expose :foo, using: "MissingIsArray"
+    end
+    s = described_class.new.build([cls])
     expect(s).to include(<<~STR)
       /**
        * @typedef {object} DupeExposureEntitySub

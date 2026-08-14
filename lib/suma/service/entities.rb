@@ -73,6 +73,14 @@ module Suma::Service::Entities
         Suma::Service::Entities.render_translated_text(txt)
       end
     end
+
+    # Mark an exposure as an array.
+    # Used by Typewriter to write types.
+    def self.expose_array(name, with=nil, **opts, &)
+      documentation = (opts.delete(:documentation) || {}).merge(array: true)
+      opts[:with] ||= with
+      expose(name, documentation:, **opts, &)
+    end
   end
 
   class Image < Base

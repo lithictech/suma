@@ -66,7 +66,7 @@ module Suma::API::Entities
     expose :undiscounted_cost, with: MoneyEntity
     expose :customer_cost, with: MoneyEntity
     expose :savings, with: MoneyEntity
-    expose :line_items, with: MobilityChargeLineItemEntity
+    expose_array :line_items, MobilityChargeLineItemEntity
   end
 
   class MobilityTripEntity < BaseEntity
@@ -95,7 +95,7 @@ module Suma::API::Entities
   end
 
   class MemberPreferencesEntity < BaseEntity
-    expose :subscriptions, with: PreferencesSubscriptionEntity
+    expose_array :subscriptions, PreferencesSubscriptionEntity
   end
 
   class RegistrationLinkEntity < BaseEntity
@@ -114,7 +114,7 @@ module Suma::API::Entities
     expose :ongoing_trip, with: MobilityTripEntity
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
-    expose :public_payment_instruments, as: :payment_instruments, with: PaymentInstrumentEntity
+    expose_array :public_payment_instruments, as: :payment_instruments, with: PaymentInstrumentEntity
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end
@@ -166,7 +166,7 @@ module Suma::API::Entities
     expose_translated :memo
     include Suma::API::Entities::LedgerLineAmountMixin
 
-    expose :usage_details, with: LedgerLineUsageDetailsEntity
+    expose_array :usage_details, LedgerLineUsageDetailsEntity
   end
 
   class LedgerEntity < BaseEntity

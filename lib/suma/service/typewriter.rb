@@ -294,14 +294,15 @@ class Suma::Service::Typewriter
     # Gather type hints from the exposure's options
     name_as = opts[:as]
     using = opts[:using]
-    doc = opts[:documentation]
+    doc = opts[:documentation] || {}
 
     attr_name = name_as || attr_name
 
     js_type = self.jsdoc_type(using, doc)
     js_type = self.guess_jsdoc_type(attr_name) if js_type == ANYTYPE
 
-    desc_text = doc.is_a?(Hash) ? (doc[:desc] || doc[:description]).to_s : ""
+    js_type = "#{js_type}[]" if doc[:array]
+    desc_text = (doc[:desc] || doc[:description] || "").to_s
 
     js_name = attr_name.to_s.camelize(:lower)
     property_type_and_desc_for_name[js_name] = [js_type, desc_text]

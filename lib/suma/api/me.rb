@@ -98,7 +98,7 @@ class Suma::API::Me < Suma::API::V1
 
   class DashboardEntity < BaseEntity
     expose :cash_balance, with: Suma::API::Entities::MoneyEntity
-    expose :programs, with: ProgramEntity
-    expose :alerts, with: DashboardAlertEntity
+    expose_array :programs, ProgramEntity
+    expose_array :alerts, DashboardAlertEntity
   end
 end
