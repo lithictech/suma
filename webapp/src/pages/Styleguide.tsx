@@ -1,4 +1,3 @@
-import StorefrontIcon from "../assets/images/icons/storefront.svg?react";
 import useToggle from "../shared/react/useToggle.jsx";
 import BrandCard from "../ui/BrandCard";
 import Button from "../ui/Button";
@@ -25,6 +24,7 @@ import Switch from "../ui/Switch";
 import SwitchRow from "../ui/SwitchRow";
 import TextInput from "../ui/TextInput";
 import Tile from "../ui/Tile";
+import StorefrontIcon from "@heroicons/react/24/outline/BuildingStorefrontIcon";
 import noop from "lodash/noop";
 import React from "react";
 
@@ -45,7 +45,7 @@ export default function Styleguide() {
     window.location.hash.substring(1) || keys[0]
   );
   const dialogToggle = useToggle();
-  function changeKey(k) {
+  function changeKey(k: string) {
     setActiveKey(k);
     window.location.hash = k;
   }
@@ -160,47 +160,61 @@ export default function Styleguide() {
         <Stack gap={2} wrap>
           <TextInput
             label="Zip"
+            value=""
             helpText="Five digits."
             placeholder="12345 (placeholder)"
+            onChange={noop}
           />
           <TextInput
             label="Zip"
-            helpText="Five digits."
             value="97211"
+            helpText="Five digits."
             className="is-focus-visible"
+            onChange={noop}
           />
-          <TextInput label="Zip" helpText="Five digits." value="9721" disabled />
           <TextInput
             label="Zip"
-            helpText="Five digits."
             value="9721"
+            helpText="Five digits."
+            disabled
+            onChange={noop}
+          />
+          <TextInput
+            label="Zip"
+            value="9721"
+            helpText="Five digits."
             error="Zip code is 5 digits."
+            onChange={noop}
           />
         </Stack>
         <h2>Checkboxes</h2>
         <Stack direction="vertical" gap={2}>
           <Stack gap={2}>
-            <Checkbox label="Checkbox 1" onChange={noop} />
+            <Checkbox label="Checkbox 1" checked={false} onChange={noop} />
             <Checkbox label="Checkbox 2" checked onChange={noop} />
-            <Checkbox onChange={noop} />
+            <Checkbox checked={false} onChange={noop} />
           </Stack>
           <Stack gap={2}>
-            <Switch label="Switch 1" onChange={noop} />
+            <Switch label="Switch 1" checked={false} onChange={noop} />
             <Switch label="Switch 2" checked onChange={noop} />
-            <Switch onChange={noop} />
+            <Switch checked={false} onChange={noop} />
           </Stack>
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
+            checked={false}
+            onChange={noop}
           />
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
             checked
+            onChange={noop}
           />
           <SwitchRow
             title="Text me about my orders"
             text="Standard message rates apply"
+            checked={false}
           />
           <SwitchRow
             title="Text me about my orders"
@@ -212,13 +226,15 @@ export default function Styleguide() {
         <Stack direction="vertical" gap={2}>
           <Select
             label="Select"
+            value="optb"
             options={[
               { label: "Option A", value: "opta" },
               { label: "Option B", value: "optb" },
               { label: "Option C", value: "optc" },
               { label: "Option D", value: "optd" },
             ]}
-          ></Select>
+            onChange={noop}
+          />
         </Stack>
       </Section>
       <Section eventKey="progress" activeKey={activeKey}>
@@ -243,7 +259,7 @@ export default function Styleguide() {
         <Checklist>
           <ChecklistItem variant="checked">How it works</ChecklistItem>
           <ChecklistItem variant="checked">Agree</ChecklistItem>
-          <ChecklistItem variant="current" step={3} current>
+          <ChecklistItem variant="current" step={3}>
             Get text
           </ChecklistItem>
           <ChecklistItem step={4}>Get link</ChecklistItem>
@@ -252,10 +268,10 @@ export default function Styleguide() {
       </Section>
       <Section eventKey="nav" activeKey={activeKey}>
         <Nav>
-          <NavOption name="home" label="Home" Icon={StorefrontIcon} />
-          <NavOption name="offers" label="Offers" Icon={StorefrontIcon} active />
-          <NavOption name="map" label="Map" Icon={StorefrontIcon} />
-          <NavOption name="more" label="More" Icon={StorefrontIcon} />
+          <NavOption label="Home" Icon={StorefrontIcon} />
+          <NavOption label="Offers" Icon={StorefrontIcon} active />
+          <NavOption label="Map" Icon={StorefrontIcon} />
+          <NavOption label="More" Icon={StorefrontIcon} />
         </Nav>
       </Section>
       <Section eventKey="dialogs" activeKey={activeKey}>
@@ -277,14 +293,11 @@ export default function Styleguide() {
                     variant="text"
                     ref={dialogFocusRef}
                     className="btn btn-secondary"
-                    onClick={() => console.log("canceled") || dialogToggle.turnOff()}
+                    onClick={dialogToggle.turnOff}
                   >
                     Cancel
                   </Button>
-                  <Button
-                    variant="primary"
-                    onClick={() => console.log("confirmed") || dialogToggle.turnOff()}
-                  >
+                  <Button variant="primary" onClick={dialogToggle.turnOff}>
                     Delete
                   </Button>
                 </ButtonGroup>

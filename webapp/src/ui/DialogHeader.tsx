@@ -1,6 +1,14 @@
 import "./DialogHeader.css";
 import React from "react";
 
-export default function DialogHeader({ children }: { children?: React.ReactNode }) {
-  return <h2 className="dialog-header">{children}</h2>;
+export interface DialogHeaderProps {
+  id: string;
+  children?: React.ReactNode;
+}
+export default function DialogHeader({ id, children }: DialogHeaderProps) {
+  return (
+    <h2 id={id} className="dialog-header">
+      {children}
+    </h2>
+  );
 }
