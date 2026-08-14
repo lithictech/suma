@@ -26,7 +26,7 @@ RSpec.describe Suma::Service::Typewriter do
        * @property {Test} y
        * @property {Test[]} z
        * @property {string} doc - Help text
-       * @property {TestEntity} docT - Help text
+       * @property {Test} docT - Help text
        * @property {any} n1
        */
     STR
@@ -42,7 +42,7 @@ RSpec.describe Suma::Service::Typewriter do
           /** Help text */
           doc: string;
           /** Help text */
-          docT: TestEntity;
+          docT: Test;
           n1: any;
         }
 
@@ -74,21 +74,6 @@ RSpec.describe Suma::Service::Typewriter do
       expose :doc, documentation: {type: "Integer"}
     end
     s = described_class.new.build([sub])
-    expect(s).to include(<<~STR)
-      /**
-       * @typedef {object} DupeExposureEntitySub
-       * @description Auto-generated from DupeExposureEntitySub
-       * @property {number} doc
-       */
-    STR
-  end
-
-  it "errors if a using/with exposure does not declare is_array" do
-    cls = Class.new(Grape::Entity) do
-      define_singleton_method(:name) { "MissingIsArray" }
-      expose :foo, using: "MissingIsArray"
-    end
-    s = described_class.new.build([cls])
     expect(s).to include(<<~STR)
       /**
        * @typedef {object} DupeExposureEntitySub

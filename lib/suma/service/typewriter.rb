@@ -152,19 +152,16 @@ class Suma::Service::Typewriter
     end
 
     # Documentation hint (e.g. documentation: { type: "String" })
-    (type = getname(documentation[:type])) if documentation.is_a?(Hash) && documentation[:type]
-
+    type = documentation[:type]
     return ANYTYPE unless type
 
-    # Grape uses :type as a class, string, or symbol
+    # Grape uses :type as a class, string, or symbol. If we get a mapped hit, just use it.
     mapped = GRAPE_TO_JSTYPE[type.to_s.to_sym]
     return mapped if mapped
 
     # If it's a Grape::Entity subclass, reference it by name
     return self.jsdoc_entity_name(type) if type.is_a?(Class) && type < Grape::Entity
-
-    # Fallback: stringify
-    type.to_s
+    return type.to_s
   end
 
   protected def guess_jsdoc_type(attr)
@@ -196,6 +193,7 @@ class Suma::Service::Typewriter
     "fraction",
     "lat",
     "lng",
+    "length",
     "multiplier",
     "offset",
     "ordinal",
@@ -221,6 +219,7 @@ class Suma::Service::Typewriter
     "last4",
     "link",
     "md",
+    "mode",
     "phone",
     "name",
     "reason",
@@ -239,6 +238,8 @@ class Suma::Service::Typewriter
     "is",
     "need",
     "needs",
+    "has",
+    "show",
   ].freeze
   BOOL_SUFFIXES = [
     "enabled",
