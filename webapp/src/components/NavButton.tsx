@@ -3,15 +3,27 @@ import clsx from "clsx";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
+interface NavButtonProps {
+  /** Show the left chevron. */
+  left?: boolean;
+  /** Show the right chevron. */
+  right?: boolean;
+  className?: string;
+  /** If null, use the 'short' logic (double chevron icons). */
+  children?: React.ReactNode;
+  [rest: string]: any;
+}
+
 /**
  * Render '< children' or 'children >' as a link button.
- * @param left Show the left chevron.
- * @param right Show the right chevron.
- * @param className
- * @param children If null, use the 'short' logic (double chevron icons).
- * @param rest Passed to the Button component.
  */
-export default function NavButton({ left, right, className, children, ...rest }) {
+export default function NavButton({
+  left,
+  right,
+  className,
+  children,
+  ...rest
+}: NavButtonProps) {
   const short = !children;
   const leftIcon = short ? "double-left" : "left";
   const rightIcon = short ? "double-right" : "right";

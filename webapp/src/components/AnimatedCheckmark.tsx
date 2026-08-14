@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 
-export default function AnimatedCheckmark({ className }) {
+export default function AnimatedCheckmark({ className }: { className?: string }) {
   return (
     <svg
       className={clsx("checkmark", className)}

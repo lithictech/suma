@@ -8,6 +8,11 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: string }>;
+}
+
 /**
  * We depend on installPromptEvent and service worker registration
  * to render this A2HS component. Therefore, it will render null if
@@ -29,8 +34,9 @@ export default function AddToHomescreen() {
   );
   const [hasRegistration, setHasRegistration] = React.useState(false);
   const loading = useToggle(false);
-  const addToHomescreenButtonRef = React.useRef(null);
-  const [installPromptEvent, setInstallPromptEvent] = React.useState(null);
+  const addToHomescreenButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [installPromptEvent, setInstallPromptEvent] =
+    React.useState<BeforeInstallPromptEvent | null>(null);
 
   const installPrompt = React.useCallback(() => {
     loading.turnOn();
@@ -55,7 +61,7 @@ export default function AddToHomescreen() {
       .finally(loading.turnOff);
   }, [loading, setShouldPrompt, installPromptEvent]);
 
-  const handleBeforeInstallPrompt = React.useCallback((event) => {
+  const handleBeforeInstallPrompt = React.useCallback((event: BeforeInstallPromptEvent) => {
     // Prevent early prompt display
     event.preventDefault();
     setInstallPromptEvent(event);

@@ -1,22 +1,24 @@
-import Payment from "../modules/payment.js";
+import Payment, { PaymentCardInfo } from "../modules/payment.js";
 import clsx from "clsx";
 import React from "react";
 
-/**
- * Render the credit card preview.
- * @param {PaymentCardInfo} cardInfo
- * @param {string} focused
- * @param {string} name
- * @param {string} placeholderName "YOUR NAME HERE"
- * @param {string} localeValid "valid thru"
- */
+interface CreditCardPreviewProps {
+  cardInfo: PaymentCardInfo;
+  focused?: string;
+  name?: string;
+  /** "YOUR NAME HERE" */
+  placeholderName?: string;
+  /** "valid thru" */
+  localeValid?: string;
+}
+
 export default function CreditCardPreview({
   cardInfo,
   focused,
   name,
   placeholderName,
   localeValid,
-}) {
+}: CreditCardPreviewProps) {
   if (typeof placeholderName !== "string") {
     placeholderName = DEFAULT_PLACEHOLDER_NAME;
   }
@@ -95,6 +97,6 @@ const DEFAULT_PLACEHOLDER_NAME = "YOUR NAME HERE";
 const DEFAULT_VALID_THRU = "valid thru";
 const BULLET = "•";
 const formatPlaceholder = { placeholder: BULLET };
-function isFilled(s) {
+function isFilled(s: string) {
   return s[0] !== BULLET;
 }

@@ -2,7 +2,17 @@ import { t } from "../localization";
 import clsx from "clsx";
 import React from "react";
 
-const FormError = React.forwardRef(
+interface FormErrorProps {
+  error?: any;
+  noMargin?: boolean;
+  center?: boolean;
+  end?: boolean;
+  component?: React.ElementType;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const FormError = React.forwardRef<HTMLElement, FormErrorProps>(
   ({ error, noMargin, center, end, component, className, style }, ref) => {
     if (!error) {
       return null;

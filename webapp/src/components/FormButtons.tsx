@@ -5,7 +5,17 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 
-const FormButtons = React.forwardRef(
+interface FormButtonsProps {
+  primaryProps?: Record<string, any>;
+  secondaryProps?: Record<string, any>;
+  variant?: string;
+  margin?: number;
+  back?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const FormButtons = React.forwardRef<HTMLDivElement, FormButtonsProps>(
   ({ primaryProps, secondaryProps, variant, margin, back, className, style }, ref) => {
     const defaultBack = React.useCallback(() => window.history.back(), []);
     if (back) {

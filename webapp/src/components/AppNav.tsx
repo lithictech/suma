@@ -21,7 +21,14 @@ export default function AppNav() {
   );
 }
 
-const AppLink = ({ to, label, prefixes, className }) => {
+interface AppLinkProps {
+  to: string;
+  label: React.ReactNode;
+  prefixes?: string[];
+  className?: string;
+}
+
+const AppLink = ({ to, label, prefixes, className }: AppLinkProps) => {
   const location = useLocation();
   const active = [...(prefixes || []), to].some((x) => location.pathname.startsWith(x));
   return (

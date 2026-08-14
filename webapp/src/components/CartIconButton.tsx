@@ -4,13 +4,16 @@ import clsx from "clsx";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
+interface CartIconButtonProps {
+  offeringId: number | string;
+  cart: any;
+}
+
 /**
  * Render CartIcon within a button that can navigate to its cart page,
  * changes color based on contents, etc.
- * @param offeringId
- * @param cart
  */
-export default function CartIconButton({ offeringId, cart }) {
+export default function CartIconButton({ offeringId, cart }: CartIconButtonProps) {
   return (
     <Button
       href={`/cart/${offeringId}`}

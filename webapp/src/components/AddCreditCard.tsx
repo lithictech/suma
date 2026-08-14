@@ -10,8 +10,8 @@ import Payment from "../modules/payment";
 import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useStripeErrorMessage from "../state/useStripeErrorMessage";
-import CreditCardPreview from "./CreditCardPreview.jsx";
-import NegativeBalanceAddInstrumentNotice from "./NegativeBalanceAddInstrumentNotice.jsx";
+import CreditCardPreview from "./CreditCardPreview";
+import NegativeBalanceAddInstrumentNotice from "./NegativeBalanceAddInstrumentNotice";
 import get from "lodash/get";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -19,7 +19,13 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 
-export default function AddCreditCard({ onSuccess, error, setError }) {
+interface AddCreditCardProps {
+  onSuccess: (data: any) => void;
+  error?: any;
+  setError: (e?: any) => any;
+}
+
+export default function AddCreditCard({ onSuccess, error, setError }: AddCreditCardProps) {
   const {
     register,
     handleSubmit,
@@ -31,12 +37,12 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   });
 
   const screenLoader = useScreenLoader();
-  const numberRowRef = React.useRef(null);
-  const expiryRowRef = React.useRef(null);
-  const cvcRef = React.useRef(null);
-  const errorRowRef = React.useRef(null);
-  const buttonRowRef = React.useRef(null);
-  const cardRowRef = React.useRef(null);
+  const numberRowRef = React.useRef<HTMLDivElement>(null);
+  const expiryRowRef = React.useRef<HTMLDivElement>(null);
+  const cvcRef = React.useRef<HTMLInputElement>(null);
+  const errorRowRef = React.useRef<HTMLElement>(null);
+  const buttonRowRef = React.useRef<HTMLDivElement>(null);
+  const cardRowRef = React.useRef<HTMLDivElement>(null);
   const [rerender, setRerender] = React.useState(1);
 
   const [name, setName] = React.useState(config.devCardDetails.name || "");
@@ -54,7 +60,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const { localizeStripeError } = useStripeErrorMessage();
 
   const runSetter = React.useCallback(
-    (name, set, value) => {
+    (name: string, set: (value: string) => void, value: string) => {
       setError("");
       clearErrors(name);
       setValue(name, value);
@@ -100,26 +106,26 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
     setError,
   ]);
 
-  const handleFocus = (e) => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setFocus(e.target.name);
     setTimeout(() => setRerender(rerender + 1), 0);
   };
   const handleBlur = () => setFocus("");
 
-  function handleCardNumberChange(e) {
+  function handleCardNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
     runSetter(e.target.name, setCardNumber, value);
   }
 
-  function handleCardExpiryChange(e) {
+  function handleCardExpiryChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
     runSetter(e.target.name, setCardExpiry, value);
     if (value.length === 4) {
-      cvcRef.current.focus();
+      cvcRef.current?.focus();
     }
   }
 
-  function handleCardCvcChange(e) {
+  function handleCardCvcChange(e: React.ChangeEvent<HTMLInputElement>) {
     let { name, value } = e.target;
     value = keepDigits(value);
     runSetter(name, setCardCvc, value);

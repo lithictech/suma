@@ -6,40 +6,63 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 
-/**
- * Represents a Bootstrap Form.Group, Form.Control, and related components.
- * @param inputRef ref for the input element.
- * @param {string} name 'name' attribute for the input (and validation)
- * @param {string} className Form.Group class name.
- * @param {JSX.Element} as The 'as' for the Form.Group.
- * @param {string|JSX.Element} label Text or element for the form label.
- * @param {string|JSX.Element} placeholder Do not use, since we put the label in the form.
- * @param {string} text Helper that goes in a Form.Text.
- * @param {JSX.Element} Input The input component to use, default to Form.Control.
- * @param {string} inputClass Applied to Input element.
- * @param register The react-hook-form register function.
- * @param registerOptions Arguments passed to `register`.
- *   Normally something like `{validate: (value) => value === otherValue}`,
- *   which would be paired with an `errorKeys` like `{validate: 'forms:account_number_confirm_nomatch'}`.
- * @param errors Something like `formState: { errors }` from react-hook-form.
- * @param {object} errorKeys See useValidationError. Some default error messages for validations are supported;
- *   if you need a custom message, you can pass in something like: `{min: "forms.invalid_min_amount"}`.
- * @param {boolean} required HTML5
- * @param {string} pattern HTML5
- * @param {number} minLength HTML5
- * @param {number} maxLength HTML5
- * @param {number} min HTML5
- * @param prepend Content to render before the input. Will use an InputGroup if given.
- * @param append Content to render after the input. Will use an InputGroup if given.
- * @param rest Passed through to the component.
- */
+interface FormControlGroupProps {
+  inputRef?: React.Ref<any>;
+  /** 'name' attribute for the input (and validation) */
+  name: string;
+  /** Form.Group class name. */
+  className?: string;
+  /** The 'as' for the Form.Group. */
+  as?: React.ElementType;
+  /** Text or element for the form label. */
+  label?: React.ReactNode;
+  /** Do not use, since we put the label in the form. */
+  placeholder?: string;
+  /** Helper that goes in a Form.Text. */
+  text?: React.ReactNode;
+  /** The input component to use, default to Form.Control. */
+  Input?: React.ElementType;
+  /** Applied to Input element. */
+  inputClass?: string;
+  /** The react-hook-form register function. */
+  register: (name: string, options?: any) => any;
+  /**
+   * Arguments passed to `register`.
+   * Normally something like `{validate: (value) => value === otherValue}`,
+   * which would be paired with an `errorKeys` like `{validate: 'forms:account_number_confirm_nomatch'}`.
+   */
+  registerOptions?: Record<string, any>;
+  /** Something like `formState: { errors }` from react-hook-form. */
+  errors?: any;
+  /**
+   * See useValidationError. Some default error messages for validations are supported;
+   * if you need a custom message, you can pass in something like: `{min: "forms.invalid_min_amount"}`.
+   */
+  errorKeys?: Record<string, string>;
+  /** HTML5 */
+  required?: boolean;
+  /** HTML5 */
+  pattern?: string;
+  /** HTML5 */
+  minLength?: number;
+  /** HTML5 */
+  maxLength?: number;
+  /** HTML5 */
+  min?: number;
+  /** Content to render before the input. Will use an InputGroup if given. */
+  prepend?: React.ReactNode;
+  /** Content to render after the input. Will use an InputGroup if given. */
+  append?: React.ReactNode;
+  [rest: string]: any;
+}
+
 export default function FormControlGroup({
   inputRef,
   name,
   className,
   as,
   label,
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   placeholder,
   text,
   Input,
@@ -56,7 +79,7 @@ export default function FormControlGroup({
   prepend,
   append,
   ...rest
-}) {
+}: FormControlGroupProps) {
   const usesGroup = prepend || append;
   const registerArgs = { ...registerOptions };
   if (required) {

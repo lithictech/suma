@@ -17,14 +17,16 @@ import React from "react";
  * (the common case), pass `buffered`, which will apply
  * a top margin to give the loader a more natural vertical
  * placement.
- * @param {boolean} buffered
- * @param {boolean} overlay
- * @param {string} containerClass
- * @param {string} className
- * @param {number=} height
- * @param {number=} width
- * @returns {JSX.Element}
  */
+interface PageLoaderProps {
+  buffered?: boolean;
+  overlay?: boolean;
+  containerClass?: string;
+  className?: string;
+  height?: number;
+  width?: number;
+}
+
 export default function PageLoader({
   overlay,
   buffered,
@@ -32,7 +34,7 @@ export default function PageLoader({
   height,
   containerClass,
   className,
-}) {
+}: PageLoaderProps) {
   const cls = clsx(
     overlay && "position-absolute top-0 start-50 translate-middle-x",
     buffered && "my-5",
