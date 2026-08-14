@@ -189,9 +189,7 @@ class Suma::Service::Typewriter
     type = documentation[:type]
     return ANYTYPE unless type
 
-    if type.respond_to?(:js_typealias)
-      typename = self.jsdoc_entity_name(type)
-      @formatter.register_alias(typename, type.js_typealias)
+    if (typename = self.register_typealiases(type))
       return typename
     end
 
@@ -220,6 +218,14 @@ class Suma::Service::Typewriter
     return "AdminAction[]" if attr == "admin_actions"
 
     return ANYTYPE
+  end
+
+  protected def register_typealiases(t)
+    return nil unless t.respond_to?(:js_typealias)
+    typename = self.jsdoc_entity_name(t)
+    @formatter.register_alias(typename, t.js_typealias)
+    t.js_typeincludes.each { |ti| self.register_typealiases(ti) } if t.respond_to?(:js_typeincludes)
+    return typename
   end
 
   NUM_PREFIXES = [

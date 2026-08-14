@@ -54,26 +54,45 @@ RSpec.describe Suma::Service::Typewriter do
   end
 
   it "uses the jsdoc_type method on the type class" do
-    t = Class.new do
-      define_singleton_method(:name) { "AliasedType" }
+    t1 = Class.new do
+      define_singleton_method(:name) { "AliasedType1" }
       define_singleton_method(:js_typealias) { "number[]" }
+    end
+
+    t2 = Class.new do
+      define_singleton_method(:name) { "AliasedType2" }
+      define_singleton_method(:js_typealias) { "AliasedType1[]" }
+      define_singleton_method(:js_typeincludes) { [t1] }
+    end
+
+    t3 = Class.new do
+      define_singleton_method(:name) { "AliasedType3" }
+      define_singleton_method(:js_typealias) { "AliasedType2[]" }
+      define_singleton_method(:js_typeincludes) { [t2] }
     end
 
     cls = Class.new(Suma::Service::Entities::Base) do
       define_singleton_method(:name) { "AliasedTypeTestEntity" }
-      expose :jt, documentation: {type: t}
+      expose :jt, documentation: {type: t3}
     end
     jsdoc = described_class.new.build([cls])
     expect(jsdoc).to include(<<~STR)
       /**
        * @typedef {object} AliasedTypeTest
        * @description Auto-generated from AliasedTypeTestEntity
-       * @property {AliasedType} jt
+       * @property {AliasedType3} jt
        */
-    STR
-    expect(jsdoc).to include(<<~STR)
+
       /**
-       * @typedef {number[]} AliasedType
+       * @typedef {AliasedType2[]} AliasedType3
+       */
+
+      /**
+       * @typedef {AliasedType1[]} AliasedType2
+       */
+
+      /**
+       * @typedef {number[]} AliasedType1
        */
     STR
 
@@ -82,10 +101,12 @@ RSpec.describe Suma::Service::Typewriter do
       declare global {
         /** Auto-generated from AliasedTypeTestEntity */
         interface AliasedTypeTest {
-          jt: AliasedType;
+          jt: AliasedType3;
         }
 
-        type AliasedType = number[];
+        type AliasedType3 = AliasedType2[];
+        type AliasedType2 = AliasedType1[];
+        type AliasedType1 = number[];
       }
     STR
   end
