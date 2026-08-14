@@ -1,28 +1,28 @@
 .select-wrapper {
-    position: relative;
-    display: inline-block;
-    width: 100%;
+  position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
 .select-wrapper select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 100%;
-    padding-right: calc(var(--input-padding-x) + var(--select-arrow-size) + var(--space-2));
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  padding-right: calc(var(--input-padding-x) + var(--select-arrow-size) + var(--space-2));
 }
 
 .select-arrow {
-    position: absolute;
-    top: 50%;
-    right: var(--input-padding-x);
-    transform: translateY(-50%);
-    width: var(--select-arrow-size);
-    height: var(--select-arrow-size);
-    pointer-events: none;
-    color: var(--color-text-muted);
+  position: absolute;
+  top: 50%;
+  right: var(--input-padding-x);
+  transform: translateY(-50%);
+  width: var(--select-arrow-size);
+  height: var(--select-arrow-size);
+  pointer-events: none;
+  color: var(--color-text-muted);
 }
 
 .select-wrapper:has(select:disabled) .select-arrow {
-    opacity: 0.5;
+  opacity: 0.5;
 }

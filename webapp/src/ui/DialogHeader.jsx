@@ -1,6 +1,0 @@
-import "./DialogHeader.css";
-import React from "react";
-
-export default function DialogHeader({ children }) {
-  return <h2 className="dialog-header">{children}</h2>;
-}

@@ -1,25 +1,25 @@
 .tile {
-    border-radius: var(--border-radius);
-    width: 43px;
-    height: 43px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--color-primary);
+  border-radius: var(--border-radius);
+  width: 43px;
+  height: 43px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-primary);
 }
 
 .tile-primary {
-    background-color: var(--tint-primary);
+  background-color: var(--tint-primary);
 }
 
 .tile-secondary {
-    background-color: var(--tint-secondary);
+  background-color: var(--tint-secondary);
 }
 
 .tile-success {
-    background-color: var(--tint-success);
+  background-color: var(--tint-success);
 }
 
 .tile-danger {
-    background-color: var(--tint-danger);
+  background-color: var(--tint-danger);
 }

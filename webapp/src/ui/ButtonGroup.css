@@ -1,5 +1,5 @@
 .button-group {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: var(--space-3);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-3);
 }

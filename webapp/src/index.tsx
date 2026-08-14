@@ -1,6 +1,6 @@
 import App from "./App";
 import Metrics from "./Metrics";
-import "./assets/styles/imports.js";
+import "./assets/styles/imports";
 import React from "react";
 import { createRoot } from "react-dom/client";
 

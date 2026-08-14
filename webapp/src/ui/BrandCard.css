@@ -1,36 +1,42 @@
 .brand-card {
-    background: radial-gradient(130.5% 73.39% at 84.63% 24.78%, #FFDCB4 0%, #FFCCA2 54.94%, #FFC59B 61.65%, #F5A98D 90.94%);
-    padding: var(--space-5) var(--space-4);
-    border-radius: var(--border-radius-xl);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  background: radial-gradient(
+    130.5% 73.39% at 84.63% 24.78%,
+    #ffdcb4 0%,
+    #ffcca2 54.94%,
+    #ffc59b 61.65%,
+    #f5a98d 90.94%
+  );
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--border-radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .brand-card-pill {
-    background-color: color-mix(in srgb, var(--color-text-inverse) 50%, transparent);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--border-radius-pill);
-    font-size: var(--font-size-xs);
-    border: 2px solid color-mix(in srgb, var(--color-text-inverse) 80%, transparent);
+  background-color: color-mix(in srgb, var(--color-text-inverse) 50%, transparent);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-pill);
+  font-size: var(--font-size-xs);
+  border: 2px solid color-mix(in srgb, var(--color-text-inverse) 80%, transparent);
 }
 
 .brand-card-title {
-    font-family: var(--font-family-title) !important;
-    margin-top: var(--space-3);
+  font-family: var(--font-family-title) !important;
+  margin-top: var(--space-3);
 }
 
 .brand-card-text {
-    margin-top: var(--space-2);
-    color: var(--color-text-muted);
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 .brand-card-actions {
-    margin-top: var(--space-4);
+  margin-top: var(--space-4);
 }
 
 .brand-card-help {
-    margin-top: var(--space-2);
-    color: var(--color-text-muted);
-    font-size: var(--font-size-xs);
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
 }

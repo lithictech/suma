@@ -13,7 +13,7 @@ import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
-import Progress from "../ui/Progress.jsx";
+import Progress from "../ui/Progress";
 import { CanceledError } from "axios";
 import clsx from "clsx";
 import React from "react";
