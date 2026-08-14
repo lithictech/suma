@@ -166,6 +166,8 @@ class Suma::Service::Typewriter
     type = documentation[:type]
     return ANYTYPE unless type
 
+    return type.jsdoc_type if type.respond_to?(:jsdoc_type)
+
     # Grape uses :type as a class, string, or symbol. If we get a mapped hit, just use it.
     mapped = GRAPE_TO_JSTYPE[type.to_s.to_sym]
     return mapped if mapped

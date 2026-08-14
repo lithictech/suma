@@ -89,13 +89,13 @@ module Suma::API::Entities
     expose :ended_at
     expose :ongoing?, as: :ongoing
     expose :charge, with: MobilityChargeEntity
-    expose :duration_minutes, as: :minutes
+    expose :duration_minutes, as: :minutes, documentation: {type: Integer}
     expose :image, with: ImageEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity
     expose :key
-    expose :opted_in
+    expose :opted_in, documentation: {type: :Boolean}
     expose :editable_state
   end
 
@@ -135,7 +135,7 @@ module Suma::API::Entities
       Suma::Payment.chargeable_balance?(b || Money.new(0)) ? b : nil
     end
 
-    expose :finished_survey_topics do |m|
+    expose :finished_survey_topics, documentation: {type: String, array: true} do |m|
       m.db[:member_surveys].where(member_id: m.id).select_map(:topic).sort
     end
     expose :registration_link, with: RegistrationLinkEntity do |_|
@@ -145,7 +145,7 @@ module Suma::API::Entities
 
   class LedgerLineUsageDetailsEntity < Grape::Entity
     expose :code
-    expose :args
+    expose :args, documentation: {type: Suma::Service::Entities::RecordString}
   end
 
   module LedgerLineAmountMixin

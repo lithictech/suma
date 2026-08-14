@@ -82,8 +82,8 @@ class Suma::API::Me < Suma::API::V1
 
   class DashboardAlertEntity < BaseEntity
     expose :localization_key
-    expose :localization_params
-    expose :variant
+    expose :localization_params, documentation: {type: Suma::Service::Entities::RecordString}
+    expose :variant, documentation: {type: String}
   end
 
   class ProgramEntity < BaseEntity

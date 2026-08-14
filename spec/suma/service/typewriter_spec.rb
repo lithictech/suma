@@ -53,6 +53,25 @@ RSpec.describe Suma::Service::Typewriter do
     STR
   end
 
+  it "uses the jsdoc_type method on the type class" do
+    t = Class.new do
+      define_singleton_method(:jsdoc_type) { "number[]" }
+    end
+
+    cls = Class.new(Suma::Service::Entities::Base) do
+      define_singleton_method(:name) { "TestEntity" }
+      expose :jt, documentation: {type: t}
+    end
+    jsdoc = described_class.new.build([cls])
+    expect(jsdoc).to include(<<~STR)
+      /**
+       * @typedef {object} Test
+       * @description Auto-generated from TestEntity
+       * @property {number[]} jt
+       */
+    STR
+  end
+
   it "can include extra entities" do
     cls = described_class.gather_admin_entity_classes
     s = described_class.new.build(cls)

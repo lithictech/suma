@@ -245,10 +245,15 @@ class Suma::API::Mobility < Suma::API::V1
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
 
+  class MobilityMapRestrictionBoundsEntity < BaseEntity
+    expose :ne, documentation: {type: Suma::Service::Entities::GeoLatLng}
+    expose :sw, documentation: {type: Suma::Service::Entities::GeoLatLng}
+  end
+
   class MobilityMapRestrictionEntity < BaseEntity
-    expose :restriction
-    expose :multipolygon_numeric, as: :multipolygon
-    expose :bounds_numeric, as: :bounds
+    expose :restriction, documentation: {type: String}
+    expose :multipolygon_numeric, as: :multipolygon, documentation: {type: Suma::Service::Entities::GeoMultiPolygon}
+    expose :bounds_numeric, as: :bounds, documentation: {type: MobilityMapRestrictionBoundsEntity}
   end
 
   class MobilityMapFeaturesEntity < BaseEntity
@@ -267,11 +272,11 @@ class Suma::API::Mobility < Suma::API::V1
     expose :rate, with: RateEntity do |_v, options|
       options.fetch(:rate)
     end
-    expose :subsidy_match_percentage do |_v, options|
+    expose :subsidy_match_percentage, documentation: {type: Integer} do |_v, options|
       x = options.fetch(:payment_trigger, nil)&.match_fraction || 0
       (x * 100).round
     end
-    expose :deeplink do |vehicle, options|
+    expose :deeplink, documentation: {type: String} do |vehicle, options|
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)
     end
     expose :goto_private_account, documentation: {type: String} do |vehicle|
@@ -288,6 +293,13 @@ class Suma::API::Mobility < Suma::API::V1
     end
   end
 
+  class MobilityTripCollectionWeekEntity < BaseEntity
+    expose :begin_at
+    expose :end_at
+    expose :begin_index
+    expose :end_index
+  end
+
   class MobilityTripCollectionEntity < Suma::Service::Collection::BaseEntity
     include Suma::API::Entities
 
@@ -295,7 +307,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :ongoing, with: MobilityTripEntity do |_, opts|
       opts.fetch(:ongoing)
     end
-    expose :weeks do |_, opts|
+    expose_array :weeks, MobilityTripCollectionWeekEntity do |_, opts|
       opts.fetch(:weeks)
     end
   end
