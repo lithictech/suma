@@ -1,5 +1,5 @@
 // Auto-generated typedefs from Grape::Entity
-// Generated: 2026-08-14 13:29:29
+// Generated: 2026-08-14 15:01:58
 // Entities: Money, Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::LedgerEntity, Suma::API::Entities::LedgerLineEntity, Suma::API::Entities::LedgerLineUsageDetailsEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::MobilityTripParsedAddressEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::ProgramEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionBoundsEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::MobilityTripCollectionWeekEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity
 
 declare global {
@@ -310,7 +310,7 @@ declare global {
     name: string;
     phone: string;
     onboarded: boolean;
-    roleAccess: Suma::Service::Entities::RoleAccessType;
+    roleAccess: RoleAccessType;
     unclaimedOrdersCount: number;
     ongoingTrip: MobilityTrip;
     readOnlyMode: boolean;
@@ -352,7 +352,7 @@ declare global {
   /** Auto-generated from Suma::API::Entities::LedgerLineUsageDetailsEntity */
   interface LedgerLineUsageDetails {
     code: string;
-    args: Suma::Service::Entities::RecordString;
+    args: RecordString;
   }
 
   /** Auto-generated from Suma::API::Entities::LocaleEntity */
@@ -475,7 +475,7 @@ declare global {
   /** Auto-generated from Suma::API::Me::DashboardAlertEntity */
   interface DashboardAlert {
     localizationKey: string;
-    localizationParams: Suma::Service::Entities::RecordString;
+    localizationParams: RecordString;
     variant: string;
   }
 
@@ -537,14 +537,14 @@ declare global {
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapRestrictionBoundsEntity */
   interface MobilityMapRestrictionBounds {
-    ne: Suma::Service::Entities::GeoLatLng;
-    sw: Suma::Service::Entities::GeoLatLng;
+    ne: GeoLatLng;
+    sw: GeoLatLng;
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapRestrictionEntity */
   interface MobilityMapRestriction {
     restriction: string;
-    multipolygon: Suma::Service::Entities::GeoMultiPolygon;
+    multipolygon: GeoMultiPolygon;
     bounds: MobilityMapRestrictionBounds;
   }
 
@@ -630,6 +630,12 @@ declare global {
     preferences: PublicPrefs;
   }
 
+  type RoleAccessType = Record<string, string[]>;
+  type RecordString = Record<string, unknown>;
+  type GeoLatLng = [number, number];
+  type GeoMultiPolygon = GeoPolygon[];
+  type GeoPolygon = GeoLinearRing[];
+  type GeoLinearRing = GeoLatLng[];
 }
 
 export {};

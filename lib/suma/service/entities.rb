@@ -21,14 +21,17 @@ module Suma::Service::Entities
   end
 
   class GeoLinearRing
+    def self.js_typeincludes = [GeoLatLng]
     def self.js_typealias = "GeoLatLng[]"
   end
 
   class GeoPolygon
+    def self.js_typeincludes = [GeoLinearRing]
     def self.js_typealias = "GeoLinearRing[]"
   end
 
   class GeoMultiPolygon
+    def self.js_typeincludes = [GeoPolygon]
     def self.js_typealias = "GeoPolygon[]"
   end
 
