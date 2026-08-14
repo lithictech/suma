@@ -14,6 +14,7 @@ end
 #  created_at          | timestamp with time zone | NOT NULL DEFAULT now()
 #  book_transaction_id | integer                  | NOT NULL
 #  trigger_id          | integer                  | NOT NULL
+#  apply_execution_at  | timestamp with time zone | NOT NULL
 # Indexes:
 #  payment_trigger_executions_pkey                               | PRIMARY KEY btree (id)
 #  payment_trigger_executions_trigger_id_book_transaction_id_key | UNIQUE btree (trigger_id, book_transaction_id)

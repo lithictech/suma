@@ -294,7 +294,7 @@ end
 #  created_at                            | timestamp with time zone | NOT NULL DEFAULT now()
 #  updated_at                            | timestamp with time zone |
 #  label                                 | text                     | NOT NULL
-#  active_during                         | tstzrange                | NOT NULL
+#  active_during                         | tstzmultirange           | NOT NULL
 #  match_multiplier                      | numeric                  | NOT NULL
 #  maximum_cumulative_subsidy_cents      | integer                  | NOT NULL
 #  memo_id                               | integer                  | NOT NULL

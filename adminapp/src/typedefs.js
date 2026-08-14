@@ -1,22 +1,24 @@
-// Auto-generated JSDoc typedefs from Grape::Entity
-// Generated: 2026-06-02 15:30:01
-// Entities: Suma::AdminAPI::AnonProxyMemberContacts::DetailedMemberContactEntity, Suma::AdminAPI::AnonProxyVendorAccounts::DetailedVendorAccountEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountMessageEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountMessageEntityCollection, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntityCollection, Suma::AdminAPI::AnonProxyVendorConfigurations::DetailedVendorConfigurationEntity, Suma::AdminAPI::BankAccounts::BankAccountEntity, Suma::AdminAPI::BankAccounts::DetailedBankAccountEntity, Suma::AdminAPI::BookTransactions::DetailedBookTransactionEntity, Suma::AdminAPI::Cards::CardEntity, Suma::AdminAPI::Cards::DetailedCardEntity, Suma::AdminAPI::Charges::ChargeEntityWithMember, Suma::AdminAPI::Charges::DetailedChargeEntity, Suma::AdminAPI::CommerceOfferingProducts::DetailedCommerceOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::DetailedOfferingEntity, Suma::AdminAPI::CommerceOfferings::ListCommerceOfferingEntity, Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntity, Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntityCollection, Suma::AdminAPI::CommerceOfferings::PicklistEntity, Suma::AdminAPI::CommerceOfferings::PicklistFulfillmentOptionEntity, Suma::AdminAPI::CommerceOfferings::PicklistOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistOrderItemEntity, Suma::AdminAPI::CommerceOfferings::PicklistProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistSimpleMemberEntity, Suma::AdminAPI::CommerceOrders::CheckoutEntity, Suma::AdminAPI::CommerceOrders::CheckoutItemEntity, Suma::AdminAPI::CommerceOrders::CheckoutItemEntityCollection, Suma::AdminAPI::CommerceOrders::DetailedCommerceOrderEntity, Suma::AdminAPI::CommerceOrders::ListOrderEntity, Suma::AdminAPI::CommerceOrders::OrderAuditLogEntity, Suma::AdminAPI::CommerceOrders::OrderAuditLogEntityCollection, Suma::AdminAPI::CommerceProducts::DetailedEntity, Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntity, Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntityCollection, Suma::AdminAPI::EligibilityAssignments::DetailedEligibilityAssignment, Suma::AdminAPI::EligibilityAttributes::DetailedEligibilityAttribute, Suma::AdminAPI::EligibilityRequirements::DetailedEligibilityRequirement, Suma::AdminAPI::EligibilityRequirements::EditorDetokenizationWarningEntity, Suma::AdminAPI::EligibilityRequirements::EditorExpressionEvaluationEntity, Suma::AdminAPI::EligibilityRequirements::EditorSettingsEntity, Suma::AdminAPI::EligibilityRequirements::EditorSettingsKeyMapping, Suma::AdminAPI::EligibilityRequirements::EditorTokenOptionEntity, Suma::AdminAPI::Entities::ActivityEntity, Suma::AdminAPI::Entities::ActivityEntityCollection, Suma::AdminAPI::Entities::AddressEntity, Suma::AdminAPI::Entities::AnonProxyMemberContactEntity, Suma::AdminAPI::Entities::AnonProxyMemberContactEntityCollection, Suma::AdminAPI::Entities::AnonProxyVendorAccountEntity, Suma::AdminAPI::Entities::AnonProxyVendorAccountEntityCollection, Suma::AdminAPI::Entities::AnonProxyVendorAccountMemberContactEntity, Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntity, Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntityCollection, Suma::AdminAPI::Entities::AuditLogEntity, Suma::AdminAPI::Entities::AuditLogEntityCollection, Suma::AdminAPI::Entities::AuditMemberEntity, Suma::AdminAPI::Entities::AutoExposedBaseEntity, Suma::AdminAPI::Entities::BaseEntity, Suma::AdminAPI::Entities::BaseModelEntity, Suma::AdminAPI::Entities::BaseOrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::BookTransactionEntity, Suma::AdminAPI::Entities::BookTransactionEntityCollection, Suma::AdminAPI::Entities::ChargeEntity, Suma::AdminAPI::Entities::ChargeEntityCollection, Suma::AdminAPI::Entities::ChargeLineItemEntity, Suma::AdminAPI::Entities::ChargeLineItemEntityCollection, Suma::AdminAPI::Entities::ChargeWithPricesEntity, Suma::AdminAPI::Entities::CurrentMemberEntity, Suma::AdminAPI::Entities::EligibilityAssignmentEntity, Suma::AdminAPI::Entities::EligibilityAssignmentEntityCollection, Suma::AdminAPI::Entities::EligibilityAttributeEntity, Suma::AdminAPI::Entities::EligibilityAttributeEntityCollection, Suma::AdminAPI::Entities::EligibilityRequirementEntity, Suma::AdminAPI::Entities::EligibilityRequirementEntityCollection, Suma::AdminAPI::Entities::EligibilityRequirementResourceEntity, Suma::AdminAPI::Entities::FundingTransactionEntity, Suma::AdminAPI::Entities::FundingTransactionEntityCollection, Suma::AdminAPI::Entities::ImageEntity, Suma::AdminAPI::Entities::LegalEntityEntity, Suma::AdminAPI::Entities::MarketingListEntity, Suma::AdminAPI::Entities::MarketingListEntityCollection, Suma::AdminAPI::Entities::MarketingMemberEntity, Suma::AdminAPI::Entities::MarketingMemberEntityCollection, Suma::AdminAPI::Entities::MarketingSmsBroadcastEntity, Suma::AdminAPI::Entities::MarketingSmsBroadcastEntityCollection, Suma::AdminAPI::Entities::MarketingSmsDispatchEntity, Suma::AdminAPI::Entities::MarketingSmsDispatchEntityCollection, Suma::AdminAPI::Entities::MemberEntity, Suma::AdminAPI::Entities::MemberEntityCollection, Suma::AdminAPI::Entities::MessageDeliveryEntity, Suma::AdminAPI::Entities::MessageDeliveryEntityCollection, Suma::AdminAPI::Entities::MobilityTripEntity, Suma::AdminAPI::Entities::MobilityTripEntityCollection, Suma::AdminAPI::Entities::MoneyEntity, Suma::AdminAPI::Entities::NamedValueEntity, Suma::AdminAPI::Entities::OfferingEntity, Suma::AdminAPI::Entities::OfferingEntityCollection, Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntity, Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntityCollection, Suma::AdminAPI::Entities::OfferingProductEntity, Suma::AdminAPI::Entities::OfferingProductEntityCollection, Suma::AdminAPI::Entities::OrderEntity, Suma::AdminAPI::Entities::OrderEntityCollection, Suma::AdminAPI::Entities::OrganizationEntity, Suma::AdminAPI::Entities::OrganizationEntityCollection, Suma::AdminAPI::Entities::OrganizationMembershipEntity, Suma::AdminAPI::Entities::OrganizationMembershipEntityCollection, Suma::AdminAPI::Entities::OrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::OrganizationRegistrationLinkEntity, Suma::AdminAPI::Entities::PaymentInstrumentEntity, Suma::AdminAPI::Entities::PaymentInstrumentEntityCollection, Suma::AdminAPI::Entities::PaymentStrategyEntity, Suma::AdminAPI::Entities::PaymentTriggerEntity, Suma::AdminAPI::Entities::PaymentTriggerEntityCollection, Suma::AdminAPI::Entities::PayoutTransactionEntity, Suma::AdminAPI::Entities::PayoutTransactionEntityCollection, Suma::AdminAPI::Entities::ProductEntity, Suma::AdminAPI::Entities::ProductEntityCollection, Suma::AdminAPI::Entities::ProgramEntity, Suma::AdminAPI::Entities::ProgramEntityCollection, Suma::AdminAPI::Entities::ProgramPricingEntity, Suma::AdminAPI::Entities::ProgramPricingEntityCollection, Suma::AdminAPI::Entities::RoleEntity, Suma::AdminAPI::Entities::RoleEntityCollection, Suma::AdminAPI::Entities::SimpleLedgerEntity, Suma::AdminAPI::Entities::SimplePaymentAccountEntity, Suma::AdminAPI::Entities::SupportNoteEntity, Suma::AdminAPI::Entities::SupportNoteEntityCollection, Suma::AdminAPI::Entities::TranslatedTextEntity, Suma::AdminAPI::Entities::VendorEntity, Suma::AdminAPI::Entities::VendorServiceCategoryEntity, Suma::AdminAPI::Entities::VendorServiceCategoryEntityCollection, Suma::AdminAPI::Entities::VendorServiceCategoryTerminalEntity, Suma::AdminAPI::Entities::VendorServiceEntity, Suma::AdminAPI::Entities::VendorServiceEntityCollection, Suma::AdminAPI::Entities::VendorServiceRateEntity, Suma::AdminAPI::Entities::VendorServiceRateEntityCollection, Suma::AdminAPI::Entities::VendorServiceRateUndiscountedrateEntity, Suma::AdminAPI::Financials::LedgerEntity, Suma::AdminAPI::Financials::LedgerEntityCollection, Suma::AdminAPI::Financials::OffPlatformTransactionEntity, Suma::AdminAPI::Financials::OffPlatformTransactionEntityCollection, Suma::AdminAPI::Financials::PlatformStatusEntity, Suma::AdminAPI::FundingTransactions::DetailedFundingTransactionEntity, Suma::AdminAPI::FundingTransactions::FundingAuditLogEntity, Suma::AdminAPI::FundingTransactions::FundingAuditLogEntityCollection, Suma::AdminAPI::MarketingLists::DetailedListEntity, Suma::AdminAPI::MarketingSmsBroadcasts::DetailedSmsBroadcastEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPayloadEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPostReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPreReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastReviewAssociatedEntity, Suma::AdminAPI::MarketingSmsDispatches::DetailedSmsDispatchEntity, Suma::AdminAPI::Members::DetailedMemberEntity, Suma::AdminAPI::Members::EligibilityMemberAssignmentEntity, Suma::AdminAPI::Members::EligibilityMemberAssignmentEntityCollection, Suma::AdminAPI::Members::MemberDetailLedgerEntity, Suma::AdminAPI::Members::MemberDetailLedgerEntityCollection, Suma::AdminAPI::Members::MemberDetailPaymentAccountEntity, Suma::AdminAPI::Members::MemberOrderEntity, Suma::AdminAPI::Members::MemberOrderEntityCollection, Suma::AdminAPI::Members::MemberResetCodeEntity, Suma::AdminAPI::Members::MemberResetCodeEntityCollection, Suma::AdminAPI::Members::MemberSessionEntity, Suma::AdminAPI::Members::MemberSessionEntityCollection, Suma::AdminAPI::Members::MemberVendorAccountEntity, Suma::AdminAPI::Members::MemberVendorAccountEntityCollection, Suma::AdminAPI::Members::PreferencesEntity, Suma::AdminAPI::Members::PreferencesSubscriptionEntity, Suma::AdminAPI::Members::ReferralEntity, Suma::AdminAPI::MessageDeliveries::DetailedMessageDeliveryEntity, Suma::AdminAPI::MessageDeliveries::MessageBodyEntity, Suma::AdminAPI::Meta::CurrencyEntity, Suma::AdminAPI::Meta::HierarchicalCategoryEntity, Suma::AdminAPI::Meta::SlimProgramEntity, Suma::AdminAPI::MobilityTrips::DetailedMobilityTripEntity, Suma::AdminAPI::OffPlatformTransactions::DetailedOffPlatformTransactionEntity, Suma::AdminAPI::OrganizationMembershipVerifications::DetailedMembershipVerificationEntity, Suma::AdminAPI::OrganizationMembershipVerifications::VerificationListEntity, Suma::AdminAPI::OrganizationMemberships::DetailedOrganizationMembershipEntity, Suma::AdminAPI::OrganizationRegistrationLinks::DetailedOrganizationRegistrationLinkEntity, Suma::AdminAPI::OrganizationRegistrationLinks::ScheduledAvailabilityEntity, Suma::AdminAPI::Organizations::DetailedOrganizationEntity, Suma::AdminAPI::PaymentAccounts::DetailedPaymentAccountEntity, Suma::AdminAPI::PaymentAccounts::LedgerEntity, Suma::AdminAPI::PaymentAccounts::LedgerEntityCollection, Suma::AdminAPI::PaymentAccounts::PaymentAccountEntity, Suma::AdminAPI::PaymentLedgers::DetailedLedgerEntity, Suma::AdminAPI::PaymentLedgers::LedgerEntity, Suma::AdminAPI::PaymentLedgers::UnbalancedCounterpartyEntity, Suma::AdminAPI::PaymentTriggers::DetailedPaymentTriggerEntity, Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntity, Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntityCollection, Suma::AdminAPI::PayoutTransactions::DetailedPayoutTransactionEntity, Suma::AdminAPI::PayoutTransactions::PayoutAuditLogEntity, Suma::AdminAPI::PayoutTransactions::PayoutAuditLogEntityCollection, Suma::AdminAPI::ProgramPricings::DetailedProgramPricingEntity, Suma::AdminAPI::Programs::DetailedProgramEntity, Suma::AdminAPI::Roles::DetailedRoleEntity, Suma::AdminAPI::Roles::RoleEntity, Suma::AdminAPI::Roles::RoleListEntity, Suma::AdminAPI::Search::SearchCommerceOfferingEntity, Suma::AdminAPI::Search::SearchEligibilityAttributeEntity, Suma::AdminAPI::Search::SearchEntity, Suma::AdminAPI::Search::SearchLedgerEntity, Suma::AdminAPI::Search::SearchMemberEntity, Suma::AdminAPI::Search::SearchOfferingEntity, Suma::AdminAPI::Search::SearchOrganizationEntity, Suma::AdminAPI::Search::SearchPaymentInstrumentEntity, Suma::AdminAPI::Search::SearchPaymentTriggerEntity, Suma::AdminAPI::Search::SearchProductEntity, Suma::AdminAPI::Search::SearchProgramEntity, Suma::AdminAPI::Search::SearchRoleEntity, Suma::AdminAPI::Search::SearchStaticStringEntity, Suma::AdminAPI::Search::SearchTransactionEntity, Suma::AdminAPI::Search::SearchVendorEntity, Suma::AdminAPI::Search::SearchVendorServiceCategoryEntity, Suma::AdminAPI::Search::SearchVendorServiceEntity, Suma::AdminAPI::Search::SearchVendorServiceRateEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlRowEntity, Suma::AdminAPI::StaticStrings::BaseStaticStringEntity, Suma::AdminAPI::StaticStrings::JoinedStaticStringEntity, Suma::AdminAPI::StaticStrings::StandaloneStaticStringEntity, Suma::AdminAPI::StaticStrings::StaticStringGroup, Suma::AdminAPI::VendorServiceCategories::DetailedVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceCategories::ListVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceRates::DetailedVendorServiceRateEntity, Suma::AdminAPI::VendorServices::DetailedVendorServiceEntity, Suma::AdminAPI::Vendors::DetailedVendorEntity
+// Auto-generated typedefs from Grape::Entity
+// Generated: 2026-08-14 15:13:59
+// Entities: AdminAction, ExternalLink, Suma::AdminAPI::AnonProxyMemberContacts::DetailedMemberContactEntity, Suma::AdminAPI::AnonProxyVendorAccounts::DetailedVendorAccountEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountMessageEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountMessageEntityCollection, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntity, Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntityCollection, Suma::AdminAPI::AnonProxyVendorConfigurations::DetailedVendorConfigurationEntity, Suma::AdminAPI::BankAccounts::BankAccountEntity, Suma::AdminAPI::BankAccounts::DetailedBankAccountEntity, Suma::AdminAPI::BookTransactions::DetailedBookTransactionEntity, Suma::AdminAPI::Cards::CardEntity, Suma::AdminAPI::Cards::DetailedCardEntity, Suma::AdminAPI::Charges::ChargeEntityWithMember, Suma::AdminAPI::Charges::DetailedChargeEntity, Suma::AdminAPI::CommerceOfferingProducts::DetailedCommerceOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::DetailedOfferingEntity, Suma::AdminAPI::CommerceOfferings::ListCommerceOfferingEntity, Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntity, Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntityCollection, Suma::AdminAPI::CommerceOfferings::PicklistEntity, Suma::AdminAPI::CommerceOfferings::PicklistFulfillmentOptionEntity, Suma::AdminAPI::CommerceOfferings::PicklistOfferingProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistOrderItemEntity, Suma::AdminAPI::CommerceOfferings::PicklistProductEntity, Suma::AdminAPI::CommerceOfferings::PicklistSimpleMemberEntity, Suma::AdminAPI::CommerceOrders::CheckoutEntity, Suma::AdminAPI::CommerceOrders::CheckoutItemEntity, Suma::AdminAPI::CommerceOrders::CheckoutItemEntityCollection, Suma::AdminAPI::CommerceOrders::DetailedCommerceOrderEntity, Suma::AdminAPI::CommerceOrders::ListOrderEntity, Suma::AdminAPI::CommerceOrders::OrderAuditLogEntity, Suma::AdminAPI::CommerceOrders::OrderAuditLogEntityCollection, Suma::AdminAPI::CommerceProducts::DetailedEntity, Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntity, Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntityCollection, Suma::AdminAPI::EligibilityAssignments::DetailedEligibilityAssignment, Suma::AdminAPI::EligibilityAttributes::DetailedEligibilityAttribute, Suma::AdminAPI::EligibilityRequirements::DetailedEligibilityRequirement, Suma::AdminAPI::EligibilityRequirements::EditorDetokenizationWarningEntity, Suma::AdminAPI::EligibilityRequirements::EditorExpressionEvaluationEntity, Suma::AdminAPI::EligibilityRequirements::EditorSettingsEntity, Suma::AdminAPI::EligibilityRequirements::EditorSettingsKeyMapping, Suma::AdminAPI::EligibilityRequirements::EditorTokenOptionEntity, Suma::AdminAPI::Entities::ActivityEntity, Suma::AdminAPI::Entities::ActivityEntityCollection, Suma::AdminAPI::Entities::AddressEntity, Suma::AdminAPI::Entities::AnonProxyMemberContactEntity, Suma::AdminAPI::Entities::AnonProxyMemberContactEntityCollection, Suma::AdminAPI::Entities::AnonProxyVendorAccountEntity, Suma::AdminAPI::Entities::AnonProxyVendorAccountEntityCollection, Suma::AdminAPI::Entities::AnonProxyVendorAccountMemberContactEntity, Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntity, Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntityCollection, Suma::AdminAPI::Entities::AuditLogEntity, Suma::AdminAPI::Entities::AuditLogEntityCollection, Suma::AdminAPI::Entities::AuditMemberEntity, Suma::AdminAPI::Entities::AutoExposedBaseEntity, Suma::AdminAPI::Entities::BaseEntity, Suma::AdminAPI::Entities::BaseModelEntity, Suma::AdminAPI::Entities::BaseOrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::BookTransactionEntity, Suma::AdminAPI::Entities::BookTransactionEntityCollection, Suma::AdminAPI::Entities::ChargeEntity, Suma::AdminAPI::Entities::ChargeEntityCollection, Suma::AdminAPI::Entities::ChargeLineItemEntity, Suma::AdminAPI::Entities::ChargeLineItemEntityCollection, Suma::AdminAPI::Entities::ChargeWithPricesEntity, Suma::AdminAPI::Entities::CurrentMemberEntity, Suma::AdminAPI::Entities::EligibilityAssignmentEntity, Suma::AdminAPI::Entities::EligibilityAssignmentEntityCollection, Suma::AdminAPI::Entities::EligibilityAttributeEntity, Suma::AdminAPI::Entities::EligibilityAttributeEntityCollection, Suma::AdminAPI::Entities::EligibilityRequirementEntity, Suma::AdminAPI::Entities::EligibilityRequirementEntityCollection, Suma::AdminAPI::Entities::EligibilityRequirementResourceEntity, Suma::AdminAPI::Entities::FundingTransactionEntity, Suma::AdminAPI::Entities::FundingTransactionEntityCollection, Suma::AdminAPI::Entities::ImageEntity, Suma::AdminAPI::Entities::LegalEntityEntity, Suma::AdminAPI::Entities::MarketingListEntity, Suma::AdminAPI::Entities::MarketingListEntityCollection, Suma::AdminAPI::Entities::MarketingMemberEntity, Suma::AdminAPI::Entities::MarketingMemberEntityCollection, Suma::AdminAPI::Entities::MarketingSmsBroadcastEntity, Suma::AdminAPI::Entities::MarketingSmsBroadcastEntityCollection, Suma::AdminAPI::Entities::MarketingSmsDispatchEntity, Suma::AdminAPI::Entities::MarketingSmsDispatchEntityCollection, Suma::AdminAPI::Entities::MemberEntity, Suma::AdminAPI::Entities::MemberEntityCollection, Suma::AdminAPI::Entities::MessageDeliveryEntity, Suma::AdminAPI::Entities::MessageDeliveryEntityCollection, Suma::AdminAPI::Entities::MobilityTripEntity, Suma::AdminAPI::Entities::MobilityTripEntityCollection, Suma::AdminAPI::Entities::MoneyEntity, Suma::AdminAPI::Entities::NamedValueEntity, Suma::AdminAPI::Entities::OfferingEntity, Suma::AdminAPI::Entities::OfferingEntityCollection, Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntity, Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntityCollection, Suma::AdminAPI::Entities::OfferingProductEntity, Suma::AdminAPI::Entities::OfferingProductEntityCollection, Suma::AdminAPI::Entities::OrderEntity, Suma::AdminAPI::Entities::OrderEntityCollection, Suma::AdminAPI::Entities::OrganizationEntity, Suma::AdminAPI::Entities::OrganizationEntityCollection, Suma::AdminAPI::Entities::OrganizationMembershipEntity, Suma::AdminAPI::Entities::OrganizationMembershipEntityCollection, Suma::AdminAPI::Entities::OrganizationMembershipVerificationEntity, Suma::AdminAPI::Entities::OrganizationRegistrationLinkEntity, Suma::AdminAPI::Entities::PaymentInstrumentEntity, Suma::AdminAPI::Entities::PaymentInstrumentEntityCollection, Suma::AdminAPI::Entities::PaymentStrategyEntity, Suma::AdminAPI::Entities::PaymentTriggerEntity, Suma::AdminAPI::Entities::PaymentTriggerEntityCollection, Suma::AdminAPI::Entities::PayoutTransactionEntity, Suma::AdminAPI::Entities::PayoutTransactionEntityCollection, Suma::AdminAPI::Entities::ProductEntity, Suma::AdminAPI::Entities::ProductEntityCollection, Suma::AdminAPI::Entities::ProgramEntity, Suma::AdminAPI::Entities::ProgramEntityCollection, Suma::AdminAPI::Entities::ProgramPricingEntity, Suma::AdminAPI::Entities::ProgramPricingEntityCollection, Suma::AdminAPI::Entities::RoleEntity, Suma::AdminAPI::Entities::RoleEntityCollection, Suma::AdminAPI::Entities::SimpleLedgerEntity, Suma::AdminAPI::Entities::SimplePaymentAccountEntity, Suma::AdminAPI::Entities::SupportNoteEntity, Suma::AdminAPI::Entities::SupportNoteEntityCollection, Suma::AdminAPI::Entities::TranslatedTextEntity, Suma::AdminAPI::Entities::VendorEntity, Suma::AdminAPI::Entities::VendorServiceCategoryEntity, Suma::AdminAPI::Entities::VendorServiceCategoryEntityCollection, Suma::AdminAPI::Entities::VendorServiceCategoryTerminalEntity, Suma::AdminAPI::Entities::VendorServiceEntity, Suma::AdminAPI::Entities::VendorServiceEntityCollection, Suma::AdminAPI::Entities::VendorServiceRateEntity, Suma::AdminAPI::Entities::VendorServiceRateEntityCollection, Suma::AdminAPI::Entities::VendorServiceRateUndiscountedrateEntity, Suma::AdminAPI::Financials::LedgerEntity, Suma::AdminAPI::Financials::LedgerEntityCollection, Suma::AdminAPI::Financials::OffPlatformTransactionEntity, Suma::AdminAPI::Financials::OffPlatformTransactionEntityCollection, Suma::AdminAPI::Financials::PlatformStatusEntity, Suma::AdminAPI::FundingTransactions::DetailedFundingTransactionEntity, Suma::AdminAPI::FundingTransactions::FundingAuditLogEntity, Suma::AdminAPI::FundingTransactions::FundingAuditLogEntityCollection, Suma::AdminAPI::MarketingLists::DetailedListEntity, Suma::AdminAPI::MarketingSmsBroadcasts::DetailedSmsBroadcastEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPayloadEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPostReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPreReviewEntity, Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastReviewAssociatedEntity, Suma::AdminAPI::MarketingSmsDispatches::DetailedSmsDispatchEntity, Suma::AdminAPI::Members::DetailedMemberEntity, Suma::AdminAPI::Members::EligibilityMemberAssignmentEntity, Suma::AdminAPI::Members::EligibilityMemberAssignmentEntityCollection, Suma::AdminAPI::Members::MemberDetailLedgerEntity, Suma::AdminAPI::Members::MemberDetailLedgerEntityCollection, Suma::AdminAPI::Members::MemberDetailPaymentAccountEntity, Suma::AdminAPI::Members::MemberOrderEntity, Suma::AdminAPI::Members::MemberOrderEntityCollection, Suma::AdminAPI::Members::MemberResetCodeEntity, Suma::AdminAPI::Members::MemberResetCodeEntityCollection, Suma::AdminAPI::Members::MemberSessionEntity, Suma::AdminAPI::Members::MemberSessionEntityCollection, Suma::AdminAPI::Members::MemberVendorAccountEntity, Suma::AdminAPI::Members::MemberVendorAccountEntityCollection, Suma::AdminAPI::Members::PreferencesEntity, Suma::AdminAPI::Members::PreferencesSubscriptionEntity, Suma::AdminAPI::Members::ReferralEntity, Suma::AdminAPI::MessageDeliveries::DetailedMessageDeliveryEntity, Suma::AdminAPI::MessageDeliveries::MessageBodyEntity, Suma::AdminAPI::Meta::CurrencyEntity, Suma::AdminAPI::Meta::HierarchicalCategoryEntity, Suma::AdminAPI::Meta::IcalOccurrenceEntity, Suma::AdminAPI::Meta::IcalProjectionEntity, Suma::AdminAPI::Meta::SlimProgramEntity, Suma::AdminAPI::MobilityTrips::DetailedMobilityTripEntity, Suma::AdminAPI::OffPlatformTransactions::DetailedOffPlatformTransactionEntity, Suma::AdminAPI::OrganizationMembershipVerifications::DetailedMembershipVerificationEntity, Suma::AdminAPI::OrganizationMembershipVerifications::VerificationListEntity, Suma::AdminAPI::OrganizationMemberships::DetailedOrganizationMembershipEntity, Suma::AdminAPI::OrganizationRegistrationLinks::DetailedOrganizationRegistrationLinkEntity, Suma::AdminAPI::OrganizationRegistrationLinks::ScheduledAvailabilityEntity, Suma::AdminAPI::Organizations::DetailedOrganizationEntity, Suma::AdminAPI::PaymentAccounts::DetailedPaymentAccountEntity, Suma::AdminAPI::PaymentAccounts::LedgerEntity, Suma::AdminAPI::PaymentAccounts::LedgerEntityCollection, Suma::AdminAPI::PaymentAccounts::PaymentAccountEntity, Suma::AdminAPI::PaymentLedgers::DetailedLedgerEntity, Suma::AdminAPI::PaymentLedgers::LedgerEntity, Suma::AdminAPI::PaymentLedgers::UnbalancedCounterpartyEntity, Suma::AdminAPI::PaymentTriggers::DetailedPaymentTriggerEntity, Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntity, Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntityCollection, Suma::AdminAPI::PayoutTransactions::DetailedPayoutTransactionEntity, Suma::AdminAPI::PayoutTransactions::PayoutAuditLogEntity, Suma::AdminAPI::PayoutTransactions::PayoutAuditLogEntityCollection, Suma::AdminAPI::ProgramPricings::DetailedProgramPricingEntity, Suma::AdminAPI::Programs::DetailedProgramEntity, Suma::AdminAPI::Roles::DetailedRoleEntity, Suma::AdminAPI::Roles::RoleEntity, Suma::AdminAPI::Roles::RoleListEntity, Suma::AdminAPI::Search::SearchCommerceOfferingEntity, Suma::AdminAPI::Search::SearchEligibilityAttributeEntity, Suma::AdminAPI::Search::SearchEntity, Suma::AdminAPI::Search::SearchLedgerEntity, Suma::AdminAPI::Search::SearchMemberEntity, Suma::AdminAPI::Search::SearchOfferingEntity, Suma::AdminAPI::Search::SearchOrganizationEntity, Suma::AdminAPI::Search::SearchPaymentInstrumentEntity, Suma::AdminAPI::Search::SearchPaymentTriggerEntity, Suma::AdminAPI::Search::SearchProductEntity, Suma::AdminAPI::Search::SearchProgramEntity, Suma::AdminAPI::Search::SearchRoleEntity, Suma::AdminAPI::Search::SearchStaticStringEntity, Suma::AdminAPI::Search::SearchTransactionEntity, Suma::AdminAPI::Search::SearchVendorEntity, Suma::AdminAPI::Search::SearchVendorServiceCategoryEntity, Suma::AdminAPI::Search::SearchVendorServiceEntity, Suma::AdminAPI::Search::SearchVendorServiceRateEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlEntity, Suma::AdminAPI::ShortUrls::ShortenedUrlRowEntity, Suma::AdminAPI::StaticStrings::BaseStaticStringEntity, Suma::AdminAPI::StaticStrings::JoinedStaticStringEntity, Suma::AdminAPI::StaticStrings::StandaloneStaticStringEntity, Suma::AdminAPI::StaticStrings::StaticStringGroup, Suma::AdminAPI::VendorServiceCategories::DetailedVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceCategories::ListVendorServiceCategoryEntity, Suma::AdminAPI::VendorServiceRates::DetailedVendorServiceRateEntity, Suma::AdminAPI::VendorServices::DetailedVendorServiceEntity, Suma::AdminAPI::Vendors::DetailedVendorEntity
 
 /**
- * @typedef AdminAction
+ * @typedef {object} AdminAction
+ * @description Auto-generated from AdminAction
  * @property {string} label
  * @property {string} url
- * @property {object} params
+ * @property {any} params
  */
 
 /**
- * @typedef ExternalLink
+ * @typedef {object} ExternalLink
+ * @description Auto-generated from ExternalLink
  * @property {string} url
  * @property {string} label
  */
 
 /**
- * @typedef {Object} DetailedMemberContact
+ * @typedef {object} DetailedMemberContact
  * @description Auto-generated from Suma::AdminAPI::AnonProxyMemberContacts::DetailedMemberContactEntity
  * @property {number} id
  * @property {string} createdAt
@@ -37,7 +39,7 @@
  */
 
 /**
- * @typedef {Object} DetailedVendorAccount
+ * @typedef {object} DetailedVendorAccount
  * @description Auto-generated from Suma::AdminAPI::AnonProxyVendorAccounts::DetailedVendorAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -46,7 +48,7 @@
  * @property {string} label
  * @property {Member} member
  * @property {AnonProxyVendorConfiguration} configuration
- * @property {AnonProxyVendorAccountMemberContact} contact
+ * @property {AnonProxyMemberContact} contact
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
@@ -55,14 +57,13 @@
  * @property {string} latestAccessCodeSetAt
  * @property {string} latestAccessCodeRequestedAt
  * @property {string} latestAccessCodeMagicLink
- * @property {?} pendingClosure
- * @property {AnonProxyMemberContact} contact
+ * @property {any} pendingClosure
  * @property {VendorAccountRegistrationEntityCollection} registrations
  * @property {VendorAccountMessageEntityCollection} messages
  */
 
 /**
- * @typedef {Object} VendorAccountMessage
+ * @typedef {object} VendorAccountMessage
  * @description Auto-generated from Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountMessageEntity
  * @property {number} id
  * @property {string} createdAt
@@ -70,17 +71,17 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {number} messageId
- * @property {?} messageFrom
- * @property {?} messageTo
+ * @property {any} messageFrom
+ * @property {any} messageTo
  * @property {string} messageContent
- * @property {?} messageTimestamp
+ * @property {any} messageTimestamp
  * @property {string} relayKey
  * @property {string} messageHandlerKey
  * @property {MessageDelivery} outboundDelivery
  */
 
 /**
- * @typedef {Object} VendorAccountMessageEntityCollection
+ * @typedef {object} VendorAccountMessageEntityCollection
  * @description Auto-generated from Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountMessageEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -92,7 +93,7 @@
  */
 
 /**
- * @typedef {Object} VendorAccountRegistration
+ * @typedef {object} VendorAccountRegistration
  * @description Auto-generated from Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -101,10 +102,11 @@
  * @property {string} label
  * @property {number} externalProgramId
  * @property {number} externalRegistrationId
+ * @property {string} unregisteredAt
  */
 
 /**
- * @typedef {Object} VendorAccountRegistrationEntityCollection
+ * @typedef {object} VendorAccountRegistrationEntityCollection
  * @description Auto-generated from Suma::AdminAPI::AnonProxyVendorAccounts::VendorAccountRegistrationEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -116,7 +118,7 @@
  */
 
 /**
- * @typedef {Object} DetailedVendorConfiguration
+ * @typedef {object} DetailedVendorConfiguration
  * @description Auto-generated from Suma::AdminAPI::AnonProxyVendorConfigurations::DetailedVendorConfigurationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -140,7 +142,7 @@
  */
 
 /**
- * @typedef {Object} BankAccount
+ * @typedef {object} BankAccount
  * @description Auto-generated from Suma::AdminAPI::BankAccounts::BankAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -153,13 +155,13 @@
  * @property {string} name
  * @property {string} status
  * @property {string} verifiedAt
- * @property {?} routingNumber
- * @property {?} maskedAccountNumber
+ * @property {any} routingNumber
+ * @property {any} maskedAccountNumber
  * @property {string} accountType
  */
 
 /**
- * @typedef {Object} DetailedBankAccount
+ * @typedef {object} DetailedBankAccount
  * @description Auto-generated from Suma::AdminAPI::BankAccounts::DetailedBankAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -172,8 +174,8 @@
  * @property {string} name
  * @property {string} status
  * @property {string} verifiedAt
- * @property {?} routingNumber
- * @property {?} maskedAccountNumber
+ * @property {any} routingNumber
+ * @property {any} maskedAccountNumber
  * @property {string} accountType
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
@@ -183,7 +185,7 @@
  */
 
 /**
- * @typedef {Object} DetailedBookTransaction
+ * @typedef {object} DetailedBookTransaction
  * @description Auto-generated from Suma::AdminAPI::BookTransactions::DetailedBookTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -202,7 +204,6 @@
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
  * @property {number} opaqueId
- * @property {TranslatedText} memo
  * @property {FundingTransaction} originatingFundingTransaction
  * @property {PayoutTransaction} originatingPayoutTransaction
  * @property {PayoutTransaction} creditedPayoutTransaction
@@ -211,7 +212,7 @@
  */
 
 /**
- * @typedef {Object} Card
+ * @typedef {object} Card
  * @description Auto-generated from Suma::AdminAPI::Cards::CardEntity
  * @property {number} id
  * @property {string} createdAt
@@ -224,13 +225,13 @@
  * @property {string} name
  * @property {string} status
  * @property {string} last4
- * @property {?} brand
- * @property {?} expMonth
- * @property {?} expYear
+ * @property {any} brand
+ * @property {any} expMonth
+ * @property {any} expYear
  */
 
 /**
- * @typedef {Object} DetailedCard
+ * @typedef {object} DetailedCard
  * @description Auto-generated from Suma::AdminAPI::Cards::DetailedCardEntity
  * @property {number} id
  * @property {string} createdAt
@@ -243,9 +244,9 @@
  * @property {string} name
  * @property {string} status
  * @property {string} last4
- * @property {?} brand
- * @property {?} expMonth
- * @property {?} expYear
+ * @property {any} brand
+ * @property {any} expMonth
+ * @property {any} expYear
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
@@ -256,7 +257,7 @@
  */
 
 /**
- * @typedef {Object} ChargeEntityWithMember
+ * @typedef {object} ChargeEntityWithMember
  * @description Auto-generated from Suma::AdminAPI::Charges::ChargeEntityWithMember
  * @property {number} id
  * @property {string} createdAt
@@ -270,7 +271,7 @@
  */
 
 /**
- * @typedef {Object} DetailedCharge
+ * @typedef {object} DetailedCharge
  * @description Auto-generated from Suma::AdminAPI::Charges::DetailedChargeEntity
  * @property {number} id
  * @property {string} createdAt
@@ -296,7 +297,7 @@
  */
 
 /**
- * @typedef {Object} DetailedCommerceOfferingProduct
+ * @typedef {object} DetailedCommerceOfferingProduct
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferingProducts::DetailedCommerceOfferingProductEntity
  * @property {number} id
  * @property {string} createdAt
@@ -320,7 +321,7 @@
  */
 
 /**
- * @typedef {Object} DetailedOffering
+ * @typedef {object} DetailedOffering
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::DetailedOfferingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -336,7 +337,6 @@
  * @property {AdminAction[]} adminActions
  * @property {ActivityEntityCollection} auditActivities
  * @property {string} confirmationTemplate
- * @property {TranslatedText} description
  * @property {TranslatedText} fulfillmentPrompt
  * @property {TranslatedText} fulfillmentInstructions
  * @property {TranslatedText} fulfillmentConfirmation
@@ -347,12 +347,12 @@
  * @property {OfferingProductEntityCollection} offeringProducts
  * @property {OrderInOfferingEntityCollection} orders
  * @property {ProgramEntityCollection} programs
- * @property {?} maxOrderedItemsCumulative
- * @property {?} maxOrderedItemsPerMember
+ * @property {any} maxOrderedItemsCumulative
+ * @property {any} maxOrderedItemsPerMember
  */
 
 /**
- * @typedef {Object} ListCommerceOffering
+ * @typedef {object} ListCommerceOffering
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::ListCommerceOfferingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -367,7 +367,7 @@
  */
 
 /**
- * @typedef {Object} OrderInOffering
+ * @typedef {object} OrderInOffering
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -383,7 +383,7 @@
  */
 
 /**
- * @typedef {Object} OrderInOfferingEntityCollection
+ * @typedef {object} OrderInOfferingEntityCollection
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::OrderInOfferingEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -395,13 +395,13 @@
  */
 
 /**
- * @typedef {Object} Picklist
+ * @typedef {object} Picklist
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::PicklistEntity
  * @property {PicklistOrderItem} orderItems
  */
 
 /**
- * @typedef {Object} PicklistFulfillmentOption
+ * @typedef {object} PicklistFulfillmentOption
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::PicklistFulfillmentOptionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -412,7 +412,7 @@
  */
 
 /**
- * @typedef {Object} PicklistOfferingProduct
+ * @typedef {object} PicklistOfferingProduct
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::PicklistOfferingProductEntity
  * @property {number} id
  * @property {string} createdAt
@@ -423,11 +423,11 @@
  */
 
 /**
- * @typedef {Object} PicklistOrderItem
+ * @typedef {object} PicklistOrderItem
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::PicklistOrderItemEntity
  * @property {number} id
  * @property {number} quantity
- * @property {?} serial
+ * @property {any} serial
  * @property {PicklistSimpleMember} member
  * @property {PicklistOfferingProduct} offeringProduct
  * @property {PicklistFulfillmentOption} fulfillmentOption
@@ -435,7 +435,7 @@
  */
 
 /**
- * @typedef {Object} PicklistProduct
+ * @typedef {object} PicklistProduct
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::PicklistProductEntity
  * @property {number} id
  * @property {string} createdAt
@@ -446,7 +446,7 @@
  */
 
 /**
- * @typedef {Object} PicklistSimpleMember
+ * @typedef {object} PicklistSimpleMember
  * @description Auto-generated from Suma::AdminAPI::CommerceOfferings::PicklistSimpleMemberEntity
  * @property {number} id
  * @property {string} createdAt
@@ -463,7 +463,7 @@
  */
 
 /**
- * @typedef {Object} Checkout
+ * @typedef {object} Checkout
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::CheckoutEntity
  * @property {number} id
  * @property {string} createdAt
@@ -482,7 +482,7 @@
  */
 
 /**
- * @typedef {Object} CheckoutItem
+ * @typedef {object} CheckoutItem
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::CheckoutItemEntity
  * @property {number} id
  * @property {OfferingProduct} offeringProduct
@@ -491,7 +491,7 @@
  */
 
 /**
- * @typedef {Object} CheckoutItemEntityCollection
+ * @typedef {object} CheckoutItemEntityCollection
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::CheckoutItemEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -503,7 +503,7 @@
  */
 
 /**
- * @typedef {Object} DetailedCommerceOrder
+ * @typedef {object} DetailedCommerceOrder
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::DetailedCommerceOrderEntity
  * @property {number} id
  * @property {string} createdAt
@@ -519,7 +519,7 @@
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {?} serial
+ * @property {any} serial
  * @property {ChargeWithPrices} charge
  * @property {OrderAuditLogEntityCollection} auditLogs
  * @property {Offering} offering
@@ -527,7 +527,7 @@
  */
 
 /**
- * @typedef {Object} ListOrder
+ * @typedef {object} ListOrder
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::ListOrderEntity
  * @property {number} id
  * @property {string} createdAt
@@ -543,20 +543,20 @@
  */
 
 /**
- * @typedef {Object} OrderAuditLog
+ * @typedef {object} OrderAuditLog
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::OrderAuditLogEntity
  * @property {number} id
  * @property {string} at
- * @property {?} event
+ * @property {any} event
  * @property {string} toState
  * @property {string} fromState
  * @property {string} reason
- * @property {?} messages
+ * @property {any} messages
  * @property {AuditMember} actor
  */
 
 /**
- * @typedef {Object} OrderAuditLogEntityCollection
+ * @typedef {object} OrderAuditLogEntityCollection
  * @description Auto-generated from Suma::AdminAPI::CommerceOrders::OrderAuditLogEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -568,7 +568,7 @@
  */
 
 /**
- * @typedef {Object} Detailed
+ * @typedef {object} Detailed
  * @description Auto-generated from Suma::AdminAPI::CommerceProducts::DetailedEntity
  * @property {number} id
  * @property {string} createdAt
@@ -583,7 +583,7 @@
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
  * @property {number} ordinal
- * @property {?} maxQuantityPerMemberPerOffering
+ * @property {any} maxQuantityPerMemberPerOffering
  * @property {number} limitedQuantity
  * @property {number} quantityOnHand
  * @property {number} quantityPendingFulfillment
@@ -596,7 +596,7 @@
  */
 
 /**
- * @typedef {Object} OfferingProductWithOffering
+ * @typedef {object} OfferingProductWithOffering
  * @description Auto-generated from Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -610,16 +610,11 @@
  * @property {Money} customerPrice
  * @property {Money} undiscountedPrice
  * @property {boolean} isClosed
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} label
  * @property {Offering} offering
  */
 
 /**
- * @typedef {Object} OfferingProductWithOfferingEntityCollection
+ * @typedef {object} OfferingProductWithOfferingEntityCollection
  * @description Auto-generated from Suma::AdminAPI::CommerceProducts::OfferingProductWithOfferingEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -631,7 +626,7 @@
  */
 
 /**
- * @typedef {Object} DetailedEligibilityAssignment
+ * @typedef {object} DetailedEligibilityAssignment
  * @description Auto-generated from Suma::AdminAPI::EligibilityAssignments::DetailedEligibilityAssignment
  * @property {number} id
  * @property {string} createdAt
@@ -652,7 +647,7 @@
  */
 
 /**
- * @typedef {Object} DetailedEligibilityAttribute
+ * @typedef {object} DetailedEligibilityAttribute
  * @description Auto-generated from Suma::AdminAPI::EligibilityAttributes::DetailedEligibilityAttribute
  * @property {number} id
  * @property {string} createdAt
@@ -672,7 +667,7 @@
  */
 
 /**
- * @typedef {Object} DetailedEligibilityRequirement
+ * @typedef {object} DetailedEligibilityRequirement
  * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::DetailedEligibilityRequirement
  * @property {number} id
  * @property {string} createdAt
@@ -687,29 +682,29 @@
  * @property {AdminAction[]} adminActions
  * @property {ProgramEntityCollection} programs
  * @property {PaymentTriggerEntityCollection} paymentTriggers
- * @property {?} expression
- * @property {?} expressionTokens
+ * @property {any} expression
+ * @property {any} expressionTokens
  */
 
 /**
- * @typedef {Object} EditorDetokenizationWarning
+ * @typedef {object} EditorDetokenizationWarning
  * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::EditorDetokenizationWarningEntity
- * @property {?} index
- * @property {?} message
- * @property {?} value
- * @property {?} string
+ * @property {number} index
+ * @property {any} message
+ * @property {any} value
+ * @property {any} string
  */
 
 /**
- * @typedef {Object} EditorExpressionEvaluation
+ * @typedef {object} EditorExpressionEvaluation
  * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::EditorExpressionEvaluationEntity
  * @property {Member} member
- * @property {?} assignments
- * @property {?} expressions
+ * @property {any} assignments
+ * @property {any} expressions
  */
 
 /**
- * @typedef {Object} EditorSettings
+ * @typedef {object} EditorSettings
  * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::EditorSettingsEntity
  * @property {EditorTokenOption} parens
  * @property {EditorTokenOption} operators
@@ -718,23 +713,23 @@
  */
 
 /**
- * @typedef {Object} EditorSettingsKeyMapping
+ * @typedef {object} EditorSettingsKeyMapping
  * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::EditorSettingsKeyMapping
  * @property {string} key
  * @property {EditorTokenOption} token
  */
 
 /**
- * @typedef {Object} EditorTokenOption
+ * @typedef {object} EditorTokenOption
  * @description Auto-generated from Suma::AdminAPI::EligibilityRequirements::EditorTokenOptionEntity
  * @property {number} id
- * @property {?} value
+ * @property {any} value
  * @property {string} label
  * @property {string} type
  */
 
 /**
- * @typedef {Object} Activity
+ * @typedef {object} Activity
  * @description Auto-generated from Suma::AdminAPI::Entities::ActivityEntity
  * @property {number} id
  * @property {string} createdAt
@@ -743,13 +738,13 @@
  * @property {string} label
  * @property {AuditMember} member
  * @property {string} messageName
- * @property {?} messageVars
- * @property {?} summary
+ * @property {any} messageVars
+ * @property {any} summary
  * @property {string} summaryMd
  */
 
 /**
- * @typedef {Object} ActivityEntityCollection
+ * @typedef {object} ActivityEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::ActivityEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -761,20 +756,20 @@
  */
 
 /**
- * @typedef {Object} Address
+ * @typedef {object} Address
  * @description Auto-generated from Suma::AdminAPI::Entities::AddressEntity
- * @property {?} address1
- * @property {?} address2
- * @property {?} city
- * @property {?} stateOrProvince
+ * @property {any} address1
+ * @property {any} address2
+ * @property {any} city
+ * @property {any} stateOrProvince
  * @property {string} postalCode
- * @property {?} country
+ * @property {any} country
  * @property {number} lat
  * @property {number} lng
  */
 
 /**
- * @typedef {Object} AnonProxyMemberContact
+ * @typedef {object} AnonProxyMemberContact
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyMemberContactEntity
  * @property {number} id
  * @property {string} createdAt
@@ -787,7 +782,7 @@
  */
 
 /**
- * @typedef {Object} AnonProxyMemberContactEntityCollection
+ * @typedef {object} AnonProxyMemberContactEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyMemberContactEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -799,7 +794,7 @@
  */
 
 /**
- * @typedef {Object} AnonProxyVendorAccount
+ * @typedef {object} AnonProxyVendorAccount
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyVendorAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -812,7 +807,7 @@
  */
 
 /**
- * @typedef {Object} AnonProxyVendorAccountEntityCollection
+ * @typedef {object} AnonProxyVendorAccountEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyVendorAccountEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -824,7 +819,7 @@
  */
 
 /**
- * @typedef {Object} AnonProxyVendorAccountMemberContact
+ * @typedef {object} AnonProxyVendorAccountMemberContact
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyVendorAccountMemberContactEntity
  * @property {number} id
  * @property {string} createdAt
@@ -835,7 +830,7 @@
  */
 
 /**
- * @typedef {Object} AnonProxyVendorConfiguration
+ * @typedef {object} AnonProxyVendorConfiguration
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -849,7 +844,7 @@
  */
 
 /**
- * @typedef {Object} AnonProxyVendorConfigurationEntityCollection
+ * @typedef {object} AnonProxyVendorConfigurationEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::AnonProxyVendorConfigurationEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -861,20 +856,20 @@
  */
 
 /**
- * @typedef {Object} AuditLog
+ * @typedef {object} AuditLog
  * @description Auto-generated from Suma::AdminAPI::Entities::AuditLogEntity
  * @property {number} id
  * @property {string} at
- * @property {?} event
+ * @property {any} event
  * @property {string} toState
  * @property {string} fromState
  * @property {string} reason
- * @property {?} messages
+ * @property {any} messages
  * @property {AuditMember} actor
  */
 
 /**
- * @typedef {Object} AuditLogEntityCollection
+ * @typedef {object} AuditLogEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::AuditLogEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -886,7 +881,7 @@
  */
 
 /**
- * @typedef {Object} AuditMember
+ * @typedef {object} AuditMember
  * @description Auto-generated from Suma::AdminAPI::Entities::AuditMemberEntity
  * @property {number} id
  * @property {string} label
@@ -896,7 +891,7 @@
  */
 
 /**
- * @typedef {Object} AutoExposedBase
+ * @typedef {object} AutoExposedBase
  * @description Auto-generated from Suma::AdminAPI::Entities::AutoExposedBaseEntity
  * @property {number} id
  * @property {string} createdAt
@@ -906,17 +901,17 @@
  */
 
 /**
- * @typedef {Object} Base
+ * @typedef {object} Base
  * @description Auto-generated from Suma::AdminAPI::Entities::BaseEntity
  */
 
 /**
- * @typedef {Object} BaseModel
+ * @typedef {object} BaseModel
  * @description Auto-generated from Suma::AdminAPI::Entities::BaseModelEntity
  */
 
 /**
- * @typedef {Object} BaseOrganizationMembershipVerification
+ * @typedef {object} BaseOrganizationMembershipVerification
  * @description Auto-generated from Suma::AdminAPI::Entities::BaseOrganizationMembershipVerificationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -928,7 +923,7 @@
  */
 
 /**
- * @typedef {Object} BookTransaction
+ * @typedef {object} BookTransaction
  * @description Auto-generated from Suma::AdminAPI::Entities::BookTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -945,7 +940,7 @@
  */
 
 /**
- * @typedef {Object} BookTransactionEntityCollection
+ * @typedef {object} BookTransactionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::BookTransactionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -957,7 +952,7 @@
  */
 
 /**
- * @typedef {Object} Charge
+ * @typedef {object} Charge
  * @description Auto-generated from Suma::AdminAPI::Entities::ChargeEntity
  * @property {number} id
  * @property {string} createdAt
@@ -970,7 +965,7 @@
  */
 
 /**
- * @typedef {Object} ChargeEntityCollection
+ * @typedef {object} ChargeEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::ChargeEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -982,7 +977,7 @@
  */
 
 /**
- * @typedef {Object} ChargeLineItem
+ * @typedef {object} ChargeLineItem
  * @description Auto-generated from Suma::AdminAPI::Entities::ChargeLineItemEntity
  * @property {number} id
  * @property {string} createdAt
@@ -995,7 +990,7 @@
  */
 
 /**
- * @typedef {Object} ChargeLineItemEntityCollection
+ * @typedef {object} ChargeLineItemEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::ChargeLineItemEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1007,7 +1002,7 @@
  */
 
 /**
- * @typedef {Object} ChargeWithPrices
+ * @typedef {object} ChargeWithPrices
  * @description Auto-generated from Suma::AdminAPI::Entities::ChargeWithPricesEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1023,20 +1018,20 @@
  */
 
 /**
- * @typedef {Object} CurrentMember
+ * @typedef {object} CurrentMember
  * @description Auto-generated from Suma::AdminAPI::Entities::CurrentMemberEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} email
  * @property {string} name
  * @property {string} phone
- * @property {?} onboarded
- * @property {?} roleAccess
+ * @property {boolean} onboarded
+ * @property {RoleAccessType} roleAccess
  * @property {CurrentMember} impersonating
  */
 
 /**
- * @typedef {Object} EligibilityAssignment
+ * @typedef {object} EligibilityAssignment
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityAssignmentEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1050,7 +1045,7 @@
  */
 
 /**
- * @typedef {Object} EligibilityAssignmentEntityCollection
+ * @typedef {object} EligibilityAssignmentEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityAssignmentEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1062,7 +1057,7 @@
  */
 
 /**
- * @typedef {Object} EligibilityAttribute
+ * @typedef {object} EligibilityAttribute
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityAttributeEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1074,7 +1069,7 @@
  */
 
 /**
- * @typedef {Object} EligibilityAttributeEntityCollection
+ * @typedef {object} EligibilityAttributeEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityAttributeEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1086,7 +1081,7 @@
  */
 
 /**
- * @typedef {Object} EligibilityRequirement
+ * @typedef {object} EligibilityRequirement
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityRequirementEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1098,7 +1093,7 @@
  */
 
 /**
- * @typedef {Object} EligibilityRequirementEntityCollection
+ * @typedef {object} EligibilityRequirementEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityRequirementEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1110,7 +1105,7 @@
  */
 
 /**
- * @typedef {Object} EligibilityRequirementResource
+ * @typedef {object} EligibilityRequirementResource
  * @description Auto-generated from Suma::AdminAPI::Entities::EligibilityRequirementResourceEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1120,7 +1115,7 @@
  */
 
 /**
- * @typedef {Object} FundingTransaction
+ * @typedef {object} FundingTransaction
  * @description Auto-generated from Suma::AdminAPI::Entities::FundingTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1133,7 +1128,7 @@
  */
 
 /**
- * @typedef {Object} FundingTransactionEntityCollection
+ * @typedef {object} FundingTransactionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::FundingTransactionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1145,14 +1140,14 @@
  */
 
 /**
- * @typedef {Object} Image
+ * @typedef {object} Image
  * @description Auto-generated from Suma::AdminAPI::Entities::ImageEntity
  * @property {string} url
  * @property {TranslatedText} caption
  */
 
 /**
- * @typedef {Object} LegalEntity
+ * @typedef {object} LegalEntity
  * @description Auto-generated from Suma::AdminAPI::Entities::LegalEntityEntity
  * @property {number} id
  * @property {string} name
@@ -1160,18 +1155,18 @@
  */
 
 /**
- * @typedef {Object} MarketingList
+ * @typedef {object} MarketingList
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingListEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} managed
+ * @property {any} managed
  */
 
 /**
- * @typedef {Object} MarketingListEntityCollection
+ * @typedef {object} MarketingListEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingListEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1183,7 +1178,7 @@
  */
 
 /**
- * @typedef {Object} MarketingMember
+ * @typedef {object} MarketingMember
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingMemberEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1196,15 +1191,10 @@
  * @property {string} formattedPhone
  * @property {string} timezone
  * @property {string} onboardingVerifiedAt
- * @property {number} id
- * @property {string} name
- * @property {string} phone
- * @property {string} formattedPhone
- * @property {string} adminLink
  */
 
 /**
- * @typedef {Object} MarketingMemberEntityCollection
+ * @typedef {object} MarketingMemberEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingMemberEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1216,7 +1206,7 @@
  */
 
 /**
- * @typedef {Object} MarketingSmsBroadcast
+ * @typedef {object} MarketingSmsBroadcast
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingSmsBroadcastEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1227,7 +1217,7 @@
  */
 
 /**
- * @typedef {Object} MarketingSmsBroadcastEntityCollection
+ * @typedef {object} MarketingSmsBroadcastEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingSmsBroadcastEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1239,7 +1229,7 @@
  */
 
 /**
- * @typedef {Object} MarketingSmsDispatch
+ * @typedef {object} MarketingSmsDispatch
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingSmsDispatchEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1251,11 +1241,11 @@
  * @property {string} sentAt
  * @property {number} transportMessageId
  * @property {string} status
- * @property {?} lastError
+ * @property {any} lastError
  */
 
 /**
- * @typedef {Object} MarketingSmsDispatchEntityCollection
+ * @typedef {object} MarketingSmsDispatchEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MarketingSmsDispatchEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1267,7 +1257,7 @@
  */
 
 /**
- * @typedef {Object} Member
+ * @typedef {object} Member
  * @description Auto-generated from Suma::AdminAPI::Entities::MemberEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1283,7 +1273,7 @@
  */
 
 /**
- * @typedef {Object} MemberEntityCollection
+ * @typedef {object} MemberEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MemberEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1295,7 +1285,7 @@
  */
 
 /**
- * @typedef {Object} MessageDelivery
+ * @typedef {object} MessageDelivery
  * @description Auto-generated from Suma::AdminAPI::Entities::MessageDeliveryEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1308,13 +1298,13 @@
  * @property {number} transportMessageId
  * @property {string} sentAt
  * @property {string} abortedAt
- * @property {?} to
+ * @property {any} to
  * @property {string} formattedTo
  * @property {Member} recipient
  */
 
 /**
- * @typedef {Object} MessageDeliveryEntityCollection
+ * @typedef {object} MessageDeliveryEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MessageDeliveryEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1326,7 +1316,7 @@
  */
 
 /**
- * @typedef {Object} MobilityTrip
+ * @typedef {object} MobilityTrip
  * @description Auto-generated from Suma::AdminAPI::Entities::MobilityTripEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1347,7 +1337,7 @@
  */
 
 /**
- * @typedef {Object} MobilityTripEntityCollection
+ * @typedef {object} MobilityTripEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::MobilityTripEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1359,21 +1349,21 @@
  */
 
 /**
- * @typedef {Object} Money
+ * @typedef {object} Money
  * @description Auto-generated from Suma::AdminAPI::Entities::MoneyEntity
  * @property {number} cents
  * @property {string} currency
  */
 
 /**
- * @typedef {Object} NamedValue
+ * @typedef {object} NamedValue
  * @description Auto-generated from Suma::AdminAPI::Entities::NamedValueEntity
  * @property {string} name
- * @property {?} value
+ * @property {any} value
  */
 
 /**
- * @typedef {Object} Offering
+ * @typedef {object} Offering
  * @description Auto-generated from Suma::AdminAPI::Entities::OfferingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1386,7 +1376,7 @@
  */
 
 /**
- * @typedef {Object} OfferingEntityCollection
+ * @typedef {object} OfferingEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::OfferingEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1398,7 +1388,7 @@
  */
 
 /**
- * @typedef {Object} OfferingFulfillmentOption
+ * @typedef {object} OfferingFulfillmentOption
  * @description Auto-generated from Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1413,7 +1403,7 @@
  */
 
 /**
- * @typedef {Object} OfferingFulfillmentOptionEntityCollection
+ * @typedef {object} OfferingFulfillmentOptionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::OfferingFulfillmentOptionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1425,7 +1415,7 @@
  */
 
 /**
- * @typedef {Object} OfferingProduct
+ * @typedef {object} OfferingProduct
  * @description Auto-generated from Suma::AdminAPI::Entities::OfferingProductEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1442,7 +1432,7 @@
  */
 
 /**
- * @typedef {Object} OfferingProductEntityCollection
+ * @typedef {object} OfferingProductEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::OfferingProductEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1454,7 +1444,7 @@
  */
 
 /**
- * @typedef {Object} Order
+ * @typedef {object} Order
  * @description Auto-generated from Suma::AdminAPI::Entities::OrderEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1469,7 +1459,7 @@
  */
 
 /**
- * @typedef {Object} OrderEntityCollection
+ * @typedef {object} OrderEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::OrderEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1481,7 +1471,7 @@
  */
 
 /**
- * @typedef {Object} Organization
+ * @typedef {object} Organization
  * @description Auto-generated from Suma::AdminAPI::Entities::OrganizationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1492,7 +1482,7 @@
  */
 
 /**
- * @typedef {Object} OrganizationEntityCollection
+ * @typedef {object} OrganizationEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::OrganizationEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1504,7 +1494,7 @@
  */
 
 /**
- * @typedef {Object} OrganizationMembership
+ * @typedef {object} OrganizationMembership
  * @description Auto-generated from Suma::AdminAPI::Entities::OrganizationMembershipEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1522,7 +1512,7 @@
  */
 
 /**
- * @typedef {Object} OrganizationMembershipEntityCollection
+ * @typedef {object} OrganizationMembershipEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::OrganizationMembershipEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1534,7 +1524,7 @@
  */
 
 /**
- * @typedef {Object} OrganizationMembershipVerification
+ * @typedef {object} OrganizationMembershipVerification
  * @description Auto-generated from Suma::AdminAPI::Entities::OrganizationMembershipVerificationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1547,7 +1537,7 @@
  */
 
 /**
- * @typedef {Object} OrganizationRegistrationLink
+ * @typedef {object} OrganizationRegistrationLink
  * @description Auto-generated from Suma::AdminAPI::Entities::OrganizationRegistrationLinkEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1556,13 +1546,14 @@
  * @property {string} label
  * @property {Organization} organization
  * @property {number} opaqueId
- * @property {?} icalDtstart
- * @property {?} icalDtend
- * @property {?} icalRrule
+ * @property {string} durableUrl
+ * @property {any} icalDtstart
+ * @property {any} icalDtend
+ * @property {any} icalRrule
  */
 
 /**
- * @typedef {Object} PaymentInstrument
+ * @typedef {object} PaymentInstrument
  * @description Auto-generated from Suma::AdminAPI::Entities::PaymentInstrumentEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1577,7 +1568,7 @@
  */
 
 /**
- * @typedef {Object} PaymentInstrumentEntityCollection
+ * @typedef {object} PaymentInstrumentEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::PaymentInstrumentEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1589,30 +1580,30 @@
  */
 
 /**
- * @typedef {Object} PaymentStrategy
+ * @typedef {object} PaymentStrategy
  * @description Auto-generated from Suma::AdminAPI::Entities::PaymentStrategyEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} adminDetails
+ * @property {any} adminDetails
  */
 
 /**
- * @typedef {Object} PaymentTrigger
+ * @typedef {object} PaymentTrigger
  * @description Auto-generated from Suma::AdminAPI::Entities::PaymentTriggerEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {string} activeDuringBegin
- * @property {string} activeDuringEnd
+ * @property {Multirange} activeDuring
+ * @property {TimeRange} nextActiveDuring
  */
 
 /**
- * @typedef {Object} PaymentTriggerEntityCollection
+ * @typedef {object} PaymentTriggerEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::PaymentTriggerEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1624,7 +1615,7 @@
  */
 
 /**
- * @typedef {Object} PayoutTransaction
+ * @typedef {object} PayoutTransaction
  * @description Auto-generated from Suma::AdminAPI::Entities::PayoutTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1632,13 +1623,13 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {string} status
- * @property {?} classification
+ * @property {any} classification
  * @property {Money} amount
  * @property {SimplePaymentAccount} originatingPaymentAccount
  */
 
 /**
- * @typedef {Object} PayoutTransactionEntityCollection
+ * @typedef {object} PayoutTransactionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::PayoutTransactionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1650,7 +1641,7 @@
  */
 
 /**
- * @typedef {Object} Product
+ * @typedef {object} Product
  * @description Auto-generated from Suma::AdminAPI::Entities::ProductEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1663,7 +1654,7 @@
  */
 
 /**
- * @typedef {Object} ProductEntityCollection
+ * @typedef {object} ProductEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::ProductEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1675,7 +1666,7 @@
  */
 
 /**
- * @typedef {Object} Program
+ * @typedef {object} Program
  * @description Auto-generated from Suma::AdminAPI::Entities::ProgramEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1692,7 +1683,7 @@
  */
 
 /**
- * @typedef {Object} ProgramEntityCollection
+ * @typedef {object} ProgramEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::ProgramEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1704,7 +1695,7 @@
  */
 
 /**
- * @typedef {Object} ProgramPricing
+ * @typedef {object} ProgramPricing
  * @description Auto-generated from Suma::AdminAPI::Entities::ProgramPricingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1717,7 +1708,7 @@
  */
 
 /**
- * @typedef {Object} ProgramPricingEntityCollection
+ * @typedef {object} ProgramPricingEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::ProgramPricingEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1729,7 +1720,7 @@
  */
 
 /**
- * @typedef {Object} Role
+ * @typedef {object} Role
  * @description Auto-generated from Suma::AdminAPI::Entities::RoleEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1740,7 +1731,7 @@
  */
 
 /**
- * @typedef {Object} RoleEntityCollection
+ * @typedef {object} RoleEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::RoleEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1752,7 +1743,7 @@
  */
 
 /**
- * @typedef {Object} SimpleLedger
+ * @typedef {object} SimpleLedger
  * @description Auto-generated from Suma::AdminAPI::Entities::SimpleLedgerEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1766,7 +1757,7 @@
  */
 
 /**
- * @typedef {Object} SimplePaymentAccount
+ * @typedef {object} SimplePaymentAccount
  * @description Auto-generated from Suma::AdminAPI::Entities::SimplePaymentAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1777,7 +1768,7 @@
  */
 
 /**
- * @typedef {Object} SupportNote
+ * @typedef {object} SupportNote
  * @description Auto-generated from Suma::AdminAPI::Entities::SupportNoteEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1791,7 +1782,7 @@
  */
 
 /**
- * @typedef {Object} SupportNoteEntityCollection
+ * @typedef {object} SupportNoteEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::SupportNoteEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1803,14 +1794,14 @@
  */
 
 /**
- * @typedef {Object} TranslatedText
+ * @typedef {object} TranslatedText
  * @description Auto-generated from Suma::AdminAPI::Entities::TranslatedTextEntity
  * @property {string} en
  * @property {string} es
  */
 
 /**
- * @typedef {Object} Vendor
+ * @typedef {object} Vendor
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1821,7 +1812,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceCategory
+ * @typedef {object} VendorServiceCategory
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceCategoryEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1834,7 +1825,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceCategoryEntityCollection
+ * @typedef {object} VendorServiceCategoryEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceCategoryEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1846,7 +1837,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceCategoryTerminal
+ * @typedef {object} VendorServiceCategoryTerminal
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceCategoryTerminalEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1858,7 +1849,7 @@
  */
 
 /**
- * @typedef {Object} VendorService
+ * @typedef {object} VendorService
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1873,7 +1864,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceEntityCollection
+ * @typedef {object} VendorServiceEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1885,7 +1876,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceRate
+ * @typedef {object} VendorServiceRate
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceRateEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1902,7 +1893,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceRateEntityCollection
+ * @typedef {object} VendorServiceRateEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceRateEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1914,7 +1905,7 @@
  */
 
 /**
- * @typedef {Object} VendorServiceRateUndiscountedrate
+ * @typedef {object} VendorServiceRateUndiscountedrate
  * @description Auto-generated from Suma::AdminAPI::Entities::VendorServiceRateUndiscountedrateEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1925,7 +1916,7 @@
  */
 
 /**
- * @typedef {Object} Ledger
+ * @typedef {object} Ledger
  * @description Auto-generated from Suma::AdminAPI::Financials::LedgerEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1944,7 +1935,7 @@
  */
 
 /**
- * @typedef {Object} LedgerEntityCollection
+ * @typedef {object} LedgerEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Financials::LedgerEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1956,7 +1947,7 @@
  */
 
 /**
- * @typedef {Object} OffPlatformTransaction
+ * @typedef {object} OffPlatformTransaction
  * @description Auto-generated from Suma::AdminAPI::Financials::OffPlatformTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -1965,12 +1956,12 @@
  * @property {string} label
  * @property {Money} amount
  * @property {string} transactedAt
- * @property {?} note
- * @property {?} checkOrTransactionNumber
+ * @property {any} note
+ * @property {any} checkOrTransactionNumber
  */
 
 /**
- * @typedef {Object} OffPlatformTransactionEntityCollection
+ * @typedef {object} OffPlatformTransactionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Financials::OffPlatformTransactionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -1982,7 +1973,7 @@
  */
 
 /**
- * @typedef {Object} PlatformStatus
+ * @typedef {object} PlatformStatus
  * @description Auto-generated from Suma::AdminAPI::Financials::PlatformStatusEntity
  * @property {Money} funding
  * @property {number} fundingCount
@@ -1999,7 +1990,7 @@
  */
 
 /**
- * @typedef {Object} DetailedFundingTransaction
+ * @typedef {object} DetailedFundingTransaction
  * @description Auto-generated from Suma::AdminAPI::FundingTransactions::DetailedFundingTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2013,7 +2004,7 @@
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {?} memo
+ * @property {string} memo
  * @property {boolean} canRefund
  * @property {Money} refundableAmount
  * @property {Money} refundedAmount
@@ -2027,20 +2018,20 @@
  */
 
 /**
- * @typedef {Object} FundingAuditLog
+ * @typedef {object} FundingAuditLog
  * @description Auto-generated from Suma::AdminAPI::FundingTransactions::FundingAuditLogEntity
  * @property {number} id
  * @property {string} at
- * @property {?} event
+ * @property {any} event
  * @property {string} toState
  * @property {string} fromState
  * @property {string} reason
- * @property {?} messages
+ * @property {any} messages
  * @property {AuditMember} actor
  */
 
 /**
- * @typedef {Object} FundingAuditLogEntityCollection
+ * @typedef {object} FundingAuditLogEntityCollection
  * @description Auto-generated from Suma::AdminAPI::FundingTransactions::FundingAuditLogEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2052,14 +2043,14 @@
  */
 
 /**
- * @typedef {Object} DetailedList
+ * @typedef {object} DetailedList
  * @description Auto-generated from Suma::AdminAPI::MarketingLists::DetailedListEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} managed
+ * @property {any} managed
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
@@ -2069,7 +2060,7 @@
  */
 
 /**
- * @typedef {Object} DetailedSmsBroadcast
+ * @typedef {object} DetailedSmsBroadcast
  * @description Auto-generated from Suma::AdminAPI::MarketingSmsBroadcasts::DetailedSmsBroadcastEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2082,55 +2073,55 @@
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
  * @property {TranslatedText} body
- * @property {?} sendingNumber
- * @property {?} sendingNumberFormatted
- * @property {?} preferencesOptoutField
+ * @property {any} sendingNumber
+ * @property {any} sendingNumberFormatted
+ * @property {any} preferencesOptoutField
  * @property {string} preferencesOptoutName
  * @property {MarketingListEntityCollection} lists
  * @property {MarketingList} allLists
- * @property {?} preview
+ * @property {any} preview
  * @property {MarketingSmsDispatchEntityCollection} smsDispatches
- * @property {?} availableSendingNumbers
+ * @property {any} availableSendingNumbers
  */
 
 /**
- * @typedef {Object} SmsBroadcastPayload
+ * @typedef {object} SmsBroadcastPayload
  * @description Auto-generated from Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPayloadEntity
- * @property {?} characters
- * @property {?} segments
- * @property {?} cost
+ * @property {any} characters
+ * @property {any} segments
+ * @property {any} cost
  */
 
 /**
- * @typedef {Object} SmsBroadcastPostReview
+ * @typedef {object} SmsBroadcastPostReview
  * @description Auto-generated from Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPostReviewEntity
  * @property {SmsBroadcastReviewAssociated} broadcast
- * @property {?} listLabels
- * @property {?} totalRecipients
- * @property {?} deliveredRecipients
- * @property {?} failedRecipients
- * @property {?} canceledRecipients
- * @property {?} pendingRecipients
- * @property {?} actualCost
- * @property {?} preReview
+ * @property {any} listLabels
+ * @property {any} totalRecipients
+ * @property {any} deliveredRecipients
+ * @property {any} failedRecipients
+ * @property {any} canceledRecipients
+ * @property {any} pendingRecipients
+ * @property {any} actualCost
+ * @property {boolean} preReview
  */
 
 /**
- * @typedef {Object} SmsBroadcastPreReview
+ * @typedef {object} SmsBroadcastPreReview
  * @description Auto-generated from Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastPreReviewEntity
  * @property {SmsBroadcastReviewAssociated} broadcast
- * @property {?} listLabels
- * @property {?} totalRecipients
- * @property {?} enRecipients
- * @property {?} esRecipients
- * @property {?} totalCost
- * @property {?} enTotalCost
- * @property {?} esTotalCost
- * @property {?} preReview
+ * @property {any} listLabels
+ * @property {any} totalRecipients
+ * @property {any} enRecipients
+ * @property {any} esRecipients
+ * @property {any} totalCost
+ * @property {any} enTotalCost
+ * @property {any} esTotalCost
+ * @property {boolean} preReview
  */
 
 /**
- * @typedef {Object} SmsBroadcastReviewAssociated
+ * @typedef {object} SmsBroadcastReviewAssociated
  * @description Auto-generated from Suma::AdminAPI::MarketingSmsBroadcasts::SmsBroadcastReviewAssociatedEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2138,14 +2129,14 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {string} sentAt
- * @property {?} sendingNumberFormatted
- * @property {?} sendingNumber
- * @property {?} preferencesOptoutField
+ * @property {any} sendingNumberFormatted
+ * @property {any} sendingNumber
+ * @property {any} preferencesOptoutField
  * @property {string} preferencesOptoutName
  */
 
 /**
- * @typedef {Object} DetailedSmsDispatch
+ * @typedef {object} DetailedSmsDispatch
  * @description Auto-generated from Suma::AdminAPI::MarketingSmsDispatches::DetailedSmsDispatchEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2157,17 +2148,17 @@
  * @property {string} sentAt
  * @property {number} transportMessageId
  * @property {string} status
- * @property {?} lastError
+ * @property {any} lastError
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
  * @property {boolean} canCancel
- * @property {?} canceled
+ * @property {boolean} canceled
  */
 
 /**
- * @typedef {Object} DetailedMember
+ * @typedef {object} DetailedMember
  * @description Auto-generated from Suma::AdminAPI::Members::DetailedMemberEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2186,9 +2177,9 @@
  * @property {AdminAction[]} adminActions
  * @property {number} opaqueId
  * @property {RoleEntityCollection} roles
- * @property {?} onboardingVerified
- * @property {?} previousPhones
- * @property {?} previousEmails
+ * @property {boolean} onboardingVerified
+ * @property {any} previousPhones
+ * @property {any} previousEmails
  * @property {ActivityEntityCollection} activities
  * @property {ActivityEntityCollection} auditActivities
  * @property {LegalEntity} legalEntity
@@ -2213,20 +2204,20 @@
  */
 
 /**
- * @typedef {Object} EligibilityMemberAssignment
+ * @typedef {object} EligibilityMemberAssignment
  * @description Auto-generated from Suma::AdminAPI::Members::EligibilityMemberAssignmentEntity
  * @property {string} uniqueKey
  * @property {Member} member
  * @property {EligibilityAttribute} attribute
  * @property {string} sourceType
- * @property {?} depth
+ * @property {any} depth
  * @property {Member} sourceMember
  * @property {Role} sourceRole
  * @property {OrganizationMembership} sourceMembership
  */
 
 /**
- * @typedef {Object} EligibilityMemberAssignmentEntityCollection
+ * @typedef {object} EligibilityMemberAssignmentEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Members::EligibilityMemberAssignmentEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2238,7 +2229,7 @@
  */
 
 /**
- * @typedef {Object} MemberDetailLedger
+ * @typedef {object} MemberDetailLedger
  * @description Auto-generated from Suma::AdminAPI::Members::MemberDetailLedgerEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2258,7 +2249,7 @@
  */
 
 /**
- * @typedef {Object} MemberDetailLedgerEntityCollection
+ * @typedef {object} MemberDetailLedgerEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Members::MemberDetailLedgerEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2270,7 +2261,7 @@
  */
 
 /**
- * @typedef {Object} MemberDetailPaymentAccount
+ * @typedef {object} MemberDetailPaymentAccount
  * @description Auto-generated from Suma::AdminAPI::Members::MemberDetailPaymentAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2290,7 +2281,7 @@
  */
 
 /**
- * @typedef {Object} MemberOrder
+ * @typedef {object} MemberOrder
  * @description Auto-generated from Suma::AdminAPI::Members::MemberOrderEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2307,7 +2298,7 @@
  */
 
 /**
- * @typedef {Object} MemberOrderEntityCollection
+ * @typedef {object} MemberOrderEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Members::MemberOrderEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2319,22 +2310,22 @@
  */
 
 /**
- * @typedef {Object} MemberResetCode
+ * @typedef {object} MemberResetCode
  * @description Auto-generated from Suma::AdminAPI::Members::MemberResetCodeEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} transport
- * @property {?} used
+ * @property {any} transport
+ * @property {any} used
  * @property {string} expireAt
  * @property {string} token
  * @property {MessageDelivery} messageDelivery
  */
 
 /**
- * @typedef {Object} MemberResetCodeEntityCollection
+ * @typedef {object} MemberResetCodeEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Members::MemberResetCodeEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2346,21 +2337,21 @@
  */
 
 /**
- * @typedef {Object} MemberSession
+ * @typedef {object} MemberSession
  * @description Auto-generated from Suma::AdminAPI::Members::MemberSessionEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} userAgent
- * @property {?} peerIp
+ * @property {any} userAgent
+ * @property {any} peerIp
  * @property {string} loggedOutAt
  * @property {string} ipLookupLink
  */
 
 /**
- * @typedef {Object} MemberSessionEntityCollection
+ * @typedef {object} MemberSessionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Members::MemberSessionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2372,7 +2363,7 @@
  */
 
 /**
- * @typedef {Object} MemberVendorAccount
+ * @typedef {object} MemberVendorAccount
  * @description Auto-generated from Suma::AdminAPI::Members::MemberVendorAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2382,18 +2373,13 @@
  * @property {Member} member
  * @property {AnonProxyVendorConfiguration} configuration
  * @property {AnonProxyVendorAccountMemberContact} contact
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} label
  * @property {string} latestAccessCode
  * @property {string} latestAccessCodeMagicLink
  * @property {Vendor} vendor
  */
 
 /**
- * @typedef {Object} MemberVendorAccountEntityCollection
+ * @typedef {object} MemberVendorAccountEntityCollection
  * @description Auto-generated from Suma::AdminAPI::Members::MemberVendorAccountEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2405,7 +2391,7 @@
  */
 
 /**
- * @typedef {Object} Preferences
+ * @typedef {object} Preferences
  * @description Auto-generated from Suma::AdminAPI::Members::PreferencesEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2416,32 +2402,32 @@
  * @property {PreferencesSubscription} subscriptions
  * @property {string} preferredLanguageName
  * @property {string} smsUndeliverableAt
- * @property {?} smsUndeliverable
+ * @property {boolean} smsUndeliverable
  */
 
 /**
- * @typedef {Object} PreferencesSubscription
+ * @typedef {object} PreferencesSubscription
  * @description Auto-generated from Suma::AdminAPI::Members::PreferencesSubscriptionEntity
  * @property {string} key
- * @property {?} optedIn
+ * @property {any} optedIn
  * @property {string} editableState
  */
 
 /**
- * @typedef {Object} Referral
+ * @typedef {object} Referral
  * @description Auto-generated from Suma::AdminAPI::Members::ReferralEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} source
- * @property {?} campaign
- * @property {?} medium
+ * @property {any} source
+ * @property {any} campaign
+ * @property {any} medium
  */
 
 /**
- * @typedef {Object} DetailedMessageDelivery
+ * @typedef {object} DetailedMessageDelivery
  * @description Auto-generated from Suma::AdminAPI::MessageDeliveries::DetailedMessageDeliveryEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2454,7 +2440,7 @@
  * @property {number} transportMessageId
  * @property {string} sentAt
  * @property {string} abortedAt
- * @property {?} to
+ * @property {any} to
  * @property {string} formattedTo
  * @property {Member} recipient
  * @property {string} updatedAt
@@ -2465,26 +2451,26 @@
  */
 
 /**
- * @typedef {Object} MessageBody
+ * @typedef {object} MessageBody
  * @description Auto-generated from Suma::AdminAPI::MessageDeliveries::MessageBodyEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {?} mediatype
+ * @property {any} mediatype
  * @property {string} content
  */
 
 /**
- * @typedef {Object} Currency
+ * @typedef {object} Currency
  * @description Auto-generated from Suma::AdminAPI::Meta::CurrencyEntity
- * @property {?} symbol
+ * @property {any} symbol
  * @property {string} code
  */
 
 /**
- * @typedef {Object} HierarchicalCategory
+ * @typedef {object} HierarchicalCategory
  * @description Auto-generated from Suma::AdminAPI::Meta::HierarchicalCategoryEntity
  * @property {number} id
  * @property {string} slug
@@ -2493,7 +2479,20 @@
  */
 
 /**
- * @typedef {Object} SlimProgram
+ * @typedef {object} IcalOccurrence
+ * @description Auto-generated from Suma::AdminAPI::Meta::IcalOccurrenceEntity
+ * @property {any} start
+ * @property {string} end
+ */
+
+/**
+ * @typedef {object} IcalProjection
+ * @description Auto-generated from Suma::AdminAPI::Meta::IcalProjectionEntity
+ * @property {IcalOccurrence} occurrences
+ */
+
+/**
+ * @typedef {object} SlimProgram
  * @description Auto-generated from Suma::AdminAPI::Meta::SlimProgramEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2504,7 +2503,7 @@
  */
 
 /**
- * @typedef {Object} DetailedMobilityTrip
+ * @typedef {object} DetailedMobilityTrip
  * @description Auto-generated from Suma::AdminAPI::MobilityTrips::DetailedMobilityTripEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2528,16 +2527,12 @@
  * @property {AdminAction[]} adminActions
  * @property {number} externalTripId
  * @property {number} opaqueId
- * @property {number} beginLat
- * @property {number} beginLng
- * @property {number} endLat
- * @property {number} endLng
  * @property {VendorServiceRate} rate
  * @property {ChargeWithPrices} charge
  */
 
 /**
- * @typedef {Object} DetailedOffPlatformTransaction
+ * @typedef {object} DetailedOffPlatformTransaction
  * @description Auto-generated from Suma::AdminAPI::OffPlatformTransactions::DetailedOffPlatformTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2554,14 +2549,14 @@
  * @property {string} type
  * @property {Money} amount
  * @property {string} transactedAt
- * @property {?} note
- * @property {?} checkOrTransactionNumber
+ * @property {any} note
+ * @property {any} checkOrTransactionNumber
  * @property {Organization} organization
  * @property {Vendor} vendor
  */
 
 /**
- * @typedef {Object} DetailedMembershipVerification
+ * @typedef {object} DetailedMembershipVerification
  * @description Auto-generated from Suma::AdminAPI::OrganizationMembershipVerifications::DetailedMembershipVerificationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2575,30 +2570,23 @@
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {?} accountNumber
- * @property {?} availableEvents
+ * @property {any} accountNumber
+ * @property {any} availableEvents
  * @property {string} frontPartnerConversationStatus
  * @property {string} frontMemberConversationStatus
  * @property {SupportNoteEntityCollection} notes
- * @property {?} duplicateRisk
- * @property {string} updatedAt
- * @property {AuditMember} createdBy
- * @property {ExternalLink[]} externalLinks
- * @property {AdminAction[]} adminActions
- * @property {?} availableEvents
- * @property {string} frontPartnerConversationStatus
- * @property {string} frontMemberConversationStatus
+ * @property {any} duplicateRisk
  * @property {Address} address
  * @property {string} organizationName
- * @property {?} organizationNameEditable
+ * @property {boolean} organizationNameEditable
  * @property {AuditLogEntityCollection} auditLogs
  * @property {number} partnerOutreachFrontConversationId
  * @property {number} memberOutreachFrontConversationId
- * @property {?} duplicates
+ * @property {any} duplicates
  */
 
 /**
- * @typedef {Object} VerificationList
+ * @typedef {object} VerificationList
  * @description Auto-generated from Suma::AdminAPI::OrganizationMembershipVerifications::VerificationListEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2612,16 +2600,16 @@
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {?} accountNumber
- * @property {?} availableEvents
+ * @property {any} accountNumber
+ * @property {any} availableEvents
  * @property {string} frontPartnerConversationStatus
  * @property {string} frontMemberConversationStatus
  * @property {SupportNoteEntityCollection} notes
- * @property {?} duplicateRisk
+ * @property {any} duplicateRisk
  */
 
 /**
- * @typedef {Object} DetailedOrganizationMembership
+ * @typedef {object} DetailedOrganizationMembership
  * @description Auto-generated from Suma::AdminAPI::OrganizationMemberships::DetailedOrganizationMembershipEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2635,18 +2623,17 @@
  * @property {string} organizationLabel
  * @property {string} formerlyInOrganizationAt
  * @property {string} membershipType
- * @property {BaseOrganizationMembershipVerification} verification
+ * @property {OrganizationMembershipVerification} verification
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
  * @property {Organization} matchedOrganization
- * @property {OrganizationMembershipVerification} verification
  * @property {ActivityEntityCollection} auditActivities
  */
 
 /**
- * @typedef {Object} DetailedOrganizationRegistrationLink
+ * @typedef {object} DetailedOrganizationRegistrationLink
  * @description Auto-generated from Suma::AdminAPI::OrganizationRegistrationLinks::DetailedOrganizationRegistrationLinkEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2655,15 +2642,15 @@
  * @property {string} label
  * @property {Organization} organization
  * @property {number} opaqueId
- * @property {?} icalDtstart
- * @property {?} icalDtend
- * @property {?} icalRrule
+ * @property {string} durableUrl
+ * @property {any} icalDtstart
+ * @property {any} icalDtend
+ * @property {any} icalRrule
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {?} currentlyWithinSchedule
- * @property {string} durableUrl
+ * @property {any} currentlyWithinSchedule
  * @property {string} durableUrlQrCode
  * @property {TranslatedText} intro
  * @property {OrganizationMembershipEntityCollection} memberships
@@ -2671,14 +2658,14 @@
  */
 
 /**
- * @typedef {Object} ScheduledAvailability
+ * @typedef {object} ScheduledAvailability
  * @description Auto-generated from Suma::AdminAPI::OrganizationRegistrationLinks::ScheduledAvailabilityEntity
- * @property {?} startTime
- * @property {?} endTime
+ * @property {any} startTime
+ * @property {any} endTime
  */
 
 /**
- * @typedef {Object} DetailedOrganization
+ * @typedef {object} DetailedOrganization
  * @description Auto-generated from Suma::AdminAPI::Organizations::DetailedOrganizationEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2702,7 +2689,7 @@
  */
 
 /**
- * @typedef {Object} DetailedPaymentAccount
+ * @typedef {object} DetailedPaymentAccount
  * @description Auto-generated from Suma::AdminAPI::PaymentAccounts::DetailedPaymentAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2719,14 +2706,13 @@
  * @property {AdminAction[]} adminActions
  * @property {LedgerEntityCollection} ledgers
  * @property {Money} totalBalance
- * @property {LedgerEntityCollection} ledgers
  * @property {FundingTransactionEntityCollection} originatedFundingTransactions
  * @property {PayoutTransactionEntityCollection} originatedPayoutTransactions
  * @property {BookTransactionEntityCollection} allBookTransactions
  */
 
 /**
- * @typedef {Object} Ledger
+ * @typedef {object} Ledger
  * @description Auto-generated from Suma::AdminAPI::PaymentAccounts::LedgerEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2741,7 +2727,7 @@
  */
 
 /**
- * @typedef {Object} LedgerEntityCollection
+ * @typedef {object} LedgerEntityCollection
  * @description Auto-generated from Suma::AdminAPI::PaymentAccounts::LedgerEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2753,7 +2739,7 @@
  */
 
 /**
- * @typedef {Object} PaymentAccount
+ * @typedef {object} PaymentAccount
  * @description Auto-generated from Suma::AdminAPI::PaymentAccounts::PaymentAccountEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2767,7 +2753,7 @@
  */
 
 /**
- * @typedef {Object} DetailedLedger
+ * @typedef {object} DetailedLedger
  * @description Auto-generated from Suma::AdminAPI::PaymentLedgers::DetailedLedgerEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2791,7 +2777,7 @@
  */
 
 /**
- * @typedef {Object} Ledger
+ * @typedef {object} Ledger
  * @description Auto-generated from Suma::AdminAPI::PaymentLedgers::LedgerEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2808,22 +2794,22 @@
  */
 
 /**
- * @typedef {Object} UnbalancedCounterparty
+ * @typedef {object} UnbalancedCounterparty
  * @description Auto-generated from Suma::AdminAPI::PaymentLedgers::UnbalancedCounterpartyEntity
  * @property {Money} amount
  * @property {Ledger} ledger
  */
 
 /**
- * @typedef {Object} DetailedPaymentTrigger
+ * @typedef {object} DetailedPaymentTrigger
  * @description Auto-generated from Suma::AdminAPI::PaymentTriggers::DetailedPaymentTriggerEntity
  * @property {number} id
  * @property {string} createdAt
  * @property {string} softDeletedAt
  * @property {string} adminLink
  * @property {string} label
- * @property {string} activeDuringBegin
- * @property {string} activeDuringEnd
+ * @property {Multirange} activeDuring
+ * @property {TimeRange} nextActiveDuring
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
@@ -2834,7 +2820,7 @@
  * @property {number} payerFraction
  * @property {number} maximumCumulativeSubsidyCents
  * @property {number} unmatchedAmountCents
- * @property {?} actAsCredit
+ * @property {any} actAsCredit
  * @property {TranslatedText} memo
  * @property {SimpleLedger} originatingLedger
  * @property {string} receivingLedgerName
@@ -2844,7 +2830,7 @@
  */
 
 /**
- * @typedef {Object} PaymentTriggerExecution
+ * @typedef {object} PaymentTriggerExecution
  * @description Auto-generated from Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2857,7 +2843,7 @@
  */
 
 /**
- * @typedef {Object} PaymentTriggerExecutionEntityCollection
+ * @typedef {object} PaymentTriggerExecutionEntityCollection
  * @description Auto-generated from Suma::AdminAPI::PaymentTriggers::PaymentTriggerExecutionEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2869,7 +2855,7 @@
  */
 
 /**
- * @typedef {Object} DetailedPayoutTransaction
+ * @typedef {object} DetailedPayoutTransaction
  * @description Auto-generated from Suma::AdminAPI::PayoutTransactions::DetailedPayoutTransactionEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2877,14 +2863,14 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {string} status
- * @property {?} classification
+ * @property {any} classification
  * @property {Money} amount
  * @property {SimplePaymentAccount} originatingPaymentAccount
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {?} memo
+ * @property {string} memo
  * @property {SimpleLedger} platformLedger
  * @property {BookTransaction} creditingBookTransaction
  * @property {BookTransaction} originatedBookTransaction
@@ -2896,20 +2882,20 @@
  */
 
 /**
- * @typedef {Object} PayoutAuditLog
+ * @typedef {object} PayoutAuditLog
  * @description Auto-generated from Suma::AdminAPI::PayoutTransactions::PayoutAuditLogEntity
  * @property {number} id
  * @property {string} at
- * @property {?} event
+ * @property {any} event
  * @property {string} toState
  * @property {string} fromState
  * @property {string} reason
- * @property {?} messages
+ * @property {any} messages
  * @property {AuditMember} actor
  */
 
 /**
- * @typedef {Object} PayoutAuditLogEntityCollection
+ * @typedef {object} PayoutAuditLogEntityCollection
  * @description Auto-generated from Suma::AdminAPI::PayoutTransactions::PayoutAuditLogEntityCollection
  * @property {string} object
  * @property {number} currentPage
@@ -2921,7 +2907,7 @@
  */
 
 /**
- * @typedef {Object} DetailedProgramPricing
+ * @typedef {object} DetailedProgramPricing
  * @description Auto-generated from Suma::AdminAPI::ProgramPricings::DetailedProgramPricingEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2938,7 +2924,7 @@
  */
 
 /**
- * @typedef {Object} DetailedProgram
+ * @typedef {object} DetailedProgram
  * @description Auto-generated from Suma::AdminAPI::Programs::DetailedProgramEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2967,7 +2953,7 @@
  */
 
 /**
- * @typedef {Object} DetailedRole
+ * @typedef {object} DetailedRole
  * @description Auto-generated from Suma::AdminAPI::Roles::DetailedRoleEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2975,11 +2961,6 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {string} name
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} label
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
@@ -2991,7 +2972,7 @@
  */
 
 /**
- * @typedef {Object} Role
+ * @typedef {object} Role
  * @description Auto-generated from Suma::AdminAPI::Roles::RoleEntity
  * @property {number} id
  * @property {string} createdAt
@@ -2999,15 +2980,10 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {string} name
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} label
  */
 
 /**
- * @typedef {Object} RoleList
+ * @typedef {object} RoleList
  * @description Auto-generated from Suma::AdminAPI::Roles::RoleListEntity
  * @property {number} id
  * @property {string} createdAt
@@ -3015,16 +2991,11 @@
  * @property {string} adminLink
  * @property {string} label
  * @property {string} name
- * @property {number} id
- * @property {string} createdAt
- * @property {string} softDeletedAt
- * @property {string} adminLink
- * @property {string} label
  * @property {string} description
  */
 
 /**
- * @typedef {Object} SearchCommerceOffering
+ * @typedef {object} SearchCommerceOffering
  * @description Auto-generated from Suma::AdminAPI::Search::SearchCommerceOfferingEntity
  * @property {string} key
  * @property {number} id
@@ -3034,7 +3005,7 @@
  */
 
 /**
- * @typedef {Object} SearchEligibilityAttribute
+ * @typedef {object} SearchEligibilityAttribute
  * @description Auto-generated from Suma::AdminAPI::Search::SearchEligibilityAttributeEntity
  * @property {string} key
  * @property {number} id
@@ -3044,12 +3015,12 @@
  */
 
 /**
- * @typedef {Object} Search
+ * @typedef {object} Search
  * @description Auto-generated from Suma::AdminAPI::Search::SearchEntity
  */
 
 /**
- * @typedef {Object} SearchLedger
+ * @typedef {object} SearchLedger
  * @description Auto-generated from Suma::AdminAPI::Search::SearchLedgerEntity
  * @property {string} key
  * @property {number} id
@@ -3058,7 +3029,7 @@
  */
 
 /**
- * @typedef {Object} SearchMember
+ * @typedef {object} SearchMember
  * @description Auto-generated from Suma::AdminAPI::Search::SearchMemberEntity
  * @property {string} key
  * @property {number} id
@@ -3068,7 +3039,7 @@
  */
 
 /**
- * @typedef {Object} SearchOffering
+ * @typedef {object} SearchOffering
  * @description Auto-generated from Suma::AdminAPI::Search::SearchOfferingEntity
  * @property {string} key
  * @property {number} id
@@ -3077,7 +3048,7 @@
  */
 
 /**
- * @typedef {Object} SearchOrganization
+ * @typedef {object} SearchOrganization
  * @description Auto-generated from Suma::AdminAPI::Search::SearchOrganizationEntity
  * @property {string} key
  * @property {number} id
@@ -3087,7 +3058,7 @@
  */
 
 /**
- * @typedef {Object} SearchPaymentInstrument
+ * @typedef {object} SearchPaymentInstrument
  * @description Auto-generated from Suma::AdminAPI::Search::SearchPaymentInstrumentEntity
  * @property {string} key
  * @property {number} id
@@ -3097,7 +3068,7 @@
  */
 
 /**
- * @typedef {Object} SearchPaymentTrigger
+ * @typedef {object} SearchPaymentTrigger
  * @description Auto-generated from Suma::AdminAPI::Search::SearchPaymentTriggerEntity
  * @property {string} key
  * @property {number} id
@@ -3106,7 +3077,7 @@
  */
 
 /**
- * @typedef {Object} SearchProduct
+ * @typedef {object} SearchProduct
  * @description Auto-generated from Suma::AdminAPI::Search::SearchProductEntity
  * @property {string} key
  * @property {number} id
@@ -3115,7 +3086,7 @@
  */
 
 /**
- * @typedef {Object} SearchProgram
+ * @typedef {object} SearchProgram
  * @description Auto-generated from Suma::AdminAPI::Search::SearchProgramEntity
  * @property {string} key
  * @property {number} id
@@ -3125,7 +3096,7 @@
  */
 
 /**
- * @typedef {Object} SearchRole
+ * @typedef {object} SearchRole
  * @description Auto-generated from Suma::AdminAPI::Search::SearchRoleEntity
  * @property {string} key
  * @property {number} id
@@ -3135,7 +3106,7 @@
  */
 
 /**
- * @typedef {Object} SearchStaticString
+ * @typedef {object} SearchStaticString
  * @description Auto-generated from Suma::AdminAPI::Search::SearchStaticStringEntity
  * @property {string} key
  * @property {number} id
@@ -3144,7 +3115,7 @@
  */
 
 /**
- * @typedef {Object} SearchTransaction
+ * @typedef {object} SearchTransaction
  * @description Auto-generated from Suma::AdminAPI::Search::SearchTransactionEntity
  * @property {string} key
  * @property {string} en
@@ -3153,7 +3124,7 @@
  */
 
 /**
- * @typedef {Object} SearchVendor
+ * @typedef {object} SearchVendor
  * @description Auto-generated from Suma::AdminAPI::Search::SearchVendorEntity
  * @property {string} key
  * @property {number} id
@@ -3163,7 +3134,7 @@
  */
 
 /**
- * @typedef {Object} SearchVendorServiceCategory
+ * @typedef {object} SearchVendorServiceCategory
  * @description Auto-generated from Suma::AdminAPI::Search::SearchVendorServiceCategoryEntity
  * @property {string} key
  * @property {number} id
@@ -3173,7 +3144,7 @@
  */
 
 /**
- * @typedef {Object} SearchVendorService
+ * @typedef {object} SearchVendorService
  * @description Auto-generated from Suma::AdminAPI::Search::SearchVendorServiceEntity
  * @property {string} key
  * @property {number} id
@@ -3183,7 +3154,7 @@
  */
 
 /**
- * @typedef {Object} SearchVendorServiceRate
+ * @typedef {object} SearchVendorServiceRate
  * @description Auto-generated from Suma::AdminAPI::Search::SearchVendorServiceRateEntity
  * @property {string} key
  * @property {number} id
@@ -3193,7 +3164,7 @@
  */
 
 /**
- * @typedef {Object} ShortenedUrl
+ * @typedef {object} ShortenedUrl
  * @description Auto-generated from Suma::AdminAPI::ShortUrls::ShortenedUrlEntity
  * @property {number} id
  * @property {number} shortId
@@ -3205,7 +3176,7 @@
  */
 
 /**
- * @typedef {Object} ShortenedUrlRow
+ * @typedef {object} ShortenedUrlRow
  * @description Auto-generated from Suma::AdminAPI::ShortUrls::ShortenedUrlRowEntity
  * @property {number} id
  * @property {number} shortId
@@ -3216,20 +3187,20 @@
  */
 
 /**
- * @typedef {Object} BaseStaticString
+ * @typedef {object} BaseStaticString
  * @description Auto-generated from Suma::AdminAPI::StaticStrings::BaseStaticStringEntity
  * @property {number} id
- * @property {?} namespace
+ * @property {any} namespace
  * @property {string} key
  * @property {string} deprecatedAt
  * @property {boolean} needsText
  */
 
 /**
- * @typedef {Object} JoinedStaticString
+ * @typedef {object} JoinedStaticString
  * @description Auto-generated from Suma::AdminAPI::StaticStrings::JoinedStaticStringEntity
  * @property {number} id
- * @property {?} namespace
+ * @property {any} namespace
  * @property {string} key
  * @property {string} deprecatedAt
  * @property {boolean} needsText
@@ -3238,10 +3209,10 @@
  */
 
 /**
- * @typedef {Object} StandaloneStaticString
+ * @typedef {object} StandaloneStaticString
  * @description Auto-generated from Suma::AdminAPI::StaticStrings::StandaloneStaticStringEntity
  * @property {number} id
- * @property {?} namespace
+ * @property {any} namespace
  * @property {string} key
  * @property {string} deprecatedAt
  * @property {boolean} needsText
@@ -3250,14 +3221,14 @@
  */
 
 /**
- * @typedef {Object} StaticStringGroup
+ * @typedef {object} StaticStringGroup
  * @description Auto-generated from Suma::AdminAPI::StaticStrings::StaticStringGroup
- * @property {?} namespace
+ * @property {any} namespace
  * @property {JoinedStaticString} strings
  */
 
 /**
- * @typedef {Object} DetailedVendorServiceCategory
+ * @typedef {object} DetailedVendorServiceCategory
  * @description Auto-generated from Suma::AdminAPI::VendorServiceCategories::DetailedVendorServiceCategoryEntity
  * @property {number} id
  * @property {string} createdAt
@@ -3266,17 +3237,16 @@
  * @property {string} label
  * @property {string} name
  * @property {string} slug
- * @property {VendorServiceCategoryTerminal} parent
+ * @property {VendorServiceCategory} parent
  * @property {string} updatedAt
  * @property {AuditMember} createdBy
  * @property {ExternalLink[]} externalLinks
  * @property {AdminAction[]} adminActions
- * @property {VendorServiceCategory} parent
  * @property {VendorServiceCategoryEntityCollection} children
  */
 
 /**
- * @typedef {Object} ListVendorServiceCategory
+ * @typedef {object} ListVendorServiceCategory
  * @description Auto-generated from Suma::AdminAPI::VendorServiceCategories::ListVendorServiceCategoryEntity
  * @property {number} id
  * @property {string} createdAt
@@ -3285,12 +3255,11 @@
  * @property {string} label
  * @property {string} name
  * @property {string} slug
- * @property {VendorServiceCategoryTerminal} parent
  * @property {VendorServiceCategory} parent
  */
 
 /**
- * @typedef {Object} DetailedVendorServiceRate
+ * @typedef {object} DetailedVendorServiceRate
  * @description Auto-generated from Suma::AdminAPI::VendorServiceRates::DetailedVendorServiceRateEntity
  * @property {number} id
  * @property {string} createdAt
@@ -3313,7 +3282,7 @@
  */
 
 /**
- * @typedef {Object} DetailedVendorService
+ * @typedef {object} DetailedVendorService
  * @description Auto-generated from Suma::AdminAPI::VendorServices::DetailedVendorServiceEntity
  * @property {number} id
  * @property {string} createdAt
@@ -3334,17 +3303,17 @@
  * @property {ProgramPricingEntityCollection} programPricings
  * @property {Image} image
  * @property {TranslatedText} imageCaption
- * @property {?} constraints
- * @property {?} mobilityAdapterPresent
+ * @property {any} constraints
+ * @property {any} mobilityAdapterPresent
  * @property {string} mobilityAdapterTripProviderKey
- * @property {?} mobilityAdapterUsesDeepLinking
- * @property {?} mobilityAdapterSendReceipts
- * @property {?} mobilityAdapterSetting
+ * @property {any} mobilityAdapterUsesDeepLinking
+ * @property {any} mobilityAdapterSendReceipts
+ * @property {any} mobilityAdapterSetting
  * @property {string} mobilityAdapterSettingName
  */
 
 /**
- * @typedef {Object} DetailedVendor
+ * @typedef {object} DetailedVendor
  * @description Auto-generated from Suma::AdminAPI::Vendors::DetailedVendorEntity
  * @property {number} id
  * @property {string} createdAt
@@ -3362,4 +3331,8 @@
  * @property {AnonProxyVendorConfigurationEntityCollection} configurations
  * @property {Image} image
  * @property {TranslatedText} imageCaption
+ */
+
+/**
+ * @typedef {Record<string, string[]>} RoleAccessType
  */
