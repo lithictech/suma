@@ -25,7 +25,11 @@ interface AddCreditCardProps {
   setError: (e?: any) => any;
 }
 
-export default function AddCreditCard({ onSuccess, error, setError }: AddCreditCardProps) {
+export default function AddCreditCard({
+  onSuccess,
+  error,
+  setError,
+}: AddCreditCardProps) {
   const {
     register,
     handleSubmit,
@@ -126,7 +130,8 @@ export default function AddCreditCard({ onSuccess, error, setError }: AddCreditC
   }
 
   function handleCardCvcChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let { name, value } = e.target;
+    const { name } = e.target;
+    let { value } = e.target;
     value = keepDigits(value);
     runSetter(name, setCardCvc, value);
   }

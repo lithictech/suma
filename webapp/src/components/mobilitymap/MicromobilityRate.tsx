@@ -1,0 +1,37 @@
+import { t } from "../../localization";
+import React from "react";
+import Badge from "react-bootstrap/Badge";
+
+export default function MicromobilityRate({ rate }: { rate: Rate }) {
+  let disc,
+    badge = null;
+  if (rate.undiscountedRate) {
+    disc = (
+      <p className="mb-0">
+        <s>
+          {t("mobility.rate_micromobility", {
+            surcharge: rate.undiscountedRate.surcharge,
+            unitAmount: rate.undiscountedRate.unitAmount,
+          })}
+        </s>
+      </p>
+    );
+    badge = (
+      <Badge bg="success" className="ms-2">
+        {rate.name}
+      </Badge>
+    );
+  }
+  return (
+    <div className="d-flex flex-column gap-2">
+      {disc}
+      <p className="mb-0">
+        {t("mobility.rate_micromobility", {
+          surcharge: rate.surcharge,
+          unitAmount: rate.unitAmount,
+        })}
+        {badge}
+      </p>
+    </div>
+  );
+}

@@ -61,11 +61,14 @@ export default function AddToHomescreen() {
       .finally(loading.turnOff);
   }, [loading, setShouldPrompt, installPromptEvent]);
 
-  const handleBeforeInstallPrompt = React.useCallback((event: BeforeInstallPromptEvent) => {
-    // Prevent early prompt display
-    event.preventDefault();
-    setInstallPromptEvent(event);
-  }, []);
+  const handleBeforeInstallPrompt = React.useCallback(
+    (event: BeforeInstallPromptEvent) => {
+      // Prevent early prompt display
+      event.preventDefault();
+      setInstallPromptEvent(event);
+    },
+    []
+  );
 
   React.useEffect(
     function initEventHandlers() {

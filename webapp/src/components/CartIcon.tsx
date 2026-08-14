@@ -7,7 +7,7 @@ export default function CartIcon({ className, cart }: { className?: string; cart
   const lastHash = React.useRef(cart.cartHash);
   const [innerItemCount, setInnerItemCount] = React.useState(cart.items?.length || 0);
 
-  let timerHandle = React.useRef(0);
+  const timerHandle = React.useRef(0);
   React.useEffect(() => {
     if (lastHash.current === cart.cartHash) {
       return;
