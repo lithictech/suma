@@ -310,6 +310,8 @@ class Suma::Service::Typewriter
     name_as = opts[:as]
     using = opts[:using]
     doc = opts[:documentation] || {}
+    # If this is originally a predicate method, use a boolean type
+    doc[:type] ||= :Boolean if attr_name.end_with?("?")
 
     attr_name = name_as || attr_name
 

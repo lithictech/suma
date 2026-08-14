@@ -12,6 +12,7 @@ RSpec.describe Suma::Service::Typewriter do
       expose_array :z, self
       expose :doc, documentation: {type: "String", desc: "Help text"}
       expose :doc_t, documentation: {type: self, desc: "Help text"}
+      expose :predicate?, as: :predicate
       expose :nested do
         expose :n1
       end
@@ -27,6 +28,7 @@ RSpec.describe Suma::Service::Typewriter do
        * @property {Test[]} z
        * @property {string} doc - Help text
        * @property {Test} docT - Help text
+       * @property {boolean} predicate
        * @property {any} n1
        */
     STR
@@ -43,6 +45,7 @@ RSpec.describe Suma::Service::Typewriter do
           doc: string;
           /** Help text */
           docT: Test;
+          predicate: boolean;
           n1: any;
         }
 
