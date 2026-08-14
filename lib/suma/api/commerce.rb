@@ -263,7 +263,7 @@ class Suma::API::Commerce < Suma::API::V1
   end
 
   class CartEntity < BaseEntity
-    expose :cart_hash
+    expose :cart_hash, documentation: {type: String}
     expose_array :items, CartItemEntity
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
@@ -355,7 +355,7 @@ class Suma::API::Commerce < Suma::API::V1
   end
 
   class FulfillmentOptionAddressEntity < BaseEntity
-    expose :one_line_address, &self.delegate_to(:one_line_address)
+    expose :one_line_address, documentation: {type: String}, &self.delegate_to(:one_line_address)
   end
 
   class FulfillmentOptionEntity < BaseEntity
@@ -437,7 +437,7 @@ class Suma::API::Commerce < Suma::API::V1
     include Suma::API::Entities
 
     expose :id
-    expose :serial
+    expose :serial, documentation: {type: String}
     expose :created_at
     expose :fulfilled_at
     expose :total, with: MoneyEntity, &self.delegate_to(:checkout, :total)

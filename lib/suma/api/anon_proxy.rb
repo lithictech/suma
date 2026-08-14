@@ -149,7 +149,7 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :needs_linking
     expose :requires_payment_method
     expose :has_payment_method
-    expose :balance_payoff_needed
+    expose :balance_payoff_needed, documentation: {type: Boolean}
     expose :show_payment_step
     expose :term_step_index
     expose :link_step_index
@@ -176,7 +176,7 @@ class Suma::API::AnonProxy < Suma::API::V1
   class AnonProxyVendorAccountPollResultEntity < BaseEntity
     include Suma::API::Entities
 
-    expose :found_change
+    expose :found_change, documentation: {type: Boolean}
     expose_translated :success_instructions do |inst|
       inst.fetch(:vendor_account).configuration.linked_success_instructions
     end

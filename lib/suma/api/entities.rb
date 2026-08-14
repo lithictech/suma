@@ -13,19 +13,19 @@ module Suma::API::Entities
   class BaseEntity < Suma::Service::Entities::Base; end
 
   class CurrencyEntity < BaseEntity
-    expose :symbol
-    expose :code
-    expose :funding_minimum_cents
-    expose :funding_maximum_cents
-    expose :funding_step_cents
-    expose :cents_in_dollar
-    expose :payment_method_types
+    expose :symbol, documentation: {type: String}
+    expose :code, documentation: {type: String}
+    expose :funding_minimum_cents, documentation: {type: Integer}
+    expose :funding_maximum_cents, documentation: {type: Integer}
+    expose :funding_step_cents, documentation: {type: Integer}
+    expose :cents_in_dollar, documentation: {type: Integer}
+    expose_array :payment_method_types, documentation: {type: String}
   end
 
   class LocaleEntity < BaseEntity
-    expose :code
-    expose :language
-    expose :native
+    expose :code, documentation: {type: String}
+    expose :language, documentation: {type: String}
+    expose :native, documentation: {type: String}
   end
 
   class ImageEntity < BaseEntity
@@ -41,7 +41,7 @@ module Suma::API::Entities
     expose :usable_for_funding?, as: :usable_for_funding
     expose :status
     expose :expires_at
-    expose :institution
+    expose :institution, documentation: {type: String}
     expose :name
     expose :last4
     expose :key do |inst|
@@ -69,6 +69,11 @@ module Suma::API::Entities
     expose_array :line_items, MobilityChargeLineItemEntity
   end
 
+  class MobilityTripParsedAddressEntity < BaseEntity
+    expose :part1, documentation: {type: String}
+    expose :part2, documentation: {type: String}
+  end
+
   class MobilityTripEntity < BaseEntity
     expose :id
     expose :vehicle_id
@@ -76,11 +81,11 @@ module Suma::API::Entities
     expose :vendor_service, as: :provider, with: VendorServiceEntity
     expose :begin_lat
     expose :begin_lng
-    expose :begin_address_parsed, as: :begin_address
+    expose :begin_address_parsed, as: :begin_address, with: MobilityTripParsedAddressEntity
     expose :began_at
     expose :end_lat
     expose :end_lng
-    expose :end_address_parsed, as: :end_address
+    expose :end_address_parsed, as: :end_address, with: MobilityTripParsedAddressEntity
     expose :ended_at
     expose :ongoing?, as: :ongoing
     expose :charge, with: MobilityChargeEntity
