@@ -55,20 +55,38 @@ RSpec.describe Suma::Service::Typewriter do
 
   it "uses the jsdoc_type method on the type class" do
     t = Class.new do
-      define_singleton_method(:js_type) { "number[]" }
+      define_singleton_method(:name) { "AliasedType" }
+      define_singleton_method(:js_typealias) { "number[]" }
     end
 
     cls = Class.new(Suma::Service::Entities::Base) do
-      define_singleton_method(:name) { "TestEntity" }
+      define_singleton_method(:name) { "AliasedTypeTestEntity" }
       expose :jt, documentation: {type: t}
     end
     jsdoc = described_class.new.build([cls])
     expect(jsdoc).to include(<<~STR)
       /**
-       * @typedef {object} Test
-       * @description Auto-generated from TestEntity
-       * @property {number[]} jt
+       * @typedef {object} AliasedTypeTest
+       * @description Auto-generated from AliasedTypeTestEntity
+       * @property {AliasedType} jt
        */
+    STR
+    expect(jsdoc).to include(<<~STR)
+      /**
+       * @typedef {number[]} AliasedType
+       */
+    STR
+
+    tsdoc = described_class.new(described_class::TypescriptFormatter.new).build([cls])
+    expect(tsdoc).to include(<<~STR)
+      declare global {
+        /** Auto-generated from AliasedTypeTestEntity */
+        interface AliasedTypeTest {
+          jt: AliasedType;
+        }
+
+        type AliasedType = number[];
+      }
     STR
   end
 

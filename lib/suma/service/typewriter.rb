@@ -12,6 +12,7 @@ class Suma::Service::Typewriter
 
     def initialize
       @lines = []
+      @aliases = {}
     end
 
     def metadata(classes)
@@ -21,11 +22,21 @@ class Suma::Service::Typewriter
       @lines << ""
     end
 
+    def register_alias(name, definition)
+      @aliases[name] = definition
+    end
+
     def preamble = nil
+    def add_typealias(name, definition) = raise NotImplementedError
     def open_typedef(typename, sourcename) = raise NotImplementedError
     def add_property(js_type, js_name, desc_text) = raise NotImplementedError
     def close_typedef = raise NotImplementedError
-    def postamble = nil
+
+    def postamble
+      @aliases.each do |name, definition|
+        self.add_typealias(name, definition)
+      end
+    end
 
     def string = @lines.join("\n")
   end
@@ -47,6 +58,13 @@ class Suma::Service::Typewriter
       self.lines << " */"
       self.lines << ""
     end
+
+    def add_typealias(name, definition)
+      self.lines << "/**"
+      self.lines << " * @typedef {#{definition}} #{name}"
+      self.lines << " */"
+      self.lines << ""
+    end
   end
 
   class TypescriptFormatter < Formatter
@@ -55,6 +73,7 @@ class Suma::Service::Typewriter
     end
 
     def postamble
+      super
       self.lines << "}"
       self.lines << ""
       self.lines << "export {};"
@@ -74,6 +93,10 @@ class Suma::Service::Typewriter
     def close_typedef
       self.lines << "  }"
       self.lines << ""
+    end
+
+    def add_typealias(name, definition)
+      self.lines << "  type #{name} = #{definition};"
     end
   end
 
@@ -166,7 +189,11 @@ class Suma::Service::Typewriter
     type = documentation[:type]
     return ANYTYPE unless type
 
-    return type.js_type if type.respond_to?(:js_type)
+    if type.respond_to?(:js_typealias)
+      typename = self.jsdoc_entity_name(type)
+      @formatter.register_alias(typename, type.js_typealias)
+      return typename
+    end
 
     # Grape uses :type as a class, string, or symbol. If we get a mapped hit, just use it.
     mapped = GRAPE_TO_JSTYPE[type.to_s.to_sym]

@@ -17,27 +17,27 @@ module Suma::Service::Entities
   end
 
   class GeoLatLng
-    def self.js_type = "[number, number]"
+    def self.js_typealias = "[number, number]"
   end
 
   class GeoLinearRing
-    def self.js_type = "GeoLatLng[]"
+    def self.js_typealias = "GeoLatLng[]"
   end
 
   class GeoPolygon
-    def self.js_type = "GeoLinearRing[]"
+    def self.js_typealias = "GeoLinearRing[]"
   end
 
   class GeoMultiPolygon
-    def self.js_type = "GeoPolygon[]"
+    def self.js_typealias = "GeoPolygon[]"
   end
 
   class RecordStringString
-    def self.js_type = "Record<string, string>"
+    def self.js_typealias = "Record<string, string>"
   end
 
   class RecordString
-    def self.js_type = "Record<string, unknown>"
+    def self.js_typealias = "Record<string, unknown>"
   end
 
   # Render the TranslatedText instance using the current language.
@@ -130,7 +130,7 @@ module Suma::Service::Entities
   end
 
   class RoleAccessType
-    def self.js_type = "Record<string, string[]>"
+    def self.js_typealias = "Record<string, string[]>"
   end
 
   class CurrentMember < Base
