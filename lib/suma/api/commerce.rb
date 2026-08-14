@@ -343,7 +343,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    expose :items do |_, opts|
+    expose_array :items do |_, opts|
       opts.fetch(:items)
     end
     expose_array :vendors, VendorEntity do |_, opts|
@@ -406,7 +406,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :checkout_prohibited_reason do |_object|
       self.cost_info.checkout_prohibited_reason
     end
-    expose :existing_funds_available, with: ChargeContributionEntity do |_object|
+    expose_array :existing_funds_available, ChargeContributionEntity do |_object|
       self.cost_info.existing_funds_available
     end
 
