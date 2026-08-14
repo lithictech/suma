@@ -67,8 +67,9 @@ module Suma::Service::Entities
       return block.arity == 1 ? block[instance] : block[instance, options]
     end
 
-    def self.expose_translated(name, *, &block)
-      self.expose(name, *) do |instance, options|
+    def self.expose_translated(name, **opts, &block)
+      documentation = (opts.delete(:documentation) || {}).merge(type: "String")
+      self.expose(name, documentation:, **opts) do |instance, options|
         txt = self.evaluate_exposure(name, block, instance, options)
         Suma::Service::Entities.render_translated_text(txt)
       end

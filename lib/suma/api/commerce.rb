@@ -343,7 +343,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    expose_array :items, PricedOfferingProductEntity do |_, opts|
+    expose_array :items, documentation: {type: PricedOfferingProductEntity} do |_, opts|
       opts.fetch(:items)
     end
     expose_array :vendors, VendorEntity do |_, opts|
@@ -486,7 +486,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :taxable_cost, with: MoneyEntity, &self.delegate_to(:checkout, :taxable_cost)
     expose :tax, with: MoneyEntity, &self.delegate_to(:checkout, :tax)
     expose_array :funding_transactions, OrderHistoryFundingTransactionEntity,
-           &self.delegate_to(:charge, :associated_funding_transactions, safe_with_default: [])
+                 &self.delegate_to(:charge, :associated_funding_transactions, safe_with_default: [])
   end
 
   # We can assume the user is going to most often view their very recent history,
