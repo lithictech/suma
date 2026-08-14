@@ -278,8 +278,14 @@ class Suma::Service::Typewriter
       # We walk recursively if the exposure responds to `nested_exposures`.
       self.walk_exposure(property_type_and_desc_for_name, exposure)
     end
+    if strict
+      errors = []
+      property_type_and_desc_for_name.each do |jsname, (jstype, _desc)|
+        errors << "#{type_name}.#{jsname}" if jstype.start_with?(ANYTYPE)
+      end
+      raise UntypedError, "exposure was untyped: " + errors.join("\n") if errors.any?
+    end
     property_type_and_desc_for_name.each do |jsname, (jstype, desc)|
-      raise UntypedError, "exposure was untyped: #{type_name}.#{jsname}" if strict && jstype.start_with?(ANYTYPE)
       formatter.add_property(jstype, jsname, desc)
     end
     formatter.close_typedef
