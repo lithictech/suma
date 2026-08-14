@@ -1,0 +1,26 @@
+import loaderRing from "../assets/images/loader-ring.svg";
+import "./ScreenLoader.css";
+import clsx from "clsx";
+import React from "react";
+
+/**
+ * Render the screen loader overlay.
+ * For async work, use the `useScreenLoader` hook.
+ * This is used when there is some async dependency
+ * a screen has, and you want to render an overlay loader
+ * while the page loads (ie, `return <ScreenLoader show />`).
+ */
+export default function ScreenLoader({ show }: { show: boolean }) {
+  return (
+    <div
+      className={clsx(
+        "screen-loader",
+        show ? "screen-loader-show" : "screen-loader-hide"
+      )}
+    >
+      <div className="screen-loader-centerer">
+        <img src={loaderRing} alt="" />
+      </div>
+    </div>
+  );
+}

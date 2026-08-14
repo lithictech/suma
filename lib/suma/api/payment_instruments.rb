@@ -135,7 +135,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
   class MutationPaymentInstrumentEntity < PaymentInstrumentEntity
     include Suma::API::Entities
 
-    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst|
+    expose_array :all_payment_instruments, PaymentInstrumentEntity do |_inst|
       self.current_member.public_payment_instruments
     end
   end

@@ -12,8 +12,9 @@ RSpec.describe Suma::Tasks::Annotate, :db, :redirect do
     it "calls annotate" do
       expect(Kernel).to receive(:`).with("git diff").and_return("")
       expect(Sequel::Annotate).to receive(:annotate).with(include("lib/suma/member.rb"), border: true)
-      expect(described_class).to receive(:write_typedefs).with(be_a(Pathname), include("Auto-generated JSDoc"))
-      expect(described_class).to receive(:write_typedefs).with(be_a(Pathname), include("Auto-generated JSDoc"))
+      expect(described_class).to receive(:write_typedefs).with(be_a(Pathname), include("Auto-generated typedefs"))
+      expect(described_class).to receive(:write_typedefs).with(be_a(Pathname), include("Auto-generated typedefs"))
+      expect(described_class).to receive(:write_typedefs).with(be_a(Pathname), include("Auto-generated typedefs"))
       invoke_rake_task("annotate")
       expect($stdout.string).to include("Finished annotating")
     end

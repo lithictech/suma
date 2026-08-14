@@ -1,0 +1,92 @@
+import AppNav from "../components/AppNav";
+import TopNav from "../components/TopNav";
+import { guttersClass, topMarginClass } from "../modules/constants";
+import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
+import Col from "../ui/Col";
+import Container from "../ui/Container";
+import Row from "../ui/Row";
+import clsx from "clsx";
+import React from "react";
+
+interface PageLayoutProps {
+  /** 'top' or 'none' */
+  nav?: string;
+  /** If true, display appNav below topNav */
+  appNav?: boolean;
+  /** If true, put this page in a Container/Row/Column, which provides automatic gutters. */
+  gutters?: boolean;
+  /** If true, add an mt-3 to the page content, to buffer it from the top nav or top of page. */
+  top?: boolean;
+  /**
+   * By default, we add a bottom padding to every page,
+   * so the page content doesn't sit at the bottom of the screen.
+   * In rare cases (like the mobility map), we want the page content to sit flush
+   * with the bottom. Use noBottom in those cases.
+   */
+  noBottom?: boolean;
+  /** By default, scroll to top when the page mounts. */
+  noScrollTop?: boolean;
+  /** Background color class for the page container. */
+  bg?: string;
+  /** If given, render this component in the sticky nav div. */
+  stickyNavAddon?: React.ReactNode;
+  children?: React.ReactNode;
+}
+
+/**
+ * Configure the layout associated with the page.
+ * Note that this puts the content into an outer div which
+ * gives the given background color to the entire page.
+ *
+ * There should be only one of these, often set in App.jsx,
+ * but it can be set in the page component if dynamic content is needed
+ * (usually adding another sticky element to the nav).
+ */
+export default function PageLayout({
+  nav,
+  appNav,
+  gutters,
+  top,
+  noBottom,
+  noScrollTop,
+  bg,
+  stickyNavAddon,
+  children,
+}: PageLayoutProps) {
+  nav = nav || "top";
+  const hasNav = nav !== "none" || appNav;
+  bg = bg || "bg-light";
+  const gutterCls = gutters ? guttersClass : null;
+  const topCls = top ? topMarginClass : null;
+  const noBottomCls = noBottom ? null : "pb-5";
+  const scrollTop = !noScrollTop;
+  let node;
+  if (gutterCls) {
+    node = (
+      <Container className={clsx(topCls, gutterCls)}>
+        <Row>
+          <Col>{children}</Col>
+        </Row>
+      </Container>
+    );
+  } else if (topCls) {
+    node = <div className={topCls}>{children}</div>;
+  } else {
+    node = children;
+  }
+  return (
+    <div className={clsx(bg, "root", noBottomCls)}>
+      {scrollTop && <ScrollTopOnMount />}
+      <div className="main-container">
+        {hasNav && (
+          <div className="sticky-top">
+            {nav === "top" && <TopNav />}
+            {appNav === true && <AppNav />}
+            {stickyNavAddon}
+          </div>
+        )}
+        {node}
+      </div>
+    </div>
+  );
+}

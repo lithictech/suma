@@ -197,10 +197,10 @@ class Suma::API::Mobility < Suma::API::V1
   end
 
   class MobilityMapVehicleEntity < BaseEntity
-    expose :c
-    expose :p
-    expose :d, expose_nil: false
-    expose :o, expose_nil: false
+    expose :c, documentation: {type: Integer, array: true}
+    expose :p, documentation: {type: Integer}
+    expose :d, expose_nil: false, documentation: {type: String}
+    expose :o, expose_nil: false, documentation: {type: Integer, array: true}
   end
 
   class SimpleRateEntity < BaseEntity
@@ -235,47 +235,52 @@ class Suma::API::Mobility < Suma::API::V1
   class MobilityMapEntity < BaseEntity
     include Suma::API::Entities
 
-    expose :precision do |_|
+    expose :precision, documentation: {type: Integer} do |_|
       Suma::Mobility::COORD2INT_FACTOR
     end
-    expose :refresh do |_|
+    expose :refresh, documentation: {type: Integer} do |_|
       30_000
     end
-    expose :program_pricings, as: :providers, with: MobilityMapProviderEntity
+    expose_array :program_pricings, as: :providers, with: MobilityMapProviderEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
 
+  class MobilityMapRestrictionBoundsEntity < BaseEntity
+    expose :ne, documentation: {type: Suma::Service::Entities::GeoLatLng}
+    expose :sw, documentation: {type: Suma::Service::Entities::GeoLatLng}
+  end
+
   class MobilityMapRestrictionEntity < BaseEntity
-    expose :restriction
-    expose :multipolygon_numeric, as: :multipolygon
-    expose :bounds_numeric, as: :bounds
+    expose :restriction, documentation: {type: String}
+    expose :multipolygon_numeric, as: :multipolygon, documentation: {type: Suma::Service::Entities::GeoMultiPolygon}
+    expose :bounds_numeric, as: :bounds, documentation: {type: MobilityMapRestrictionBoundsEntity}
   end
 
   class MobilityMapFeaturesEntity < BaseEntity
-    expose :restrictions, with: MobilityMapRestrictionEntity
+    expose_array :restrictions, MobilityMapRestrictionEntity
   end
 
   class MobilityDetailedVehicleEntity < BaseEntity
     include Suma::API::Entities
 
-    expose :precision do |_|
+    expose :precision, documentation: {type: Integer} do |_|
       Suma::Mobility::COORD2INT_FACTOR
     end
     expose :vendor_service, with: VendorServiceEntity
-    expose :vehicle_id
-    expose :to_api_location, as: :loc
+    expose :vehicle_id, documentation: {type: String}
+    expose :to_api_location, documentation: {type: Integer, array: true}, as: :loc
     expose :rate, with: RateEntity do |_v, options|
       options.fetch(:rate)
     end
-    expose :subsidy_match_percentage do |_v, options|
+    expose :subsidy_match_percentage, documentation: {type: Integer} do |_v, options|
       x = options.fetch(:payment_trigger, nil)&.match_fraction || 0
       (x * 100).round
     end
-    expose :deeplink do |vehicle, options|
+    expose :deeplink, documentation: {type: String} do |vehicle, options|
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)
     end
-    expose :goto_private_account do |vehicle|
+    expose :goto_private_account, documentation: {type: String} do |vehicle|
       member = self.current_member
       now = self.current_time
       vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member, now:)
@@ -289,14 +294,21 @@ class Suma::API::Mobility < Suma::API::V1
     end
   end
 
+  class MobilityTripCollectionWeekEntity < BaseEntity
+    expose :begin_at
+    expose :end_at
+    expose :begin_index
+    expose :end_index
+  end
+
   class MobilityTripCollectionEntity < Suma::Service::Collection::BaseEntity
     include Suma::API::Entities
 
-    expose :items, with: MobilityTripEntity
+    expose_array :items, MobilityTripEntity
     expose :ongoing, with: MobilityTripEntity do |_, opts|
       opts.fetch(:ongoing)
     end
-    expose :weeks do |_, opts|
+    expose_array :weeks, MobilityTripCollectionWeekEntity do |_, opts|
       opts.fetch(:weeks)
     end
   end

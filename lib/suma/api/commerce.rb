@@ -263,8 +263,8 @@ class Suma::API::Commerce < Suma::API::V1
   end
 
   class CartEntity < BaseEntity
-    expose :cart_hash
-    expose :items, with: CartItemEntity
+    expose :cart_hash, documentation: {type: String}
+    expose_array :items, CartItemEntity
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
       inst.cost_info(opts.fetch(:context)).noncash_ledger_contribution_amount
@@ -292,7 +292,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering_id, &self.delegate_to(:offering, :id)
     expose :product_id, &self.delegate_to(:product, :id)
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
-    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
+    expose_array :images, Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
   end
 
   class PricedOfferingProductEntity < BaseOfferingProductEntity
@@ -343,10 +343,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    expose :items do |_, opts|
+    expose_array :items, documentation: {type: PricedOfferingProductEntity} do |_, opts|
       opts.fetch(:items)
     end
-    expose :vendors, with: VendorEntity do |_, opts|
+    expose_array :vendors, VendorEntity do |_, opts|
       opts.fetch(:vendors)
     end
     expose :cart, with: CartEntity do |_, opts|
@@ -355,7 +355,7 @@ class Suma::API::Commerce < Suma::API::V1
   end
 
   class FulfillmentOptionAddressEntity < BaseEntity
-    expose :one_line_address, &self.delegate_to(:one_line_address)
+    expose :one_line_address, documentation: {type: String}, &self.delegate_to(:one_line_address)
   end
 
   class FulfillmentOptionEntity < BaseEntity
@@ -382,13 +382,13 @@ class Suma::API::Commerce < Suma::API::V1
 
   class CheckoutEntity < BaseEntity
     expose :id
-    expose :items, with: CheckoutItemEntity
+    expose_array :items, CheckoutItemEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:cart, :offering)
     expose :fulfillment_option_id
-    expose :available_fulfillment_options, with: FulfillmentOptionEntity
+    expose_array :available_fulfillment_options, FulfillmentOptionEntity
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
-    expose :available_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
-    expose :unavailable_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
+    expose_array :available_payment_instruments, Suma::API::Entities::PaymentInstrumentEntity
+    expose_array :unavailable_payment_instruments, Suma::API::Entities::PaymentInstrumentEntity
 
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :undiscounted_cost, with: Suma::Service::Entities::Money
@@ -406,7 +406,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :checkout_prohibited_reason do |_object|
       self.cost_info.checkout_prohibited_reason
     end
-    expose :existing_funds_available, with: ChargeContributionEntity do |_object|
+    expose_array :existing_funds_available, ChargeContributionEntity do |_object|
       self.cost_info.existing_funds_available
     end
 
@@ -428,7 +428,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   class CheckoutConfirmationEntity < BaseEntity
     expose :id
-    expose :items, with: CheckoutConfirmationItemEntity
+    expose_array :items, CheckoutConfirmationItemEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:cart, :offering)
     expose :fulfillment_option, with: FulfillmentOptionEntity
   end
@@ -437,7 +437,7 @@ class Suma::API::Commerce < Suma::API::V1
     include Suma::API::Entities
 
     expose :id
-    expose :serial
+    expose :serial, documentation: {type: String}
     expose :created_at
     expose :fulfilled_at
     expose :total, with: MoneyEntity, &self.delegate_to(:checkout, :total)
@@ -467,13 +467,13 @@ class Suma::API::Commerce < Suma::API::V1
   class DetailedOrderHistoryEntity < SimpleOrderHistoryEntity
     include Suma::API::Entities
 
-    expose :items, with: OrderHistoryItemEntity, &self.delegate_to(:checkout, :items)
+    expose_array :items, OrderHistoryItemEntity, &self.delegate_to(:checkout, :items)
     expose :offering_id, &self.delegate_to(:checkout, :cart, :offering_id)
     expose_translated :offering_description, &self.delegate_to(:checkout, :cart, :offering, :description)
     expose_translated :fulfillment_confirmation,
                       &self.delegate_to(:checkout, :cart, :offering, :fulfillment_confirmation)
     expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)
-    expose :fulfillment_options_for_editing, with: FulfillmentOptionEntity
+    expose_array :fulfillment_options_for_editing, FulfillmentOptionEntity
     expose :fulfillment_option_editable?, as: :fulfillment_option_editable
 
     expose :order_status
@@ -485,21 +485,21 @@ class Suma::API::Commerce < Suma::API::V1
     expose :handling, with: MoneyEntity, &self.delegate_to(:checkout, :handling)
     expose :taxable_cost, with: MoneyEntity, &self.delegate_to(:checkout, :taxable_cost)
     expose :tax, with: MoneyEntity, &self.delegate_to(:checkout, :tax)
-    expose :funding_transactions, with: OrderHistoryFundingTransactionEntity,
-           &self.delegate_to(:charge, :associated_funding_transactions, safe_with_default: [])
+    expose_array :funding_transactions, OrderHistoryFundingTransactionEntity,
+                 &self.delegate_to(:charge, :associated_funding_transactions, safe_with_default: [])
   end
 
   # We can assume the user is going to most often view their very recent history,
   # so provide them to the frontend to avoid extra API calls.
   class OrderHistoryCollection < Suma::Service::Collection::BaseEntity
-    expose :items, with: SimpleOrderHistoryEntity
-    expose :detailed_orders, with: DetailedOrderHistoryEntity do |_, opts|
+    expose_array :items, SimpleOrderHistoryEntity
+    expose_array :detailed_orders, DetailedOrderHistoryEntity do |_, opts|
       opts.fetch(:detailed_orders)
     end
   end
 
   class UnclaimedOrderCollection < Suma::Service::Collection::BaseEntity
     # This should be a relatively small list, so always return the detailed orders.
-    expose :items, with: DetailedOrderHistoryEntity
+    expose_array :items, DetailedOrderHistoryEntity
   end
 end

@@ -22,7 +22,9 @@ lint: check-version
 	npm run eslint-fix
 lint-check:
 	npm run eslint-check
-check: fmt-check lint-check test
+type-check: check-version
+	npm run type-check
+check: fmt-check lint-check type-check test
 
 start: check-version
 	npm start

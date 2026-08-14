@@ -82,8 +82,8 @@ class Suma::API::Me < Suma::API::V1
 
   class DashboardAlertEntity < BaseEntity
     expose :localization_key
-    expose :localization_params
-    expose :variant
+    expose :localization_params, documentation: {type: Suma::Service::Entities::RecordString}
+    expose :variant, documentation: {type: String}
   end
 
   class ProgramEntity < BaseEntity
@@ -98,7 +98,7 @@ class Suma::API::Me < Suma::API::V1
 
   class DashboardEntity < BaseEntity
     expose :cash_balance, with: Suma::API::Entities::MoneyEntity
-    expose :programs, with: ProgramEntity
-    expose :alerts, with: DashboardAlertEntity
+    expose_array :programs, ProgramEntity
+    expose_array :alerts, DashboardAlertEntity
   end
 end

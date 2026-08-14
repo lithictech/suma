@@ -16,6 +16,33 @@ module Suma::Service::Entities
     expose :end
   end
 
+  class GeoLatLng
+    def self.js_typealias = "[number, number]"
+  end
+
+  class GeoLinearRing
+    def self.js_typeincludes = [GeoLatLng]
+    def self.js_typealias = "GeoLatLng[]"
+  end
+
+  class GeoPolygon
+    def self.js_typeincludes = [GeoLinearRing]
+    def self.js_typealias = "GeoLinearRing[]"
+  end
+
+  class GeoMultiPolygon
+    def self.js_typeincludes = [GeoPolygon]
+    def self.js_typealias = "GeoPolygon[]"
+  end
+
+  class RecordStringString
+    def self.js_typealias = "Record<string, string>"
+  end
+
+  class RecordString
+    def self.js_typealias = "Record<string, unknown>"
+  end
+
   # Render the TranslatedText instance using the current language.
   # See i18n system for explanation of the format (include hidden formatter flag).
   # @param [Suma::TranslatedText,nil] txt
@@ -67,11 +94,20 @@ module Suma::Service::Entities
       return block.arity == 1 ? block[instance] : block[instance, options]
     end
 
-    def self.expose_translated(name, *, &block)
-      self.expose(name, *) do |instance, options|
+    def self.expose_translated(name, **opts, &block)
+      documentation = (opts.delete(:documentation) || {}).merge(type: "String")
+      self.expose(name, documentation:, **opts) do |instance, options|
         txt = self.evaluate_exposure(name, block, instance, options)
         Suma::Service::Entities.render_translated_text(txt)
       end
+    end
+
+    # Mark an exposure as an array.
+    # Used by Typewriter to write types.
+    def self.expose_array(name, with=nil, **opts, &)
+      documentation = (opts.delete(:documentation) || {}).merge(array: true)
+      opts[:with] ||= with
+      expose(name, documentation:, **opts, &)
     end
   end
 
@@ -96,6 +132,10 @@ module Suma::Service::Entities
     expose :end
   end
 
+  class RoleAccessType
+    def self.js_typealias = "Record<string, string[]>"
+  end
+
   class CurrentMember < Base
     expose :id
     expose :created_at
@@ -103,7 +143,7 @@ module Suma::Service::Entities
     expose :name
     expose :us_phone, as: :phone
     expose :onboarded?, as: :onboarded
-    expose :role_access, &self.delegate_to(:role_access, :as_json)
+    expose :role_access, {documentation: {type: RoleAccessType}}, &self.delegate_to(:role_access, :as_json)
     protected def current_session
       env = options.fetch(:env)
       yosoy = env.fetch("yosoy")
