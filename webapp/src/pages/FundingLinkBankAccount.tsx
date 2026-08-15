@@ -7,7 +7,6 @@ import FormError from "../components/FormError";
 import FormText from "../components/FormText";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
-import RLink from "../components/RLink";
 import config from "../config";
 import { imageAltT, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
@@ -68,7 +67,6 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
         <div className="button-stack mt-4">
           <Button
             href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
-            as={RLink}
             variant="outline"
           >
             {t("forms.continue")}

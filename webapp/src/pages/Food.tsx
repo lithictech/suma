@@ -4,7 +4,6 @@ import ErrorScreen from "../components/ErrorScreen";
 import FeaturePageHeader from "../components/FeaturePageHeader";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import VendibleCard from "../components/VendibleCard";
 import WaitingList from "../components/WaitingList";
 import { imageAltT, t } from "../localization";
@@ -76,7 +75,7 @@ function OrderHistoryLink() {
       <hr className="my-4" />
       <LayoutContainer gutters>
         <div className="button-stack">
-          <Button variant="outline" href="/order-history" as={RLink}>
+          <Button variant="outline" href="/order-history">
             <i className="bi bi-bag-check-fill me-2"></i>
             {t("food.order_history_title")}
           </Button>

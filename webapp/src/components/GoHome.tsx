@@ -1,6 +1,5 @@
 import { t } from "../localization";
 import Button from "../ui/Button";
-import RLink from "./RLink";
 import React from "react";
 
 interface GoHomeProps {
@@ -11,7 +10,7 @@ interface GoHomeProps {
 export default function GoHome({ href, label }: GoHomeProps) {
   return (
     <div className="button-stack mt-4">
-      <Button variant="outline" href={href || "/dashboard"} as={RLink}>
+      <Button variant="outline" href={href || "/dashboard"}>
         {label || t("common.go_home")}
       </Button>
     </div>

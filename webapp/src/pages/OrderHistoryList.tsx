@@ -4,7 +4,6 @@ import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
@@ -81,7 +80,7 @@ export default function OrderHistoryList() {
           <>
             {t("food.no_orders")}
             <div className="button-stack mt-2">
-              <Button variant="primary" href="/food" as={RLink}>
+              <Button variant="primary" href="/food">
                 {t("food.available_offerings")}
               </Button>
             </div>
@@ -119,7 +118,6 @@ function Order({
           />
           <div>
             <CardLink
-              as={RLink}
               href={`/order/${id}`}
               className="h5"
               onClick={onNavigate}

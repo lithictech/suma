@@ -5,7 +5,6 @@ import FoodCartWidget from "../components/FoodCartWidget";
 import FoodPrice from "../components/FoodPrice";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import { anyMoney } from "../shared/money";
@@ -107,7 +106,7 @@ export default function FoodCart() {
           </Stack>
         ) : (
           <div className="button-stack">
-            <Button href="/food" as={RLink} title={t("food.title")}>
+            <Button href="/food" title={t("food.title")}>
               {t("food.available_offerings")}
             </Button>
           </div>

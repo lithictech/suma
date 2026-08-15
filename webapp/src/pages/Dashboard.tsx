@@ -4,7 +4,6 @@ import AddToHomescreen from "../components/AddToHomescreen";
 import ExternalLink from "../components/ExternalLink";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { dt, imageAltT, t } from "../localization";
@@ -140,6 +139,13 @@ interface ProgramCardProps {
   appLinkText?: React.ReactNode;
 }
 
+function HeaderLink({ to, children }: ShimProps) {
+  if (!to) {
+    return children;
+  }
+  return <Link to={to}>{children}</Link>;
+}
+
 function ProgramCard({
   name,
   description,
@@ -149,17 +155,16 @@ function ProgramCard({
   appLinkText,
 }: ProgramCardProps) {
   const ImageComp = appLink ? Link : "div";
-  const HeaderComp = appLink ? RLink : React.Fragment;
   return (
     <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
-      <HeaderComp to={appLink}>
+      <HeaderLink to={appLink}>
         <h5
           className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
           style={{ zIndex: 1 }}
         >
           {name}
         </h5>
-      </HeaderComp>
+      </HeaderLink>
       <ImageComp to={appLink} className="flex-shrink-0 overflow-hidden position-relative">
         <SumaImage
           image={image}
@@ -177,7 +182,6 @@ function ProgramCard({
       )}
       {appLink && (
         <Button
-          as={RLink}
           href={appLink}
           state={{ fromIndex: true }}
           variant="outline"

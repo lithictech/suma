@@ -1,5 +1,4 @@
 import Button from "../ui/Button";
-import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
 
@@ -30,7 +29,6 @@ export default function NavButton({
   return (
     <Button
       size="sm"
-      as={RLink}
       variant="text"
       className={clsx("p-0", className)}
       {...rest}

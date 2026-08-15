@@ -3,7 +3,6 @@ import BackBreadcrumb from "../components/BackBreadcrumb";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import PageHeading from "../components/PageHeading";
-import RLink from "../components/RLink";
 import config from "../config";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
@@ -92,7 +91,7 @@ function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] })
       {bankAccounts.length === 0 ? (
         <>
           <CardText>{t("payments.no_bank_accounts_warning")}</CardText>
-          <Button variant="outline" href="/link-bank-account" as={RLink}>
+          <Button variant="outline" href="/link-bank-account">
             {t("payments.link_bank_account")}
           </Button>
         </>
@@ -102,7 +101,7 @@ function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] })
             <InstrumentLine key={ba.id} instrument={ba} />
           ))}
           <hr className="my-4" />
-          <Button variant="outline" href="/link-bank-account" as={RLink}>
+          <Button variant="outline" href="/link-bank-account">
             {t("payments.link_another_bank_account")}
           </Button>
         </>
@@ -157,7 +156,6 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
               size="sm"
               className="mb-2 funding-card-border-radius text-nowrap"
               href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
-              as={RLink}
             >
               <i className="bi bi-plus-circle"></i> {t("payments.funds")}
             </Button>
@@ -297,7 +295,7 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
       {cards.length === 0 ? (
         <>
           <CardText>{t("payments.no_cards_warning")}</CardText>
-          <Button variant="outline" href="/add-card" as={RLink}>
+          <Button variant="outline" href="/add-card">
             {t("payments.add_card")}
           </Button>
         </>
@@ -307,7 +305,7 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
             <InstrumentLine key={c.id} instrument={c} />
           ))}
           <hr className="my-4" />
-          <Button variant="outline" href="/add-card" as={RLink}>
+          <Button variant="outline" href="/add-card">
             {t("payments.add_another_card")}
           </Button>
         </>

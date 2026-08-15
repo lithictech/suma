@@ -1,6 +1,5 @@
 import Alert from "../ui/Alert";
 import AlertLink from "../ui/AlertLink";
-import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
 
@@ -29,7 +28,7 @@ export default function SeeAlsoAlert({
   );
   return (
     <Alert variant={variant} className={clsx("border-radius-0", alertClass)}>
-      <AlertLink as={RLink} href={to} className={linkCls}>
+      <AlertLink href={to} className={linkCls}>
         <i className={`bi ${iconClass} me-3`}></i>
         {label}
         <div className="ms-auto">

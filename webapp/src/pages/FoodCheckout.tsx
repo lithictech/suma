@@ -8,7 +8,6 @@ import FormRadioInputs from "../components/FormRadioInputs";
 import FormStateError from "../components/FormStateError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
@@ -380,10 +379,10 @@ function CheckoutItems({ checkout }: { checkout: Checkout }) {
         );
       })}
       <div className="mt-3">
-        <RLink to={`/cart/${checkout.offering.id}`}>
+        <Link to={`/cart/${checkout.offering.id}`}>
           <i className="bi bi-pencil-fill me-2" />
           {t("food.edit_quantities")}
-        </RLink>
+        </Link>
       </div>
     </>
   );

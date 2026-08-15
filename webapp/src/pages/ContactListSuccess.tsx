@@ -1,5 +1,4 @@
 import ContactListTags from "../components/ContactListTags";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import Button from "../ui/Button";
@@ -21,7 +20,6 @@ export default function ContactListSuccess() {
               : "/contact-list"
           }
           variant="outline"
-          as={RLink}
           className="w-75"
           onClick={() => changeLanguage("en")}
         >

@@ -4,7 +4,6 @@ import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
@@ -148,7 +147,6 @@ function PrivateAccount({
         )}
         <Button
           variant={ctaVariant}
-          as={RLink}
           to={`/private-account/${account.id}`}
           className={"flex-grow-1"}
         >

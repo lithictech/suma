@@ -3,7 +3,6 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { extractLocalizedError, useError } from "../state/useError";
@@ -63,7 +62,6 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
         <p>{t("auth.access_account_confirmed")}</p>
         <Button
           variant="outline"
-          as={RLink}
           to="/"
           className="w-100 align-self-center"
           style={{ maxWidth: 330 }}

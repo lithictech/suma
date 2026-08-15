@@ -14,7 +14,6 @@ import NavbarBrand from "../ui/NavbarBrand";
 import NavbarCollapse from "../ui/NavbarCollapse";
 import NavbarToggle from "../ui/NavbarToggle";
 import ExternalLink from "./ExternalLink";
-import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -39,7 +38,6 @@ export default function TopNav() {
         <NavbarBrand
           href="/dashboard"
           className="me-auto d-flex align-items-center"
-          as={RLink}
         >
           <img
             alt={imageAltT("suma_logo")}
@@ -219,7 +217,6 @@ function NavLinkButton({
       href={href}
       variant="outline"
       className={clsx("nav-menu-button text-start d-flex align-items-center", className)}
-      as={RLink}
       onClick={handleClick}
     >
       {hereIcon}

@@ -3,7 +3,6 @@ import AddCreditCard from "../components/AddCreditCard";
 import BackBreadcrumb from "../components/BackBreadcrumb";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
@@ -83,7 +82,6 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
         <div className="button-stack mt-4">
           <Button
             href={makeReturnUrl(returnTo, instrumentId, instrumentType)}
-            as={RLink}
             variant="outline"
           >
             {t("forms.continue")}

@@ -5,7 +5,6 @@ import CardBody from "../ui/CardBody";
 import CardLink from "../ui/CardLink";
 import CardText from "../ui/CardText";
 import Stack from "../ui/Stack";
-import RLink from "./RLink";
 import SumaImage from "./SumaImage";
 import clsx from "clsx";
 import React from "react";
@@ -35,7 +34,6 @@ export default function VendibleCard({
           </Link>
           <div>
             <CardLink
-              as={RLink}
               href={appLink}
               state={{ fromIndex: true }}
               className="h6 mb-0"

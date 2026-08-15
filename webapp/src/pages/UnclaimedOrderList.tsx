@@ -7,7 +7,6 @@ import LayoutContainer from "../components/LayoutContainer";
 import OrderDetail from "../components/OrderDetail";
 import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
@@ -164,7 +163,6 @@ function ClaimedOrderModal({
               variant: "outline",
               children: t("food.view_order"),
               href: `/order/${claimedOrder.id}`,
-              as: RLink,
             }}
           />
         </div>

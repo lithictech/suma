@@ -15,7 +15,7 @@ export default function TripDetail() {
   let trip: MobilityTrip;
   try {
     trip = unmarshalFromUrl("trip", window.location.href) as MobilityTrip;
-  } catch (e) {
+  } catch {
     return (
       <LayoutContainer top>
         <ErrorScreen />

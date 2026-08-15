@@ -1,7 +1,6 @@
 import onboardingFood from "../assets/images/onboarding-food.jpg";
 import onboardingMobility from "../assets/images/onboarding-mobility.jpg";
 import onboardingUtilities from "../assets/images/onboarding-utilities.jpg";
-import RLink from "../components/RLink";
 import { imageAltT, t } from "../localization";
 import Button from "../ui/Button";
 import Carousel from "../ui/Carousel";
@@ -33,7 +32,7 @@ const Onboarding = () => {
         />
       </Carousel>
       <div className="button-stack">
-        <Button to="/onboarding/signup" as={RLink} variant="outline" className="mt-4">
+        <Button to="/onboarding/signup" variant="outline" className="mt-4">
           {t("forms.continue")}
         </Button>
       </div>

@@ -4,7 +4,6 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import { dt, t } from "../localization";
 import { scaleMoney } from "../shared/money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -93,7 +92,6 @@ function StepsView({
     variant: "primary",
   };
   if (account.uiStateV1.requiresPaymentMethod && !account.uiStateV1.hasPaymentMethod) {
-    primaryProps.as = RLink;
     primaryProps.to = `/add-card?returnToImmediate=/private-account/${account.id}`;
   } else {
     const nextView = balancePayoffNeeded ? VIEW_BALANCE : VIEW_TERMS;
@@ -278,7 +276,6 @@ function LinkView({
     primaryBtnProps = null;
     secondaryBtnProps = {
       children: t("private_accounts.linkview_back_to_list"),
-      as: RLink,
       to: `/private-accounts`,
     };
     alertVariant = "success";

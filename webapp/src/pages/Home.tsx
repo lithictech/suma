@@ -1,7 +1,6 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import AddToHomescreen from "../components/AddToHomescreen";
 import ExternalLink from "../components/ExternalLink";
-import RLink from "../components/RLink";
 import TranslationToggle from "../components/TranslationToggle";
 import { dt, imageAltT, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
@@ -27,7 +26,7 @@ export default function Home() {
           <div className="mb-4">{dt(registrationSession.intro)}</div>
         )}
         <div className="button-stack">
-          <Button href="/start" variant="outline" as={RLink} className="w-75">
+          <Button href="/start" variant="outline" className="w-75">
             {t("forms.continue")}
           </Button>
           <ExternalLink

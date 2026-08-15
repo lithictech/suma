@@ -15,7 +15,7 @@ export default function useUrlMarshal() {
     try {
       const ej = base64decode(v);
       return JSON.parse(ej);
-    } catch (e) {
+    } catch {
       return null;
     }
   }, []);

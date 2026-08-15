@@ -1,6 +1,5 @@
 import api from "../api";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import { dt, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { UserContextValue } from "../state/UserProvider";
@@ -41,7 +40,7 @@ export default function PartnerSignup() {
       <>
         <div className="mt-3">{t("onboarding.partner_link_invalid")}</div>
         <div className="button-stack gap-3 mt-4">
-          <Button href="/dashboard" variant="primary" as={RLink}>
+          <Button href="/dashboard" variant="primary">
             {t("common.go_to_dashboard")}
           </Button>
         </div>
@@ -109,7 +108,7 @@ function JoinPartner() {
         <Button variant="primary" onClick={handleJoin}>
           {t("onboarding.partner_accept")}
         </Button>
-        <Button href="/dashboard" variant="text" as={RLink}>
+        <Button href="/dashboard" variant="text">
           {t("common.go_to_dashboard")}
         </Button>
       </div>

@@ -6,7 +6,6 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
 import PageLayout from "../components/PageLayout";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SoldOutText from "../components/SoldOutText";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
@@ -92,7 +91,7 @@ export default function FoodList() {
           <>
             {t("food.no_products")}
             <div className="button-stack w-100">
-              <Button href="/food" as={RLink} title={t("food.title")}>
+              <Button href="/food" title={t("food.title")}>
                 {t("food.available_offerings")}
               </Button>
             </div>

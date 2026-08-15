@@ -1,7 +1,6 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
@@ -175,7 +174,7 @@ function JustFinished() {
         {i18n.t("surveys.waitlist_joined")}
       </p>
       <div className="button-stack mt-4 w-100">
-        <Button variant="outline" href="/dashboard" as={RLink}>
+        <Button variant="outline" href="/dashboard">
           {t("common.go_home")}
         </Button>
       </div>

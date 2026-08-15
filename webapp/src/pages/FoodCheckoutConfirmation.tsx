@@ -2,7 +2,6 @@ import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -56,7 +55,7 @@ export default function FoodCheckoutConfirmation() {
         ))}
         {user.unclaimedOrdersCount !== 0 && (
           <div className="button-stack my-4">
-            <Button variant="primary" href="/unclaimed-orders" as={RLink}>
+            <Button variant="primary" href="/unclaimed-orders">
               {t("food.unclaimed_order_history_title")}
             </Button>
           </div>
@@ -79,7 +78,7 @@ export default function FoodCheckoutConfirmation() {
         <h4>{t("food.confirmation_transportation_title")}</h4>
         <p className="mb-0">{t("food.confirmation_transportation_subtitle")}</p>
         <div className="button-stack mt-3 mb-4">
-          <Button href="/mobility" as={RLink}>
+          <Button href="/mobility">
             <i className="bi bi-scooter me-2"></i>
             {t("food.mobility_options")}
           </Button>

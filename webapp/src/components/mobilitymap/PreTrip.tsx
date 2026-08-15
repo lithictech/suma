@@ -1,7 +1,6 @@
 import { t } from "../../localization";
 import Button from "../../ui/Button";
 import FormError from "../FormError";
-import RLink from "../RLink";
 import DrawerContents from "./DrawerContents";
 import DrawerLoading from "./DrawerLoading";
 import DrawerTitle from "./DrawerTitle";
@@ -48,7 +47,6 @@ export default function PreTrip({
           variant="primary"
           className="w-100"
           href="/private-accounts"
-          as={RLink}
         >
           {t("forms.get_started")}
         </Button>
