@@ -6,6 +6,11 @@ interface StackProps {
   gap?: number;
   wrap?: boolean;
   center?: boolean;
+  vertical?: boolean;
+  col?: boolean;
+  column?: boolean;
+  horizontal?: boolean;
+  row?: boolean;
   children?: React.ReactNode;
   className?: string;
 }
@@ -15,9 +20,19 @@ export default function Stack({
   gap = 0,
   wrap = false,
   center = false,
+  vertical = false,
+  col = false,
+  column = false,
+  horizontal = false,
+  row = false,
   className,
   children,
 }: StackProps) {
+  if (vertical || col || column) {
+    direction = "vertical";
+  } else if (horizontal || row) {
+    direction = "horizontal";
+  }
   const cls = clsx(
     `gap-${gap}`,
     `d-flex`,

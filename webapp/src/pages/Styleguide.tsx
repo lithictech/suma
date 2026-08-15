@@ -1,5 +1,6 @@
 import useToggle from "../state/useToggle";
 import BrandCard from "../ui/BrandCard";
+import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Card from "../ui/Card";
@@ -18,6 +19,7 @@ import IndeterminateLoader from "../ui/IndeterminateLoader";
 import Nav from "../ui/Nav";
 import NavOption from "../ui/NavOption";
 import Progress from "../ui/Progress";
+import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
 import Select from "../ui/Select";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch";
@@ -43,6 +45,7 @@ export default function Styleguide() {
     "nav",
     "dialogs",
     "loaders",
+    "headers",
   ];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
@@ -341,6 +344,16 @@ export default function Styleguide() {
           <IndeterminateLoader variant="content" />
         </div>
         <IndeterminateLoader variant="screen" style={{ marginTop: 80 }} />
+      </Section>
+      <Section eventKey="headers" activeKey={activeKey}>
+        <Stack gap={3} vertical>
+          <div>
+            <BreadcrumbBack back />
+          </div>
+          <ProgressStepHeader step={1} steps={5} />
+          <ProgressStepHeader step={4} steps={5} />
+          <ProgressStepHeader step={5} steps={5} />
+        </Stack>
       </Section>
     </Container>
   );

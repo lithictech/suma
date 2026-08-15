@@ -1,6 +1,5 @@
 import api from "../api";
 import bankAccountCheckDetails from "../assets/images/bank-account-check-details.gif";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
@@ -14,6 +13,7 @@ import { extractErrorCode, useError } from "../state/useError";
 import useHashToggle from "../state/useHashToggle";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Col from "../ui/Col";
 import { Dialog } from "../ui/Dialog";
@@ -136,7 +136,7 @@ function LinkBankAccount({ onSuccess, returnTo }: LinkBankAccountProps) {
 
   return (
     <>
-      <BackBreadcrumb back={returnTo || true} />
+      <BreadcrumbBack back={returnTo || true} />
       <PageHeading>{t("payments.link_bank_account")}</PageHeading>
       <p>{t("payments.payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>

@@ -1,5 +1,4 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import PageHeading from "../components/PageHeading";
@@ -12,6 +11,7 @@ import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useToggle, { Toggle } from "../state/useToggle";
 import useUser from "../state/useUser";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
@@ -33,7 +33,7 @@ export default function Funding() {
   const { isPaymentMethodSupported } = useBackendGlobals();
   return (
     <>
-      <BackBreadcrumb back />
+      <BreadcrumbBack back />
       <PageHeading>{t("payments.payment_title")}</PageHeading>
       <p>{t("payments.payment_intro.intro")}</p>
       <p>{t("payments.payment_intro.privacy_statement")}</p>

@@ -1,12 +1,12 @@
 import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -53,7 +53,7 @@ export default function FundingAddCard() {
         <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <>
-          <BackBreadcrumb back={returnTo || true} />
+          <BreadcrumbBack back={returnTo || true} />
           <PageHeading>{t("payments.add_card")}</PageHeading>
           <p>{t("payments.payment_intro.privacy_statement")}</p>
           <AddCreditCard

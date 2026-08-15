@@ -1,6 +1,5 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import LayoutContainer from "../components/LayoutContainer";
@@ -12,6 +11,7 @@ import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../state/useAsyncFetch";
 import Badge from "../ui/Badge";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
@@ -54,7 +54,7 @@ export default function UnclaimedOrderList() {
   return (
     <>
       <LayoutContainer gutters top>
-        <BackBreadcrumb back />
+        <BreadcrumbBack back />
         <PageHeading>{t("food.unclaimed_order_history_title")}</PageHeading>
         <p>{t("food.unclaimed_order_history_intro")}</p>
       </LayoutContainer>

@@ -1,5 +1,4 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
@@ -9,6 +8,7 @@ import { t } from "../localization";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useHashSelector from "../state/useHashSelector";
 import useListQueryControls from "../state/useListQueryControls";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Dropdown from "../ui/Dropdown";
 import DropdownItem from "../ui/DropdownItem";
 import DropdownMenu from "../ui/DropdownMenu";
@@ -77,7 +77,7 @@ export default function LedgersOverview() {
   return (
     <>
       <LayoutContainer gutters top>
-        <BackBreadcrumb back="/dashboard" />
+        <BreadcrumbBack back="/dashboard" />
         <PageHeading>{t("payments.ledger_transactions")}</PageHeading>
         <p>{t("payments.ledgers_intro")}</p>
         <LedgerSelect

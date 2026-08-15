@@ -1,5 +1,4 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
@@ -10,6 +9,7 @@ import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
@@ -60,7 +60,7 @@ export default function OrderHistoryList() {
         />
       )}
       <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
-        <BackBreadcrumb back="/food" />
+        <BreadcrumbBack back="/food" />
         <PageHeading>{t("food.order_history_title")}</PageHeading>
       </LayoutContainer>
       <LayoutContainer gutters>

@@ -1,5 +1,4 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
 import FoodPrice from "../components/FoodPrice";
@@ -10,6 +9,7 @@ import { dt, t } from "../localization";
 import { anyMoney } from "../modules/money";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
@@ -49,7 +49,7 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer gutters>
-        <BackBreadcrumb back={`/food/${offeringId}`} />
+        <BreadcrumbBack back={`/food/${offeringId}`} />
         <Stack direction="horizontal" gap={3} className="align-items-end">
           <h4 className="mb-0">{t("food.cart_title")}</h4>
           <span className="text-secondary ms-auto">{t("food.price")}</span>

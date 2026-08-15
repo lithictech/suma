@@ -29,6 +29,8 @@
 .flex-column { flex-direction: column; }
 .flex-row { flex-direction: row; }
 .flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+.flex-0 { flex: 0; }
 
 .position-static { position: static; }
 .position-relative { position: relative; }

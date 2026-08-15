@@ -1,11 +1,11 @@
 import { t } from "../localization";
-import LinearBreadcrumbs from "./LinearBreadcrumbs";
-import NavButton from "./NavButton";
+import BreadcrumbButton from "./BreadcrumbButton.tsx";
+import BreadcrumbLine from "./BreadcrumbLine.tsx";
 import React from "react";
 
-interface BackBreadcrumbProps {
+interface BreadcrumbBackProps {
   /** If true, use window.history.back. Otherwise, use it as the 'to' prop on the link. */
-  back?: boolean | string;
+  back: true | string;
   /**
    * Additional nav item (usually a title/heading).
    * If children is present, do not render the text 'Back'; use a short variant,
@@ -20,12 +20,12 @@ interface BackBreadcrumbProps {
 /**
  * Simplified form of LinearBreadcrumb that renders a single 'Back' NavButton.
  */
-export default function BackBreadcrumb({ back, children, ...rest }: BackBreadcrumbProps) {
-  let backProps;
+export default function BreadcrumbBack({ back, children, ...rest }: BreadcrumbBackProps) {
+  let backProps = {};
   if (back === true) {
     backProps = {
       to: "#",
-      onClick: (e) => {
+      onClick: (e: React.ChangeEvent<HTMLButtonElement>) => {
         e.preventDefault();
         window.history.back();
       },
@@ -35,22 +35,16 @@ export default function BackBreadcrumb({ back, children, ...rest }: BackBreadcru
   }
   const short = !!children;
   return (
-    <LinearBreadcrumbs
-      items={[
-        <NavButton
-          key="back"
-          left
-          size="sm"
-          style={{ marginLeft: ICON_OFFSET }}
-          className={short && "link-unstyled"}
-          {...backProps}
-        >
-          {short ? null : t("common.back")}
-        </NavButton>,
-        <React.Fragment key="child">{children}</React.Fragment>,
-      ]}
-      {...rest}
-    />
+    <BreadcrumbButton
+      key="back"
+      left
+      size="sm"
+      style={{ marginLeft: ICON_OFFSET }}
+      className={short ? "link-unstyled" : ""}
+      {...backProps}
+    >
+      {short ? null : t("common.back")}
+    </BreadcrumbButton>
   );
 }
 
