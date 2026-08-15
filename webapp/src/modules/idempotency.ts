@@ -1,4 +1,4 @@
-import { Logger } from "../shared/logger";
+import { Logger } from "./logger";
 
 const logger = new Logger("idempotency");
 

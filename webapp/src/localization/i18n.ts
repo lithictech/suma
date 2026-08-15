@@ -1,4 +1,4 @@
-import { withSentry } from "../shared/sentry.js";
+import { withSentry } from "../modules/sentry";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 

@@ -11,7 +11,7 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
-import { anyMoney } from "../shared/money";
+import { anyMoney } from "../modules/money";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useErrorToast from "../state/useErrorToast";

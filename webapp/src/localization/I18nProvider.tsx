@@ -1,9 +1,9 @@
 import api from "../api";
 import config from "../config.js";
 import { dayjs } from "../modules/dayConfig";
-import doOnce from "../shared/doOnce";
-import { Logger } from "../shared/logger";
-import { formatMoney } from "../shared/money";
+import doOnce from "../modules/doOnce";
+import { Logger } from "../modules/logger";
+import { formatMoney } from "../modules/money";
 import useMountEffect from "../state/useMountEffect";
 import useUser from "../state/useUser";
 import { useCurrentLanguage } from "./currentLanguage";

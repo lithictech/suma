@@ -1,4 +1,4 @@
-import { localStorageCache } from "../shared/localStorageHelper";
+import { localStorageCache } from "../modules/localStorageHelper";
 import useLocalStorageState from "../state/useLocalStorageState";
 import React from "react";
 

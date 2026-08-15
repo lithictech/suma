@@ -12,6 +12,8 @@ import {
 import { t } from "./localization";
 import I18nProvider from "./localization/I18nProvider";
 import useI18n from "./localization/useI18n";
+import applyHocs from "./modules/applyHocs";
+import { installPromiseExtras } from "./modules/bluejay";
 import ContactListAdd from "./pages/ContactListAdd";
 import ContactListHome from "./pages/ContactListHome";
 import ContactListSuccess from "./pages/ContactListSuccess";
@@ -49,8 +51,6 @@ import TripDetail from "./pages/TripDetail";
 import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
-import applyHocs from "./shared/applyHocs";
-import { installPromiseExtras } from "./shared/bluejay";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
 import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";

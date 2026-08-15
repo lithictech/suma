@@ -1,6 +1,6 @@
 import config from "./config";
 import { getCurrentLanguage } from "./localization/currentLanguage";
-import apiBase from "./shared/apiBase";
+import apiBase from "./modules/apiBase";
 import { AxiosResponse } from "axios";
 import axiosRetry, { isIdempotentRequestError, isNetworkError } from "axios-retry";
 

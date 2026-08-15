@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import { anyMoney, subtractMoney } from "../shared/money";
+import { anyMoney, subtractMoney } from "../modules/money";
 import Stack from "../ui/Stack";
 import Money from "../uir/Money";
 import clsx from "clsx";

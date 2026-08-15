@@ -10,7 +10,7 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import { anyMoney, intToMoney } from "../shared/money";
+import { anyMoney, intToMoney } from "../modules/money";
 import useOffering from "../state/useOffering";
 import Col from "../ui/Col";
 import Row from "../ui/Row";

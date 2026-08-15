@@ -1,6 +1,6 @@
-import { Logger } from "../shared/logger";
-import relativeUrl from "../shared/relativeUrl";
-import setUrlPart from "../shared/setUrlPart";
+import { Logger } from "../modules/logger";
+import relativeUrl from "../modules/relativeUrl";
+import setUrlPart from "../modules/setUrlPart";
 import find from "lodash/find";
 import trimStart from "lodash/trimStart";
 import React from "react";

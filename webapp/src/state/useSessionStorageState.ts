@@ -1,4 +1,4 @@
-import { sessionStorageCache } from "../shared/localStorageHelper";
+import { sessionStorageCache } from "../modules/localStorageHelper";
 import React from "react";
 
 export default function useSessionStorageState<T = any>(

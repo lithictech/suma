@@ -7,7 +7,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
-import { anyMoney } from "../shared/money";
+import { anyMoney } from "../modules/money";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
 import Button from "../ui/Button";

@@ -6,7 +6,7 @@ import PageHeading from "../components/PageHeading";
 import config from "../config";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import { scaleMoney } from "../shared/money";
+import { scaleMoney } from "../modules/money";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";

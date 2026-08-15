@@ -5,7 +5,7 @@ import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import { dt, t } from "../localization";
-import { scaleMoney } from "../shared/money";
+import { scaleMoney } from "../modules/money";
 import useAsyncFetch from "../state/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";

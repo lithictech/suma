@@ -7,7 +7,7 @@ import { MdLink } from "../components/SumaMarkdown";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
-import { Logger } from "../shared/logger";
+import { Logger } from "../modules/logger";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import Form from "../ui/Form";

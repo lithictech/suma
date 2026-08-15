@@ -7,7 +7,7 @@ import PageHeading from "../components/PageHeading";
 import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
 import idempotency from "../modules/idempotency";
-import { Logger } from "../shared/logger";
+import { Logger } from "../modules/logger";
 import useAsyncFetch from "../state/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";

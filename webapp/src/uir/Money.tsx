@@ -1,4 +1,4 @@
-import { formatMoney, FormatMoneyOptions } from "../shared/money";
+import { formatMoney, FormatMoneyOptions } from "../modules/money";
 import clsx from "clsx";
 import React from "react";
 

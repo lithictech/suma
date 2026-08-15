@@ -1,4 +1,4 @@
-import { localStorageCache } from "../shared/localStorageHelper";
+import { localStorageCache } from "../modules/localStorageHelper";
 import React from "react";
 
 export default function useLocalStorageState<T>(
