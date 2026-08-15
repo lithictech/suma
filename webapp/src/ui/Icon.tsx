@@ -14,7 +14,7 @@ export default function Icon({
   if (size === "inherit") {
     style.width = "1em";
     style.height = "1em";
-  } else {
+  } else if (size) {
     style.width = size;
     style.height = size;
   }

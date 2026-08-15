@@ -6,7 +6,6 @@ import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
-import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useMountEffect from "../state/useMountEffect";
 import Button from "../ui/Button";
@@ -15,6 +14,7 @@ import CardBody from "../ui/CardBody";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
 import Stack from "../ui/Stack";
+import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 

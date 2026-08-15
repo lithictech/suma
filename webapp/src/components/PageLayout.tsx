@@ -1,10 +1,10 @@
 import AppNav from "../components/AppNav";
 import TopNav from "../components/TopNav";
 import { guttersClass, topMarginClass } from "../modules/constants";
-import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import Col from "../ui/Col";
 import Container from "../ui/Container";
 import Row from "../ui/Row";
+import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
 import clsx from "clsx";
 import React from "react";
 

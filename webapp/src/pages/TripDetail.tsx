@@ -4,9 +4,9 @@ import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { vehicleIconForVendorService } from "../modules/mobilityIconLookup";
-import Money from "../shared/react/Money";
 import useUrlMarshal from "../state/useUrlMarshal";
 import Stack from "../ui/Stack";
+import Money from "../uir/Money";
 import dayjs from "dayjs";
 import React from "react";
 

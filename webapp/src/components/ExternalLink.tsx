@@ -1,5 +1,5 @@
 import externalLinks from "../modules/externalLinks";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
+import SafeExternalLink from "../uir/SafeExternalLink";
 import React from "react";
 
 interface ExternalLinkProps {

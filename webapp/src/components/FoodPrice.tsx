@@ -1,7 +1,7 @@
 import { t } from "../localization";
 import { anyMoney, subtractMoney } from "../shared/money";
-import Money from "../shared/react/Money";
 import Stack from "../ui/Stack";
+import Money from "../uir/Money";
 import clsx from "clsx";
 import React from "react";
 

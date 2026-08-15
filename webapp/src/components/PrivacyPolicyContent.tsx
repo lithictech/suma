@@ -78,7 +78,7 @@ export default function PrivacyPolicyContent({ mobile }: { mobile?: boolean }) {
           className={clsx("position-relative", !mobile && "privacy-policy-desktop")}
         >
           <Container id="overview" className={clsx(!mobile && "px-xl-3")}>
-            <TranslationToggle classes="d-flex justify-content-end" />
+            <TranslationToggle className="d-flex justify-content-end" />
             <Row>
               <Col xs={12} className={clsx(!mobile && "col-md-8")}>
                 <h1 className="display-4">{t("overview.title")}</h1>
