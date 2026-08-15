@@ -51,7 +51,7 @@ export function floatToMoney(f: number, currency: string): Money {
 /**
  * Return a Money with the given cents and currency.
  */
-export function intToMoney(cents: number, currency?: string): Money {
+export function intToMoney(cents: number, currency: string = "USD"): Money {
   return {
     cents,
     currency,

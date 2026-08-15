@@ -1,14 +1,15 @@
 import cct from "credit-card-type";
+import { CreditCardType } from "credit-card-type/dist/types";
 import luhn from "luhn";
 
 export class PaymentCardInfo {
-  number;
-  expiry;
-  cvc;
-  ccts;
-  cct;
+  number: string;
+  expiry: string;
+  cvc: string;
+  ccts: CreditCardType[];
+  cct: CreditCardType | null;
 
-  constructor(number, expiry, cvc) {
+  constructor(number: string | null, expiry: string | null, cvc: string | null) {
     this.number = keepDigits(number);
     this.expiry = keepDigits(expiry);
     this.cvc = keepDigits(cvc);
@@ -19,7 +20,7 @@ export class PaymentCardInfo {
     }
   }
 
-  change(fields) {
+  change(fields: CardSeed) {
     const args = { number: this.number, expiry: this.expiry, cvc: this.cvc, ...fields };
     return new PaymentCardInfo(args.number, args.expiry, args.cvc);
   }
@@ -52,7 +53,7 @@ function validator(
 ): (s: string) => boolean {
   return (s) => {
     const arg = { ...seed, [field]: s };
-    const pci = new PaymentCardInfo(arg.number, arg.expiry, arg.cvc);
+    const pci = new PaymentCardInfo(arg.number || "", arg.expiry || "", arg.cvc || "");
     return !reasonFunc(pci);
   };
 }
@@ -95,7 +96,7 @@ interface ParsedExpiry {
   full: boolean;
 }
 
-function parseExpiry(s: string): ParsedExpiry | null {
+function parseExpiry(s: string | null): ParsedExpiry | null {
   const digits = keepDigits(s);
   if (digits.length <= 1) {
     return null;
@@ -265,7 +266,7 @@ function handleDigitInputWithFormatting(
   ev: DigitInputEvent,
   options: DigitInputOptions
 ): string {
-  const formatter = FORMATTERS[options.field || ev.target.name];
+  const formatter = FORMATTERS[(options.field || ev.target.name) as CardField];
   const previousFormattedValue = formatter(options.pci, { editing: true });
   const d = keepDigits(ev.target.value);
   if (
@@ -277,14 +278,17 @@ function handleDigitInputWithFormatting(
   return d;
 }
 
-const FORMATTERS = {
+const FORMATTERS: Record<
+  CardField,
+  (ci: PaymentCardInfo, options?: FormatOptions) => string
+> = {
   number: formatCardNumber,
   expiry: formatCardExpiry,
   cvc: formatCardCvc,
 };
 
 const last = (x: string) => x[x.length - 1];
-const keepDigits = (s: string) => (s || "").replace(/\D/g, "");
+const keepDigits = (s: string | null) => (s || "").replace(/\D/g, "");
 const isDigit = (s: string) => (s || "").match(/\d/);
 
 const Payment = {

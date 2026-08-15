@@ -12,6 +12,6 @@ interface ExternalLinkProps {
  * the href is in externalLinks.safeHosts.
  */
 export default function ExternalLink({ href, ...rest }: ExternalLinkProps) {
-  const safe = href && externalLinks.safeHosts.some((h) => href.startsWith(h));
+  const safe = !!(href && externalLinks.safeHosts.some((h) => href.startsWith(h)));
   return <SafeExternalLink referrer={safe} href={href || ""} {...rest} />;
 }

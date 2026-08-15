@@ -23,14 +23,31 @@ interface UseAsyncFetchOptions<T = any> {
   cache?: boolean;
 }
 
-const useAsyncFetch = <T = any>(
+interface UseAsyncFetchResult<T> {
+  state: T;
+  replaceState: React.Dispatch<React.SetStateAction<T>>;
+  asyncFetch: (...args: any[]) => Promise<any>;
+  error: any;
+  loading: boolean;
+}
+
+// When `default` is provided, `state` is never undefined.
+function useAsyncFetch<T>(
+  makeRequest: (...args: any[]) => Promise<any>,
+  options: UseAsyncFetchOptions<T> & { default: T }
+): UseAsyncFetchResult<T>;
+function useAsyncFetch<T = any>(
   makeRequest: (...args: any[]) => Promise<any>,
   options?: UseAsyncFetchOptions<T>
-) => {
+): UseAsyncFetchResult<T | undefined>;
+function useAsyncFetch<T = any>(
+  makeRequest: (...args: any[]) => Promise<any>,
+  options?: UseAsyncFetchOptions<T>
+) {
   const { location, pickData, pullFromState, cache } = options || {};
   let { default: defaultVal, doNotFetchOnInit } = options || {};
   if (pullFromState && get(location, ["state", pullFromState])) {
-    defaultVal = location.state[pullFromState];
+    defaultVal = location?.state?.[pullFromState];
     doNotFetchOnInit = true;
     window.history.replaceState({}, document.title);
   }
@@ -87,6 +104,6 @@ const useAsyncFetch = <T = any>(
     error,
     loading,
   };
-};
+}
 
 export default useAsyncFetch;

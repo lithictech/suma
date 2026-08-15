@@ -76,7 +76,7 @@ export default function TopNav() {
               )}
               {userAuthed ? (
                 <AuthedUserButtons
-                  user={user}
+                  user={user!}
                   className="mt-3"
                   onCollapse={() => setExpanded(false)}
                 />

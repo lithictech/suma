@@ -1,9 +1,9 @@
-import api from "../api";
-import scooterContainer from "../assets/images/scooter-container.svg";
-import config from "../config";
-import { t } from "../localization";
-import { localStorageCache } from "../shared/localStorageHelper";
-import { vehicleIconForVendorService } from "./mobilityIconLookup.js";
+import api from "../../api";
+import scooterContainer from "../../assets/images/scooter-container.svg";
+import config from "../../config";
+import { t } from "../../localization";
+import { vehicleIconForVendorService } from "../../modules/mobilityIconLookup.js";
+import { localStorageCache } from "../../shared/localStorageHelper";
 import leaflet from "leaflet";
 import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";

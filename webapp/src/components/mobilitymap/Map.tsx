@@ -1,7 +1,6 @@
 import api from "../../api";
 import config from "../../config";
 import { t } from "../../localization";
-import MapBuilder from "../../modules/mapBuilder";
 import useMountEffect from "../../shared/react/useMountEffect";
 import { extractErrorCode, useError } from "../../state/useError";
 import useGlobalViewState from "../../state/useGlobalViewState";
@@ -14,6 +13,7 @@ import DrawerTitle from "./DrawerTitle";
 import MicromobilityRate from "./MicromobilityRate";
 import PreTrip from "./PreTrip";
 import Trip, { MapLocation } from "./Trip";
+import MapBuilder from "./mapBuilder";
 import React from "react";
 
 interface SelectedMapVehicle {

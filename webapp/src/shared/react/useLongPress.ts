@@ -13,7 +13,7 @@ export default function useLongPress(callback: () => void, ms: number): Toggle {
   const isPressed = useToggle(false);
 
   React.useEffect(() => {
-    let timerId: ReturnType<typeof setTimeout> | null = null;
+    let timerId: ReturnType<typeof setTimeout> | undefined = undefined;
     if (isPressed.isOff) {
       clearTimeout(timerId);
       return;
