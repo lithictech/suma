@@ -108,6 +108,16 @@ export default function Styleguide() {
               ))}
             </Stack>
           ))}
+          <h2>Horizontal Group</h2>
+          <ButtonGroup>
+            <Button>Primary Action</Button>
+            <Button variant="secondary">Secondary Action</Button>
+          </ButtonGroup>
+          <h2>Vertical Group</h2>
+          <ButtonGroup vertical>
+            <Button>Primary Action</Button>
+            <Button variant="secondary">Secondary Action</Button>
+          </ButtonGroup>
         </Stack>
       </Section>
       <Section eventKey="cards" activeKey={activeKey}>

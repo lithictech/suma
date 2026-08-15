@@ -7,7 +7,7 @@ interface ProgressStepHeaderProps {
   steps: number;
 }
 
-export default function ProgressStepHeader({ step, steps }) {
+export default function ProgressStepHeader({ step, steps }: ProgressStepHeaderProps) {
   return (
     <Stack row center gap={3}>
       <div className="flex-1">

@@ -1,6 +1,5 @@
 import { t } from "../localization";
 import BreadcrumbButton from "./BreadcrumbButton.tsx";
-import BreadcrumbLine from "./BreadcrumbLine.tsx";
 import React from "react";
 
 interface BreadcrumbBackProps {
@@ -20,7 +19,7 @@ interface BreadcrumbBackProps {
 /**
  * Simplified form of LinearBreadcrumb that renders a single 'Back' NavButton.
  */
-export default function BreadcrumbBack({ back, children, ...rest }: BreadcrumbBackProps) {
+export default function BreadcrumbBack({ back, children }: BreadcrumbBackProps) {
   let backProps = {};
   if (back === true) {
     backProps = {

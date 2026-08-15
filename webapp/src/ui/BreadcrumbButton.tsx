@@ -5,7 +5,6 @@ import ChevroDoubleLeftIcon from "@heroicons/react/24/outline/ChevronDoubleLeftI
 import ChevronDoubleRightIcon from "@heroicons/react/24/outline/ChevronDoubleRightIcon";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
-import clsx from "clsx";
 import React from "react";
 
 interface BreadcrumbButtonProps extends ButtonProps {

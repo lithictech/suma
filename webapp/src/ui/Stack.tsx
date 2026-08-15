@@ -1,38 +1,24 @@
+import { DirectionProps, getDirection } from "./types.tsx";
 import clsx from "clsx";
 import React from "react";
 
-interface StackProps {
-  direction?: "horizontal" | "vertical";
+interface StackProps extends DirectionProps {
   gap?: number;
   wrap?: boolean;
   center?: boolean;
-  vertical?: boolean;
-  col?: boolean;
-  column?: boolean;
-  horizontal?: boolean;
-  row?: boolean;
   children?: React.ReactNode;
   className?: string;
 }
 
 export default function Stack({
-  direction = "horizontal",
   gap = 0,
   wrap = false,
   center = false,
-  vertical = false,
-  col = false,
-  column = false,
-  horizontal = false,
-  row = false,
   className,
   children,
+  ...rest
 }: StackProps) {
-  if (vertical || col || column) {
-    direction = "vertical";
-  } else if (horizontal || row) {
-    direction = "horizontal";
-  }
+  const direction = getDirection(rest);
   const cls = clsx(
     `gap-${gap}`,
     `d-flex`,
