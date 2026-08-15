@@ -5,16 +5,25 @@ interface StackProps {
   direction?: "horizontal" | "vertical";
   gap?: number;
   wrap?: boolean;
+  center?: boolean;
   children?: React.ReactNode;
   className?: string;
 }
 
-export default function Stack({ direction, gap, wrap, className, children }: StackProps) {
+export default function Stack({
+  direction = "horizontal",
+  gap = 0,
+  wrap = false,
+  center = false,
+  className,
+  children,
+}: StackProps) {
   const cls = clsx(
-    `gap-${gap || 0}`,
+    `gap-${gap}`,
     `d-flex`,
-    FLEX_CLS[direction || "horizontal"],
+    FLEX_CLS[direction],
     wrap && "flex-wrap",
+    center && "align-items-center",
     className
   );
   return <div className={cls}>{children}</div>;

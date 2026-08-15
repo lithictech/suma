@@ -36,6 +36,14 @@
 .position-fixed { position: fixed; }
 .position-sticky { position: sticky; }
 
+.align-items-start { align-items: flex-start; }
+.align-items-center { align-items: center; }
+.align-items-end { align-items: flex-end; }
+
+.justify-content-start { justify-content: flex-start; }
+.justify-content-center { justify-content: center; }
+.justify-content-end { justify-content: flex-end; }
+
 .top-0 { top: 0; }
 .top-50 { top: 50%; }
 .top-100 { top: 100%; }

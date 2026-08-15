@@ -7,6 +7,7 @@ import externalLinks from "../modules/externalLinks";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Container from "../ui/Container";
+import Stack from "../ui/Stack.tsx";
 import React from "react";
 
 export default function Home() {
@@ -14,7 +15,7 @@ export default function Home() {
 
   return (
     <Container>
-      <div className="text-center">
+      <Stack direction="vertical" center>
         <img
           src={sumaLogo}
           alt={imageAltT("suma_logo")}
@@ -25,21 +26,21 @@ export default function Home() {
         {registrationSession && (
           <div className="mb-4">{dt(registrationSession.intro)}</div>
         )}
-        <div className="button-stack">
+        <Stack gap={2} direction="vertical" center>
           <Button href="/start" variant="outline" className="w-75">
             {t("forms.continue")}
           </Button>
           <ExternalLink
             component={Button}
             href={externalLinks.sumaIntroLink}
-            variant="outline-secondary"
+            variant="text"
             className="w-75 mt-3 text-nowrap"
           >
             {t("common.learn_more")}
           </ExternalLink>
-          <TranslationToggle classes="my-3 mx-auto w-75" />
-        </div>
-      </div>
+          <TranslationToggle className="my-3" />
+        </Stack>
+      </Stack>
       <AddToHomescreen />
     </Container>
   );

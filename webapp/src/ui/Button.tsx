@@ -26,7 +26,11 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     );
     to = to || href;
     if (to) {
-      return <Link ref={ref as React.Ref<HTMLAnchorElement>} to={to}></Link>;
+      return (
+        <Link ref={ref as React.Ref<HTMLAnchorElement>} to={to} className={cls}>
+          {children}
+        </Link>
+      );
     }
     return (
       <button
