@@ -9,6 +9,10 @@ import {
   redirectIfBoarded,
   redirectIfUnboarded,
 } from "./hocs/authRedirects";
+import withMetatags from "./hocs/withMetatags";
+import withPageLayout from "./hocs/withPageLayout";
+import withProps from "./hocs/withProps";
+import withScreenLoaderMount from "./hocs/withScreenLoaderMount";
 import { t } from "./localization";
 import I18nProvider from "./localization/I18nProvider";
 import useI18n from "./localization/useI18n";
@@ -56,10 +60,6 @@ import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
-import withMetatags from "./state/withMetatags";
-import withPageLayout from "./state/withPageLayout";
-import withProps from "./state/withProps";
-import withScreenLoaderMount from "./state/withScreenLoaderMount";
 import Redirect from "./uir/Redirect";
 import renderComponent from "./uir/renderComponent";
 import React from "react";

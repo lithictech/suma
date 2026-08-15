@@ -1,5 +1,5 @@
-import useMountEffect from "./useMountEffect";
-import useScreenLoader from "./useScreenLoader";
+import useMountEffect from "../state/useMountEffect";
+import useScreenLoader from "../state/useScreenLoader";
 import React from "react";
 
 export default function withScreenLoaderMount(show?: boolean) {
