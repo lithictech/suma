@@ -13,8 +13,10 @@ import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
 import Button from "../ui/Button";
-import Card from "../ui/Card";
+import CardText from "../ui/CardText";
 import Form from "../ui/Form";
+import FormCheck from "../ui/FormCheck";
+import FormGroup from "../ui/FormGroup";
 import Stack from "../ui/Stack";
 import PressAndHold from "./PressAndHold";
 import isEmpty from "lodash/isEmpty";
@@ -83,9 +85,9 @@ export default function OrderDetail({ order, setOrder, gutters }: OrderDetailPro
             variant="dark"
           />
           <hr className="my-0" />
-          <Card.Text className="h4 mb-0">
+          <CardText className="h4 mb-0">
             {t("food.labels.items_count", { itemCount: order.items.length })}
-          </Card.Text>
+          </CardText>
           {order.items.map(
             ({ name, description, customerPrice, quantity }, i: number) => (
               <Stack
@@ -142,7 +144,7 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
           {dt(order.fulfillmentConfirmation)}
           {order.fulfillmentOptionEditable && (
             <Button
-              variant="link"
+              variant="text"
               className="p-0 ms-2"
               onClick={() => {
                 setOptionId(order.fulfillmentOption?.id || 0);
@@ -180,10 +182,10 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
 
   return (
     <Form noValidate>
-      <Form.Group>
+      <FormGroup>
         <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>
         {order.fulfillmentOptionsForEditing.map((fo) => (
-          <Form.Check
+          <FormCheck
             key={fo.id}
             id={String(fo.id)}
             name={fo.description}
@@ -193,7 +195,7 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
             onChange={() => setOptionId(fo.id)}
           />
         ))}
-      </Form.Group>
+      </FormGroup>
       <FormSaveCancel
         saveDisabled={!chosenFulfillmentValid}
         className="mt-2"
@@ -241,7 +243,7 @@ function PressAndHoldToClaim({
   };
   return (
     <div className="text-center">
-      <Alert variant="info mb-0">
+      <Alert variant="info" className="mb-0">
         <p className="small mb-0">
           {t("food.claiming_instructions", { offeringDescription: offeringDescription })}
         </p>

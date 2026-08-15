@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Row(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className="row" {...params} />;
+export default function Row(props: ShimProps) {
+  return <div className="row" {...props} />;
 }

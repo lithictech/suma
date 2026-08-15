@@ -62,7 +62,7 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
         <h2>{t("common.thank_you")}</h2>
         <p>{t("auth.access_account_confirmed")}</p>
         <Button
-          variant="outline-primary"
+          variant="outline"
           as={RLink}
           to="/"
           className="w-100 align-self-center"

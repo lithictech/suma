@@ -84,7 +84,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
           <Button
             href={makeReturnUrl(returnTo, instrumentId, instrumentType)}
             as={RLink}
-            variant="outline-primary"
+            variant="outline"
           >
             {t("forms.continue")}
           </Button>

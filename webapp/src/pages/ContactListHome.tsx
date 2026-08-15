@@ -41,7 +41,7 @@ function LanguageButtons({ eventName }: { eventName: string | null }) {
       as={RLink}
       className="btn-outline-secondary mt-2 w-75"
       href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
-      variant="outline-secondary"
+      variant="outline"
       onClick={() => changeLanguage(code)}
     >
       {native}

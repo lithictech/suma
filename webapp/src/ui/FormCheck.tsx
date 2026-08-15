@@ -1,5 +1,6 @@
+import clsx from "clsx";
 import React from "react";
 
-export default function FormCheck(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...params} />;
+export default function FormCheck(props: ShimProps) {
+  return <div {...props} />;
 }

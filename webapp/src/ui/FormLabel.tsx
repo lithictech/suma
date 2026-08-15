@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function FormLabel(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...params} />;
+export default function FormLabel(props: ShimProps) {
+  return <div {...props} />;
 }

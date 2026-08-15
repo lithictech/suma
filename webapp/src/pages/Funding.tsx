@@ -15,8 +15,15 @@ import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
+import CardBody from "../ui/CardBody";
+import CardHeader from "../ui/CardHeader";
+import CardText from "../ui/CardText";
+import { Dialog } from "../ui/Dialog";
+import DialogHeader from "../ui/DialogHeader";
 import Dropdown from "../ui/Dropdown";
-import Modal from "../ui/Modal";
+import DropdownItem from "../ui/DropdownItem";
+import DropdownMenu from "../ui/DropdownMenu";
+import DropdownToggle from "../ui/DropdownToggle";
 import styles from "./Funding.module.css";
 import clsx from "clsx";
 import filter from "lodash/filter";
@@ -67,13 +74,13 @@ function ChargeableCashBalance() {
 
   return (
     <Card className={styles["balance-warning"]}>
-      <Card.Body className="d-flex flex-column gap-4">
+      <CardBody className="d-flex flex-column gap-4">
         <div>{t("payments.negative_balance_warning", { amount: balance })}</div>
         <FormError error={error} noMargin />
-        <Button variant="danger" className="align-self-center" onClick={handleClick}>
+        <Button variant="secondary" className="align-self-center" onClick={handleClick}>
           {t("payments.negative_balance_action", { amount: balance })}
         </Button>
-      </Card.Body>
+      </CardBody>
     </Card>
   );
 }
@@ -84,8 +91,8 @@ function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] })
     <PaymentsCard header={t("payments.bank_accounts")}>
       {bankAccounts.length === 0 ? (
         <>
-          <Card.Text>{t("payments.no_bank_accounts_warning")}</Card.Text>
-          <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
+          <CardText>{t("payments.no_bank_accounts_warning")}</CardText>
+          <Button variant="outline" href="/link-bank-account" as={RLink}>
             {t("payments.link_bank_account")}
           </Button>
         </>
@@ -95,7 +102,7 @@ function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] })
             <InstrumentLine key={ba.id} instrument={ba} />
           ))}
           <hr className="my-4" />
-          <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
+          <Button variant="outline" href="/link-bank-account" as={RLink}>
             {t("payments.link_another_bank_account")}
           </Button>
         </>
@@ -108,9 +115,9 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
   const showDelete = useToggle(false);
   return (
     <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
-      <Card.Body className="d-flex justify-content-between align-items-center">
+      <CardBody className="d-flex justify-content-between align-items-center">
         <div>
-          <Card.Title className="mb-1" as="h6">
+          <CardText variant="title" className="mb-1">
             {instrument.paymentMethodType === "card" ? (
               <img
                 className="me-2"
@@ -122,8 +129,8 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
               <i className="bi bi-bank2 me-2"></i>
             )}
             {instrument.name}
-          </Card.Title>
-          <Card.Subtitle className="mt-2">
+          </CardText>
+          <CardText variant="subtitle" className="mt-2">
             {instrument.expiresAt &&
               (instrument.status === "expired" ? (
                 <span className="text-danger">
@@ -141,12 +148,12 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
                 {instrument.institution.name} x-{instrument.last4}
               </span>
             )}
-          </Card.Subtitle>
+          </CardText>
         </div>
         <div className="ms-auto text-end">
           {instrument.usableForFunding && config.featureAddFunds ? (
             <Button
-              variant="success"
+              variant="primary"
               size="sm"
               className="mb-2 funding-card-border-radius text-nowrap"
               href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
@@ -156,7 +163,7 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
             </Button>
           ) : (
             <Button
-              variant="outline-secondary"
+              variant="outline"
               size="sm"
               disabled
               className="mb-2 funding-card-border-radius text-nowrap opacity-0"
@@ -177,7 +184,7 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
             />
           </div>
         </div>
-      </Card.Body>
+      </CardBody>
     </Card>
   );
 }
@@ -210,14 +217,14 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }: DeleteInstrumen
   return (
     <>
       <Dropdown as="span">
-        <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
+        <DropdownToggle variant="text" className="p-0 ms-2 text-muted" size="sm">
           <i className="bi bi-gear-fill"></i>
-        </Dropdown.Toggle>
-        <Dropdown.Menu align="end">
-          <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
+        </DropdownToggle>
+        <DropdownMenu align="end">
+          <DropdownItem className="text-danger" onClick={showDelete.turnOn}>
             {t("payments.unlink_account")}
-          </Dropdown.Item>
-        </Dropdown.Menu>
+          </DropdownItem>
+        </DropdownMenu>
       </Dropdown>
       <DeleteInstrumentModal
         instrument={instrument}
@@ -255,29 +262,31 @@ function DeleteInstrumentModal({
   }
 
   return (
-    <Modal show={toggle.isOn} onHide={toggle.turnOff} centered>
-      <Modal.Header closeButton>
-        <Modal.Title as="h5">{t("payments.unlink_account")}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>{t("payments.unlink_account_question")}</p>
-        <p>
-          <strong>{t("payments.unlink_account_question_subtitle")}</strong>
-        </p>
-        <FormError error={error} />
-        <FormButtons
-          variant="danger"
-          primaryProps={{
-            children: t("payments.unlink"),
-            onClick: submitDelete,
-          }}
-          secondaryProps={{
-            children: t("common.cancel"),
-            onClick: toggle.turnOff,
-          }}
-        />
-      </Modal.Body>
-    </Modal>
+    <Dialog
+      open={toggle.isOn}
+      onClose={toggle.turnOff}
+      labelledBy="delete-instrument-modal-title"
+    >
+      <DialogHeader id="delete-instrument-modal-title">
+        {t("payments.unlink_account")}
+      </DialogHeader>
+      <p>{t("payments.unlink_account_question")}</p>
+      <p>
+        <strong>{t("payments.unlink_account_question_subtitle")}</strong>
+      </p>
+      <FormError error={error} />
+      <FormButtons
+        variant="secondary"
+        primaryProps={{
+          children: t("payments.unlink"),
+          onClick: submitDelete,
+        }}
+        secondaryProps={{
+          children: t("common.cancel"),
+          onClick: toggle.turnOff,
+        }}
+      />
+    </Dialog>
   );
 }
 
@@ -287,8 +296,8 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
     <PaymentsCard header={t("payments.cards")}>
       {cards.length === 0 ? (
         <>
-          <Card.Text>{t("payments.no_cards_warning")}</Card.Text>
-          <Button variant="outline-primary" href="/add-card" as={RLink}>
+          <CardText>{t("payments.no_cards_warning")}</CardText>
+          <Button variant="outline" href="/add-card" as={RLink}>
             {t("payments.add_card")}
           </Button>
         </>
@@ -298,7 +307,7 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
             <InstrumentLine key={c.id} instrument={c} />
           ))}
           <hr className="my-4" />
-          <Button variant="outline-primary" href="/add-card" as={RLink}>
+          <Button variant="outline" href="/add-card" as={RLink}>
             {t("payments.add_another_card")}
           </Button>
         </>
@@ -310,7 +319,7 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
 function AdditionalSourcesCard() {
   return (
     <PaymentsCard header={t("payments.payment_other_sources")}>
-      <Card.Text>{t("payments.payment_support_coming")}</Card.Text>
+      <CardText>{t("payments.payment_support_coming")}</CardText>
     </PaymentsCard>
   );
 }
@@ -324,10 +333,10 @@ function PaymentsCard({
 }) {
   return (
     <Card className="text-center mt-3">
-      <Card.Header>
+      <CardHeader>
         <h5 className="mb-0">{header}</h5>
-      </Card.Header>
-      <Card.Body>{children}</Card.Body>
+      </CardHeader>
+      <CardBody>{children}</CardBody>
     </Card>
   );
 }

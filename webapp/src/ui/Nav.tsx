@@ -1,6 +1,6 @@
 import "./Nav.css";
 import React from "react";
 
-export default function Nav({ children }: { children?: React.ReactNode }) {
-  return <div className="nav">{children}</div>;
+export default function Nav(props: ShimProps) {
+  return <div {...props} />;
 }

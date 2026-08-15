@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Form(params: React.FormHTMLAttributes<HTMLFormElement>) {
-  return <form {...params} />;
+export default function Form(props: ShimProps) {
+  return <form {...props} />;
 }

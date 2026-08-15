@@ -11,6 +11,7 @@ import { extractErrorCode } from "../state/useError";
 import useUser from "../state/useUser";
 import Col from "../ui/Col";
 import Form from "../ui/Form";
+import FormSelect from "../ui/FormSelect";
 import Row from "../ui/Row";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -161,7 +162,7 @@ export default function OnboardingSignup() {
             name="state"
             label={t("forms.state")}
             required
-            Input={Form.Select}
+            Input={FormSelect}
             inputClass={state ? null : "select-noselection"}
             register={register}
             errors={errors}
@@ -213,7 +214,7 @@ export default function OnboardingSignup() {
         )}
         <FormError error={error} />
         <FormButtons
-          variant="outline-primary"
+          variant="outline"
           back
           primaryProps={{ children: t("forms.submit") }}
         />

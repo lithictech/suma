@@ -175,7 +175,7 @@ function JustFinished() {
         {i18n.t("surveys.waitlist_joined")}
       </p>
       <div className="button-stack mt-4 w-100">
-        <Button variant="outline-primary" href="/dashboard" as={RLink}>
+        <Button variant="outline" href="/dashboard" as={RLink}>
           {t("common.go_home")}
         </Button>
       </div>

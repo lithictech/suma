@@ -349,7 +349,7 @@ function ProgressContainer({
 }) {
   return (
     <LayoutContainer gutters className="d-flex flex-column gap-4">
-      <Progress now={progress} variant="info" className="mt-3" />
+      <Progress value={progress} className="mt-3" />
       <h2 className="mb-0">{header}</h2>
       {children}
     </LayoutContainer>

@@ -20,7 +20,7 @@ export default function ContactListSuccess() {
               ? `/contact-list?eventName=${params.get("eventName")}`
               : "/contact-list"
           }
-          variant="outline-primary"
+          variant="outline"
           as={RLink}
           className="w-75"
           onClick={() => changeLanguage("en")}

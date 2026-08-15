@@ -6,14 +6,16 @@ interface StackProps {
   gap?: number;
   wrap?: boolean;
   children?: React.ReactNode;
+  className?: string;
 }
 
-export default function Stack({ direction, gap, wrap, children }: StackProps) {
+export default function Stack({ direction, gap, wrap, className, children }: StackProps) {
   const cls = clsx(
     `gap-${gap || 0}`,
     `d-flex`,
     FLEX_CLS[direction || "horizontal"],
-    wrap && "flex-wrap"
+    wrap && "flex-wrap",
+    className
   );
   return <div className={cls}>{children}</div>;
 }

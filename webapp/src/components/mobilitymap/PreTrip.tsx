@@ -60,7 +60,7 @@ export default function PreTrip({
         <hr className="my-0" />
         <Button
           className="p-1 ps-0 align-self-start"
-          variant="link"
+          variant="text"
           href={vehicle.deeplink}
         >
           {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
@@ -75,7 +75,7 @@ export default function PreTrip({
     );
   } else {
     action = (
-      <Button size="sm" variant="success" className="w-100" onClick={handleReserve}>
+      <Button size="sm" variant="primary" className="w-100" onClick={handleReserve}>
         {t("mobility.reserve_scooter")}
       </Button>
     );

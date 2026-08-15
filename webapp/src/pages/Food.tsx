@@ -76,7 +76,7 @@ function OrderHistoryLink() {
       <hr className="my-4" />
       <LayoutContainer gutters>
         <div className="button-stack">
-          <Button variant="outline-primary" href="/order-history" as={RLink}>
+          <Button variant="outline" href="/order-history" as={RLink}>
             <i className="bi bi-bag-check-fill me-2"></i>
             {t("food.order_history_title")}
           </Button>

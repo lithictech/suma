@@ -61,12 +61,7 @@ export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }: Tri
             })}
           </p>
           <FormError error={error} />
-          <Button
-            size="sm"
-            variant="outline-danger"
-            className="w-100"
-            onClick={handleEndTrip}
-          >
+          <Button size="sm" variant="outline" className="w-100" onClick={handleEndTrip}>
             {t("mobility.end_trip")}
           </Button>
         </DrawerContents>

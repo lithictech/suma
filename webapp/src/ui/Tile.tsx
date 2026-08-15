@@ -3,11 +3,11 @@ import clsx from "clsx";
 import React from "react";
 
 interface TileProps {
-  variant?: string;
+  variant?: "primary" | "secondary" | "success" | "danger";
   children?: React.ReactNode;
 }
 
-export default function Tile({ children, variant }: TileProps) {
-  const cls = clsx("tile", `tile-${variant || "primary"}`);
+export default function Tile({ children, variant = "primary" }: TileProps) {
+  const cls = clsx("tile", `tile-${variant}`);
   return <div className={cls}>{children}</div>;
 }

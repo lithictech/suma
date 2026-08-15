@@ -1,5 +1,6 @@
+import clsx from "clsx";
 import React from "react";
 
-export default function Carousel(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...params} />;
+export default function Carousel(props: ShimProps) {
+  return <div {...props} />;
 }

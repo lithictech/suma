@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Navbar(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...params} />;
+export default function Navbar(props: ShimProps) {
+  return <div {...props} />;
 }

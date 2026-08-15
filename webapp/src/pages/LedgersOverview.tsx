@@ -11,6 +11,9 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useHashSelector from "../shared/react/useHashSelector";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import Dropdown from "../ui/Dropdown";
+import DropdownItem from "../ui/DropdownItem";
+import DropdownMenu from "../ui/DropdownMenu";
+import DropdownToggle from "../ui/DropdownToggle";
 import Stack from "../ui/Stack";
 import Table from "../ui/Table";
 import clsx from "clsx";
@@ -143,7 +146,7 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectP
       });
   return (
     <Dropdown drop="down" className="mb-2">
-      <Dropdown.Toggle
+      <DropdownToggle
         className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center"
         title={selectedLedgerLabel}
       >
@@ -151,9 +154,9 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectP
           {selectedLedgerLabel}
         </Stack>
         <div className="dropdown-toggle-manual"></div>
-      </Dropdown.Toggle>
-      <Dropdown.Menu className="w-100">
-        <Dropdown.Item
+      </DropdownToggle>
+      <DropdownMenu className="w-100">
+        <DropdownItem
           as={Stack}
           title={t("payments.recent_ledger_lines")}
           active={showRecentLines}
@@ -161,9 +164,9 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectP
           onClick={() => onLedgerSelected(0)}
         >
           {t("payments.recent_ledger_lines")}
-        </Dropdown.Item>
+        </DropdownItem>
         {ledgers.map((led) => (
-          <Dropdown.Item
+          <DropdownItem
             key={led.id}
             as={Stack}
             title={led.contributionText}
@@ -175,9 +178,9 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectP
               amount: led.balance,
               label: led.contributionText,
             })}
-          </Dropdown.Item>
+          </DropdownItem>
         ))}
-      </Dropdown.Menu>
+      </DropdownMenu>
     </Dropdown>
   );
 }

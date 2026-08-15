@@ -16,7 +16,9 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
-import Modal from "../ui/Modal";
+import CardBody from "../ui/CardBody";
+import { Dialog } from "../ui/Dialog";
+import DialogHeader from "../ui/DialogHeader";
 import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -66,9 +68,9 @@ export default function UnclaimedOrderList() {
               <Stack gap={3}>
                 {items.map((o) => (
                   <Card key={o.id} className="p-0">
-                    <Card.Body className="px-2 pb-4">
+                    <CardBody className="px-2 pb-4">
                       <OrderDetail order={o} setOrder={(o) => handleOrderClaim(o)} />
-                    </Card.Body>
+                    </CardBody>
                   </Card>
                 ))}
               </Stack>
@@ -86,7 +88,7 @@ export default function UnclaimedOrderList() {
           <hr className="my-4" />
           <LayoutContainer gutters>
             <div className="button-stack">
-              <Button variant="primary" href="/order-history" as={RLink}>
+              <Button variant="primary" href="/order-history">
                 <i className="bi bi-bag-check-fill me-2"></i>
                 {t("food.order_history_title")}
               </Button>
@@ -106,67 +108,67 @@ function ClaimedOrderModal({
   onHide: () => void;
 }) {
   return (
-    <Modal show={!isEmpty(claimedOrder)} onHide={onHide} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {t("food.order_claimed", { serial: claimedOrder.serial })}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
-          <ScrollTopOnMount />
-          <AnimatedCheckmark />
-          <p className="mt-2 fs-4 w-75 text-center">
-            {t("food.order_for_claimed_on", {
-              offeringDescription: claimedOrder.offeringDescription,
-              fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
-            })}
-          </p>
-          <Stack gap={3}>
-            {(claimedOrder as DetailedOrderHistory)?.items?.map(
-              ({ image, name, customerPrice, quantity }) => (
-                <Card key={name}>
-                  <Card.Body>
-                    <Stack direction="horizontal" gap={3} className="align-items-start">
-                      <SumaImage
-                        image={image}
-                        width={80}
-                        height={80}
-                        className="border rounded"
-                      />
-                      <div className="text-align-start">
-                        <div className="lead">{name}</div>
-                        <Badge bg="secondary" className="fs-6">
-                          {t("food.price_times_quantity", {
-                            price: customerPrice,
-                            quantity,
-                          })}
-                        </Badge>
-                      </div>
-                    </Stack>
-                  </Card.Body>
-                </Card>
-              )
-            )}
-          </Stack>
-          <div className="mt-2">
-            <FormButtons
-              primaryProps={{
-                type: "button",
-                variant: "outline-secondary",
-                children: t("common.close"),
-                onClick: () => onHide(),
-              }}
-              secondaryProps={{
-                variant: "outline-primary",
-                children: t("food.view_order"),
-                href: `/order/${claimedOrder.id}`,
-                as: RLink,
-              }}
-            />
-          </div>
+    <Dialog
+      open={!isEmpty(claimedOrder)}
+      onClose={onHide}
+      labelledBy="claimed-order-modal-title"
+    >
+      <DialogHeader id="claimed-order-modal-title">
+        {t("food.order_claimed", { serial: claimedOrder.serial })}
+      </DialogHeader>
+      <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
+        <ScrollTopOnMount />
+        <AnimatedCheckmark />
+        <p className="mt-2 fs-4 w-75 text-center">
+          {t("food.order_for_claimed_on", {
+            offeringDescription: claimedOrder.offeringDescription,
+            fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
+          })}
+        </p>
+        <Stack gap={3}>
+          {(claimedOrder as DetailedOrderHistory)?.items?.map(
+            ({ image, name, customerPrice, quantity }) => (
+              <Card key={name}>
+                <CardBody>
+                  <Stack direction="horizontal" gap={3} className="align-items-start">
+                    <SumaImage
+                      image={image}
+                      width={80}
+                      height={80}
+                      className="border rounded"
+                    />
+                    <div className="text-align-start">
+                      <div className="lead">{name}</div>
+                      <Badge bg="secondary" className="fs-6">
+                        {t("food.price_times_quantity", {
+                          price: customerPrice,
+                          quantity,
+                        })}
+                      </Badge>
+                    </div>
+                  </Stack>
+                </CardBody>
+              </Card>
+            )
+          )}
+        </Stack>
+        <div className="mt-2">
+          <FormButtons
+            primaryProps={{
+              type: "button",
+              variant: "outline",
+              children: t("common.close"),
+              onClick: () => onHide(),
+            }}
+            secondaryProps={{
+              variant: "outline",
+              children: t("food.view_order"),
+              href: `/order/${claimedOrder.id}`,
+              as: RLink,
+            }}
+          />
         </div>
-      </Modal.Body>
-    </Modal>
+      </div>
+    </Dialog>
   );
 }

@@ -13,6 +13,7 @@ import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractErrorCode, useError } from "../state/useError";
 import Col from "../ui/Col";
 import Form from "../ui/Form";
+import FormSelect from "../ui/FormSelect";
 import Row from "../ui/Row";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -120,7 +121,7 @@ export default function ContactListAdd() {
             name="channel"
             label={t("contact_list.referral_label")}
             required
-            Input={Form.Select}
+            Input={FormSelect}
             inputClass={referral ? null : "select-noselection"}
             register={register}
             errors={errors}
@@ -153,7 +154,7 @@ export default function ContactListAdd() {
         <SignupAgreement register={register} errors={errors} />
         <FormError error={error} />
         <FormButtons
-          variant="outline-primary"
+          variant="outline"
           back
           primaryProps={{ children: t("forms.submit") }}
         />

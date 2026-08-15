@@ -1,5 +1,6 @@
+import clsx from "clsx";
 import React from "react";
 
-export default function Badge(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className="badge" {...params} />;
+export default function Badge(props: ShimProps) {
+  return <div {...props} />;
 }

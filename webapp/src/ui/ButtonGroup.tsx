@@ -4,6 +4,7 @@ import React from "react";
 
 interface ButtonGroupProps {
   className?: string;
+  vertical?: ShimProps;
   children?: React.ReactNode;
 }
 

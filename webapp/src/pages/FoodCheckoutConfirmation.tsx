@@ -7,7 +7,7 @@ import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
-import Alert from "../ui/Alert";
+import AlertHeading from "../ui/AlertHeading";
 import Button from "../ui/Button";
 import Stack from "../ui/Stack";
 import React from "react";
@@ -46,7 +46,7 @@ export default function FoodCheckoutConfirmation() {
   return (
     <>
       <div className="bg-success text-white p-4">
-        <Alert.Heading>{t("food.confirmation_title")}</Alert.Heading>
+        <AlertHeading>{t("food.confirmation_title")}</AlertHeading>
         <p className="mb-0">{t("food.confirmation_subtitle")}</p>
       </div>
       <LayoutContainer gutters top>
@@ -56,7 +56,7 @@ export default function FoodCheckoutConfirmation() {
         ))}
         {user.unclaimedOrdersCount !== 0 && (
           <div className="button-stack my-4">
-            <Button variant="success" href="/unclaimed-orders" as={RLink}>
+            <Button variant="primary" href="/unclaimed-orders" as={RLink}>
               {t("food.unclaimed_order_history_title")}
             </Button>
           </div>

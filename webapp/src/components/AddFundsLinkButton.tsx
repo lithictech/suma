@@ -1,4 +1,3 @@
-import RLink from "../components/RLink";
 import config from "../config";
 import { t } from "../localization";
 import Button from "../ui/Button";
@@ -9,7 +8,7 @@ export default function AddFundsLinkButton() {
     return null;
   }
   return (
-    <Button variant="outline-success" href="/funding" as={RLink} size="sm">
+    <Button variant="outline" href="/funding" size="sm">
       {t("payments.add_funds")}
     </Button>
   );

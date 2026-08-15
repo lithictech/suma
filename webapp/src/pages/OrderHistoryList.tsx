@@ -13,6 +13,9 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
+import CardBody from "../ui/CardBody";
+import CardLink from "../ui/CardLink";
+import CardText from "../ui/CardText";
 import Stack from "../ui/Stack";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -105,7 +108,7 @@ function Order({
 }: OrderProps) {
   return (
     <Card>
-      <Card.Body>
+      <CardBody>
         <Stack direction="horizontal" gap={3}>
           <SumaImage
             image={image}
@@ -115,15 +118,15 @@ function Order({
             variant="dark"
           />
           <div>
-            <Card.Link
+            <CardLink
               as={RLink}
               href={`/order/${id}`}
               className="h5"
               onClick={onNavigate}
             >
               {t("food.order_serial", { serial: serial })}
-            </Card.Link>
-            <Card.Text className="text-secondary mt-1">
+            </CardLink>
+            <CardText className="text-secondary mt-1">
               {fulfilledAt
                 ? t("food.claimed_on", {
                     fulfilledAt: dayjs(fulfilledAt).format("lll"),
@@ -135,10 +138,10 @@ function Order({
                 : t("food.order_date", { date: dayjs(createdAt).format("ll") })}
               <br />
               {t("food.total", { total: total })}
-            </Card.Text>
+            </CardText>
           </div>
         </Stack>
-      </Card.Body>
+      </CardBody>
     </Card>
   );
 }

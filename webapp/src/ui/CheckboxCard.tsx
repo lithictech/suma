@@ -26,7 +26,7 @@ export function CheckboxCard({
       <CardBody className="checkbox-card-body">
         <Checkbox name={name} checked={checked} disabled={disabled} onChange={onChange} />
         <div>
-          <CardText variant="subhead">{title}</CardText>
+          <CardText variant="subtitle">{title}</CardText>
           <CardText variant="subtext">{text}</CardText>
         </div>
       </CardBody>

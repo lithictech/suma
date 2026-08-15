@@ -14,7 +14,7 @@ export default function OnboardingFinish() {
         t("onboarding.finish")
       )}
       <div className="button-stack">
-        <Button href="/dashboard" variant="outline-primary" className="mt-3" as={RLink}>
+        <Button href="/dashboard" variant="outline" className="mt-3" as={RLink}>
           {t("common.okay_ex")}
         </Button>
       </div>

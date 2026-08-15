@@ -33,7 +33,7 @@ interface TranslateProps {
 const Translate = ({ to, label, title }: TranslateProps) => {
   const { changeLanguage } = useI18n();
   return (
-    <Button variant="link" onClick={() => changeLanguage(to)} title={title}>
+    <Button variant="text" onClick={() => changeLanguage(to)} title={title}>
       <i className="bi bi-translate"></i> <i>{label}</i>
     </Button>
   );

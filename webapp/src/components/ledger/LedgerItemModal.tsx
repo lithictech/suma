@@ -2,6 +2,7 @@ import { t } from "../../localization";
 import Money from "../../shared/react/Money";
 import Button from "../../ui/Button";
 import Modal from "../../ui/Modal";
+import ModalBody from "../../ui/ModalBody";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import isEmpty from "lodash/isEmpty";
@@ -16,7 +17,7 @@ export default function LedgerItemModal({ item, onClose }: LedgerItemModalProps)
   const { amount, at, opaqueId, usageDetails } = item || ({} as LedgerLine);
   return (
     <Modal show={Boolean(item)} onHide={onClose} onExit={onClose} centered>
-      <Modal.Body>
+      <ModalBody>
         {!isEmpty(item) && (
           <>
             <p className="mt-2 mb-1">
@@ -37,13 +38,13 @@ export default function LedgerItemModal({ item, onClose }: LedgerItemModalProps)
               {t("common.reference_id")}: {opaqueId}
             </p>
             <div className="d-flex justify-content-end mt-4">
-              <Button variant="outline-primary" className="mt-2" onClick={onClose}>
+              <Button variant="primary" className="mt-2" onClick={onClose}>
                 {t("common.close")}
               </Button>
             </div>
           </>
         )}
-      </Modal.Body>
+      </ModalBody>
     </Modal>
   );
 }

@@ -197,7 +197,7 @@ const OneTimePassword = () => {
           <Button
             className="p-0 align-baseline"
             size="sm"
-            variant="link"
+            variant="text"
             onClick={handleResend}
           >
             {t("otp.send_new_code")}
@@ -209,7 +209,7 @@ const OneTimePassword = () => {
             children: t("otp.verify"),
             ref: handleSubmitRef,
           }}
-          variant="outline-primary"
+          variant="outline"
           className="px-3"
         />
       </Form>

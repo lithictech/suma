@@ -141,7 +141,7 @@ export default function FundingAddFunds() {
         </p>
         <FormError error={error} end />
         <FormButtons
-          variant="outline-success"
+          variant="outline"
           back
           primaryProps={{
             disabled: !amountCents,

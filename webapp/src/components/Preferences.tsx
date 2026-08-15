@@ -2,7 +2,9 @@ import { t } from "../localization";
 import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import Form from "../ui/Form";
+import FormCheck from "../ui/FormCheck";
 import FormButtons from "./FormButtons";
+import FormText from "./FormText";
 import has from "lodash/has";
 import React from "react";
 
@@ -55,7 +57,7 @@ export default function Preferences({
         );
       })}
       {children}
-      <FormButtons variant="success" primaryProps={{ children: t("forms.save") }} />
+      <FormButtons variant="primary" primaryProps={{ children: t("forms.save") }} />
     </Form>
   );
 }
@@ -75,11 +77,11 @@ function Subscription({
   onCheckChange,
 }: SubscriptionProps) {
   return (
-    <Form.Group className="mt-4">
+    <div className="mt-4">
       {editableState === "hidden" ? (
         <p className="mb-0">{t(`preferences.${subscriptionKey}.title`)}</p>
       ) : (
-        <Form.Check
+        <FormCheck
           id={subscriptionKey}
           type="checkbox"
           label={t(`preferences.${subscriptionKey}.title`)}
@@ -88,7 +90,7 @@ function Subscription({
           onChange={(e) => onCheckChange(e.target.checked)}
         />
       )}
-      <Form.Text>{t(`preferences.${subscriptionKey}.helper_text`)}</Form.Text>
-    </Form.Group>
+      <FormText>{t(`preferences.${subscriptionKey}.helper_text`)}</FormText>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import api from "../api";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import Form from "../ui/Form";
+import FormSelect from "../ui/FormSelect";
 import FormControlGroup from "./FormControlGroup";
 import FormText from "./FormText";
 import React from "react";
@@ -31,7 +31,7 @@ export default function OrganizationInputDropdown({
     <>
       <FormControlGroup
         name="organizationName"
-        Input={Form.Select}
+        Input={FormSelect}
         inputClass={organizationName ? null : "select-noselection"}
         required
         register={register}

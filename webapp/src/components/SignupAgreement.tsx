@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import Form from "../ui/Form";
+import FormCheck from "../ui/FormCheck";
 import FormError from "./FormError";
 import React from "react";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
@@ -31,7 +31,7 @@ export default function SignupAgreement({
 
   return (
     <div className="d-flex signup-agreement-component" onClick={handleDivClick}>
-      <Form.Check
+      <FormCheck
         type="checkbox"
         aria-label={t("auth.agree_aria_label")}
         required

@@ -8,7 +8,7 @@ import React from "react";
 interface FormButtonsProps {
   primaryProps?: Record<string, any>;
   secondaryProps?: Record<string, any>;
-  variant?: string;
+  variant?: "primary" | "secondary" | "text" | "outline";
   margin?: number;
   back?: boolean;
   className?: string;
@@ -31,13 +31,13 @@ const FormButtons = React.forwardRef<HTMLDivElement, FormButtonsProps>(
     // or allowing wide button content to grow. We could move this to justify-end in some cases
     // if it looks nicer.
     const btnStyle = { minWidth: "33%" };
-    variant = variant || "outline-primary";
+    variant = variant || "outline";
     return (
       <div ref={ref} className={clsx(`mt-${margin}`, className)} style={style}>
         <Stack gap={2} direction="horizontal" className="justify-content-center">
           {secondaryProps && (
             <Button
-              variant="outline-secondary"
+              variant="outline"
               className="h-100"
               style={btnStyle}
               {...secondaryProps}

@@ -7,7 +7,11 @@ interface ChecklistItemProps {
   children?: React.ReactNode;
 }
 
-export default function ChecklistItem({ variant, step, children }: ChecklistItemProps) {
+export default function ChecklistItem({
+  variant = "future",
+  step,
+  children,
+}: ChecklistItemProps) {
   step = step || 0;
   let iconContent: React.ReactNode;
   if (variant === "checked") {

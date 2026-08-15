@@ -1,6 +1,7 @@
 import { t } from "../localization";
 import Button from "../ui/Button";
 import Toast from "../ui/Toast";
+import ToastBody from "../ui/ToastBody";
 import ToastContainer from "../ui/ToastContainer";
 import clsx from "clsx";
 import isNumber from "lodash/isNumber";
@@ -32,7 +33,7 @@ export default function Copyable({
     <>
       <div className={clsx(inline && "d-inline text-nowrap", className)}>
         {children || text}
-        <Button variant="link" className={clsx(inline && "p-0 ps-2")} onClick={onCopy}>
+        <Button variant="text" className={clsx(inline && "p-0 ps-2")} onClick={onCopy}>
           <i className="bi bi-clipboard2-fill"></i>
         </Button>
       </div>
@@ -45,9 +46,9 @@ export default function Copyable({
           delay={delay}
           autohide
         >
-          <Toast.Body>
+          <ToastBody>
             <p className="lead text-light mb-0">{t("common.copied_to_clipboard")}</p>
-          </Toast.Body>
+          </ToastBody>
         </Toast>
       </ToastContainer>
     </>

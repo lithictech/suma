@@ -24,6 +24,8 @@ import useUser from "../state/useUser";
 import useValidationError from "../state/useValidationError";
 import Alert from "../ui/Alert";
 import Form from "../ui/Form";
+import FormControlFeedback from "../ui/FormControlFeedback";
+import FormGroup from "../ui/FormGroup";
 import Stack from "../ui/Stack";
 import clsx from "clsx";
 import find from "lodash/find";
@@ -247,7 +249,7 @@ function CheckoutPayment({
           </>
         ) : (
           <>
-            <Form.Group>
+            <FormGroup>
               <FormRadioInputs
                 inputs={inputs}
                 name="paymentOption"
@@ -257,7 +259,7 @@ function CheckoutPayment({
                 onChange={handleChange}
                 required
               />
-            </Form.Group>
+            </FormGroup>
             <div>{t("food.link_new_payment_or")}</div>
             {addPaymentLinks}
           </>
@@ -558,9 +560,7 @@ function PaymentsInputValidationMessage({
       {message && (
         <>
           <ScrollTopOnMount />
-          <Form.Control.Feedback type="invalid" className="d-block">
-            {message}
-          </Form.Control.Feedback>
+          <FormControlFeedback type="invalid">{message}</FormControlFeedback>
         </>
       )}
     </>

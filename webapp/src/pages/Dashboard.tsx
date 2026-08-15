@@ -180,7 +180,7 @@ function ProgramCard({
           as={RLink}
           href={appLink}
           state={{ fromIndex: true }}
-          variant="outline-dark"
+          variant="outline"
           className="h6 mb-0 mt-3"
           size="sm"
         >

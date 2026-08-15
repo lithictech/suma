@@ -8,6 +8,9 @@ import useOffering from "../state/useOffering";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Dropdown from "../ui/Dropdown";
+import DropdownItem from "../ui/DropdownItem";
+import DropdownMenu from "../ui/DropdownMenu";
+import DropdownToggle from "../ui/DropdownToggle";
 import SoldOutText from "./SoldOutText";
 import clsx from "clsx";
 import find from "lodash/find";
@@ -108,20 +111,14 @@ export default function FoodCartWidget({
           </Button>
           <Dropdown
             as={ButtonGroup}
-            title={"" + quantity}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
           >
-            <>
-              <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
-                {quantity}
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-                <DropdownQuantities
-                  maxQuantity={maxQuantity}
-                  selectedQuantity={quantity}
-                />
-              </Dropdown.Menu>
-            </>
+            <DropdownToggle className="py-0 px-2" style={{ width: 60 }}>
+              {quantity}
+            </DropdownToggle>
+            <DropdownMenu className="food-widget-dropdown-menu">
+              <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
+            </DropdownMenu>
           </Dropdown>
         </>
       )}
@@ -157,13 +154,13 @@ const DropdownQuantities = ({
   selectedQuantity: number;
 }) => {
   return times(maxQuantity + 1).map((_, i) => (
-    <Dropdown.Item
+    <DropdownItem
       key={i}
-      eventKey={i}
+      eventKey={"" + i}
       className={clsx(i === selectedQuantity && "active")}
     >
       {i}
-    </Dropdown.Item>
+    </DropdownItem>
   ));
 };
 

@@ -10,6 +10,9 @@ import Payment from "../modules/payment";
 import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useStripeErrorMessage from "../state/useStripeErrorMessage";
+import Col from "../ui/Col";
+import Form from "../ui/Form";
+import Row from "../ui/Row";
 import CreditCardPreview from "./CreditCardPreview";
 import NegativeBalanceAddInstrumentNotice from "./NegativeBalanceAddInstrumentNotice";
 import get from "lodash/get";
@@ -80,7 +83,9 @@ export default function AddCreditCard({
     form.set("card[exp_month]", exp[0] + exp[1]);
     form.set("card[exp_year]", exp[2] + exp[3]);
     form.set("card[cvc]", cardCvc);
-    const body = new URLSearchParams(form).toString();
+    const body = new URLSearchParams(
+      form as unknown as Record<string, string>
+    ).toString();
     api.axios
       .post("https://api.stripe.com/v1/tokens", body, {
         headers: {
@@ -94,7 +99,7 @@ export default function AddCreditCard({
         const errMsg =
           localizeStripeError(get(e, "response.data")) || extractErrorCode(e);
         setError(<span>{errMsg}</span>);
-        document.activeElement?.blur();
+        (document.activeElement as HTMLElement | null)?.blur();
       });
   }, [
     cardCvc,
@@ -284,7 +289,7 @@ export default function AddCreditCard({
           ref={buttonRowRef}
           className="mb-3 cc-animate"
           style={{ transform: `translateY(${buttonsOffset}px)` }}
-          variant="outline-primary"
+          variant="outline"
           back
           primaryProps={{
             children: t("forms.continue"),

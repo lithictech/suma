@@ -1,4 +1,4 @@
-import useToggle from "../shared/react/useToggle.jsx";
+import useToggle from "../shared/react/useToggle";
 import BrandCard from "../ui/BrandCard";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
@@ -329,7 +329,7 @@ const BUTTON_PROPS = [
   { children: "Skip for now", variant: "text" },
   { children: "Add", variant: "outline", size: "sm" },
   { children: "Large Btn", size: "lg" },
-];
+] as const;
 
 const BUTTON_STATES = ["", "is-hover", "is-focus-visible", "is-disabled"];
 

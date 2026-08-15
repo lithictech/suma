@@ -109,7 +109,7 @@ function JoinPartner() {
         <Button variant="primary" onClick={handleJoin}>
           {t("onboarding.partner_accept")}
         </Button>
-        <Button href="/dashboard" variant="link" as={RLink}>
+        <Button href="/dashboard" variant="text" as={RLink}>
           {t("common.go_to_dashboard")}
         </Button>
       </div>

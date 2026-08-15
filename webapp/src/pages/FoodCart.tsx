@@ -101,7 +101,7 @@ export default function FoodCart() {
                 })}
               </div>
             )}
-            <Button onClick={handleCheckout} variant="success">
+            <Button onClick={handleCheckout} variant="primary">
               {t("food.continue_to_checkout")}
             </Button>
           </Stack>

@@ -31,7 +31,7 @@ export default function NavButton({
     <Button
       size="sm"
       as={RLink}
-      variant="link"
+      variant="text"
       className={clsx("p-0", className)}
       {...rest}
     >

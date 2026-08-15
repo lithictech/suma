@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function ToastContainer(params: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...params} />;
+export default function ToastContainer(props: ShimProps) {
+  return <div {...props} />;
 }
