@@ -22,19 +22,19 @@ export default function Home() {
           className="p-4"
           style={{ width: 250 }}
         />
-        <h1 className="mb-4">{t("common.welcome_to_suma")}</h1>
-        {registrationSession && (
-          <div className="mb-4">{dt(registrationSession.intro)}</div>
-        )}
-        <Stack gap={2} direction="vertical" center>
-          <Button href="/start" variant="outline" className="w-75">
+        <Stack gap={4} direction="vertical" center>
+          <h1 className="mb-2">{t("common.welcome_to_suma")}</h1>
+          {registrationSession && (
+            <div className="mb-4">{dt(registrationSession.intro)}</div>
+          )}
+          <Button href="/start" variant="primary" size="lg" className="w-100">
             {t("forms.continue")}
           </Button>
           <ExternalLink
             component={Button}
             href={externalLinks.sumaIntroLink}
             variant="text"
-            className="w-75 mt-3 text-nowrap"
+            className="text-nowrap"
           >
             {t("common.learn_more")}
           </ExternalLink>

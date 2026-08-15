@@ -78,10 +78,30 @@ export default function Styleguide() {
       </Section>
       <Section eventKey="buttons" activeKey={activeKey}>
         <Stack direction="vertical" gap={3}>
+          <h2>Buttons</h2>
           {BUTTON_PROPS.map((props) => (
             <Stack key={JSON.stringify(props)} gap={2}>
               {BUTTON_STATES.map((st) => (
-                <Button key={st} className={st} {...props}></Button>
+                <Button
+                  key={st}
+                  className={st}
+                  disabled={st === "is-disabled"}
+                  {...props}
+                ></Button>
+              ))}
+            </Stack>
+          ))}
+          <h2>Link Buttons</h2>
+          {BUTTON_PROPS.map((props) => (
+            <Stack key={JSON.stringify(props)} gap={2} wrap>
+              {BUTTON_STATES.map((st) => (
+                <Button
+                  key={st}
+                  className={st}
+                  disabled={st === "is-disabled"}
+                  {...props}
+                  to="#"
+                />
               ))}
             </Stack>
           ))}

@@ -27,16 +27,19 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
     font-size: var(--font-size-xxl);
+    font-family: var(--font-family-title);
     margin-bottom: 0;
 }
 
 h2 {
     font-size: var(--font-size-xl);
+    font-family: var(--font-family-title);
     margin-bottom: 0;
 }
 
 h3 {
     font-size: var(--font-size-lg);
+    font-family: var(--font-family-title);
     margin-bottom: 0;
 }
 
@@ -44,12 +47,12 @@ p {
     margin: 0;
 }
 
-a {
+a:not(.btn) {
     color: var(--color-link);
     text-decoration: underline;
 }
 
-a:hover {
+a:hover:not(.btn) {
     color: var(--color-link-hover);
 }
 

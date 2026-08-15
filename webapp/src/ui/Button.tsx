@@ -9,25 +9,41 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   href?: string;
   to?: LinkProps["to"];
+  disabled?: boolean;
   children?: React.ReactNode;
   state?: ShimProps;
 }
 
 const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   function Button(
-    { className, to, href, variant = "primary", size = "md", children, ...rest },
+    {
+      className,
+      to,
+      href,
+      variant = "primary",
+      size = "md",
+      disabled,
+      children,
+      ...rest
+    },
     ref
   ) {
+    to = to || href;
     const cls = clsx(
       className,
       `btn`,
       `btn-${variant || "primary"}`,
-      `btn-${size || "md"}`
+      `btn-${size || "md"}`,
+      to && "btn-link"
     );
-    to = to || href;
     if (to) {
       return (
-        <Link ref={ref as React.Ref<HTMLAnchorElement>} to={to} className={cls}>
+        <Link
+          ref={ref as React.Ref<HTMLAnchorElement>}
+          to={to}
+          className={cls}
+          aria-disabled={disabled}
+        >
           {children}
         </Link>
       );
@@ -36,6 +52,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
       <button
         ref={ref as React.Ref<HTMLButtonElement>}
         type="button"
+        disabled={disabled}
         className={cls}
         {...rest}
       >
