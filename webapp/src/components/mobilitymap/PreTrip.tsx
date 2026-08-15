@@ -1,12 +1,11 @@
 import { t } from "../../localization";
+import Button from "../../ui/Button";
 import FormError from "../FormError";
-import RLink from "../RLink";
 import DrawerContents from "./DrawerContents";
 import DrawerLoading from "./DrawerLoading";
 import DrawerTitle from "./DrawerTitle";
 import MicromobilityRate from "./MicromobilityRate";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 interface PreTripProps {
   loading?: boolean;
@@ -43,13 +42,7 @@ export default function PreTrip({
             vendorName: vehicle.vendorService.vendorName,
           })}
         </p>
-        <Button
-          size="sm"
-          variant="primary"
-          className="w-100"
-          href="/private-accounts"
-          as={RLink}
-        >
+        <Button size="sm" variant="primary" className="w-100" href="/private-accounts">
           {t("forms.get_started")}
         </Button>
       </>
@@ -60,7 +53,7 @@ export default function PreTrip({
         <hr className="my-0" />
         <Button
           className="p-1 ps-0 align-self-start"
-          variant="link"
+          variant="text"
           href={vehicle.deeplink}
         >
           {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
@@ -75,7 +68,7 @@ export default function PreTrip({
     );
   } else {
     action = (
-      <Button size="sm" variant="success" className="w-100" onClick={handleReserve}>
+      <Button size="sm" variant="primary" className="w-100" onClick={handleReserve}>
         {t("mobility.reserve_scooter")}
       </Button>
     );

@@ -1,7 +1,7 @@
 import { guttersClass, topMarginClass } from "../modules/constants";
+import Container from "../ui/Container";
 import clsx from "clsx";
 import React from "react";
-import Container from "react-bootstrap/Container";
 
 interface LayoutContainerProps {
   className?: string;

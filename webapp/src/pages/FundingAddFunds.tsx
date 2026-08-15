@@ -12,12 +12,12 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Form from "../ui/Form";
 import filter from "lodash/filter";
 import find from "lodash/find";
 import first from "lodash/first";
 import includes from "lodash/includes";
 import React from "react";
-import Form from "react-bootstrap/Form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const logger = new Logger("addfunds");
@@ -141,7 +141,7 @@ export default function FundingAddFunds() {
         </p>
         <FormError error={error} end />
         <FormButtons
-          variant="outline-success"
+          variant="outline"
           back
           primaryProps={{
             disabled: !amountCents,

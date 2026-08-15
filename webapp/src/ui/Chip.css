@@ -1,0 +1,26 @@
+.chip {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.chip-info {
+  background-color: var(--tint-primary);
+  color: var(--color-secondary-contrast);
+}
+
+.chip-secondary {
+  background-color: var(--tint-secondary);
+  color: var(--color-secondary-contrast);
+}
+
+.chip-success {
+  background-color: var(--tint-success);
+  color: var(--color-secondary-contrast);
+}
+
+.chip-danger {
+  background-color: var(--tint-danger);
+  color: var(--color-secondary-contrast);
+}

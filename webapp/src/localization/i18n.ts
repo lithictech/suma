@@ -110,7 +110,7 @@ class I18n {
       return ["s", key];
     }
     // eslint-disable-next-line no-unused-vars
-    const [formatter, template, ...locOpts] = value;
+    const [formatter, template, ...locOpts] = value as any[];
     let finalStr = template;
     locOpts.forEach(({ k, f, t }: LocOpt) => {
       let resolved;

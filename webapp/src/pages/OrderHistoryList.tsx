@@ -4,19 +4,21 @@ import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import CardBody from "../ui/CardBody";
+import CardLink from "../ui/CardLink";
+import CardText from "../ui/CardText";
+import Stack from "../ui/Stack";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Stack from "react-bootstrap/Stack";
 import { useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {
@@ -78,7 +80,7 @@ export default function OrderHistoryList() {
           <>
             {t("food.no_orders")}
             <div className="button-stack mt-2">
-              <Button variant="primary" href="/food" as={RLink}>
+              <Button variant="primary" href="/food">
                 {t("food.available_offerings")}
               </Button>
             </div>
@@ -105,7 +107,7 @@ function Order({
 }: OrderProps) {
   return (
     <Card>
-      <Card.Body>
+      <CardBody>
         <Stack direction="horizontal" gap={3}>
           <SumaImage
             image={image}
@@ -115,15 +117,10 @@ function Order({
             variant="dark"
           />
           <div>
-            <Card.Link
-              as={RLink}
-              href={`/order/${id}`}
-              className="h5"
-              onClick={onNavigate}
-            >
+            <CardLink href={`/order/${id}`} className="h5" onClick={onNavigate}>
               {t("food.order_serial", { serial: serial })}
-            </Card.Link>
-            <Card.Text className="text-secondary mt-1">
+            </CardLink>
+            <CardText className="text-secondary mt-1">
               {fulfilledAt
                 ? t("food.claimed_on", {
                     fulfilledAt: dayjs(fulfilledAt).format("lll"),
@@ -135,10 +132,10 @@ function Order({
                 : t("food.order_date", { date: dayjs(createdAt).format("ll") })}
               <br />
               {t("food.total", { total: total })}
-            </Card.Text>
+            </CardText>
           </div>
         </Stack>
-      </Card.Body>
+      </CardBody>
     </Card>
   );
 }

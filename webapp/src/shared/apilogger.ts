@@ -78,7 +78,7 @@ function respErrorFull(error: AxiosError) {
   }
   const apiErr = get(error, "response.data.error");
   if (apiErr) {
-    tags = omit({ ...tags, ...apiErr }, "backtrace");
+    tags = omit({ ...tags, ...(apiErr as object) }, "backtrace");
   }
   tags.status = error.response.status;
   respLogger

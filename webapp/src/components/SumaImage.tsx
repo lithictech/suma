@@ -1,4 +1,5 @@
 import { t } from "../localization";
+import "./SumaImage.css";
 import styles from "./SumaImage.module.css";
 import clsx from "clsx";
 import isArray from "lodash/isArray";

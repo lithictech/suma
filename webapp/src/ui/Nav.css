@@ -1,0 +1,9 @@
+.nav {
+  background-color: var(--color-surface);
+  padding: var(--space-2) var(--space-6);
+  border-top: var(--border-width) var(--color-border) solid;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}

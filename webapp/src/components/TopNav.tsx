@@ -6,14 +6,16 @@ import useBackendGlobals from "../state/useBackendGlobals";
 import useGlobalViewState from "../state/useGlobalViewState";
 import useOnlineStatus from "../state/useOnlineStatus";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import ButtonGroup from "../ui/ButtonGroup";
+import Container from "../ui/Container";
+import Navbar from "../ui/Navbar";
+import NavbarBrand from "../ui/NavbarBrand";
+import NavbarCollapse from "../ui/NavbarCollapse";
+import NavbarToggle from "../ui/NavbarToggle";
 import ExternalLink from "./ExternalLink";
-import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
 import { Link, useLocation } from "react-router-dom";
 
 export default function TopNav() {
@@ -33,11 +35,7 @@ export default function TopNav() {
       onToggle={() => setExpanded(!expanded)}
     >
       <Container className="navbar-container">
-        <Navbar.Brand
-          href="/dashboard"
-          className="me-auto d-flex align-items-center"
-          as={RLink}
-        >
+        <NavbarBrand href="/dashboard" className="me-auto d-flex align-items-center">
           <img
             alt={imageAltT("suma_logo")}
             src={sumaLogo}
@@ -45,7 +43,7 @@ export default function TopNav() {
             className="d-inline-block align-top me-2"
           />{" "}
           <p className="brand-text">{t("common.app_name")}</p>
-        </Navbar.Brand>
+        </NavbarBrand>
         <div
           className={clsx(
             "offline-status fs-4 ms-2 ms-auto",
@@ -55,19 +53,19 @@ export default function TopNav() {
           <i className="bi bi-wifi-off text-white"></i>
         </div>
 
-        <Navbar.Toggle className={clsx(expanded && "expanded")}>
+        <NavbarToggle className={clsx(expanded && "expanded")}>
           <div className="navbar-toggler-icon-bar" />
           <div className="navbar-toggler-icon-bar" />
           <div className="navbar-toggler-icon-bar" />
-        </Navbar.Toggle>
+        </NavbarToggle>
       </Container>
-      <Navbar.Collapse className="navbar-collapse nav-collapse">
+      <NavbarCollapse className="navbar-collapse nav-collapse">
         <Container className="mb-3">
           <div className="d-flex justify-content-end mt-2">
             <div className="d-flex flex-column">
               {user?.adminMember && (
                 <Button
-                  variant="danger"
+                  variant="secondary"
                   className="mt-2"
                   href={`/admin/member/${user.id}`}
                 >
@@ -89,7 +87,7 @@ export default function TopNav() {
             </div>
           </div>
         </Container>
-      </Navbar.Collapse>
+      </NavbarCollapse>
     </Navbar>
   );
 }
@@ -105,7 +103,7 @@ function LanguageButtons({ className }: { className?: string }) {
       {supportedLocales.items.map(({ code, native }) => (
         <Button
           key={code}
-          variant="outline-primary"
+          variant="outline"
           className={clsx(currentLanguage === code && "active-outline-button")}
           onClick={() => changeLanguage(code)}
         >
@@ -172,7 +170,7 @@ function AuthedUserButtons({ className, user, onCollapse }: AuthedUserButtonsPro
       />
       <Button
         onClick={signOut}
-        variant="outline-danger"
+        variant="outline"
         className="nav-menu-button text-start mt-2"
       >
         <i className="bi bi-box-arrow-right me-2"></i>
@@ -214,9 +212,8 @@ function NavLinkButton({
   return (
     <Button
       href={href}
-      variant="outline-primary"
+      variant="outline"
       className={clsx("nav-menu-button text-start d-flex align-items-center", className)}
-      as={RLink}
       onClick={handleClick}
     >
       {hereIcon}

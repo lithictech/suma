@@ -5,16 +5,15 @@ import FoodCartWidget from "../components/FoodCartWidget";
 import FoodPrice from "../components/FoodPrice";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import { anyMoney } from "../shared/money";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function FoodCart() {
@@ -101,13 +100,13 @@ export default function FoodCart() {
                 })}
               </div>
             )}
-            <Button onClick={handleCheckout} variant="success">
+            <Button onClick={handleCheckout} variant="primary">
               {t("food.continue_to_checkout")}
             </Button>
           </Stack>
         ) : (
           <div className="button-stack">
-            <Button href="/food" as={RLink} title={t("food.title")}>
+            <Button href="/food" title={t("food.title")}>
               {t("food.available_offerings")}
             </Button>
           </div>

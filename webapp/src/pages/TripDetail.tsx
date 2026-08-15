@@ -6,16 +6,16 @@ import { t } from "../localization";
 import { vehicleIconForVendorService } from "../modules/mobilityIconLookup";
 import Money from "../shared/react/Money";
 import useUrlMarshal from "../shared/react/useUrlMarshal";
+import Stack from "../ui/Stack";
 import dayjs from "dayjs";
 import React from "react";
-import Stack from "react-bootstrap/Stack";
 
 export default function TripDetail() {
   const { unmarshalFromUrl } = useUrlMarshal();
   let trip: MobilityTrip;
   try {
     trip = unmarshalFromUrl("trip", window.location.href) as MobilityTrip;
-  } catch (e) {
+  } catch {
     return (
       <LayoutContainer top>
         <ErrorScreen />

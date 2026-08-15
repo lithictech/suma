@@ -1,0 +1,29 @@
+.nav-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav-option-icon {
+  color: var(--color-primary);
+  border: var(--color-primary) solid 2px;
+  border-radius: var(--border-radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.nav-option-icon.active {
+  color: var(--color-primary-contrast);
+  background-color: var(--color-primary);
+}
+
+.nav-option-label {
+  font-size: var(--font-size-sm);
+}
+
+.nav-option-label.active {
+  color: var(--color-primary);
+}

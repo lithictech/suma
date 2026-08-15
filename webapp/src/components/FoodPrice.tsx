@@ -1,9 +1,9 @@
 import { t } from "../localization";
 import { anyMoney, subtractMoney } from "../shared/money";
 import Money from "../shared/react/Money";
+import Stack from "../ui/Stack";
 import clsx from "clsx";
 import React from "react";
-import Stack from "react-bootstrap/Stack";
 
 interface FoodPriceProps {
   isDiscounted?: boolean;

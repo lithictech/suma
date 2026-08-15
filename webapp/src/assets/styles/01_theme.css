@@ -1,0 +1,115 @@
+@font-face {
+    font-family: 'SourceSansPro';
+    font-style: normal;
+    font-weight: 100 900;
+    src: local("Source Sans Pro"), url("../fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf") format('truetype-variations');
+}
+
+@font-face {
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 100 900;
+    src: local("Raleway"), url("../fonts/Raleway/Raleway-VariableFont_wght.ttf") format('truetype-variations');
+}
+
+:root {
+    /* ---- Color palette ---- */
+    --color-primary: #36569C;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-contrast: #ffffff;
+
+    --color-secondary: #F4EFE7;
+    --color-secondary-hover: #EEE8DC;
+    --color-secondary-contrast: #2B2620;
+
+    --color-success: #4D6B44;
+    --color-danger: #A3521F;
+    --color-accent: #F5A98D;
+
+    --tint-primary: #CFDAF0;
+    --tint-secondary: #FAD6AC;
+    --tint-success: #DCE2C9;
+    --tint-danger: #F3D0B8;
+
+    --color-bg: #FFEDD8;
+    --color-bg-subtle: #FFEDD8;
+    --color-surface: #FDFCFA;
+    --color-border: #D2C5AE;
+    --color-border-strong: #D2C5AE;
+
+    --color-text: #111827;
+    --color-text-muted: #6B5B49;
+    --color-text-inverse: #FFFAF2;
+    --color-link: var(--color-primary);
+    --color-link-hover: var(--color-primary-hover);
+
+    /* ---- Typography ---- */
+    --font-family-base: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-family-title: 'Raleway', "Source Serif Pro", Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --font-size-base: 16px;
+    --font-size-xs: 0.7rem;
+    --font-size-sm: 0.875rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.5rem;
+    --font-size-xxl: 2rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+
+    --line-height-base: 1.5;
+    --line-height-heading: 1.25;
+
+    /* ---- Spacing scale ---- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+
+    /* ---- Borders / radius ---- */
+    --border-width: 1px;
+    --border-width-checked: 1px;
+    --border-radius-sm: 0.25rem;
+    --border-radius: 0.375rem;
+    --border-radius-lg: 0.5rem;
+    --border-radius-xl: 1rem;
+    --border-radius-pill: 999px;
+
+    /* ---- Shadows ---- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    /* ---- Transitions ---- */
+    --transition-fast: 100ms ease-in-out;
+    --transition-base: 150ms ease-in-out;
+
+    /* ---- Layout ---- */
+    --focus-ring-color: var(--color-primary-hover);
+    --focus-ring-width: 3px;
+
+    /* ---- Component sizing ---- */
+    --input-height: 2.5rem;
+    --input-padding-x: var(--space-3);
+    --input-padding-y: var(--space-2);
+    --btn-padding-x: var(--space-4);
+    --btn-padding-y: var(--space-2);
+
+    --input-background-color: var(--color-surface);
+    --input-placeholder-color: #a58b6f;
+
+    --switch-width: 2.5rem;
+    --switch-height: 1.5rem;
+    --switch-thumb-size: 1.25rem;
+    --switch-thumb-gap: 0.125rem;
+
+    --select-arrow-size: 0.75rem;
+
+    --z-index-dialog: 10;
+    --z-index-loader: 20;
+}
+

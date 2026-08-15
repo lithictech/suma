@@ -2,8 +2,8 @@ import api from "../api";
 import FormSuccess from "../components/FormSuccess";
 import Preferences from "../components/Preferences";
 import useUser from "../state/useUser";
+import Alert from "../ui/Alert";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 
 export default function PreferencesAuthed() {
   const { user, setUser } = useUser();

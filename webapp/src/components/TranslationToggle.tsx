@@ -1,7 +1,7 @@
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
+import Button from "../ui/Button";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function TranslationToggle({ classes }: { classes?: string }) {
   const { currentLanguage } = useI18n();
@@ -33,7 +33,7 @@ interface TranslateProps {
 const Translate = ({ to, label, title }: TranslateProps) => {
   const { changeLanguage } = useI18n();
   return (
-    <Button variant="link" onClick={() => changeLanguage(to)} title={title}>
+    <Button variant="text" onClick={() => changeLanguage(to)} title={title}>
       <i className="bi bi-translate"></i> <i>{label}</i>
     </Button>
   );

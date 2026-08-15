@@ -1,7 +1,7 @@
-import RLink from "./RLink";
+import Alert from "../ui/Alert";
+import AlertLink from "../ui/AlertLink";
 import clsx from "clsx";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 
 interface SeeAlsoAlertProps {
   label?: React.ReactNode;
@@ -28,13 +28,13 @@ export default function SeeAlsoAlert({
   );
   return (
     <Alert variant={variant} className={clsx("border-radius-0", alertClass)}>
-      <Alert.Link as={RLink} href={to} className={linkCls}>
+      <AlertLink href={to} className={linkCls}>
         <i className={`bi ${iconClass} me-3`}></i>
         {label}
         <div className="ms-auto">
           <i className="bi bi-arrow-right-circle-fill ms-1"></i>
         </div>
-      </Alert.Link>
+      </AlertLink>
     </Alert>
   );
 }

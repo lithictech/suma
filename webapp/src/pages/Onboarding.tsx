@@ -1,11 +1,12 @@
 import onboardingFood from "../assets/images/onboarding-food.jpg";
 import onboardingMobility from "../assets/images/onboarding-mobility.jpg";
 import onboardingUtilities from "../assets/images/onboarding-utilities.jpg";
-import RLink from "../components/RLink";
 import { imageAltT, t } from "../localization";
+import Button from "../ui/Button";
+import Carousel from "../ui/Carousel";
+import CarouselCaption from "../ui/CarouselCaption";
+import CarouselItem from "../ui/CarouselItem";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Carousel from "react-bootstrap/Carousel";
 
 const Onboarding = () => {
   return (
@@ -31,12 +32,7 @@ const Onboarding = () => {
         />
       </Carousel>
       <div className="button-stack">
-        <Button
-          to="/onboarding/signup"
-          as={RLink}
-          variant="outline-primary"
-          className="mt-4"
-        >
+        <Button to="/onboarding/signup" variant="outline" className="mt-4">
           {t("forms.continue")}
         </Button>
       </div>
@@ -58,14 +54,14 @@ const CarouselSlide = React.forwardRef<HTMLDivElement, CarouselSlideProps>(
   (props, ref) => {
     const { imgSrc, imgAlt, title, subtitle, ...rest } = props;
     return (
-      <Carousel.Item ref={ref} interval={2200} {...rest}>
+      <CarouselItem ref={ref} interval={2200} {...rest}>
         <div className="onboarding-carousel-image-overlay" />
         <img className="onboarding-carousel-image" src={imgSrc} alt={imgAlt} />
-        <Carousel.Caption>
+        <CarouselCaption>
           <h3>{title}</h3>
           <p className="px-3 lead">{subtitle}</p>
-        </Carousel.Caption>
-      </Carousel.Item>
+        </CarouselCaption>
+      </CarouselItem>
     );
   }
 );

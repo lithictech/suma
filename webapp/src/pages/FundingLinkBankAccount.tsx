@@ -4,9 +4,9 @@ import BackBreadcrumb from "../components/BackBreadcrumb";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
+import FormText from "../components/FormText";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
-import RLink from "../components/RLink";
 import config from "../config";
 import { imageAltT, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
@@ -14,13 +14,17 @@ import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Col from "../ui/Col";
+import { Dialog } from "../ui/Dialog";
+import DialogHeader from "../ui/DialogHeader";
+import Form from "../ui/Form";
+import FormCheck from "../ui/FormCheck";
+import FormGroup from "../ui/FormGroup";
+import FormLabel from "../ui/FormLabel";
+import Row from "../ui/Row";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
-import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 
@@ -63,8 +67,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
         <div className="button-stack mt-4">
           <Button
             href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
-            as={RLink}
-            variant="outline-primary"
+            variant="outline"
           >
             {t("forms.continue")}
           </Button>
@@ -215,10 +218,10 @@ function LinkBankAccount({ onSuccess, returnTo }: LinkBankAccountProps) {
           />
         </Row>
         <Row className="mb-3">
-          <Form.Group as={Col}>
-            <Form.Label>{t("forms.bank_account_type")}</Form.Label>
+          <FormGroup as={Col}>
+            <FormLabel>{t("forms.bank_account_type")}</FormLabel>
             <div>
-              <Form.Check
+              <FormCheck
                 inline
                 id="cheking"
                 name="account-type"
@@ -227,7 +230,7 @@ function LinkBankAccount({ onSuccess, returnTo }: LinkBankAccountProps) {
                 checked={accountType === "checking"}
                 onChange={() => setAccountType("checking")}
               />
-              <Form.Check
+              <FormCheck
                 inline
                 id="savings"
                 name="account-type"
@@ -237,36 +240,34 @@ function LinkBankAccount({ onSuccess, returnTo }: LinkBankAccountProps) {
                 onChange={() => setAccountType("savings")}
               />
             </div>
-            <Form.Text>{t("forms.bank_account_type_caption")}</Form.Text>
-          </Form.Group>
+            <FormText>{t("forms.bank_account_type_caption")}</FormText>
+          </FormGroup>
         </Row>
 
         <p>{t("payments.account_submission_statement")}</p>
         <FormError error={error} />
         <FormButtons
-          variant="outline-primary"
+          variant="outline"
           back
           primaryProps={{
             children: t("forms.continue"),
           }}
         />
-        <Modal
-          show={showCheckModalToggle.isOn}
-          onHide={showCheckModalToggle.turnOff}
-          centered
+        <Dialog
+          open={showCheckModalToggle.isOn}
+          onClose={showCheckModalToggle.turnOff}
+          labelledBy="check-details-modal-title"
         >
-          <Modal.Header closeButton>
-            <Modal.Title>{t("payments.check_details_title")}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>{t("payments.check_details_subtitle")}</p>
-            <img
-              src={bankAccountCheckDetails}
-              alt={imageAltT("check_detail_example")}
-              className="w-100"
-            />
-          </Modal.Body>
-        </Modal>
+          <DialogHeader id="check-details-modal-title">
+            {t("payments.check_details_title")}
+          </DialogHeader>
+          <p>{t("payments.check_details_subtitle")}</p>
+          <img
+            src={bankAccountCheckDetails}
+            alt={imageAltT("check_detail_example")}
+            className="w-100"
+          />
+        </Dialog>
       </Form>
     </>
   );

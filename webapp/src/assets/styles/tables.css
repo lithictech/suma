@@ -1,0 +1,21 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--space-4);
+}
+
+th,
+td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    border-bottom: var(--border-width) solid var(--color-border);
+}
+
+th {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-muted);
+}
+
+tbody tr:hover {
+    background-color: var(--color-bg-subtle);
+}

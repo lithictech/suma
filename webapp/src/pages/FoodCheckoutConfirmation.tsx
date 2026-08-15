@@ -2,15 +2,14 @@ import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import AlertHeading from "../ui/AlertHeading";
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function FoodCheckoutConfirmation() {
@@ -46,7 +45,7 @@ export default function FoodCheckoutConfirmation() {
   return (
     <>
       <div className="bg-success text-white p-4">
-        <Alert.Heading>{t("food.confirmation_title")}</Alert.Heading>
+        <AlertHeading>{t("food.confirmation_title")}</AlertHeading>
         <p className="mb-0">{t("food.confirmation_subtitle")}</p>
       </div>
       <LayoutContainer gutters top>
@@ -56,7 +55,7 @@ export default function FoodCheckoutConfirmation() {
         ))}
         {user.unclaimedOrdersCount !== 0 && (
           <div className="button-stack my-4">
-            <Button variant="success" href="/unclaimed-orders" as={RLink}>
+            <Button variant="primary" href="/unclaimed-orders">
               {t("food.unclaimed_order_history_title")}
             </Button>
           </div>
@@ -79,7 +78,7 @@ export default function FoodCheckoutConfirmation() {
         <h4>{t("food.confirmation_transportation_title")}</h4>
         <p className="mb-0">{t("food.confirmation_transportation_subtitle")}</p>
         <div className="button-stack mt-3 mb-4">
-          <Button href="/mobility" as={RLink}>
+          <Button href="/mobility">
             <i className="bi bi-scooter me-2"></i>
             {t("food.mobility_options")}
           </Button>

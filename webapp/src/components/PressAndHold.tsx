@@ -1,9 +1,9 @@
 import useLongPress from "../shared/react/useLongPress";
+import Button from "../ui/Button";
 // Cannot use CSS modules due to animation
 import "./PressAndHold.css";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 // If changing these, you MUST review the CSS.
 const HOLD_SECS = 2;

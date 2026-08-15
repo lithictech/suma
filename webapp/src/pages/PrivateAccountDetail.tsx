@@ -4,7 +4,6 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import { dt, t } from "../localization";
 import { scaleMoney } from "../shared/money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -12,11 +11,11 @@ import useUnmountEffect from "../shared/react/useUnmountEffect";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Alert from "../ui/Alert";
+import Progress from "../ui/Progress";
 import { CanceledError } from "axios";
 import clsx from "clsx";
 import React from "react";
-import { ProgressBar } from "react-bootstrap";
-import Alert from "react-bootstrap/Alert";
 import { useParams } from "react-router-dom";
 
 /**
@@ -93,7 +92,6 @@ function StepsView({
     variant: "primary",
   };
   if (account.uiStateV1.requiresPaymentMethod && !account.uiStateV1.hasPaymentMethod) {
-    primaryProps.as = RLink;
     primaryProps.to = `/add-card?returnToImmediate=/private-account/${account.id}`;
   } else {
     const nextView = balancePayoffNeeded ? VIEW_BALANCE : VIEW_TERMS;
@@ -278,7 +276,6 @@ function LinkView({
     primaryBtnProps = null;
     secondaryBtnProps = {
       children: t("private_accounts.linkview_back_to_list"),
-      as: RLink,
       to: `/private-accounts`,
     };
     alertVariant = "success";
@@ -349,7 +346,7 @@ function ProgressContainer({
 }) {
   return (
     <LayoutContainer gutters className="d-flex flex-column gap-4">
-      <ProgressBar now={progress} variant="info" className="mt-3" />
+      <Progress value={progress} className="mt-3" />
       <h2 className="mb-0">{header}</h2>
       {children}
     </LayoutContainer>

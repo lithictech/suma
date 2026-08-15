@@ -4,18 +4,19 @@ import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import CardBody from "../ui/CardBody";
+import { Dialog } from "../ui/Dialog";
+import DialogHeader from "../ui/DialogHeader";
+import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Modal from "react-bootstrap/Modal";
-import Stack from "react-bootstrap/Stack";
 
 export default function PrivateAccountsList() {
   const {
@@ -64,26 +65,26 @@ export default function PrivateAccountsList() {
         <p className="text-secondary">{t("private_accounts.intro")}</p>
       </LayoutContainer>
       <hr className="my-4" />
-      <Modal show={!!modalAccount} onHide={() => setModalAccount(null)}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {t("private_accounts.help_title", {
-              vendorName: modalAccount?.vendorName,
-            })}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="d-flex justify-content-center align-items-center flex-column m-2">
-            <ScrollTopOnMount />
-            {dt(modalAccount?.uiStateV1.helpText)}
-            <div className="d-flex justify-content-end mt-2">
-              <Button variant="outline-secondary" onClick={() => setModalAccount(null)}>
-                {t("common.close")}
-              </Button>
-            </div>
+      <Dialog
+        open={!!modalAccount}
+        onClose={() => setModalAccount(null)}
+        labelledBy="private-account-help-title"
+      >
+        <DialogHeader id="private-account-help-title">
+          {t("private_accounts.help_title", {
+            vendorName: modalAccount?.vendorName,
+          })}
+        </DialogHeader>
+        <div className="d-flex justify-content-center align-items-center flex-column m-2">
+          <ScrollTopOnMount />
+          {dt(modalAccount?.uiStateV1.helpText)}
+          <div className="d-flex justify-content-end mt-2">
+            <Button variant="outline" onClick={() => setModalAccount(null)}>
+              {t("common.close")}
+            </Button>
           </div>
-        </Modal.Body>
-      </Modal>
+        </div>
+      </Dialog>
       {accountsLoading ? (
         <PageLoader />
       ) : !isEmpty(accounts.items) ? (
@@ -91,9 +92,9 @@ export default function PrivateAccountsList() {
           <Stack gap={3}>
             {accounts.items.map((a: AnonProxyVendorAccount) => (
               <Card key={a.id}>
-                <Card.Body>
+                <CardBody>
                   <PrivateAccount account={a} onHelp={() => handleHelp(a)} />
-                </Card.Body>
+                </CardBody>
               </Card>
             ))}
           </Stack>
@@ -119,7 +120,7 @@ function PrivateAccount({
     showHelp = false;
   } else if (account.uiStateV1.indexCardMode === "relink") {
     actionLocKey = "private_accounts.action_relink_app";
-    ctaVariant = "outline-primary";
+    ctaVariant = "outline";
     showHelp = true;
   } else {
     actionLocKey = "private_accounts.action_setup_payment";
@@ -140,13 +141,12 @@ function PrivateAccount({
       <p>{dt(account.uiStateV1.descriptionText)}</p>
       <Stack direction="horizontal" gap={2}>
         {showHelp && (
-          <Button variant="link" className="flex-grow-1" onClick={() => onHelp()}>
+          <Button variant="text" className="flex-grow-1" onClick={() => onHelp()}>
             {t("common.help")}
           </Button>
         )}
         <Button
           variant={ctaVariant}
-          as={RLink}
           to={`/private-account/${account.id}`}
           className={"flex-grow-1"}
         >

@@ -3,13 +3,13 @@ import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import useUser from "../../state/useUser";
+import Button from "../../ui/Button";
 import FormError from "../FormError";
 import DrawerContents from "./DrawerContents";
 import DrawerLoading from "./DrawerLoading";
 import DrawerTitle from "./DrawerTitle";
 import PostTrip from "./PostTrip";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export interface MapLocation {
   latlng: { lat: number; lng: number };
@@ -61,12 +61,7 @@ export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }: Tri
             })}
           </p>
           <FormError error={error} />
-          <Button
-            size="sm"
-            variant="outline-danger"
-            className="w-100"
-            onClick={handleEndTrip}
-          >
+          <Button size="sm" variant="outline" className="w-100" onClick={handleEndTrip}>
             {t("mobility.end_trip")}
           </Button>
         </DrawerContents>

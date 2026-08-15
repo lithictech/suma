@@ -1,11 +1,13 @@
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import RLink from "./RLink";
+import Card from "../ui/Card";
+import CardBody from "../ui/CardBody";
+import CardLink from "../ui/CardLink";
+import CardText from "../ui/CardText";
+import Stack from "../ui/Stack";
 import SumaImage from "./SumaImage";
 import clsx from "clsx";
 import React from "react";
-import Card from "react-bootstrap/Card";
-import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
 interface VendibleCardProps {
@@ -25,28 +27,23 @@ export default function VendibleCard({
 }: VendibleCardProps) {
   return (
     <Card className={clsx(className)}>
-      <Card.Body className="p-2">
+      <CardBody className="p-2">
         <Stack direction="horizontal" gap={3}>
           <Link to={appLink} className="flex-shrink-0">
             <SumaImage image={image} width={100} h={80} variant="dark" />
           </Link>
           <div>
-            <Card.Link
-              as={RLink}
-              href={appLink}
-              state={{ fromIndex: true }}
-              className="h6 mb-0"
-            >
+            <CardLink href={appLink} state={{ fromIndex: true }} className="h6 mb-0">
               {description}
-            </Card.Link>
+            </CardLink>
             {closesAt && (
-              <Card.Text className="text-secondary small">
+              <CardText className="text-secondary small">
                 {t("food.available_until", { date: dayjs(closesAt).format("ll") })}
-              </Card.Text>
+              </CardText>
             )}
           </div>
         </Stack>
-      </Card.Body>
+      </CardBody>
     </Card>
   );
 }

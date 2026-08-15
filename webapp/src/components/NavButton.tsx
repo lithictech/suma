@@ -1,7 +1,6 @@
-import RLink from "./RLink";
+import Button from "../ui/Button";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 interface NavButtonProps {
   /** Show the left chevron. */
@@ -28,13 +27,7 @@ export default function NavButton({
   const leftIcon = short ? "double-left" : "left";
   const rightIcon = short ? "double-right" : "right";
   return (
-    <Button
-      size="sm"
-      as={RLink}
-      variant="link"
-      className={clsx("p-0", className)}
-      {...rest}
-    >
+    <Button size="sm" variant="text" className={clsx("p-0", className)} {...rest}>
       {left && <i className={`bi bi-chevron-${leftIcon} me-1`} />}
       {children && <span>{children}</span>}
       {right && <i className={`bi bi-chevron-${rightIcon} ms-1`} />}

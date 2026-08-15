@@ -1,0 +1,77 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: var(--font-size-base);
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-base);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-heading);
+    color: var(--color-text);
+}
+
+h1 {
+    font-size: var(--font-size-xxl);
+    margin-bottom: 0;
+}
+
+h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: 0;
+}
+
+h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: 0;
+}
+
+p {
+    margin: 0;
+}
+
+a {
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+a:hover {
+    color: var(--color-link-hover);
+}
+
+small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+hr {
+    border: none;
+    border-top: var(--border-width) solid var(--color-border);
+    margin: var(--space-5) 0;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Consistent focus ring for keyboard users */
+:focus-visible,
+.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: -1px;
+}

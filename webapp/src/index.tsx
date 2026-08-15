@@ -1,8 +1,6 @@
 import App from "./App";
 import Metrics from "./Metrics";
-import "./assets/styles/imports.scss";
-import "./assets/styles/rapiddev.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import "./assets/styles/imports";
 import React from "react";
 import { createRoot } from "react-dom/client";
 

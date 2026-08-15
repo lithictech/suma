@@ -1,0 +1,26 @@
+.indeterminate-loader-screen {
+  width: 100vw;
+  height: 100vh;
+  z-index: var(--z-index-loader);
+  position: fixed;
+  background-color: color-mix(in srgb, var(--color-bg) 50%, transparent);
+  top: 0;
+  left: 0;
+
+  .indeterminate-loader-screen-centerer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.indeterminate-loader-content {
+  position: absolute;
+  top: 0;
+  padding-top: var(--space-5);
+  left: 50%;
+  transform: translateX(-50%);
+}

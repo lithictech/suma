@@ -26,6 +26,4 @@ As far as non-statically-enforced styles, please observe the following:
 - Use `React.useState` to access hooks, instead of `import {useState} from "react"`.
   There's no reason that requiring other properties from the React module should result
   in additional line diffs.
-- Try to use `import Col from "react-boostrap/Col"` rather than `import {Col} from "react-bootstrap"`,
-  and similar for other libraries. The main reason is to support tree shaking of unused code.
 - Use lodash!

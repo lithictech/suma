@@ -1,6 +1,6 @@
+import Button from "../ui/Button";
 import isNumber from "lodash/isNumber";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 interface CurrencyNumpadProps {
   onCentsChange: (cents: number) => void;
@@ -68,14 +68,18 @@ function Numpad({ cents, currency, onNumberClick }: NumpadProps) {
       <RenderButtons numbers={[7, 8, 9]} handleChange={handleNumberClick} />
       <div className="d-flex justify-content-end">
         <Button
-          variant="light"
+          variant="secondary"
           className={numButtonClasses}
           value={0}
           onClick={handleNumberClick}
         >
           0
         </Button>
-        <Button variant="light" className={numButtonClasses} onClick={handleNumberDelete}>
+        <Button
+          variant="secondary"
+          className={numButtonClasses}
+          onClick={handleNumberDelete}
+        >
           ⌫
         </Button>
       </div>
@@ -94,7 +98,7 @@ function RenderButtons({ numbers, handleChange }: RenderButtonsProps) {
       {numbers.map((num) => (
         <Button
           key={num}
-          variant="light"
+          variant="secondary"
           className={numButtonClasses}
           value={num}
           onClick={handleChange}

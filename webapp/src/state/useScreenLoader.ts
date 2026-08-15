@@ -1,4 +1,3 @@
-import "../assets/styles/screenloader.scss";
 import { ScreenLoaderContext } from "./ScreenLoaderProvider";
 import React from "react";
 

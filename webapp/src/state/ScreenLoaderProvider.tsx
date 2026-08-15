@@ -1,4 +1,3 @@
-import "../assets/styles/screenloader.scss";
 import ScreenLoader from "../components/ScreenLoader";
 import useToggle, { Toggle } from "../shared/react/useToggle";
 import React from "react";

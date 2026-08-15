@@ -7,10 +7,10 @@ import { vehicleIconForVendorService } from "../modules/mobilityIconLookup";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUrlMarshal from "../shared/react/useUrlMarshal";
+import Stack from "../ui/Stack";
 import dayjs from "dayjs";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
 interface WeekSpec {

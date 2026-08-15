@@ -1,14 +1,13 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import AddToHomescreen from "../components/AddToHomescreen";
 import ExternalLink from "../components/ExternalLink";
-import RLink from "../components/RLink";
 import TranslationToggle from "../components/TranslationToggle";
 import { dt, imageAltT, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Container from "../ui/Container";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
 
 export default function Home() {
   const { registrationSession } = useUser();
@@ -27,7 +26,7 @@ export default function Home() {
           <div className="mb-4">{dt(registrationSession.intro)}</div>
         )}
         <div className="button-stack">
-          <Button href="/start" variant="outline-primary" as={RLink} className="w-75">
+          <Button href="/start" variant="outline" className="w-75">
             {t("forms.continue")}
           </Button>
           <ExternalLink

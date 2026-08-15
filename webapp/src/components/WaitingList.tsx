@@ -1,17 +1,17 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
+import Form from "../ui/Form";
+import FormCheck from "../ui/FormCheck";
+import FormLabel from "../ui/FormLabel";
 import React from "react";
-import { FormCheck, FormLabel } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 
 interface SurveySpecAnswer {
   /** Identify this possible answer within the question. */
@@ -174,7 +174,7 @@ function JustFinished() {
         {i18n.t("surveys.waitlist_joined")}
       </p>
       <div className="button-stack mt-4 w-100">
-        <Button variant="outline-primary" href="/dashboard" as={RLink}>
+        <Button variant="outline" href="/dashboard">
           {t("common.go_home")}
         </Button>
       </div>

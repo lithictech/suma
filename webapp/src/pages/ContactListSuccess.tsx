@@ -1,10 +1,9 @@
 import ContactListTags from "../components/ContactListTags";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
+import Button from "../ui/Button";
+import Container from "../ui/Container";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListSuccess() {
@@ -20,8 +19,7 @@ export default function ContactListSuccess() {
               ? `/contact-list?eventName=${params.get("eventName")}`
               : "/contact-list"
           }
-          variant="outline-primary"
-          as={RLink}
+          variant="outline"
           className="w-75"
           onClick={() => changeLanguage("en")}
         >

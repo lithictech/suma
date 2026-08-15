@@ -3,10 +3,11 @@ import config from "../config";
 import { imageAltT, t } from "../localization";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import useToggle from "../shared/react/useToggle";
+import Alert from "../ui/Alert";
+import AlertHeading from "../ui/AlertHeading";
+import Button from "../ui/Button";
 import PageLoader from "./PageLoader";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -21,8 +22,6 @@ interface BeforeInstallPromptEvent extends Event {
  *
  * installPromptEvent renders on the initial page load and within
  * full production app URL scope (must include slash at end of URL).
- *
- * @returns {JSX.Element}
  */
 export default function AddToHomescreen() {
   // Bump the 'should prompt to install' number if we want to ask everyone to install again.
@@ -128,7 +127,7 @@ export default function AddToHomescreen() {
       onClose={() => setShouldPrompt(false)}
       dismissible
     >
-      <Alert.Heading>
+      <AlertHeading>
         <img
           src={sumaLogo}
           alt={imageAltT("suma_logo")}
@@ -136,7 +135,7 @@ export default function AddToHomescreen() {
           style={{ width: 50 }}
         />
         {t("common.add_to_homescreen")}
-      </Alert.Heading>
+      </AlertHeading>
       <p>{t("common.add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
         <Button ref={addToHomescreenButtonRef} variant="primary">
@@ -155,7 +154,8 @@ const isCompatible = (() => {
   if (!supportsInstall) {
     return false;
   }
-  const isWebAppIOS = window.navigator.standalone === true;
+  const isWebAppIOS =
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
   if (isWebAppIOS) {
     return false;
   }

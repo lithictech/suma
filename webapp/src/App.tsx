@@ -54,7 +54,6 @@ import { installPromiseExtras } from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
-import ErrorToastProvider from "./state/ErrorToastProvider";
 import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
@@ -72,23 +71,21 @@ installPromiseExtras(window.Promise);
 export default function App() {
   return (
     <GlobalViewStateProvider>
-      <ErrorToastProvider>
-        <BackendGlobalsProvider>
-          <UserProvider>
-            <I18nProvider>
-              <ScreenLoaderProvider>
-                <RerenderOnLangChange>
-                  <HelmetProvider>
-                    <OfferingProvider>
-                      <InnerApp />
-                    </OfferingProvider>
-                  </HelmetProvider>
-                </RerenderOnLangChange>
-              </ScreenLoaderProvider>
-            </I18nProvider>
-          </UserProvider>
-        </BackendGlobalsProvider>
-      </ErrorToastProvider>
+      <BackendGlobalsProvider>
+        <UserProvider>
+          <I18nProvider>
+            <ScreenLoaderProvider>
+              <RerenderOnLangChange>
+                <HelmetProvider>
+                  <OfferingProvider>
+                    <InnerApp />
+                  </OfferingProvider>
+                </HelmetProvider>
+              </RerenderOnLangChange>
+            </ScreenLoaderProvider>
+          </I18nProvider>
+        </UserProvider>
+      </BackendGlobalsProvider>
     </GlobalViewStateProvider>
   );
 }

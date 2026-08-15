@@ -3,13 +3,12 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { extractLocalizedError, useError } from "../state/useError";
+import Button from "../ui/Button";
+import Form from "../ui/Form";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -62,8 +61,7 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
         <h2>{t("common.thank_you")}</h2>
         <p>{t("auth.access_account_confirmed")}</p>
         <Button
-          variant="outline-primary"
-          as={RLink}
+          variant="outline"
           to="/"
           className="w-100 align-self-center"
           style={{ maxWidth: 330 }}

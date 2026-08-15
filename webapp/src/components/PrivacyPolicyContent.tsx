@@ -12,7 +12,7 @@ import transparencyIcon from "../assets/images/privacypolicy/overview-transparen
 import trustIcon from "../assets/images/privacypolicy/overview-trust-icon.svg";
 import policyChanges from "../assets/images/privacypolicy/policy-changes.svg";
 import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access.svg";
-import "../assets/styles/privacy-policy.scss";
+import "../assets/styles/privacy-policy.css";
 import ELink from "../components/ELink";
 import LayoutContainer from "../components/LayoutContainer";
 import ScreenLoader from "../components/ScreenLoader";
@@ -21,16 +21,19 @@ import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "../shared/react/useMountEffect";
 import useGlobalViewState from "../state/useGlobalViewState";
+import Col from "../ui/Col";
+import Container from "../ui/Container";
+import Nav from "../ui/Nav";
+import NavLink from "../ui/NavLink";
+import Navbar from "../ui/Navbar";
+import NavbarBrand from "../ui/NavbarBrand";
+import NavbarCollapse from "../ui/NavbarCollapse";
+import NavbarToggle from "../ui/NavbarToggle";
+import Row from "../ui/Row";
+import Stack from "../ui/Stack";
 import TranslationToggle from "./TranslationToggle";
-import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Row from "react-bootstrap/Row";
-import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 
 export default function PrivacyPolicyContent({ mobile }: { mobile?: boolean }) {
@@ -312,17 +315,9 @@ const TableOfContentsNav = ({ mobile }: { mobile?: boolean }) => {
   mobile = Boolean(mobile);
   const [expanded, setExpanded] = React.useState(!mobile || false);
 
-  function navRef(el: HTMLElement | null) {
-    if (!el) {
-      return;
-    }
-    new ScrollSpy(document.body, {
-      target: el,
-      smoothScroll: true,
-      rootMargin: "0px 0px -60%",
-    });
-  }
-
+  // TODO(bootstrap-removal): this used to wire up bootstrap's ScrollSpy (via
+  // `bootstrap/js/src/scrollspy`, no longer a dependency) to highlight the
+  // current section as you scroll. Needs a replacement implementation.
   return (
     <Navbar
       className={clsx(
@@ -338,35 +333,35 @@ const TableOfContentsNav = ({ mobile }: { mobile?: boolean }) => {
     >
       {mobile && (
         <Container>
-          <Navbar.Toggle className={clsx(expanded && "expanded")}>
+          <NavbarToggle className={clsx(expanded && "expanded")}>
             <i
               className={clsx(
                 "bi bi-card-list fs-1",
                 !expanded ? "text-dark" : "text-secondary"
               )}
             ></i>
-          </Navbar.Toggle>
-          <Navbar.Brand className="me-auto d-flex align-items-center">
+          </NavbarToggle>
+          <NavbarBrand className="me-auto d-flex align-items-center">
             {t("common.table_of_contents")}
-          </Navbar.Brand>
+          </NavbarBrand>
         </Container>
       )}
-      <Navbar.Collapse
+      <NavbarCollapse
         className={clsx("bg-light", mobile && "table-of-contents-collapse p-2")}
       >
         <Container className="position-relative">
-          <Nav ref={navRef} className="navbar-nav-scroll navbar-absolute">
+          <Nav className="navbar-nav-scroll navbar-absolute">
             {navLinkSectionKeys.map((key, idx) => (
               <React.Fragment key={key}>
-                <Nav.Link href={makeSectionHashtag(key)} className="py-1">
+                <NavLink href={makeSectionHashtag(key)} className="py-1">
                   {t(key + ".title")}
-                </Nav.Link>
+                </NavLink>
                 {idx === 0 && <hr className="my-2" />}
               </React.Fragment>
             ))}
           </Nav>
         </Container>
-      </Navbar.Collapse>
+      </NavbarCollapse>
     </Navbar>
   );
 };

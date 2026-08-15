@@ -24,6 +24,7 @@ lint-check:
 	npm run eslint-check
 type-check: check-version
 	npm run type-check
+fix: fmt lint type-check
 check: fmt-check lint-check type-check test
 
 start: check-version

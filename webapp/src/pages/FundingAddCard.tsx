@@ -3,14 +3,13 @@ import AddCreditCard from "../components/AddCreditCard";
 import BackBreadcrumb from "../components/BackBreadcrumb";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
-import RLink from "../components/RLink";
 import { t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Button from "../ui/Button";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function FundingAddCard() {
@@ -83,8 +82,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
         <div className="button-stack mt-4">
           <Button
             href={makeReturnUrl(returnTo, instrumentId, instrumentType)}
-            as={RLink}
-            variant="outline-primary"
+            variant="outline"
           >
             {t("forms.continue")}
           </Button>

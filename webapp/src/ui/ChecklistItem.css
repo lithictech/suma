@@ -1,0 +1,35 @@
+.checklist-item {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-2);
+}
+
+.checklist-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  border-width: var(--border-width-checked);
+  border-style: solid;
+  border-radius: var(--border-radius-pill);
+  width: 24px;
+  height: 24px;
+}
+
+.checklist-item-icon-checked {
+  border-color: var(--color-success);
+  background-color: var(--tint-success);
+  color: var(--color-success);
+}
+
+.checklist-item-icon-current {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.checklist-item-icon-future {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-secondary-contrast);
+}

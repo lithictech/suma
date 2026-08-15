@@ -1,0 +1,76 @@
+/* Reset the browser's default <dialog> chrome (border, padding,
+   background) — .dialog-content below provides the actual surface. */
+dialog.dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  background: transparent;
+  color: var(--color-text);
+  max-width: min(90vw, 32rem);
+  width: 100%;
+  position: relative;
+}
+
+dialog.dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.dialog[open] {
+    animation: dialog-fade-in var(--transition-base) ease-out;
+  }
+
+  dialog.dialog[open]::backdrop {
+    animation: dialog-backdrop-fade-in var(--transition-base) ease-out;
+  }
+}
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dialog-backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+:root {
+  --dialog-close-size: 2rem;
+}
+
+/* Always rendered by Dialog itself, positioned over whatever content
+   the caller passes — the one piece of chrome Dialog owns. */
+.dialog-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: var(--z-index-dialog);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dialog-close-size);
+  height: var(--dialog-close-size);
+  border: none;
+  border-radius: 50%;
+  font-size: calc(var(--dialog-close-size) * 0.8);
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.dialog-close:hover {
+  color: var(--color-text);
+  background-color: var(--color-secondary-hover);
+}

@@ -1,7 +1,8 @@
 import useValidationError from "../state/useValidationError";
+import FormCheck from "../ui/FormCheck";
+import FormControlFeedback from "../ui/FormControlFeedback";
 import FormText from "./FormText";
 import React from "react";
-import Form from "react-bootstrap/Form";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface FormRadioInputsProps {
@@ -50,7 +51,7 @@ export default function FormRadioInputs({
   return (
     <>
       {inputs.map(({ id, label }) => (
-        <Form.Check
+        <FormCheck
           {...register(name, registerOptions)}
           key={id}
           id={id}
@@ -67,9 +68,7 @@ export default function FormRadioInputs({
           {...rest}
         />
       ))}
-      <Form.Control.Feedback type="invalid" className={message ? "d-block" : "d-none"}>
-        {message}
-      </Form.Control.Feedback>
+      <FormControlFeedback type="invalid">{message}</FormControlFeedback>
       {text && <FormText>{text}</FormText>}
     </>
   );

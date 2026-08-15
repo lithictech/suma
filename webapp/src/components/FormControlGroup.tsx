@@ -1,10 +1,13 @@
 import setRef from "../shared/setRef";
 import useValidationError from "../state/useValidationError";
+import FormControl from "../ui/FormControl";
+import FormControlFeedback from "../ui/FormControlFeedback";
+import FormLabel from "../ui/FormLabel";
+import InputGroup from "../ui/InputGroup";
 import FormText from "./FormText";
+import clsx from "clsx";
 import isString from "lodash/isString";
 import React from "react";
-import Form from "react-bootstrap/Form";
-import InputGroup from "react-bootstrap/InputGroup";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface FormControlGroupProps {
@@ -100,10 +103,11 @@ export default function FormControlGroup({
   }
   const { ref: registerRef, ...registerRest } = register(name, registerArgs);
   const message = useValidationError(name, errors, registerArgs, errorKeys);
-  const C = Input || Form.Control;
+  const C = Input || FormControl;
   const input = (
     <C
-      ref={(r) => {
+      id={name}
+      ref={(r: any) => {
         registerRef(r);
         setRef(inputRef, r);
       }}
@@ -117,10 +121,13 @@ export default function FormControlGroup({
       {...rest}
     />
   );
+  const GroupComponent: React.ElementType = as || "div";
   return (
-    <Form.Group className={className} controlId={name} as={as}>
+    <GroupComponent className={clsx("form-group", className)}>
       {isString(label) ? (
-        <Form.Label className="visually-hidden">{label}</Form.Label>
+        <FormLabel htmlFor={name} className="visually-hidden">
+          {label}
+        </FormLabel>
       ) : (
         label
       )}
@@ -129,15 +136,15 @@ export default function FormControlGroup({
           {prepend}
           {input}
           {append}
-          <Form.Control.Feedback type="invalid">{message}</Form.Control.Feedback>
+          <FormControlFeedback type="invalid">{message}</FormControlFeedback>
         </InputGroup>
       ) : (
         <>
           {input}
-          <Form.Control.Feedback type="invalid">{message}</Form.Control.Feedback>
+          <FormControlFeedback type="invalid">{message}</FormControlFeedback>
         </>
       )}
       {text && <FormText>{text}</FormText>}
-    </Form.Group>
+    </GroupComponent>
   );
 }

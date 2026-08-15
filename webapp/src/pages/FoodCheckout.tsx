@@ -8,7 +8,6 @@ import FormRadioInputs from "../components/FormRadioInputs";
 import FormStateError from "../components/FormStateError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
@@ -22,6 +21,11 @@ import useOffering from "../state/useOffering";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import useValidationError from "../state/useValidationError";
+import Alert from "../ui/Alert";
+import Form from "../ui/Form";
+import FormControlFeedback from "../ui/FormControlFeedback";
+import FormGroup from "../ui/FormGroup";
+import Stack from "../ui/Stack";
 import clsx from "clsx";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -29,9 +33,6 @@ import map from "lodash/map";
 import merge from "lodash/merge";
 import sum from "lodash/sum";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Form from "react-bootstrap/Form";
-import Stack from "react-bootstrap/Stack";
 import { useForm } from "react-hook-form";
 import {
   Link,
@@ -247,7 +248,7 @@ function CheckoutPayment({
           </>
         ) : (
           <>
-            <Form.Group>
+            <FormGroup>
               <FormRadioInputs
                 inputs={inputs}
                 name="paymentOption"
@@ -257,7 +258,7 @@ function CheckoutPayment({
                 onChange={handleChange}
                 required
               />
-            </Form.Group>
+            </FormGroup>
             <div>{t("food.link_new_payment_or")}</div>
             {addPaymentLinks}
           </>
@@ -378,10 +379,10 @@ function CheckoutItems({ checkout }: { checkout: Checkout }) {
         );
       })}
       <div className="mt-3">
-        <RLink to={`/cart/${checkout.offering.id}`}>
+        <Link to={`/cart/${checkout.offering.id}`}>
           <i className="bi bi-pencil-fill me-2" />
           {t("food.edit_quantities")}
-        </RLink>
+        </Link>
       </div>
     </>
   );
@@ -558,9 +559,7 @@ function PaymentsInputValidationMessage({
       {message && (
         <>
           <ScrollTopOnMount />
-          <Form.Control.Feedback type="invalid" className="d-block">
-            {message}
-          </Form.Control.Feedback>
+          <FormControlFeedback type="invalid">{message}</FormControlFeedback>
         </>
       )}
     </>

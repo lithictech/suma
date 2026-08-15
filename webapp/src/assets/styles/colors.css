@@ -1,0 +1,13 @@
+.color-primary { color: var(--color-primary); }
+.color-secondary { color: var(--color-secondary); }
+.color-info { color: var(--color-info); }
+.color-success { color: var(--color-success); }
+.color-warning { color: var(--color-warning); }
+.color-danger { color: var(--color-danger); }
+
+.bgcolor-primary { background-color: var(--color-primary); }
+.bgcolor-secondary { background-color: var(--color-secondary); }
+.bgcolor-info { background-color: var(--color-info); }
+.bgcolor-success { background-color: var(--color-success); }
+.bgcolor-warning { background-color: var(--color-warning); }
+.bgcolor-danger { background-color: var(--color-danger); }

@@ -1,6 +1,6 @@
+import Button from "../ui/Button";
+import Stack from "../ui/Stack";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 
 interface FormSaveCancelProps {
   saveDisabled?: boolean;
@@ -21,7 +21,7 @@ export default function FormSaveCancel({
     <div className={className} style={style}>
       <Stack gap={2} direction="horizontal" className="justify-content-center">
         <Button
-          variant="danger"
+          variant="secondary"
           className="h-100 fs-6 fw-bolder"
           size="sm"
           onClick={onCancel}
@@ -29,7 +29,7 @@ export default function FormSaveCancel({
           <i className="bi bi-x-lg"></i>
         </Button>
         <Button
-          variant="success"
+          variant="primary"
           className="h-100 fs-6 fw-bolder"
           type="submit"
           size="sm"
