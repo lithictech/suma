@@ -1,5 +1,5 @@
-import relativeUrl from "../relativeUrl";
-import setUrlPart from "../setUrlPart";
+import relativeUrl from "../shared/relativeUrl";
+import setUrlPart from "../shared/setUrlPart";
 import { Toggle } from "./useToggle";
 import React from "react";
 import { Location, useLocation, useNavigate } from "react-router-dom";

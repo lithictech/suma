@@ -4,9 +4,9 @@ import FormSuccess from "../components/FormSuccess";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import Preferences from "../components/Preferences";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useToggle from "../shared/react/useToggle";
+import useAsyncFetch from "../state/useAsyncFetch";
 import useErrorToast from "../state/useErrorToast";
+import useToggle from "../state/useToggle";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 

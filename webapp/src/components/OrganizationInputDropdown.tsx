@@ -1,6 +1,6 @@
 import api from "../api";
 import { t } from "../localization";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "../state/useAsyncFetch";
 import FormSelect from "../ui/FormSelect";
 import FormControlGroup from "./FormControlGroup";
 import FormText from "./FormText";

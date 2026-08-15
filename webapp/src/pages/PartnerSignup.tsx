@@ -1,9 +1,9 @@
 import api from "../api";
 import PageLoader from "../components/PageLoader";
 import { dt, t } from "../localization";
-import useToggle from "../shared/react/useToggle";
 import { UserContextValue } from "../state/UserProvider";
 import useErrorToast from "../state/useErrorToast";
+import useToggle from "../state/useToggle";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import React from "react";

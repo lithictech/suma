@@ -1,5 +1,5 @@
 import api from "../api";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "./useAsyncFetch";
 import React from "react";
 
 interface BackendGlobalsContextValue {

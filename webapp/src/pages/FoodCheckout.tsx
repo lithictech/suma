@@ -14,7 +14,7 @@ import idempotency from "../modules/idempotency";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
 import Money from "../shared/react/Money";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "../state/useAsyncFetch";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";

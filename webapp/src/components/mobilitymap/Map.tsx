@@ -1,9 +1,9 @@
 import api from "../../api";
 import config from "../../config";
 import { t } from "../../localization";
-import useMountEffect from "../../shared/react/useMountEffect";
 import { extractErrorCode, useError } from "../../state/useError";
 import useGlobalViewState from "../../state/useGlobalViewState";
+import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
 import FormError from "../FormError";
 import { MdLink } from "../SumaMarkdown";

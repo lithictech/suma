@@ -1,4 +1,4 @@
-import useMountEffect from "../shared/react/useMountEffect";
+import useMountEffect from "./useMountEffect";
 import useScreenLoader from "./useScreenLoader";
 import React from "react";
 

@@ -1,8 +1,8 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import config from "../config";
 import { imageAltT, t } from "../localization";
-import useLocalStorageState from "../shared/react/useLocalStorageState";
-import useToggle from "../shared/react/useToggle";
+import useLocalStorageState from "../state/useLocalStorageState";
+import useToggle from "../state/useToggle";
 import Alert from "../ui/Alert";
 import AlertHeading from "../ui/AlertHeading";
 import Button from "../ui/Button";

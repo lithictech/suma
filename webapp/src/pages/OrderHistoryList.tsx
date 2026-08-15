@@ -8,7 +8,7 @@ import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Card from "../ui/Card";

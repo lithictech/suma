@@ -6,7 +6,7 @@ import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
 import keepDigits from "../modules/keepDigits";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "../state/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
 import useUser from "../state/useUser";
 import Col from "../ui/Col";

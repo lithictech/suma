@@ -1,5 +1,5 @@
 import { localStorageCache } from "../shared/localStorageHelper";
-import useLocalStorageState from "../shared/react/useLocalStorageState";
+import useLocalStorageState from "../state/useLocalStorageState";
 import React from "react";
 
 let cachedLanguage = localStorageCache.getItem("language", "en");

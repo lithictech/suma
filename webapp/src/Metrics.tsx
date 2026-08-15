@@ -1,7 +1,7 @@
 import config from "./config";
 import history from "./history";
 import { countMetric } from "./modules/metrics";
-import useMountEffect from "./shared/react/useMountEffect";
+import useMountEffect from "./state/useMountEffect";
 import React from "react";
 
 let Metrics: React.ComponentType;

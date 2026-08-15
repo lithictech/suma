@@ -7,7 +7,7 @@ import PageLoader from "../components/PageLoader";
 import VendibleCard from "../components/VendibleCard";
 import WaitingList from "../components/WaitingList";
 import { imageAltT, t } from "../localization";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Stack from "../ui/Stack";

@@ -8,7 +8,7 @@ import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
 import idempotency from "../modules/idempotency";
 import { Logger } from "../shared/logger";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useAsyncFetch from "../state/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";

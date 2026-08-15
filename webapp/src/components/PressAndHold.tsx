@@ -1,4 +1,4 @@
-import useLongPress from "../shared/react/useLongPress";
+import useLongPress from "../state/useLongPress";
 import Button from "../ui/Button";
 // Cannot use CSS modules due to animation
 import "./PressAndHold.css";
