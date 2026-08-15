@@ -42,12 +42,7 @@ export default function PreTrip({
             vendorName: vehicle.vendorService.vendorName,
           })}
         </p>
-        <Button
-          size="sm"
-          variant="primary"
-          className="w-100"
-          href="/private-accounts"
-        >
+        <Button size="sm" variant="primary" className="w-100" href="/private-accounts">
           {t("forms.get_started")}
         </Button>
       </>

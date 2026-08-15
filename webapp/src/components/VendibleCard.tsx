@@ -33,11 +33,7 @@ export default function VendibleCard({
             <SumaImage image={image} width={100} h={80} variant="dark" />
           </Link>
           <div>
-            <CardLink
-              href={appLink}
-              state={{ fromIndex: true }}
-              className="h6 mb-0"
-            >
+            <CardLink href={appLink} state={{ fromIndex: true }} className="h6 mb-0">
               {description}
             </CardLink>
             {closesAt && (

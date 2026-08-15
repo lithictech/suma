@@ -24,7 +24,10 @@ import Switch from "../ui/Switch";
 import SwitchRow from "../ui/SwitchRow";
 import TextInput from "../ui/TextInput";
 import Tile from "../ui/Tile";
-import StorefrontIcon from "@heroicons/react/24/outline/BuildingStorefrontIcon";
+import BuildingStorefrontIcon from "@heroicons/react/24/outline/BuildingStorefrontIcon";
+import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
+import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
+import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
 import noop from "lodash/noop";
 import React from "react";
 
@@ -268,10 +271,10 @@ export default function Styleguide() {
       </Section>
       <Section eventKey="nav" activeKey={activeKey}>
         <Nav>
-          <NavOption label="Home" Icon={StorefrontIcon} />
-          <NavOption label="Offers" Icon={StorefrontIcon} active />
-          <NavOption label="Map" Icon={StorefrontIcon} />
-          <NavOption label="More" Icon={StorefrontIcon} />
+          <NavOption label="Home" Icon={HomeIcon} />
+          <NavOption label="Offers" Icon={BuildingStorefrontIcon} active />
+          <NavOption label="Map" Icon={ShoppingCartIcon} />
+          <NavOption label="More" Icon={SquaresPlusIcon} />
         </Nav>
       </Section>
       <Section eventKey="dialogs" activeKey={activeKey}>

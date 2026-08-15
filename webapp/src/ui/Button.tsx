@@ -10,13 +10,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   href?: string;
   to?: LinkProps["to"];
   children?: React.ReactNode;
-  as?: ShimProps;
   state?: ShimProps;
 }
 
 const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   function Button(
-    { className, to, href, variant = "primary", size = "md", children },
+    { className, to, href, variant = "primary", size = "md", children, ...rest },
     ref
   ) {
     const cls = clsx(
@@ -30,7 +29,12 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
       return <Link ref={ref as React.Ref<HTMLAnchorElement>} to={to}></Link>;
     }
     return (
-      <button ref={ref as React.Ref<HTMLButtonElement>} type="button" className={cls}>
+      <button
+        ref={ref as React.Ref<HTMLButtonElement>}
+        type="button"
+        className={cls}
+        {...rest}
+      >
         {children}
       </button>
     );

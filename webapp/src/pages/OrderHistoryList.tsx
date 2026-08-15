@@ -117,11 +117,7 @@ function Order({
             variant="dark"
           />
           <div>
-            <CardLink
-              href={`/order/${id}`}
-              className="h5"
-              onClick={onNavigate}
-            >
+            <CardLink href={`/order/${id}`} className="h5" onClick={onNavigate}>
               {t("food.order_serial", { serial: serial })}
             </CardLink>
             <CardText className="text-secondary mt-1">

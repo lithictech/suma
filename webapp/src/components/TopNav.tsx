@@ -35,10 +35,7 @@ export default function TopNav() {
       onToggle={() => setExpanded(!expanded)}
     >
       <Container className="navbar-container">
-        <NavbarBrand
-          href="/dashboard"
-          className="me-auto d-flex align-items-center"
-        >
+        <NavbarBrand href="/dashboard" className="me-auto d-flex align-items-center">
           <img
             alt={imageAltT("suma_logo")}
             src={sumaLogo}
