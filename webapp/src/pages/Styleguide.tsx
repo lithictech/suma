@@ -294,6 +294,11 @@ export default function Styleguide() {
             checked
             onChange={noop}
           />
+          <CheckboxCard checked={false} onChange={noop} centerCheckbox>
+            <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
+              {LOREM_IPSUM}
+            </CardText>
+          </CheckboxCard>
           <SwitchRow
             title="Text me about my orders"
             text="Standard message rates apply"

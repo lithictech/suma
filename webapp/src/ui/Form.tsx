@@ -1,7 +1,7 @@
 import Stack from "./Stack.tsx";
 import React from "react";
 
-interface FormProps extends React.HTMLAttributes<HTMLFormElement> {
+interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   gap?: number;
   children?: React.ReactNode;
 }
