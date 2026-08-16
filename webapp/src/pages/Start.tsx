@@ -8,8 +8,8 @@ import { Logger } from "../modules/logger";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
+import Button from "../ui/Button.tsx";
 import Form from "../ui/Form";
-import FormButtons from "../ui/FormButtons";
 import FormError from "../ui/FormError";
 import Page from "../ui/Page.tsx";
 import PhoneInput from "../ui/PhoneInput";
@@ -91,13 +91,7 @@ export default function Start() {
         </p>
         <SignupAgreement register={register} errors={errors} />
         <FormError error={error} />
-        <FormButtons
-          back
-          primaryProps={{
-            children: t("forms.continue"),
-            disabled: submitDisabled.isOn,
-          }}
-        />
+        <Button type="submit">{t("forms.continue")}</Button>
       </Form>
     </Page>
   );
