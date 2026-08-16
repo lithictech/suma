@@ -1,4 +1,5 @@
-import Stack from "./Stack.tsx";
+import "./Form.css";
+import clsx from "clsx";
 import React from "react";
 
 interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
@@ -6,12 +7,10 @@ interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   children?: React.ReactNode;
 }
 
-export default function Form({ gap = 2, children, ...rest }: FormProps) {
+export default function Form({ gap = 2, children, className, ...rest }: FormProps) {
   return (
-    <form {...rest}>
-      <Stack col gap={gap}>
-        {children}
-      </Stack>
+    <form className={clsx("form", `gap-${gap}`, className)} {...rest}>
+      {children}
     </form>
   );
 }

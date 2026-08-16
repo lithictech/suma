@@ -9,6 +9,7 @@ import { extractErrorCode, extractLocalizedError, useError } from "../state/useE
 import useToggle from "../state/useToggle";
 import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
 import Button from "../ui/Button.tsx";
+import ButtonGroup from "../ui/ButtonGroup.tsx";
 import Form from "../ui/Form";
 import FormError from "../ui/FormError";
 import Page from "../ui/Page.tsx";
@@ -91,7 +92,9 @@ export default function Start() {
         </p>
         <SignupAgreement register={register} errors={errors} />
         <FormError error={error} />
-        <Button type="submit">{t("forms.continue")}</Button>
+        <ButtonGroup bottom>
+          <Button type="submit">{t("forms.continue")}</Button>
+        </ButtonGroup>
       </Form>
     </Page>
   );

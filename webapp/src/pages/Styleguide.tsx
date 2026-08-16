@@ -491,37 +491,35 @@ function FormSection() {
   };
 
   return (
-    <Page buffer>
+    <Page buffer style={{ minHeight: "70dvh" }}>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
-        <Stack col gap={3}>
-          <TextInput
-            label="Name"
-            {...register("name", { required: "Name is required" })}
-            error={errors.name?.message}
-            autoFocus
-            required
-          />
-          <PhoneInput
-            label="Phone number"
-            name="phone"
-            control={control}
-            clearErrors={clearErrors}
-            required
-          />
-          <Checkbox
-            ref={agreeRef}
-            label="I agree to the terms"
-            checked={!!agree}
-            onChange={onAgreeChange}
-            error={errors.agree?.message}
-            required
-          />
-          <FormError error={error} />
-          <ButtonGroup col>
-            <Button type="submit">Continue</Button>
-            <Button variant="outline">Back</Button>
-          </ButtonGroup>
-        </Stack>
+        <TextInput
+          label="Name"
+          {...register("name", { required: "Name is required" })}
+          error={errors.name?.message}
+          autoFocus
+          required
+        />
+        <PhoneInput
+          label="Phone number"
+          name="phone"
+          control={control}
+          clearErrors={clearErrors}
+          required
+        />
+        <Checkbox
+          ref={agreeRef}
+          label="I agree to the terms"
+          checked={!!agree}
+          onChange={onAgreeChange}
+          error={errors.agree?.message}
+          required
+        />
+        <FormError error={error} />
+        <ButtonGroup col bottom>
+          <Button type="submit">Continue</Button>
+          <Button variant="outline">Back</Button>
+        </ButtonGroup>
       </Form>
     </Page>
   );
