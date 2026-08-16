@@ -26,6 +26,7 @@ import Switch from "../ui/Switch";
 import SwitchRow from "../ui/SwitchRow";
 import TextInput from "../ui/TextInput";
 import Tile from "../ui/Tile";
+import DefinitionTable from "./DefinitionTable.tsx";
 import BuildingStorefrontIcon from "@heroicons/react/24/outline/BuildingStorefrontIcon";
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
@@ -39,6 +40,7 @@ export default function Styleguide() {
     "buttons",
     "cards",
     "chips",
+    "tables",
     "inputs",
     "checklist",
     "progress",
@@ -190,6 +192,26 @@ export default function Styleguide() {
           <Chip variant="danger">2 left</Chip>
           <Chip variant="success">Picked up</Chip>
         </Stack>
+      </Section>
+      <Section eventKey="tables" activeKey={activeKey}>
+        <Card>
+          <CardBody>
+            <DefinitionTable
+              items={[
+                { label: "Much Longer Field Name", value: "Ana Flores" },
+                {
+                  label: "Eligibility",
+                  value: <span>Hacienda CDC &bull; In Review</span>,
+                },
+                {
+                  label: "Address",
+                  value:
+                    "2001 NE Alberta St, Portland, OR 97211 2001 NE Alberta St, Portland, OR 97211",
+                },
+              ]}
+            />
+          </CardBody>
+        </Card>
       </Section>
       <Section eventKey="inputs" activeKey={activeKey}>
         <h2>Inputs</h2>

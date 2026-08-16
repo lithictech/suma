@@ -72,6 +72,10 @@ img {
     display: block;
 }
 
+dl, dd, dt {
+    margin: 0;
+}
+
 /* Consistent focus ring for keyboard users */
 :focus-visible,
 .is-focus-visible {
