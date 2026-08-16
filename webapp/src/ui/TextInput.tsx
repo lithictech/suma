@@ -1,15 +1,15 @@
 import useId from "../state/useId";
+import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
 import clsx from "clsx";
 import React from "react";
 
 export interface TextInputProps
-  extends React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  > {
+  extends HasFormFeedback,
+    React.DetailedHTMLProps<
+      React.InputHTMLAttributes<HTMLInputElement>,
+      HTMLInputElement
+    > {
   label: React.ReactNode;
-  helpText?: React.ReactNode;
-  error?: React.ReactNode | string;
   required?: boolean;
   disabled?: boolean;
   id?: string;
@@ -19,7 +19,7 @@ export interface TextInputProps
 const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
   {
     label,
-    helpText,
+    help,
     error,
     id,
     className,
@@ -29,11 +29,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function Te
   }: TextInputProps,
   ref
 ) {
-  const generatedId = useId();
-  const inputId = id ?? generatedId;
-  const helpTextId = helpText ? `${inputId}-help` : undefined;
-  const errorId = error ? `${inputId}-error` : undefined;
-  const describedBy = [helpTextId, errorId].filter(Boolean).join(" ") || undefined;
+  const inputId = useId(id);
   const cls = clsx(className, "form-control", error && "is-invalid");
   return (
     <div className="form-group">
@@ -47,20 +43,11 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function Te
         className={cls}
         required={required}
         disabled={disabled}
-        aria-describedby={describedBy}
+        aria-describedby={FormFeedback.idFor(inputId)}
         aria-invalid={error ? true : undefined}
         {...rest}
       />
-      {helpText && !error && (
-        <div id={helpTextId} className="form-text">
-          {helpText}
-        </div>
-      )}
-      {error && (
-        <div id={errorId} className="form-text invalid-feedback">
-          {error}
-        </div>
-      )}
+      <FormFeedback inputId={inputId} help={help} error={error} />
     </div>
   );
 });

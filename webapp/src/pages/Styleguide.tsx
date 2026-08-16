@@ -11,7 +11,7 @@ import CardImage from "../ui/CardImage";
 import CardText from "../ui/CardText";
 import CheckableCard from "../ui/CheckableCard";
 import Checkbox from "../ui/Checkbox";
-import { CheckboxCard } from "../ui/CheckboxCard";
+import CheckboxCard from "../ui/CheckboxCard";
 import Checklist from "../ui/Checklist";
 import ChecklistItem from "../ui/ChecklistItem";
 import Chip from "../ui/Chip";
@@ -38,9 +38,8 @@ import BuildingStorefrontIcon from "@heroicons/react/24/outline/BuildingStorefro
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
-import noop from "lodash/noop";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useController, useForm } from "react-hook-form";
 
 export default function Styleguide() {
   const keys = [
@@ -139,35 +138,35 @@ export default function Styleguide() {
               <CardText>Across every offer you have used</CardText>
             </CardBody>
           </Card>
-          <CheckableCard checked onChange={noop}>
+          <CheckableCard checked>
             <CardBody>
               <CardText>This card is checked.</CardText>
             </CardBody>
           </CheckableCard>
-          <CheckableCard checked={false} onChange={noop}>
+          <CheckableCard checked={false}>
             <CardBody>
               <CardText>This card is unchecked.</CardText>
             </CardBody>
           </CheckableCard>
-          <CheckableCard checked={false} className="is-focus-visible" onChange={noop}>
+          <CheckableCard checked={false} className="is-focus-visible">
             <CardBody>
               <CardText>This card has focus.</CardText>
             </CardBody>
           </CheckableCard>
-          <CheckableCard checked={false} disabled onChange={noop}>
+          <CheckableCard checked={false} disabled>
             <CardBody>
               <CardText>This card is disabled.</CardText>
             </CardBody>
           </CheckableCard>
           <Stack gap={3}>
-            <CheckableCard checked={false} onChange={noop} style={{ maxWidth: 150 }}>
+            <CheckableCard checked={false} style={{ maxWidth: 150 }}>
               <CardBody>
                 <Tile>RC</Tile>
                 <CardText variant="subtitle">Rosewod Commons</CardText>
                 <CardText variant="subtext">Affordable housing</CardText>
               </CardBody>
             </CheckableCard>
-            <CheckableCard checked onChange={noop} style={{ maxWidth: 150 }}>
+            <CheckableCard checked style={{ maxWidth: 150 }}>
               <CardBody>
                 <Tile>RC</Tile>
                 <CardText variant="subtitle">Rosewod Commons</CardText>
@@ -244,57 +243,57 @@ export default function Styleguide() {
           <TextInput
             label="Zip"
             value=""
-            helpText="Five digits."
+            help="Five digits."
             placeholder="12345 (placeholder)"
-            onChange={noop}
           />
           <TextInput
             label="Zip"
             value="97211"
-            helpText="Five digits."
+            help="Five digits."
             className="is-focus-visible"
-            onChange={noop}
           />
+          <TextInput label="Zip" value="9721" help="Five digits." disabled />
           <TextInput
             label="Zip"
             value="9721"
-            helpText="Five digits."
-            disabled
-            onChange={noop}
-          />
-          <TextInput
-            label="Zip"
-            value="9721"
-            helpText="Five digits."
+            help="Five digits."
             error="Zip code is 5 digits."
-            onChange={noop}
           />
         </Stack>
         <h2>Checkboxes</h2>
         <Stack direction="vertical" gap={2}>
           <Stack gap={2}>
-            <Checkbox label="Checkbox 1" checked={false} onChange={noop} />
-            <Checkbox label="Checkbox 2" checked onChange={noop} />
-            <Checkbox checked={false} onChange={noop} />
+            <Checkbox label="Checkbox 1" checked={false} />
+            <Checkbox label="Checkbox 2" checked />
+            <Checkbox checked={false} />
           </Stack>
+          <Checkbox label="Invalid" checked={false} error="Must agree to continue" />
           <Stack gap={2}>
-            <Switch label="Switch 1" checked={false} onChange={noop} />
-            <Switch label="Switch 2" checked onChange={noop} />
-            <Switch checked={false} onChange={noop} />
+            <Switch label="Switch 1" checked={false} />
+            <Switch label="Switch 2" checked />
+            <Switch checked={false} />
           </Stack>
+          <Switch
+            label="Invalid switch"
+            checked={false}
+            error="Must turn on to continue"
+          />
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
             checked={false}
-            onChange={noop}
           />
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
             checked
-            onChange={noop}
           />
-          <CheckboxCard checked={false} onChange={noop} centerCheckbox>
+          <CheckboxCard checked={false} error="Must check to continue">
+            <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
+              {LOREM_IPSUM}
+            </CardText>
+          </CheckboxCard>
+          <CheckboxCard checked={false} centerCheckbox>
             <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
               {LOREM_IPSUM}
             </CardText>
@@ -321,7 +320,12 @@ export default function Styleguide() {
               { label: "Option C", value: "optc" },
               { label: "Option D", value: "optd" },
             ]}
-            onChange={noop}
+          />
+          <Select
+            label="Select"
+            value=""
+            options={[{ label: "Option A", value: "opta" }]}
+            error="Must select an option."
           />
         </Stack>
       </Section>
@@ -455,12 +459,21 @@ function FormSection() {
     clearErrors,
     control,
     formState: { errors },
-  } = useForm<{ name: string; phone: string }>({
+  } = useForm<{ name: string; phone: string; agree: boolean }>({
     mode: "onBlur",
     reValidateMode: "onBlur",
   });
 
-  const handleSubmitForm = (data: { name: string; phone: string }) => {
+  const {
+    field: { value: agree, onChange: onAgreeChange, ref: agreeRef },
+  } = useController({
+    name: "agree",
+    control,
+    rules: { required: "You must agree to continue" },
+    defaultValue: false,
+  });
+
+  const handleSubmitForm = (data: { name: string; phone: string; agree: boolean }) => {
     screenLoader.turnOn();
     setError();
     console.log(data);
@@ -489,6 +502,14 @@ function FormSection() {
             name="phone"
             control={control}
             clearErrors={clearErrors}
+            required
+          />
+          <Checkbox
+            ref={agreeRef}
+            label="I agree to the terms"
+            checked={!!agree}
+            onChange={onAgreeChange}
+            error={errors.agree?.message}
             required
           />
           <FormError error={error} />

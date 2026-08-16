@@ -12,3 +12,7 @@
 
 .checkbox-card input[type="checkbox"] {
 }
+
+.checkbox-card.is-invalid {
+  border-color: var(--color-danger);
+}

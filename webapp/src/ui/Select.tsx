@@ -1,4 +1,5 @@
 import useId from "../state/useId";
+import FormFeedback from "./FormFeedback.tsx";
 import "./Select.css";
 import React from "react";
 
@@ -7,11 +8,10 @@ export interface SelectOption {
   label: React.ReactNode;
 }
 
-export interface SelectProps {
+export interface SelectProps extends React.InputHTMLAttributes<HTMLSelectElement> {
   label: React.ReactNode;
   options: SelectOption[];
   value: string;
-  onChange: (value: string) => void;
   helpText?: React.ReactNode;
   error?: React.ReactNode;
   placeholder?: string;
@@ -25,7 +25,7 @@ export default function Select({
   label,
   options,
   value,
-  onChange,
+
   helpText,
   error,
   placeholder,
@@ -33,11 +33,9 @@ export default function Select({
   required = false,
   disabled = false,
   id,
+  ...rest
 }: SelectProps) {
   const selectId = useId(id);
-  const helpTextId = helpText ? `${selectId}-help` : undefined;
-  const errorId = error ? `${selectId}-error` : undefined;
-  const describedBy = [helpTextId, errorId].filter(Boolean).join(" ") || undefined;
   return (
     <div className="form-group">
       <label className="form-label" htmlFor={selectId}>
@@ -52,9 +50,9 @@ export default function Select({
           value={value}
           required={required}
           disabled={disabled}
-          aria-describedby={describedBy}
+          aria-describedby={FormFeedback.idFor(selectId)}
           aria-invalid={error ? true : undefined}
-          onChange={(e) => onChange(e.target.value)}
+          {...rest}
         >
           {placeholder && (
             <option value="" disabled hidden>
@@ -78,16 +76,7 @@ export default function Select({
           />
         </svg>
       </div>
-      {helpText && (
-        <small id={helpTextId} className="form-text">
-          {helpText}
-        </small>
-      )}
-      {error && (
-        <span id={errorId} className="invalid-feedback">
-          {error}
-        </span>
-      )}
+      <FormFeedback inputId={selectId} help={helpText} error={error} />
     </div>
   );
 }
