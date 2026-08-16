@@ -1,6 +1,6 @@
 import { t } from "../localization";
 import FormCheck from "../ui/FormCheck";
-import FormError from "./FormError";
+import FormError from "../ui/FormError";
 import React from "react";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 

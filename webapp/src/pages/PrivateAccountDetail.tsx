@@ -1,7 +1,5 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import FormButtons from "../components/FormButtons";
-import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import { dt, t } from "../localization";
@@ -12,6 +10,8 @@ import useScreenLoader from "../state/useScreenLoader";
 import useUnmountEffect from "../state/useUnmountEffect";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import Progress from "../ui/Progress";
 import { CanceledError } from "axios";
 import clsx from "clsx";

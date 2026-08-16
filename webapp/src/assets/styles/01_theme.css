@@ -109,6 +109,7 @@
 
     --select-arrow-size: 0.75rem;
 
+    /* ---- Z-index management ---- */
     --z-index-dialog: 10;
     --z-index-loader: 20;
 }

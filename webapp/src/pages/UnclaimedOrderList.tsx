@@ -1,7 +1,6 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import ErrorScreen from "../components/ErrorScreen";
-import FormButtons from "../components/FormButtons";
 import LayoutContainer from "../components/LayoutContainer";
 import OrderDetail from "../components/OrderDetail";
 import PageHeading from "../components/PageHeading";
@@ -17,6 +16,7 @@ import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
+import FormButtons from "../ui/FormButtons";
 import Stack from "../ui/Stack";
 import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
 import isEmpty from "lodash/isEmpty";

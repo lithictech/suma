@@ -4,7 +4,7 @@ import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
-import FormError from "../FormError";
+import FormError from "../../ui/FormError";
 import DrawerContents from "./DrawerContents";
 import DrawerLoading from "./DrawerLoading";
 import DrawerTitle from "./DrawerTitle";

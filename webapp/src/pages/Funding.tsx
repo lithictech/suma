@@ -1,6 +1,4 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
-import FormError from "../components/FormError";
 import PageHeading from "../components/PageHeading";
 import config from "../config";
 import { t } from "../localization";
@@ -23,6 +21,8 @@ import Dropdown from "../ui/Dropdown";
 import DropdownItem from "../ui/DropdownItem";
 import DropdownMenu from "../ui/DropdownMenu";
 import DropdownToggle from "../ui/DropdownToggle";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import styles from "./Funding.module.css";
 import clsx from "clsx";
 import filter from "lodash/filter";

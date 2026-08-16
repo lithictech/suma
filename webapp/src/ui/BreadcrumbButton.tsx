@@ -29,7 +29,7 @@ export default function BreadcrumbButton({
   const leftIcon = short ? ChevroDoubleLeftIcon : ChevronLeftIcon;
   const rightIcon = short ? ChevronDoubleRightIcon : ChevronRightIcon;
   return (
-    <Button size="sm" variant="text">
+    <Button size="sm" variant="text" className="px-0">
       <Stack row center>
         {left && <Icon icon={leftIcon} className="mr-1" />}
         {children && <span>{children}</span>}

@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import FormError from "./FormError";
+import FormError from "../ui/FormError";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 

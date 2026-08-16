@@ -1,8 +1,6 @@
 import api from "../api";
 import CurrencyNumpad from "../components/CurrencyNumpad";
 import ErrorScreen from "../components/ErrorScreen";
-import FormButtons from "../components/FormButtons";
-import FormError from "../components/FormError";
 import PageHeading from "../components/PageHeading";
 import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
@@ -13,6 +11,8 @@ import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import filter from "lodash/filter";
 import find from "lodash/find";
 import first from "lodash/first";

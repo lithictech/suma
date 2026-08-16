@@ -1,13 +1,13 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
-import FormError from "../components/FormError";
-import PhoneInput from "../components/PhoneInput";
 import { t } from "../localization";
 import { extractLocalizedError, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import Button from "../ui/Button";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
+import PhoneInput from "../ui/PhoneInput";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -80,8 +80,8 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
           className="mb-3"
           name="previousPhone"
           label={t("auth.access_account_previous_phone")}
-          register={register}
-          errors={errors}
+          // register={register}
+          // errors={errors}
           value={state.previousPhone}
           autoFocus
           required
@@ -92,8 +92,8 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
           className="mb-3"
           name="currentPhone"
           label={t("auth.access_account_current_phone")}
-          register={register}
-          errors={errors}
+          // register={register}
+          // errors={errors}
           value={state.currentPhone}
           autoFocus
           required

@@ -1,7 +1,4 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
-import FormError from "../components/FormError";
-import PhoneInput from "../components/PhoneInput";
 import SignupAgreement from "../components/SignupAgreement";
 import { MdLink } from "../components/SumaMarkdown";
 import { t } from "../localization";
@@ -10,7 +7,12 @@ import { dayjs } from "../modules/dayConfig";
 import { Logger } from "../modules/logger";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
+import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
+import Page from "../ui/Page.tsx";
+import PhoneInput from "../ui/PhoneInput";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +36,7 @@ export default function Start() {
   });
 
   const handlePhoneChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    _e: React.ChangeEvent<HTMLInputElement>,
     formattedNum: string
   ) => {
     clearErrors();
@@ -72,7 +74,8 @@ export default function Start() {
       });
   };
   return (
-    <>
+    <Page buffer>
+      <BreadcrumbBack back />
       <h2>{t("forms.get_started")}</h2>
       <p id="phoneRequired">{t("forms.get_started_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
@@ -80,10 +83,9 @@ export default function Start() {
           className="mb-3"
           name="phone"
           label={t("forms.phone")}
-          register={register}
-          errors={errors}
+          // register={register}
+          // errors={errors}
           value={phone}
-          aria-describedby="phoneRequired"
           autoFocus
           required
           onPhoneChange={handlePhoneChange}
@@ -109,7 +111,7 @@ export default function Start() {
           }}
         />
       </Form>
-    </>
+    </Page>
   );
 }
 

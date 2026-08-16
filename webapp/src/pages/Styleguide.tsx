@@ -1,3 +1,6 @@
+import { isValidPhone, validPhoneInput } from "../modules/formValidators.ts";
+import { useError } from "../state/useError.tsx";
+import useScreenLoader from "../state/useScreenLoader.ts";
 import useToggle from "../state/useToggle";
 import BrandCard from "../ui/BrandCard";
 import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
@@ -16,9 +19,13 @@ import Chip from "../ui/Chip";
 import Container from "../ui/Container";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
+import Form from "../ui/Form.tsx";
+import FormError from "../ui/FormError.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader";
 import Nav from "../ui/Nav";
 import NavOption from "../ui/NavOption";
+import Page from "../ui/Page.tsx";
+import PhoneInput from "../ui/PhoneInput.tsx";
 import Progress from "../ui/Progress";
 import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
 import Select from "../ui/Select";
@@ -33,7 +40,8 @@ import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
 import noop from "lodash/noop";
-import React from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function Styleguide() {
   const keys = [
@@ -43,12 +51,13 @@ export default function Styleguide() {
     "chips",
     "tables",
     "inputs",
+    "form",
     "checklist",
     "progress",
     "nav",
     "dialogs",
-    "loaders",
     "headers",
+    "loaders",
   ];
   const [activeKey, setActiveKey] = React.useState(
     window.location.hash.substring(1) || keys[0]
@@ -61,7 +70,7 @@ export default function Styleguide() {
   const dialogFocusRef = React.useRef(null);
   return (
     <Container className="mt-2">
-      <Stack direction="horizontal" gap={2} wrap>
+      <Stack direction="horizontal" gap={2} wrap className="px-2">
         {keys.map((k) => (
           <Button
             key={k}
@@ -312,6 +321,9 @@ export default function Styleguide() {
           />
         </Stack>
       </Section>
+      <Section eventKey="form" activeKey={activeKey}>
+        <FormSection />
+      </Section>
       <Section eventKey="progress" activeKey={activeKey}>
         <h2>Progress</h2>
         <Stack direction="vertical" gap={1}>
@@ -422,7 +434,81 @@ function Section({ eventKey, activeKey, children }) {
   if (eventKey !== activeKey) {
     return null;
   }
-  return <div className="mt-2 mx-2">{children}</div>;
+  return (
+    <Stack col gap={3} className="mt-2 mx-2 mb-5">
+      {children}
+    </Stack>
+  );
+}
+
+function FormSection() {
+  const [error, setError] = useError();
+  const [phone, setPhone] = useState("");
+  const screenLoader = useScreenLoader();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    clearErrors,
+    formState: { errors },
+  } = useForm<{ name: string; phone: string }>({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
+
+  const handlePhoneChange = (
+    _e: React.ChangeEvent<HTMLInputElement>,
+    formattedNum: string
+  ) => {
+    setValue("phone", formattedNum, { shouldValidate: false });
+    setPhone(formattedNum);
+    if (isValidPhone(formattedNum)) {
+      clearErrors("phone");
+    }
+  };
+
+  const handleSubmitForm = () => {
+    screenLoader.turnOn();
+    setError();
+    console.log({ name: getValues("name"), phone });
+    Promise.delay(300)
+      .then(() => {
+        if (Math.random() < 0.5) {
+          setError(<span>This is a random form error.</span>);
+        }
+      })
+      .finally(screenLoader.turnOff);
+  };
+
+  return (
+    <Page buffer>
+      <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
+        <Stack col gap={3}>
+          <TextInput
+            label="Name"
+            {...register("name", { required: "Name is required" })}
+            error={errors.name?.message}
+            autoFocus
+            required
+          />
+          <PhoneInput
+            label="Phone number"
+            value={phone}
+            {...register("phone", { ...validPhoneInput() })}
+            onPhoneChange={handlePhoneChange}
+            error={errors.phone?.message}
+          />
+          <FormError error={error} />
+          <ButtonGroup col>
+            <Button type="submit">Continue</Button>
+            <Button variant="outline">Back</Button>
+          </ButtonGroup>
+        </Stack>
+      </Form>
+    </Page>
+  );
 }
 
 const LOREM_IPSUM = (

@@ -2,35 +2,33 @@ import useId from "../state/useId";
 import clsx from "clsx";
 import React from "react";
 
-export interface TextInputProps {
+export interface TextInputProps
+  extends React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
   label: React.ReactNode;
   helpText?: React.ReactNode;
-  error?: React.ReactNode;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  name?: string;
-  placeholder?: string;
+  error?: React.ReactNode | string;
   required?: boolean;
   disabled?: boolean;
   id?: string;
   className?: string;
 }
 
-export default function TextInput({
-  label,
-  helpText,
-  error,
-  value,
-  onChange,
-  type = "text",
-  name,
-  placeholder,
-  required = false,
-  disabled = false,
-  id,
-  className,
-}: TextInputProps) {
+const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
+  {
+    label,
+    helpText,
+    error,
+    id,
+    className,
+    required = false,
+    disabled = false,
+    ...rest
+  }: TextInputProps,
+  ref
+) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const helpTextId = helpText ? `${inputId}-help` : undefined;
@@ -41,20 +39,17 @@ export default function TextInput({
     <div className="form-group">
       <label className="form-label" htmlFor={inputId}>
         {label}
-        {required && " *"}
+        {required && <span className="ml-1 color-danger">*</span>}
       </label>
       <input
+        ref={ref}
         id={inputId}
-        name={name}
-        type={type}
         className={cls}
-        value={value}
-        placeholder={placeholder}
         required={required}
         disabled={disabled}
         aria-describedby={describedBy}
         aria-invalid={error ? true : undefined}
-        onChange={(e) => onChange(e.target.value)}
+        {...rest}
       />
       {helpText && !error && (
         <div id={helpTextId} className="form-text">
@@ -68,4 +63,5 @@ export default function TextInput({
       )}
     </div>
   );
-}
+});
+export default TextInput;

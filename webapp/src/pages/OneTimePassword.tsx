@@ -1,6 +1,4 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
-import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
@@ -10,6 +8,8 @@ import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 

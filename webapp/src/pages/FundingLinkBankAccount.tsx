@@ -1,8 +1,6 @@
 import api from "../api";
 import bankAccountCheckDetails from "../assets/images/bank-account-check-details.gif";
-import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
-import FormError from "../components/FormError";
 import FormText from "../components/FormText";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
@@ -19,7 +17,9 @@ import Col from "../ui/Col";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
 import FormCheck from "../ui/FormCheck";
+import FormError from "../ui/FormError";
 import FormGroup from "../ui/FormGroup";
 import FormLabel from "../ui/FormLabel";
 import Row from "../ui/Row";
