@@ -1,0 +1,21 @@
+.signup-agreement-component {
+    background-color: var(--color-primary);
+    border: var(--color-secondary) 1px solid;
+    border-radius: var(--border-radius-lg);
+    box-sizing: border-box;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: var(--space-3);
+
+/** to help balance the weird label thing */
+.form-check-input {
+    flex: 0 0 auto;
+    margin-left: 0;
+    margin-top: 0.2em;
+    /*border-color: var(--color-info);*/
+}
+
+    a {
+        /*color: var(--color-info) !important;*/
+    }
+}

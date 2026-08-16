@@ -1,6 +1,7 @@
 import { t } from "../localization";
 import FormCheck from "../ui/FormCheck";
 import FormError from "../ui/FormError";
+import "./SignupAgreement.css";
 import React from "react";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
