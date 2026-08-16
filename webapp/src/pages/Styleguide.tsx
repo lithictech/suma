@@ -288,12 +288,16 @@ export default function Styleguide() {
             text="A text the morning it lands"
             checked
           />
-          <CheckboxCard checked={false} error="Must check to continue">
+          <CheckboxCard
+            checked={false}
+            error="Must check to continue"
+            alignCheckbox="start"
+          >
             <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
               {LOREM_IPSUM}
             </CardText>
           </CheckboxCard>
-          <CheckboxCard checked={false} centerCheckbox>
+          <CheckboxCard checked={false} alignCheckbox="start">
             <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
               {LOREM_IPSUM}
             </CardText>

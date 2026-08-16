@@ -5,7 +5,6 @@
 
 .checkbox-card-body {
   display: flex;
-  align-items: center;
   flex-direction: row;
   gap: var(--space-3);
 }
