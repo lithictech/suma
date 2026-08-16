@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
+import CardImage from "../ui/CardImage";
 import CardText from "../ui/CardText";
 import CheckableCard from "../ui/CheckableCard";
 import Checkbox from "../ui/Checkbox";
@@ -165,6 +166,22 @@ export default function Styleguide() {
                 <CardText variant="subtext">Affordable housing</CardText>
               </CardBody>
             </CheckableCard>
+          </Stack>
+          <Stack col>
+            <Card>
+              <CardBody>
+                <Stack col gap={3}>
+                  <CardImage>
+                    <div style={{ backgroundColor: "var(--tint-success", height: 60 }} />
+                  </CardImage>
+                  <Chip variant="secondary" className="align-self-start">
+                    hello
+                  </Chip>
+                  <h3>Card with image</h3>
+                  <p>Here is detail text.</p>
+                </Stack>
+              </CardBody>
+            </Card>
           </Stack>
           <BrandCard
             pillText={<span>IN REVIEW &bull; Aug 7, 2026</span>}
