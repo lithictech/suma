@@ -1,30 +1,61 @@
+import { isValidPhone, validPhoneInput } from "../modules/formValidators";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
-import TextInput, { TextInputProps } from "../ui/TextInput.tsx";
+import TextInput, { TextInputProps } from "./TextInput";
 import React from "react";
+import { Control, useController, UseFormClearErrors } from "react-hook-form";
 
-interface PhoneInputProps extends TextInputProps {
-  onPhoneChange?: (e: React.ChangeEvent<HTMLInputElement>, formattedNum: string) => void;
+export interface PhoneInputProps
+  extends Omit<TextInputProps, "name" | "value" | "onChange" | "onBlur" | "error"> {
+  /** react-hook-form field name for this input. */
+  name: string;
+  /** react-hook-form `control`, from `useForm()`. */
+  control: Control<any>;
+  /**
+   * Optional: if given, the field's error is cleared as soon as the typed value
+   * becomes a valid phone number, rather than waiting for the form's normal
+   * validation timing (mode/reValidateMode) to catch up. Values are only ever
+   * flagged as *invalid* on that normal schedule (eg on blur) - this only makes
+   * clearing an existing error more responsive while the user is still typing.
+   */
+  clearErrors?: UseFormClearErrors<any>;
 }
 
-const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
-  function PhoneInput({ onPhoneChange, onChange, ...rest }: PhoneInputProps, ref) {
-    function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-      const formattedNum = maskPhoneNumber(e.target.value);
-      onChange && onChange(e);
-      onPhoneChange && onPhoneChange(e, formattedNum);
-    }
+/**
+ * A phone number input wired directly to react-hook-form: owns its own
+ * masking, validation rule, and field registration via `useController`.
+ * Callers just need `name` + `control` - no manual `register`/`setValue`
+ * plumbing, no local state for the masked value.
+ */
+export default function PhoneInput({
+  name,
+  control,
+  clearErrors,
+  ...rest
+}: PhoneInputProps) {
+  const {
+    field: { onChange, onBlur, value, ref },
+    fieldState: { error },
+  } = useController({ name, control, rules: validPhoneInput() });
 
-    return (
-      <TextInput
-        ref={ref}
-        type="tel"
-        name="phone"
-        pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?(?:\s|-)\d{3}(?:\s|-)\d{4}$"
-        autoComplete="tel"
-        onChange={handleChange}
-        {...rest}
-      />
-    );
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const formattedNum = maskPhoneNumber(e.target.value);
+    onChange(formattedNum);
+    if (clearErrors && isValidPhone(formattedNum)) {
+      clearErrors(name);
+    }
   }
-);
-export default PhoneInput;
+
+  return (
+    <TextInput
+      ref={ref}
+      type="tel"
+      name={name}
+      autoComplete="tel"
+      value={value || ""}
+      onChange={handleChange}
+      onBlur={onBlur}
+      error={error?.message}
+      {...rest}
+    />
+  );
+}

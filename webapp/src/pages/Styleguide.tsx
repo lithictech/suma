@@ -1,4 +1,3 @@
-import { isValidPhone, validPhoneInput } from "../modules/formValidators.ts";
 import { useError } from "../state/useError.tsx";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import useToggle from "../state/useToggle";
@@ -40,7 +39,7 @@ import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
 import noop from "lodash/noop";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function Styleguide() {
@@ -443,36 +442,23 @@ function Section({ eventKey, activeKey, children }) {
 
 function FormSection() {
   const [error, setError] = useError();
-  const [phone, setPhone] = useState("");
   const screenLoader = useScreenLoader();
 
   const {
     register,
     handleSubmit,
-    setValue,
-    getValues,
     clearErrors,
+    control,
     formState: { errors },
   } = useForm<{ name: string; phone: string }>({
     mode: "onBlur",
     reValidateMode: "onBlur",
   });
 
-  const handlePhoneChange = (
-    _e: React.ChangeEvent<HTMLInputElement>,
-    formattedNum: string
-  ) => {
-    setValue("phone", formattedNum, { shouldValidate: false });
-    setPhone(formattedNum);
-    if (isValidPhone(formattedNum)) {
-      clearErrors("phone");
-    }
-  };
-
-  const handleSubmitForm = () => {
+  const handleSubmitForm = (data: { name: string; phone: string }) => {
     screenLoader.turnOn();
     setError();
-    console.log({ name: getValues("name"), phone });
+    console.log(data);
     Promise.delay(300)
       .then(() => {
         if (Math.random() < 0.5) {
@@ -495,10 +481,10 @@ function FormSection() {
           />
           <PhoneInput
             label="Phone number"
-            value={phone}
-            {...register("phone", { ...validPhoneInput() })}
-            onPhoneChange={handlePhoneChange}
-            error={errors.phone?.message}
+            name="phone"
+            control={control}
+            clearErrors={clearErrors}
+            required
           />
           <FormError error={error} />
           <ButtonGroup col>

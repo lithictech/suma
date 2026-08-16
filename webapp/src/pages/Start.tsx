@@ -13,7 +13,7 @@ import FormButtons from "../ui/FormButtons";
 import FormError from "../ui/FormError";
 import Page from "../ui/Page.tsx";
 import PhoneInput from "../ui/PhoneInput";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -23,34 +23,24 @@ export default function Start() {
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
   const [error, setError] = useError();
-  const [phone, setPhone] = useState("");
 
   const {
     register,
     handleSubmit,
     clearErrors,
-    setValue,
+    control,
     formState: { errors },
   } = useForm({
     mode: "all",
   });
 
-  const handlePhoneChange = (
-    _e: React.ChangeEvent<HTMLInputElement>,
-    formattedNum: string
-  ) => {
-    clearErrors();
-    setValue("phone", formattedNum);
-    setPhone(formattedNum);
-  };
-
-  const handleSubmitForm = () => {
+  const handleSubmitForm = (data: { phone: string }) => {
     submitDisabled.turnOn();
     inputDisabled.turnOn();
     setError(null);
     api
       .authStart({
-        phone,
+        phone: data.phone,
         timezone: dayjs.tz.guess(),
         language: currentLanguage,
         termsAgreed: true,
@@ -58,7 +48,7 @@ export default function Start() {
       .then((r: any) =>
         navigate("/one-time-password", {
           state: {
-            phoneNumber: phone,
+            phoneNumber: data.phone,
             requiresTermsAgreement: r.data.requiresTermsAgreement,
           },
         })
@@ -82,13 +72,11 @@ export default function Start() {
         <PhoneInput
           className="mb-3"
           name="phone"
+          control={control}
+          clearErrors={clearErrors}
           label={t("forms.phone")}
-          // register={register}
-          // errors={errors}
-          value={phone}
           autoFocus
           required
-          onPhoneChange={handlePhoneChange}
         />
         <p>
           {t(

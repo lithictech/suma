@@ -16,27 +16,18 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
   const navigate = useNavigate();
   const submitting = useToggle(false);
   const [error, setError] = useError();
-  const [state, setState] = React.useState({
-    name: "",
-    currentPhone: "",
-    previousPhone: "",
-  });
+  const [state, setState] = React.useState({ name: "" });
 
   const {
     register,
     handleSubmit,
     clearErrors,
     setValue,
+    control,
     formState: { errors },
   } = useForm({
     mode: "all",
   });
-
-  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>, formatted: string) {
-    clearErrors();
-    setValue(e.target.name, formatted);
-    setState({ ...state, [e.target.name]: formatted });
-  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     clearErrors();
@@ -44,11 +35,11 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
     setState({ ...state, [e.target.name]: e.target.value });
   }
 
-  function handleSubmitForm() {
+  function handleSubmitForm(data: { previousPhone: string; currentPhone: string }) {
     submitting.turnOn();
     setError(null);
     api
-      .supportRegainAccountAccess(state)
+      .supportRegainAccountAccess({ ...state, ...data })
       .then(() => navigate("/regain-account-access/success", { replace: true }))
       .catch((err: any) => {
         setError(extractLocalizedError(err));
@@ -79,26 +70,21 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
         <PhoneInput
           className="mb-3"
           name="previousPhone"
+          control={control}
+          clearErrors={clearErrors}
           label={t("auth.access_account_previous_phone")}
-          // register={register}
-          // errors={errors}
-          value={state.previousPhone}
           autoFocus
           required
           disabled={submitting.isOn}
-          onPhoneChange={handlePhoneChange}
         />
         <PhoneInput
           className="mb-3"
           name="currentPhone"
+          control={control}
+          clearErrors={clearErrors}
           label={t("auth.access_account_current_phone")}
-          // register={register}
-          // errors={errors}
-          value={state.currentPhone}
-          autoFocus
           required
           disabled={submitting.isOn}
-          onPhoneChange={handlePhoneChange}
         />
         <FormControlGroup
           className="mb-3"
