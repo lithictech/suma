@@ -17,3 +17,10 @@ export function isValidPhone(s: string) {
 }
 
 const PHONE_RE = /^\(\d{3}\) \d{3}-\d{4}$/;
+
+export function requiredInput(required: boolean | null | undefined) {
+  if (!required) {
+    return {};
+  }
+  return { required: t("forms.invalid_required") };
+}

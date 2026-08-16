@@ -26,16 +26,16 @@ export default function Start() {
   const [error, setError] = useError();
 
   const {
-    register,
     handleSubmit,
     clearErrors,
     control,
     formState: { errors },
-  } = useForm({
-    mode: "all",
+  } = useForm<{ phone: string; agree: boolean }>({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
   });
 
-  const handleSubmitForm = (data: { phone: string }) => {
+  const handleSubmitForm = (data: { phone: string; agree: boolean }) => {
     submitDisabled.turnOn();
     inputDisabled.turnOn();
     setError(null);
@@ -90,7 +90,7 @@ export default function Start() {
             }
           )}
         </p>
-        <SignupAgreement register={register} errors={errors} />
+        <SignupAgreement error={errors.agree?.message} control={control} />
         <FormError error={error} />
         <ButtonGroup bottom>
           <Button type="submit">{t("forms.continue")}</Button>

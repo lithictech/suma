@@ -3,7 +3,6 @@ import ContactListTags from "../components/ContactListTags";
 import FormControlGroup from "../components/FormControlGroup";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import PageHeading from "../components/PageHeading";
-import SignupAgreement from "../components/SignupAgreement";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
@@ -151,7 +150,7 @@ export default function ContactListAdd() {
             errors={errors}
           />
         </div>
-        <SignupAgreement register={register} errors={errors} />
+        {/*<SignupAgreement register={register} errors={errors} />*/}
         <FormError error={error} />
         <FormButtons
           variant="outline"

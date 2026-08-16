@@ -1,4 +1,4 @@
-import { isValidPhone, validPhoneInput } from "../modules/formValidators";
+import { isValidPhone, requiredInput, validPhoneInput } from "../modules/formValidators";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import TextInput, { TextInputProps } from "./TextInput";
 import React from "react";
@@ -30,12 +30,17 @@ export default function PhoneInput({
   name,
   control,
   clearErrors,
+  required,
   ...rest
 }: PhoneInputProps) {
   const {
     field: { onChange, onBlur, value, ref },
     fieldState: { error },
-  } = useController({ name, control, rules: validPhoneInput() });
+  } = useController({
+    name,
+    control,
+    rules: { ...validPhoneInput(), ...requiredInput(required) },
+  });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const formattedNum = maskPhoneNumber(e.target.value);
@@ -52,6 +57,7 @@ export default function PhoneInput({
       name={name}
       autoComplete="tel"
       value={value || ""}
+      required={required}
       onChange={handleChange}
       onBlur={onBlur}
       error={error?.message}
