@@ -82,3 +82,9 @@ dl, dd, dt {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: -1px;
 }
+
+fieldset {
+    padding: 0;
+    margin: 0;
+    border: none;
+}

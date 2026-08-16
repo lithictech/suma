@@ -9,3 +9,10 @@
 .text-left { text-align: left; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }
+
+.font-size-base { font-size: var(--font-size-base); }
+.font-size-xs { font-size: var(--font-size-xs); }
+.font-size-sm { font-size: var(--font-size-sm); }
+.font-size-lg { font-size: var(--font-size-lg); }
+.font-size-xl { font-size: var(--font-size-xl); }
+.font-size-xxl { font-size: var(--font-size-xxl); }

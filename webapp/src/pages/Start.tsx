@@ -8,8 +8,8 @@ import { Logger } from "../modules/logger";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
-import Button from "../ui/Button.tsx";
 import ButtonGroup from "../ui/ButtonGroup.tsx";
+import ContinueButton from "../ui/ContinueButton.tsx";
 import Form from "../ui/Form";
 import FormError from "../ui/FormError";
 import Page from "../ui/Page.tsx";
@@ -93,7 +93,7 @@ export default function Start() {
         <SignupAgreement error={errors.agree?.message} control={control} />
         <FormError error={error} />
         <ButtonGroup bottom>
-          <Button type="submit">{t("forms.continue")}</Button>
+          <ContinueButton />
         </ButtonGroup>
       </Form>
     </Page>

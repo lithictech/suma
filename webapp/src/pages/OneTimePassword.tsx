@@ -6,10 +6,16 @@ import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractLocalizedError, useError } from "../state/useError";
 import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
+import BackButton from "../ui/BackButton.tsx";
+import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
 import Button from "../ui/Button";
+import ButtonGroup from "../ui/ButtonGroup.tsx";
+import ContinueButton from "../ui/ContinueButton.tsx";
 import Form from "../ui/Form";
-import FormButtons from "../ui/FormButtons";
 import FormError from "../ui/FormError";
+import Page from "../ui/Page.tsx";
+import Stack from "../ui/Stack.tsx";
+import "./OneTimePassword.css";
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -154,66 +160,52 @@ const OneTimePassword = () => {
   }, []);
 
   return (
-    <>
-      <p className="text-center mb-0">
-        {t("otp.enter_code_sent_to")}
-        <br />
-        {maskPhoneNumber(phoneNumber)}:
+    <Page buffer gap={3}>
+      <BreadcrumbBack back />
+      <h1>{t("otp.verify_code")}</h1>
+      <p>
+        {t("otp.enter_code_sent_to")} {maskPhoneNumber(phoneNumber)}
       </p>
-      <Form noValidate onSubmit={handleOtpSubmit}>
-        <fieldset>
-          <h4 className="text-center mt-4">{t("otp.verify_code")}</h4>
-          <div id="otpContainer" className="d-flex justify-content-center mt-4">
-            {otpChars.map((data, index) => (
-              <input
-                className="otp-field mb-2 p-1"
-                type="numbers"
-                name="otp"
-                // Must use the OTP length here, so any input can capture the full paste.
-                maxLength={OTP_LENGTH}
-                inputMode="numeric"
-                key={index}
-                value={data}
-                placeholder="&middot;"
-                onInput={(e) => handleOtpChange(e, index)}
-                onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                onPaste={handleOtpPaste}
-                onFocus={(e) => e.target.select()}
-                autoFocus={index === 0}
-                aria-label={t("otp.enter_code_v2", {
-                  index: index + 1,
-                  total: OTP_LENGTH,
-                })}
-                autoComplete="one-time-code"
-              />
-            ))}
-          </div>
+      <Form noValidate onSubmit={handleOtpSubmit} gap={3}>
+        <fieldset id="otpContainer" className="otp-container">
+          {otpChars.map((data, index) => (
+            <input
+              className="otp-field"
+              type="numbers"
+              name="otp"
+              // Must use the OTP length here, so any input can capture the full paste.
+              maxLength={OTP_LENGTH}
+              inputMode="numeric"
+              key={index}
+              value={data}
+              placeholder="&middot;"
+              onInput={(e) => handleOtpChange(e, index)}
+              onKeyDown={(e) => handleOtpKeyDown(e, index)}
+              onPaste={handleOtpPaste}
+              onFocus={(e) => e.target.select()}
+              autoFocus={index === 0}
+              aria-label={t("otp.enter_code_v2", {
+                index: index + 1,
+                total: OTP_LENGTH,
+              })}
+              autoComplete="one-time-code"
+            />
+          ))}
         </fieldset>
         <FormError error={error} center className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />
-        <p className="text-muted small text-center mt-4">
+        <Stack gap={1} className="text-muted font-size-sm" wrap center>
           {t("otp.did_not_receive")}
-          <br />
-          <Button
-            className="p-0 align-baseline"
-            size="sm"
-            variant="text"
-            onClick={handleResend}
-          >
+          <Button size="sm" variant="text" onClick={handleResend}>
             {t("otp.send_new_code")}
           </Button>
-        </p>
-        <FormButtons
-          back
-          primaryProps={{
-            children: t("otp.verify"),
-            ref: handleSubmitRef,
-          }}
-          variant="outline"
-          className="px-3"
-        />
+        </Stack>
+        <ButtonGroup col bottom>
+          <ContinueButton ref={handleSubmitRef}>{t("otp.verify")}</ContinueButton>
+          <BackButton>Back</BackButton>
+        </ButtonGroup>
       </Form>
-    </>
+    </Page>
   );
 };
 

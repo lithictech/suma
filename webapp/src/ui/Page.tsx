@@ -7,11 +7,15 @@ interface PageProps {
   minHeight?: string | number;
   children: React.ReactNode;
   style?: CSSProperties;
+  gap?: number;
 }
 
-export default function Page({ buffer, style, children }: PageProps) {
+export default function Page({ buffer, style, children, gap = 0 }: PageProps) {
   return (
-    <div className={clsx("page", buffer ? "page-buffer" : "")} style={style}>
+    <div
+      className={clsx("page", buffer ? "page-buffer" : "", `gap-${gap}`)}
+      style={style}
+    >
       {children}
     </div>
   );

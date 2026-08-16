@@ -7,7 +7,6 @@ import "./funding.css";
 import "./layout.css";
 import "./mobility.css";
 import "./onboarding.css";
-import "./otp.css";
 import "./privacy-policy.css";
 import "./spacing.css";
 import "./tables.css";
