@@ -10,6 +10,7 @@ export interface TextInputProps
       HTMLInputElement
     > {
   label: React.ReactNode;
+  inputClass?: string;
   required?: boolean;
   disabled?: boolean;
   id?: string;
@@ -23,6 +24,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function Te
     error,
     id,
     className,
+    inputClass,
     required = false,
     disabled = false,
     ...rest
@@ -30,9 +32,9 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function Te
   ref
 ) {
   const inputId = useId(id);
-  const cls = clsx(className, "form-control", error && "is-invalid");
+  const cls = clsx("form-control", error && "is-invalid", inputClass);
   return (
-    <div className="form-group">
+    <div className={clsx("form-group", className)}>
       <label className="form-label" htmlFor={inputId}>
         {label}
         {required && <span className="ml-1 color-danger">*</span>}

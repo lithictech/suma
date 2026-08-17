@@ -1,6 +1,8 @@
 import useId from "../state/useId.ts";
 import "./Switch.css";
+import clsx from "clsx";
 import React from "react";
+
 
 export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: React.ReactNode;
@@ -8,17 +10,28 @@ export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement>
   error?: React.ReactNode;
   name?: string;
   disabled?: boolean;
+  inputClass?: string;
 }
 
 const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(function Switch(
-  { id, label, checked, error, name, disabled = false, ...rest }: SwitchProps,
+  {
+    id,
+    label,
+    checked,
+    error,
+    name,
+    disabled = false,
+    className,
+    inputClass,
+    ...rest
+  }: SwitchProps,
   ref
 ) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = error ? `${inputId}-error` : undefined;
   return (
-    <div>
+    <div className={className}>
       <label className="form-switch">
         <input
           ref={ref}
@@ -28,6 +41,7 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(function Switch(
           name={name}
           checked={checked}
           disabled={disabled}
+          className={clsx(inputClass)}
           {...rest}
         />
         <span className="form-switch-track">

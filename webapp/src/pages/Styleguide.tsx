@@ -254,7 +254,7 @@ export default function Styleguide() {
             label="Zip"
             value="97211"
             help="Five digits."
-            className="is-focus-visible"
+            inputClass="is-focus-visible"
           />
           <TextInput label="Zip" value="9721" help="Five digits." disabled />
           <TextInput

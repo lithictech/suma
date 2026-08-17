@@ -38,6 +38,7 @@ export default function OnboardingAddress() {
     mode: "onBlur",
     reValidateMode: "onBlur",
     progressive: true,
+    defaultValues: { stateOrProvince: "" },
   });
   const navigate = useNavigate();
 
@@ -91,6 +92,7 @@ export default function OnboardingAddress() {
               label,
               value,
             }))}
+            className="flex-1"
           />
           <TextInput
             label={t("forms.zip")}
@@ -107,9 +109,9 @@ export default function OnboardingAddress() {
             required
             autoComplete="postal-code"
             inputMode="numeric"
+            className="flex-1"
           />
         </Stack>
-
         <ButtonGroup col bottom>
           <ContinueButton />
           <BackButton />

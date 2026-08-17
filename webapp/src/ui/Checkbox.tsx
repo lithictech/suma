@@ -9,15 +9,16 @@ export interface CheckboxProps
     Omit<React.InputHTMLAttributes<HTMLInputElement>, "checked" | "type"> {
   label?: React.ReactNode;
   checked: boolean;
+  inputClass?: string;
 }
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
-  { label, checked, error, help, required = false, id, className, ...rest },
+  { label, checked, error, help, required = false, id, className, inputClass, ...rest },
   ref
 ) {
   const inputId = useId(id);
   return (
-    <div>
+    <div className={className}>
       <label className="form-check">
         <input
           ref={ref}
@@ -25,7 +26,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(function Chec
           type="checkbox"
           checked={checked}
           required={required}
-          className={clsx(className, error && "is-invalid")}
+          className={clsx(error && "is-invalid", inputClass)}
           aria-describedby={FormFeedback.idFor(inputId)}
           aria-invalid={error ? true : undefined}
           {...rest}

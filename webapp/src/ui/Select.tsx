@@ -1,6 +1,7 @@
 import useId from "../state/useId";
 import FormFeedback from "./FormFeedback.tsx";
 import "./Select.css";
+import clsx from "clsx";
 import React from "react";
 
 export interface SelectOption<T extends string = string> {
@@ -24,28 +25,33 @@ export interface SelectProps<T extends string = string>
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function Select<
   T extends string = string
->({
-  label,
-  options,
-  value,
-  helpText,
-  error,
-  placeholder,
-  name,
-  required = false,
-  disabled = false,
-  id,
-  ...rest
-}: SelectProps<T>) {
+>(
+  {
+    label,
+    options,
+    value,
+    helpText,
+    error,
+    placeholder,
+    name,
+    required = false,
+    disabled = false,
+    id,
+    className,
+    ...rest
+  }: SelectProps<T>,
+  ref
+) {
   const selectId = useId(id);
   return (
-    <div className="form-group">
+    <div className={clsx("form-group", className)}>
       <label className="form-label" htmlFor={selectId}>
         {label}
         {required && " *"}
       </label>
       <div className="select-wrapper">
         <select
+          ref={ref}
           id={selectId}
           name={name}
           className={error ? "is-invalid" : undefined}
