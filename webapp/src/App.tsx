@@ -50,8 +50,11 @@ import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
 import Home from "./pages/onboarding/Home";
 import Onboarding from "./pages/onboarding/Onboarding";
-import OnboardingFinish from "./pages/onboarding/OnboardingFinish";
-import OnboardingSignup from "./pages/onboarding/OnboardingSignup";
+import OnboardingAddress from "./pages/onboarding/OnboardingAddress.tsx";
+import OnboardingEligibility from "./pages/onboarding/OnboardingEligibility.tsx";
+import OnboardingName from "./pages/onboarding/OnboardingName.tsx";
+import OnboardingOffers from "./pages/onboarding/OnboardingOffers.tsx";
+import OnboardingTheme from "./pages/onboarding/OnboardingTheme.tsx";
 import OneTimePassword from "./pages/onboarding/OneTimePassword";
 import Start from "./pages/onboarding/Start";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
@@ -184,26 +187,52 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles.onboarding") }),
-
             Onboarding
           )}
         />
         <Route
-          path="/onboarding/signup"
+          path="/onboarding/theme"
           element={renderWithHocs(
             redirectIfUnauthed,
             redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding_signup") }),
-            OnboardingSignup
+            withMetatags({ title: t("titles.onboarding") }),
+            OnboardingTheme
           )}
         />
         <Route
-          path="/onboarding/finish"
+          path="/onboarding/name"
           element={renderWithHocs(
             redirectIfUnauthed,
-            withMetatags({ title: t("titles.onboarding_finish") }),
-
-            OnboardingFinish
+            redirectIfBoarded,
+            withMetatags({ title: t("titles.onboarding") }),
+            OnboardingName
+          )}
+        />
+        <Route
+          path="/onboarding/address"
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfBoarded,
+            withMetatags({ title: t("titles.onboarding") }),
+            OnboardingAddress
+          )}
+        />
+        <Route
+          path="/onboarding/eligibility"
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfBoarded,
+            withMetatags({ title: t("titles.onboarding") }),
+            OnboardingEligibility
+          )}
+        />
+        <Route
+          path="/onboarding/offers"
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfBoarded,
+            withMetatags({ title: t("titles.onboarding") }),
+            OnboardingOffers
           )}
         />
         <Route

@@ -28,16 +28,19 @@ import Page from "../ui/Page.tsx";
 import PhoneInput from "../ui/PhoneInput.tsx";
 import Progress from "../ui/Progress";
 import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
+import RadioCard from "../ui/RadioCard.tsx";
 import Select from "../ui/Select";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch";
 import SwitchRow from "../ui/SwitchRow";
 import TextInput from "../ui/TextInput";
+import ThemeSwitcher from "../ui/ThemeSwitcher.tsx";
 import Tile from "../ui/Tile";
 import BuildingStorefrontIcon from "@heroicons/react/24/outline/BuildingStorefrontIcon";
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
+import noop from "lodash/noop";
 import React from "react";
 import { useController, useForm } from "react-hook-form";
 
@@ -55,6 +58,7 @@ export default function Styleguide() {
     "nav",
     "dialogs",
     "headers",
+    "theme",
     "loaders",
   ];
   const [activeKey, setActiveKey] = React.useState(
@@ -278,6 +282,15 @@ export default function Styleguide() {
             checked={false}
             error="Must turn on to continue"
           />
+          <RadioCard
+            name="radio"
+            options={[
+              { label: "Option A", value: "a" },
+              { label: "Option B", value: "b" },
+            ]}
+            value="b"
+            onValueChange={noop}
+          />
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
@@ -417,6 +430,9 @@ export default function Styleguide() {
           <IndeterminateLoader variant="content" />
         </div>
         <IndeterminateLoader variant="screen" style={{ marginTop: 80 }} />
+      </Section>
+      <Section eventKey="theme" activeKey={activeKey}>
+        <ThemeSwitcher />
       </Section>
       <Section eventKey="headers" activeKey={activeKey}>
         <Stack gap={3} vertical>
