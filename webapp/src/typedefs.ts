@@ -288,8 +288,7 @@ declare global {
   }
 
   /** Auto-generated from Suma::API::Entities::BaseEntity */
-  interface Base {
-  }
+  interface Base {}
 
   /** Auto-generated from Suma::API::Entities::CurrencyEntity */
   interface Currency {
@@ -518,8 +517,8 @@ declare global {
 
   /** Auto-generated from Suma::API::Meta::SupportedGeographiesEntity */
   interface SupportedGeographies {
-    countries: SupportedCountry;
-    provinces: SupportedProvince;
+    countries: SupportedCountry[];
+    provinces: SupportedProvince[];
   }
 
   /** Auto-generated from Suma::API::Meta::SupportedOrganizationEntity */

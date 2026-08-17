@@ -3,15 +3,16 @@ import FormFeedback from "./FormFeedback.tsx";
 import "./Select.css";
 import React from "react";
 
-export interface SelectOption {
-  value: string;
+export interface SelectOption<T extends string = string> {
+  value: T;
   label: React.ReactNode;
 }
 
-export interface SelectProps extends React.InputHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps<T extends string = string>
+  extends React.InputHTMLAttributes<HTMLSelectElement> {
   label: React.ReactNode;
-  options: SelectOption[];
-  value: string;
+  options: SelectOption<T>[];
+  value?: T;
   helpText?: React.ReactNode;
   error?: React.ReactNode;
   placeholder?: string;
@@ -21,11 +22,12 @@ export interface SelectProps extends React.InputHTMLAttributes<HTMLSelectElement
   id?: string;
 }
 
-export default function Select({
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function Select<
+  T extends string = string
+>({
   label,
   options,
   value,
-
   helpText,
   error,
   placeholder,
@@ -34,7 +36,7 @@ export default function Select({
   disabled = false,
   id,
   ...rest
-}: SelectProps) {
+}: SelectProps<T>) {
   const selectId = useId(id);
   return (
     <div className="form-group">
@@ -79,4 +81,5 @@ export default function Select({
       <FormFeedback inputId={selectId} help={helpText} error={error} />
     </div>
   );
-}
+});
+export default Select;

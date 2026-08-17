@@ -1,4 +1,4 @@
-import { isValidPhone, requiredInput, validPhoneInput } from "../modules/formValidators";
+import { isValidPhone, buildValidators } from "../modules/formValidators";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import TextInput, { TextInputProps } from "./TextInput";
 import React from "react";
@@ -39,7 +39,7 @@ export default function PhoneInput({
   } = useController({
     name,
     control,
-    rules: { ...validPhoneInput(), ...requiredInput(required) },
+    rules: buildValidators({ phone: true, required: true }),
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

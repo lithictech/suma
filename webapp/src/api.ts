@@ -82,15 +82,15 @@ export default {
   changeLanguage: (data?: any, ...args: any[]) =>
     post<CurrentMember>(`/api/v1/me/language`, data, ...args),
   getSupportedGeographies: (data?: any, ...args: any[]) =>
-    get(`/api/v1/meta/supported_geographies`, data, ...args),
+    get<SupportedGeographies>(`/api/v1/meta/supported_geographies`, data, ...args),
   getSupportedLocales: (data?: any, ...args: any[]) =>
-    get(`/api/v1/meta/supported_locales`, data, ...args),
+    get<Locale[]>(`/api/v1/meta/supported_locales`, data, ...args),
   getSupportedCurrencies: (data?: any, ...args: any[]) =>
-    get(`/api/v1/meta/supported_currencies`, data, ...args),
+    get<Currency[]>(`/api/v1/meta/supported_currencies`, data, ...args),
   getSupportedPaymentMethods: (data?: any, ...args: any[]) =>
-    get(`/api/v1/meta/supported_payment_methods`, data, ...args),
+    get<string[]>(`/api/v1/meta/supported_payment_methods`, data, ...args),
   geolocateIp: (data?: any, ...args: any[]) =>
-    get(`/api/v1/meta/geolocate_ip`, data, ...args),
+    get<GeolocateIP>(`/api/v1/meta/geolocate_ip`, data, ...args),
   getSupportedOrganizations: (data?: any, ...args: any[]) =>
     get(`/api/v1/meta/supported_organizations`, data, ...args),
   getLocaleFile: ({ namespace, locale, ...data }: any, ...args: any[]) =>

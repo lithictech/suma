@@ -134,8 +134,8 @@ class Suma::API::Meta < Suma::API::V1
   end
 
   class SupportedGeographiesEntity < BaseEntity
-    expose :countries, with: SupportedCountryEntity
-    expose :provinces, with: SupportedProvinceEntity
+    expose_array :countries, SupportedCountryEntity
+    expose_array :provinces, SupportedProvinceEntity
   end
 
   class GeolocateIPEntity < BaseEntity
