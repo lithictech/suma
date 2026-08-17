@@ -6,6 +6,7 @@ import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form.tsx";
 import Page from "../../ui/Page.tsx";
+import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -30,6 +31,7 @@ export default function OnboardingName() {
 
   return (
     <Page buffer gap={3}>
+      <ProgressStepHeader step={2} steps={5} />
       <BreadcrumbBack back />
       <h1>What is your name?</h1>
       <p>We&rsquo;d love to know what to call you!</p>

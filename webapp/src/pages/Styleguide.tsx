@@ -21,6 +21,7 @@ import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
 import Form from "../ui/Form.tsx";
 import FormError from "../ui/FormError.tsx";
+import Grid from "../ui/Grid.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader";
 import Nav from "../ui/Nav";
 import NavOption from "../ui/NavOption";
@@ -53,9 +54,9 @@ export default function Styleguide() {
     "tables",
     "inputs",
     "form",
+    "layout",
     "checklist",
     "progress",
-    "nav",
     "dialogs",
     "headers",
     "theme",
@@ -374,6 +375,28 @@ export default function Styleguide() {
             <Progress variant="circle" value={100} />
           </Stack>
         </Stack>
+      </Section>
+      <Section eventKey="layout" activeKey={activeKey}>
+        <h2>2 columns</h2>
+        <Grid columns={2}>
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardBody>
+                <p>Hello</p>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
+        <h2>Responsive columns</h2>
+        <Grid columns="8rem">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Card key={i}>
+              <CardBody>
+                <p>Hello</p>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
       </Section>
       <Section eventKey="checklist" activeKey={activeKey}>
         <h2>Checklist</h2>

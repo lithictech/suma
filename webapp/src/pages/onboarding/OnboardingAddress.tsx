@@ -8,6 +8,7 @@ import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form.tsx";
 import Page from "../../ui/Page.tsx";
+import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import Select from "../../ui/Select.tsx";
 import Stack from "../../ui/Stack.tsx";
 import TextInput from "../../ui/TextInput.tsx";
@@ -49,12 +50,14 @@ export default function OnboardingAddress() {
     stateOrProvince: string;
     postalCode: string;
   }) {
+    console.log(data);
     // setUser({ ...user, name: data.name });
     navigate("/onboarding/eligibility");
   }
 
   return (
     <Page buffer gap={3}>
+      <ProgressStepHeader step={3} steps={5} />
       <BreadcrumbBack back />
       <h1>Where do you live?</h1>
       <p>We use this to find programs near you.</p>

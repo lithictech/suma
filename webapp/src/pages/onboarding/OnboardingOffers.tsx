@@ -1,26 +1,33 @@
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
-import Checklist from "../../ui/Checklist.tsx";
-import ChecklistItem from "../../ui/ChecklistItem.tsx";
+import Card from "../../ui/Card.tsx";
+import CardBody from "../../ui/CardBody.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
+import DefinitionTable from "../../ui/DefinitionTable.tsx";
 import Page from "../../ui/Page.tsx";
+import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import React from "react";
 
 export default function OnboardingOffers() {
   return (
     <Page buffer gap={3}>
+      <ProgressStepHeader step={5} steps={5} />
       <BreadcrumbBack back />
-      <h1>Let&rsquo;s get you set up</h1>
-      <p>It only takes a few minutes. Here’s what we’ll ask for:</p>
-      <Checklist>
-        <ChecklistItem step={1}>Your name</ChecklistItem>
-        <ChecklistItem step={2}>How the app looks</ChecklistItem>
-        <ChecklistItem step={3}>Your eligibility</ChecklistItem>
-        <ChecklistItem step={4}>Your home address</ChecklistItem>
-        <ChecklistItem step={5}>Offers you can use</ChecklistItem>
-      </Checklist>
+      <h1>Thanks, Ana!</h1>
+      <p>Your account is in review! But here are some offers you can use right away.</p>
+      <Card>
+        <CardBody>
+          <DefinitionTable
+            items={[
+              { label: "Name", value: "Ana Flores" },
+              { label: "Eligibility", value: "Hacienda CDC · In review" },
+              { label: "Address", value: "2001 NE Alberta St, Portland, OR 97211" },
+            ]}
+          />
+        </CardBody>
+      </Card>
       <ButtonGroup col bottom>
-        <ContinueButton to="/onboarding/" />
+        <ContinueButton>Explore suma</ContinueButton>
       </ButtonGroup>
     </Page>
   );

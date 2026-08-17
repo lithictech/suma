@@ -1,5 +1,5 @@
 import useId from "../state/useId";
-import FormFeedback from "./FormFeedback.tsx";
+import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
 import "./Select.css";
 import clsx from "clsx";
 import React from "react";
@@ -10,12 +10,11 @@ export interface SelectOption<T extends string = string> {
 }
 
 export interface SelectProps<T extends string = string>
-  extends React.InputHTMLAttributes<HTMLSelectElement> {
+  extends HasFormFeedback,
+    React.InputHTMLAttributes<HTMLSelectElement> {
   label: React.ReactNode;
   options: SelectOption<T>[];
   value?: T;
-  helpText?: React.ReactNode;
-  error?: React.ReactNode;
   placeholder?: string;
   name?: string;
   required?: boolean;
@@ -23,14 +22,18 @@ export interface SelectProps<T extends string = string>
   id?: string;
 }
 
-const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function Select<
-  T extends string = string
->(
+interface SelectComponent {
+  <T extends string = string>(
+    props: SelectProps<T> & { ref?: React.Ref<HTMLSelectElement> }
+  ): React.ReactElement | null;
+}
+
+const Select = React.forwardRef(function Select<T extends string = string>(
   {
     label,
     options,
     value,
-    helpText,
+    help,
     error,
     placeholder,
     name,
@@ -40,7 +43,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function Select<
     className,
     ...rest
   }: SelectProps<T>,
-  ref
+  ref: React.Ref<HTMLSelectElement>
 ) {
   const selectId = useId(id);
   return (
@@ -84,8 +87,8 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function Select<
           />
         </svg>
       </div>
-      <FormFeedback inputId={selectId} help={helpText} error={error} />
+      <FormFeedback inputId={selectId} help={help} error={error} />
     </div>
   );
-});
+}) as SelectComponent;
 export default Select;

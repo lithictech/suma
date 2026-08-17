@@ -1,6 +1,5 @@
 import api from "../../api";
 import FormControlGroup from "../../components/FormControlGroup";
-import OrganizationInputDropdown from "../../components/OrganizationInputDropdown";
 import PageHeading from "../../components/PageHeading";
 import { t } from "../../localization";
 import keepDigits from "../../modules/keepDigits";
@@ -47,9 +46,7 @@ export default function OnboardingSignup() {
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
-  const [organizationName, setOrganizationName] = React.useState(
-    registrationSession?.organizationName || ""
-  );
+  const [organizationName] = React.useState(registrationSession?.organizationName || "");
   const handleFormSubmit = () => {
     api
       .updateMe({
@@ -197,21 +194,21 @@ export default function OnboardingSignup() {
             onChange={handleZipChange}
           />
         </Row>
-        {registrationSession?.organizationName ? (
-          <div>
-            {t("onboarding.partner_registration")}:{" "}
-            {registrationSession?.organizationName}
-          </div>
-        ) : (
-          <OrganizationInputDropdown
-            organizationName={organizationName}
-            onOrganizationNameChange={(name: string) =>
-              runSetter("organizationName", setOrganizationName, name)
-            }
-            register={register}
-            errors={errors}
-          />
-        )}
+        {/*{registrationSession?.organizationName ? (*/}
+        {/*  <div>*/}
+        {/*    {t("onboarding.partner_registration")}:{" "}*/}
+        {/*    {registrationSession?.organizationName}*/}
+        {/*  </div>*/}
+        {/*) : (*/}
+        {/*  <OrganizationInputDropdown*/}
+        {/*    organizationName={organizationName}*/}
+        {/*    onOrganizationNameChange={(name: string) =>*/}
+        {/*      runSetter("organizationName", setOrganizationName, name)*/}
+        {/*    }*/}
+        {/*    register={register}*/}
+        {/*    errors={errors}*/}
+        {/*  />*/}
+        {/*)}*/}
         <FormError error={error} />
         <FormButtons
           variant="outline"

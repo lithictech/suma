@@ -3,7 +3,6 @@ import "./Switch.css";
 import clsx from "clsx";
 import React from "react";
 
-
 export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: React.ReactNode;
   checked: boolean;

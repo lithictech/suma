@@ -1,7 +1,6 @@
 import api from "../api";
 import ContactListTags from "../components/ContactListTags";
 import FormControlGroup from "../components/FormControlGroup";
-import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
@@ -37,7 +36,7 @@ export default function ContactListAdd() {
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
-  const [organizationName, setOrganizationName] = React.useState("");
+  const [organizationName] = React.useState("");
   const handleFormSubmit = () => {
     api
       .authContactList({
@@ -140,16 +139,34 @@ export default function ContactListAdd() {
             ))}
           </FormControlGroup>
         </Row>
-        <div className="mb-3">
+        {/*<div className="mb-3">*/}
+        {/*  <OrganizationInputDropdown*/}
+        {/*    organizationName={organizationName}*/}
+        {/*    onOrganizationNameChange={(v: string) =>*/}
+        {/*      runSetter("organizationName", setOrganizationName, v)*/}
+        {/*    }*/}
+        {/*    register={register}*/}
+        {/*    errors={errors}*/}
+        {/*  />*/}
+        {/*</div>*/}
+        {/*<Controller
+        name="organizationName"
+        control={control}
+        rules={{
+          required: "Email is required",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Enter a valid email",
+          },
+        }}
+        render={({ field, fieldState }) => (
           <OrganizationInputDropdown
-            organizationName={organizationName}
-            onOrganizationNameChange={(v: string) =>
-              runSetter("organizationName", setOrganizationName, v)
-            }
-            register={register}
-            errors={errors}
+            organizationName={field.value}
+            onOrganizationNameChange={field.onChange}
+            error={fieldState.error?.message}
           />
-        </div>
+        )}
+      />*/}
         {/*<SignupAgreement register={register} errors={errors} />*/}
         <FormError error={error} />
         <FormButtons
