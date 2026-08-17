@@ -1,4 +1,3 @@
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import CartIconButtonForNav from "../components/CartIconButtonForNav";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
@@ -10,11 +9,12 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import { anyMoney, intToMoney } from "../shared/money";
-import Money from "../shared/react/Money";
+import { anyMoney, intToMoney } from "../modules/money";
 import useOffering from "../state/useOffering";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Col from "../ui/Col";
 import Row from "../ui/Row";
+import Money from "../uir/Money";
 import clsx from "clsx";
 import find from "lodash/find";
 import React from "react";
@@ -79,7 +79,7 @@ export default function FoodDetails() {
         <title>{title}</title>
       </Helmet>
       <LayoutContainer gutters>
-        <BackBreadcrumb back={`/food/${offeringId}`} />
+        <BreadcrumbBack back={`/food/${offeringId}`} />
         <PageHeading level={1} className="mb-3">
           {dt(product.name)}
         </PageHeading>

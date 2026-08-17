@@ -1,4 +1,4 @@
-import { withSentry } from "../shared/sentry.js";
+import { withSentry } from "../modules/sentry";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 
@@ -120,7 +120,7 @@ class I18n {
         resolved = this.t(t, opts);
       } else {
         // This is a value lookup, like {{x}} should get opts.x
-        resolved = get(opts, k);
+        resolved = get(opts, k || "");
         if (f) {
           const formatter = this.formatters[f];
           if (!formatter) {

@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import { scaleMoney } from "../shared/money.js";
+import { scaleMoney } from "../modules/money";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
 import React from "react";

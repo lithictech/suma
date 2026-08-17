@@ -1,25 +1,25 @@
 import api from "../api";
 import bankAccountCheckDetails from "../assets/images/bank-account-check-details.gif";
-import BackBreadcrumb from "../components/BackBreadcrumb";
-import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
-import FormError from "../components/FormError";
 import FormText from "../components/FormText";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
 import config from "../config";
 import { imageAltT, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
-import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
+import useHashToggle from "../state/useHashToggle";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Col from "../ui/Col";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
 import FormCheck from "../ui/FormCheck";
+import FormError from "../ui/FormError";
 import FormGroup from "../ui/FormGroup";
 import FormLabel from "../ui/FormLabel";
 import Row from "../ui/Row";
@@ -136,7 +136,7 @@ function LinkBankAccount({ onSuccess, returnTo }: LinkBankAccountProps) {
 
   return (
     <>
-      <BackBreadcrumb back={returnTo || true} />
+      <BreadcrumbBack back={returnTo || true} />
       <PageHeading>{t("payments.link_bank_account")}</PageHeading>
       <p>{t("payments.payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>

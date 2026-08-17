@@ -1,8 +1,8 @@
 import { t } from "../../localization";
-import Money from "../../shared/react/Money";
 import Button from "../../ui/Button";
 import Modal from "../../ui/Modal";
 import ModalBody from "../../ui/ModalBody";
+import Money from "../../uir/Money";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import isEmpty from "lodash/isEmpty";

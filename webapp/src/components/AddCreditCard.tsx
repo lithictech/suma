@@ -1,7 +1,5 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
-import FormError from "../components/FormError";
 import config from "../config";
 import { t } from "../localization";
 import elementDimensions from "../modules/elementDimensions";
@@ -12,6 +10,8 @@ import useScreenLoader from "../state/useScreenLoader";
 import useStripeErrorMessage from "../state/useStripeErrorMessage";
 import Col from "../ui/Col";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import Row from "../ui/Row";
 import CreditCardPreview from "./CreditCardPreview";
 import NegativeBalanceAddInstrumentNotice from "./NegativeBalanceAddInstrumentNotice";

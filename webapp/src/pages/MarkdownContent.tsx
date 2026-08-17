@@ -5,7 +5,7 @@ import TopNav from "../components/TopNav";
 import { t as loct } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
-import useMountEffect from "../shared/react/useMountEffect";
+import useMountEffect from "../state/useMountEffect";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 

@@ -1,17 +1,15 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
-import FormButtons from "../components/FormButtons";
-import FormError from "../components/FormError";
 import PageHeading from "../components/PageHeading";
 import config from "../config";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import { scaleMoney } from "../shared/money";
-import useToggle, { Toggle } from "../shared/react/useToggle";
+import { scaleMoney } from "../modules/money";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
+import useToggle, { Toggle } from "../state/useToggle";
 import useUser from "../state/useUser";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
@@ -23,6 +21,8 @@ import Dropdown from "../ui/Dropdown";
 import DropdownItem from "../ui/DropdownItem";
 import DropdownMenu from "../ui/DropdownMenu";
 import DropdownToggle from "../ui/DropdownToggle";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import styles from "./Funding.module.css";
 import clsx from "clsx";
 import filter from "lodash/filter";
@@ -33,7 +33,7 @@ export default function Funding() {
   const { isPaymentMethodSupported } = useBackendGlobals();
   return (
     <>
-      <BackBreadcrumb back />
+      <BreadcrumbBack back />
       <PageHeading>{t("payments.payment_title")}</PageHeading>
       <p>{t("payments.payment_intro.intro")}</p>
       <p>{t("payments.payment_intro.privacy_statement")}</p>

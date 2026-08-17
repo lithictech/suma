@@ -1,71 +1,56 @@
 import useId from "../state/useId";
+import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
 import clsx from "clsx";
 import React from "react";
 
-export interface TextInputProps {
+export interface TextInputProps
+  extends HasFormFeedback,
+    React.DetailedHTMLProps<
+      React.InputHTMLAttributes<HTMLInputElement>,
+      HTMLInputElement
+    > {
   label: React.ReactNode;
-  helpText?: React.ReactNode;
-  error?: React.ReactNode;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  name?: string;
-  placeholder?: string;
+  inputClass?: string;
   required?: boolean;
   disabled?: boolean;
   id?: string;
   className?: string;
 }
 
-export default function TextInput({
-  label,
-  helpText,
-  error,
-  value,
-  onChange,
-  type = "text",
-  name,
-  placeholder,
-  required = false,
-  disabled = false,
-  id,
-  className,
-}: TextInputProps) {
-  const generatedId = useId();
-  const inputId = id ?? generatedId;
-  const helpTextId = helpText ? `${inputId}-help` : undefined;
-  const errorId = error ? `${inputId}-error` : undefined;
-  const describedBy = [helpTextId, errorId].filter(Boolean).join(" ") || undefined;
-  const cls = clsx(className, "form-control", error && "is-invalid");
+const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
+  {
+    label,
+    help,
+    error,
+    id,
+    className,
+    inputClass,
+    required = false,
+    disabled = false,
+    ...rest
+  }: TextInputProps,
+  ref
+) {
+  const inputId = useId(id);
+  const cls = clsx("form-control", error && "is-invalid", inputClass);
   return (
-    <div className="form-group">
+    <div className={clsx("form-group", className)}>
       <label className="form-label" htmlFor={inputId}>
         {label}
-        {required && " *"}
+        {required && <span className="ml-1 color-danger">*</span>}
       </label>
       <input
+        ref={ref}
         id={inputId}
-        name={name}
-        type={type}
         className={cls}
-        value={value}
-        placeholder={placeholder}
         required={required}
         disabled={disabled}
-        aria-describedby={describedBy}
+        aria-describedby={FormFeedback.idFor(inputId)}
         aria-invalid={error ? true : undefined}
-        onChange={(e) => onChange(e.target.value)}
+        {...rest}
       />
-      {helpText && !error && (
-        <div id={helpTextId} className="form-text">
-          {helpText}
-        </div>
-      )}
-      {error && (
-        <div id={errorId} className="form-text invalid-feedback">
-          {error}
-        </div>
-      )}
+      <FormFeedback inputId={inputId} help={help} error={error} />
     </div>
   );
-}
+});
+export default TextInput;

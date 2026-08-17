@@ -1,5 +1,4 @@
 .form-group {
-    margin-bottom: var(--space-4);
 }
 
 label,
@@ -45,6 +44,7 @@ select,
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
     transition: border-color var(--transition-base), box-shadow var(--transition-base);
+    margin: 0;
 }
 
 textarea {

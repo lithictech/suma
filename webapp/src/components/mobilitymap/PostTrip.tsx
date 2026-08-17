@@ -1,6 +1,6 @@
 import { t } from "../../localization";
 import Button from "../../ui/Button";
-import FormError from "../FormError";
+import FormError from "../../ui/FormError";
 import DrawerContents from "./DrawerContents";
 import React from "react";
 

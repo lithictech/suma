@@ -19,8 +19,8 @@ import ScreenLoader from "../components/ScreenLoader";
 import { Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
-import useMountEffect from "../shared/react/useMountEffect";
 import useGlobalViewState from "../state/useGlobalViewState";
+import useMountEffect from "../state/useMountEffect";
 import Col from "../ui/Col";
 import Container from "../ui/Container";
 import Nav from "../ui/Nav";
@@ -78,7 +78,7 @@ export default function PrivacyPolicyContent({ mobile }: { mobile?: boolean }) {
           className={clsx("position-relative", !mobile && "privacy-policy-desktop")}
         >
           <Container id="overview" className={clsx(!mobile && "px-xl-3")}>
-            <TranslationToggle classes="d-flex justify-content-end" />
+            <TranslationToggle className="d-flex justify-content-end" />
             <Row>
               <Col xs={12} className={clsx(!mobile && "col-md-8")}>
                 <h1 className="display-4">{t("overview.title")}</h1>

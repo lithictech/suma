@@ -1,28 +1,41 @@
-import useToggle from "../shared/react/useToggle";
+import { useError } from "../state/useError.tsx";
+import useScreenLoader from "../state/useScreenLoader.ts";
+import useToggle from "../state/useToggle";
 import BrandCard from "../ui/BrandCard";
+import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
+import CardImage from "../ui/CardImage";
 import CardText from "../ui/CardText";
 import CheckableCard from "../ui/CheckableCard";
 import Checkbox from "../ui/Checkbox";
-import { CheckboxCard } from "../ui/CheckboxCard";
+import CheckboxCard from "../ui/CheckboxCard";
 import Checklist from "../ui/Checklist";
 import ChecklistItem from "../ui/ChecklistItem";
 import Chip from "../ui/Chip";
 import Container from "../ui/Container";
+import DefinitionTable from "../ui/DefinitionTable.tsx";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
+import Form from "../ui/Form.tsx";
+import FormError from "../ui/FormError.tsx";
+import Grid from "../ui/Grid.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader";
 import Nav from "../ui/Nav";
 import NavOption from "../ui/NavOption";
+import Page from "../ui/Page.tsx";
+import PhoneInput from "../ui/PhoneInput.tsx";
 import Progress from "../ui/Progress";
+import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
+import RadioCard from "../ui/RadioCard.tsx";
 import Select from "../ui/Select";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch";
 import SwitchRow from "../ui/SwitchRow";
 import TextInput from "../ui/TextInput";
+import ThemeSwitcher from "../ui/ThemeSwitcher.tsx";
 import Tile from "../ui/Tile";
 import BuildingStorefrontIcon from "@heroicons/react/24/outline/BuildingStorefrontIcon";
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
@@ -30,6 +43,7 @@ import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
 import noop from "lodash/noop";
 import React from "react";
+import { useController, useForm } from "react-hook-form";
 
 export default function Styleguide() {
   const keys = [
@@ -37,11 +51,15 @@ export default function Styleguide() {
     "buttons",
     "cards",
     "chips",
+    "tables",
     "inputs",
+    "form",
+    "layout",
     "checklist",
     "progress",
-    "nav",
     "dialogs",
+    "headers",
+    "theme",
     "loaders",
   ];
   const [activeKey, setActiveKey] = React.useState(
@@ -55,7 +73,7 @@ export default function Styleguide() {
   const dialogFocusRef = React.useRef(null);
   return (
     <Container className="mt-2">
-      <Stack direction="horizontal" gap={2} wrap>
+      <Stack direction="horizontal" gap={2} wrap className="px-2">
         {keys.map((k) => (
           <Button
             key={k}
@@ -78,13 +96,43 @@ export default function Styleguide() {
       </Section>
       <Section eventKey="buttons" activeKey={activeKey}>
         <Stack direction="vertical" gap={3}>
+          <h2>Buttons</h2>
           {BUTTON_PROPS.map((props) => (
             <Stack key={JSON.stringify(props)} gap={2}>
               {BUTTON_STATES.map((st) => (
-                <Button key={st} className={st} {...props}></Button>
+                <Button
+                  key={st}
+                  className={st}
+                  disabled={st === "is-disabled"}
+                  {...props}
+                ></Button>
               ))}
             </Stack>
           ))}
+          <h2>Link Buttons</h2>
+          {BUTTON_PROPS.map((props) => (
+            <Stack key={JSON.stringify(props)} gap={2} wrap>
+              {BUTTON_STATES.map((st) => (
+                <Button
+                  key={st}
+                  className={st}
+                  disabled={st === "is-disabled"}
+                  {...props}
+                  to="#"
+                />
+              ))}
+            </Stack>
+          ))}
+          <h2>Horizontal Group</h2>
+          <ButtonGroup>
+            <Button>Primary Action</Button>
+            <Button variant="secondary">Secondary Action</Button>
+          </ButtonGroup>
+          <h2>Vertical Group</h2>
+          <ButtonGroup vertical>
+            <Button>Primary Action</Button>
+            <Button variant="secondary">Secondary Action</Button>
+          </ButtonGroup>
         </Stack>
       </Section>
       <Section eventKey="cards" activeKey={activeKey}>
@@ -95,41 +143,57 @@ export default function Styleguide() {
               <CardText>Across every offer you have used</CardText>
             </CardBody>
           </Card>
-          <CheckableCard checked onChange={noop}>
+          <CheckableCard checked>
             <CardBody>
               <CardText>This card is checked.</CardText>
             </CardBody>
           </CheckableCard>
-          <CheckableCard checked={false} onChange={noop}>
+          <CheckableCard checked={false}>
             <CardBody>
               <CardText>This card is unchecked.</CardText>
             </CardBody>
           </CheckableCard>
-          <CheckableCard checked={false} className="is-focus-visible" onChange={noop}>
+          <CheckableCard checked={false} className="is-focus-visible">
             <CardBody>
               <CardText>This card has focus.</CardText>
             </CardBody>
           </CheckableCard>
-          <CheckableCard checked={false} disabled onChange={noop}>
+          <CheckableCard checked={false} disabled>
             <CardBody>
               <CardText>This card is disabled.</CardText>
             </CardBody>
           </CheckableCard>
           <Stack gap={3}>
-            <CheckableCard checked={false} onChange={noop} style={{ maxWidth: 150 }}>
+            <CheckableCard checked={false} style={{ maxWidth: 150 }}>
               <CardBody>
                 <Tile>RC</Tile>
                 <CardText variant="subtitle">Rosewod Commons</CardText>
                 <CardText variant="subtext">Affordable housing</CardText>
               </CardBody>
             </CheckableCard>
-            <CheckableCard checked onChange={noop} style={{ maxWidth: 150 }}>
+            <CheckableCard checked style={{ maxWidth: 150 }}>
               <CardBody>
                 <Tile>RC</Tile>
                 <CardText variant="subtitle">Rosewod Commons</CardText>
                 <CardText variant="subtext">Affordable housing</CardText>
               </CardBody>
             </CheckableCard>
+          </Stack>
+          <Stack col>
+            <Card>
+              <CardBody>
+                <Stack col gap={3}>
+                  <CardImage>
+                    <div style={{ backgroundColor: "var(--tint-success", height: 60 }} />
+                  </CardImage>
+                  <Chip variant="secondary" className="align-self-start">
+                    hello
+                  </Chip>
+                  <h3>Card with image</h3>
+                  <p>Here is detail text.</p>
+                </Stack>
+              </CardBody>
+            </Card>
           </Stack>
           <BrandCard
             pillText={<span>IN REVIEW &bull; Aug 7, 2026</span>}
@@ -158,62 +222,109 @@ export default function Styleguide() {
           <Chip variant="success">Picked up</Chip>
         </Stack>
       </Section>
+      <Section eventKey="tables" activeKey={activeKey}>
+        <Card>
+          <CardBody>
+            <DefinitionTable
+              items={[
+                { label: "Much Longer Field Name", value: "Ana Flores" },
+                {
+                  label: "Eligibility",
+                  value: <span>Hacienda CDC &bull; In Review</span>,
+                },
+                {
+                  label: "Address",
+                  value:
+                    "2001 NE Alberta St, Portland, OR 97211 2001 NE Alberta St, Portland, OR 97211",
+                },
+              ]}
+            />
+          </CardBody>
+        </Card>
+      </Section>
       <Section eventKey="inputs" activeKey={activeKey}>
         <h2>Inputs</h2>
         <Stack gap={2} wrap>
           <TextInput
             label="Zip"
             value=""
-            helpText="Five digits."
+            help="Five digits."
             placeholder="12345 (placeholder)"
-            onChange={noop}
           />
           <TextInput
             label="Zip"
             value="97211"
-            helpText="Five digits."
-            className="is-focus-visible"
-            onChange={noop}
+            help="Five digits."
+            inputClass="is-focus-visible"
           />
+          <TextInput label="Zip" value="9721" help="Five digits." disabled />
           <TextInput
             label="Zip"
             value="9721"
-            helpText="Five digits."
-            disabled
-            onChange={noop}
-          />
-          <TextInput
-            label="Zip"
-            value="9721"
-            helpText="Five digits."
+            help="Five digits."
             error="Zip code is 5 digits."
-            onChange={noop}
           />
         </Stack>
         <h2>Checkboxes</h2>
         <Stack direction="vertical" gap={2}>
           <Stack gap={2}>
-            <Checkbox label="Checkbox 1" checked={false} onChange={noop} />
-            <Checkbox label="Checkbox 2" checked onChange={noop} />
-            <Checkbox checked={false} onChange={noop} />
+            <Checkbox label="Checkbox 1" checked={false} />
+            <Checkbox label="Checkbox 2" checked />
+            <Checkbox checked={false} />
           </Stack>
+          <Checkbox label="Invalid" checked={false} error="Must agree to continue" />
           <Stack gap={2}>
-            <Switch label="Switch 1" checked={false} onChange={noop} />
-            <Switch label="Switch 2" checked onChange={noop} />
-            <Switch checked={false} onChange={noop} />
+            <Switch label="Switch 1" checked={false} />
+            <Switch label="Switch 2" checked />
+            <Switch checked={false} />
           </Stack>
+          <Switch
+            label="Invalid switch"
+            checked={false}
+            error="Must turn on to continue"
+          />
+          <RadioCard
+            name="radio"
+            options={[
+              { value: "a", label: "Option A" },
+              {
+                value: "b",
+                label: (
+                  <div>
+                    <p>The radio card contents</p>
+                    <p className="text-muted font-weight-bold">can be styled normally.</p>
+                  </div>
+                ),
+              },
+              { value: "c", label: "Option C" },
+            ]}
+            value=""
+            onValueChange={noop}
+          />
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
             checked={false}
-            onChange={noop}
           />
           <CheckboxCard
             title="When an order is ready"
             text="A text the morning it lands"
             checked
-            onChange={noop}
           />
+          <CheckboxCard
+            checked={false}
+            error="Must check to continue"
+            alignCheckbox="start"
+          >
+            <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
+              {LOREM_IPSUM}
+            </CardText>
+          </CheckboxCard>
+          <CheckboxCard checked={false} alignCheckbox="start">
+            <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>
+              {LOREM_IPSUM}
+            </CardText>
+          </CheckboxCard>
           <SwitchRow
             title="Text me about my orders"
             text="Standard message rates apply"
@@ -236,9 +347,17 @@ export default function Styleguide() {
               { label: "Option C", value: "optc" },
               { label: "Option D", value: "optd" },
             ]}
-            onChange={noop}
+          />
+          <Select
+            label="Select"
+            value=""
+            options={[{ label: "Option A", value: "opta" }]}
+            error="Must select an option."
           />
         </Stack>
+      </Section>
+      <Section eventKey="form" activeKey={activeKey}>
+        <FormSection />
       </Section>
       <Section eventKey="progress" activeKey={activeKey}>
         <h2>Progress</h2>
@@ -256,6 +375,28 @@ export default function Styleguide() {
             <Progress variant="circle" value={100} />
           </Stack>
         </Stack>
+      </Section>
+      <Section eventKey="layout" activeKey={activeKey}>
+        <h2>2 columns</h2>
+        <Grid columns={2}>
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardBody>
+                <p>Hello</p>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
+        <h2>Responsive columns</h2>
+        <Grid columns="8rem">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Card key={i}>
+              <CardBody>
+                <p>Hello</p>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
       </Section>
       <Section eventKey="checklist" activeKey={activeKey}>
         <h2>Checklist</h2>
@@ -322,6 +463,19 @@ export default function Styleguide() {
         </div>
         <IndeterminateLoader variant="screen" style={{ marginTop: 80 }} />
       </Section>
+      <Section eventKey="theme" activeKey={activeKey}>
+        <ThemeSwitcher />
+      </Section>
+      <Section eventKey="headers" activeKey={activeKey}>
+        <Stack gap={3} vertical>
+          <div>
+            <BreadcrumbBack back />
+          </div>
+          <ProgressStepHeader step={1} steps={5} />
+          <ProgressStepHeader step={4} steps={5} />
+          <ProgressStepHeader step={5} steps={5} />
+        </Stack>
+      </Section>
     </Container>
   );
 }
@@ -340,7 +494,83 @@ function Section({ eventKey, activeKey, children }) {
   if (eventKey !== activeKey) {
     return null;
   }
-  return <div className="mt-2 mx-2">{children}</div>;
+  return (
+    <Stack col gap={3} className="mt-2 mx-2 mb-5">
+      {children}
+    </Stack>
+  );
+}
+
+function FormSection() {
+  const [error, setError] = useError();
+  const screenLoader = useScreenLoader();
+
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    control,
+    formState: { errors },
+  } = useForm<{ name: string; phone: string; agree: boolean }>({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
+
+  const {
+    field: { value: agree, onChange: onAgreeChange, ref: agreeRef },
+  } = useController({
+    name: "agree",
+    control,
+    rules: { required: "You must agree to continue" },
+    defaultValue: false,
+  });
+
+  const handleSubmitForm = (data: { name: string; phone: string; agree: boolean }) => {
+    screenLoader.turnOn();
+    setError();
+    console.log(data);
+    Promise.delay(300)
+      .then(() => {
+        if (Math.random() < 0.5) {
+          setError(<span>This is a random form error.</span>);
+        }
+      })
+      .finally(screenLoader.turnOff);
+  };
+
+  return (
+    <Page buffer style={{ minHeight: "70dvh" }}>
+      <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
+        <TextInput
+          label="Name"
+          {...register("name", { required: "Name is required" })}
+          error={errors.name?.message}
+          autoFocus
+          required
+        />
+        <PhoneInput
+          label="Phone number"
+          name="phone"
+          control={control}
+          clearErrors={clearErrors}
+          required
+        />
+        <Checkbox
+          ref={agreeRef}
+          label="I agree to the terms"
+          checked={!!agree}
+          onChange={onAgreeChange}
+          error={errors.agree?.message}
+          required
+        />
+        <FormError error={error} />
+        <ButtonGroup col bottom>
+          <Button type="submit">Continue</Button>
+          <Button variant="outline">Back</Button>
+        </ButtonGroup>
+      </Form>
+    </Page>
+  );
 }
 
 const LOREM_IPSUM = (

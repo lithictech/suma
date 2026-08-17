@@ -1,8 +1,8 @@
 import api from "../api";
-import { base64decode } from "../shared/base64";
-import { localStorageCache } from "../shared/localStorageHelper";
-import { Logger } from "../shared/logger";
-import { withSentry } from "../shared/sentry";
+import { base64decode } from "../modules/base64";
+import { localStorageCache } from "../modules/localStorageHelper";
+import { Logger } from "../modules/logger";
+import { withSentry } from "../modules/sentry";
 import humps from "humps";
 import get from "lodash/get";
 import React from "react";

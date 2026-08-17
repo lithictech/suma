@@ -1,6 +1,6 @@
 import SumaMarkdownUntyped from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
-import { Logger } from "../shared/logger";
+import { Logger } from "../modules/logger";
 import i18n from "./i18n";
 import { capitalize } from "lodash";
 import React from "react";

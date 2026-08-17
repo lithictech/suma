@@ -1,20 +1,20 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
-import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useMountEffect from "../shared/react/useMountEffect";
+import useAsyncFetch from "../state/useAsyncFetch";
+import useMountEffect from "../state/useMountEffect";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
 import { Dialog } from "../ui/Dialog";
 import DialogHeader from "../ui/DialogHeader";
 import Stack from "../ui/Stack";
+import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
@@ -60,7 +60,7 @@ export default function PrivateAccountsList() {
   return (
     <>
       <LayoutContainer gutters top>
-        <BackBreadcrumb back />
+        <BreadcrumbBack back />
         <PageHeading>{t("titles.private_accounts")}</PageHeading>
         <p className="text-secondary">{t("private_accounts.intro")}</p>
       </LayoutContainer>

@@ -1,4 +1,4 @@
-import { initSentry } from "./shared/sentry";
+import { initSentry } from "./modules/sentry";
 
 // When we are serving from the Ruby backend, only use the config it provides.
 // Otherwise, we could accidentally template in values at build time (on staging)

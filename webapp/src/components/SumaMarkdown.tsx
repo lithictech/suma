@@ -1,4 +1,4 @@
-import Copyable from "./Copyable";
+import Copyable from "../ui/Copyable";
 import ELink from "./ELink";
 import Markdown from "markdown-to-jsx";
 import React from "react";

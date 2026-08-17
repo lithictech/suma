@@ -11,7 +11,7 @@ import unknownVehicleIcon from "../assets/images/loader-ring.svg";
  * But in the future, we may need to move to having the vendor service store a reference
  * to an image, so these icons can be loaded dynamically.
  */
-const iconNameLookup = {
+const iconNameLookup: Record<string, Record<string, string>> = {
   ebike: {
     biketown: biketownEbikeIcon,
   },
@@ -21,7 +21,7 @@ const iconNameLookup = {
 };
 
 // TODO: Create generic icons
-const defaultIconsLookup = {
+const defaultIconsLookup: Record<string, string> = {
   ebike: biketownEbikeIcon,
   escooter: limeEscooterIcon,
 };

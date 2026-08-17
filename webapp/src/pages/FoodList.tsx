@@ -1,4 +1,3 @@
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import CartIconButtonForNav from "../components/CartIconButtonForNav";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodPrice from "../components/FoodPrice";
@@ -11,6 +10,7 @@ import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import useOffering from "../state/useOffering";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Col from "../ui/Col";
 import Row from "../ui/Row";
@@ -83,9 +83,9 @@ export default function FoodList() {
       )}
       <LayoutContainer gutters>
         <div className="hstack my-3">
-          <BackBreadcrumb back="/food">
+          <BreadcrumbBack back="/food">
             <PageHeading className="mb-0">{dt(offering.description)}</PageHeading>
-          </BackBreadcrumb>
+          </BreadcrumbBack>
         </div>
         {isEmpty(listableProducts) ? (
           <>

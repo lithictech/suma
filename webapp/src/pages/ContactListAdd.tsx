@@ -1,11 +1,7 @@
 import api from "../api";
 import ContactListTags from "../components/ContactListTags";
-import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
-import FormError from "../components/FormError";
-import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import PageHeading from "../components/PageHeading";
-import SignupAgreement from "../components/SignupAgreement";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
@@ -13,6 +9,8 @@ import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractErrorCode, useError } from "../state/useError";
 import Col from "../ui/Col";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
+import FormError from "../ui/FormError";
 import FormSelect from "../ui/FormSelect";
 import Row from "../ui/Row";
 import React from "react";
@@ -38,7 +36,7 @@ export default function ContactListAdd() {
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
-  const [organizationName, setOrganizationName] = React.useState("");
+  const [organizationName] = React.useState("");
   const handleFormSubmit = () => {
     api
       .authContactList({
@@ -141,17 +139,35 @@ export default function ContactListAdd() {
             ))}
           </FormControlGroup>
         </Row>
-        <div className="mb-3">
+        {/*<div className="mb-3">*/}
+        {/*  <OrganizationInputDropdown*/}
+        {/*    organizationName={organizationName}*/}
+        {/*    onOrganizationNameChange={(v: string) =>*/}
+        {/*      runSetter("organizationName", setOrganizationName, v)*/}
+        {/*    }*/}
+        {/*    register={register}*/}
+        {/*    errors={errors}*/}
+        {/*  />*/}
+        {/*</div>*/}
+        {/*<Controller
+        name="organizationName"
+        control={control}
+        rules={{
+          required: "Email is required",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Enter a valid email",
+          },
+        }}
+        render={({ field, fieldState }) => (
           <OrganizationInputDropdown
-            organizationName={organizationName}
-            onOrganizationNameChange={(v: string) =>
-              runSetter("organizationName", setOrganizationName, v)
-            }
-            register={register}
-            errors={errors}
+            organizationName={field.value}
+            onOrganizationNameChange={field.onChange}
+            error={fieldState.error?.message}
           />
-        </div>
-        <SignupAgreement register={register} errors={errors} />
+        )}
+      />*/}
+        {/*<SignupAgreement register={register} errors={errors} />*/}
         <FormError error={error} />
         <FormButtons
           variant="outline"

@@ -1,0 +1,14 @@
+[data-theme='light'] {
+
+}
+
+[data-theme="dark"] {
+    --color-primary: #fb7145;
+}
+
+[data-contrast="default"] {
+}
+
+[data-contrast="high"] {
+    --border-width: 4px;
+}

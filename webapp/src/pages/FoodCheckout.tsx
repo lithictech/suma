@@ -1,9 +1,7 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
-import FormButtons from "../components/FormButtons";
 import FormRadioInputs from "../components/FormRadioInputs";
 import FormStateError from "../components/FormStateError";
 import LayoutContainer from "../components/LayoutContainer";
@@ -11,10 +9,8 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
-import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
-import { anyMoney } from "../shared/money";
-import Money from "../shared/react/Money";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { anyMoney } from "../modules/money";
+import useAsyncFetch from "../state/useAsyncFetch";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
@@ -22,10 +18,14 @@ import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import useValidationError from "../state/useValidationError";
 import Alert from "../ui/Alert";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Form from "../ui/Form";
+import FormButtons from "../ui/FormButtons";
 import FormControlFeedback from "../ui/FormControlFeedback";
 import FormGroup from "../ui/FormGroup";
 import Stack from "../ui/Stack";
+import Money from "../uir/Money";
+import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
 import clsx from "clsx";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -121,7 +121,7 @@ export default function FoodCheckout() {
   return (
     <>
       <LayoutContainer gutters>
-        <BackBreadcrumb back={`/cart/${checkout.offering.id}`} />
+        <BreadcrumbBack back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
         {checkout.requiresPaymentInstrument && (

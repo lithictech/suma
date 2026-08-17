@@ -1,31 +1,43 @@
+import useId from "../state/useId";
 import "./Checkbox.css";
+import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import clsx from "clsx";
 import React from "react";
 
-export interface CheckboxProps {
+export interface CheckboxProps
+  extends HasFormFeedback,
+    Omit<React.InputHTMLAttributes<HTMLInputElement>, "checked" | "type"> {
   label?: React.ReactNode;
   checked: boolean;
-  onChange: (checked: boolean) => void;
-  name?: string;
-  disabled?: boolean;
+  inputClass?: string;
 }
 
-export default function Checkbox({
-  label,
-  checked,
-  onChange,
-  name,
-  disabled = false,
-}: CheckboxProps) {
+const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
+  { label, checked, error, help, required = false, id, className, inputClass, ...rest },
+  ref
+) {
+  const inputId = useId(id);
   return (
-    <label className="form-check">
-      <input
-        type="checkbox"
-        name={name}
-        checked={checked}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span>{label}</span>
-    </label>
+    <div className={className}>
+      <label className="form-check">
+        <input
+          ref={ref}
+          id={inputId}
+          type="checkbox"
+          checked={checked}
+          required={required}
+          className={clsx(error && "is-invalid", inputClass)}
+          aria-describedby={FormFeedback.idFor(inputId)}
+          aria-invalid={error ? true : undefined}
+          {...rest}
+        />
+        <span>
+          {label}
+          {required && <span className="ml-1 color-danger">*</span>}
+        </span>
+      </label>
+      <FormFeedback inputId={inputId} error={error} help={help} />
+    </div>
   );
-}
+});
+export default Checkbox;

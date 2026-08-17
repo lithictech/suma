@@ -1,12 +1,12 @@
-import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { vehicleIconForVendorService } from "../modules/mobilityIconLookup";
-import Money from "../shared/react/Money";
-import useUrlMarshal from "../shared/react/useUrlMarshal";
+import useUrlMarshal from "../state/useUrlMarshal";
+import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Stack from "../ui/Stack";
+import Money from "../uir/Money";
 import dayjs from "dayjs";
 import React from "react";
 
@@ -36,9 +36,9 @@ export default function TripDetail() {
   return (
     <div>
       <LayoutContainer className="hstack">
-        <BackBreadcrumb back="/trips">
+        <BreadcrumbBack back="/trips">
           <h4 className="mb-0">{dayjs(beganAt).format("ll")}</h4>
-        </BackBreadcrumb>
+        </BreadcrumbBack>
       </LayoutContainer>
       <Stack direction="vertical" gap={1} className="align-items-center p-3">
         <div style={{ height: 60 }}>

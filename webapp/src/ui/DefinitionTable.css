@@ -1,0 +1,32 @@
+.definition-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.definition-table > div {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-5);
+    padding: var(--space-2);
+    justify-content: space-between;
+}
+
+.definition-table > div:not(:last-child) {
+    border-bottom: var(--border-width) var(--color-border) solid;
+}
+
+.definition-table > div:first-child {
+    padding-top: 0;
+}
+
+.definition-table > div:last-child {
+    padding-bottom: 0;
+}
+
+.definition-table-key {
+    color: var(--color-text-muted);
+}
+
+.definition-table-value {
+    font-weight: var(--font-weight-bold);
+}

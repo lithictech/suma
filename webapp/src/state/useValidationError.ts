@@ -26,7 +26,7 @@ export default function useValidationError(
   return message;
 }
 
-const errorKeys = {
+const errorKeys: Record<string, string> = {
   required: "forms.invalid_required",
   minLength: "forms.invalid_min_length",
   maxLength: "forms.invalid_max_length",

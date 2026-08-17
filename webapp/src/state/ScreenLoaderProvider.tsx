@@ -1,5 +1,5 @@
 import ScreenLoader from "../components/ScreenLoader";
-import useToggle, { Toggle } from "../shared/react/useToggle";
+import useToggle, { Toggle } from "./useToggle";
 import React from "react";
 
 export const ScreenLoaderContext = React.createContext<Toggle>({} as Toggle);

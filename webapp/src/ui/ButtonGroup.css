@@ -1,5 +1,24 @@
 .button-group {
   display: flex;
-  flex-direction: column-reverse;
   gap: var(--space-3);
+}
+
+.button-group-horizontal {
+  flex-direction: row-reverse;
+}
+
+.button-group-horizontal > * {
+  flex: 1;
+}
+
+.button-group-vertical {
+  flex-direction: column;
+}
+
+.button-group-bottom {
+  /* Pushes itself (and stays in normal flow) to the bottom of its nearest
+     tall/flex ancestor - see ui/Page.css and ui/Form.tsx. Not floated or
+     docked: on short content it lands at the bottom of the screen, on long
+     content it's simply pushed below content, scrolled to like normal. */
+  margin-top: auto;
 }

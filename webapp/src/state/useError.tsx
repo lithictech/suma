@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import { Logger } from "../shared/logger";
+import { Logger } from "../modules/logger";
 import get from "lodash/get";
 import isString from "lodash/isString";
 import React from "react";

@@ -1,4 +1,4 @@
-import setRef from "../shared/setRef";
+import setRef from "../modules/setRef";
 import useValidationError from "../state/useValidationError";
 import FormControl from "../ui/FormControl";
 import FormControlFeedback from "../ui/FormControlFeedback";

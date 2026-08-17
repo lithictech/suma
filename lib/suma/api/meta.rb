@@ -22,7 +22,7 @@ class Suma::API::Meta < Suma::API::V1
       result[:provinces] = provinces.map do |p|
         {label: p.label, value: p.value, country_idx: country_ids.index(p.parent_id)}
       end
-      present result
+      present result, with: SupportedGeographiesEntity
     end
 
     get :supported_currencies do
@@ -51,7 +51,7 @@ class Suma::API::Meta < Suma::API::V1
       got = Suma::Http.get("http://ip-api.com/json/#{remote_ip}", logger: self.logger)
       r = got.parsed_response
       resp = {lat: r.fetch("lat"), lng: r.fetch("lon")}
-      present(resp)
+      present resp, with: GeolocateIPEntity
     end
 
     get :supported_organizations do
@@ -60,7 +60,7 @@ class Suma::API::Meta < Suma::API::V1
         where { ordinal >= 0.0 }.
         order(Sequel.desc(:ordinal), :name)
       orgs = ds.select_map(:name).map { |name| {name:} }
-      present_collection orgs
+      present_collection orgs, with: SupportedOrganizationEntity
     end
 
     resource :static_strings do
@@ -120,5 +120,30 @@ class Suma::API::Meta < Suma::API::V1
         end
       end
     end
+  end
+
+  class SupportedCountryEntity < BaseEntity
+    expose :label
+    expose :value, documentation: {type: String}
+  end
+
+  class SupportedProvinceEntity < BaseEntity
+    expose :label
+    expose :value, documentation: {type: String}
+    expose :country_idx, documentation: {type: Integer}
+  end
+
+  class SupportedGeographiesEntity < BaseEntity
+    expose_array :countries, SupportedCountryEntity
+    expose_array :provinces, SupportedProvinceEntity
+  end
+
+  class GeolocateIPEntity < BaseEntity
+    expose :lat
+    expose :lng
+  end
+
+  class SupportedOrganizationEntity < BaseEntity
+    expose :name
   end
 end

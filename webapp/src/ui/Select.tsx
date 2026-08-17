@@ -1,19 +1,20 @@
 import useId from "../state/useId";
+import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
 import "./Select.css";
+import clsx from "clsx";
 import React from "react";
 
-export interface SelectOption {
-  value: string;
+export interface SelectOption<T extends string = string> {
+  value: T;
   label: React.ReactNode;
 }
 
-export interface SelectProps {
+export interface SelectProps<T extends string = string>
+  extends HasFormFeedback,
+    React.InputHTMLAttributes<HTMLSelectElement> {
   label: React.ReactNode;
-  options: SelectOption[];
-  value: string;
-  onChange: (value: string) => void;
-  helpText?: React.ReactNode;
-  error?: React.ReactNode;
+  options: SelectOption<T>[];
+  value?: T;
   placeholder?: string;
   name?: string;
   required?: boolean;
@@ -21,40 +22,48 @@ export interface SelectProps {
   id?: string;
 }
 
-export default function Select({
-  label,
-  options,
-  value,
-  onChange,
-  helpText,
-  error,
-  placeholder,
-  name,
-  required = false,
-  disabled = false,
-  id,
-}: SelectProps) {
+interface SelectComponent {
+  <T extends string = string>(
+    props: SelectProps<T> & { ref?: React.Ref<HTMLSelectElement> }
+  ): React.ReactElement | null;
+}
+
+const Select = React.forwardRef(function Select<T extends string = string>(
+  {
+    label,
+    options,
+    value,
+    help,
+    error,
+    placeholder,
+    name,
+    required = false,
+    disabled = false,
+    id,
+    className,
+    ...rest
+  }: SelectProps<T>,
+  ref: React.Ref<HTMLSelectElement>
+) {
   const selectId = useId(id);
-  const helpTextId = helpText ? `${selectId}-help` : undefined;
-  const errorId = error ? `${selectId}-error` : undefined;
-  const describedBy = [helpTextId, errorId].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="form-group">
+    <div className={clsx("form-group", className)}>
       <label className="form-label" htmlFor={selectId}>
         {label}
         {required && " *"}
       </label>
       <div className="select-wrapper">
         <select
+          ref={ref}
           id={selectId}
           name={name}
           className={error ? "is-invalid" : undefined}
           value={value}
           required={required}
           disabled={disabled}
-          aria-describedby={describedBy}
+          aria-describedby={FormFeedback.idFor(selectId)}
           aria-invalid={error ? true : undefined}
-          onChange={(e) => onChange(e.target.value)}
+          {...rest}
         >
           {placeholder && (
             <option value="" disabled hidden>
@@ -78,16 +87,8 @@ export default function Select({
           />
         </svg>
       </div>
-      {helpText && (
-        <small id={helpTextId} className="form-text">
-          {helpText}
-        </small>
-      )}
-      {error && (
-        <span id={errorId} className="invalid-feedback">
-          {error}
-        </span>
-      )}
+      <FormFeedback inputId={selectId} help={help} error={error} />
     </div>
   );
-}
+}) as SelectComponent;
+export default Select;
