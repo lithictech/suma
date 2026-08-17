@@ -1,13 +1,13 @@
-import sumaLogo from "../assets/images/suma-logo-word-512.png";
-import AddToHomescreen from "../components/AddToHomescreen";
-import ExternalLink from "../components/ExternalLink";
-import TranslationToggle from "../components/TranslationToggle";
-import { dt, imageAltT, t } from "../localization";
-import externalLinks from "../modules/externalLinks";
-import useUser from "../state/useUser";
-import Button from "../ui/Button";
-import Container from "../ui/Container";
-import Stack from "../ui/Stack.tsx";
+import sumaLogo from "../../assets/images/suma-logo-word-512.png";
+import AddToHomescreen from "../../components/AddToHomescreen";
+import ExternalLink from "../../components/ExternalLink";
+import TranslationToggle from "../../components/TranslationToggle";
+import { dt, imageAltT, t } from "../../localization";
+import externalLinks from "../../modules/externalLinks";
+import useUser from "../../state/useUser";
+import Button from "../../ui/Button";
+import Container from "../../ui/Container";
+import Stack from "../../ui/Stack.tsx";
 import React from "react";
 
 export default function Home() {

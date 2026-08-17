@@ -1,6 +1,6 @@
-import { t } from "../localization";
-import useUser from "../state/useUser";
-import Button from "../ui/Button";
+import { t } from "../../localization";
+import useUser from "../../state/useUser";
+import Button from "../../ui/Button";
 import React from "react";
 
 export default function OnboardingFinish() {

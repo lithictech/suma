@@ -1,11 +1,11 @@
-import onboardingFood from "../assets/images/onboarding-food.jpg";
-import onboardingMobility from "../assets/images/onboarding-mobility.jpg";
-import onboardingUtilities from "../assets/images/onboarding-utilities.jpg";
-import { imageAltT, t } from "../localization";
-import Button from "../ui/Button";
-import Carousel from "../ui/Carousel";
-import CarouselCaption from "../ui/CarouselCaption";
-import CarouselItem from "../ui/CarouselItem";
+import onboardingFood from "../../assets/images/onboarding-food.jpg";
+import onboardingMobility from "../../assets/images/onboarding-mobility.jpg";
+import onboardingUtilities from "../../assets/images/onboarding-utilities.jpg";
+import { imageAltT, t } from "../../localization";
+import Button from "../../ui/Button";
+import Carousel from "../../ui/Carousel";
+import CarouselCaption from "../../ui/CarouselCaption";
+import CarouselItem from "../../ui/CarouselItem";
 import React from "react";
 
 const Onboarding = () => {
