@@ -285,10 +285,19 @@ export default function Styleguide() {
           <RadioCard
             name="radio"
             options={[
-              { label: "Option A", value: "a" },
-              { label: "Option B", value: "b" },
+              { value: "a", label: "Option A" },
+              {
+                value: "b",
+                label: (
+                  <div>
+                    <p>The radio card contents</p>
+                    <p className="text-muted font-weight-bold">can be styled normally.</p>
+                  </div>
+                ),
+              },
+              { value: "c", label: "Option C" },
             ]}
-            value="b"
+            value=""
             onValueChange={noop}
           />
           <CheckboxCard

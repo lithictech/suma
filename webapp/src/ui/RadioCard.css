@@ -4,17 +4,40 @@
     border: none;
     padding: 0;
     margin: 0;
-    cursor: pointer;
-    user-select: none;
 }
 
 .radio-card legend {
     padding: 0;
     margin: 0;
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-normal);
 }
 
-.radio-card input {
+.radio-card-option {
+    display: block;
+    padding: var(--space-3);
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+    font-weight: var(--font-weight-normal);
+}
+
+/** We use an outline to show an item checked.
+The outline must follow the card on the first/last item. */
+.radio-card-option:first-child {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+.radio-card-option:last-child {
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.radio-card-option:not(:last-child) {
+    border-bottom: var(--border-width) var(--color-border) solid;
+}
+
+.radio-card-option input[type="radio"] {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -26,21 +49,25 @@
     border: 0;
 }
 
-.radio-card label {
-    padding: var(--space-3);
-    margin: 0;
-}
-
-.radio-card label:not(:last-child) {
-    border-bottom: var(--border-width) var(--color-border) solid;
-}
-
-.radio-card:has(input:checked) {
-    border-color: var(--color-primary);
-    outline: solid var(--color-primary) var(--border-width-checked);
+.radio-card-option:has(input:checked) {
+    outline-offset: calc(-1 * var(--focus-ring-width));
+    outline: var(--focus-ring-width) var(--color-primary) solid;
     background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
 }
 
-.radio-card:has(input:focus-visible) {
+.radio-card-option:has(input:focus-visible) {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
+}
+
+/** Hide the border for the item before the item that is selected.
+ That is, if we have options A, B, and C, there are borders between A/B and B/C.
+ If B is selected, A has a bottom border; this hides the border so we don't have
+ a small visual artifact above the focus outline about B. */
+.radio-card-option:has(+ .radio-card-option input:checked) {
+    border-bottom-color: transparent;
+}
+
+.radio-card-option:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
