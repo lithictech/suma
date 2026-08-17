@@ -37,6 +37,7 @@ export default function OnboardingAddress() {
   }>({
     mode: "onBlur",
     reValidateMode: "onBlur",
+    progressive: true,
   });
   const navigate = useNavigate();
 
@@ -58,27 +59,30 @@ export default function OnboardingAddress() {
       <p>We use this to find programs near you.</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <TextInput
-          label="Street address"
+          label={t("forms.address1")}
           {...register("address1", buildValidators({ required: true }))}
+          autoComplete="address-line1"
           error={errors.address1?.message}
           autoFocus
           required
         />
         <TextInput
-          label="Unit or apartment number"
+          label={t("forms.address2")}
           {...register("address2")}
+          autoComplete="address-line2"
           error={errors.address2?.message}
           help="Optional"
         />
         <TextInput
-          label="City"
+          label={t("forms.city")}
           {...register("city", buildValidators({ required: true }))}
           error={errors.city?.message}
           required
+          autoComplete="address-level2"
         />
         <Stack row gap={2}>
           <Select
-            label="State"
+            label={t("forms.state")}
             {...register("stateOrProvince", buildValidators({ required: true }))}
             error={errors.stateOrProvince?.message}
             required
@@ -92,7 +96,12 @@ export default function OnboardingAddress() {
             label={t("forms.zip")}
             {...register(
               "postalCode",
-              buildValidators({ required: true, pattern: "^[0-9]{5}(?:-[0-9]{4})?$" })
+              buildValidators({
+                required: true,
+                pattern: "^[0-9]{5}(?:-[0-9]{4})?$",
+                minLength: 5,
+                maxLength: 10,
+              })
             )}
             error={errors.postalCode?.message}
             required

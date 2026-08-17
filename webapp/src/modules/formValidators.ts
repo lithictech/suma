@@ -1,6 +1,6 @@
 import { t } from "../localization";
 import isString from "lodash/isString";
-import { RegisterOptions } from "react-hook-form";
+import { Message, ValidationRule } from "react-hook-form";
 
 export function isValidPhone(s: string) {
   return PHONE_RE.test(s);
@@ -17,6 +17,22 @@ interface BuildValidatorsProps {
   pattern?: string | RegExp;
 }
 
+/**
+ * The subset of RHF's RegisterOptions that buildValidators actually produces.
+ * Typed against RHF's own field-independent pieces (ValidationRule/Message)
+ * rather than the full generic RegisterOptions<TFieldValues, TFieldName>, so
+ * the result is structurally assignable to register()'s options for any
+ * form/field - none of these keys (unlike eg `deps`/`validate`) depend on the
+ * specific form's shape, so there's nothing to parameterize here.
+ */
+export interface BuiltValidators {
+  required?: ValidationRule<boolean> | Message;
+  minLength?: ValidationRule<number>;
+  maxLength?: ValidationRule<number>;
+  pattern?: ValidationRule<RegExp>;
+  min?: ValidationRule<number | string>;
+}
+
 export function buildValidators({
   required,
   phone,
@@ -24,25 +40,31 @@ export function buildValidators({
   maxLength,
   min,
   pattern,
-}: BuildValidatorsProps): RegisterOptions {
-  const result = {} as RegisterOptions;
+}: BuildValidatorsProps): BuiltValidators {
+  const result: BuiltValidators = {};
   if (required) {
     result.required = { value: true, message: t("forms.invalid_required") };
   }
   if (minLength) {
-    result.minLength = { value: minLength, message: t("forms.invalid_min_length") };
+    result.minLength = {
+      value: minLength,
+      message: t("forms.invalid_min_length", { constraint: minLength }),
+    };
   }
   if (maxLength) {
-    result.maxLength = { value: maxLength, message: t("forms.invalid_max_length") };
+    result.maxLength = {
+      value: maxLength,
+      message: t("forms.invalid_max_length", { constraint: maxLength }),
+    };
+  }
+  if (min) {
+    result.min = { value: min, message: t("forms.invalid_min", { constraint: min }) };
   }
   if (pattern) {
     result.pattern = {
       value: isString(pattern) ? new RegExp(pattern) : pattern,
       message: t("forms.invalid_field"),
     };
-  }
-  if (min) {
-    result.min = min;
   }
   if (phone) {
     result.pattern = {
