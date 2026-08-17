@@ -46,7 +46,7 @@ export default function OnboardingName() {
 
         <ButtonGroup col bottom>
           <ContinueButton />
-          <BackButton />
+          <BackButton to="/onboarding/theme" />
         </ButtonGroup>
       </Form>
     </Page>
