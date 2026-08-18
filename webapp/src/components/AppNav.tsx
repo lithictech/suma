@@ -1,46 +1,40 @@
-import { t } from "../localization";
-import useGlobalViewState from "../state/useGlobalViewState";
-import clsx from "clsx";
+import Nav from "../ui/Nav.tsx";
+import NavOption from "../ui/NavOption.tsx";
+import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
+import MapIcon from "@heroicons/react/24/outline/MapIcon";
+import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
+import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function AppNav() {
-  const { setAppNav } = useGlobalViewState();
-  return (
-    <div ref={setAppNav} className="app-nav d-flex flex-row">
-      <AppLink to="/dashboard" label={t("titles.home")} className="border-end-0" />
-      <AppLink to="/mobility" label={t("titles.mobility")} className="border-end-0" />
-      <AppLink
-        to="/food"
-        label={t("food.title")}
-        className="border-end-0"
-        prefixes={["/checkout"]}
-      />
-      <AppLink to="/utilities" label={t("utilities.title")} />
-    </div>
-  );
-}
-
-interface AppLinkProps {
-  to: string;
-  label: React.ReactNode;
-  prefixes?: string[];
-  className?: string;
-}
-
-const AppLink = ({ to, label, prefixes, className }: AppLinkProps) => {
   const location = useLocation();
-  const active = [...(prefixes || []), to].some((x) => location.pathname.startsWith(x));
   return (
-    <Link
-      to={to}
-      className={clsx(
-        "btn btn-outline-primary app-link",
-        active && "app-link-active",
-        className
-      )}
-    >
-      {label}
-    </Link>
+    <Nav>
+      <NavOption
+        label="Home"
+        Icon={HomeIcon}
+        to="/dashboard"
+        active={location.pathname.startsWith("/dashboard")}
+      />
+      <NavOption
+        label="Offers"
+        Icon={ShoppingCartIcon}
+        to="/food"
+        active={location.pathname.startsWith("/food")}
+      />
+      <NavOption
+        label="Map"
+        Icon={MapIcon}
+        to="/food"
+        active={location.pathname.startsWith("/mobility")}
+      />
+      <NavOption
+        label="More"
+        Icon={SquaresPlusIcon}
+        to="/food"
+        active={location.pathname.startsWith("/menu")}
+      />
+    </Nav>
   );
-};
+}

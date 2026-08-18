@@ -39,18 +39,43 @@ class Suma::API::Me < Suma::API::V1
       optional :address, type: JSON do
         use :address
       end
-      optional :organization_name, type: String, allow_blank: false
     end
     post :update do
       member = current_member
       member.db.transaction do
-        set_declared(member, params, ignore: [:address, :organization_name])
+        set_declared(member, params, ignore: [:address])
         save_or_error!(member)
         if params.key?(:address)
           member.legal_entity.address = Suma::Address.lookup(params[:address])
           save_or_error!(member.legal_entity)
         end
-        member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
+      end
+      status 200
+      present member, with: CurrentMemberEntity, env:
+    end
+
+    params do
+      optional :name, type: String, allow_blank: false
+      optional :address, type: JSON do
+        use :address
+      end
+      optional :organization_names, type: Array[String], allow_blank: false
+    end
+    post :onboard do
+      member = current_member
+      member.db.transaction do
+        set_declared(member, params, ignore: [:address, :organization_names])
+        save_or_error!(member)
+        if params.key?(:address)
+          member.legal_entity.address = Suma::Address.lookup(params[:address])
+          save_or_error!(member.legal_entity)
+        end
+
+        org_names = params.delete(:organization_names) || []
+        org_names << params.delete(:organization_name) if params.key?(:organization_name)
+        org_names.each do |org_name|
+          member.ensure_membership_in_organization(org_name)
+        end
 
         if (reglink_and_code = Suma::API::Entities::RegistrationLinkEntity.link_and_code_from_env(env))
           reglink_and_code.link.ensure_verified_membership(member, code: reglink_and_code.code)
@@ -59,7 +84,14 @@ class Suma::API::Me < Suma::API::V1
         end
       end
       status 200
-      present member, with: CurrentMemberEntity, env:
+      dash = Suma::Member::Dashboard.new(current_member, at: current_time)
+      resp = {
+        address: member.legal_entity.address,
+        programs: dash.programs,
+        memberships: member.organization_memberships.reject(&:removed?),
+        member:,
+      }
+      present resp, with: OnboardedEntity
     end
 
     get :dashboard do
@@ -100,5 +132,17 @@ class Suma::API::Me < Suma::API::V1
     expose :cash_balance, with: Suma::API::Entities::MoneyEntity
     expose_array :programs, ProgramEntity
     expose_array :alerts, DashboardAlertEntity
+  end
+
+  class MembershipEntity < BaseEntity
+    expose :organization_label, as: :organization_name
+    expose :membership_type, as: :status
+  end
+
+  class OnboardedEntity < BaseEntity
+    expose_array :programs, ProgramEntity
+    expose_array :memberships, with: MembershipEntity
+    expose :member, with: Suma::API::Entities::CurrentMemberEntity
+    expose :address, with: Suma::API::Entities::AddressEntity
   end
 end

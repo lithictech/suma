@@ -104,6 +104,7 @@ annotate:
 	RACK_ENV=test LOG_LEVEL=info bundle exec rake annotate
 annotate-web:
 	RACK_ENV=test LOG_LEVEL=info bundle exec rake annotate:webapp
+	cd webapp && make fmt > /dev/null
 
 psql: cmd-exists-pgcli
 	pgcli $(DBURL_LOCAL)

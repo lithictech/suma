@@ -11,7 +11,7 @@ export default function ProgressStepHeader({ step, steps }: ProgressStepHeaderPr
   return (
     <Stack row center gap={3}>
       <div className="flex-1">
-        <Progress value={Math.ceil((step / (steps - 1)) * 100)} />
+        <Progress value={Math.ceil((step / steps) * 100)} />
       </div>
       <p>
         Step {step} of {steps}

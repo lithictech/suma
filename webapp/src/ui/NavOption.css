@@ -1,8 +1,13 @@
+.nav-option-anchor {
+  text-decoration: none !important;
+}
+
 .nav-option {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  text-decoration: none !important;
 }
 
 .nav-option-icon {
@@ -15,13 +20,14 @@
   padding: var(--space-2);
 }
 
-.nav-option-icon.active {
+.nav-option-icon.active, .nav-option-icon:hover {
   color: var(--color-primary-contrast);
   background-color: var(--color-primary);
 }
 
 .nav-option-label {
   font-size: var(--font-size-sm);
+  color: var(--color-text);
 }
 
 .nav-option-label.active {

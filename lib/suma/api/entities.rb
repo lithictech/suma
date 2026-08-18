@@ -6,9 +6,9 @@ require "suma/service/entities"
 require "suma/api" unless defined? Suma::API
 
 module Suma::API::Entities
-  AddressEntity = Suma::Service::Entities::Address
-  LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
-  MoneyEntity = Suma::Service::Entities::Money
+  class AddressEntity < Suma::Service::Entities::Address; end
+  class LegalEntityEntity < Suma::Service::Entities::LegalEntityEntity; end
+  class MoneyEntity < Suma::Service::Entities::Money; end
 
   class BaseEntity < Suma::Service::Entities::Base; end
 

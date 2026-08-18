@@ -79,6 +79,8 @@ export default {
   getMe: (data?: any, ...args: any[]) => get<CurrentMember>(`/api/v1/me`, data, ...args),
   updateMe: (data?: any, ...args: any[]) =>
     post<CurrentMember>(`/api/v1/me/update`, data, ...args),
+  onboard: (data?: any, ...args: any[]) =>
+    post<Onboarded>(`/api/v1/me/onboard`, data, ...args),
   changeLanguage: (data?: any, ...args: any[]) =>
     post<CurrentMember>(`/api/v1/me/language`, data, ...args),
   getSupportedGeographies: (data?: any, ...args: any[]) =>

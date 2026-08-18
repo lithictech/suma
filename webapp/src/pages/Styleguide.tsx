@@ -1,4 +1,4 @@
-import { RoutePath } from "../routing/RoutePath.ts";
+import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
 import { useError } from "../state/useError.tsx";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import useToggle from "../state/useToggle";
@@ -414,10 +414,10 @@ export default function Styleguide() {
       </Section>
       <Section eventKey="nav" activeKey={activeKey}>
         <Nav>
-          <NavOption label="Home" Icon={HomeIcon} />
-          <NavOption label="Offers" Icon={BuildingStorefrontIcon} active />
-          <NavOption label="Map" Icon={ShoppingCartIcon} />
-          <NavOption label="More" Icon={SquaresPlusIcon} />
+          <NavOption label="Home" Icon={HomeIcon} to={fakePath} />
+          <NavOption label="Offers" Icon={BuildingStorefrontIcon} active to={fakePath} />
+          <NavOption label="Map" Icon={ShoppingCartIcon} to={fakePath} />
+          <NavOption label="More" Icon={SquaresPlusIcon} to={fakePath} />
         </Nav>
       </Section>
       <Section eventKey="dialogs" activeKey={activeKey}>
@@ -588,3 +588,5 @@ const LOREM_IPSUM = (
     adipiscing elit. Nunc at viverra tellus. Nunc vitae nulla nisl.
   </span>
 );
+
+const fakePath = untypedRoutePath("#");

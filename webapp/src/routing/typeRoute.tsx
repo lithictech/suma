@@ -6,6 +6,7 @@ import {
 } from "../hocs/authRedirects.tsx";
 import { HOC } from "../hocs/hocs.ts";
 import withMetatags, { MetatagProps } from "../hocs/withMetatags.tsx";
+import withProps from "../hocs/withProps.tsx";
 import withScreenLoaderMount from "../hocs/withScreenLoaderMount.tsx";
 import { t } from "../localization";
 import applyHocs from "../modules/applyHocs.ts";
@@ -21,6 +22,7 @@ export interface RouteProps {
   onboarded?: "require" | "not" | "any";
   Component: React.ComponentType;
   hocs?: HOC[];
+  pageProps?: Record<string, any>;
   meta?: MetatagProps | string;
   screenLoader?: boolean;
 }
@@ -31,6 +33,7 @@ export default function typeRoute({
   onboarded = "any",
   Component,
   hocs,
+  pageProps,
   meta,
   screenLoader,
 }: RouteProps): RouteObject {
@@ -52,6 +55,9 @@ export default function typeRoute({
   }
   if (screenLoader) {
     hocChain.push(withScreenLoaderMount());
+  }
+  if (pageProps) {
+    hocChain.push(withProps(pageProps));
   }
   hocChain.push(...(hocs || []));
   hocChain.push(Component);
