@@ -4,7 +4,6 @@ import config from "../config";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { scaleMoney } from "../modules/money";
-import { untypedRoutePath } from "../routing/RoutePath.ts";
 import { withQuery } from "../routing/withQuery.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";

@@ -35,7 +35,7 @@ export default function Route({
   screenLoader,
 }: RouteProps) {
   const hocChain = React.useMemo(() => {
-    const chain = [];
+    const chain: Array<HOC | React.ComponentType<any>> = [];
     if (auth === "require") {
       chain.push(redirectIfUnauthed);
     } else if (auth === "unauthed") {
@@ -56,11 +56,11 @@ export default function Route({
   if (screenLoader) {
     hocChain.push(withScreenLoaderMount());
   }
-  hocChain.concat(hocs || []);
+  hocChain.push(...(hocs || []));
   hocChain.push(Component);
   return <RRoute path={path} element={renderWithHocs(...hocChain)} />;
 }
 
-function renderWithHocs(...args: Array<(x: any) => any>) {
+function renderWithHocs(...args: Array<HOC | React.ComponentType<any>>) {
   return renderComponent(applyHocs(...args));
 }

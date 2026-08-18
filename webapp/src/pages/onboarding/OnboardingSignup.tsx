@@ -3,7 +3,6 @@ import FormControlGroup from "../../components/FormControlGroup";
 import PageHeading from "../../components/PageHeading";
 import { t } from "../../localization";
 import keepDigits from "../../modules/keepDigits";
-import useNavigate from "../../routing/useNavigate";
 import useAsyncFetch from "../../state/useAsyncFetch";
 import { extractErrorCode } from "../../state/useError";
 import useUser from "../../state/useUser";
@@ -27,7 +26,6 @@ interface SupportedGeographies {
 }
 
 export default function OnboardingSignup() {
-  const navigate = useNavigate();
   const { setUser, registrationSession } = useUser();
   const {
     register,
@@ -62,7 +60,7 @@ export default function OnboardingSignup() {
       })
       .then((r: any) => {
         setUser(r.data);
-        // navigate("/onboarding/finish");
+        // TODO: navigate to "/onboarding/finish" once that route exists.
       })
       .catch((err: any) => {
         setError(extractErrorCode(err));

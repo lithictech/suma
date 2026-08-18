@@ -1,11 +1,11 @@
 import { RouteParams } from "./RouteParams.ts";
-import { EmptyParams, RoutePath } from "./RoutePath.ts";
+import { EmptyParams, PlainRoutePath } from "./RoutePath.ts";
 import { RouteQuery } from "./RouteQuery.ts";
 
 export class RoutePathWithQuery {
-  path: RoutePath;
+  path: PlainRoutePath;
   query: Record<string, string | number | boolean | undefined>;
-  constructor(path: RoutePath, query: RoutePathWithQuery["query"]) {
+  constructor(path: PlainRoutePath, query: RoutePathWithQuery["query"]) {
     this.path = path;
     this.query = query;
   }
