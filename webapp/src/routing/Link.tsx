@@ -7,6 +7,10 @@ import { Link as RLink, LinkProps as RLinkProps } from "react-router-dom";
 interface LinkProps extends Omit<RLinkProps, "to"> {
   to: RoutePath;
 }
-export default function Link({ to, ...rest }: LinkProps) {
-  return <RLink to={resolveRoutePath(to)} {...rest} />;
-}
+const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(function Link(
+  { to, ...rest }: LinkProps,
+  ref
+) {
+  return <RLink to={resolveRoutePath(to)} ref={ref} {...rest} />;
+});
+export default Link;

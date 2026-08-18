@@ -1,9 +1,8 @@
+import Link from "../routing/Link.tsx";
 import { RoutePath } from "../routing/RoutePath.ts";
-import resolveRoutePath from "../routing/resolveRoutePath.ts";
 import "./Button.css";
 import clsx from "clsx";
 import React from "react";
-import { Link } from "react-router-dom";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "text" | "outline";
@@ -42,7 +41,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
       return (
         <Link
           ref={ref as React.Ref<HTMLAnchorElement>}
-          to={resolveRoutePath(to)}
+          to={to}
           className={cls}
           aria-disabled={disabled}
         >
