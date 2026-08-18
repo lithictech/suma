@@ -13,6 +13,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingName() {
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -20,9 +23,8 @@ export default function OnboardingName() {
   } = useForm<{ name: string }>({
     mode: "onBlur",
     reValidateMode: "onBlur",
+    defaultValues: { name: user.name },
   });
-  const navigate = useNavigate();
-  const { user, setUser } = useUser();
 
   function handleSubmitForm(data: { name: string }) {
     setUser({ ...user, name: data.name });

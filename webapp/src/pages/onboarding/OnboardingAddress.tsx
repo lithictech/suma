@@ -3,6 +3,7 @@ import { t } from "../../localization";
 import { buildValidators } from "../../modules/formValidators.ts";
 import useNavigate from "../../routing/useNavigate";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
+import useUser from "../../state/useUser.ts";
 import BackButton from "../../ui/BackButton.tsx";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -17,6 +18,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingAddress() {
+  const { scratchData, setScratchData } = useUser();
+
   const { state: supportedGeographies } = useAsyncFetch<SupportedGeographies>(
     api.getSupportedGeographies,
     {
@@ -39,7 +42,7 @@ export default function OnboardingAddress() {
     mode: "onBlur",
     reValidateMode: "onBlur",
     progressive: true,
-    defaultValues: { stateOrProvince: "" },
+    defaultValues: { stateOrProvince: "", ...scratchData.address },
   });
   const navigate = useNavigate();
 
@@ -50,8 +53,7 @@ export default function OnboardingAddress() {
     stateOrProvince: string;
     postalCode: string;
   }) {
-    console.log(data);
-    // setUser({ ...user, name: data.name });
+    setScratchData({ ...scratchData, address: data });
     navigate("/onboarding/eligibility");
   }
 

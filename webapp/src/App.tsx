@@ -200,7 +200,6 @@ function AppRoutes() {
     typeRoute({
       path: "/onboarding/offers",
       auth: "require",
-      onboarded: "not",
       meta: "titles.onboarding",
       Component: OnboardingOffers,
     }),

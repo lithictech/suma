@@ -40,6 +40,7 @@ class Suma::API::Me < Suma::API::V1
         use :address
       end
       optional :organization_name, type: String, allow_blank: false
+      optional :organization_names, type: Array[String], allow_blank: false
     end
     post :update do
       member = current_member
@@ -50,7 +51,12 @@ class Suma::API::Me < Suma::API::V1
           member.legal_entity.address = Suma::Address.lookup(params[:address])
           save_or_error!(member.legal_entity)
         end
-        member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
+
+        org_names = params[:organization_names] || []
+        org_names << params[:organization_name] if params.key?(:organization_name)
+        org_names.each do |org_name|
+          member.ensure_membership_in_organization(org_name)
+        end
 
         if (reglink_and_code = Suma::API::Entities::RegistrationLinkEntity.link_and_code_from_env(env))
           reglink_and_code.link.ensure_verified_membership(member, code: reglink_and_code.code)

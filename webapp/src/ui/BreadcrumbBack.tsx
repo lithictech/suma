@@ -1,6 +1,7 @@
 import { t } from "../localization";
-import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
+import { RoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbButton from "./BreadcrumbButton.tsx";
+import { ButtonProps } from "./Button.tsx";
 import React from "react";
 
 interface BreadcrumbBackProps {
@@ -21,12 +22,11 @@ interface BreadcrumbBackProps {
  * Simplified form of LinearBreadcrumb that renders a single 'Back' NavButton.
  */
 export default function BreadcrumbBack({ back, children }: BreadcrumbBackProps) {
-  let backProps: { to: RoutePath; onClick?: any };
+  let backProps: ButtonProps;
   if (back === true) {
     backProps = {
-      // Not a real route; renders as a styled link that just goes back in history.
-      to: untypedRoutePath("#"),
-      onClick: (e: React.ChangeEvent<HTMLButtonElement>) => {
+      variant: "text",
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         window.history.back();
       },
@@ -36,16 +36,17 @@ export default function BreadcrumbBack({ back, children }: BreadcrumbBackProps) 
   }
   const short = !!children;
   return (
-    <BreadcrumbButton
-      key="back"
-      left
-      size="sm"
-      style={{ marginLeft: ICON_OFFSET }}
-      className={short ? "link-unstyled" : ""}
-      {...backProps}
-    >
-      {short ? null : t("common.back")}
-    </BreadcrumbButton>
+    <div className="d-flex">
+      <BreadcrumbButton
+        key="back"
+        left
+        size="sm"
+        style={{ marginLeft: ICON_OFFSET }}
+        {...backProps}
+      >
+        {short ? null : t("common.back")}
+      </BreadcrumbButton>
+    </div>
   );
 }
 

@@ -5,6 +5,7 @@ import ChevroDoubleLeftIcon from "@heroicons/react/24/outline/ChevronDoubleLeftI
 import ChevronDoubleRightIcon from "@heroicons/react/24/outline/ChevronDoubleRightIcon";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
+import clsx from "clsx";
 import React from "react";
 
 interface BreadcrumbButtonProps extends ButtonProps {
@@ -24,12 +25,15 @@ export default function BreadcrumbButton({
   left,
   right,
   children,
+  className,
+  ...rest
 }: BreadcrumbButtonProps) {
   const short = !children;
   const leftIcon = short ? ChevroDoubleLeftIcon : ChevronLeftIcon;
   const rightIcon = short ? ChevronDoubleRightIcon : ChevronRightIcon;
+  const cls = clsx("px-0", left ? "pr-2" : "", right ? "pl-2" : "", className);
   return (
-    <Button size="sm" variant="text" className="px-0">
+    <Button size="sm" variant="text" className={cls} {...rest}>
       <Stack row center>
         {left && <Icon icon={leftIcon} className="mr-1" />}
         {children && <span>{children}</span>}

@@ -27,7 +27,7 @@ export default function OnboardingOffers() {
         </CardBody>
       </Card>
       <ButtonGroup col bottom>
-        <ContinueButton>Explore suma</ContinueButton>
+        <ContinueButton to="/dashboard">Explore suma</ContinueButton>
       </ButtonGroup>
     </Page>
   );
