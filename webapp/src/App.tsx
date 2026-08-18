@@ -48,7 +48,7 @@ import OnboardingTheme from "./pages/onboarding/OnboardingTheme.tsx";
 import OneTimePassword from "./pages/onboarding/OneTimePassword";
 import Start from "./pages/onboarding/Start";
 import Redirect from "./routing/Redirect.tsx";
-import Route from "./routing/Route";
+import typeRoute from "./routing/typeRoute.tsx";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
 import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
@@ -56,7 +56,7 @@ import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { unstable_HistoryRouter as Router, Routes } from "react-router-dom";
+import { unstable_HistoryRouter as Router, useRoutes } from "react-router-dom";
 
 installPromiseExtras(window.Promise);
 
@@ -101,302 +101,313 @@ function RerenderOnLangChange({ children }: { children?: React.ReactNode }) {
 
 function InnerApp() {
   const { initializing } = useI18n();
-  return initializing ? <ScreenLoader show /> : <AppRoutes />;
+  return initializing ? <ScreenLoader show /> : <AppRouter />;
+}
+
+function AppRouter() {
+  return (
+    <Router basename={import.meta.env.BASE_URL} history={history as any}>
+      <AppRoutes />
+    </Router>
+  );
 }
 
 function AppRoutes() {
-  return (
-    <Router basename={import.meta.env.BASE_URL} history={history as any}>
-      <Routes>
-        <Route
-          path="/"
-          auth="unauthed"
-          meta={{ title: t("common.welcome_to_suma"), exact: true }}
-          Component={Home}
-        />
-        <Route path="/privacy-policy" Component={PrivacyPolicy} />
-        <Route path="/privacy-policy-content" Component={PrivacyPolicyContent} />
-        <Route
-          path="/terms-of-use"
-          hocs={[
-            withProps({
-              languageFile: "terms_of_use_and_sale",
-            }),
-          ]}
-          Component={MarkdownContent}
-        />
+  const routes = [
+    typeRoute({
+      path: "/",
+      auth: "unauthed",
+      meta: { title: t("common.welcome_to_suma"), exact: true },
+      Component: Home,
+    }),
+    typeRoute({ path: "/privacy-policy", Component: PrivacyPolicy }),
+    typeRoute({ path: "/privacy-policy-content", Component: PrivacyPolicyContent }),
+    typeRoute({
+      path: "/terms-of-use",
+      hocs: [
+        withProps({
+          languageFile: "terms_of_use_and_sale",
+        }),
+      ],
+      Component: MarkdownContent,
+    }),
 
-        <Route path="/start" meta="titles.start" auth="unauthed" Component={Start} />
-        <Route
-          path="/regain-account-access"
-          auth="unauthed"
-          meta="auth.access_account_title"
-          Component={RegainAccountAccess}
-        />
-        <Route
-          path="/regain-account-access/success"
-          auth="unauthed"
-          meta="auth.access_account_title"
-          hocs={[withProps({ success: true })]}
-          Component={RegainAccountAccess}
-        />
-        <Route
-          path="/one-time-password"
-          auth="unauthed"
-          meta="titles.otp"
-          Component={OneTimePassword}
-        />
-        <Route
-          path="/partner-signup"
-          meta="titles.partner_signup"
-          Component={PartnerSignup}
-        />
-        <Route
-          path="/onboarding"
-          auth="require"
-          onboarded="not"
-          meta="titles.onboarding"
-          Component={Onboarding}
-        />
-        <Route
-          path="/onboarding/theme"
-          auth="require"
-          onboarded="not"
-          meta="titles.onboarding"
-          Component={OnboardingTheme}
-        />
-        <Route
-          path="/onboarding/name"
-          auth="require"
-          onboarded="not"
-          meta="titles.onboarding"
-          Component={OnboardingName}
-        />
-        <Route
-          path="/onboarding/address"
-          auth="require"
-          onboarded="not"
-          meta="titles.onboarding"
-          Component={OnboardingAddress}
-        />
-        <Route
-          path="/onboarding/eligibility"
-          auth="require"
-          onboarded="not"
-          meta="titles.onboarding"
-          Component={OnboardingEligibility}
-        />
-        <Route
-          path="/onboarding/offers"
-          auth="require"
-          onboarded="not"
-          meta="titles.onboarding"
-          Component={OnboardingOffers}
-        />
-        <Route
-          path="/contact-list"
-          auth="unauthed"
-          meta={{ title: t("titles.contact_list"), exact: true }}
-          Component={ContactListHome}
-        />
-        <Route
-          path="/contact-list/add"
-          auth="unauthed"
-          meta="titles.contact_list_signup"
-          Component={ContactListAdd}
-        />
-        <Route
-          path="/contact-list/success"
-          auth="unauthed"
-          meta="titles.contact_list_finish"
-          Component={ContactListSuccess}
-        />
-        <Route
-          path="/dashboard"
-          auth="require"
-          onboarded="require"
-          meta="titles.dashboard"
-          screenLoader
-          Component={Dashboard}
-        />
-        <Route
-          path="/mobility"
-          auth="require"
-          onboarded="require"
-          meta="mobility.title"
-          screenLoader
-          Component={Mobility}
-        />
-        <Route
-          path="/food"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.title"
-          Component={Food}
-        />
-        <Route
-          path="/food/:id"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.title"
-          Component={FoodList}
-        />
-        <Route
-          path="/product/:offeringId/:productId"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.title"
-          Component={FoodDetails}
-        />
-        <Route
-          path="/cart/:id"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.cart_title"
-          Component={FoodCart}
-        />
-        <Route
-          path="/checkout/:id"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.checkout"
-          Component={FoodCheckout}
-        />
-        <Route
-          path="/checkout/:id/confirmation"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.checkout"
-          Component={FoodCheckoutConfirmation}
-        />
+    typeRoute({
+      path: "/start",
+      meta: "titles.start",
+      auth: "unauthed",
+      Component: Start,
+    }),
+    typeRoute({
+      path: "/regain-account-access",
+      auth: "unauthed",
+      meta: "auth.access_account_title",
+      Component: RegainAccountAccess,
+    }),
+    typeRoute({
+      path: "/regain-account-access/success",
+      auth: "unauthed",
+      meta: "auth.access_account_title",
+      hocs: [withProps({ success: true })],
+      Component: RegainAccountAccess,
+    }),
+    typeRoute({
+      path: "/one-time-password",
+      auth: "unauthed",
+      meta: "titles.otp",
+      Component: OneTimePassword,
+    }),
+    typeRoute({
+      path: "/partner-signup",
+      meta: "titles.partner_signup",
+      Component: PartnerSignup,
+    }),
+    typeRoute({
+      path: "/onboarding",
+      auth: "require",
+      onboarded: "not",
+      meta: "titles.onboarding",
+      Component: Onboarding,
+    }),
+    typeRoute({
+      path: "/onboarding/theme",
+      auth: "require",
+      onboarded: "not",
+      meta: "titles.onboarding",
+      Component: OnboardingTheme,
+    }),
+    typeRoute({
+      path: "/onboarding/name",
+      auth: "require",
+      onboarded: "not",
+      meta: "titles.onboarding",
+      Component: OnboardingName,
+    }),
+    typeRoute({
+      path: "/onboarding/address",
+      auth: "require",
+      onboarded: "not",
+      meta: "titles.onboarding",
+      Component: OnboardingAddress,
+    }),
+    typeRoute({
+      path: "/onboarding/eligibility",
+      auth: "require",
+      onboarded: "not",
+      meta: "titles.onboarding",
+      Component: OnboardingEligibility,
+    }),
+    typeRoute({
+      path: "/onboarding/offers",
+      auth: "require",
+      onboarded: "not",
+      meta: "titles.onboarding",
+      Component: OnboardingOffers,
+    }),
+    typeRoute({
+      path: "/contact-list",
+      auth: "unauthed",
+      meta: { title: t("titles.contact_list"), exact: true },
+      Component: ContactListHome,
+    }),
+    typeRoute({
+      path: "/contact-list/add",
+      auth: "unauthed",
+      meta: "titles.contact_list_signup",
+      Component: ContactListAdd,
+    }),
+    typeRoute({
+      path: "/contact-list/success",
+      auth: "unauthed",
+      meta: "titles.contact_list_finish",
+      Component: ContactListSuccess,
+    }),
+    typeRoute({
+      path: "/dashboard",
+      auth: "require",
+      onboarded: "require",
+      meta: "titles.dashboard",
+      screenLoader: true,
+      Component: Dashboard,
+    }),
+    typeRoute({
+      path: "/mobility",
+      auth: "require",
+      onboarded: "require",
+      meta: "mobility.title",
+      screenLoader: true,
+      Component: Mobility,
+    }),
+    typeRoute({
+      path: "/food",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.title",
+      Component: Food,
+    }),
+    typeRoute({
+      path: "/food/:id",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.title",
+      Component: FoodList,
+    }),
+    typeRoute({
+      path: "/product/:offeringId/:productId",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.title",
+      Component: FoodDetails,
+    }),
+    typeRoute({
+      path: "/cart/:id",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.cart_title",
+      Component: FoodCart,
+    }),
+    typeRoute({
+      path: "/checkout/:id",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.checkout",
+      Component: FoodCheckout,
+    }),
+    typeRoute({
+      path: "/checkout/:id/confirmation",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.checkout",
+      Component: FoodCheckoutConfirmation,
+    }),
 
-        <Route
-          path="/utilities"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="utilities.title"
-          Component={Utilities}
-        />
-        <Route
-          path="/funding"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.funding"
-          Component={Funding}
-        />
-        <Route
-          path="/link-bank-account"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="payments.link_bank_account"
-          Component={FundingLinkBankAccount}
-        />
-        <Route
-          path="/add-card"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="payments.add_card"
-          Component={FundingAddCard}
-        />
-        <Route
-          path="/add-funds"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="payments.add_funds"
-          Component={FundingAddFunds}
-        />
-        <Route
-          path="/ledgers"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.ledgers_overview"
-          Component={LedgersOverview}
-        />
-        <Route
-          path="/order-history"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.order_history"
-          Component={OrderHistoryList}
-        />
-        <Route
-          path="/unclaimed-orders"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="food.unclaimed_order_history_title"
-          Component={UnclaimedOrderList}
-        />
-        <Route
-          path="/order/:id"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.order"
-          Component={OrderHistoryDetail}
-        />
-        <Route
-          path="/private-accounts"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.private_accounts"
-          Component={PrivateAccountsList}
-        />
-        <Route
-          path="/private-account/:id"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.private_accounts"
-          Component={PrivateAccountDetail}
-        />
-        <Route
-          path="/trips"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.trips"
-          Component={Trips}
-        />
-        <Route
-          path="/trip/:id"
-          auth="require"
-          onboarded="require"
-          screenLoader
-          meta="titles.trip_detail"
-          Component={TripDetail}
-        />
-        <Route
-          path="/preferences"
-          auth="require"
-          screenLoader
-          meta="titles.preferences"
-          Component={PreferencesAuthed}
-        />
-        <Route
-          path="/preferences-public"
-          screenLoader
-          meta="titles.messaging_preferences"
-          Component={PreferencesPublic}
-        />
-        <Route path="/error" meta="common.error" Component={ErrorScreen} />
-        <Route path="/styleguide" Component={Styleguide} />
-        <Route path="/*" hocs={[withProps({ to: "/" })]} Component={Redirect} />
-      </Routes>
-    </Router>
-  );
+    typeRoute({
+      path: "/utilities",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "utilities.title",
+      Component: Utilities,
+    }),
+    typeRoute({
+      path: "/funding",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.funding",
+      Component: Funding,
+    }),
+    typeRoute({
+      path: "/link-bank-account",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "payments.link_bank_account",
+      Component: FundingLinkBankAccount,
+    }),
+    typeRoute({
+      path: "/add-card",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "payments.add_card",
+      Component: FundingAddCard,
+    }),
+    typeRoute({
+      path: "/add-funds",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "payments.add_funds",
+      Component: FundingAddFunds,
+    }),
+    typeRoute({
+      path: "/ledgers",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.ledgers_overview",
+      Component: LedgersOverview,
+    }),
+    typeRoute({
+      path: "/order-history",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.order_history",
+      Component: OrderHistoryList,
+    }),
+    typeRoute({
+      path: "/unclaimed-orders",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "food.unclaimed_order_history_title",
+      Component: UnclaimedOrderList,
+    }),
+    typeRoute({
+      path: "/order/:id",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.order",
+      Component: OrderHistoryDetail,
+    }),
+    typeRoute({
+      path: "/private-accounts",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.private_accounts",
+      Component: PrivateAccountsList,
+    }),
+    typeRoute({
+      path: "/private-account/:id",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.private_accounts",
+      Component: PrivateAccountDetail,
+    }),
+    typeRoute({
+      path: "/trips",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.trips",
+      Component: Trips,
+    }),
+    typeRoute({
+      path: "/trip/:id",
+      auth: "require",
+      onboarded: "require",
+      screenLoader: true,
+      meta: "titles.trip_detail",
+      Component: TripDetail,
+    }),
+    typeRoute({
+      path: "/preferences",
+      auth: "require",
+      screenLoader: true,
+      meta: "titles.preferences",
+      Component: PreferencesAuthed,
+    }),
+    typeRoute({
+      path: "/preferences-public",
+      screenLoader: true,
+      meta: "titles.messaging_preferences",
+      Component: PreferencesPublic,
+    }),
+    typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
+    typeRoute({ path: "/styleguide", Component: Styleguide }),
+    typeRoute({ path: "/*", hocs: [withProps({ to: "/" })], Component: Redirect }),
+  ];
+  const element = useRoutes(routes);
+  return element;
 }
