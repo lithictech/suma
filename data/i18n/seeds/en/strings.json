@@ -407,5 +407,7 @@
   "trips.your_trip": "Your Trip",
   "utilities.intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
   "utilities.page_title": "Utilities",
-  "utilities.title": "Utilities"
+  "utilities.title": "Utilities",
+  "verification.status.unverified": "In progress",
+  "verification.status.verified": "Verified"
 }

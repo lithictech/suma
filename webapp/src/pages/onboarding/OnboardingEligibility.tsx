@@ -17,6 +17,7 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import Tile from "../../ui/Tile.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
+import { AxiosResponse } from "axios";
 import React from "react";
 
 export default function OnboardingEligibility({
@@ -40,13 +41,14 @@ export default function OnboardingEligibility({
     e.preventDefault();
     screenLoader.turnOn();
     api
-      .updateMe({
+      .onboard({
         name: onboardingState.name,
         address: onboardingState.address,
         organizationNames: onboardingState.organizationNames,
       })
-      .then((r: any) => {
-        setUser(r.data);
+      .then((r: AxiosResponse<Onboarded>) => {
+        setUser(r.data.member);
+        setOnboardingField("onboarded", r.data);
         stepForward();
       })
       .catch((err: any) => {

@@ -14,6 +14,7 @@ export interface OnboardingState {
   address: OnboardingAddressType;
   name: string;
   organizationNames: string[];
+  onboarded?: Onboarded;
 }
 
 type SetOnboardingStateField = <K extends keyof OnboardingState>(

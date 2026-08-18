@@ -1,6 +1,6 @@
+import { t } from "../../localization";
 import useMountEffect from "../../state/useMountEffect.ts";
 import useScreenLoader from "../../state/useScreenLoader.ts";
-import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import Card from "../../ui/Card.tsx";
 import CardBody from "../../ui/CardBody.tsx";
@@ -15,22 +15,26 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
   const screenLoader = useScreenLoader();
   useMountEffect(screenLoader.turnOff);
 
+  const { onboarded } = onboardingState;
+
   return (
     <Page buffer gap={3}>
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}
       />
-      <BreadcrumbBack back />
-      <h1>Thanks, Ana!</h1>
+      <h1>Thanks, {onboarded.member.name}!</h1>
       <p>Your account is in review! But here are some offers you can use right away.</p>
       <Card>
         <CardBody>
           <DefinitionTable
             items={[
-              { label: "Name", value: "Ana Flores" },
-              { label: "Eligibility", value: "Hacienda CDC · In review" },
-              { label: "Address", value: "2001 NE Alberta St, Portland, OR 97211" },
+              { label: "Name", value: onboarded.member.name },
+              {
+                label: "Eligibility",
+                value: eligibiltyValueString(onboarded.memberships[0]),
+              },
+              { label: "Address", value: onboarded.address.oneLineAddress },
             ]}
           />
         </CardBody>
@@ -40,4 +44,9 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
       </ButtonGroup>
     </Page>
   );
+}
+
+function eligibiltyValueString(membership: Membership) {
+  const status = t(`verification.status.${membership.status}`);
+  return `${membership.organizationName} · ${status}`;
 }

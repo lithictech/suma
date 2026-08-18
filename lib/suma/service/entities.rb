@@ -125,6 +125,7 @@ module Suma::Service::Entities
     expose :country, documentation: {type: String}
     expose :lat
     expose :lng
+    expose :one_line_address, documentation: {type: String}
   end
 
   class Multirange < Base
