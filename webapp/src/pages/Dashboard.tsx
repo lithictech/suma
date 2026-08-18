@@ -1,20 +1,16 @@
 import api from "../api";
-import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import AddToHomescreen from "../components/AddToHomescreen";
-import ExternalLink from "../components/ExternalLink";
+import AppNav from "../components/AppNav.tsx";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
+import ProgramCard from "../components/ProgramCard.tsx";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
-import SumaImage from "../components/SumaImage";
-import { dt, imageAltT, t } from "../localization";
-import { dayjs } from "../modules/dayConfig";
-import externalLinks from "../modules/externalLinks";
+import { t } from "../localization";
 import readOnlyReason from "../modules/readOnlyReason";
-import { untypedRoutePath } from "../routing/RoutePath.ts";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
-import Button from "../ui/Button";
+import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -37,38 +33,22 @@ export default function Dashboard() {
     );
   }
   return (
-    <>
-      <TopAlerts dashboard={dashboard} />
-      <img
-        src={foodHeaderImage}
-        alt={imageAltT("local_food_stand")}
-        className="thin-header-image"
-      />
-      <LayoutContainer gutters top>
-        <div className="font-serif lead d-flex flex-column gap-3">
-          <p className="mb-0">{t("dashboard.intro")}</p>
-          <ExternalLink
-            href={externalLinks.sumaIntroLink}
-            className="text-dark fw-semibold"
-            style={{ alignSelf: "flex-end" }}
-          >
-            {t("dashboard.about_suma")}
-          </ExternalLink>
-        </div>
+    <Page>
+      <Page buffer>
+        <TopAlerts dashboard={dashboard} />
         <AddToHomescreen />
-      </LayoutContainer>
-      {dashboardLoading ? (
-        <PageLoader buffered />
-      ) : (
-        <LayoutContainer gutters>
-          <Stack gap={3}>
+        {dashboardLoading ? (
+          <PageLoader buffered />
+        ) : (
+          <Stack col gap={3}>
             {dashboard.programs.map((program) => (
               <ProgramCard key={program.name} {...program} />
             ))}
           </Stack>
-        </LayoutContainer>
-      )}
-    </>
+        )}
+      </Page>
+      <AppNav />
+    </Page>
   );
 }
 
@@ -128,70 +108,5 @@ function TopAlerts({ dashboard }: { dashboard: Dashboard }) {
         </Alert>
       ))}
     </>
-  );
-}
-
-interface ProgramCardProps {
-  name: string;
-  description: string;
-  image?: Image;
-  periodEnd?: string;
-  appLink?: string;
-  appLinkText?: React.ReactNode;
-}
-
-function HeaderLink({ to, children }: ShimProps) {
-  if (!to) {
-    return children;
-  }
-  return <Link to={to}>{children}</Link>;
-}
-
-function ProgramCard({
-  name,
-  description,
-  image,
-  periodEnd,
-  appLink,
-  appLinkText,
-}: ProgramCardProps) {
-  const ImageComp = appLink ? Link : "div";
-  return (
-    <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
-      <HeaderLink to={appLink}>
-        <h5
-          className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
-          style={{ zIndex: 1 }}
-        >
-          {name}
-        </h5>
-      </HeaderLink>
-      <ImageComp to={appLink} className="flex-shrink-0 overflow-hidden position-relative">
-        <SumaImage
-          image={image}
-          w={500}
-          height={200}
-          params={{ crop: "entropy", resize: "fill" }}
-          style={{ maxWidth: "100%", objectFit: "cover" }}
-        />
-      </ImageComp>
-      <div className="mt-3 text-links-dark">{dt(description)}</div>
-      {periodEnd && (
-        <p className="mt-1 mb-0 small">
-          {t("dashboard.program_ends", { date: dayjs(periodEnd).format("ll") })}
-        </p>
-      )}
-      {appLink && (
-        <Button
-          href={untypedRoutePath(appLink)}
-          state={{ fromIndex: true }}
-          variant="outline"
-          className="h6 mb-0 mt-3"
-          size="sm"
-        >
-          {appLinkText} <i className="bi bi-arrow-right-circle-fill ms-1"></i>
-        </Button>
-      )}
-    </div>
   );
 }

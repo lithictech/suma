@@ -1,3 +1,6 @@
-.border-radius-0 {
-    border-radius: 0 !important;
-}
+.border-radius-0 { border-radius: 0; }
+.border-radius-sm { border-radius: var(--border-radius-sm); }
+.border-radius { border-radius: var(--border-radius); }
+.border-radius-lg { border-radius: var(--border-radius-lg); }
+.border-radius-xl { border-radius: var(--border-radius-xl); }
+.border-radius-pill { border-radius: var(--border-radius-pill); }

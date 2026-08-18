@@ -1,3 +1,4 @@
+import ProgramCard from "../../components/ProgramCard.tsx";
 import { t } from "../../localization";
 import useMountEffect from "../../state/useMountEffect.ts";
 import useScreenLoader from "../../state/useScreenLoader.ts";
@@ -8,6 +9,7 @@ import ContinueButton from "../../ui/ContinueButton.tsx";
 import DefinitionTable from "../../ui/DefinitionTable.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
+import Stack from "../../ui/Stack.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
 import React from "react";
 
@@ -39,6 +41,9 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
           />
         </CardBody>
       </Card>
+      {onboarded.programs.map((program) => (
+        <ProgramCard key={program.name} {...program} />
+      ))}
       <ButtonGroup col bottom>
         <ContinueButton to="/dashboard">Explore suma</ContinueButton>
       </ButtonGroup>

@@ -8,10 +8,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bs-gray-400);
-  color: var(--bs-dark);
-  border-radius: var(--bs-border-radius);
-  padding: var(--bs-spacer-2);
+  background-color: var(--tint-danger);
+  color: var(--color-danger);
+  border-radius: var(--border-radius);
+  padding: var(--space-2);
 }
 
 .error-small {
@@ -20,7 +20,7 @@
 }
 
 .loader {
-  border-radius: var(--bs-border-radius);
+  border-radius: var(--border-radius);
   animation: loader-animation 2s ease-in-out infinite alternate;
 }
 

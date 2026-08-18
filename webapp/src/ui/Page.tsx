@@ -3,7 +3,7 @@ import clsx from "clsx";
 import React, { CSSProperties } from "react";
 
 interface PageProps {
-  buffer: boolean;
+  buffer?: boolean;
   minHeight?: string | number;
   children: React.ReactNode;
   style?: CSSProperties;
