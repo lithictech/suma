@@ -1,5 +1,4 @@
 import api from "../../api.ts";
-import useNavigate from "../../routing/useNavigate.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
 import { extractErrorCode, useError } from "../../state/useError.tsx";
 import useScreenLoader from "../../state/useScreenLoader.ts";
@@ -17,11 +16,16 @@ import Grid from "../../ui/Grid.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import Tile from "../../ui/Tile.tsx";
+import { OnboardingProps } from "./onboardingTypes.ts";
 import React from "react";
 
-export default function OnboardingEligibility() {
-  const { user, setUser, scratchData, setScratchData } = useUser();
-  const navigate = useNavigate();
+export default function OnboardingEligibility({
+  onboardingState,
+  setOnboardingField,
+  stepForward,
+  stepBackward,
+}: OnboardingProps) {
+  const { setUser } = useUser();
   const screenLoader = useScreenLoader();
   const [error, setError] = useError();
 
@@ -37,13 +41,13 @@ export default function OnboardingEligibility() {
     screenLoader.turnOn();
     api
       .updateMe({
-        name: user.name,
-        address: scratchData.address,
-        organizationNames: scratchData.organizationNames,
+        name: onboardingState.name,
+        address: onboardingState.address,
+        organizationNames: onboardingState.organizationNames,
       })
       .then((r: any) => {
         setUser(r.data);
-        navigate("/onboarding/offers");
+        stepForward();
       })
       .catch((err: any) => {
         setError(extractErrorCode(err));
@@ -51,13 +55,12 @@ export default function OnboardingEligibility() {
       });
   }
 
-  const orgs: string[] = scratchData.organizationNames || [];
-  const setOrgs = (items: string[]) =>
-    setScratchData({ ...scratchData, organizationNames: items });
-
   return (
     <Page buffer gap={3}>
-      <ProgressStepHeader step={4} steps={5} />
+      <ProgressStepHeader
+        step={onboardingState.step}
+        steps={onboardingState.totalSteps}
+      />
       <BreadcrumbBack back />
       <h1>Do you have any eligibility?</h1>
       <p>
@@ -70,8 +73,13 @@ export default function OnboardingEligibility() {
           {supportedOrganizations.items.map(({ name }) => (
             <CheckableCard
               key={name}
-              checked={orgs.includes(name)}
-              onChange={() => setOrgs(toggleEntry(orgs, name))}
+              checked={onboardingState.organizationNames.includes(name)}
+              onChange={() =>
+                setOnboardingField(
+                  "organizationNames",
+                  toggleEntry(onboardingState.organizationNames, name)
+                )
+              }
             >
               <CardBody className="d-flex gap-2 flex-column">
                 <Tile>RC</Tile>
@@ -84,7 +92,7 @@ export default function OnboardingEligibility() {
         <FormError error={error} />
         <ButtonGroup col bottom>
           <ContinueButton />
-          <BackButton />
+          <BackButton onClick={stepBackward} />
         </ButtonGroup>
       </Form>
     </Page>

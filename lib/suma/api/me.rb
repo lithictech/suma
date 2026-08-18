@@ -45,15 +45,15 @@ class Suma::API::Me < Suma::API::V1
     post :update do
       member = current_member
       member.db.transaction do
-        set_declared(member, params, ignore: [:address, :organization_name])
+        set_declared(member, params, ignore: [:address, :organization_name, :organization_names])
         save_or_error!(member)
         if params.key?(:address)
           member.legal_entity.address = Suma::Address.lookup(params[:address])
           save_or_error!(member.legal_entity)
         end
 
-        org_names = params[:organization_names] || []
-        org_names << params[:organization_name] if params.key?(:organization_name)
+        org_names = params.delete(:organization_names) || []
+        org_names << params.delete(:organization_name) if params.key?(:organization_name)
         org_names.each do |org_name|
           member.ensure_membership_in_organization(org_name)
         end

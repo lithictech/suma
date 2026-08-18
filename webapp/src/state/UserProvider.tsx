@@ -9,13 +9,9 @@ import React from "react";
 
 const logger = new Logger("user");
 
-type ScratchData = Record<string, any>;
-
 export interface UserContextValue {
   user: CurrentMember | null;
   setUser: (u: CurrentMember | null) => void;
-  scratchData: ScratchData;
-  setScratchData: (r: ScratchData) => void;
   userLoading: boolean;
   userError: any;
   userAuthed: boolean;
@@ -95,14 +91,10 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     [regLinkFromError, user]
   );
 
-  const [scratchData, setScratchData] = React.useState({} as ScratchData);
-
   const value = React.useMemo(
     () => ({
       user,
       setUser,
-      scratchData,
-      setScratchData,
       userLoading,
       userError,
       userAuthed: Boolean(user),
@@ -113,7 +105,6 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     [
       handleUpdateCurrentMember,
       registrationSession,
-      scratchData,
       setUser,
       user,
       userError,

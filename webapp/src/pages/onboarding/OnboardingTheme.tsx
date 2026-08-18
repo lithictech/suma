@@ -5,19 +5,27 @@ import ContinueButton from "../../ui/ContinueButton.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import ThemeSwitcher from "../../ui/ThemeSwitcher.tsx";
+import { OnboardingProps } from "./onboardingTypes.ts";
 import React from "react";
 
-export default function OnboardingTheme() {
+export default function OnboardingTheme({
+  onboardingState,
+  stepForward,
+  stepBackward,
+}: OnboardingProps) {
   return (
     <Page buffer gap={3}>
-      <ProgressStepHeader step={1} steps={5} />
+      <ProgressStepHeader
+        step={onboardingState.step}
+        steps={onboardingState.totalSteps}
+      />
       <BreadcrumbBack back />
       <h1>How should the app look?</h1>
       <p>Pick what&rsquo;s easier to read. You can change it later!</p>
       <ThemeSwitcher />
       <ButtonGroup col bottom>
-        <ContinueButton to="/onboarding/name" />
-        <BackButton to="/onboarding" />
+        <ContinueButton onClick={stepForward} />
+        <BackButton onClick={stepBackward} />
       </ButtonGroup>
     </Page>
   );

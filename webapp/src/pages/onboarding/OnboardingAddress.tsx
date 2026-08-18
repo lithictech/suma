@@ -1,9 +1,7 @@
 import api from "../../api.ts";
 import { t } from "../../localization";
 import { buildValidators } from "../../modules/formValidators.ts";
-import useNavigate from "../../routing/useNavigate";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
-import useUser from "../../state/useUser.ts";
 import BackButton from "../../ui/BackButton.tsx";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -14,12 +12,16 @@ import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import Select from "../../ui/Select.tsx";
 import Stack from "../../ui/Stack.tsx";
 import TextInput from "../../ui/TextInput.tsx";
+import { OnboardingProps, OnboardingAddressType } from "./onboardingTypes.ts";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-export default function OnboardingAddress() {
-  const { scratchData, setScratchData } = useUser();
-
+export default function OnboardingAddress({
+  stepForward,
+  stepBackward,
+  onboardingState,
+  setOnboardingField,
+}: OnboardingProps) {
   const { state: supportedGeographies } = useAsyncFetch<SupportedGeographies>(
     api.getSupportedGeographies,
     {
@@ -32,34 +34,24 @@ export default function OnboardingAddress() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<{
-    address1: string;
-    address2: string;
-    city: string;
-    stateOrProvince: string;
-    postalCode: string;
-  }>({
+  } = useForm<Address>({
     mode: "onBlur",
     reValidateMode: "onBlur",
     progressive: true,
-    defaultValues: { stateOrProvince: "", ...scratchData.address },
+    defaultValues: onboardingState.address,
   });
-  const navigate = useNavigate();
 
-  function handleSubmitForm(data: {
-    address1: string;
-    address2: string;
-    city: string;
-    stateOrProvince: string;
-    postalCode: string;
-  }) {
-    setScratchData({ ...scratchData, address: data });
-    navigate("/onboarding/eligibility");
+  function handleSubmitForm(data: OnboardingAddressType) {
+    setOnboardingField("address", data);
+    stepForward();
   }
 
   return (
     <Page buffer gap={3}>
-      <ProgressStepHeader step={3} steps={5} />
+      <ProgressStepHeader
+        step={onboardingState.step}
+        steps={onboardingState.totalSteps}
+      />
       <BreadcrumbBack back />
       <h1>Where do you live?</h1>
       <p>We use this to find programs near you.</p>
@@ -119,7 +111,7 @@ export default function OnboardingAddress() {
         </Stack>
         <ButtonGroup col bottom>
           <ContinueButton />
-          <BackButton />
+          <BackButton onClick={stepBackward} />
         </ButtonGroup>
       </Form>
     </Page>

@@ -1,6 +1,4 @@
 import { t } from "../../localization";
-import useNavigate from "../../routing/useNavigate";
-import useUser from "../../state/useUser.ts";
 import BackButton from "../../ui/BackButton.tsx";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -9,13 +7,16 @@ import Form from "../../ui/Form.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import TextInput from "../../ui/TextInput.tsx";
+import { OnboardingProps } from "./onboardingTypes.ts";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-export default function OnboardingName() {
-  const { user, setUser } = useUser();
-  const navigate = useNavigate();
-
+export default function OnboardingName({
+  stepForward,
+  stepBackward,
+  onboardingState,
+  setOnboardingField,
+}: OnboardingProps) {
   const {
     register,
     handleSubmit,
@@ -23,17 +24,20 @@ export default function OnboardingName() {
   } = useForm<{ name: string }>({
     mode: "onBlur",
     reValidateMode: "onBlur",
-    defaultValues: { name: user.name },
+    defaultValues: { name: onboardingState.name },
   });
 
   function handleSubmitForm(data: { name: string }) {
-    setUser({ ...user, name: data.name });
-    navigate("/onboarding/address");
+    setOnboardingField("name", data.name);
+    stepForward();
   }
 
   return (
     <Page buffer gap={3}>
-      <ProgressStepHeader step={2} steps={5} />
+      <ProgressStepHeader
+        step={onboardingState.step}
+        steps={onboardingState.totalSteps}
+      />
       <BreadcrumbBack back />
       <h1>What is your name?</h1>
       <p>We&rsquo;d love to know what to call you!</p>
@@ -45,10 +49,9 @@ export default function OnboardingName() {
           autoFocus
           required
         />
-
         <ButtonGroup col bottom>
           <ContinueButton />
-          <BackButton to="/onboarding/theme" />
+          <BackButton onClick={stepBackward} />
         </ButtonGroup>
       </Form>
     </Page>

@@ -2,7 +2,6 @@ import ErrorScreen from "./components/ErrorScreen";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
-import withProps from "./hocs/withProps";
 import { t } from "./localization";
 import I18nProvider from "./localization/I18nProvider";
 import useI18n from "./localization/useI18n";
@@ -40,11 +39,6 @@ import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
 import Home from "./pages/onboarding/Home";
 import Onboarding from "./pages/onboarding/Onboarding";
-import OnboardingAddress from "./pages/onboarding/OnboardingAddress.tsx";
-import OnboardingEligibility from "./pages/onboarding/OnboardingEligibility.tsx";
-import OnboardingName from "./pages/onboarding/OnboardingName.tsx";
-import OnboardingOffers from "./pages/onboarding/OnboardingOffers.tsx";
-import OnboardingTheme from "./pages/onboarding/OnboardingTheme.tsx";
 import OneTimePassword from "./pages/onboarding/OneTimePassword";
 import Start from "./pages/onboarding/Start";
 import Redirect from "./routing/Redirect.tsx";
@@ -124,14 +118,11 @@ function AppRoutes() {
     typeRoute({ path: "/privacy-policy-content", Component: PrivacyPolicyContent }),
     typeRoute({
       path: "/terms-of-use",
-      hocs: [
-        withProps({
-          languageFile: "terms_of_use_and_sale",
-        }),
-      ],
+      pageProps: {
+        languageFile: "terms_of_use_and_sale",
+      },
       Component: MarkdownContent,
     }),
-
     typeRoute({
       path: "/start",
       meta: "titles.start",
@@ -148,7 +139,7 @@ function AppRoutes() {
       path: "/regain-account-access/success",
       auth: "unauthed",
       meta: "auth.access_account_title",
-      hocs: [withProps({ success: true })],
+      pageProps: { success: true },
       Component: RegainAccountAccess,
     }),
     typeRoute({
@@ -165,43 +156,8 @@ function AppRoutes() {
     typeRoute({
       path: "/onboarding",
       auth: "require",
-      onboarded: "not",
       meta: "titles.onboarding",
       Component: Onboarding,
-    }),
-    typeRoute({
-      path: "/onboarding/theme",
-      auth: "require",
-      onboarded: "not",
-      meta: "titles.onboarding",
-      Component: OnboardingTheme,
-    }),
-    typeRoute({
-      path: "/onboarding/name",
-      auth: "require",
-      onboarded: "not",
-      meta: "titles.onboarding",
-      Component: OnboardingName,
-    }),
-    typeRoute({
-      path: "/onboarding/address",
-      auth: "require",
-      onboarded: "not",
-      meta: "titles.onboarding",
-      Component: OnboardingAddress,
-    }),
-    typeRoute({
-      path: "/onboarding/eligibility",
-      auth: "require",
-      onboarded: "not",
-      meta: "titles.onboarding",
-      Component: OnboardingEligibility,
-    }),
-    typeRoute({
-      path: "/onboarding/offers",
-      auth: "require",
-      meta: "titles.onboarding",
-      Component: OnboardingOffers,
     }),
     typeRoute({
       path: "/contact-list",
@@ -405,7 +361,7 @@ function AppRoutes() {
     }),
     typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
     typeRoute({ path: "/styleguide", Component: Styleguide }),
-    typeRoute({ path: "/*", hocs: [withProps({ to: "/" })], Component: Redirect }),
+    typeRoute({ path: "/*", pageProps: { to: "/" }, Component: Redirect }),
   ];
   const element = useRoutes(routes);
   return element;

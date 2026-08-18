@@ -10,7 +10,10 @@ export type Contrast = "default" | "high";
 
 export default function ThemeSwitcher() {
   const [theme, setThemeState] = useLocalStorageState<Theme>("theme", "system");
-  const [contrast, setContrastState] = useLocalStorageState<Contrast>("theme", "default");
+  const [contrast, setContrastState] = useLocalStorageState<Contrast>(
+    "contrast",
+    "default"
+  );
 
   useMountEffect(() => {
     setThemeOnDOM(theme, contrast);
