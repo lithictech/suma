@@ -5,8 +5,8 @@ require "suma/i18n/formatter"
 
 module Suma::Service::Entities
   class Money < Grape::Entity
-    expose :cents
-    expose :currency do |obj|
+    expose :cents, documentation: {type: Integer}
+    expose :currency, documentation: {type: String} do |obj|
       obj.currency.iso_code
     end
   end
@@ -117,12 +117,12 @@ module Suma::Service::Entities
   end
 
   class Address < Base
-    expose :address1
-    expose :address2
-    expose :city
-    expose :state_or_province
-    expose :postal_code
-    expose :country
+    expose :address1, documentation: {type: String}
+    expose :address2, documentation: {type: String}
+    expose :city, documentation: {type: String}
+    expose :state_or_province, documentation: {type: String}
+    expose :postal_code, documentation: {type: String}
+    expose :country, documentation: {type: String}
     expose :lat
     expose :lng
   end
