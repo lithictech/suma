@@ -7,6 +7,7 @@ import PageHeading from "../components/PageHeading";
 import config from "../config";
 import { imageAltT, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
+import { untypedRoutePath } from "../routing/RoutePath.ts";
 import { extractErrorCode, useError } from "../state/useError";
 import useHashToggle from "../state/useHashToggle";
 import useScreenLoader from "../state/useScreenLoader";
@@ -66,7 +67,9 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            href={untypedRoutePath(
+              `${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`
+            )}
             variant="outline"
           >
             {t("forms.continue")}
@@ -136,7 +139,7 @@ function LinkBankAccount({ onSuccess, returnTo }: LinkBankAccountProps) {
 
   return (
     <>
-      <BreadcrumbBack back={returnTo || true} />
+      <BreadcrumbBack back={returnTo ? untypedRoutePath(returnTo) : true} />
       <PageHeading>{t("payments.link_bank_account")}</PageHeading>
       <p>{t("payments.payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>

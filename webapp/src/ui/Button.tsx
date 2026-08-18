@@ -1,14 +1,15 @@
+import Link from "../routing/Link.tsx";
+import { RoutePath } from "../routing/RoutePath.ts";
 import "./Button.css";
 import clsx from "clsx";
 import React from "react";
-import { Link, LinkProps } from "react-router-dom";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "text" | "outline";
   size?: "sm" | "md" | "lg";
   className?: string;
-  href?: string;
-  to?: LinkProps["to"];
+  href?: RoutePath;
+  to?: RoutePath;
   disabled?: boolean;
   children?: React.ReactNode;
   state?: ShimProps;

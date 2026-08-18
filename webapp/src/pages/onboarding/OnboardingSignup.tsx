@@ -14,7 +14,6 @@ import FormSelect from "../../ui/FormSelect";
 import Row from "../../ui/Row";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 interface SupportedGeography {
   label: string;
@@ -27,7 +26,6 @@ interface SupportedGeographies {
 }
 
 export default function OnboardingSignup() {
-  const navigate = useNavigate();
   const { setUser, registrationSession } = useUser();
   const {
     register,
@@ -62,7 +60,7 @@ export default function OnboardingSignup() {
       })
       .then((r: any) => {
         setUser(r.data);
-        navigate("/onboarding/finish");
+        // TODO: navigate to "/onboarding/finish" once that route exists.
       })
       .catch((err: any) => {
         setError(extractErrorCode(err));

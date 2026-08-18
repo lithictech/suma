@@ -1,6 +1,7 @@
 import api from "../api";
 import FormControlGroup from "../components/FormControlGroup";
 import { t } from "../localization";
+import useNavigate from "../routing/useNavigate";
 import { extractLocalizedError, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import Button from "../ui/Button";
@@ -10,7 +11,6 @@ import FormError from "../ui/FormError";
 import PhoneInput from "../ui/PhoneInput";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 export default function RegainAccountAccess({ success }: { success?: boolean }) {
   const navigate = useNavigate();

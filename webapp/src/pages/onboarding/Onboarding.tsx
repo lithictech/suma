@@ -1,4 +1,3 @@
-import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import Checklist from "../../ui/Checklist.tsx";
 import ChecklistItem from "../../ui/ChecklistItem.tsx";
@@ -9,7 +8,6 @@ import React from "react";
 export default function Onboarding() {
   return (
     <Page buffer gap={3}>
-      <BreadcrumbBack back />
       <h1>Let&rsquo;s get you set up</h1>
       <p>It only takes a few minutes. Here’s what we’ll ask for:</p>
       <Checklist>

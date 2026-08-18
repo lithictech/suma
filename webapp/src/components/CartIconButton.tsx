@@ -14,7 +14,7 @@ interface CartIconButtonProps {
 export default function CartIconButton({ offeringId, cart }: CartIconButtonProps) {
   return (
     <Button
-      href={`/cart/${offeringId}`}
+      href={["/cart/:id", { id: offeringId }]}
       variant={cart.items?.length > 0 ? "primary" : "outline"}
       className="py-1"
       size="sm"

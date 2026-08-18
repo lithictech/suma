@@ -1,10 +1,11 @@
 import { t } from "../localization";
+import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbButton from "./BreadcrumbButton.tsx";
 import React from "react";
 
 interface BreadcrumbBackProps {
   /** If true, use window.history.back. Otherwise, use it as the 'to' prop on the link. */
-  back: true | string;
+  back: true | RoutePath;
   /**
    * Additional nav item (usually a title/heading).
    * If children is present, do not render the text 'Back'; use a short variant,
@@ -20,10 +21,11 @@ interface BreadcrumbBackProps {
  * Simplified form of LinearBreadcrumb that renders a single 'Back' NavButton.
  */
 export default function BreadcrumbBack({ back, children }: BreadcrumbBackProps) {
-  let backProps = {};
+  let backProps: { to: RoutePath; onClick?: any };
   if (back === true) {
     backProps = {
-      to: "#",
+      // Not a real route; renders as a styled link that just goes back in history.
+      to: untypedRoutePath("#"),
       onClick: (e: React.ChangeEvent<HTMLButtonElement>) => {
         e.preventDefault();
         window.history.back();

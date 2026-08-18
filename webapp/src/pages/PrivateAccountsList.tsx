@@ -147,7 +147,7 @@ function PrivateAccount({
         )}
         <Button
           variant={ctaVariant}
-          to={`/private-account/${account.id}`}
+          to={["/private-account/:id", { id: account.id }]}
           className={"flex-grow-1"}
         >
           {t(actionLocKey)}

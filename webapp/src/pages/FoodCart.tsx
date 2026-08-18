@@ -49,7 +49,7 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer gutters>
-        <BreadcrumbBack back={`/food/${offeringId}`} />
+        <BreadcrumbBack back={["/food/:id", { id: offeringId }]} />
         <Stack direction="horizontal" gap={3} className="align-items-end">
           <h4 className="mb-0">{t("food.cart_title")}</h4>
           <span className="text-secondary ms-auto">{t("food.price")}</span>

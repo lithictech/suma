@@ -55,7 +55,7 @@ export default function FoodDetails() {
     if (!error) {
       errorScreenProps.body = t("food.product_404");
       errorScreenProps.actionLabel = t("common.back");
-      errorScreenProps.actionHref = `/food/${offeringId}`;
+      errorScreenProps.actionHref = ["/food/:id", { id: offeringId }];
     }
     return (
       <PageLayout {...PAGE_LAYOUT_PROPS}>
@@ -79,7 +79,7 @@ export default function FoodDetails() {
         <title>{title}</title>
       </Helmet>
       <LayoutContainer gutters>
-        <BreadcrumbBack back={`/food/${offeringId}`} />
+        <BreadcrumbBack back={["/food/:id", { id: offeringId }]} />
         <PageHeading level={1} className="mb-3">
           {dt(product.name)}
         </PageHeading>

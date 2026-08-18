@@ -1,6 +1,7 @@
 import api from "../../api.ts";
 import { t } from "../../localization";
 import { buildValidators } from "../../modules/formValidators.ts";
+import useNavigate from "../../routing/useNavigate";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
 import BackButton from "../../ui/BackButton.tsx";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
@@ -14,7 +15,6 @@ import Stack from "../../ui/Stack.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 export default function OnboardingAddress() {
   const { state: supportedGeographies } = useAsyncFetch<SupportedGeographies>(

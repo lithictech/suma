@@ -4,6 +4,7 @@ import config from "../config";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { scaleMoney } from "../modules/money";
+import { withQuery } from "../routing/withQuery.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
@@ -155,7 +156,10 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
               variant="primary"
               size="sm"
               className="mb-2 funding-card-border-radius text-nowrap"
-              href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
+              href={withQuery(`/add-funds`, {
+                id: instrument.id,
+                paymentMethodType: instrument.paymentMethodType,
+              })}
             >
               <i className="bi bi-plus-circle"></i> {t("payments.funds")}
             </Button>
@@ -188,7 +192,7 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
 }
 
 function InstrumentStatus({ instrument }: { instrument: PaymentInstrument }) {
-  let cls, locKey;
+  let cls: string, locKey: string;
   if (instrument.status === "ok") {
     cls = "bi-check2-circle text-success";
     locKey = "payments.payment_account_verified";

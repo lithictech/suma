@@ -1,6 +1,7 @@
+import Redirect from "../routing/Redirect.tsx";
+import { RoutePath } from "../routing/RoutePath.ts";
 import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
-import Redirect from "../uir/Redirect";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
@@ -9,7 +10,7 @@ interface RedirectUnlessOptions {
 }
 
 function redirectUnless(
-  to: string,
+  to: RoutePath,
   test: (userCtx: any) => boolean,
   options?: RedirectUnlessOptions
 ) {

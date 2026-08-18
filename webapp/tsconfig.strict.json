@@ -8,6 +8,7 @@
     "src/hocs",
     "src/localization",
     "src/modules",
+    "src/routing",
     "src/shared",
     "src/state",
     "src/assets/styles/imports.ts",

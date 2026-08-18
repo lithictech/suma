@@ -1,9 +1,10 @@
 import { t } from "../localization";
+import { RoutePath } from "../routing/RoutePath.ts";
 import Button from "../ui/Button";
 import React from "react";
 
 interface GoHomeProps {
-  href?: string;
+  href?: RoutePath;
   label?: React.ReactNode;
 }
 
