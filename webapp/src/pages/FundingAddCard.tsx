@@ -3,6 +3,7 @@ import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
+import { untypedRoutePath } from "../routing/RoutePath.ts";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
@@ -53,7 +54,7 @@ export default function FundingAddCard() {
         <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <>
-          <BreadcrumbBack back={returnTo || true} />
+          <BreadcrumbBack back={returnTo ? untypedRoutePath(returnTo) : true} />
           <PageHeading>{t("payments.add_card")}</PageHeading>
           <p>{t("payments.payment_intro.privacy_statement")}</p>
           <AddCreditCard
@@ -81,7 +82,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={makeReturnUrl(returnTo, instrumentId, instrumentType)}
+            href={untypedRoutePath(makeReturnUrl(returnTo, instrumentId, instrumentType))}
             variant="outline"
           >
             {t("forms.continue")}

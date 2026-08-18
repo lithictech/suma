@@ -1,4 +1,5 @@
 import { t } from "../../localization";
+import { untypedRoutePath } from "../../routing/RoutePath.ts";
 import Button from "../../ui/Button";
 import FormError from "../../ui/FormError";
 import DrawerContents from "./DrawerContents";
@@ -54,7 +55,7 @@ export default function PreTrip({
         <Button
           className="p-1 ps-0 align-self-start"
           variant="text"
-          href={vehicle.deeplink}
+          href={untypedRoutePath(vehicle.deeplink)}
         >
           {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
           <i className="ms-2 bi bi-box-arrow-right"></i>

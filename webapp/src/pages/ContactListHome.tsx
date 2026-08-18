@@ -2,6 +2,7 @@ import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import ContactListTags from "../components/ContactListTags";
 import { imageAltT, t } from "../localization";
 import useI18n from "../localization/useI18n";
+import { withQuery } from "../routing/withQuery.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import Button from "../ui/Button";
 import Container from "../ui/Container";
@@ -38,7 +39,7 @@ function LanguageButtons({ eventName }: { eventName: string | null }) {
     <Button
       key={code}
       className="btn-outline-secondary mt-2 w-75"
-      href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
+      href={withQuery(`/contact-list/add`, { eventName })}
       variant="outline"
       onClick={() => changeLanguage(code)}
     >

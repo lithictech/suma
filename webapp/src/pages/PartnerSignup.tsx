@@ -1,6 +1,7 @@
 import api from "../api";
 import PageLoader from "../components/PageLoader";
 import { dt, t } from "../localization";
+import useNavigate from "../routing/useNavigate";
 import { UserContextValue } from "../state/UserProvider";
 import useErrorToast from "../state/useErrorToast";
 import useToggle from "../state/useToggle";
@@ -8,7 +9,6 @@ import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
 
 export default function PartnerSignup() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function PartnerSignup() {
       // Unauthed users go through the normal signup/in and onboarding flow.
       navigate("/");
     } else if (action === NOT_ONBOARDED) {
-      navigate("/onboarding/signup");
+      navigate("/onboarding");
     }
   }, [navigate, userCtx]);
 

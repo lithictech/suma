@@ -1,21 +1,11 @@
 import ErrorScreen from "./components/ErrorScreen";
-import LayoutContainer from "./components/LayoutContainer";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
-import {
-  redirectIfAuthed,
-  redirectIfUnauthed,
-  redirectIfBoarded,
-  redirectIfUnboarded,
-} from "./hocs/authRedirects";
-import withMetatags from "./hocs/withMetatags";
 import withProps from "./hocs/withProps";
-import withScreenLoaderMount from "./hocs/withScreenLoaderMount";
 import { t } from "./localization";
 import I18nProvider from "./localization/I18nProvider";
 import useI18n from "./localization/useI18n";
-import applyHocs from "./modules/applyHocs";
 import { installPromiseExtras } from "./modules/bluejay";
 import ContactListAdd from "./pages/ContactListAdd";
 import ContactListHome from "./pages/ContactListHome";
@@ -57,16 +47,16 @@ import OnboardingOffers from "./pages/onboarding/OnboardingOffers.tsx";
 import OnboardingTheme from "./pages/onboarding/OnboardingTheme.tsx";
 import OneTimePassword from "./pages/onboarding/OneTimePassword";
 import Start from "./pages/onboarding/Start";
+import Redirect from "./routing/Redirect.tsx";
+import Route from "./routing/Route";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
 import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
-import Redirect from "./uir/Redirect";
-import renderComponent from "./uir/renderComponent";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { unstable_HistoryRouter as Router, Routes, Route } from "react-router-dom";
+import { unstable_HistoryRouter as Router, Routes } from "react-router-dom";
 
 installPromiseExtras(window.Promise);
 
@@ -120,390 +110,293 @@ function AppRoutes() {
       <Routes>
         <Route
           path="/"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("common.welcome_to_suma"), exact: true }),
-            Home
-          )}
+          auth="unauthed"
+          meta={{ title: t("common.welcome_to_suma"), exact: true }}
+          Component={Home}
         />
-        <Route path="/privacy-policy" element={renderWithHocs(PrivacyPolicy)} />
-        <Route
-          path="/privacy-policy-content"
-          element={renderWithHocs(PrivacyPolicyContent)}
-        />
+        <Route path="/privacy-policy" Component={PrivacyPolicy} />
+        <Route path="/privacy-policy-content" Component={PrivacyPolicyContent} />
         <Route
           path="/terms-of-use"
-          element={renderWithHocs(
+          hocs={[
             withProps({
               languageFile: "terms_of_use_and_sale",
             }),
-            MarkdownContent
-          )}
+          ]}
+          Component={MarkdownContent}
         />
 
-        <Route
-          path="/start"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("titles.start") }),
-            Start
-          )}
-        />
+        <Route path="/start" meta="titles.start" auth="unauthed" Component={Start} />
         <Route
           path="/regain-account-access"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("auth.access_account_title") }),
-            RegainAccountAccess
-          )}
+          auth="unauthed"
+          meta="auth.access_account_title"
+          Component={RegainAccountAccess}
         />
         <Route
           path="/regain-account-access/success"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("auth.access_account_title") }),
-            withProps({ success: true }),
-            RegainAccountAccess
-          )}
+          auth="unauthed"
+          meta="auth.access_account_title"
+          hocs={[withProps({ success: true })]}
+          Component={RegainAccountAccess}
         />
         <Route
           path="/one-time-password"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("titles.otp") }),
-            OneTimePassword
-          )}
+          auth="unauthed"
+          meta="titles.otp"
+          Component={OneTimePassword}
         />
         <Route
           path="/partner-signup"
-          element={renderWithHocs(
-            withMetatags({ title: t("titles.partner_signup") }),
-            PartnerSignup
-          )}
+          meta="titles.partner_signup"
+          Component={PartnerSignup}
         />
         <Route
           path="/onboarding"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding") }),
-            Onboarding
-          )}
+          auth="require"
+          onboarded="not"
+          meta="titles.onboarding"
+          Component={Onboarding}
         />
         <Route
           path="/onboarding/theme"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding") }),
-            OnboardingTheme
-          )}
+          auth="require"
+          onboarded="not"
+          meta="titles.onboarding"
+          Component={OnboardingTheme}
         />
         <Route
           path="/onboarding/name"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding") }),
-            OnboardingName
-          )}
+          auth="require"
+          onboarded="not"
+          meta="titles.onboarding"
+          Component={OnboardingName}
         />
         <Route
           path="/onboarding/address"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding") }),
-            OnboardingAddress
-          )}
+          auth="require"
+          onboarded="not"
+          meta="titles.onboarding"
+          Component={OnboardingAddress}
         />
         <Route
           path="/onboarding/eligibility"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding") }),
-            OnboardingEligibility
-          )}
+          auth="require"
+          onboarded="not"
+          meta="titles.onboarding"
+          Component={OnboardingEligibility}
         />
         <Route
           path="/onboarding/offers"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfBoarded,
-            withMetatags({ title: t("titles.onboarding") }),
-            OnboardingOffers
-          )}
+          auth="require"
+          onboarded="not"
+          meta="titles.onboarding"
+          Component={OnboardingOffers}
         />
         <Route
           path="/contact-list"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("titles.contact_list"), exact: true }),
-            ContactListHome
-          )}
+          auth="unauthed"
+          meta={{ title: t("titles.contact_list"), exact: true }}
+          Component={ContactListHome}
         />
         <Route
           path="/contact-list/add"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("titles.contact_list_signup") }),
-
-            ContactListAdd
-          )}
+          auth="unauthed"
+          meta="titles.contact_list_signup"
+          Component={ContactListAdd}
         />
         <Route
           path="/contact-list/success"
-          element={renderWithHocs(
-            redirectIfAuthed,
-            withMetatags({ title: t("titles.contact_list_finish") }),
-            ContactListSuccess
-          )}
+          auth="unauthed"
+          meta="titles.contact_list_finish"
+          Component={ContactListSuccess}
         />
         <Route
           path="/dashboard"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.dashboard") }),
-            Dashboard
-          )}
+          auth="require"
+          onboarded="require"
+          meta="titles.dashboard"
+          screenLoader
+          Component={Dashboard}
         />
         <Route
           path="/mobility"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("mobility.title") }),
-
-            Mobility
-          )}
+          auth="require"
+          onboarded="require"
+          meta="mobility.title"
+          screenLoader
+          Component={Mobility}
         />
         <Route
           path="/food"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.title") }),
-            Food
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.title"
+          Component={Food}
         />
         <Route
           path="/food/:id"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.title") }),
-            FoodList
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.title"
+          Component={FoodList}
         />
         <Route
           path="/product/:offeringId/:productId"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.title") }),
-            FoodDetails
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.title"
+          Component={FoodDetails}
         />
         <Route
           path="/cart/:id"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.cart_title") }),
-            FoodCart
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.cart_title"
+          Component={FoodCart}
         />
         <Route
           path="/checkout/:id"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.checkout") }),
-            FoodCheckout
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.checkout"
+          Component={FoodCheckout}
         />
         <Route
           path="/checkout/:id/confirmation"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.checkout") }),
-            FoodCheckoutConfirmation
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.checkout"
+          Component={FoodCheckoutConfirmation}
         />
 
         <Route
           path="/utilities"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("utilities.title") }),
-            Utilities
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="utilities.title"
+          Component={Utilities}
         />
         <Route
           path="/funding"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.funding") }),
-            Funding
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.funding"
+          Component={Funding}
         />
         <Route
           path="/link-bank-account"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("payments.link_bank_account") }),
-            FundingLinkBankAccount
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="payments.link_bank_account"
+          Component={FundingLinkBankAccount}
         />
         <Route
           path="/add-card"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("payments.add_card") }),
-            FundingAddCard
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="payments.add_card"
+          Component={FundingAddCard}
         />
         <Route
           path="/add-funds"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("payments.add_funds") }),
-            FundingAddFunds
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="payments.add_funds"
+          Component={FundingAddFunds}
         />
         <Route
           path="/ledgers"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.ledgers_overview") }),
-            LedgersOverview
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.ledgers_overview"
+          Component={LedgersOverview}
         />
         <Route
           path="/order-history"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.order_history") }),
-            OrderHistoryList
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.order_history"
+          Component={OrderHistoryList}
         />
         <Route
           path="/unclaimed-orders"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("food.unclaimed_order_history_title") }),
-            UnclaimedOrderList
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="food.unclaimed_order_history_title"
+          Component={UnclaimedOrderList}
         />
         <Route
           path="/order/:id"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.order") }),
-            OrderHistoryDetail
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.order"
+          Component={OrderHistoryDetail}
         />
         <Route
           path="/private-accounts"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.private_accounts") }),
-            PrivateAccountsList
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.private_accounts"
+          Component={PrivateAccountsList}
         />
         <Route
           path="/private-account/:id"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.private_accounts") }),
-            PrivateAccountDetail
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.private_accounts"
+          Component={PrivateAccountDetail}
         />
         <Route
           path="/trips"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.trips") }),
-            Trips
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.trips"
+          Component={Trips}
         />
         <Route
           path="/trip/:id"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.trip_detail") }),
-            TripDetail
-          )}
+          auth="require"
+          onboarded="require"
+          screenLoader
+          meta="titles.trip_detail"
+          Component={TripDetail}
         />
         <Route
           path="/preferences"
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.preferences") }),
-            PreferencesAuthed
-          )}
+          auth="require"
+          screenLoader
+          meta="titles.preferences"
+          Component={PreferencesAuthed}
         />
         <Route
           path="/preferences-public"
-          element={renderWithHocs(
-            withScreenLoaderMount(),
-            withMetatags({ title: t("titles.messaging_preferences") }),
-            PreferencesPublic
-          )}
+          screenLoader
+          meta="titles.messaging_preferences"
+          Component={PreferencesPublic}
         />
-        <Route
-          path="/error"
-          element={renderWithHocs(withMetatags({ title: t("common.error") }), () => (
-            <LayoutContainer top>
-              <ErrorScreen />
-            </LayoutContainer>
-          ))}
-        />
-        <Route path="/styleguide" element={<Styleguide />} />
-        <Route path="/*" element={<Redirect to="/" />} />
+        <Route path="/error" meta="common.error" Component={ErrorScreen} />
+        <Route path="/styleguide" Component={Styleguide} />
+        <Route path="/*" hocs={[withProps({ to: "/" })]} Component={Redirect} />
       </Routes>
     </Router>
   );
-}
-
-function renderWithHocs(...args: Array<(x: any) => any>) {
-  return renderComponent(applyHocs(...args));
 }

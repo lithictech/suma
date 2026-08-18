@@ -5,6 +5,7 @@ import { t } from "../../localization";
 import useI18n from "../../localization/useI18n";
 import { dayjs } from "../../modules/dayConfig";
 import { Logger } from "../../modules/logger";
+import useNavigate from "../../routing/useNavigate";
 import { extractErrorCode, extractLocalizedError, useError } from "../../state/useError";
 import useToggle from "../../state/useToggle";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
@@ -16,7 +17,6 @@ import Page from "../../ui/Page.tsx";
 import PhoneInput from "../../ui/PhoneInput";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 export default function Start() {
   const { currentLanguage } = useI18n();

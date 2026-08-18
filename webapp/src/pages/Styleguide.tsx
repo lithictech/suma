@@ -1,3 +1,4 @@
+import { RoutePath } from "../routing/RoutePath.ts";
 import { useError } from "../state/useError.tsx";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import useToggle from "../state/useToggle";
@@ -118,7 +119,8 @@ export default function Styleguide() {
                   className={st}
                   disabled={st === "is-disabled"}
                   {...props}
-                  to="#"
+                  // Not a real route; just demoing the "link" visual style.
+                  to={"#" as RoutePath}
                 />
               ))}
             </Stack>

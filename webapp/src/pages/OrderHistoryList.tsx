@@ -7,6 +7,7 @@ import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import useNavigate from "../routing/useNavigate";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
@@ -19,7 +20,6 @@ import Stack from "../ui/Stack";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {
   const { user } = useUser();
@@ -45,7 +45,7 @@ export default function OrderHistoryList() {
       return;
     }
     e.preventDefault();
-    navigate(`/order/${order.id}`, { state: { order: detailed } });
+    navigate(["/order/:id", { id: order.id }], { state: { order: detailed } });
   }
   return (
     <>

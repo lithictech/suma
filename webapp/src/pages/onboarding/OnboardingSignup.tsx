@@ -3,6 +3,7 @@ import FormControlGroup from "../../components/FormControlGroup";
 import PageHeading from "../../components/PageHeading";
 import { t } from "../../localization";
 import keepDigits from "../../modules/keepDigits";
+import useNavigate from "../../routing/useNavigate";
 import useAsyncFetch from "../../state/useAsyncFetch";
 import { extractErrorCode } from "../../state/useError";
 import useUser from "../../state/useUser";
@@ -14,7 +15,6 @@ import FormSelect from "../../ui/FormSelect";
 import Row from "../../ui/Row";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 interface SupportedGeography {
   label: string;
@@ -62,7 +62,7 @@ export default function OnboardingSignup() {
       })
       .then((r: any) => {
         setUser(r.data);
-        navigate("/onboarding/finish");
+        // navigate("/onboarding/finish");
       })
       .catch((err: any) => {
         setError(extractErrorCode(err));

@@ -10,6 +10,7 @@ import { dt, imageAltT, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
+import { untypedRoutePath } from "../routing/RoutePath.ts";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
@@ -182,7 +183,7 @@ function ProgramCard({
       )}
       {appLink && (
         <Button
-          href={appLink}
+          href={untypedRoutePath(appLink)}
           state={{ fromIndex: true }}
           variant="outline"
           className="h6 mb-0 mt-3"

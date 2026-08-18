@@ -1,5 +1,6 @@
 import get from "lodash/get";
 import React from "react";
+import { Location } from "react-router-dom";
 
 interface UseAsyncFetchOptions<T = any> {
   default?: T;
@@ -15,7 +16,7 @@ interface UseAsyncFetchOptions<T = any> {
    */
   pullFromState?: string;
   /** Must be provided for pullFromState to be used. */
-  location?: { state?: Record<string, any> };
+  location?: Location;
   /**
    * If true, cache the API response using the options as a key.
    * When caching, the arguments passed to makeRequest MUST be serializable using JSON.stringify.
@@ -36,10 +37,12 @@ function useAsyncFetch<T>(
   makeRequest: (...args: any[]) => Promise<any>,
   options: UseAsyncFetchOptions<T> & { default: T }
 ): UseAsyncFetchResult<T>;
+
 function useAsyncFetch<T = any>(
   makeRequest: (...args: any[]) => Promise<any>,
   options?: UseAsyncFetchOptions<T>
 ): UseAsyncFetchResult<T | undefined>;
+
 function useAsyncFetch<T = any>(
   makeRequest: (...args: any[]) => Promise<any>,
   options?: UseAsyncFetchOptions<T>

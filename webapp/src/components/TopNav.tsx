@@ -2,6 +2,7 @@ import sumaLogo from "../assets/images/suma-logo-plain-128.png";
 import { imageAltT, t } from "../localization";
 import useI18n from "../localization/useI18n";
 import signOut from "../modules/signOut";
+import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useGlobalViewState from "../state/useGlobalViewState";
 import useOnlineStatus from "../state/useOnlineStatus";
@@ -67,7 +68,7 @@ export default function TopNav() {
                 <Button
                   variant="secondary"
                   className="mt-2"
-                  href={`/admin/member/${user.id}`}
+                  href={untypedRoutePath(`/admin/member/${user.id}`)}
                 >
                   Impersonating:
                   <br />
@@ -182,7 +183,7 @@ function AuthedUserButtons({ className, user, onCollapse }: AuthedUserButtonsPro
 }
 
 interface NavLinkButtonProps {
-  href: string;
+  href: RoutePath;
   className?: string;
   icon: string;
   label: React.ReactNode;
