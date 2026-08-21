@@ -32,7 +32,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountDetail from "./pages/PrivateAccountDetail";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess";
-import Styleguide from "./pages/Styleguide";
 import TripDetail from "./pages/TripDetail";
 import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
@@ -360,7 +359,6 @@ function AppRoutes() {
       Component: PreferencesPublic,
     }),
     typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
-    typeRoute({ path: "/styleguide", Component: Styleguide }),
     typeRoute({ path: "/*", pageProps: { to: "/" }, Component: Redirect }),
   ];
   const element = useRoutes(routes);

@@ -32,11 +32,11 @@
 .flex-1 { flex: 1; }
 .flex-0 { flex: 0; }
 
-.position-static { position: static; }
-.position-relative { position: relative; }
-.position-absolute { position: absolute; }
-.position-fixed { position: fixed; }
-.position-sticky { position: sticky; }
+.position-static { position: static !important; }
+.position-relative { position: relative !important; }
+.position-absolute { position: absolute !important; }
+.position-fixed { position: fixed !important; }
+.position-sticky { position: sticky !important; }
 
 .align-items-start { align-items: flex-start; }
 .align-items-center { align-items: center; }

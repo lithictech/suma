@@ -10,8 +10,6 @@ see the main folder's README for more details.
 
 # Styleguide
 
-We use Bootstrap and React Bootstrap for styles.
-
 ESLint and Prettier are set up and should be run to ensure basic code style consistency.
 
 As far as non-statically-enforced styles, please observe the following:

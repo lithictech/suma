@@ -1,6 +1,6 @@
 import { DirectionProps, getDirection } from "./types.tsx";
 import clsx from "clsx";
-import React from "react";
+import React, { CSSProperties } from "react";
 
 interface StackProps extends DirectionProps {
   gap?: number;
@@ -8,6 +8,7 @@ interface StackProps extends DirectionProps {
   center?: boolean;
   children?: React.ReactNode;
   className?: string;
+  style?: CSSProperties;
 }
 
 export default function Stack({
@@ -16,6 +17,7 @@ export default function Stack({
   center = false,
   className,
   children,
+  style,
   ...rest
 }: StackProps) {
   const direction = getDirection(rest);
@@ -27,7 +29,11 @@ export default function Stack({
     center && "align-items-center",
     className
   );
-  return <div className={cls}>{children}</div>;
+  return (
+    <div className={cls} style={style}>
+      {children}
+    </div>
+  );
 }
 
 const FLEX_CLS = { horizontal: "flex-row", vertical: "flex-column" };

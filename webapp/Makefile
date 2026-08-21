@@ -29,9 +29,12 @@ check: fmt-check lint-check type-check test
 
 start: check-version
 	npm start
-
 start-network: check-version network-code
 	BROWSER=none VITE_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm run start-network
+storybook-start: check-version
+	npm run storybook-start
+storybook-build: check-version
+	npm run storybook-build
 
 network-code:
 	@echo $(LOCAL_NETWORK_ADDR) | node node_modules/.bin/qrcode --small
