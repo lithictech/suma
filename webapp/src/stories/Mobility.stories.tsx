@@ -1,7 +1,9 @@
 import Drawer from "../components/mobilitymap/Drawer.tsx";
+import DrawerLoading from "../components/mobilitymap/DrawerLoading.tsx";
 import PostTrip from "../components/mobilitymap/PostTrip.tsx";
 import PreTrip from "../components/mobilitymap/PreTrip.tsx";
 import Trip from "../components/mobilitymap/Trip.tsx";
+import { t } from "../localization";
 import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
@@ -21,7 +23,7 @@ const vendorService = {
   vendorSlug: "bikeop",
 };
 
-const vehicle = {
+const baseVehicle = {
   precision: 1,
   vendorService,
   vehicleId: "vehicle1",
@@ -33,9 +35,24 @@ const vehicle = {
     name: "demo",
   } as Rate,
   subsidyMatchPercentage: 20,
+  deeplink: "",
+  gotoPrivateAccount: "",
+  usageProhibitedReason: "",
+};
+
+const prohibitedVehicle = {
+  ...baseVehicle,
+  usageProhibitedReason: "usage_prohibited_cash_balance",
+};
+
+const deeplinkVehicle = {
+  ...baseVehicle,
   deeplink: "#deeplink",
+};
+
+const privateAccountVehicle = {
+  ...baseVehicle,
   gotoPrivateAccount: "#private-accounts",
-  usageProhibitedReason: "prohibited",
 };
 
 const trip = {
@@ -67,8 +84,30 @@ export const TripCards: Story = {
     return (
       <DemoStack>
         <h2>Pre trip</h2>
+        <h3>Deeplink</h3>
         <Drawer className="position-relative">
-          <PreTrip vehicle={vehicle} onReserve={noop} />
+          <PreTrip vehicle={deeplinkVehicle} onReserve={noop} />
+        </Drawer>
+        <h3>Go-to private account</h3>
+        <Drawer className="position-relative">
+          <PreTrip vehicle={privateAccountVehicle} onReserve={noop} />
+        </Drawer>
+        <h3>Usage prohibited</h3>
+        <Drawer className="position-relative">
+          <PreTrip vehicle={prohibitedVehicle} onReserve={noop} />
+        </Drawer>
+        <h3>With subsidy</h3>
+        <Drawer
+          className="position-relative"
+          footer={
+            <div className="py-3 px-4 small">
+              {t("mobility.rate_additional_savings", {
+                percentage: baseVehicle.subsidyMatchPercentage,
+              })}
+            </div>
+          }
+        >
+          <PreTrip vehicle={deeplinkVehicle} onReserve={noop} />
         </Drawer>
 
         <h2>Ongoing trip</h2>
@@ -86,10 +125,10 @@ export const TripCards: Story = {
           <PostTrip endTrip={trip} onCloseTrip={noop} />
         </Drawer>
 
-        {/*<h2>Drawer loading</h2>*/}
-        {/*<Drawer className"position-relative>*/}
-        {/*  <DrawerLoading />*/}
-        {/*</Drawer>*/}
+        <h2>Drawer loading</h2>
+        <Drawer className="position-relative">
+          <DrawerLoading />
+        </Drawer>
       </DemoStack>
     );
   },

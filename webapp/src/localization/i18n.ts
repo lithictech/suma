@@ -1,3 +1,4 @@
+import { formatMoney } from "../modules/money.ts";
 import { withSentry } from "../modules/sentry";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
@@ -35,6 +36,10 @@ class I18n {
    */
   addFormatter = (key: string, func: (value: any) => any) => {
     this.formatters[key] = func;
+  };
+
+  addFormatters = () => {
+    this.addFormatter("sumaCurrency", (v) => formatMoney(v));
   };
 
   /**
