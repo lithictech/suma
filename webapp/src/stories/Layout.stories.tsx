@@ -3,30 +3,15 @@ import CardBody from "../ui/CardBody";
 import Grid from "../ui/Grid.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 
-const meta = {
-  title: "Styleguide/Layout",
-} satisfies Meta;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const FixedColumns: Story = {
-  render: () => (
-    <Grid columns={2}>
-      {[1, 2, 3].map((i) => (
-        <Card key={i}>
-          <CardBody>
-            <p>Hello</p>
-          </CardBody>
-        </Card>
-      ))}
-    </Grid>
-  ),
-};
-
-export const ResponsiveColumns: Story = {
-  render: () => (
-    <Grid columns="8rem">
+function GridDemo({
+  columnCount,
+  columnSize,
+}: {
+  columnCount?: number;
+  columnSize?: string;
+}) {
+  return (
+    <Grid columns={columnCount || columnSize}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Card key={i}>
           <CardBody>
@@ -35,5 +20,27 @@ export const ResponsiveColumns: Story = {
         </Card>
       ))}
     </Grid>
-  ),
+  );
+}
+
+const meta = {
+  title: "Styleguide/Layout",
+  component: GridDemo,
+  argTypes: {
+    columnCount: { control: "number" },
+    columnSize: { control: "text", description: "8rem, etc." },
+  },
+} satisfies Meta<typeof GridDemo>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const GridNumericColumns: Story = {
+  args: { columnCount: 3 },
+  parameters: { controls: { exclude: ["columnSize"] } },
+};
+
+export const GridSizedColumns: Story = {
+  args: { columnCount: 0, columnSize: "8rem" },
+  parameters: { controls: { exclude: ["columnCount"] } },
 };

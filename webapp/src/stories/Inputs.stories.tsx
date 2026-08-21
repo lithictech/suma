@@ -6,8 +6,9 @@ import Select from "../ui/Select";
 import Stack from "../ui/Stack";
 import Switch from "../ui/Switch";
 import TextInput from "../ui/TextInput";
-import noop from "lodash/noop";
+import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
+import noop from "lodash/noop";
 
 const LOREM_IPSUM =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sed ligula blandit, " +
@@ -23,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const TextInputs: Story = {
   render: () => (
-    <Stack gap={2} wrap>
+    <DemoStack>
       <TextInput
         label="Zip"
         value=""
@@ -37,26 +38,41 @@ export const TextInputs: Story = {
         inputClass="is-focus-visible"
       />
       <TextInput label="Zip" value="9721" help="Five digits." disabled />
-      <TextInput label="Zip" value="9721" help="Five digits." error="Zip code is 5 digits." />
-    </Stack>
+      <TextInput
+        label="Zip"
+        value="9721"
+        help="Five digits."
+        error="Zip code is 5 digits."
+      />
+    </DemoStack>
   ),
 };
 
 export const Checkboxes: Story = {
   render: () => (
-    <Stack direction="vertical" gap={2}>
-      <Stack gap={2}>
-        <Checkbox label="Checkbox 1" checked={false} />
-        <Checkbox label="Checkbox 2" checked />
-        <Checkbox checked={false} />
-      </Stack>
+    <DemoStack>
+      <Checkbox label="Checkbox 1" checked={false} />
+      <Checkbox label="Checkbox 2" checked />
+      <Checkbox checked={false} />
       <Checkbox label="Invalid" checked={false} error="Must agree to continue" />
-      <Stack gap={2}>
-        <Switch label="Switch 1" checked={false} />
-        <Switch label="Switch 2" checked />
-        <Switch checked={false} />
-      </Stack>
+    </DemoStack>
+  ),
+};
+
+export const Switches: Story = {
+  render: () => (
+    <DemoStack>
+      <Switch label="Switch 1" checked={false} />
+      <Switch label="Switch 2" checked />
+      <Switch checked={false} />
       <Switch label="Invalid switch" checked={false} error="Must turn on to continue" />
+    </DemoStack>
+  ),
+};
+
+export const RadioCards: Story = {
+  render: () => (
+    <DemoStack>
       <RadioCard
         name="radio"
         options={[
@@ -75,6 +91,13 @@ export const Checkboxes: Story = {
         value=""
         onValueChange={noop}
       />
+    </DemoStack>
+  ),
+};
+
+export const CheckboxCards: Story = {
+  render: () => (
+    <DemoStack>
       <CheckboxCard
         title="When an order is ready"
         text="A text the morning it lands"
@@ -91,13 +114,13 @@ export const Checkboxes: Story = {
       <CheckboxCard checked={false} alignCheckbox="start">
         <CardText style={{ maxHeight: 100, overflowY: "scroll" }}>{LOREM_IPSUM}</CardText>
       </CheckboxCard>
-    </Stack>
+    </DemoStack>
   ),
 };
 
 export const SelectInput: Story = {
   render: () => (
-    <Stack direction="vertical" gap={2}>
+    <DemoStack>
       <Select
         label="Select"
         value="optb"
@@ -114,6 +137,6 @@ export const SelectInput: Story = {
         options={[{ label: "Option A", value: "opta" }]}
         error="Must select an option."
       />
-    </Stack>
+    </DemoStack>
   ),
 };

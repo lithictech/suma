@@ -1,5 +1,5 @@
 import IndeterminateLoader from "../ui/IndeterminateLoader";
-import Stack from "../ui/Stack";
+import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 
 const LOREM_IPSUM =
@@ -16,23 +16,25 @@ type Story = StoryObj<typeof meta>;
 
 export const Plain: Story = {
   render: () => (
-    <Stack gap={3}>
+    <DemoStack>
       <IndeterminateLoader variant="plain" size={20} />
       <IndeterminateLoader variant="plain" size={40} />
       <IndeterminateLoader variant="plain" />
-    </Stack>
+    </DemoStack>
   ),
 };
 
 export const Content: Story = {
   render: () => (
-    <div className="position-relative">
-      <p>{LOREM_IPSUM}</p>
-      <IndeterminateLoader variant="content" />
-    </div>
+    <DemoStack>
+      <div className="position-relative">
+        <p>{LOREM_IPSUM}</p>
+        <IndeterminateLoader variant="content" />
+      </div>
+    </DemoStack>
   ),
 };
 
 export const Screen: Story = {
-  render: () => <IndeterminateLoader variant="screen" style={{ marginTop: 80 }} />,
+  render: () => <IndeterminateLoader variant="screen" />,
 };

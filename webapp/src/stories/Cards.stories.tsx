@@ -8,6 +8,7 @@ import CheckableCard from "../ui/CheckableCard";
 import Chip from "../ui/Chip";
 import Stack from "../ui/Stack";
 import Tile from "../ui/Tile";
+import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 
 const meta = {
@@ -19,18 +20,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Basic: Story = {
   render: () => (
-    <Card>
-      <CardBody>
-        <CardText variant="title">Your savings so far</CardText>
-        <CardText>Across every offer you have used</CardText>
-      </CardBody>
-    </Card>
+    <DemoStack>
+      <Card>
+        <CardBody>
+          <CardText variant="title">Your savings so far</CardText>
+          <CardText>Across every offer you have used</CardText>
+        </CardBody>
+      </Card>
+    </DemoStack>
   ),
 };
 
 export const CheckableStates: Story = {
   render: () => (
-    <Stack gap={2} direction="vertical">
+    <DemoStack>
       <CheckableCard checked>
         <CardBody>
           <CardText>This card is checked.</CardText>
@@ -51,13 +54,13 @@ export const CheckableStates: Story = {
           <CardText>This card is disabled.</CardText>
         </CardBody>
       </CheckableCard>
-    </Stack>
+    </DemoStack>
   ),
 };
 
 export const CheckableWithTile: Story = {
   render: () => (
-    <Stack gap={3}>
+    <DemoStack>
       <CheckableCard checked={false} style={{ maxWidth: 150 }}>
         <CardBody>
           <Tile>RC</Tile>
@@ -72,32 +75,34 @@ export const CheckableWithTile: Story = {
           <CardText variant="subtext">Affordable housing</CardText>
         </CardBody>
       </CheckableCard>
-    </Stack>
+    </DemoStack>
   ),
 };
 
 export const WithImage: Story = {
   render: () => (
-    <Card>
-      <CardBody>
-        <Stack col gap={3}>
-          <CardImage>
-            <div style={{ backgroundColor: "var(--tint-success", height: 60 }} />
-          </CardImage>
-          <Chip variant="secondary" className="align-self-start">
-            hello
-          </Chip>
-          <h3>Card with image</h3>
-          <p>Here is detail text.</p>
-        </Stack>
-      </CardBody>
-    </Card>
+    <DemoStack>
+      <Card>
+        <CardBody>
+          <Stack col gap={3}>
+            <CardImage>
+              <div style={{ backgroundColor: "var(--tint-success", height: 60 }} />
+            </CardImage>
+            <Chip variant="secondary" className="align-self-start">
+              hello
+            </Chip>
+            <h3>Card with image</h3>
+            <p>Here is detail text.</p>
+          </Stack>
+        </CardBody>
+      </Card>
+    </DemoStack>
   ),
 };
 
 export const Brand: Story = {
   render: () => (
-    <Stack gap={2} direction="vertical">
+    <DemoStack>
       <BrandCard
         pillText={<span>IN REVIEW &bull; Aug 7, 2026</span>}
         title={<span>We&rsquo;re verifying your details</span>}
@@ -115,6 +120,6 @@ export const Brand: Story = {
           Back
         </Button>
       </BrandCard>
-    </Stack>
+    </DemoStack>
   ),
 };

@@ -1,7 +1,8 @@
+import type { RoutePath } from "../routing/RoutePath.ts";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Stack from "../ui/Stack";
-import type { RoutePath } from "../routing/RoutePath.ts";
+import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 
 const BUTTON_PROPS = [
@@ -23,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Variants: Story = {
   render: () => (
-    <Stack direction="vertical" gap={3}>
+    <DemoStack>
       {BUTTON_PROPS.map((props) => (
         <Stack key={JSON.stringify(props)} gap={2}>
           {BUTTON_STATES.map((st) => (
@@ -31,13 +32,13 @@ export const Variants: Story = {
           ))}
         </Stack>
       ))}
-    </Stack>
+    </DemoStack>
   ),
 };
 
 export const LinkButtons: Story = {
   render: () => (
-    <Stack direction="vertical" gap={3}>
+    <DemoStack>
       {BUTTON_PROPS.map((props) => (
         <Stack key={JSON.stringify(props)} gap={2} wrap>
           {BUTTON_STATES.map((st) => (
@@ -52,24 +53,23 @@ export const LinkButtons: Story = {
           ))}
         </Stack>
       ))}
-    </Stack>
+    </DemoStack>
   ),
 };
 
-export const HorizontalGroup: Story = {
+export const Groups: Story = {
   render: () => (
-    <ButtonGroup>
-      <Button>Primary Action</Button>
-      <Button variant="secondary">Secondary Action</Button>
-    </ButtonGroup>
-  ),
-};
-
-export const VerticalGroup: Story = {
-  render: () => (
-    <ButtonGroup vertical>
-      <Button>Primary Action</Button>
-      <Button variant="secondary">Secondary Action</Button>
-    </ButtonGroup>
+    <DemoStack>
+      <h2>Horizontal</h2>
+      <ButtonGroup>
+        <Button>Primary Action</Button>
+        <Button variant="secondary">Secondary Action</Button>
+      </ButtonGroup>
+      <h2>Vertical</h2>
+      <ButtonGroup vertical>
+        <Button>Primary Action</Button>
+        <Button variant="secondary">Secondary Action</Button>
+      </ButtonGroup>
+    </DemoStack>
   ),
 };
