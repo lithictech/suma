@@ -1,5 +1,4 @@
 import Progress from "../ui/Progress";
-import Stack from "../ui/Stack";
 import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 

@@ -3,7 +3,6 @@ import Checkbox from "../ui/Checkbox";
 import CheckboxCard from "../ui/CheckboxCard";
 import RadioCard from "../ui/RadioCard.tsx";
 import Select from "../ui/Select";
-import Stack from "../ui/Stack";
 import Switch from "../ui/Switch";
 import TextInput from "../ui/TextInput";
 import { DemoStack } from "./helpers.tsx";

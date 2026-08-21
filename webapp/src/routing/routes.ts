@@ -47,7 +47,6 @@ declare module "./RouteParams.ts" {
     "/preferences": {};
     "/preferences-public": {};
     "/error": {};
-    "/styleguide": {};
   }
 }
 declare module "./RouteQuery.ts" {
