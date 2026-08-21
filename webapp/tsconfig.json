@@ -17,5 +17,5 @@
     "checkJs": false,
     "strict": false
   },
-  "include": ["src"]
+  "include": ["src", "vite.config.ts", "vitest.shims.d.ts"]
 }
