@@ -1,7 +1,10 @@
 import "../src/assets/styles/imports";
+import { installPromiseExtras } from "../src/modules/bluejay.ts";
 import type { Preview } from "@storybook/preact-vite";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
+
+installPromiseExtras(window.Promise);
 
 const preview: Preview = {
   decorators: [

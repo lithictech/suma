@@ -47,7 +47,6 @@ export const LinkButtons: Story = {
               className={st}
               disabled={st === "is-disabled"}
               {...props}
-              // Not a real route; just demoing the "link" visual style.
               to={"#" as RoutePath}
             />
           ))}
