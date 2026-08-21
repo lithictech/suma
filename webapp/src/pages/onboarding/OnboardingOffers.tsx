@@ -9,7 +9,6 @@ import ContinueButton from "../../ui/ContinueButton.tsx";
 import DefinitionTable from "../../ui/DefinitionTable.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
-import Stack from "../../ui/Stack.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
 import React from "react";
 
