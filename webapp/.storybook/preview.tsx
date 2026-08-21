@@ -1,3 +1,4 @@
+import "../src/assets/styles/imports";
 import type { Preview } from "@storybook/preact-vite";
 
 const preview: Preview = {
