@@ -103,6 +103,46 @@ RSpec.describe "Suma::Payment::Ledger", :db do
     end
   end
 
+  describe "balance" do
+    let(:ledger) { Suma::Fixtures.ledger.create }
+
+    it "handles no transactions" do
+      expect(ledger.debug_balances).to include(
+        associations_balance: cost(0),
+        combined_balance: cost(0),
+        in_sync: true,
+        stats_balance: cost(0),
+        view_balance: cost(0),
+      )
+    end
+
+    it "handles receiving and originating transactions" do
+      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$5"))
+      Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$10"))
+      expect(ledger.debug_balances).to include(
+        associations_balance: cost("$5"),
+        combined_balance: cost("$5"),
+        in_sync: true,
+        stats_balance: cost("$5"),
+        view_balance: cost("$5"),
+      )
+    end
+
+    it "handles duplicate transactions" do
+      bx = Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$5"))
+      bxv = bx.values.dup
+      bxv.delete(:id)
+      Suma::Payment::BookTransaction.create(bxv)
+      expect(ledger.debug_balances).to include(
+        associations_balance: cost("-$10"),
+        combined_balance: cost("-$10"),
+        in_sync: true,
+        stats_balance: cost("-$10"),
+        view_balance: cost("-$10"),
+      )
+    end
+  end
+
   describe "can_be_used_to_purchase?" do
     it "is true if the service has a category in the ledger category chain" do
       food = Suma::Fixtures.vendor_service_category.create
