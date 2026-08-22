@@ -170,6 +170,20 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
 
   def balance = self.balance_view.balance
 
+  def debug_balances
+    view_balance = self.balance_view.balance
+    stats_balance = self.total_receiving - self.total_originating
+    combined_balance = self.combined_book_transactions.sum(Money.new(0)) do |bx|
+      bx.receiving_ledger === self ? bx.amount : -bx.amount
+    end
+    associations_balance = self.received_book_transactions.sum(Money.new(0), &:amount) -
+      self.originated_book_transactions.sum(Money.new(0), &:amount)
+    in_sync = view_balance == stats_balance &&
+      view_balance == combined_balance &&
+      view_balance == associations_balance
+    return {view_balance:, stats_balance:, combined_balance:, associations_balance:, in_sync:}
+  end
+
   # Return true if this ledger can be used to purchase the given service.
   # This is done by comparing the vendor service categories on each.
   # If any of the VSCs for the service appear in ledger's VSC graph
