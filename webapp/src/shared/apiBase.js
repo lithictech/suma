@@ -9,10 +9,10 @@ import get from "lodash/get";
 import noop from "lodash/noop";
 
 function create(apiHost, config) {
-  const { debug, chaos, ...rest } = config || {};
+  const { debug, chaos, timeout, ...rest } = config || {};
   const instance = axios.create({
     baseURL: apiHost,
-    timeout: 20000,
+    timeout: timeout || 20000,
     withCredentials: true,
     transformRequest: [
       (data) => humps.decamelizeKeys(data),
