@@ -93,6 +93,7 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
   # - Checkout without the right subsidy (partial credit and refund)
   # - Checkout but never get their stuff (full credit and refund)
   def self.backfill_payouts_from_webhookdb
+    return unless Suma::Webhookdb.integration_enabled
     last_ran_at = self.dataset.max(:created_at) || Time.at(0)
     # Apply some buffer, we never want to miss a refund, and processing the same row
     # multiple times is fine.

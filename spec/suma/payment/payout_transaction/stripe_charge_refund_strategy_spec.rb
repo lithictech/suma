@@ -104,6 +104,12 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
       )
     end
 
+    it "noops if webhookdb is not enabled", reset_configuration: Suma::Webhookdb do
+      Suma::Webhookdb.integration_enabled = false
+      described_class.backfill_payouts_from_webhookdb
+      expect(Suma::Payment::PayoutTransaction.all).to be_empty
+    end
+
     it "creates crediting refund payout transactions if the funding transaction is used in a charge" do
       described_class.backfill_payouts_from_webhookdb
       expect(Suma::Payment::PayoutTransaction.all).to contain_exactly(
