@@ -92,6 +92,16 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
           )
       end
 
+      it "skips the table check if not enabled", reset_configuration: Suma::Webhookdb do
+        Suma::Webhookdb.integration_enabled = false
+        xaction.update(amount_cents: amount)
+        insert_charge("ch_1")
+        req = stub_request(:post, "https://api.stripe.com/v1/charges").
+          to_return(**fixture_response("stripe/charge"))
+        strategy.collect_funds
+        expect(req).to have_been_made
+      end
+
       it "reuses a recent, unassociated charge for the same amount if found" do
         xaction.update(amount_cents: amount)
         insert_charge("ch_1")
@@ -279,6 +289,14 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
       expect(Suma::Support::Ticket.all).to contain_exactly(
         have_attributes(subject: "Refunding Unassociated Stripe Charge"),
       )
+    end
+
+    it "noops if webhookdb is not enabled", reset_configuration: Suma::Webhookdb do
+      Suma::Webhookdb.integration_enabled = false
+      insert("ch_needsrefund")
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      described_class.refund_unassociated_charges
+      expect(Suma::Support::Ticket.all).to be_empty
     end
   end
 end

@@ -21,6 +21,11 @@ module Suma::Webhookdb
     setting :schema, :public
     # See +Suma::Webhookdb::Model+ for more information.
     setting :models_enabled, false
+    # If false, do not try to interact with WebhookDB tables.
+    # Generally webhookdb is configured in production (uses real server),
+    # and unit tests (uses fixtures), and sometimes staging (using a test environment),
+    # but usually not local development.
+    setting :integration_enabled, true
     setting :front_conversations_table, :front_conversation_v1_fixture
     setting :front_messages_table, :front_message_v1_fixture
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
