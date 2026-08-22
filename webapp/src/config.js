@@ -34,6 +34,7 @@ function parseIfSet(key) {
 
 const config = {
   apiHost: apiHost,
+  apiTimeout: env.VITE_API_TIMEOUT,
   chaos: env.VITE_CHAOS,
   debug: env.VITE_DEBUG,
   environment: env.NODE_ENV,
