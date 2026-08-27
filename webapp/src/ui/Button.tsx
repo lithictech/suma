@@ -33,8 +33,10 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     const cls = clsx(
       className,
       `btn`,
-      `btn-${variant || "primary"}`,
-      `btn-${size || "md"}`,
+      `btn-${variant}`,
+      `btn-${size}`,
+      variant === "text" && `btn-inline`,
+      variant === "text" && `btn-inline-${size}`,
       to && "btn-link"
     );
     if (to) {

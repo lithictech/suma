@@ -1,8 +1,10 @@
 import type { RoutePath } from "../routing/RoutePath.ts";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
+import Icon from "../ui/Icon.tsx";
 import Stack from "../ui/Stack";
 import { DemoStack } from "./helpers.tsx";
+import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 
 const BUTTON_PROPS = [
@@ -69,6 +71,19 @@ export const Groups: Story = {
         <Button>Primary Action</Button>
         <Button variant="secondary">Secondary Action</Button>
       </ButtonGroup>
+      <h2>Inline</h2>
+      <Stack col>
+        <p>Some text</p>
+        <p>Some text</p>
+        <Stack row center className="justify-content-between" style={{ maxWidth: 250 }}>
+          <p>Some text</p>
+          <Button variant="text">
+            <Icon icon={ChevronRightIcon} />
+          </Button>
+        </Stack>
+        <p>Some text</p>
+        <p>Some text</p>
+      </Stack>
     </DemoStack>
   ),
 };

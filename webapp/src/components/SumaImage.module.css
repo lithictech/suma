@@ -22,31 +22,17 @@
 .loader {
   border-radius: var(--border-radius);
   animation: loader-animation 2s ease-in-out infinite alternate;
-}
-
-.loader-light {
   background: linear-gradient(
-    90deg,
-    var(--image-loader-light1),
-    var(--image-loader-light2),
-    var(--image-loader-light1),
-    var(--image-loader-light2),
-    var(--image-loader-light1)
+      90deg,
+      var(--image-loader-color1),
+      var(--image-loader-color2),
+      var(--image-loader-color1),
+      var(--image-loader-color2),
+      var(--image-loader-color1)
   );
   background-size: 400% 400%;
 }
 
-.loader-dark {
-  background: linear-gradient(
-    90deg,
-    var(--image-loader-dark1),
-    var(--image-loader-dark2),
-    var(--image-loader-dark1),
-    var(--image-loader-dark2),
-    var(--image-loader-dark1)
-  );
-  background-size: 400% 400%;
-}
 
 @keyframes loader-animation {
   0% {
@@ -55,4 +41,9 @@
   100% {
     background-position: 100% 50%;
   }
+}
+
+.cover {
+  width: 100%;
+  object-fit: cover;
 }

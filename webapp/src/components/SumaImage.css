@@ -1,6 +1,4 @@
 :root {
-  --image-loader-dark1: rgba(var(--color-primary), 0.1);
-  --image-loader-dark2: rgba(var(--color-primary), 0.3);
-  --image-loader-light1: rgba(var(--color-primary-contrast), 0.1);
-  --image-loader-light2: rgba(var(--color-primary-contrast), 0.3);
+  --image-loader-color1: rgba(var(--color-primary), 0.1);
+  --image-loader-color2: rgba(var(--color-primary), 0.3);
 }

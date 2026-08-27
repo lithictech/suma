@@ -22,11 +22,12 @@ interface SumaImageProps {
   params?: Record<string, any>;
   /** Alt text to use. Overrides image.caption. */
   alt?: string;
-  /** Version to use (use 'light' on a dark background, etc). Default to 'light'. */
-  variant?: "light" | "dark";
+  /** If true, "fill" the image to the given height.
+   * Uses a width of 100%, given height, and object-fit: cover.
+   */
+  cover?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  [rest: string]: any;
 }
 
 /**
@@ -45,7 +46,7 @@ export default function SumaImage({
   placeholderHeight,
   params,
   alt,
-  variant,
+  cover,
   className,
   style,
   ...rest
@@ -64,7 +65,6 @@ export default function SumaImage({
   }
 
   const realAlt = alt || image.caption || "";
-  variant = variant || "light";
 
   const cleanParams =
     params && mapValues(params, (v) => (isArray(v) ? v.map((o) => "" + o).join(",") : v));
@@ -89,7 +89,7 @@ export default function SumaImage({
   if (height && width) {
     // There isn't a case we can think of where we explicitly want a width and height,
     // but then want to allow shrinking the image, because it would result in
-    // the image getting squished. Instead we would use an explicit width OR height.
+    // the image getting squished. Instead, we would use an explicit width OR height.
     sty.minWidth = width;
     sty.minHeight = height;
   }
@@ -110,7 +110,7 @@ export default function SumaImage({
     <>
       {!loaded && (
         <div
-          className={clsx(styles.loader, styles[`loader-${variant}`], className)}
+          className={clsx(styles.loader, className)}
           style={{ ...sty, height: placeholderHeight || h, width: width || "100%" }}
         />
       )}
@@ -119,7 +119,7 @@ export default function SumaImage({
         src={src}
         height={height}
         width={width}
-        className={clsx(!loaded && styles.hidden, className)}
+        className={clsx(!loaded && styles.hidden, cover && styles.cover, className)}
         style={sty}
         onError={() => setErrored(true)}
         onLoad={() => setLoaded(true)}

@@ -1,15 +1,26 @@
 import api from "../api";
+import AppNav from "../components/AppNav.tsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
+import SumaImage from "../components/SumaImage.tsx";
 import TODO from "../components/TODO.tsx";
-import VendibleCard from "../components/VendibleCard";
 import WaitingList from "../components/WaitingList";
 import { t } from "../localization";
+import { dayjs } from "../modules/dayConfig.ts";
+import Link from "../routing/Link.tsx";
+import { RoutePath } from "../routing/RoutePath.ts";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
+import Card from "../ui/Card.tsx";
+import CardBody from "../ui/CardBody.tsx";
+import CardImage from "../ui/CardImage.tsx";
+import Icon from "../ui/Icon.tsx";
+import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
+import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
+import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 
 export default function Food() {
@@ -44,17 +55,51 @@ export default function Food() {
     );
   }
   return (
-    <>
-      <LayoutContainer gutters>
-        <h4 className="mb-3">{t("food.current_offerings")}</h4>
-        <Stack gap={3}>
-          {items.map((it) => (
-            <VendibleCard key={it.id} {...it} />
-          ))}
+    <Page>
+      <Page buffer>
+        <LayoutContainer gutters>
+          <h3 className="mb-2">{t("food.current_offerings")}</h3>
+          <p className="mb-3">Lorem ipsum dolor est.</p>
+          <Stack gap={3}>
+            {items.map((it) => (
+              <OfferingCard key={it.id} {...it} />
+            ))}
+          </Stack>
+        </LayoutContainer>
+        <OrderHistoryLink />
+      </Page>
+      <AppNav />
+    </Page>
+  );
+}
+
+function OfferingCard({ description, image, closesAt, appLink }: Offering) {
+  return (
+    <Card className="w-100">
+      <CardBody>
+        <Stack col gap={3}>
+          <CardImage>
+            <Link to={appLink as RoutePath}>
+              <SumaImage image={image} width={300} height={120} cover />
+            </Link>
+          </CardImage>
+          {closesAt && (
+            <p className="color-text-muted font-size-sm">
+              {t("food.available_until", { date: dayjs(closesAt).format("ll") })}
+            </p>
+          )}
+          <Link to={appLink as RoutePath}>
+            <p className="font-weight-bold font-size-lg">{description}</p>
+          </Link>
+          <Button to={appLink as RoutePath} variant="text">
+            <Stack row center className="justify-content-between">
+              <p className="color-text-muted font-size-sm">View products</p>
+              <Icon icon={ChevronRightIcon} />
+            </Stack>
+          </Button>
         </Stack>
-      </LayoutContainer>
-      <OrderHistoryLink />
-    </>
+      </CardBody>
+    </Card>
   );
 }
 
