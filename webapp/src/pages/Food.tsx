@@ -1,18 +1,16 @@
 import api from "../api";
-import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import ErrorScreen from "../components/ErrorScreen";
-import FeaturePageHeader from "../components/FeaturePageHeader";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
+import TODO from "../components/TODO.tsx";
 import VendibleCard from "../components/VendibleCard";
 import WaitingList from "../components/WaitingList";
-import { imageAltT, t } from "../localization";
+import { t } from "../localization";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
 import Stack from "../ui/Stack";
 import isEmpty from "lodash/isEmpty";
-import React from "react";
 
 export default function Food() {
   const {
@@ -31,27 +29,22 @@ export default function Food() {
   }
   if (offeringsLoading) {
     return (
-      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={imageAltT("local_food_stand")}>
+      <TODO>
         <PageLoader buffered />
-      </FeaturePageHeader>
+      </TODO>
     );
   }
   const { items } = offerings;
   if (isEmpty(items)) {
     return (
-      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={imageAltT("local_food_stand")}>
+      <TODO>
         <WaitingList title={t("food.title")} text={t("food.intro")} survey={surveySpec} />
         <OrderHistoryLink />
-      </FeaturePageHeader>
+      </TODO>
     );
   }
   return (
     <>
-      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={imageAltT("local_food_stand")}>
-        <h2>{t("food.title")}</h2>
-        <p className="mb-0">{t("food.intro")}</p>
-      </FeaturePageHeader>
-      <hr className="my-4" />
       <LayoutContainer gutters>
         <h4 className="mb-3">{t("food.current_offerings")}</h4>
         <Stack gap={3}>
