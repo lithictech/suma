@@ -15,6 +15,7 @@ import CardText from "../ui/CardText";
 import Form from "../ui/Form";
 import FormCheck from "../ui/FormCheck";
 import FormGroup from "../ui/FormGroup";
+import Grid from "../ui/Grid";
 import Stack from "../ui/Stack";
 import Money from "../uir/Money";
 import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
@@ -25,90 +26,72 @@ import React from "react";
 interface OrderDetailProps {
   order: DetailedOrderHistory;
   setOrder: (order: DetailedOrderHistory) => void;
-  gutters?: boolean;
 }
 
-export default function OrderDetail({ order, setOrder, gutters }: OrderDetailProps) {
+export default function OrderDetail({ order, setOrder }: OrderDetailProps) {
   return (
-    <>
-      <LayoutContainer gutters={gutters}>
-        <Stack gap={3}>
-          <div>
-            <h3 className="mb-1">{t("food.order_serial", { serial: order.serial })}</h3>
-            {dayjs(order.createdAt).format("lll")}
-          </div>
-          <PressAndHoldToClaim
-            id={order.id}
-            canClaim={order.canClaim}
-            offeringDescription={order.offeringDescription}
-            onOrderClaim={(o) => setOrder(o)}
-          />
-          <p className="mb-0">
-            {t("food.labels.price", { price: order.customerCost })}
-            {order.customerCost.cents !== order.undiscountedCost.cents && (
-              <Money as="del" className="text-secondary ms-2">
-                {order.undiscountedCost}
-              </Money>
-            )}
+    <Stack col gap={3}>
+      <div>
+        <h2 className="mb-1">{t("food.order_serial", { serial: order.serial })}</h2>
+        {dayjs(order.createdAt).format("lll")}
+      </div>
+      <PressAndHoldToClaim
+        id={order.id}
+        canClaim={order.canClaim}
+        offeringDescription={order.offeringDescription}
+        onOrderClaim={(o) => setOrder(o)}
+      />
+      <p>
+        {t("food.labels.price", { price: order.customerCost })}
+        {order.customerCost.cents !== order.undiscountedCost.cents && (
+          <Money className="color-text-muted">{order.undiscountedCost}</Money>
+        )}
+        <br />
+        {t("food.labels.fees_and_taxes", { fees: order.handling, taxes: order.tax })}
+        <br />
+        {t("food.labels.total", { total: order.total })}
+        {order.fundingTransactions.map(({ label, amount }) => (
+          <React.Fragment key={label}>
             <br />
-            {t("food.labels.fees_and_taxes", { fees: order.handling, taxes: order.tax })}
-            <br />
-            {t("food.labels.total", { total: order.total })}
-            {order.fundingTransactions.map(({ label, amount }) => (
-              <React.Fragment key={label}>
-                <br />
-                {label}: <Money>{amount}</Money>
-              </React.Fragment>
-            ))}
-            <br />
-          </p>
-          <FulfillmentOption order={order} onOrderUpdated={setOrder} />
-          {!order.canClaim && order.fulfilledAt && (
-            <Alert variant="info" className="mb-0">
-              <ScrollTopOnMount />
-              <Stack direction="horizontal" gap={3}>
-                {t("food.order_for_claimed_on", {
-                  offeringDescription: order.offeringDescription,
-                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
-                })}
-                <div className="ms-auto">
-                  <AnimatedCheckmark />
-                </div>
-              </Stack>
-            </Alert>
-          )}
-          <SumaImage
-            image={order.image}
-            w={350}
-            height={150}
-            className="rounded responsive-wide-image"
-            variant="dark"
-          />
-          <hr className="my-0" />
-          <CardText className="h4 mb-0">
-            {t("food.labels.items_count", { itemCount: order.items.length })}
-          </CardText>
-          {order.items.map(
-            ({ name, description, customerPrice, quantity }, i: number) => (
-              <Stack
-                key={i}
-                className="justify-content-between align-items-start"
-                gap={1}
-              >
-                <div className="lead">{dt(name)}</div>
-                <div>
-                  {t("food.price_times_quantity", {
-                    price: customerPrice,
-                    quantity,
-                  })}
-                </div>
-                <div className="text-secondary">{dt(description)}</div>
-              </Stack>
-            )
-          )}
-        </Stack>
-      </LayoutContainer>
-    </>
+            {label}: <Money>{amount}</Money>
+          </React.Fragment>
+        ))}
+        <br />
+      </p>
+      <FulfillmentOption order={order} onOrderUpdated={setOrder} />
+      {!order.canClaim && order.fulfilledAt && (
+        <Alert variant="info" className="mb-0">
+          <ScrollTopOnMount />
+          <Stack direction="horizontal" gap={3}>
+            {t("food.order_for_claimed_on", {
+              offeringDescription: order.offeringDescription,
+              fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+            })}
+            <div className="ms-auto">
+              <AnimatedCheckmark />
+            </div>
+          </Stack>
+        </Alert>
+      )}
+      <SumaImage image={order.image} w={350} height={150} cover />
+      <hr className="my-0" />
+      {t("food.labels.items_count", { itemCount: order.items.length })}
+      <Grid columns={2}>
+        {order.items.map(({ name, description, customerPrice, quantity }, i: number) => (
+          <React.Fragment key={i}>
+            <div>
+              {dt(name)}
+              <br />
+              {t("food.price_times_quantity", {
+                price: customerPrice,
+                quantity,
+              })}
+            </div>
+            <div>{dt(description)}</div>
+          </React.Fragment>
+        ))}
+      </Grid>
+    </Stack>
   );
 }
 

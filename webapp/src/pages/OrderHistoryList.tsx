@@ -1,4 +1,5 @@
 import api from "../api";
+import AppNav from "../components/AppNav.tsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageHeading from "../components/PageHeading";
@@ -7,6 +8,7 @@ import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import { RoutePath } from "../routing/RoutePath.ts";
 import useNavigate from "../routing/useNavigate";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
@@ -14,8 +16,9 @@ import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
-import CardLink from "../ui/CardLink";
 import CardText from "../ui/CardText";
+import DivLink from "../ui/DivLink.tsx";
+import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -48,26 +51,24 @@ export default function OrderHistoryList() {
     navigate(["/order/:id", { id: order.id }], { state: { order: detailed } });
   }
   return (
-    <>
-      {user.unclaimedOrdersCount > 0 && (
-        <SeeAlsoAlert
-          variant="success"
-          label={t("dashboard.claim_orders")}
-          iconClass="bi-bag-check-fill"
-          alertClass="solo-alert"
-          show
-          to="/unclaimed-orders"
-        />
-      )}
-      <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
+    <Page>
+      <Page buffer gap={3}>
+        {user.unclaimedOrdersCount > 0 && (
+          <SeeAlsoAlert
+            variant="success"
+            label={t("dashboard.claim_orders")}
+            iconClass="bi-bag-check-fill"
+            alertClass="solo-alert"
+            show
+            to="/unclaimed-orders"
+          />
+        )}
         <BreadcrumbBack back="/food" />
         <PageHeading>{t("food.order_history_title")}</PageHeading>
-      </LayoutContainer>
-      <LayoutContainer gutters>
         {loading ? (
           <PageLoader />
         ) : !isEmpty(orderHistory?.items) ? (
-          <Stack gap={3}>
+          <Stack col gap={3}>
             {orderHistory?.items.map((o) => (
               <Order
                 key={o.id}
@@ -86,8 +87,9 @@ export default function OrderHistoryList() {
             </div>
           </>
         )}
-      </LayoutContainer>
-    </>
+      </Page>
+      <AppNav />
+    </Page>
   );
 }
 
@@ -108,33 +110,28 @@ function Order({
   return (
     <Card>
       <CardBody>
-        <Stack direction="horizontal" gap={3}>
-          <SumaImage
-            image={image}
-            width={80}
-            height={80}
-            className="border rounded"
-            variant="dark"
-          />
-          <div>
-            <CardLink href={`/order/${id}`} className="h5" onClick={onNavigate}>
-              {t("food.order_serial", { serial: serial })}
-            </CardLink>
-            <CardText className="text-secondary mt-1">
-              {fulfilledAt
-                ? t("food.claimed_on", {
-                    fulfilledAt: dayjs(fulfilledAt).format("lll"),
-                  })
-                : availableForPickupAt
-                ? t("food.order_available_for_pickup", {
-                    date: dayjs(availableForPickupAt).format("ll"),
-                  })
-                : t("food.order_date", { date: dayjs(createdAt).format("ll") })}
-              <br />
-              {t("food.total", { total: total })}
-            </CardText>
-          </div>
-        </Stack>
+        <DivLink to={`/order/${id}` as RoutePath} onClick={onNavigate}>
+          <Stack row gap={3}>
+            <SumaImage image={image} width={80} height={80} className="border-radius" />
+            <Stack col gap={2}>
+              <CardText variant="title">
+                {t("food.order_serial", { serial: serial })}
+              </CardText>
+              <CardText variant="subtitle">
+                {fulfilledAt
+                  ? t("food.claimed_on", {
+                      fulfilledAt: dayjs(fulfilledAt).format("lll"),
+                    })
+                  : availableForPickupAt
+                  ? t("food.order_available_for_pickup", {
+                      date: dayjs(availableForPickupAt).format("ll"),
+                    })
+                  : t("food.order_date", { date: dayjs(createdAt).format("ll") })}
+              </CardText>
+              <CardText>{t("food.total", { total: total })}</CardText>
+            </Stack>
+          </Stack>
+        </DivLink>
       </CardBody>
     </Card>
   );

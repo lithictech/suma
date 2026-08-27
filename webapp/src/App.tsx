@@ -22,6 +22,7 @@ import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
+import MenuPage from "./pages/MenuPage.tsx";
 import Mobility from "./pages/Mobility";
 import OrderHistoryDetail from "./pages/OrderHistoryDetail";
 import OrderHistoryList from "./pages/OrderHistoryList";
@@ -180,6 +181,13 @@ function AppRoutes() {
       meta: "titles.dashboard",
       screenLoader: true,
       Component: Dashboard,
+    }),
+    typeRoute({
+      path: "/menu",
+      auth: "require",
+      onboarded: "require",
+      meta: "titles.menu",
+      Component: MenuPage,
     }),
     typeRoute({
       path: "/mobility",

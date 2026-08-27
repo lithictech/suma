@@ -21,6 +21,7 @@ declare module "./RouteParams.ts" {
     "/contact-list/add": {};
     "/contact-list/success": {};
     "/dashboard": {};
+    "/menu": {};
     "/mobility": {};
     "/food": {};
     "/food/:id": { id: string | number };

@@ -1,10 +1,12 @@
 import api from "../api";
+import AppNav from "../components/AppNav.tsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../state/useAsyncFetch";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
+import Page from "../ui/Page.tsx";
 import React from "react";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -33,11 +35,13 @@ export default function OrderHistoryDetail() {
     return <PageLoader />;
   }
   return (
-    <>
-      <LayoutContainer top gutters>
+    <Page>
+      <Page buffer gap={3}>
         <BreadcrumbBack back />
-      </LayoutContainer>
-      <OrderDetail order={state} setOrder={replaceState} gutters />
-    </>
+
+        <OrderDetail order={state} setOrder={replaceState} gutters />
+      </Page>
+      <AppNav />
+    </Page>
   );
 }
