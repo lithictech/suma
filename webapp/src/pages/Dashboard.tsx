@@ -12,7 +12,6 @@ import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
 import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
-import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {

@@ -1,6 +1,5 @@
 import Button from "../ui/Button";
 import CartIcon from "./CartIcon";
-import React from "react";
 
 interface CartIconButtonProps {
   offeringId: number | string;

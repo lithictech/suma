@@ -8,7 +8,6 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingName({

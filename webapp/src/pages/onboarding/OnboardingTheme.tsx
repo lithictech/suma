@@ -6,7 +6,6 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import ThemeSwitcher from "../../ui/ThemeSwitcher.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import React from "react";
 
 export default function OnboardingTheme({
   onboardingState,

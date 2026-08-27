@@ -1,7 +1,6 @@
 import loaderRing from "../assets/images/loader-ring.svg";
 import "./ScreenLoader.css";
 import clsx from "clsx";
-import React from "react";
 
 /**
  * Render the screen loader overlay.

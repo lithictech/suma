@@ -6,7 +6,6 @@ import { withQuery } from "../routing/withQuery.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import Button from "../ui/Button";
 import Container from "../ui/Container";
-import React from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListHome() {

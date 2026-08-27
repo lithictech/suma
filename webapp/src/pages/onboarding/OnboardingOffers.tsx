@@ -10,7 +10,6 @@ import DefinitionTable from "../../ui/DefinitionTable.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import React from "react";
 
 export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
   const screenLoader = useScreenLoader();

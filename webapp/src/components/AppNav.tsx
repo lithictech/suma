@@ -4,7 +4,6 @@ import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import MapIcon from "@heroicons/react/24/outline/MapIcon";
 import ShoppingCartIcon from "@heroicons/react/24/outline/ShoppingCartIcon";
 import SquaresPlusIcon from "@heroicons/react/24/outline/SquaresPlusIcon";
-import React from "react";
 import { useLocation } from "react-router-dom";
 
 export default function AppNav() {

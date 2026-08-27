@@ -1,6 +1,5 @@
 import loaderRing from "../assets/images/loader-ring.svg";
 import clsx from "clsx";
-import React from "react";
 
 /**
  * Render the page loader icon centered.

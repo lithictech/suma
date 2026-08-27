@@ -1,6 +1,5 @@
 import Progress from "./Progress.tsx";
 import Stack from "./Stack.tsx";
-import React from "react";
 
 interface ProgressStepHeaderProps {
   step: number;

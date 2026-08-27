@@ -1,7 +1,6 @@
 import config from "../config";
 import { t } from "../localization";
 import Button from "../ui/Button";
-import React from "react";
 
 export default function AddFundsLinkButton() {
   if (!config.featureAddFunds) {

@@ -13,7 +13,6 @@ import Select from "../../ui/Select.tsx";
 import Stack from "../../ui/Stack.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import { OnboardingProps, OnboardingAddressType } from "./onboardingTypes.ts";
-import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingAddress({

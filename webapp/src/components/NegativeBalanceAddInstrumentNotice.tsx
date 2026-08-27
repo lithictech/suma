@@ -2,7 +2,6 @@ import { t } from "../localization";
 import { scaleMoney } from "../modules/money";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
-import React from "react";
 
 export default function NegativeBalanceAddInstrumentNotice() {
   const { user } = useUser();

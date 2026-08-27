@@ -10,7 +10,6 @@ import Page from "../ui/Page.tsx";
 import PhoneInput from "../ui/PhoneInput.tsx";
 import TextInput from "../ui/TextInput";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
-import React from "react";
 import { useController, useForm } from "react-hook-form";
 
 function FormDemo() {

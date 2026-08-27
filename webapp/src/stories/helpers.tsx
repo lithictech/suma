@@ -1,5 +1,4 @@
 import Stack from "../ui/Stack.tsx";
-import React from "react";
 
 export function DemoStack({ children }) {
   return (

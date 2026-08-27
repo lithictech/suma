@@ -8,7 +8,6 @@ import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
 import Container from "../../ui/Container";
 import Stack from "../../ui/Stack.tsx";
-import React from "react";
 
 export default function Home() {
   const { registrationSession } = useUser();

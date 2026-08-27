@@ -15,7 +15,6 @@ import Form from "../../ui/Form";
 import FormError from "../../ui/FormError";
 import Page from "../../ui/Page.tsx";
 import PhoneInput from "../../ui/PhoneInput";
-import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function Start() {

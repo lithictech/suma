@@ -3,7 +3,6 @@ import useMountEffect from "../state/useMountEffect.ts";
 import CardText from "./CardText.tsx";
 import RadioCard from "./RadioCard.tsx";
 import Stack from "./Stack.tsx";
-import React from "react";
 
 export type Theme = "system" | "light" | "dark";
 export type Contrast = "default" | "high";

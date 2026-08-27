@@ -4,7 +4,6 @@ import useI18n from "../localization/useI18n";
 import { withQuery } from "../routing/withQuery.ts";
 import Button from "../ui/Button";
 import Container from "../ui/Container";
-import React from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListSuccess() {

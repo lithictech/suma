@@ -8,7 +8,6 @@ import Icon from "../ui/Icon.tsx";
 import "./ProgramCard.css";
 import SumaImage from "./SumaImage.tsx";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
-import React from "react";
 import { Link } from "react-router-dom";
 
 export default function ProgramCard({
