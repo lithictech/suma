@@ -1,9 +1,11 @@
 import mobilityHeaderImage from "../assets/images/onboarding-mobility.jpg";
+import AppNav from "../components/AppNav.tsx";
 import FeaturePageHeader from "../components/FeaturePageHeader";
 import WaitingList from "../components/WaitingList";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
 import { imageAltT, t } from "../localization";
+import Page from "../ui/Page.tsx";
 import React from "react";
 
 export default function Mobility() {
@@ -29,8 +31,11 @@ export default function Mobility() {
 
 function MobilityImpl() {
   return (
-    <div className="position-relative">
-      <Map />
-    </div>
+    <Page style={{ height: "100vh" }}>
+      <div className="h-100">
+        <Map />
+      </div>
+      <AppNav />
+    </Page>
   );
 }

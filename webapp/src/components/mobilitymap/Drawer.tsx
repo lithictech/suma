@@ -10,9 +10,7 @@ interface DrawerProps {
 export default function Drawer({ footer, children, className }: DrawerProps) {
   return (
     <div className={clsx("mobility-drawer", className)}>
-      <div className={clsx("mobility-drawer-main", !footer && "mobility-drawer-footer")}>
-        {children}
-      </div>
+      {children}
       {footer && <div className="mobility-drawer-footer">{footer}</div>}
     </div>
   );

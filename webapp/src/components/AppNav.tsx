@@ -26,7 +26,7 @@ export default function AppNav() {
       <NavOption
         label="Map"
         Icon={MapIcon}
-        to="/food"
+        to="/mobility"
         active={location.pathname.startsWith("/mobility")}
       />
       <NavOption

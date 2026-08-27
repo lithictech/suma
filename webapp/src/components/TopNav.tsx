@@ -4,7 +4,6 @@ import useI18n from "../localization/useI18n";
 import signOut from "../modules/signOut";
 import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
-import useGlobalViewState from "../state/useGlobalViewState";
 import useOnlineStatus from "../state/useOnlineStatus";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
@@ -22,11 +21,9 @@ import { Link, useLocation } from "react-router-dom";
 export default function TopNav() {
   const { isOnline } = useOnlineStatus();
   const { user, userAuthed } = useUser();
-  const { setTopNav } = useGlobalViewState();
   const [expanded, setExpanded] = React.useState(false);
   return (
     <Navbar
-      ref={setTopNav}
       className="pt-1 pb-0"
       bg={user?.adminMember ? "danger" : "primary"}
       expand={false}

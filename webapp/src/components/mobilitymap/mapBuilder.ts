@@ -5,36 +5,38 @@ import { t } from "../../localization";
 import { localStorageCache } from "../../modules/localStorageHelper";
 import { vehicleIconForVendorService } from "../../modules/mobilityIconLookup.js";
 import leaflet from "leaflet";
+import * as L from "leaflet";
 import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
-import isUndefined from "lodash/isUndefined";
+
+type MapCache = { lat?: number; lng?: number; zoom?: number };
 
 export default class MapBuilder {
-  mapHost;
-  _l;
-  _minZoom;
-  _maxZoom;
-  _zoomTo;
-  _mapCache;
-  _saveMapCacheField;
-  _latOffset;
-  _map;
-  _restrictedAreasGroup;
-  _mcg;
-  _lastLocation;
-  _locationMarker;
-  _locationAccuracyCircle;
-  _animationTimeoutId;
-  _refreshId;
-  _clickedVehicle;
-  _onVehicleClick;
-  _onSelectedVehicleRemoved;
-  _lastExtendedVehicleBounds;
-  _lastExtendedStaticBounds;
+  mapHost: HTMLDivElement;
+  _l: typeof leaflet;
+  _minZoom: number;
+  _maxZoom: number;
+  _zoomTo: number;
+  _mapCache: MapCache;
+  _saveMapCacheField: (fields: MapCache) => void;
+  _latOffset: number;
+  _map: L.Map;
+  _restrictedAreasGroup: L.LayerGroup;
+  _mcg: L.MarkerClusterGroup;
+  _lastLocation: L.LatLng;
+  _locationMarker: L.AnimatedMarker;
+  _locationAccuracyCircle: L.Circle;
+  _animationTimeoutId: number;
+  _refreshId: number;
+  _clickedVehicle: L.Marker;
+  _onVehicleClick: (v: ClickedVehicle) => void;
+  _onSelectedVehicleRemoved: () => void;
+  _lastExtendedVehicleBounds: L.LatLngBounds;
+  _lastExtendedStaticBounds: L.LatLngBounds;
 
-  constructor(host) {
+  constructor(host: HTMLDivElement) {
     this.mapHost = host;
     this._l = leaflet;
     this._minZoom = 8;
@@ -67,6 +69,7 @@ export default class MapBuilder {
     this._mcg = this._l.markerClusterGroup({
       spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
+      chunkedLoading: true,
       maxClusterRadius: (mapZoom) => {
         // only cluster same location markers above zoom 17
         return mapZoom >= 17 ? 0 : 32;
@@ -126,25 +129,25 @@ export default class MapBuilder {
         clearTimeout(this._animationTimeoutId);
         this._animationTimeoutId = null;
       }
-      this._locationAccuracyCircle._path.classList.remove(
-        "mobility-location-accuracy-circle-transition"
-      );
+      this._locationAccuracyCircle
+        .getElement()
+        .classList.remove("mobility-location-accuracy-circle-transition");
       this.setLocationMarkerTransition("none");
     });
     this._map.on("zoomend", () => {
       if (!this._locationAccuracyCircle || !this._locationMarker) {
         return;
       }
-      this._animationTimeoutId = setTimeout(() => {
-        this._locationAccuracyCircle._path.classList.add(
-          "mobility-location-accuracy-circle-transition"
-        );
+      this._animationTimeoutId = window.setTimeout(() => {
+        this._locationAccuracyCircle
+          .getElement()
+          .classList.add("mobility-location-accuracy-circle-transition");
         this.setLocationMarkerTransition("all 1000ms linear 0s");
       }, 250);
     });
   }
 
-  setLocationMarkerTransition(value) {
+  setLocationMarkerTransition(value: string) {
     const el = this._locationMarker.getElement();
     if (!el) {
       // Leaflet can fire its event though the DOM element is gone by the time
@@ -169,7 +172,7 @@ export default class MapBuilder {
     // - inside the vehicle and static bounds. Noop.
     // - outside the vehicle, but inside the static bounds. Update vehicle bounds, request new vehicles.
     // - outside static bounds. Update both bounds and request new of both.
-    let vehicleOOB, staticOOB;
+    let vehicleOOB: boolean, staticOOB: boolean;
     if (!this._lastExtendedStaticBounds.contains(bounds)) {
       vehicleOOB = true;
       staticOOB = true;
@@ -221,9 +224,9 @@ export default class MapBuilder {
     this._map.addLayer(this._mcg);
   }
 
-  getAndUpdateScooters(bounds, mcg) {
+  getAndUpdateScooters(bounds: L.LatLngBounds, mcg: L.MarkerClusterGroup) {
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
-      this.updateScooters({ ...r, bounds, mcg });
+      this.updateScooters({ data: r.data, bounds, mcg });
       this._refreshId = refreshTimer(
         () => this.getAndUpdateScooters(bounds, mcg),
         r.data.refresh
@@ -231,7 +234,15 @@ export default class MapBuilder {
     });
   }
 
-  updateScooters({ data, bounds, mcg }) {
+  updateScooters({
+    data,
+    bounds,
+    mcg,
+  }: {
+    data: MobilityMap;
+    bounds: L.LatLngBounds;
+    mcg: L.MarkerClusterGroup;
+  }) {
     const precisionFactor = 1 / data.precision;
     const applicableMarkers = [];
     const allNewMarkersIds = [];
@@ -239,12 +250,16 @@ export default class MapBuilder {
     // First: Removes markers that are not present in the bounds
     const removableMarkers = mcg
       .getLayers()
-      .filter((marker) => !bounds.contains(marker._latlng));
-    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
+      .filter(isMarker)
+      .filter((marker) => !bounds.contains(marker.getLatLng()));
+    mcg.removeLayers(removableMarkers);
     // Second: Add markers for ids that are missing
-    const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
+    const currentMarkersIds = mcg
+      .getLayers()
+      .filter(isMarker)
+      .map((marker) => marker.options.id);
     ["ebike", "escooter"].forEach((vehicleType) => {
-      data[vehicleType]?.forEach((bike) => {
+      data[vehicleType]?.forEach((bike: MobilityMapVehicle) => {
         const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
         const marker = this.createVehicleMarker(
           id,
@@ -261,14 +276,14 @@ export default class MapBuilder {
         allNewMarkersIds.push(id);
       });
     });
-    mcg.addLayers(applicableMarkers, { chunkedLoading: true });
+    mcg.addLayers(applicableMarkers);
     // Third: Remove *leftover* markers that are not present in the new list of ids
     // Leftover markers are visible in new bounds but might not exist in new list of ids,
     // therefor we should remove the non-existing leftover marker(s)
     const removableLeftoverMarkers = leftoverMarkers.filter(
       (marker) => !allNewMarkersIds.includes(marker.options.id)
     );
-    mcg.removeLayers(removableLeftoverMarkers, { chunkedLoading: true });
+    mcg.removeLayers(removableLeftoverMarkers);
 
     // Fourth: Close the map reserve card if the marker for a scooter is now gone
     const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
@@ -283,7 +298,13 @@ export default class MapBuilder {
     this._clickedVehicle = null;
   }
 
-  createVehicleMarker(id, bike, vehicleType, vehicleProvider, precisionFactor) {
+  createVehicleMarker(
+    id: string,
+    bike: MobilityMapVehicle,
+    vehicleType: string,
+    vehicleProvider: MobilityMapProvider,
+    precisionFactor: number
+  ) {
     // calculate lat, lng offsets when available
     let [lat, lng] = bike.c;
     if (bike.o) {
@@ -321,17 +342,19 @@ export default class MapBuilder {
       });
   }
 
-  getAndUpdateRestrictedAreas(bounds, group) {
+  getAndUpdateRestrictedAreas(bounds: L.LatLngBounds, group: L.LayerGroup) {
     api
       .getMobilityMapFeatures(boundsToParams(bounds))
       .then(api.pickData)
-      .then((d) => {
-        this.updateRestrictedAreas({ restrictions: d.restrictions, group });
+      .then((d: MobilityMapFeatures) => {
+        this.updateRestrictedAreas(d.restrictions, group);
       });
   }
 
-  updateRestrictedAreas({ restrictions, group }) {
-    const currentRestrictionsIds = group.getLayers().map((layer) => layer.options.id);
+  updateRestrictedAreas(restrictions: MobilityMapRestriction[], group: L.LayerGroup) {
+    const currentRestrictionsIds = group
+      .getLayers()
+      .map((layer: L.Layer) => layer.options.id);
     restrictions.forEach((r) => {
       const id = [r.restriction, r.bounds.ne[0], r.bounds.sw[0]].join("-");
       if (currentRestrictionsIds.includes(id)) {
@@ -354,15 +377,15 @@ export default class MapBuilder {
       return;
     }
     const popup = this._l.popup({
-      direction: "top",
+      // direction: "top",
       offset: [0, 10],
     });
-    const parkingRestrictionContent = `<h6 class='mb-0'>${t(
-      "mobility.do_not_park_title"
-    )}</h6><p class='m-0'>${t("mobility.do_not_park_intro")}</p>`;
-    const ridingRestrictionContent = `<h6 class='mb-0'>${t(
-      "mobility.do_not_ride_title"
-    )}</h6><p class='m-0'>${t("mobility.do_not_ride_intro")}</p>`;
+    const parkingRestrictionContent = `<h3>${t("mobility.do_not_park_title")}</h3><p>${t(
+      "mobility.do_not_park_intro"
+    )}</p>`;
+    const ridingRestrictionContent = `<h3>${t("mobility.do_not_ride_title")}</h3><p>${t(
+      "mobility.do_not_ride_intro"
+    )}</p>`;
 
     if (restriction.startsWith("do-not-park-or-ride")) {
       popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
@@ -395,57 +418,45 @@ export default class MapBuilder {
 
   newLocateControl() {
     // Adds locate button to center map on location when clicked
+    // noinspection JSUnusedGlobalSymbols
     const LocateControl = this._l.Control.extend({
       options: {
         position: "bottomright",
         link: undefined,
-        center: (e) => {
+        center: (e: Event) => {
           e.preventDefault();
           if (!this._lastLocation) {
             return;
           }
-          this.centerLocation({
-            ...this._lastLocation,
-            targetZoom: this._getLocationZoom(),
-          });
+          this.centerLocation(this._lastLocation, this._getLocationZoom());
         },
       },
       onAdd() {
-        const container = leaflet.DomUtil.create(
+        const container = L.DomUtil.create(
           "div",
           "leaflet-control-locate leaflet-bar leaflet-control"
         );
-        const link = leaflet.DomUtil.create(
+        const link = L.DomUtil.create(
           "a",
           "leaflet-bar-part leaflet-bar-part-single",
           container
         );
-        this.options.link = link;
         link.href = "#";
         link.title = t("mobility.locate_me");
         link.setAttribute("role", "button");
         link.setAttribute("aria-label", t("mobility.locate_me"));
-        leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
-        leaflet.DomEvent.on(
-          this.options.link,
-          "click",
-          (e) => this.options.center(e),
-          this
-        );
-        leaflet.DomEvent.on(this.options.link, "dblclick", (ev) => {
-          leaflet.DomEvent.stopPropagation(ev);
+        link.innerHTML = locationSvg;
+        this.options.link = link;
+        L.DomEvent.on(this.options.link, "click", (e) => this.options.center(e), this);
+        L.DomEvent.on(this.options.link, "dblclick", (ev) => {
+          L.DomEvent.stopPropagation(ev);
         });
         return container;
       },
       onRemove() {
-        leaflet.DomEvent.off(
-          this.options.link,
-          "click",
-          (e) => this.options.center(e),
-          this
-        );
-        leaflet.DomEvent.off(this.options.link, "dblclick", (ev) => {
-          leaflet.DomEvent.stopPropagation(ev);
+        L.DomEvent.off(this.options.link, "click", (e) => this.options.center(e), this);
+        L.DomEvent.off(this.options.link, "dblclick", (ev) => {
+          L.DomEvent.stopPropagation(ev);
         });
       },
     });
@@ -469,7 +480,7 @@ export default class MapBuilder {
     // 'watch' is true, so "locationfound" event is called multiple times.
     // We set lastLoc and create the movement line on the first location found;
     // then we update lastLoc, and append to the movement line, on subsequent location finds.
-    let lastLoc, movementLine;
+    let lastLoc: L.LatLng, movementLine: L.Polyline;
     this._map
       .locate({
         watch: true,
@@ -490,6 +501,7 @@ export default class MapBuilder {
             e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
           );
         }
+
         console.error("locationerror.", e);
         if (!ignoreLocationError()) {
           let cachedLocation = null;
@@ -530,19 +542,20 @@ export default class MapBuilder {
           this.setLocationEventHandlers();
           if (!this._clickedVehicle) {
             // Prevent centering if vehicle is focused
-            this.centerLocation({ ...lastLoc, targetZoom: this._getLocationZoom() });
+            this.centerLocation(lastLoc, this._getLocationZoom());
           }
           onLocationFound(location);
         }
+        const { lat, lng } = location.latlng;
         if (
           this._locationMarker &&
           this._locationAccuracyCircle &&
           lastLoc &&
           movementLine &&
-          (lastLoc.lat !== location.latitude || lastLoc.lng !== location.longitude)
+          (lastLoc.lat !== lat || lastLoc.lng !== lng)
         ) {
           this._locationMarker.stop();
-          const nextLocation = [location.latitude, location.longitude];
+          const nextLocation = { lat, lng };
           // Sets next location distance for animation purpose
           const nextDistance = this._l
             .latLng(lastLoc.lat, lastLoc.lng)
@@ -573,10 +586,9 @@ export default class MapBuilder {
     }
   }
 
-  centerLocation({ lat, lng, targetZoom }) {
-    lat = Number(lat);
-    lng = Number(lng);
-    targetZoom = isUndefined(targetZoom) ? 18 : targetZoom;
+  centerLocation(latlng: L.LatLng, targetZoom: number = 0) {
+    const { lat, lng } = latlng;
+    targetZoom = targetZoom || 18;
     const loweredLat = lat + this._latOffset;
     const { lat: mLat, lng: mLng } = this._map.getCenter();
     if (
@@ -609,29 +621,42 @@ export default class MapBuilder {
     // Use a large area here since this doesn't change often and is cached.
     // We want to capture the entire market.
     const staticDegreesPad = 1;
-    b._northEast.lat += staticDegreesPad;
-    b._northEast.lng += staticDegreesPad;
-    b._southWest.lat -= staticDegreesPad;
-    b._southWest.lng -= staticDegreesPad;
-    this._lastExtendedStaticBounds = b;
+    const biased = this._l.latLngBounds(
+      { lat: b.getSouth() - staticDegreesPad, lng: b.getWest() - staticDegreesPad },
+      { lat: b.getNorth() + staticDegreesPad, lng: b.getEast() + staticDegreesPad }
+    );
+    this._lastExtendedStaticBounds = biased;
   }
 }
 
-function boundsToParams(bounds) {
-  const { _northEast, _southWest } = bounds;
+function boundsToParams(bounds: L.LatLngBounds) {
   return {
-    sw: [_southWest.lat, _southWest.lng],
-    ne: [_northEast.lat, _northEast.lng],
+    sw: [bounds.getSouth(), bounds.getWest()],
+    ne: [bounds.getNorth(), bounds.getEast()],
   };
 }
 
 const refreshTimer = (function () {
-  let timer: any = 0;
+  let timer: number = 0;
   // Because the inner function is bound to the refreshTimer variable,
   // it will remain in scope and will allow the timer variable to be manipulated
-  return function (cb, ms) {
-    clearTimeout(timer);
-    timer = setInterval(cb, ms);
+  return function (cb: TimerHandler, ms: number) {
+    window.clearTimeout(timer);
+    timer = window.setInterval(cb, ms);
     return timer;
   };
 })();
+
+const isMarker = (layer: L.Layer): layer is L.Marker => layer instanceof L.Marker;
+
+export interface ClickedVehicle {
+  loc: number[];
+  type: string;
+  disambiguator: string;
+  provider: MobilityMapProvider;
+}
+
+const locationSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+</svg>
+`;

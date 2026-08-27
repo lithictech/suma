@@ -43,7 +43,6 @@ import Start from "./pages/onboarding/Start";
 import Redirect from "./routing/Redirect.tsx";
 import typeRoute from "./routing/typeRoute.tsx";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
-import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
@@ -55,23 +54,21 @@ installPromiseExtras(window.Promise);
 
 export default function App() {
   return (
-    <GlobalViewStateProvider>
-      <BackendGlobalsProvider>
-        <UserProvider>
-          <I18nProvider>
-            <ScreenLoaderProvider>
-              <RerenderOnLangChange>
-                <HelmetProvider>
-                  <OfferingProvider>
-                    <InnerApp />
-                  </OfferingProvider>
-                </HelmetProvider>
-              </RerenderOnLangChange>
-            </ScreenLoaderProvider>
-          </I18nProvider>
-        </UserProvider>
-      </BackendGlobalsProvider>
-    </GlobalViewStateProvider>
+    <BackendGlobalsProvider>
+      <UserProvider>
+        <I18nProvider>
+          <ScreenLoaderProvider>
+            <RerenderOnLangChange>
+              <HelmetProvider>
+                <OfferingProvider>
+                  <InnerApp />
+                </OfferingProvider>
+              </HelmetProvider>
+            </RerenderOnLangChange>
+          </ScreenLoaderProvider>
+        </I18nProvider>
+      </UserProvider>
+    </BackendGlobalsProvider>
   );
 }
 

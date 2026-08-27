@@ -242,8 +242,8 @@ class Suma::API::Mobility < Suma::API::V1
       30_000
     end
     expose_array :program_pricings, as: :providers, with: MobilityMapProviderEntity
-    expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
-    expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
+    expose_array :escooter, with: MobilityMapVehicleEntity, expose_nil: false
+    expose_array :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
 
   class MobilityMapRestrictionBoundsEntity < BaseEntity

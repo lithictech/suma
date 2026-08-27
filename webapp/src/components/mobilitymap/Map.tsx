@@ -2,7 +2,6 @@ import api from "../../api";
 import config from "../../config";
 import { t } from "../../localization";
 import { extractErrorCode, useError } from "../../state/useError";
-import useGlobalViewState from "../../state/useGlobalViewState";
 import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
 import FormError from "../../ui/FormError";
@@ -24,7 +23,6 @@ interface SelectedMapVehicle {
 }
 
 export default function Map() {
-  const { appNav, topNav } = useGlobalViewState();
   const mapRef = React.useRef<HTMLDivElement>(null);
   const { user, handleUpdateCurrentMember } = useUser();
   const [loadedMap, setLoadedMap] = React.useState<MapBuilder | null>(null);
@@ -194,8 +192,6 @@ export default function Map() {
     });
   }, [handleVehicleClick, handleVehicleRemove, loadedMap]);
 
-  const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
-
   let drawerFooter = null;
   const drawerContent = (() => {
     if (error && !selectedMapVehicle) {
@@ -246,9 +242,9 @@ export default function Map() {
   })();
 
   return (
-    <div className="position-relative">
+    <div className="position-relative h-100">
       <Drawer footer={drawerFooter}>{drawerContent}</Drawer>
-      <div ref={mapRef} style={{ height: `calc(100vh - ${navsHeight}px` }} />
+      <div ref={mapRef} className="h-100" />
     </div>
   );
 }

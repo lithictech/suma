@@ -591,8 +591,8 @@ declare global {
     precision: number;
     refresh: number;
     providers: MobilityMapProvider[];
-    escooter: MobilityMapVehicle;
-    ebike: MobilityMapVehicle;
+    escooter: MobilityMapVehicle[];
+    ebike: MobilityMapVehicle[];
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapFeaturesEntity */
