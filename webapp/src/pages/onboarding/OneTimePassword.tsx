@@ -192,7 +192,7 @@ const OneTimePassword = () => {
             />
           ))}
         </fieldset>
-        <FormError error={error} center className="mb-1" />
+        <FormError error={error} className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />
         <Stack gap={1} className="text-muted font-size-sm" wrap center>
           {t("otp.did_not_receive")}

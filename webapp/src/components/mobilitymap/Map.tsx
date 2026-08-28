@@ -4,30 +4,21 @@ import { t } from "../../localization";
 import { extractErrorCode, useError } from "../../state/useError";
 import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
-import FormError from "../../ui/FormError";
-import { MdLink } from "../SumaMarkdown";
 import Drawer from "./Drawer";
-import DrawerContents from "./DrawerContents";
-import DrawerTitle from "./DrawerTitle";
-import MicromobilityRate from "./MicromobilityRate";
-import PreTrip from "./PreTrip";
-import Trip, { MapLocation } from "./Trip";
-import MapBuilder from "./mapBuilder";
+import DrawerContentsIntro from "./DrawerContentsIntro.tsx";
+import DrawerContentsOngoingTrip, { MapLocation } from "./DrawerContentsOngoingTrip.tsx";
+import DrawerContentsPageError from "./DrawerContentsPageError.tsx";
+import DrawerContentsPreTrip from "./DrawerContentsPreTrip.tsx";
+import DrawerContentsVehicleError from "./DrawerContentsVehicleError.tsx";
+import MapBuilder, { VisualMapVehicle } from "./mapBuilder";
 import React from "react";
-
-interface SelectedMapVehicle {
-  loc: any;
-  provider: MobilityMapProvider;
-  disambiguator: any;
-  type: any;
-}
 
 export default function Map() {
   const mapRef = React.useRef<HTMLDivElement>(null);
   const { user, handleUpdateCurrentMember } = useUser();
   const [loadedMap, setLoadedMap] = React.useState<MapBuilder | null>(null);
   const [selectedMapVehicle, setSelectedMapVehicle] =
-    React.useState<SelectedMapVehicle | null>(null);
+    React.useState<VisualMapVehicle | null>(null);
   const [loadedVehicle, setLoadedVehicle] =
     React.useState<MobilityDetailedVehicle | null>(null);
   const [lastMarkerLocation, setLastMarkerLocation] = React.useState<MapLocation | null>(
@@ -41,7 +32,7 @@ export default function Map() {
   const [error, setError] = useError();
 
   const handleVehicleClick = React.useCallback(
-    (mapVehicle: SelectedMapVehicle | null) => {
+    (mapVehicle: VisualMapVehicle | null) => {
       setError(null);
       setReserveError(null);
       setSelectedMapVehicle(mapVehicle);
@@ -192,23 +183,20 @@ export default function Map() {
     });
   }, [handleVehicleClick, handleVehicleRemove, loadedMap]);
 
-  let drawerFooter = null;
   const drawerContent = (() => {
     if (error && !selectedMapVehicle) {
-      return <FormError error={error} noMargin component="div" />;
+      return <DrawerContentsPageError error={error} />;
     } else if (error) {
-      const { provider } = selectedMapVehicle;
       return (
-        <DrawerContents>
-          <DrawerTitle>{provider.name}</DrawerTitle>
-          <MicromobilityRate rate={provider.rate} />
-          <FormError className="my-0" error={error} />
-        </DrawerContents>
+        <DrawerContentsVehicleError
+          error={error}
+          provider={selectedMapVehicle.provider}
+        />
       );
     }
     if (ongoingTrip) {
       return (
-        <Trip
+        <DrawerContentsOngoingTrip
           lastLocation={lastMarkerLocation}
           trip={ongoingTrip}
           onCloseTrip={handleCloseTrip}
@@ -217,17 +205,8 @@ export default function Map() {
       );
     }
     if (selectedMapVehicle) {
-      if (loadedVehicle?.subsidyMatchPercentage > 0) {
-        drawerFooter = (
-          <div className="py-3 px-4 small text-bg-primary">
-            {t("mobility.rate_additional_savings", {
-              percentage: loadedVehicle.subsidyMatchPercentage,
-            })}
-          </div>
-        );
-      }
       return (
-        <PreTrip
+        <DrawerContentsPreTrip
           loading={selectedMapVehicle && !loadedVehicle}
           vehicle={loadedVehicle}
           reserveError={reserveError}
@@ -238,33 +217,14 @@ export default function Map() {
     if (locationPermissionsError) {
       return locationPermissionsError;
     }
-    return defaultDrawerContents();
+    return <DrawerContentsIntro />;
   })();
 
   return (
     <div className="position-relative h-100">
-      <Drawer footer={drawerFooter}>{drawerContent}</Drawer>
+      <Drawer>{drawerContent}</Drawer>
       <div ref={mapRef} className="h-100" />
     </div>
-  );
-}
-
-function defaultDrawerContents() {
-  return t(
-    "mobility.intro",
-    {},
-    {
-      markdown: {
-        overrides: {
-          a: { component: MdLink },
-          p: {
-            props: {
-              className: "text-secondary",
-            },
-          },
-        },
-      },
-    }
   );
 }
 

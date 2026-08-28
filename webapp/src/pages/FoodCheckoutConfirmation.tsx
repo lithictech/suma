@@ -94,13 +94,7 @@ function Item({ item }: { item: CheckoutConfirmationItem }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="mb-3 align-items-start">
-      <SumaImage
-        image={product.images[0]}
-        className="rounded"
-        width={90}
-        height={90}
-        variant="dark"
-      />
+      <SumaImage image={product.images[0]} className="rounded" width={90} height={90} />
       <Stack>
         <p className="mb-0 lead">{dt(product.name)}</p>
         <p className="text-secondary mb-0">

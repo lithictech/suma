@@ -27,9 +27,7 @@ export default function Mobility() {
 function MobilityImpl() {
   return (
     <Page style={{ height: "100vh" }}>
-      <div className="h-100">
-        <Map />
-      </div>
+      <Map />
       <AppNav />
     </Page>
   );

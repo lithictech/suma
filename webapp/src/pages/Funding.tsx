@@ -76,7 +76,7 @@ function ChargeableCashBalance() {
     <Card className={styles["balance-warning"]}>
       <CardBody className="d-flex flex-column gap-4">
         <div>{t("payments.negative_balance_warning", { amount: balance })}</div>
-        <FormError error={error} noMargin />
+        <FormError error={error} />
         <Button variant="secondary" className="align-self-center" onClick={handleClick}>
           {t("payments.negative_balance_action", { amount: balance })}
         </Button>

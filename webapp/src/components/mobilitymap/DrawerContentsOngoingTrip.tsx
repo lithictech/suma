@@ -6,9 +6,9 @@ import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
 import FormError from "../../ui/FormError";
 import DrawerContents from "./DrawerContents";
-import DrawerLoading from "./DrawerLoading";
+import DrawerContentsLoading from "./DrawerContentsLoading.tsx";
+import DrawerContentsPostTrip from "./DrawerContentsPostTrip.tsx";
 import DrawerTitle from "./DrawerTitle";
-import PostTrip from "./PostTrip";
 import React from "react";
 
 export interface MapLocation {
@@ -22,12 +22,17 @@ interface TripProps {
   lastLocation: MapLocation;
 }
 
-export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }: TripProps) {
+export default function DrawerContentsOngoingTrip({
+  trip,
+  onCloseTrip,
+  onEndTrip,
+  lastLocation,
+}: TripProps) {
   const { handleUpdateCurrentMember } = useUser();
   const [endTrip, setEndTrip] = React.useState<MobilityTrip | null>(null);
   const [error, setError] = useError();
   if (!endTrip && !lastLocation) {
-    return <DrawerLoading />;
+    return <DrawerContentsLoading />;
   }
   const handleEndTrip = () => {
     setError("");
@@ -50,7 +55,11 @@ export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }: Tri
   return (
     <>
       {endTrip && (
-        <PostTrip endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
+        <DrawerContentsPostTrip
+          endTrip={endTrip}
+          error={error}
+          onCloseTrip={handleCloseTrip}
+        />
       )}
       {trip && !endTrip && lastLocation && (
         <DrawerContents>

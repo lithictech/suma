@@ -38,8 +38,7 @@ export default function OrderHistoryDetail() {
     <Page>
       <Page buffer gap={3}>
         <BreadcrumbBack back />
-
-        <OrderDetail order={state} setOrder={replaceState} gutters />
+        <OrderDetail order={state} setOrder={replaceState} />
       </Page>
       <AppNav />
     </Page>

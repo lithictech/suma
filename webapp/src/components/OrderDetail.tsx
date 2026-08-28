@@ -1,7 +1,6 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
-import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
@@ -11,7 +10,6 @@ import useToggle from "../state/useToggle";
 import useUser from "../state/useUser";
 import Alert from "../ui/Alert";
 import Button from "../ui/Button";
-import CardText from "../ui/CardText";
 import Form from "../ui/Form";
 import FormCheck from "../ui/FormCheck";
 import FormGroup from "../ui/FormGroup";

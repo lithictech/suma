@@ -20,7 +20,6 @@ import Icon from "../ui/Icon.tsx";
 import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
-import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 
 export default function Food() {

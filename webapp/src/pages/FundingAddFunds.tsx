@@ -139,7 +139,7 @@ export default function FundingAddFunds() {
         <p>
           {t(`payments.payment_submission_statement_${instrument.paymentMethodType}`)}
         </p>
-        <FormError error={error} end />
+        <FormError error={error} />
         <FormButtons
           variant="outline"
           back

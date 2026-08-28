@@ -162,7 +162,7 @@ function BalanceView({ setView }: { setView: (view: string) => void }) {
   return (
     <ProgressContainer progress={40} header={t("private_accounts.checklist_pay_balance")}>
       <div>{t("private_accounts.pay_balance_explanation", { amount: balance })}</div>
-      <FormError error={error} noMargin />
+      <FormError error={error} />
       <FormButtons
         margin={0}
         secondaryProps={{

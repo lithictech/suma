@@ -1,10 +1,13 @@
 import Drawer from "../components/mobilitymap/Drawer.tsx";
-import DrawerLoading from "../components/mobilitymap/DrawerLoading.tsx";
-import PostTrip from "../components/mobilitymap/PostTrip.tsx";
-import PreTrip from "../components/mobilitymap/PreTrip.tsx";
-import Trip from "../components/mobilitymap/Trip.tsx";
-import { t } from "../localization";
+import DrawerContentsLoading from "../components/mobilitymap/DrawerContentsLoading.tsx";
+import DrawerContentsOngoingTrip from "../components/mobilitymap/DrawerContentsOngoingTrip.tsx";
+import DrawerContentsPageError from "../components/mobilitymap/DrawerContentsPageError.tsx";
+import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPostTrip.tsx";
+import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
+import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
+import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
 import { DemoStack } from "./helpers.tsx";
+import mapBackgroundPng from "./map-background.png";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 
@@ -15,7 +18,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const vendorService = {
+const vendorService: VendorService = {
   id: 2,
   name: "Bikeshare",
   slug: "bikeshare",
@@ -23,18 +26,27 @@ const vendorService = {
   vendorSlug: "bikeop",
 };
 
+const baseRate: Rate = {
+  id: 50,
+  surcharge: { cents: 100, currency: "USD" },
+  unitAmount: { cents: 20, currency: "USD" },
+  name: "demo",
+  undiscountedRate: null as Rate,
+};
+
+const mapVendorService: MobilityMapProvider = {
+  ...vendorService,
+  usageProhibitedReason: "usage_prohibited_cash_balance",
+  rate: baseRate,
+};
+
 const baseVehicle = {
   precision: 1,
   vendorService,
   vehicleId: "vehicle1",
   loc: [40, 120],
-  rate: {
-    id: 50,
-    surcharge: { cents: 100, currency: "USD" },
-    unitAmount: { cents: 20, currency: "USD" },
-    name: "demo",
-  } as Rate,
-  subsidyMatchPercentage: 20,
+  rate: baseRate,
+  subsidyMatchPercentage: 0,
   deeplink: "",
   gotoPrivateAccount: "",
   usageProhibitedReason: "",
@@ -84,35 +96,31 @@ export const TripCards: Story = {
     return (
       <DemoStack>
         <h2>Pre trip</h2>
+
         <h3>Deeplink</h3>
-        <Drawer className="position-relative">
-          <PreTrip vehicle={deeplinkVehicle} onReserve={noop} />
+        <Drawer noPosition>
+          <DrawerContentsPreTrip vehicle={deeplinkVehicle} onReserve={noop} />
         </Drawer>
         <h3>Go-to private account</h3>
-        <Drawer className="position-relative">
-          <PreTrip vehicle={privateAccountVehicle} onReserve={noop} />
+        <Drawer noPosition>
+          <DrawerContentsPreTrip vehicle={privateAccountVehicle} onReserve={noop} />
         </Drawer>
         <h3>Usage prohibited</h3>
-        <Drawer className="position-relative">
-          <PreTrip vehicle={prohibitedVehicle} onReserve={noop} />
+        <Drawer noPosition>
+          <DrawerContentsPreTrip vehicle={prohibitedVehicle} onReserve={noop} />
         </Drawer>
         <h3>With subsidy</h3>
-        <Drawer
-          className="position-relative"
-          footer={
-            <div className="py-3 px-4 small">
-              {t("mobility.rate_additional_savings", {
-                percentage: baseVehicle.subsidyMatchPercentage,
-              })}
-            </div>
-          }
-        >
-          <PreTrip vehicle={deeplinkVehicle} onReserve={noop} />
+        <Drawer noPosition>
+          <DrawerContentsPreTrip
+            vehicle={{ ...deeplinkVehicle, subsidyMatchPercentage: 20 }}
+            onReserve={noop}
+          />
         </Drawer>
 
         <h2>Ongoing trip</h2>
-        <Drawer className="position-relative">
-          <Trip
+
+        <Drawer noPosition>
+          <DrawerContentsOngoingTrip
             trip={trip}
             onCloseTrip={noop}
             onEndTrip={noop}
@@ -121,14 +129,54 @@ export const TripCards: Story = {
         </Drawer>
 
         <h2>Completed trip</h2>
-        <Drawer className="position-relative">
-          <PostTrip endTrip={trip} onCloseTrip={noop} />
+
+        <Drawer noPosition>
+          <DrawerContentsPostTrip endTrip={trip} onCloseTrip={noop} />
         </Drawer>
 
-        <h2>Drawer loading</h2>
-        <Drawer className="position-relative">
-          <DrawerLoading />
+        <h2>Misc States</h2>
+
+        <h3>Loading</h3>
+        <Drawer noPosition>
+          <DrawerContentsLoading />
         </Drawer>
+
+        <h3>Page error</h3>
+        <Drawer noPosition>
+          <DrawerContentsPageError error="read_only_technical_error" />
+        </Drawer>
+
+        <h3>Vehicle error</h3>
+        <Drawer noPosition>
+          <DrawerContentsVehicleError
+            error="read_only_technical_error"
+            provider={mapVendorService}
+          />
+        </Drawer>
+      </DemoStack>
+    );
+  },
+};
+
+export const Map: Story = {
+  render: () => {
+    return (
+      <DemoStack>
+        <h2>Map with Card</h2>
+        <div style={{ width: 360, height: 500 }}>
+          <MapWithDrawer
+            map={
+              <img
+                src={mapBackgroundPng}
+                alt=""
+                height={500}
+                width={360}
+                style={{ objectFit: "cover", objectPosition: "bottom" }}
+              />
+            }
+            content={<DrawerContentsPageError error="read_only_technical_error" />}
+          />
+        </div>
       </DemoStack>
     );
   },

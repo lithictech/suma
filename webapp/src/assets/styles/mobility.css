@@ -1,4 +1,10 @@
 .mobility-drawer {
+  background-color: var(--color-surface);
+  padding: var(--space-4);
+  border-radius: var(--border-radius-lg);
+}
+
+.mobility-drawer-position {
   --control-buffer: 50px;
   --buffer: var(--space-3);
 
@@ -7,13 +13,6 @@
   left: var(--buffer);
   bottom: var(--buffer);
   z-index: var(--z-index-mobility-drawer);
-
-  background-color: var(--color-surface);
-  padding: var(--space-4);
-  border-radius: var(--border-radius-lg);
-}
-
-.mobility-drawer-footer {
 }
 
 /*.leaflet-control-container {*/

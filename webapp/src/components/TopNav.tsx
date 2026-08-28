@@ -27,7 +27,6 @@ export default function TopNav() {
       className="pt-1 pb-0"
       bg={user?.adminMember ? "danger" : "primary"}
       expand={false}
-      variant="dark"
       sticky="top"
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}

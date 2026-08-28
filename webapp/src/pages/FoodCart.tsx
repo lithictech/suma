@@ -134,7 +134,7 @@ function CartItem({ offeringId, product, vendor }: CartItemProps) {
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
       <Link to={`/product/${offeringId}/${productId}`}>
-        <SumaImage image={images[0]} width={100} height={100} variant="dark" />
+        <SumaImage image={images[0]} width={100} height={100} />
       </Link>
       <div>
         <Link to={`/product/${offeringId}/${productId}`}>

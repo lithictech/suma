@@ -31,7 +31,7 @@ export default class MapBuilder {
   _animationTimeoutId: number;
   _refreshId: number;
   _clickedVehicle: L.Marker;
-  _onVehicleClick: (v: ClickedVehicle) => void;
+  _onVehicleClick: (v: VisualMapVehicle) => void;
   _onSelectedVehicleRemoved: () => void;
   _lastExtendedVehicleBounds: L.LatLngBounds;
   _lastExtendedStaticBounds: L.LatLngBounds;
@@ -212,7 +212,13 @@ export default class MapBuilder {
    * These handlers need to be set independently of any other side effects,
    * since the handler functions can change (ie via React.useCallback).
    */
-  setVehicleEventHandlers({ onClick, onSelectedRemoved }) {
+  setVehicleEventHandlers({
+    onClick,
+    onSelectedRemoved,
+  }: {
+    onClick: (v: VisualMapVehicle) => void;
+    onSelectedRemoved: () => void;
+  }) {
     this._onVehicleClick = onClick;
     this._onSelectedVehicleRemoved = onSelectedRemoved;
     return this;
@@ -287,9 +293,9 @@ export default class MapBuilder {
 
     // Fourth: Close the map reserve card if the marker for a scooter is now gone
     const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
-    const isVehicleRemoved = removedMarkers.find(
-      (marker) => this._clickedVehicle?.options.id === marker.options.id
-    );
+    const isVehicleRemoved = removedMarkers
+      .filter(isMarker)
+      .find((marker) => this._clickedVehicle?.options.id === marker.options.id);
     if (!this._clickedVehicle || !isVehicleRemoved) {
       // Keep the card open if we didn't have one open, or the vehicle hasn't been removed.
       return;
@@ -649,7 +655,7 @@ const refreshTimer = (function () {
 
 const isMarker = (layer: L.Layer): layer is L.Marker => layer instanceof L.Marker;
 
-export interface ClickedVehicle {
+export interface VisualMapVehicle {
   loc: number[];
   type: string;
   disambiguator: string;
