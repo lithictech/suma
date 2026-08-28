@@ -11,6 +11,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   href?: RoutePath;
   to?: RoutePath;
   disabled?: boolean;
+  inline?: boolean;
   children?: React.ReactNode;
   state?: ShimProps;
 }
@@ -24,6 +25,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
       variant = "primary",
       size = "md",
       disabled,
+      inline,
       children,
       ...rest
     },
@@ -35,8 +37,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
       `btn`,
       `btn-${variant}`,
       `btn-${size}`,
-      variant === "text" && `btn-inline`,
-      variant === "text" && `btn-inline-${size}`,
+      inline && `btn-inline btn-inline-${size}`,
       to && "btn-link"
     );
     if (to) {

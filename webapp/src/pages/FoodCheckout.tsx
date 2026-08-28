@@ -1,6 +1,5 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormRadioInputs from "../components/FormRadioInputs";
 import FormStateError from "../components/FormStateError";
@@ -10,6 +9,7 @@ import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
 import { anyMoney } from "../modules/money";
+import ExternalLink from "../routing/ExternalLink.tsx";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useErrorToast from "../state/useErrorToast";

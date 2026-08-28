@@ -43,6 +43,8 @@ declare module "./RouteParams.ts" {
     "/order/:id": { id: string | number };
     "/private-accounts": {};
     "/private-account/:id": { id: string | number };
+    "/sitemap": {};
+    "/theme": {};
     "/trips": {};
     "/trip/:id": { id: string | number };
     "/preferences": {};

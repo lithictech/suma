@@ -88,3 +88,7 @@ fieldset {
     margin: 0;
     border: none;
 }
+
+hr {
+    margin: 0;
+}

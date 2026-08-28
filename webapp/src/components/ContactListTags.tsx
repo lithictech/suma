@@ -1,6 +1,6 @@
 import { t } from "../localization";
+import ExternalLink from "../routing/ExternalLink";
 import Stack from "../ui/Stack";
-import ExternalLink from "./ExternalLink";
 
 export default function ContactListTags() {
   return (

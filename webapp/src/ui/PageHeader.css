@@ -1,0 +1,12 @@
+.page-header-primary {
+  color: var(--color-primary);
+}
+
+.page-header-secondary {
+
+}
+
+.page-header-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}

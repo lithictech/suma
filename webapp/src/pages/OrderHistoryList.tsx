@@ -33,10 +33,8 @@ export default function OrderHistoryList() {
   }
   function handleNavigate(order: SimpleOrderHistory) {
     const detailed = find(orderHistory.detailedOrders, { id: order.id });
-    if (!detailed) {
-      return;
-    }
-    navigate(["/order/:id", { id: order.id }], { state: { order: detailed } });
+    const opts = detailed ? { state: { order: detailed } } : {};
+    navigate(["/order/:id", { id: order.id }], opts);
   }
   return (
     <Page>

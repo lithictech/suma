@@ -1,4 +1,6 @@
+import { RoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
+import PageHeader from "../ui/PageHeader.tsx";
 import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
 import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
@@ -26,6 +28,22 @@ export const Breadcrumbs: Story = {
       <div>
         <BreadcrumbBack back />
       </div>
+    </DemoStack>
+  ),
+};
+
+export const PageHeaders: Story = {
+  render: () => (
+    <DemoStack>
+      <hr />
+      <PageHeader title="Default with subtitle" subtitle="No back button" />
+      <hr />
+      <PageHeader
+        title="Default with back"
+        subtitle="Gets a back button"
+        back={"#" as RoutePath}
+      />
+      <hr />
     </DemoStack>
   ),
 };

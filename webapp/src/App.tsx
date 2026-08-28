@@ -33,6 +33,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountDetail from "./pages/PrivateAccountDetail";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess";
+import ThemePage from "./pages/ThemePage.tsx";
 import TripDetail from "./pages/TripDetail";
 import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
@@ -362,6 +363,11 @@ function AppRoutes() {
       screenLoader: true,
       meta: "titles.messaging_preferences",
       Component: PreferencesPublic,
+    }),
+    typeRoute({
+      path: "/theme",
+      meta: "titles.theme",
+      Component: ThemePage,
     }),
     typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
     typeRoute({ path: "/*", pageProps: { to: "/" }, Component: Redirect }),

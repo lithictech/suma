@@ -13,7 +13,6 @@ import Navbar from "../ui/Navbar";
 import NavbarBrand from "../ui/NavbarBrand";
 import NavbarCollapse from "../ui/NavbarCollapse";
 import NavbarToggle from "../ui/NavbarToggle";
-import ExternalLink from "./ExternalLink";
 import clsx from "clsx";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -223,24 +222,13 @@ function NavLinkButton({
 function NavFooter({ className }: { className?: string }) {
   const rowCls = "mb-1 text-center";
   const linkCls = "text-decoration-none";
-  const iconStyle = { fontSize: "140%" };
   return (
     <>
       <div className={clsx("d-flex flex-column", className)}>
         <div className={clsx("text-primary", rowCls)}>
           &copy; {new Date().getFullYear()} mysuma.org
         </div>
-        <div className="d-flex flex-row justify-content-center">
-          <ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">
-            <i className="bi bi-instagram me-3" style={iconStyle}></i>
-          </ExternalLink>
-          <ExternalLink
-            href="https://www.linkedin.com/company/mysuma/"
-            aria-label="LinkedIn"
-          >
-            <i className="bi bi-linkedin" style={iconStyle}></i>
-          </ExternalLink>
-        </div>
+        <div className="d-flex flex-row justify-content-center"></div>
       </div>
       <div className={rowCls}>
         <Link to="/terms-of-use" className={linkCls}>
