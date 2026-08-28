@@ -1,16 +1,7 @@
 import OrderDetail from "../components/OrderDetail.tsx";
-import Drawer from "../components/mobilitymap/Drawer.tsx";
-import DrawerContentsLoading from "../components/mobilitymap/DrawerContentsLoading.tsx";
-import DrawerContentsOngoingTrip from "../components/mobilitymap/DrawerContentsOngoingTrip.tsx";
-import DrawerContentsPageError from "../components/mobilitymap/DrawerContentsPageError.tsx";
-import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPostTrip.tsx";
-import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
-import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
-import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
-import Chip from "../ui/Chip.tsx";
-import Stack from "../ui/Stack.tsx";
+import OrderList from "../components/OrderList.tsx";
+import TODO from "../components/TODO.tsx";
 import { DemoStack } from "./helpers.tsx";
-import mapBackgroundPng from "./map-background.png";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 
@@ -23,12 +14,14 @@ type Story = StoryObj<typeof meta>;
 
 export const OrderHistoryList: Story = {
   render: () => (
-    <Stack gap={2}>
-      <Chip variant="secondary">Available now</Chip>
-      <Chip variant="info">Ready for pickup</Chip>
-      <Chip variant="danger">2 left</Chip>
-      <Chip variant="success">Picked up</Chip>
-    </Stack>
+    <DemoStack>
+      <h2>Order List</h2>
+      <OrderList orders={orders} loading={false} onNavigate={noop} />
+      <h2>Loading</h2>
+      <OrderList orders={orders} loading={true} onNavigate={noop} />
+      <h2>Empty</h2>
+      <OrderList orders={[]} loading={false} onNavigate={noop} />
+    </DemoStack>
   ),
 };
 
@@ -36,9 +29,11 @@ export const OrderHistoryDetail: Story = {
   render: () => (
     <DemoStack>
       <h2>Read-only</h2>
-      <OrderDetail order={detailedOrder} setOrder={noop} />
+      <OrderDetail order={claimedOrder} setOrder={noop} />
       <h2>Claimable</h2>
+      <TODO />
       <h2>Editable</h2>
+      <TODO />
     </DemoStack>
   ),
 };
@@ -63,8 +58,8 @@ const orders: SimpleOrderHistory[] = [
     fulfilledAt: null,
     total: { cents: 3000, currency: "USD" },
     image: {
-      caption: "",
-      url: "https://app.mysuma.org/api/v1/images/im_dt8hbx5p5hdv047smnigxry80",
+      caption: "Photo of pints of rasberries. ",
+      url: "https://app.mysuma.org/api/v1/images/im_d48u169k30yr7zoikwu24zwxu",
     },
     availableForPickupAt: "2024-05-03T22:30:00.000+00:00",
   },
@@ -75,14 +70,14 @@ const orders: SimpleOrderHistory[] = [
     fulfilledAt: "2024-08-23T18:52:49.127+00:00",
     total: { cents: 2400, currency: "USD" },
     image: {
-      caption: "",
-      url: "https://app.mysuma.org/api/v1/images/im_4hrmbxlfg5wyhjcupvwawsg94",
+      caption: "Photo of pints of rasberries. ",
+      url: "https://app.mysuma.org/api/v1/images/im_d48u169k30yr7zoikwu24zwxu",
     },
     availableForPickupAt: "2023-06-01T19:00:00.000+00:00",
   },
 ];
 
-const detailedOrder: DetailedOrderHistory = {
+const claimedOrder: DetailedOrderHistory = {
   id: 4490,
   serial: "4490",
   createdAt: "2026-07-01T18:50:38.243+00:00",

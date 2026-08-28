@@ -1,4 +1,4 @@
-export default function TODO({ children }) {
+export default function TODO({ children }: { children?: any }) {
   return (
     <div>
       <h1>TODO</h1>

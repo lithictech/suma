@@ -1,4 +1,5 @@
 import loaderRing from "../assets/images/loader-ring.svg";
+import TODO from "./TODO.tsx";
 import clsx from "clsx";
 
 /**
@@ -41,6 +42,7 @@ export default function PageLoader({
   );
   return (
     <div className={clsx("text-center", containerClass)}>
+      <TODO />
       <img
         src={loaderRing}
         width={width}
