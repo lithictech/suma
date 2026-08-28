@@ -46,43 +46,37 @@ export default function Preferences({
   }
 
   return (
-    <Page>
-      <Page buffer gap={4}>
-        <PageHeader
-          back
-          title={t("preferences.title")}
-          subtitle={t("preferences.intro")}
-        />
-        <h3>Language</h3>
-        <LanguageSwitcher
-          supportedLocales={supportedLocales?.items || []}
-          currentLanguage={currentLanguage}
-          changeLanguage={changeLanguage}
-        />
-        <h3>Messaging</h3>
-        <Form onSubmit={handleSubmit}>
-          {user.preferences.subscriptions.map((sub, idx) => {
-            const optedIn = has(subscriptions, sub.key)
-              ? subscriptions[sub.key]
-              : sub.optedIn;
-            return (
-              <Subscription
-                key={sub.key}
-                index={idx}
-                subscriptionKey={sub.key}
-                optedIn={optedIn}
-                editableState={sub.editableState}
-                onCheckChange={(ch) => setSubscriptions({ [sub.key]: ch })}
-              />
-            );
-          })}
-          {children}
-          <ButtonGroup col bottom>
-            <ContinueButton>{t("forms.save")}</ContinueButton>
-            <BackButton />
-          </ButtonGroup>
-        </Form>
-      </Page>
+    <Page buffer appNav gap={4}>
+      <PageHeader back title={t("preferences.title")} subtitle={t("preferences.intro")} />
+      <h3>Language</h3>
+      <LanguageSwitcher
+        supportedLocales={supportedLocales?.items || []}
+        currentLanguage={currentLanguage}
+        changeLanguage={changeLanguage}
+      />
+      <h3>Messaging</h3>
+      <Form onSubmit={handleSubmit}>
+        {user.preferences.subscriptions.map((sub, idx) => {
+          const optedIn = has(subscriptions, sub.key)
+            ? subscriptions[sub.key]
+            : sub.optedIn;
+          return (
+            <Subscription
+              key={sub.key}
+              index={idx}
+              subscriptionKey={sub.key}
+              optedIn={optedIn}
+              editableState={sub.editableState}
+              onCheckChange={(ch) => setSubscriptions({ [sub.key]: ch })}
+            />
+          );
+        })}
+        {children}
+        <ButtonGroup col bottom>
+          <ContinueButton>{t("forms.save")}</ContinueButton>
+          <BackButton />
+        </ButtonGroup>
+      </Form>
     </Page>
   );
 }

@@ -1,5 +1,4 @@
 import api from "../api";
-import AppNav from "../components/AppNav.tsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import OrderList from "../components/OrderList.tsx";
@@ -37,27 +36,24 @@ export default function OrderHistoryList() {
     navigate(["/order/:id", { id: order.id }], opts);
   }
   return (
-    <Page>
-      <Page buffer gap={3}>
-        {user.unclaimedOrdersCount > 0 && (
-          <SeeAlsoAlert
-            variant="success"
-            label={t("dashboard.claim_orders")}
-            iconClass="bi-bag-check-fill"
-            alertClass="solo-alert"
-            show
-            to="/unclaimed-orders"
-          />
-        )}
-        <BreadcrumbBack back="/food" />
-        <PageHeading>{t("food.order_history_title")}</PageHeading>
-        <OrderList
-          loading={loading}
-          orders={orderHistory?.items}
-          onNavigate={handleNavigate}
+    <Page buffer gap={3} appNav>
+      {user.unclaimedOrdersCount > 0 && (
+        <SeeAlsoAlert
+          variant="success"
+          label={t("dashboard.claim_orders")}
+          iconClass="bi-bag-check-fill"
+          alertClass="solo-alert"
+          show
+          to="/unclaimed-orders"
         />
-      </Page>
-      <AppNav />
+      )}
+      <BreadcrumbBack back="/food" />
+      <PageHeading>{t("food.order_history_title")}</PageHeading>
+      <OrderList
+        loading={loading}
+        orders={orderHistory?.items}
+        onNavigate={handleNavigate}
+      />
     </Page>
   );
 }

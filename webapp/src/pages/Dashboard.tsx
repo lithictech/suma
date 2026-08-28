@@ -1,6 +1,5 @@
 import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
-import AppNav from "../components/AppNav.tsx";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import ProgramCard from "../components/ProgramCard.tsx";
@@ -32,21 +31,18 @@ export default function Dashboard() {
     );
   }
   return (
-    <Page>
-      <Page buffer>
-        <TopAlerts dashboard={dashboard} />
-        <AddToHomescreen />
-        {dashboardLoading ? (
-          <PageLoader buffered />
-        ) : (
-          <Stack col gap={3}>
-            {dashboard.programs.map((program) => (
-              <ProgramCard key={program.name} {...program} />
-            ))}
-          </Stack>
-        )}
-      </Page>
-      <AppNav />
+    <Page buffer appNav>
+      <TopAlerts dashboard={dashboard} />
+      <AddToHomescreen />
+      {dashboardLoading ? (
+        <PageLoader buffered />
+      ) : (
+        <Stack col gap={3}>
+          {dashboard.programs.map((program) => (
+            <ProgramCard key={program.name} {...program} />
+          ))}
+        </Stack>
+      )}
     </Page>
   );
 }

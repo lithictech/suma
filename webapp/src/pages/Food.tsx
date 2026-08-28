@@ -1,5 +1,4 @@
 import api from "../api";
-import AppNav from "../components/AppNav.tsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
@@ -18,6 +17,7 @@ import CardBody from "../ui/CardBody.tsx";
 import CardImage from "../ui/CardImage.tsx";
 import Icon from "../ui/Icon.tsx";
 import Page from "../ui/Page.tsx";
+import PageHeader from "../ui/PageHeader.tsx";
 import Stack from "../ui/Stack";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
 import isEmpty from "lodash/isEmpty";
@@ -54,20 +54,14 @@ export default function Food() {
     );
   }
   return (
-    <Page>
-      <Page buffer>
-        <LayoutContainer gutters>
-          <h3 className="mb-2">{t("food.current_offerings")}</h3>
-          <p className="mb-3">Lorem ipsum dolor est.</p>
-          <Stack gap={3}>
-            {items.map((it) => (
-              <OfferingCard key={it.id} {...it} />
-            ))}
-          </Stack>
-        </LayoutContainer>
-        <OrderHistoryLink />
-      </Page>
-      <AppNav />
+    <Page buffer appNav gap={3}>
+      <PageHeader title={t("food.current_offerings")} subtitle="Lorem ipsum dolor est." />
+      <Stack gap={3}>
+        {items.map((it) => (
+          <OfferingCard key={it.id} {...it} />
+        ))}
+      </Stack>
+      <OrderHistoryLink />
     </Page>
   );
 }

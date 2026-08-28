@@ -1,5 +1,4 @@
 import api from "../api";
-import AppNav from "../components/AppNav.tsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import OrderDetail from "../components/OrderDetail";
@@ -35,12 +34,9 @@ export default function OrderHistoryDetail() {
     return <PageLoader />;
   }
   return (
-    <Page>
-      <Page buffer gap={3}>
-        <BreadcrumbBack back />
-        <OrderDetail order={state} setOrder={replaceState} />
-      </Page>
-      <AppNav />
+    <Page buffer gap={3} appNav>
+      <BreadcrumbBack back />
+      <OrderDetail order={state} setOrder={replaceState} />
     </Page>
   );
 }

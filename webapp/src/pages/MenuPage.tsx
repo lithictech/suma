@@ -1,4 +1,3 @@
-import AppNav from "../components/AppNav.tsx";
 import externalLinks from "../modules/externalLinks.ts";
 import { externalUrl, RoutePath, RoutePathOrUrl } from "../routing/RoutePath.ts";
 import { TintColor } from "../types/theme";
@@ -25,79 +24,73 @@ import MapIcon from "@heroicons/react/24/outline/MapIcon";
 
 export default function MenuPage() {
   return (
-    <Page>
-      <Page buffer gap={3}>
-        <PageHeader
-          title="Menu"
-          subtitle="Account details, purchase history, and more."
+    <Page buffer gap={3} appNav>
+      <PageHeader title="Menu" subtitle="Account details, purchase history, and more." />
+      <Card>
+        <NavArea
+          to="/mobility"
+          color="danger"
+          icon={MapIcon}
+          title="Mobility Map"
+          text="Find scooters near you"
         />
-        <Card>
-          <NavArea
-            to="/mobility"
-            color="danger"
-            icon={MapIcon}
-            title="Mobility Map"
-            text="Find scooters near you"
-          />
-          <hr />
-          <NavArea
-            to="/preferences"
-            color="primary"
-            icon={UserCircleIcon}
-            title="Account"
-            text="Your profile and contact details"
-          />
-          <hr />
-          <NavArea
-            to="/order-history"
-            icon={ShoppingBagIcon}
-            color="secondary"
-            title="Order History"
-            text="Everything you have picked up"
-          />
-          <hr />
-          <NavArea
-            to="/trips"
-            icon={TruckIcon}
-            color="success"
-            title="Trip History"
-            text="Trips you have taken"
-          />
-          <hr />
-          <NavArea
-            to="/ledgers"
-            icon={BanknotesIcon}
-            color="danger"
-            title="Transactions"
-            text="Payments, credits, and balances"
-          />
-        </Card>
-        <Card>
-          <SimpleNavArea
-            to={externalUrl(externalLinks.supportMailto)}
-            icon={LifebuoyIcon}
-            title="Support"
-          />
-          <hr />
-          <SimpleNavArea to="/sitemap" icon={QuestionMarkCircleIcon} title="Sitemap" />
-          <hr />
-          <SimpleNavArea to="/preferences" icon={LanguageIcon} title="Language" />
-          <hr />
-          <SimpleNavArea to="/theme" icon={EyeIcon} title="Theme" />
-        </Card>
-        {/*const iconStyle = { fontSize: "140%" };*/}
+        <hr />
+        <NavArea
+          to="/preferences"
+          color="primary"
+          icon={UserCircleIcon}
+          title="Account"
+          text="Your profile and contact details"
+        />
+        <hr />
+        <NavArea
+          to="/order-history"
+          icon={ShoppingBagIcon}
+          color="secondary"
+          title="Order History"
+          text="Everything you have picked up"
+        />
+        <hr />
+        <NavArea
+          to="/trips"
+          icon={TruckIcon}
+          color="success"
+          title="Trip History"
+          text="Trips you have taken"
+        />
+        <hr />
+        <NavArea
+          to="/ledgers"
+          icon={BanknotesIcon}
+          color="danger"
+          title="Transactions"
+          text="Payments, credits, and balances"
+        />
+      </Card>
+      <Card>
+        <SimpleNavArea
+          to={externalUrl(externalLinks.supportMailto)}
+          icon={LifebuoyIcon}
+          title="Support"
+        />
+        <hr />
+        <SimpleNavArea to="/sitemap" icon={QuestionMarkCircleIcon} title="Sitemap" />
+        <hr />
+        <SimpleNavArea to="/preferences" icon={LanguageIcon} title="Language" />
+        <hr />
+        <SimpleNavArea to="/theme" icon={EyeIcon} title="Theme" />
+      </Card>
+      {/*const iconStyle = { fontSize: "140%" };*/}
 
-        {/*<ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">*/}
-        {/*  <i className="bi bi-instagram me-3" style={iconStyle}></i>*/}
-        {/*</ExternalLink>*/}
-        {/*<ExternalLink*/}
-        {/*  href="https://www.linkedin.com/company/mysuma/"*/}
-        {/*  aria-label="LinkedIn"*/}
-        {/*>*/}
-        {/*  <i className="bi bi-linkedin" style={iconStyle}></i>*/}
-        {/*</ExternalLink>*/}
-      </Page>
-      <AppNav />
+      {/*<ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">*/}
+      {/*  <i className="bi bi-instagram me-3" style={iconStyle}></i>*/}
+      {/*</ExternalLink>*/}
+      {/*<ExternalLink*/}
+      {/*  href="https://www.linkedin.com/company/mysuma/"*/}
+      {/*  aria-label="LinkedIn"*/}
+      {/*>*/}
+      {/*  <i className="bi bi-linkedin" style={iconStyle}></i>*/}
+      {/*</ExternalLink>*/}
     </Page>
   );
 }

@@ -1,4 +1,3 @@
-import AppNav from "../components/AppNav.tsx";
 import TODO from "../components/TODO.tsx";
 import WaitingList from "../components/WaitingList";
 import Map from "../components/mobilitymap/Map";
@@ -26,9 +25,8 @@ export default function Mobility() {
 
 function MobilityImpl() {
   return (
-    <Page style={{ height: "100vh" }}>
+    <Page appNav>
       <Map />
-      <AppNav />
     </Page>
   );
 }
