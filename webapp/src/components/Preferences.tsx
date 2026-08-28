@@ -1,4 +1,6 @@
 import { t } from "../localization";
+import useI18n from "../localization/useI18n.ts";
+import useBackendGlobals from "../state/useBackendGlobals.ts";
 import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import BackButton from "../ui/BackButton.tsx";
@@ -26,6 +28,8 @@ export default function Preferences({
   onSaved,
 }: PreferencesProps) {
   const { showErrorToast } = useErrorToast();
+  const { supportedLocales } = useBackendGlobals();
+  const { currentLanguage, changeLanguage } = useI18n();
   const screenLoader = useScreenLoader();
   const [subscriptions, setSubscriptions] = React.useState<Record<string, boolean>>({});
 
@@ -50,7 +54,11 @@ export default function Preferences({
           subtitle={t("preferences.intro")}
         />
         <h3>Language</h3>
-        <LanguageSwitcher />
+        <LanguageSwitcher
+          supportedLocales={supportedLocales?.items || []}
+          currentLanguage={currentLanguage}
+          changeLanguage={changeLanguage}
+        />
         <h3>Messaging</h3>
         <Form onSubmit={handleSubmit}>
           {user.preferences.subscriptions.map((sub, idx) => {

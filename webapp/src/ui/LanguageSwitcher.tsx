@@ -1,20 +1,25 @@
-import useI18n from "../localization/useI18n.ts";
-import useBackendGlobals from "../state/useBackendGlobals.ts";
 import CardText from "./CardText.tsx";
 import RadioCard from "./RadioCard.tsx";
 import Stack from "./Stack.tsx";
 
-export default function LanguageSwitcher() {
-  const { supportedLocales } = useBackendGlobals();
-  const { currentLanguage, changeLanguage } = useI18n();
-  if (!supportedLocales.items) {
+interface LanguageSwitcherProps {
+  supportedLocales: Locale[];
+  currentLanguage: string;
+  changeLanguage: (language: string) => void;
+}
+export default function LanguageSwitcher({
+  supportedLocales,
+  currentLanguage,
+  changeLanguage,
+}: LanguageSwitcherProps) {
+  if (!supportedLocales) {
     return null;
   }
   return (
     <Stack col gap={4}>
       <RadioCard
         name="language"
-        options={supportedLocales.items.map(({ code, native }) => ({
+        options={supportedLocales.map(({ code, native }) => ({
           label: <CardText variant="subtitle">{native}</CardText>,
           value: code,
         }))}
