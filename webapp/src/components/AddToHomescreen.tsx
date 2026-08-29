@@ -3,15 +3,20 @@ import config from "../config";
 import { imageAltT, t } from "../localization";
 import useLocalStorageState from "../state/useLocalStorageState";
 import useToggle from "../state/useToggle";
-import Alert from "../ui/Alert";
-import AlertHeading from "../ui/AlertHeading";
 import Button from "../ui/Button";
 import PageLoader from "./PageLoader";
+import TODO from "./TODO";
 import React from "react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: string }>;
+}
+
+declare global {
+  interface WindowEventMap {
+    beforeinstallprompt: BeforeInstallPromptEvent;
+  }
 }
 
 /**
@@ -39,9 +44,9 @@ export default function AddToHomescreen() {
 
   const installPrompt = React.useCallback(() => {
     loading.turnOn();
-    return installPromptEvent
+    return installPromptEvent!
       .prompt()
-      .then(() => installPromptEvent.userChoice)
+      .then(() => installPromptEvent!.userChoice)
       .then((result) => {
         if (result.outcome === "accepted") {
           setShouldPrompt(false);
@@ -120,14 +125,15 @@ export default function AddToHomescreen() {
     return <PageLoader />;
   }
   return (
-    <Alert
+    <TODO
+      type="Alert"
       variant="primary"
       className="mt-4 mb-2"
       show={shouldPrompt}
       onClose={() => setShouldPrompt(false)}
       dismissible
     >
-      <AlertHeading>
+      <TODO>
         <img
           src={sumaLogo}
           alt={imageAltT("suma_logo")}
@@ -135,14 +141,14 @@ export default function AddToHomescreen() {
           style={{ width: 50 }}
         />
         {t("common.add_to_homescreen")}
-      </AlertHeading>
+      </TODO>
       <p>{t("common.add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
         <Button ref={addToHomescreenButtonRef} variant="primary">
           {t("common.install_suma")}
         </Button>
       </div>
-    </Alert>
+    </TODO>
   );
 }
 

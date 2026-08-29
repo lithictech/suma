@@ -18,7 +18,6 @@ import FoodDetails from "./pages/FoodDetails";
 import FoodList from "./pages/FoodList";
 import Funding from "./pages/Funding";
 import FundingAddCard from "./pages/FundingAddCard";
-import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
@@ -278,14 +277,6 @@ function AppRoutes() {
       screenLoader: true,
       meta: "payments.add_card",
       Component: FundingAddCard,
-    }),
-    typeRoute({
-      path: "/add-funds",
-      auth: "require",
-      onboarded: "require",
-      screenLoader: true,
-      meta: "payments.add_funds",
-      Component: FundingAddFunds,
     }),
     typeRoute({
       path: "/ledgers",

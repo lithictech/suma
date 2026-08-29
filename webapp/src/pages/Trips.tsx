@@ -1,12 +1,11 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import LayoutContainer from "../components/LayoutContainer";
-import PageLoader from "../components/PageLoader";
+import TODO from "../components/TODO.tsx";
 import TripList from "../components/TripList.tsx";
 import { t } from "../localization";
 import useAsyncFetch from "../state/useAsyncFetch";
 import Page from "../ui/Page.tsx";
-import isEmpty from "lodash/isEmpty";
+import PageHeader from "../ui/PageHeader.tsx";
 
 export default function Trips() {
   const {
@@ -19,26 +18,16 @@ export default function Trips() {
   });
 
   if (tripsError) {
-    return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
-    );
+    return <ErrorScreen />;
+  }
+  if (tripsLoading) {
+    return <TODO />;
   }
 
   return (
     <Page appNav>
-      <LayoutContainer gutters>
-        <h2>{t("titles.trips")}</h2>
-        <p className="text-secondary">{t("trips.intro")}</p>
-      </LayoutContainer>
-      {tripsLoading ? (
-        <PageLoader />
-      ) : isEmpty(trips.items) ? (
-        <LayoutContainer>{t("trips.empty")}</LayoutContainer>
-      ) : (
-        <TripList tripCollection={trips} />
-      )}
+      <PageHeader title={t("titles.trips")} subtitle={t("trips.intro")} />
+      <TripList tripCollection={trips} />
     </Page>
   );
 }

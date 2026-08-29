@@ -4,7 +4,7 @@ import { RouteQuery } from "./RouteQuery.ts";
 
 export class RoutePathWithQuery {
   path: PlainRoutePath;
-  query: Record<string, string | number | boolean | undefined>;
+  query: Record<string, string | number | boolean | null | undefined>;
   constructor(path: PlainRoutePath, query: RoutePathWithQuery["query"]) {
     this.path = path;
     this.query = query;

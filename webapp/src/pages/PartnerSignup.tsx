@@ -68,7 +68,7 @@ function calculateAction(userCtx: UserContextValue) {
   if (userError || userUnauthed) {
     return UNAUTHED;
   }
-  if (!user.onboarded) {
+  if (!user!.onboarded) {
     return NOT_ONBOARDED;
   }
   if (!registrationSession) {

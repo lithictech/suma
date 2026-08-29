@@ -188,7 +188,7 @@ declare global {
   interface FulfillmentOption {
     id: number;
     description: string;
-    address: FulfillmentOptionAddress;
+    address: FulfillmentOptionAddress | null;
   }
 
   /** Auto-generated from Suma::API::Commerce::OfferingEntity */
@@ -264,7 +264,7 @@ declare global {
     id: number;
     serial: string;
     createdAt: string;
-    fulfilledAt: string;
+    fulfilledAt: string | null;
     total: Money;
     image: Image;
     availableForPickupAt: string;
@@ -415,16 +415,16 @@ declare global {
     provider: VendorService;
     beginLat: number;
     beginLng: number;
-    beginAddress: MobilityTripParsedAddress;
+    beginAddress: MobilityTripParsedAddress | null;
     beganAt: string;
     endLat: number;
     endLng: number;
-    endAddress: MobilityTripParsedAddress;
+    endAddress: MobilityTripParsedAddress | null;
     endedAt: string;
     ongoing: boolean;
     charge: MobilityCharge;
     minutes: number;
-    image: Image;
+    image: Image | null;
   }
 
   /** Auto-generated from Suma::API::Entities::MobilityTripParsedAddressEntity */
@@ -641,7 +641,7 @@ declare global {
     hasMore: boolean;
     url: string;
     items: MobilityTrip[];
-    ongoing: MobilityTrip;
+    ongoing: MobilityTrip | null;
     weeks: MobilityTripCollectionWeek[];
   }
 
@@ -659,7 +659,7 @@ declare global {
     surcharge: Money;
     unitAmount: Money;
     name: string;
-    undiscountedRate: SimpleRate;
+    undiscountedRate: SimpleRate | null;
   }
 
   /** Auto-generated from Suma::API::Mobility::SimpleRateEntity */

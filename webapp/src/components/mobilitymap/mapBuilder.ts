@@ -10,8 +10,10 @@ import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
+import noop from "lodash/noop";
 
 type MapCache = { lat?: number; lng?: number; zoom?: number };
+type VehicleClickHandler = (v: VisualMapVehicle | null) => void;
 
 export default class MapBuilder {
   mapHost: HTMLDivElement;
@@ -25,13 +27,13 @@ export default class MapBuilder {
   _map: L.Map;
   _restrictedAreasGroup: L.LayerGroup;
   _mcg: L.MarkerClusterGroup;
-  _lastLocation: L.LatLng;
-  _locationMarker: L.AnimatedMarker;
-  _locationAccuracyCircle: L.Circle;
-  _animationTimeoutId: number;
-  _refreshId: number;
-  _clickedVehicle: L.Marker;
-  _onVehicleClick: (v: VisualMapVehicle) => void;
+  _lastLocation: L.LatLng | undefined;
+  _locationMarker: L.AnimatedMarker | undefined;
+  _locationAccuracyCircle: L.Circle | undefined;
+  _animationTimeoutId: number | null | undefined;
+  _refreshId: number | null | undefined;
+  _clickedVehicle: L.Marker | null | undefined;
+  _onVehicleClick: VehicleClickHandler;
   _onSelectedVehicleRemoved: () => void;
   _lastExtendedVehicleBounds: L.LatLngBounds;
   _lastExtendedStaticBounds: L.LatLngBounds;
@@ -42,6 +44,8 @@ export default class MapBuilder {
     this._minZoom = 8;
     this._maxZoom = 23;
     this._zoomTo = 20;
+    this._onVehicleClick = noop;
+    this._onSelectedVehicleRemoved = noop;
     this._mapCache = localStorageCache.getItem("mobilityMapCache", {});
     this._saveMapCacheField = function (fields) {
       this._mapCache = { ...this._mapCache, ...fields };
@@ -56,6 +60,8 @@ export default class MapBuilder {
       [this._mapCache.lat || 45.5152, this._mapCache.lng || -122.6784],
       this._mapCache.zoom || this._minZoom
     );
+    this._lastExtendedStaticBounds = this._map.getBounds();
+    this._lastExtendedVehicleBounds = this._map.getBounds();
     this._l.control
       .zoom({
         position: "bottomright",
@@ -81,27 +87,6 @@ export default class MapBuilder {
         });
       },
     });
-    this._lastLocation = null;
-    this._locationMarker = null;
-    this._locationAccuracyCircle = null;
-    this._animationTimeoutId = null;
-    this._refreshId = null;
-    this._clickedVehicle = null;
-    this._onVehicleClick = null;
-    this._onSelectedVehicleRemoved = null;
-  }
-
-  init() {
-    this.setTileLayer();
-    this.getAndUpdateRestrictedAreas(
-      this._lastExtendedStaticBounds,
-      this._restrictedAreasGroup
-    );
-    this._map.addLayer(this._restrictedAreasGroup);
-    return this;
-  }
-
-  setTileLayer() {
     this._l
       .tileLayer(
         `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${config.mapboxAccessToken}`,
@@ -117,6 +102,12 @@ export default class MapBuilder {
         }
       )
       .addTo(this._map);
+    this.getAndUpdateRestrictedAreas(
+      this._lastExtendedStaticBounds,
+      this._restrictedAreasGroup
+    );
+    this._map.addLayer(this._restrictedAreasGroup);
+    return this;
   }
 
   setLocationEventHandlers() {
@@ -131,7 +122,7 @@ export default class MapBuilder {
       }
       this._locationAccuracyCircle
         .getElement()
-        .classList.remove("mobility-location-accuracy-circle-transition");
+        ?.classList.remove("mobility-location-accuracy-circle-transition");
       this.setLocationMarkerTransition("none");
     });
     this._map.on("zoomend", () => {
@@ -140,15 +131,15 @@ export default class MapBuilder {
       }
       this._animationTimeoutId = window.setTimeout(() => {
         this._locationAccuracyCircle
-          .getElement()
-          .classList.add("mobility-location-accuracy-circle-transition");
+          ?.getElement()
+          ?.classList.add("mobility-location-accuracy-circle-transition");
         this.setLocationMarkerTransition("all 1000ms linear 0s");
       }, 250);
     });
   }
 
   setLocationMarkerTransition(value: string) {
-    const el = this._locationMarker.getElement();
+    const el = this._locationMarker?.getElement();
     if (!el) {
       // Leaflet can fire its event though the DOM element is gone by the time
       // the zoomstart/zoomend callback is actually called.
@@ -172,11 +163,12 @@ export default class MapBuilder {
     // - inside the vehicle and static bounds. Noop.
     // - outside the vehicle, but inside the static bounds. Update vehicle bounds, request new vehicles.
     // - outside static bounds. Update both bounds and request new of both.
-    let vehicleOOB: boolean, staticOOB: boolean;
+    let vehicleOOB = false;
+    let staticOOB = false;
     if (!this._lastExtendedStaticBounds.contains(bounds)) {
       vehicleOOB = true;
       staticOOB = true;
-    } else if (!this._lastExtendedVehicleBounds.contains(bounds)) {
+    } else if (!this._lastExtendedVehicleBounds?.contains(bounds)) {
       vehicleOOB = true;
     }
     if (vehicleOOB) {
@@ -216,7 +208,7 @@ export default class MapBuilder {
     onClick,
     onSelectedRemoved,
   }: {
-    onClick: (v: VisualMapVehicle) => void;
+    onClick: VehicleClickHandler;
     onSelectedRemoved: () => void;
   }) {
     this._onVehicleClick = onClick;
@@ -250,9 +242,9 @@ export default class MapBuilder {
     mcg: L.MarkerClusterGroup;
   }) {
     const precisionFactor = 1 / data.precision;
-    const applicableMarkers = [];
-    const allNewMarkersIds = [];
-    const leftoverMarkers = [];
+    const applicableMarkers: leaflet.Layer[] = [];
+    const allNewMarkersIds: string[] = [];
+    const leftoverMarkers: leaflet.Marker[] = [];
     // First: Removes markers that are not present in the bounds
     const removableMarkers = mcg
       .getLayers()
@@ -264,8 +256,12 @@ export default class MapBuilder {
       .getLayers()
       .filter(isMarker)
       .map((marker) => marker.options.id);
-    ["ebike", "escooter"].forEach((vehicleType) => {
-      data[vehicleType]?.forEach((bike: MobilityMapVehicle) => {
+    const vehicleTypeAndVehicles = [
+      { vehicleType: "ebike", vehicles: data.ebike || [] },
+      { vehicleType: "escooter", vehicles: data.escooter || [] },
+    ];
+    vehicleTypeAndVehicles.forEach(({ vehicleType, vehicles }) => {
+      vehicles.forEach((bike: MobilityMapVehicle) => {
         const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
         const marker = this.createVehicleMarker(
           id,
@@ -287,7 +283,7 @@ export default class MapBuilder {
     // Leftover markers are visible in new bounds but might not exist in new list of ids,
     // therefor we should remove the non-existing leftover marker(s)
     const removableLeftoverMarkers = leftoverMarkers.filter(
-      (marker) => !allNewMarkersIds.includes(marker.options.id)
+      (marker) => !allNewMarkersIds.includes(marker.options.id!)
     );
     mcg.removeLayers(removableLeftoverMarkers);
 
@@ -343,7 +339,7 @@ export default class MapBuilder {
           disambiguator: bike.d,
           provider: vehicleProvider,
         };
-        this._onVehicleClick(mapVehicle);
+        this._onVehicleClick!(mapVehicle);
         this._clickedVehicle = e.target;
       });
   }
@@ -378,7 +374,15 @@ export default class MapBuilder {
     });
   }
 
-  createRestrictedArea({ id, latlngs, restriction }) {
+  createRestrictedArea({
+    id,
+    latlngs,
+    restriction,
+  }: {
+    id: string;
+    latlngs: GeoMultiPolygon;
+    restriction: string;
+  }) {
     if (!id || !latlngs || !restriction) {
       return;
     }
@@ -401,7 +405,7 @@ export default class MapBuilder {
       popup.setContent(ridingRestrictionContent);
     }
     return this._l
-      .polygon([latlngs], {
+      .polygon(latlngs, {
         id: id,
         fillOpacity: 0.25,
         color: "#b53d00",
@@ -436,7 +440,7 @@ export default class MapBuilder {
           }
           this.centerLocation(this._lastLocation, this._getLocationZoom());
         },
-      },
+      } as LocateControlOptions,
       onAdd() {
         const container = L.DomUtil.create(
           "div",
@@ -460,8 +464,8 @@ export default class MapBuilder {
         return container;
       },
       onRemove() {
-        L.DomEvent.off(this.options.link, "click", (e) => this.options.center(e), this);
-        L.DomEvent.off(this.options.link, "dblclick", (ev) => {
+        L.DomEvent.off(this.options.link!, "click", (e) => this.options.center(e), this);
+        L.DomEvent.off(this.options.link!, "dblclick", (ev) => {
           L.DomEvent.stopPropagation(ev);
         });
       },
@@ -666,3 +670,8 @@ const locationSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox
   <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
 </svg>
 `;
+
+interface LocateControlOptions extends L.ControlOptions {
+  link: undefined | HTMLAnchorElement;
+  center: (e: Event) => void;
+}

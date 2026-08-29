@@ -25,7 +25,7 @@ export default function Map() {
     null
   );
   const [ongoingTrip, setOngoingTrip] = React.useState<MobilityTrip | null>(
-    user.ongoingTrip
+    user!.ongoingTrip
   );
   const [reserveError, setReserveError] = useError();
   const [locationPermissionsError, setLocationPermissionsError] = useError("");
@@ -148,7 +148,7 @@ export default function Map() {
     if (!mapRef.current) {
       return;
     }
-    const map = new MapBuilder(mapRef.current).init().startTrackingLocation({
+    const map = new MapBuilder(mapRef.current).startTrackingLocation({
       onLocationFound: handleLocationFound,
       onLocationError: handleLocationError,
     });
@@ -190,14 +190,18 @@ export default function Map() {
       return (
         <DrawerContentsVehicleError
           error={error}
-          provider={selectedMapVehicle.provider}
+          provider={selectedMapVehicle!.provider}
         />
       );
     }
     if (ongoingTrip) {
       return (
         <DrawerContentsOngoingTrip
-          lastLocation={lastMarkerLocation}
+          lastLocation={
+            lastMarkerLocation || {
+              latlng: { lat: ongoingTrip.beginLat, lng: ongoingTrip.beginLng },
+            }
+          }
           trip={ongoingTrip}
           onCloseTrip={handleCloseTrip}
           onEndTrip={handleEndTrip}

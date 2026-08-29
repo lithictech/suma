@@ -2,6 +2,7 @@ import { t } from "../../localization";
 import { untypedRoutePath } from "../../routing/RoutePath.ts";
 import Button from "../../ui/Button";
 import FormError from "../../ui/FormError";
+import TODO from "../TODO.tsx";
 import DrawerContents from "./DrawerContents";
 import DrawerContentsLoading from "./DrawerContentsLoading.tsx";
 import DrawerTitle from "./DrawerTitle";
@@ -10,7 +11,8 @@ import React from "react";
 
 interface PreTripProps {
   loading?: boolean;
-  vehicle: MobilityDetailedVehicle;
+  /** Can be null while loading is true. */
+  vehicle: MobilityDetailedVehicle | null;
   onReserve: (vehicle: MobilityDetailedVehicle) => void;
   reserveError?: any;
 }
@@ -27,9 +29,13 @@ export default function DrawerContentsPreTrip({
   if (loading) {
     return <DrawerContentsLoading />;
   }
+  if (!vehicle) {
+    return <TODO>error page, vehicle must be passed, is static/dev error</TODO>;
+  }
+
   const handleReserve = (e: React.MouseEvent) => {
     e.preventDefault();
-    onReserve(vehicle);
+    onReserve(vehicle!);
   };
 
   let action: React.ReactNode;

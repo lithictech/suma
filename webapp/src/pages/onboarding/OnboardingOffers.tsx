@@ -1,4 +1,5 @@
 import ProgramCard from "../../components/ProgramCard.tsx";
+import TODO from "../../components/TODO.tsx";
 import { t } from "../../localization";
 import useMountEffect from "../../state/useMountEffect.ts";
 import useScreenLoader from "../../state/useScreenLoader.ts";
@@ -16,6 +17,9 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
   useMountEffect(screenLoader.turnOff);
 
   const { onboarded } = onboardingState;
+  if (!onboarded) {
+    return <TODO>ERROR SCREEN?</TODO>;
+  }
 
   return (
     <Page>

@@ -1,7 +1,5 @@
-import LayoutContainer from "../components/LayoutContainer";
 import ScreenLoader from "../components/ScreenLoader";
 import SumaMarkdown from "../components/SumaMarkdown";
-import TopNav from "../components/TopNav";
 import { t as loct } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
@@ -9,7 +7,11 @@ import useMountEffect from "../state/useMountEffect";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
-export default function MarkdownContent({ languageFile }: { languageFile: string }) {
+interface MarkdownContentProps {
+  languageFile: string;
+}
+
+export default function MarkdownContent({ languageFile }: MarkdownContentProps) {
   const [i18nLoading, setI18nLoading] = React.useState(true);
   const { loadLanguageFile } = useI18n();
   useMountEffect(() => {
@@ -32,10 +34,10 @@ export default function MarkdownContent({ languageFile }: { languageFile: string
         <Helmet>
           <title>{title}</title>
         </Helmet>
-        <TopNav />
-        <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
-          <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
-        </LayoutContainer>
+        {/*<TopNav />*/}
+        {/*<LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>*/}
+        <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
+        {/*</LayoutContainer>*/}
       </div>
     </div>
   );

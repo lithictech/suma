@@ -25,7 +25,7 @@ export default function TranslationToggle({ className }: { className?: string })
 }
 
 interface TranslateProps {
-  className: string;
+  className?: string;
   to: string;
   label: React.ReactNode;
   title: string;

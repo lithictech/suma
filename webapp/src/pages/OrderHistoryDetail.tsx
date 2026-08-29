@@ -1,6 +1,5 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import LayoutContainer from "../components/LayoutContainer";
 import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../state/useAsyncFetch";
@@ -24,11 +23,7 @@ export default function OrderHistoryDetail() {
   );
 
   if (error) {
-    return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
-    );
+    return <ErrorScreen />;
   }
   if (loading) {
     return <PageLoader />;

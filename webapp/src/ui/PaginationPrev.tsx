@@ -1,3 +1,0 @@
-export default function PaginationPrev(props: ShimProps) {
-  return <div {...props} />;
-}

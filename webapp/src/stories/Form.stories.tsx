@@ -76,7 +76,7 @@ function FormFields() {
         <Checkbox
           ref={agreeRef}
           label="I agree to the terms"
-          checked={!!agree}
+          checked={agree}
           onChange={onAgreeChange}
           error={errors.agree?.message}
           required

@@ -20,7 +20,7 @@ export interface RouteProps {
   path: RoutePattern;
   auth?: "require" | "unauthed" | "any";
   onboarded?: "require" | "not" | "any";
-  Component: React.ComponentType;
+  Component: React.ComponentType<any>;
   hocs?: HOC[];
   pageProps?: Record<string, any>;
   meta?: MetatagProps | string;

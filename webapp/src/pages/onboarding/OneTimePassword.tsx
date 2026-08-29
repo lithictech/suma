@@ -1,5 +1,5 @@
 import api from "../../api";
-import FormSuccess from "../../components/FormSuccess";
+import TODO from "../../components/TODO.tsx";
 import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
 import { maskPhoneNumber } from "../../modules/maskPhoneNumber";
@@ -193,7 +193,9 @@ const OneTimePassword = () => {
           ))}
         </fieldset>
         <FormError error={error} className="mb-1" />
-        <FormSuccess message={message} center className="mb-1" />
+        <TODO
+          message={message}
+        >{`<FormSuccess message={message} center className="mb-1" />`}</TODO>
         <Stack gap={1} className="text-muted font-size-sm" wrap center>
           {t("otp.did_not_receive")}
           <Button size="sm" variant="text" onClick={handleResend}>

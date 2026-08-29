@@ -33,7 +33,7 @@ const baseRate: Rate = {
   surcharge: { cents: 100, currency: "USD" },
   unitAmount: { cents: 20, currency: "USD" },
   name: "demo",
-  undiscountedRate: null as Rate,
+  undiscountedRate: null,
 };
 
 const mapVendorService: MobilityMapProvider = {
@@ -69,7 +69,7 @@ const privateAccountVehicle = {
   gotoPrivateAccount: "#private-accounts",
 };
 
-const trip = {
+const trip: MobilityTrip = {
   id: 1,
   vehicleId: "vehicle5",
   vehicleType: "ebike",
@@ -90,7 +90,7 @@ const trip = {
     lineItems: [{ amount: { cents: 100, currency: "USD" }, memo: "Unlock" }],
   },
   minutes: 20,
-  image: null as Image,
+  image: null,
 };
 
 export const MapCards: Story = {
@@ -190,17 +190,17 @@ export const NoTrips: Story = {
 
 export const BikeTripDetail: Story = {
   render: () => (
-    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "ebike")} />
+    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "ebike")!} />
   ),
 };
 
 export const ScooterTripDetail: Story = {
   render: () => (
-    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "escooter")} />
+    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "escooter")!} />
   ),
 };
 
-const tripHistory = {
+const tripHistory: MobilityTripCollection = {
   object: "list",
   currentPage: 1,
   pageCount: 1,

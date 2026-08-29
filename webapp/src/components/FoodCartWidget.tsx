@@ -7,15 +7,11 @@ import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
-import Dropdown from "../ui/Dropdown";
-import DropdownItem from "../ui/DropdownItem";
-import DropdownMenu from "../ui/DropdownMenu";
-import DropdownToggle from "../ui/DropdownToggle";
 import SoldOutText from "./SoldOutText";
+import TODO from "./TODO.tsx";
 import clsx from "clsx";
 import find from "lodash/find";
 import noop from "lodash/noop";
-import times from "lodash/times";
 import React from "react";
 
 interface FoodCartWidgetProps {
@@ -109,6 +105,7 @@ export default function FoodCartWidget({
           >
             <img src={subtractIcon} alt={t("food.remove_from_cart")} width="32px" />
           </Button>
+          <TODO>{`
           <Dropdown
             as={ButtonGroup}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
@@ -119,7 +116,7 @@ export default function FoodCartWidget({
             <DropdownMenu className="food-widget-dropdown-menu">
               <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
             </DropdownMenu>
-          </Dropdown>
+          </Dropdown>`}</TODO>
         </>
       )}
       <Button
@@ -146,23 +143,23 @@ export default function FoodCartWidget({
   );
 }
 
-const DropdownQuantities = ({
-  maxQuantity,
-  selectedQuantity,
-}: {
-  maxQuantity: number;
-  selectedQuantity: number;
-}) => {
-  return times(maxQuantity + 1).map((_, i) => (
-    <DropdownItem
-      key={i}
-      eventKey={"" + i}
-      className={clsx(i === selectedQuantity && "active")}
-    >
-      {i}
-    </DropdownItem>
-  ));
-};
+// const DropdownQuantities = ({
+//   maxQuantity,
+//   selectedQuantity,
+// }: {
+//   maxQuantity: number;
+//   selectedQuantity: number;
+// }) => {
+//   return times(maxQuantity + 1).map((_, i) => (
+//     <DropdownItem
+//       key={i}
+//       eventKey={"" + i}
+//       className={clsx(i === selectedQuantity && "active")}
+//     >
+//       {i}
+//     </DropdownItem>
+//   ));
+// };
 
 const sizeClasses: Record<string, string> = {
   lg: "lh-1 m-0 p-2",

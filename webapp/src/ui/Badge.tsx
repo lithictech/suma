@@ -1,3 +1,0 @@
-export default function Badge(props: ShimProps) {
-  return <div {...props} />;
-}

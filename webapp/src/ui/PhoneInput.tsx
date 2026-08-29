@@ -2,14 +2,20 @@ import { isValidPhone, buildValidators } from "../modules/formValidators";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import TextInput, { TextInputProps } from "./TextInput";
 import React from "react";
-import { Control, useController, UseFormClearErrors } from "react-hook-form";
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  useController,
+  UseFormClearErrors,
+} from "react-hook-form";
 
-export interface PhoneInputProps
+export interface PhoneInputProps<TFieldValues extends FieldValues = FieldValues>
   extends Omit<TextInputProps, "name" | "value" | "onChange" | "onBlur" | "error"> {
   /** react-hook-form field name for this input. */
-  name: string;
+  name: FieldPath<TFieldValues>;
   /** react-hook-form `control`, from `useForm()`. */
-  control: Control<any>;
+  control: Control<TFieldValues>;
   /**
    * Optional: if given, the field's error is cleared as soon as the typed value
    * becomes a valid phone number, rather than waiting for the form's normal
@@ -17,7 +23,7 @@ export interface PhoneInputProps
    * flagged as *invalid* on that normal schedule (eg on blur) - this only makes
    * clearing an existing error more responsive while the user is still typing.
    */
-  clearErrors?: UseFormClearErrors<any>;
+  clearErrors?: UseFormClearErrors<TFieldValues>;
 }
 
 /**
@@ -26,13 +32,13 @@ export interface PhoneInputProps
  * Callers just need `name` + `control` - no manual `register`/`setValue`
  * plumbing, no local state for the masked value.
  */
-export default function PhoneInput({
+export default function PhoneInput<TFieldValues extends FieldValues = FieldValues>({
   name,
   control,
   clearErrors,
   required,
   ...rest
-}: PhoneInputProps) {
+}: PhoneInputProps<TFieldValues>) {
   const {
     field: { onChange, onBlur, value, ref },
     fieldState: { error },

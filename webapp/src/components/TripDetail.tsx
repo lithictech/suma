@@ -78,7 +78,7 @@ export default function TripDetail({ trip }: TripDetailProps) {
 
 interface StartEndProps {
   t: string;
-  address?: MobilityTripParsedAddress;
+  address?: MobilityTripParsedAddress | null;
   label: React.ReactNode;
   iconColor: ThemeColor;
 }

@@ -6,7 +6,7 @@ import React from "react";
 
 const meta = {
   title: "Styleguide/Presentation",
-} satisfies Meta<typeof meta>;
+} satisfies Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

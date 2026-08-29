@@ -1,10 +1,6 @@
-import { t } from "../localization";
+import TODO from "../components/TODO.tsx";
 import Button from "../ui/Button";
-import Toast from "../ui/Toast";
-import ToastBody from "../ui/ToastBody";
-import ToastContainer from "../ui/ToastContainer";
 import clsx from "clsx";
-import isNumber from "lodash/isNumber";
 import React from "react";
 
 interface CopyableProps {
@@ -15,19 +11,13 @@ interface CopyableProps {
   text?: string;
 }
 
-export default function Copyable({
-  className,
-  children,
-  delay,
-  inline,
-  text,
-}: CopyableProps) {
-  delay = isNumber(delay) ? delay : 2000;
-  const [toastShow, setToastShow] = React.useState(false);
+export default function Copyable({ className, children, inline, text }: CopyableProps) {
+  // delay = isNumber(delay) ? delay : 2000;
+  // const [toastShow, setToastShow] = React.useState(false);
   function onCopy(e: React.MouseEvent) {
     e.preventDefault();
     navigator.clipboard.writeText(text || (children as string));
-    setToastShow(true);
+    // setToastShow(true);
   }
   return (
     <>
@@ -38,6 +28,8 @@ export default function Copyable({
         </Button>
       </div>
 
+      <TODO>
+        {`
       <ToastContainer className="p-3" position="top-end" style={{ zIndex: 10 }}>
         <Toast
           bg="success"
@@ -50,7 +42,8 @@ export default function Copyable({
             <p className="lead text-light mb-0">{t("common.copied_to_clipboard")}</p>
           </ToastBody>
         </Toast>
-      </ToastContainer>
+      </ToastContainer>`}
+      </TODO>
     </>
   );
 }

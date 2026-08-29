@@ -1,3 +1,4 @@
+import TODO from "../components/TODO.tsx";
 import externalLinks from "../modules/externalLinks.ts";
 import { externalUrl, RoutePath, RoutePathOrUrl } from "../routing/RoutePath.ts";
 import { TintColor } from "../types/theme";
@@ -21,7 +22,6 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import LanguageIcon from "@heroicons/react/24/outline/LanguageIcon";
-import MapIcon from "@heroicons/react/24/outline/MapIcon";
 
 export default function MenuPage() {
   return (
@@ -83,6 +83,9 @@ export default function MenuPage() {
       </Card>
       {/*const iconStyle = { fontSize: "140%" };*/}
 
+      <TODO>Funding</TODO>
+      <TODO>Sign out</TODO>
+      <TODO>terms, privacy, contact</TODO>
       {/*<ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">*/}
       {/*  <i className="bi bi-instagram me-3" style={iconStyle}></i>*/}
       {/*</ExternalLink>*/}
