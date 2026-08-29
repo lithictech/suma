@@ -36,7 +36,7 @@ const AppNav = React.forwardRef<HTMLDivElement, NavProps>(function AppNav(props,
   slice(navOptionProps, 0, -1).forEach((o) => {
     o.active = location.pathname.startsWith(o.to as string);
   });
-  last(navOptionProps).active = !navOptionProps.some((o) => o.active);
+  last(navOptionProps)!.active = !navOptionProps.some((o) => o.active);
   return (
     <Nav ref={ref} {...props}>
       {navOptionProps.map((p) => (

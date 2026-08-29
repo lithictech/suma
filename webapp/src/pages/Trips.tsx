@@ -2,23 +2,11 @@ import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
+import TripList from "../components/TripList.tsx";
 import { t } from "../localization";
-import { vehicleIconForVendorService } from "../modules/mobilityIconLookup";
 import useAsyncFetch from "../state/useAsyncFetch";
-import useUrlMarshal from "../state/useUrlMarshal";
-import Stack from "../ui/Stack";
-import Money from "../uir/Money";
-import dayjs from "dayjs";
+import Page from "../ui/Page.tsx";
 import isEmpty from "lodash/isEmpty";
-import React from "react";
-import { Link } from "react-router-dom";
-
-interface WeekSpec {
-  beginAt: string;
-  endAt: string;
-  beginIndex: number;
-  endIndex: number;
-}
 
 export default function Trips() {
   const {
@@ -39,7 +27,7 @@ export default function Trips() {
   }
 
   return (
-    <>
+    <Page appNav buffer>
       <LayoutContainer gutters>
         <h2>{t("titles.trips")}</h2>
         <p className="text-secondary">{t("trips.intro")}</p>
@@ -49,70 +37,8 @@ export default function Trips() {
       ) : isEmpty(trips.items) ? (
         <LayoutContainer>{t("trips.empty")}</LayoutContainer>
       ) : (
-        <LayoutContainer className="px-0">
-          <Stack>
-            {(trips.weeks as WeekSpec[]).map((w) => (
-              <React.Fragment key={w.beginAt}>
-                <div className="trips-week-divider" />
-                <Week items={trips.items} {...w}></Week>
-              </React.Fragment>
-            ))}
-          </Stack>
-        </LayoutContainer>
+        <TripList tripCollection={trips} />
       )}
-    </>
-  );
-}
-
-interface WeekProps extends WeekSpec {
-  items: MobilityTrip[];
-}
-
-function Week({ items, beginAt, endAt, beginIndex, endIndex }: WeekProps) {
-  const trips = items.slice(beginIndex, endIndex);
-  return (
-    <Stack direction="vertical" gap={0.5}>
-      <h4 className="my-3 mx-3">
-        {dayjs(beginAt).format("ll")} &mdash; {dayjs(endAt).format("ll")}
-      </h4>
-      {trips.map((a, i) => (
-        <React.Fragment key={a.id}>
-          <Trip trip={a} />
-          {i < trips.length - 1 && <hr className="mx-3 my-0" />}
-        </React.Fragment>
-      ))}
-    </Stack>
-  );
-}
-
-function Trip({ trip }: { trip: MobilityTrip }) {
-  const { marshalToUrl } = useUrlMarshal();
-  const { id, vehicleType, provider, beganAt, charge } = trip;
-  return (
-    <Link to={`/trip/${id}?${marshalToUrl("trip", trip)}`} className="link-unstyled">
-      <Stack direction="horizontal" className="justify-content-between p-3">
-        <Stack direction="horizontal" gap={3}>
-          <img
-            src={vehicleIconForVendorService(vehicleType, provider.slug)}
-            alt={`${provider.slug} ${vehicleType}`}
-            height={42}
-            className="trips-image-vehicle"
-          />
-          <Stack direction="vertical" className="small">
-            <div className="me-3">
-              {t("trips.ride_description", {
-                vendor: provider.vendorName,
-                vehicleType: t(`trips.${vehicleType}`),
-              })}{" "}
-              &bull; {t(`trips.minutes`, { minutes: trip.minutes })}
-            </div>
-            <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
-          </Stack>
-        </Stack>
-        <div>
-          <Money>{charge.customerCost}</Money>
-        </div>
-      </Stack>
-    </Link>
+    </Page>
   );
 }

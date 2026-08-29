@@ -1,5 +1,7 @@
+import { ThemeColor } from "../types/theme";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
+import clsx from "clsx";
 import React, { CSSProperties } from "react";
 
 export type IconPropsIcon =
@@ -11,10 +13,12 @@ export interface IconProps {
   icon: IconPropsIcon;
   size?: number | string | "inherit" | null;
   className?: string;
+  color?: ThemeColor;
 }
 export default function Icon({
   icon: IconComponent,
   size = "inherit",
+  color,
   className,
 }: IconProps) {
   if (IconComponent === "left") {
@@ -30,5 +34,6 @@ export default function Icon({
     style.width = size;
     style.height = size;
   }
-  return <IconComponent className={className} style={style} />;
+  const cls = clsx(color ? `color-${color}` : "", className);
+  return <IconComponent className={cls} style={style} />;
 }

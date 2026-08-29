@@ -34,7 +34,7 @@ import PrivateAccountDetail from "./pages/PrivateAccountDetail";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess";
 import ThemePage from "./pages/ThemePage.tsx";
-import TripDetail from "./pages/TripDetail";
+import TripDetailPage from "./pages/TripDetailPage.tsx";
 import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
@@ -349,7 +349,7 @@ function AppRoutes() {
       onboarded: "require",
       screenLoader: true,
       meta: "titles.trip_detail",
-      Component: TripDetail,
+      Component: TripDetailPage,
     }),
     typeRoute({
       path: "/preferences",

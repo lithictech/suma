@@ -57,6 +57,7 @@ declare module "./RouteQuery.ts" {
     "/contact-list/add": { eventName?: string };
     "/contact-list": { eventName?: string };
     "/add-funds": { id?: string | number; paymentMethodType?: string };
+    "/trip/:id": { trip: string };
   }
 }
 

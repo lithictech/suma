@@ -1,11 +1,9 @@
 /** Color classes */
 
 .color-primary { color: var(--color-primary); }
-.color-primary-hover { color: var(--color-primary-hover); }
 .color-primary-contrast { color: var(--color-primary-contrast); }
 
 .color-secondary { color: var(--color-secondary); }
-.color-secondary-hover { color: var(--color-secondary-hover); }
 .color-secondary-contrast { color: var(--color-secondary-contrast); }
 
 .color-success { color: var(--color-success); }
