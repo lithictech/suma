@@ -15,6 +15,7 @@ import {
   EyeIcon,
   LifebuoyIcon,
   QuestionMarkCircleIcon,
+  ShieldCheckIcon,
   ShoppingBagIcon,
   TruckIcon,
   UserCircleIcon,
@@ -28,19 +29,19 @@ export default function MenuPage() {
       <PageHeader title="Menu" subtitle="Account details, purchase history, and more." />
       <Card>
         <NavArea
-          to="/mobility"
-          color="danger"
-          icon={MapIcon}
-          title="Mobility Map"
-          text="Find scooters near you"
-        />
-        <hr />
-        <NavArea
           to="/preferences"
           color="primary"
           icon={UserCircleIcon}
           title="Account"
           text="Your profile and contact details"
+        />
+        <hr />
+        <NavArea
+          to="/private-accounts"
+          color="danger"
+          icon={ShieldCheckIcon}
+          title="Private Accounts"
+          text="Manage your private accounts in other services."
         />
         <hr />
         <NavArea
