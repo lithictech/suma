@@ -38,7 +38,7 @@ export default function OrderList({ orders, loading, onNavigate }: OrderListProp
     <>
       {t("food.no_orders")}
       <div className="button-stack mt-2">
-        <Button variant="primary" href="/food">
+        <Button variant="primary" to="/food">
           {t("food.available_offerings")}
         </Button>
       </div>

@@ -160,7 +160,7 @@ const OneTimePassword = () => {
   }, []);
 
   return (
-    <Page buffer gap={3}>
+    <Page>
       <BreadcrumbBack back />
       <h1>{t("otp.verify_code")}</h1>
       <p>

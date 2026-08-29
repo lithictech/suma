@@ -2,14 +2,13 @@ import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import OrderList from "../components/OrderList.tsx";
-import PageHeading from "../components/PageHeading";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import { t } from "../localization";
 import useNavigate from "../routing/useNavigate";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
-import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Page from "../ui/Page.tsx";
+import PageHeader from "../ui/PageHeader.tsx";
 import find from "lodash/find";
 
 export default function OrderHistoryList() {
@@ -36,7 +35,7 @@ export default function OrderHistoryList() {
     navigate(["/order/:id", { id: order.id }], opts);
   }
   return (
-    <Page buffer gap={3} appNav>
+    <Page appNav>
       {user.unclaimedOrdersCount > 0 && (
         <SeeAlsoAlert
           variant="success"
@@ -47,8 +46,7 @@ export default function OrderHistoryList() {
           to="/unclaimed-orders"
         />
       )}
-      <BreadcrumbBack back="/food" />
-      <PageHeading>{t("food.order_history_title")}</PageHeading>
+      <PageHeader title={t("food.order_history_title")} back="/food" />
       <OrderList
         loading={loading}
         orders={orderHistory?.items}

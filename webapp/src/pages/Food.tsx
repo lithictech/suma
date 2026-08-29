@@ -54,7 +54,7 @@ export default function Food() {
     );
   }
   return (
-    <Page buffer appNav gap={3}>
+    <Page appNav>
       <PageHeader title={t("food.current_offerings")} subtitle="Lorem ipsum dolor est." />
       <Stack gap={3}>
         {items.map((it) => (
@@ -106,7 +106,7 @@ function OrderHistoryLink() {
       <hr className="my-4" />
       <LayoutContainer gutters>
         <div className="button-stack">
-          <Button variant="outline" href="/order-history">
+          <Button variant="outline" to="/order-history">
             <i className="bi bi-bag-check-fill me-2"></i>
             {t("food.order_history_title")}
           </Button>

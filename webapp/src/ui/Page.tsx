@@ -18,7 +18,13 @@ interface PageProps {
   style?: CSSProperties;
 }
 
-export default function Page({ buffer, style, children, appNav, gap = 0 }: PageProps) {
+export default function Page({
+  buffer = true,
+  style,
+  children,
+  appNav,
+  gap = 3,
+}: PageProps) {
   const navRef = React.useRef<HTMLDivElement>(null);
   const [pageHeight, setPageHeight] = React.useState("100%");
 

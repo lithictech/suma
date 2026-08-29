@@ -25,7 +25,7 @@ export default function Mobility() {
 
 function MobilityImpl() {
   return (
-    <Page appNav>
+    <Page appNav buffer={false}>
       <Map />
     </Page>
   );

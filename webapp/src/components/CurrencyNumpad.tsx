@@ -70,7 +70,7 @@ function Numpad({ cents, currency, onNumberClick }: NumpadProps) {
         <Button
           variant="secondary"
           className={numButtonClasses}
-          value={0}
+          value="0"
           onClick={handleNumberClick}
         >
           0
@@ -100,7 +100,7 @@ function RenderButtons({ numbers, handleChange }: RenderButtonsProps) {
           key={num}
           variant="secondary"
           className={numButtonClasses}
-          value={num}
+          value={"" + num}
           onClick={handleChange}
         >
           {num}

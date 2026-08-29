@@ -63,7 +63,7 @@ export default function TopNav() {
                 <Button
                   variant="secondary"
                   className="mt-2"
-                  href={untypedRoutePath(`/admin/member/${user.id}`)}
+                  to={untypedRoutePath(`/admin/member/${user.id}`)}
                 >
                   Impersonating:
                   <br />
@@ -207,7 +207,7 @@ function NavLinkButton({
   );
   return (
     <Button
-      href={href}
+      to={href}
       variant="outline"
       className={clsx("nav-menu-button text-start d-flex align-items-center", className)}
       onClick={handleClick}

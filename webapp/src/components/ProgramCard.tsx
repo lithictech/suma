@@ -52,7 +52,7 @@ export default function ProgramCard({
         <div className="mt-2">{dt(description)}</div>
         {appLink && (
           <Button
-            href={untypedRoutePath(appLink)}
+            to={untypedRoutePath(appLink)}
             variant="text"
             size="sm"
             className="mt-2 program-card-goto"

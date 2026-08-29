@@ -18,7 +18,7 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
   const { onboarded } = onboardingState;
 
   return (
-    <Page buffer gap={3}>
+    <Page>
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}

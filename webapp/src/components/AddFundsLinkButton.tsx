@@ -7,7 +7,7 @@ export default function AddFundsLinkButton() {
     return null;
   }
   return (
-    <Button variant="outline" href="/funding" size="sm">
+    <Button variant="outline" to="/funding" size="sm">
       {t("payments.add_funds")}
     </Button>
   );

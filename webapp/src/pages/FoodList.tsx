@@ -91,7 +91,7 @@ export default function FoodList() {
           <>
             {t("food.no_products")}
             <div className="button-stack w-100">
-              <Button href="/food" title={t("food.title")}>
+              <Button to="/food" title={t("food.title")}>
                 {t("food.available_offerings")}
               </Button>
             </div>

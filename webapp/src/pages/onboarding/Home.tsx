@@ -26,7 +26,7 @@ export default function Home() {
           {registrationSession && (
             <div className="mb-4">{dt(registrationSession.intro)}</div>
           )}
-          <Button href="/start" variant="primary" size="lg" className="w-100">
+          <Button to="/start" variant="primary" size="lg" className="w-100">
             {t("forms.continue")}
           </Button>
           <ExternalLink href={externalLinks.sumaIntroLink} className="text-nowrap">

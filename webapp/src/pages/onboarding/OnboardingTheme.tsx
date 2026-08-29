@@ -13,7 +13,7 @@ export default function OnboardingTheme({
   stepBackward,
 }: OnboardingProps) {
   return (
-    <Page buffer gap={3}>
+    <Page>
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}

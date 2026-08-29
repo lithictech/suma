@@ -34,7 +34,7 @@ export default function OrderHistoryDetail() {
     return <PageLoader />;
   }
   return (
-    <Page buffer gap={3} appNav>
+    <Page>
       <BreadcrumbBack back />
       <OrderDetail order={state} setOrder={replaceState} />
     </Page>

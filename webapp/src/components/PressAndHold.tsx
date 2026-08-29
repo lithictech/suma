@@ -53,11 +53,11 @@ export default function PressAndHold({ size, onHeld, children }: PressAndHoldPro
         ref={buttonRef}
         className="position-absolute press-and-hold-button"
         style={{ width: innerSize, height: innerSize }}
-        onMouseDown={isPressed.turnOn}
-        onMouseUp={isPressed.turnOff}
-        onMouseLeave={isPressed.turnOff}
-        onTouchStart={isPressed.turnOn}
-        onTouchEnd={isPressed.turnOff}
+        // onMouseDown={isPressed.turnOn}
+        // onMouseUp={isPressed.turnOff}
+        // onMouseLeave={isPressed.turnOff}
+        // onTouchStart={isPressed.turnOn}
+        // onTouchEnd={isPressed.turnOff}
       >
         {children}
       </Button>

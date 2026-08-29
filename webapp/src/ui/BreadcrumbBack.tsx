@@ -22,17 +22,14 @@ interface BreadcrumbBackProps {
  * Simplified form of LinearBreadcrumb that renders a single 'Back' NavButton.
  */
 export default function BreadcrumbBack({ back, children }: BreadcrumbBackProps) {
-  let backProps: ButtonProps;
+  const backProps: ButtonProps = { variant: "text" };
   if (back === true) {
-    backProps = {
-      variant: "text",
-      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        window.history.back();
-      },
+    backProps.onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      window.history.back();
     };
   } else {
-    backProps = { to: back };
+    backProps.to = back;
   }
   const short = !!children;
   return (

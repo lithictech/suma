@@ -24,7 +24,7 @@ import MapIcon from "@heroicons/react/24/outline/MapIcon";
 
 export default function MenuPage() {
   return (
-    <Page buffer gap={3} appNav>
+    <Page appNav>
       <PageHeader title="Menu" subtitle="Account details, purchase history, and more." />
       <Card>
         <NavArea

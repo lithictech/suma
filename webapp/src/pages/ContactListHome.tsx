@@ -38,7 +38,7 @@ function LanguageButtons({ eventName }: { eventName: string | null }) {
     <Button
       key={code}
       className="btn-outline-secondary mt-2 w-75"
-      href={withQuery(`/contact-list/add`, { eventName })}
+      to={withQuery(`/contact-list/add`, { eventName })}
       variant="outline"
       onClick={() => changeLanguage(code)}
     >

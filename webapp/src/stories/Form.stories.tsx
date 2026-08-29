@@ -57,7 +57,7 @@ function FormFields() {
   };
 
   return (
-    <Page buffer style={{ minHeight: "70dvh" }}>
+    <Page style={{ minHeight: "70dvh" }}>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <TextInput
           label="Name"

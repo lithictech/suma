@@ -64,7 +64,7 @@ export default function Start() {
       });
   };
   return (
-    <Page buffer>
+    <Page>
       <BreadcrumbBack back />
       <h2>{t("forms.get_started")}</h2>
       <p id="phoneRequired">{t("forms.get_started_intro")}</p>

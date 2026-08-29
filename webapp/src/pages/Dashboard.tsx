@@ -31,7 +31,7 @@ export default function Dashboard() {
     );
   }
   return (
-    <Page buffer appNav>
+    <Page appNav>
       <TopAlerts dashboard={dashboard} />
       <AddToHomescreen />
       {dashboardLoading ? (

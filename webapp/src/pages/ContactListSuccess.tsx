@@ -14,7 +14,7 @@ export default function ContactListSuccess() {
       {t("contact_list.success_intro")}
       <div className="button-stack">
         <Button
-          href={withQuery("/contact-list", { eventName: params.get("eventName") })}
+          to={withQuery("/contact-list", { eventName: params.get("eventName") })}
           variant="outline"
           className="w-75"
           onClick={() => changeLanguage("en")}

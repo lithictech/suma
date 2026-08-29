@@ -43,7 +43,7 @@ export const WithShortContent: Story = {
         overflow: "hidden",
       }}
     >
-      <Page buffer gap={2}>
+      <Page>
         <div>
           The nav menu should sit at the bottom of the page, within the buffer supplied by
           Storybook. This main area should fill the visual area, but NOT push the content
@@ -68,7 +68,7 @@ export const WithLongContent: Story = {
         overflow: "hidden",
       }}
     >
-      <Page buffer gap={2}>
+      <Page>
         <div>
           Test that the content that overflows the screen can be seen while scrolling.
         </div>

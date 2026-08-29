@@ -24,7 +24,7 @@ export default function ErrorScreen({
     <>
       <h2>{title || t("errors.something_went_wrong_title")}</h2>
       <p>{body || t("errors.something_went_wrong_body")}</p>
-      <GoHome href={actionHref} label={actionLabel} />
+      <GoHome to={actionHref} label={actionLabel} />
     </>
   );
 }

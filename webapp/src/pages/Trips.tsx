@@ -27,7 +27,7 @@ export default function Trips() {
   }
 
   return (
-    <Page appNav buffer>
+    <Page appNav>
       <LayoutContainer gutters>
         <h2>{t("titles.trips")}</h2>
         <p className="text-secondary">{t("trips.intro")}</p>

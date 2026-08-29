@@ -2,18 +2,22 @@ import Link from "../routing/Link.tsx";
 import { RoutePath } from "../routing/RoutePath.ts";
 import "./Button.css";
 import clsx from "clsx";
-import React from "react";
+import React, { CSSProperties, MouseEventHandler } from "react";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps {
   variant?: "primary" | "secondary" | "text" | "outline";
   size?: "sm" | "md" | "lg";
   className?: string;
-  href?: RoutePath;
   to?: RoutePath;
   disabled?: boolean;
   inline?: boolean;
   children?: React.ReactNode;
   state?: ShimProps;
+  style?: CSSProperties;
+  title?: string;
+  type?: "submit" | "reset" | "button" | undefined;
+  value?: string;
+  onClick?: MouseEventHandler;
 }
 
 const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
@@ -21,17 +25,16 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     {
       className,
       to,
-      href,
       variant = "primary",
       size = "md",
       disabled,
       inline,
       children,
+      type = "button",
       ...rest
     },
     ref
   ) {
-    to = to || href;
     const cls = clsx(
       className,
       `btn`,
@@ -47,6 +50,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
           to={to}
           className={cls}
           aria-disabled={disabled}
+          {...rest}
         >
           {children}
         </Link>
@@ -55,7 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     return (
       <button
         ref={ref as React.Ref<HTMLButtonElement>}
-        type="button"
+        type={type}
         disabled={disabled}
         className={cls}
         {...rest}

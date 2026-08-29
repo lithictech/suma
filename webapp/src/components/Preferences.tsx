@@ -46,7 +46,7 @@ export default function Preferences({
   }
 
   return (
-    <Page buffer appNav gap={4}>
+    <Page appNav>
       <PageHeader back title={t("preferences.title")} subtitle={t("preferences.intro")} />
       <h3>Language</h3>
       <LanguageSwitcher

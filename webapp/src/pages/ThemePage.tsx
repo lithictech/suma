@@ -4,7 +4,7 @@ import ThemeSwitcher from "../ui/ThemeSwitcher.tsx";
 
 export default function ThemePage() {
   return (
-    <Page buffer gap={3} appNav>
+    <Page appNav>
       <PageHeader back title="Theme" />
       <ThemeSwitcher />
     </Page>

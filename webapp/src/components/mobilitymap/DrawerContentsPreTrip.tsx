@@ -43,7 +43,7 @@ export default function DrawerContentsPreTrip({
             vendorName: vehicle.vendorService.vendorName,
           })}
         </p>
-        <Button size="sm" variant="primary" className="w-100" href="/private-accounts">
+        <Button size="sm" variant="primary" className="w-100" to="/private-accounts">
           {t("forms.get_started")}
         </Button>
       </>
@@ -55,7 +55,7 @@ export default function DrawerContentsPreTrip({
         <Button
           className="p-1 ps-0 align-self-start"
           variant="text"
-          href={untypedRoutePath(vehicle.deeplink)}
+          to={untypedRoutePath(vehicle.deeplink)}
         >
           {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
           <i className="ms-2 bi bi-box-arrow-right"></i>

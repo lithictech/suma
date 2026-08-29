@@ -92,7 +92,7 @@ function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] })
       {bankAccounts.length === 0 ? (
         <>
           <CardText>{t("payments.no_bank_accounts_warning")}</CardText>
-          <Button variant="outline" href="/link-bank-account">
+          <Button variant="outline" to="/link-bank-account">
             {t("payments.link_bank_account")}
           </Button>
         </>
@@ -102,7 +102,7 @@ function BankAccountsCard({ instruments }: { instruments: PaymentInstrument[] })
             <InstrumentLine key={ba.id} instrument={ba} />
           ))}
           <hr className="my-4" />
-          <Button variant="outline" href="/link-bank-account">
+          <Button variant="outline" to="/link-bank-account">
             {t("payments.link_another_bank_account")}
           </Button>
         </>
@@ -156,7 +156,7 @@ function InstrumentLine({ instrument }: { instrument: PaymentInstrument }) {
               variant="primary"
               size="sm"
               className="mb-2 funding-card-border-radius text-nowrap"
-              href={withQuery(`/add-funds`, {
+              to={withQuery(`/add-funds`, {
                 id: instrument.id,
                 paymentMethodType: instrument.paymentMethodType,
               })}
@@ -299,7 +299,7 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
       {cards.length === 0 ? (
         <>
           <CardText>{t("payments.no_cards_warning")}</CardText>
-          <Button variant="outline" href="/add-card">
+          <Button variant="outline" to="/add-card">
             {t("payments.add_card")}
           </Button>
         </>
@@ -309,7 +309,7 @@ function CardsCard({ instruments }: { instruments: PaymentInstrument[] }) {
             <InstrumentLine key={c.id} instrument={c} />
           ))}
           <hr className="my-4" />
-          <Button variant="outline" href="/add-card">
+          <Button variant="outline" to="/add-card">
             {t("payments.add_another_card")}
           </Button>
         </>

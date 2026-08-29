@@ -106,7 +106,7 @@ export default function FoodCart() {
           </Stack>
         ) : (
           <div className="button-stack">
-            <Button href="/food" title={t("food.title")}>
+            <Button to="/food" title={t("food.title")}>
               {t("food.available_offerings")}
             </Button>
           </div>

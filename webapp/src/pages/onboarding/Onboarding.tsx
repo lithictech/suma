@@ -53,7 +53,7 @@ export default function Onboarding() {
 
 function OnboardingStep0({ stepForward }: OnboardingProps) {
   return (
-    <Page buffer gap={3}>
+    <Page>
       <h1>Let&rsquo;s get you set up</h1>
       <p>It only takes a few minutes. Here’s what we’ll ask for:</p>
       <Checklist>

@@ -1,7 +1,6 @@
 import { RoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbBack from "./BreadcrumbBack.tsx";
 import "./PageHeader.css";
-import Stack from "./Stack.tsx";
 
 interface PageHeaderProps {
   /** The text of the title. */
@@ -31,10 +30,10 @@ export default function PageHeader({
     variant = back ? "secondary" : "primary";
   }
   return (
-    <Stack col gap={2}>
+    <>
       {back && <BreadcrumbBack back={back} />}
       <h2 className={`page-header-${variant}`}>{title}</h2>
       {subtitle && <p className="page-header-subtitle">{subtitle}</p>}
-    </Stack>
+    </>
   );
 }
