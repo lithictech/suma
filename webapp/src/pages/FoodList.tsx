@@ -91,7 +91,7 @@ export default function FoodList() {
           <>
             {t("food.no_products")}
             <div className="button-stack w-100">
-              <Button href="/food" title={t("food.title")}>
+              <Button to="/food" title={t("food.title")}>
                 {t("food.available_offerings")}
               </Button>
             </div>
@@ -126,7 +126,7 @@ function Product({ product, offeringId, cart }: ProductProps) {
       xs={6}
       className="mb-4 border-bottom border-secondary border-opacity-50 position-relative"
     >
-      <SumaImage image={images[0]} className="w-100" width={225} h={150} variant="dark" />
+      <SumaImage image={images[0]} className="w-100" width={225} h={150} />
       <h5 className="mb-2 mt-2">{dt(name)}</h5>
       <p className="my-2">{product.vendor.name}</p>
       {outOfStock ? (

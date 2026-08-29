@@ -6,7 +6,6 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import ThemeSwitcher from "../../ui/ThemeSwitcher.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import React from "react";
 
 export default function OnboardingTheme({
   onboardingState,
@@ -14,7 +13,7 @@ export default function OnboardingTheme({
   stepBackward,
 }: OnboardingProps) {
   return (
-    <Page buffer gap={3}>
+    <Page>
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}

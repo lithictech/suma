@@ -1,5 +1,4 @@
 import noop from "lodash/noop";
-import React from "react";
 
 export interface SwitchRowProps {
   title: string;

@@ -21,6 +21,7 @@ declare module "./RouteParams.ts" {
     "/contact-list/add": {};
     "/contact-list/success": {};
     "/dashboard": {};
+    "/menu": {};
     "/mobility": {};
     "/food": {};
     "/food/:id": { id: string | number };
@@ -42,6 +43,8 @@ declare module "./RouteParams.ts" {
     "/order/:id": { id: string | number };
     "/private-accounts": {};
     "/private-account/:id": { id: string | number };
+    "/sitemap": {};
+    "/theme": {};
     "/trips": {};
     "/trip/:id": { id: string | number };
     "/preferences": {};
@@ -54,6 +57,7 @@ declare module "./RouteQuery.ts" {
     "/contact-list/add": { eventName?: string };
     "/contact-list": { eventName?: string };
     "/add-funds": { id?: string | number; paymentMethodType?: string };
+    "/trip/:id": { trip: string };
   }
 }
 

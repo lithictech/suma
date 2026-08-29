@@ -410,7 +410,7 @@ declare global {
   /** Auto-generated from Suma::API::Entities::MobilityTripEntity */
   interface MobilityTrip {
     id: number;
-    vehicleId: number;
+    vehicleId: string;
     vehicleType: string;
     provider: VendorService;
     beginLat: number;
@@ -591,8 +591,8 @@ declare global {
     precision: number;
     refresh: number;
     providers: MobilityMapProvider[];
-    escooter: MobilityMapVehicle;
-    ebike: MobilityMapVehicle;
+    escooter: MobilityMapVehicle[];
+    ebike: MobilityMapVehicle[];
   }
 
   /** Auto-generated from Suma::API::Mobility::MobilityMapFeaturesEntity */

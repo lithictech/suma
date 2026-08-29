@@ -401,7 +401,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
 
     model Suma::Mobility::Trip
-    expose :vehicle_id
+    expose :vehicle_id, documentation: {type: String}
     expose :begin_lat
     expose :begin_lng
     expose :began_at

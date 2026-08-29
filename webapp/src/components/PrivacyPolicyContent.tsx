@@ -19,7 +19,6 @@ import ScreenLoader from "../components/ScreenLoader";
 import { Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
-import useGlobalViewState from "../state/useGlobalViewState";
 import useMountEffect from "../state/useMountEffect";
 import Col from "../ui/Col";
 import Container from "../ui/Container";
@@ -41,8 +40,8 @@ export default function PrivacyPolicyContent({ mobile }: { mobile?: boolean }) {
   const [i18nLoading, setI18nLoading] = React.useState(true);
   const { loadLanguageFile } = useI18n();
   const [language] = useCurrentLanguage();
-  const { topNav } = useGlobalViewState();
-  const topNavHeight = topNav?.clientHeight - 1 || 0;
+  // TODO
+  const topNavHeight = 0;
 
   useMountEffect(() => {
     loadLanguageFile("privacy_policy").then(() => setI18nLoading(false));

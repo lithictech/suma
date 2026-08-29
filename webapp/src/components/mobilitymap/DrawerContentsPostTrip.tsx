@@ -2,7 +2,6 @@ import { t } from "../../localization";
 import Button from "../../ui/Button";
 import FormError from "../../ui/FormError";
 import DrawerContents from "./DrawerContents";
-import React from "react";
 
 interface PostTripProps {
   endTrip: MobilityTrip;
@@ -10,7 +9,11 @@ interface PostTripProps {
   error?: any;
 }
 
-export default function PostTrip({ endTrip, onCloseTrip, error }: PostTripProps) {
+export default function DrawerContentsPostTrip({
+  endTrip,
+  onCloseTrip,
+  error,
+}: PostTripProps) {
   const { charge, provider } = endTrip;
   const handleClose = () => onCloseTrip();
   return (

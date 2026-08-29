@@ -1,6 +1,5 @@
 import Payment, { PaymentCardInfo } from "../modules/payment.js";
 import clsx from "clsx";
-import React from "react";
 
 interface CreditCardPreviewProps {
   cardInfo: PaymentCardInfo;

@@ -1,7 +1,6 @@
 import { t } from "../localization";
 import clsx from "clsx";
 import isArray from "lodash/isArray";
-import React from "react";
 
 interface FormSuccessProps {
   message?: string | [string, Record<string, any>];

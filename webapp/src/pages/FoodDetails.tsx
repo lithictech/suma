@@ -90,7 +90,6 @@ export default function FoodDetails() {
         params={{ crop: "center" }}
         h={325}
         width={500}
-        variant="dark"
       />
       <LayoutContainer gutters top>
         <Row>

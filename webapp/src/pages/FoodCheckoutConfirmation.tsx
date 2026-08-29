@@ -55,7 +55,7 @@ export default function FoodCheckoutConfirmation() {
         ))}
         {user.unclaimedOrdersCount !== 0 && (
           <div className="button-stack my-4">
-            <Button variant="primary" href="/unclaimed-orders">
+            <Button variant="primary" to="/unclaimed-orders">
               {t("food.unclaimed_order_history_title")}
             </Button>
           </div>
@@ -78,7 +78,7 @@ export default function FoodCheckoutConfirmation() {
         <h4>{t("food.confirmation_transportation_title")}</h4>
         <p className="mb-0">{t("food.confirmation_transportation_subtitle")}</p>
         <div className="button-stack mt-3 mb-4">
-          <Button href="/mobility">
+          <Button to="/mobility">
             <i className="bi bi-scooter me-2"></i>
             {t("food.mobility_options")}
           </Button>
@@ -94,13 +94,7 @@ function Item({ item }: { item: CheckoutConfirmationItem }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="mb-3 align-items-start">
-      <SumaImage
-        image={product.images[0]}
-        className="rounded"
-        width={90}
-        height={90}
-        variant="dark"
-      />
+      <SumaImage image={product.images[0]} className="rounded" width={90} height={90} />
       <Stack>
         <p className="mb-0 lead">{dt(product.name)}</p>
         <p className="text-secondary mb-0">

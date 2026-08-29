@@ -8,7 +8,6 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingName({
@@ -33,7 +32,7 @@ export default function OnboardingName({
   }
 
   return (
-    <Page buffer gap={3}>
+    <Page>
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}

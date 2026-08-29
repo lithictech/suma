@@ -1,6 +1,5 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormRadioInputs from "../components/FormRadioInputs";
 import FormStateError from "../components/FormStateError";
@@ -10,6 +9,7 @@ import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import idempotency from "../modules/idempotency";
 import { anyMoney } from "../modules/money";
+import ExternalLink from "../routing/ExternalLink.tsx";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useErrorToast from "../state/useErrorToast";
@@ -494,13 +494,7 @@ function CheckoutItem({ item }: { item: CheckoutItem }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
-      <SumaImage
-        image={product.images[0]}
-        className="rounded"
-        width={80}
-        height={80}
-        variant="dark"
-      />
+      <SumaImage image={product.images[0]} className="rounded" width={80} height={80} />
       {product.outOfStock ? (
         <Stack>
           <h6 className="mb-2">{dt(product.name)}</h6>

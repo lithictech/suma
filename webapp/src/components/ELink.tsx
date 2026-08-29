@@ -1,5 +1,4 @@
-import ExternalLink from "./ExternalLink";
-import React from "react";
+import ExternalLink from "../routing/ExternalLink";
 import { Link, useNavigate } from "react-router-dom";
 
 interface ELinkProps {

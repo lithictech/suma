@@ -10,6 +10,8 @@ export type PlainRoutePath = {
 
 export type RoutePath = PlainRoutePath | RoutePathWithQuery | UntypedRoutePath;
 
+export type RoutePathOrUrl = RoutePath | ExternalUrl;
+
 /** The bare path pattern for a route definition (eg. "/food/:id"), with no params value. */
 export type RoutePattern = keyof RouteParams;
 
@@ -23,4 +25,16 @@ export class UntypedRoutePath {
 
 export function untypedRoutePath(path: string): UntypedRoutePath {
   return new UntypedRoutePath(path);
+}
+
+export class ExternalUrl {
+  url: string;
+
+  constructor(url: string) {
+    this.url = url;
+  }
+}
+
+export function externalUrl(path: string): ExternalUrl {
+  return new ExternalUrl(path);
 }

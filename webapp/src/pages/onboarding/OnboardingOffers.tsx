@@ -10,7 +10,6 @@ import DefinitionTable from "../../ui/DefinitionTable.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import React from "react";
 
 export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
   const screenLoader = useScreenLoader();
@@ -19,7 +18,7 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
   const { onboarded } = onboardingState;
 
   return (
-    <Page buffer gap={3}>
+    <Page>
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}

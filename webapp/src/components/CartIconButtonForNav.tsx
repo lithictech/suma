@@ -1,5 +1,4 @@
 import CartIconButton from "./CartIconButton";
-import React from "react";
 
 /**
  * Wraps CartIconButton in a component that can be used as a stickyNavAddon

@@ -3,7 +3,6 @@ import { anyMoney, subtractMoney } from "../modules/money";
 import Stack from "../ui/Stack";
 import Money from "../uir/Money";
 import clsx from "clsx";
-import React from "react";
 
 interface FoodPriceProps {
   isDiscounted?: boolean;

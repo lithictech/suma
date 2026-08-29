@@ -28,8 +28,6 @@
     "no-unused-vars": "warn",
     "react/display-name": "off",
     "react/prop-types": "off",
-    "react/react-in-jsx-scope": "error",
-    "react/jsx-uses-react": "error",
     "react-refresh/only-export-components": [
       "warn",
       { "allowConstantExport": true }

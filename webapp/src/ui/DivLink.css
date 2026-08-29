@@ -1,0 +1,9 @@
+.div-link {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+.div-link * {
+  color: inherit;
+  text-decoration: inherit;
+}

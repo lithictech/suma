@@ -1,13 +1,59 @@
+/** Color classes */
+
 .color-primary { color: var(--color-primary); }
+.color-primary-contrast { color: var(--color-primary-contrast); }
+
 .color-secondary { color: var(--color-secondary); }
-.color-info { color: var(--color-info); }
+.color-secondary-contrast { color: var(--color-secondary-contrast); }
+
 .color-success { color: var(--color-success); }
-.color-warning { color: var(--color-warning); }
 .color-danger { color: var(--color-danger); }
+.color-accent { color: var(--color-accent); }
+
+.color-tint-primary { color: var(--tint-primary); }
+.color-tint-secondary { color: var(--tint-secondary); }
+.color-tint-success { color: var(--tint-success); }
+.color-tint-danger { color: var(--tint-danger); }
+
+.color-bg { color: var(--color-bg); }
+.color-bg-subtle { color: var(--color-bg-subtle); }
+.color-surface { color: var(--color-surface); }
+.color-border { color: var(--color-border); }
+.color-border-strong { color: var(--color-border-strong); }
+
+.color-text { color: var(--color-text); }
+.color-text-muted { color: var(--color-text-muted); }
+.color-text-inverse { color: var(--color-text-inverse); }
+.color-link { color: var(--color-link); }
+.color-link-hover { color: var(--color-link-hover); }
+
+/** Background color classes, just take color classes and rename .color to .bgcolor */
 
 .bgcolor-primary { background-color: var(--color-primary); }
+.bgcolor-primary-hover { background-color: var(--color-primary-hover); }
+.bgcolor-primary-contrast { background-color: var(--color-primary-contrast); }
+
 .bgcolor-secondary { background-color: var(--color-secondary); }
-.bgcolor-info { background-color: var(--color-info); }
+.bgcolor-secondary-hover { background-color: var(--color-secondary-hover); }
+.bgcolor-secondary-contrast { background-color: var(--color-secondary-contrast); }
+
 .bgcolor-success { background-color: var(--color-success); }
-.bgcolor-warning { background-color: var(--color-warning); }
 .bgcolor-danger { background-color: var(--color-danger); }
+.bgcolor-accent { background-color: var(--color-accent); }
+
+.bgcolor-tint-primary { background-color: var(--tint-primary); }
+.bgcolor-tint-secondary { background-color: var(--tint-secondary); }
+.bgcolor-tint-success { background-color: var(--tint-success); }
+.bgcolor-tint-danger { background-color: var(--tint-danger); }
+
+.bgcolor-bg { background-color: var(--color-bg); }
+.bgcolor-bg-subtle { background-color: var(--color-bg-subtle); }
+.bgcolor-surface { background-color: var(--color-surface); }
+.bgcolor-border { background-color: var(--color-border); }
+.bgcolor-border-strong { background-color: var(--color-border-strong); }
+
+.bgcolor-text { background-color: var(--color-text); }
+.bgcolor-text-muted { background-color: var(--color-text-muted); }
+.bgcolor-text-inverse { background-color: var(--color-text-inverse); }
+.bgcolor-link { background-color: var(--color-link); }
+.bgcolor-link-hover { background-color: var(--color-link-hover); }

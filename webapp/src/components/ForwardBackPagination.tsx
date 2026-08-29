@@ -4,7 +4,6 @@ import PaginationNext from "../ui/PaginationNext";
 import PaginationPrev from "../ui/PaginationPrev";
 import clsx from "clsx";
 import { clamp } from "lodash/number";
-import React from "react";
 
 interface ForwardBackPaginationProps {
   page: number;

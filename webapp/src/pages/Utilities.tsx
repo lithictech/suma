@@ -1,18 +1,16 @@
-import utilitiesHeaderImage from "../assets/images/onboarding-utilities.jpg";
-import FeaturePageHeader from "../components/FeaturePageHeader";
+import TODO from "../components/TODO.tsx";
 import WaitingList from "../components/WaitingList";
-import { imageAltT, t } from "../localization";
-import React from "react";
+import { t } from "../localization";
 
 export default function Utilities() {
   return (
-    <FeaturePageHeader imgSrc={utilitiesHeaderImage} imgAlt={imageAltT("solar_panels")}>
+    <TODO>
       <WaitingList
         title={t("utilities.page_title")}
         text={t("utilities.intro")}
         survey={surveySpec}
       />
-    </FeaturePageHeader>
+    </TODO>
   );
 }
 

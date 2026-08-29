@@ -110,7 +110,10 @@
     --select-arrow-size: 0.75rem;
 
     /* ---- Z-index management ---- */
-    --z-index-dialog: 10;
-    --z-index-loader: 20;
+    --z-index-dialog: 100;
+    --z-index-loader: 200;
+    --z-index-nav: 50;
+    --z-index-mobility-map: 70;
+    --z-index-mobility-drawer: 75;
 }
 

@@ -6,7 +6,6 @@ import Money from "../../uir/Money";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import isEmpty from "lodash/isEmpty";
-import React from "react";
 
 interface LedgerItemModalProps {
   item: LedgerLine | null;

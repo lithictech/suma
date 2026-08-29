@@ -1,4 +1,4 @@
-import { DirectionProps, getDirection } from "./types.tsx";
+import { DirectionProps, getDirection } from "./types.ts";
 import clsx from "clsx";
 import React, { CSSProperties } from "react";
 

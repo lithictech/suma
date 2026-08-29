@@ -87,7 +87,7 @@ export default function UnclaimedOrderList() {
           <hr className="my-4" />
           <LayoutContainer gutters>
             <div className="button-stack">
-              <Button variant="primary" href="/order-history">
+              <Button variant="primary" to="/order-history">
                 <i className="bi bi-bag-check-fill me-2"></i>
                 {t("food.order_history_title")}
               </Button>

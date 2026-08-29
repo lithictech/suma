@@ -106,7 +106,7 @@ export default function FoodCart() {
           </Stack>
         ) : (
           <div className="button-stack">
-            <Button href="/food" title={t("food.title")}>
+            <Button to="/food" title={t("food.title")}>
               {t("food.available_offerings")}
             </Button>
           </div>
@@ -134,7 +134,7 @@ function CartItem({ offeringId, product, vendor }: CartItemProps) {
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
       <Link to={`/product/${offeringId}/${productId}`}>
-        <SumaImage image={images[0]} width={100} height={100} variant="dark" />
+        <SumaImage image={images[0]} width={100} height={100} />
       </Link>
       <div>
         <Link to={`/product/${offeringId}/${productId}`}>

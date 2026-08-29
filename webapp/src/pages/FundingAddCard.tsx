@@ -82,7 +82,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={untypedRoutePath(makeReturnUrl(returnTo, instrumentId, instrumentType))}
+            to={untypedRoutePath(makeReturnUrl(returnTo, instrumentId, instrumentType))}
             variant="outline"
           >
             {t("forms.continue")}

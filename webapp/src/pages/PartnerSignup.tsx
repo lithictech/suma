@@ -40,7 +40,7 @@ export default function PartnerSignup() {
       <>
         <div className="mt-3">{t("onboarding.partner_link_invalid")}</div>
         <div className="button-stack gap-3 mt-4">
-          <Button href="/dashboard" variant="primary">
+          <Button to="/dashboard" variant="primary">
             {t("common.go_to_dashboard")}
           </Button>
         </div>
@@ -108,7 +108,7 @@ function JoinPartner() {
         <Button variant="primary" onClick={handleJoin}>
           {t("onboarding.partner_accept")}
         </Button>
-        <Button href="/dashboard" variant="text">
+        <Button to="/dashboard" variant="text">
           {t("common.go_to_dashboard")}
         </Button>
       </div>

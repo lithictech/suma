@@ -7,7 +7,15 @@ export interface NavProps {
   className?: string;
 }
 
-export default function Nav({ className, children }: NavProps) {
+const Nav = React.forwardRef<HTMLDivElement, NavProps>(function Nav(
+  { className, children }: NavProps,
+  ref
+) {
   const cls = clsx("nav", className);
-  return <div className={cls}>{children}</div>;
-}
+  return (
+    <div ref={ref} className={cls}>
+      {children}
+    </div>
+  );
+});
+export default Nav;

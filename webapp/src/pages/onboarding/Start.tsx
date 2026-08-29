@@ -15,7 +15,6 @@ import Form from "../../ui/Form";
 import FormError from "../../ui/FormError";
 import Page from "../../ui/Page.tsx";
 import PhoneInput from "../../ui/PhoneInput";
-import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function Start() {
@@ -65,7 +64,7 @@ export default function Start() {
       });
   };
   return (
-    <Page buffer>
+    <Page>
       <BreadcrumbBack back />
       <h2>{t("forms.get_started")}</h2>
       <p id="phoneRequired">{t("forms.get_started_intro")}</p>

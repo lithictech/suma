@@ -67,7 +67,7 @@ function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={untypedRoutePath(
+            to={untypedRoutePath(
               `${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`
             )}
             variant="outline"

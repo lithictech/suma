@@ -1,25 +1,15 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
-import PageHeading from "../components/PageHeading";
-import PageLoader from "../components/PageLoader";
+import OrderList from "../components/OrderList.tsx";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
-import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
-import { dayjs } from "../modules/dayConfig";
 import useNavigate from "../routing/useNavigate";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
-import BreadcrumbBack from "../ui/BreadcrumbBack";
-import Button from "../ui/Button";
-import Card from "../ui/Card";
-import CardBody from "../ui/CardBody";
-import CardLink from "../ui/CardLink";
-import CardText from "../ui/CardText";
-import Stack from "../ui/Stack";
+import Page from "../ui/Page.tsx";
+import PageHeader from "../ui/PageHeader.tsx";
 import find from "lodash/find";
-import isEmpty from "lodash/isEmpty";
-import React from "react";
 
 export default function OrderHistoryList() {
   const { user } = useUser();
@@ -39,16 +29,13 @@ export default function OrderHistoryList() {
       </LayoutContainer>
     );
   }
-  function handleNavigate(e: React.MouseEvent, order: SimpleOrderHistory) {
+  function handleNavigate(order: SimpleOrderHistory) {
     const detailed = find(orderHistory.detailedOrders, { id: order.id });
-    if (!detailed) {
-      return;
-    }
-    e.preventDefault();
-    navigate(["/order/:id", { id: order.id }], { state: { order: detailed } });
+    const opts = detailed ? { state: { order: detailed } } : {};
+    navigate(["/order/:id", { id: order.id }], opts);
   }
   return (
-    <>
+    <Page appNav>
       {user.unclaimedOrdersCount > 0 && (
         <SeeAlsoAlert
           variant="success"
@@ -59,83 +46,12 @@ export default function OrderHistoryList() {
           to="/unclaimed-orders"
         />
       )}
-      <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
-        <BreadcrumbBack back="/food" />
-        <PageHeading>{t("food.order_history_title")}</PageHeading>
-      </LayoutContainer>
-      <LayoutContainer gutters>
-        {loading ? (
-          <PageLoader />
-        ) : !isEmpty(orderHistory?.items) ? (
-          <Stack gap={3}>
-            {orderHistory?.items.map((o) => (
-              <Order
-                key={o.id}
-                {...o}
-                onNavigate={(e: React.MouseEvent) => handleNavigate(e, o)}
-              />
-            ))}
-          </Stack>
-        ) : (
-          <>
-            {t("food.no_orders")}
-            <div className="button-stack mt-2">
-              <Button variant="primary" href="/food">
-                {t("food.available_offerings")}
-              </Button>
-            </div>
-          </>
-        )}
-      </LayoutContainer>
-    </>
-  );
-}
-
-interface OrderProps extends SimpleOrderHistory {
-  onNavigate: (e: React.MouseEvent) => void;
-}
-
-function Order({
-  id,
-  createdAt,
-  total,
-  image,
-  serial,
-  fulfilledAt,
-  onNavigate,
-  availableForPickupAt,
-}: OrderProps) {
-  return (
-    <Card>
-      <CardBody>
-        <Stack direction="horizontal" gap={3}>
-          <SumaImage
-            image={image}
-            width={80}
-            height={80}
-            className="border rounded"
-            variant="dark"
-          />
-          <div>
-            <CardLink href={`/order/${id}`} className="h5" onClick={onNavigate}>
-              {t("food.order_serial", { serial: serial })}
-            </CardLink>
-            <CardText className="text-secondary mt-1">
-              {fulfilledAt
-                ? t("food.claimed_on", {
-                    fulfilledAt: dayjs(fulfilledAt).format("lll"),
-                  })
-                : availableForPickupAt
-                ? t("food.order_available_for_pickup", {
-                    date: dayjs(availableForPickupAt).format("ll"),
-                  })
-                : t("food.order_date", { date: dayjs(createdAt).format("ll") })}
-              <br />
-              {t("food.total", { total: total })}
-            </CardText>
-          </div>
-        </Stack>
-      </CardBody>
-    </Card>
+      <PageHeader title={t("food.order_history_title")} back="/food" />
+      <OrderList
+        loading={loading}
+        orders={orderHistory?.items}
+        onNavigate={handleNavigate}
+      />
+    </Page>
   );
 }

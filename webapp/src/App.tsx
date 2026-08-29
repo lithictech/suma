@@ -22,6 +22,7 @@ import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
+import MenuPage from "./pages/MenuPage.tsx";
 import Mobility from "./pages/Mobility";
 import OrderHistoryDetail from "./pages/OrderHistoryDetail";
 import OrderHistoryList from "./pages/OrderHistoryList";
@@ -32,7 +33,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountDetail from "./pages/PrivateAccountDetail";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess";
-import TripDetail from "./pages/TripDetail";
+import ThemePage from "./pages/ThemePage.tsx";
+import TripDetailPage from "./pages/TripDetailPage.tsx";
 import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
@@ -43,7 +45,6 @@ import Start from "./pages/onboarding/Start";
 import Redirect from "./routing/Redirect.tsx";
 import typeRoute from "./routing/typeRoute.tsx";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
-import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
@@ -55,23 +56,21 @@ installPromiseExtras(window.Promise);
 
 export default function App() {
   return (
-    <GlobalViewStateProvider>
-      <BackendGlobalsProvider>
-        <UserProvider>
-          <I18nProvider>
-            <ScreenLoaderProvider>
-              <RerenderOnLangChange>
-                <HelmetProvider>
-                  <OfferingProvider>
-                    <InnerApp />
-                  </OfferingProvider>
-                </HelmetProvider>
-              </RerenderOnLangChange>
-            </ScreenLoaderProvider>
-          </I18nProvider>
-        </UserProvider>
-      </BackendGlobalsProvider>
-    </GlobalViewStateProvider>
+    <BackendGlobalsProvider>
+      <UserProvider>
+        <I18nProvider>
+          <ScreenLoaderProvider>
+            <RerenderOnLangChange>
+              <HelmetProvider>
+                <OfferingProvider>
+                  <InnerApp />
+                </OfferingProvider>
+              </HelmetProvider>
+            </RerenderOnLangChange>
+          </ScreenLoaderProvider>
+        </I18nProvider>
+      </UserProvider>
+    </BackendGlobalsProvider>
   );
 }
 
@@ -183,6 +182,13 @@ function AppRoutes() {
       meta: "titles.dashboard",
       screenLoader: true,
       Component: Dashboard,
+    }),
+    typeRoute({
+      path: "/menu",
+      auth: "require",
+      onboarded: "require",
+      meta: "titles.menu",
+      Component: MenuPage,
     }),
     typeRoute({
       path: "/mobility",
@@ -343,7 +349,7 @@ function AppRoutes() {
       onboarded: "require",
       screenLoader: true,
       meta: "titles.trip_detail",
-      Component: TripDetail,
+      Component: TripDetailPage,
     }),
     typeRoute({
       path: "/preferences",
@@ -357,6 +363,11 @@ function AppRoutes() {
       screenLoader: true,
       meta: "titles.messaging_preferences",
       Component: PreferencesPublic,
+    }),
+    typeRoute({
+      path: "/theme",
+      meta: "titles.theme",
+      Component: ThemePage,
     }),
     typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
     typeRoute({ path: "/*", pageProps: { to: "/" }, Component: Redirect }),

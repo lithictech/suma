@@ -46,6 +46,7 @@
 .btn-text {
   background-color: transparent;
   color: var(--color-primary);
+
 }
 
 .btn-text:hover:not(:disabled):not([aria-disabled="true"]),
@@ -76,4 +77,12 @@
 
 .btn-link {
   text-decoration: none;
+}
+
+.btn-inline {
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-4));
+}
+
+.btn-inline-sm {
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
 }

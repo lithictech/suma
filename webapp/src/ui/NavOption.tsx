@@ -4,9 +4,9 @@ import "./NavOption.css";
 import clsx from "clsx";
 import React from "react";
 
-interface NavOptionProps {
+export interface NavOptionProps {
   size?: number;
-  label?: React.ReactNode;
+  label?: string;
   Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   active?: boolean;
   to: RoutePath;

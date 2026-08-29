@@ -5,6 +5,7 @@ import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../state/useAsyncFetch";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
+import Page from "../ui/Page.tsx";
 import React from "react";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -33,11 +34,9 @@ export default function OrderHistoryDetail() {
     return <PageLoader />;
   }
   return (
-    <>
-      <LayoutContainer top gutters>
-        <BreadcrumbBack back />
-      </LayoutContainer>
-      <OrderDetail order={state} setOrder={replaceState} gutters />
-    </>
+    <Page>
+      <BreadcrumbBack back />
+      <OrderDetail order={state} setOrder={replaceState} />
+    </Page>
   );
 }

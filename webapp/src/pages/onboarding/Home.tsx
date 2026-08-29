@@ -1,14 +1,13 @@
 import sumaLogo from "../../assets/images/suma-logo-word-512.png";
 import AddToHomescreen from "../../components/AddToHomescreen";
-import ExternalLink from "../../components/ExternalLink";
 import TranslationToggle from "../../components/TranslationToggle";
 import { dt, imageAltT, t } from "../../localization";
 import externalLinks from "../../modules/externalLinks";
+import ExternalLink from "../../routing/ExternalLink.tsx";
 import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
 import Container from "../../ui/Container";
 import Stack from "../../ui/Stack.tsx";
-import React from "react";
 
 export default function Home() {
   const { registrationSession } = useUser();
@@ -27,15 +26,10 @@ export default function Home() {
           {registrationSession && (
             <div className="mb-4">{dt(registrationSession.intro)}</div>
           )}
-          <Button href="/start" variant="primary" size="lg" className="w-100">
+          <Button to="/start" variant="primary" size="lg" className="w-100">
             {t("forms.continue")}
           </Button>
-          <ExternalLink
-            component={Button}
-            href={externalLinks.sumaIntroLink}
-            variant="text"
-            className="text-nowrap"
-          >
+          <ExternalLink href={externalLinks.sumaIntroLink} className="text-nowrap">
             {t("common.learn_more")}
           </ExternalLink>
           <TranslationToggle className="my-3" />

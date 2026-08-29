@@ -6,7 +6,6 @@ import { withQuery } from "../routing/withQuery.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import Button from "../ui/Button";
 import Container from "../ui/Container";
-import React from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListHome() {
@@ -39,7 +38,7 @@ function LanguageButtons({ eventName }: { eventName: string | null }) {
     <Button
       key={code}
       className="btn-outline-secondary mt-2 w-75"
-      href={withQuery(`/contact-list/add`, { eventName })}
+      to={withQuery(`/contact-list/add`, { eventName })}
       variant="outline"
       onClick={() => changeLanguage(code)}
     >

@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function IndeterminantLoaderSvg({ size }: { size?: number }) {
   size = size || 300;
   return (

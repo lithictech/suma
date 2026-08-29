@@ -2,13 +2,12 @@ import { base64decode, base64encode } from "../modules/base64";
 import React from "react";
 
 export default function useUrlMarshal() {
-  const marshalToUrl = React.useCallback((key: string, model: any) => {
+  const marshalToUrl = React.useCallback((model: any) => {
     const j = JSON.stringify(model);
     const ej = base64encode(j);
-    return `${key}=${ej}`;
+    return ej;
   }, []);
-  const unmarshalFromUrl = React.useCallback((key: string, url: string) => {
-    const v = new URL(url).searchParams.get(key);
+  const unmarshalFromUrl = React.useCallback((v: string | null | undefined) => {
     if (!v) {
       return null;
     }

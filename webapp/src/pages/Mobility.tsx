@@ -1,18 +1,14 @@
-import mobilityHeaderImage from "../assets/images/onboarding-mobility.jpg";
-import FeaturePageHeader from "../components/FeaturePageHeader";
+import TODO from "../components/TODO.tsx";
 import WaitingList from "../components/WaitingList";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
-import { imageAltT, t } from "../localization";
-import React from "react";
+import { t } from "../localization";
+import Page from "../ui/Page.tsx";
 
 export default function Mobility() {
   if (!config.featureMobility) {
     return (
-      <FeaturePageHeader
-        imgSrc={mobilityHeaderImage}
-        imgAlt={imageAltT("person_riding_scooter")}
-      >
+      <TODO>
         <WaitingList
           title={t("mobility.title")}
           text={t("mobility.intro")}
@@ -21,7 +17,7 @@ export default function Mobility() {
             questions: [],
           }}
         />
-      </FeaturePageHeader>
+      </TODO>
     );
   }
   return <MobilityImpl />;
@@ -29,8 +25,8 @@ export default function Mobility() {
 
 function MobilityImpl() {
   return (
-    <div className="position-relative">
+    <Page appNav buffer={false}>
       <Map />
-    </div>
+    </Page>
   );
 }
