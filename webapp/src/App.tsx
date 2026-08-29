@@ -1,4 +1,4 @@
-import ErrorScreen from "./components/ErrorScreen";
+import ErrorPage from "./components/ErrorPage.tsx";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
@@ -360,7 +360,7 @@ function AppRoutes() {
       meta: "titles.theme",
       Component: ThemePage,
     }),
-    typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
+    typeRoute({ path: "/error", meta: "common.error", Component: ErrorPage }),
     typeRoute({ path: "/*", pageProps: { to: "/" }, Component: Redirect }),
   ];
   const element = useRoutes(routes);

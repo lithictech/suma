@@ -1,6 +1,5 @@
 import api from "../api";
-import ErrorScreen from "../components/ErrorScreen";
-import TODO from "../components/TODO.tsx";
+import AsyncContent from "../components/AsyncContent.tsx";
 import TripList from "../components/TripList.tsx";
 import { t } from "../localization";
 import useAsyncFetch from "../state/useAsyncFetch";
@@ -17,17 +16,12 @@ export default function Trips() {
     pickData: true,
   });
 
-  if (tripsError) {
-    return <ErrorScreen />;
-  }
-  if (tripsLoading) {
-    return <TODO />;
-  }
-
   return (
     <Page appNav>
       <PageHeader title={t("titles.trips")} subtitle={t("trips.intro")} />
-      <TripList tripCollection={trips} />
+      <AsyncContent loading={tripsLoading} error={tripsError}>
+        <TripList tripCollection={trips} />
+      </AsyncContent>
     </Page>
   );
 }

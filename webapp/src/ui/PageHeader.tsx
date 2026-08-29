@@ -2,7 +2,7 @@ import { RoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbBack from "./BreadcrumbBack.tsx";
 import "./PageHeader.css";
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   /** The text of the title. */
   title: string;
   /** The text under the title. */

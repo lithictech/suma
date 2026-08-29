@@ -4,7 +4,7 @@ import { imageAltT, t } from "../localization";
 import useLocalStorageState from "../state/useLocalStorageState";
 import useToggle from "../state/useToggle";
 import Button from "../ui/Button";
-import PageLoader from "./PageLoader";
+import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import TODO from "./TODO";
 import React from "react";
 
@@ -122,7 +122,7 @@ export default function AddToHomescreen() {
     return null;
   }
   if (loading.isOn) {
-    return <PageLoader />;
+    return <IndeterminateLoader />;
   }
   return (
     <TODO

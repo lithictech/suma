@@ -1,5 +1,5 @@
 import api from "../api";
-import ErrorScreen from "../components/ErrorScreen";
+import AsyncContent from "../components/AsyncContent.tsx";
 import OrderList from "../components/OrderList.tsx";
 import TODO from "../components/TODO.tsx";
 import { t } from "../localization";
@@ -20,9 +20,6 @@ export default function OrderHistoryList() {
     pickData: true,
   });
   const navigate = useNavigate();
-  if (error) {
-    return <ErrorScreen />;
-  }
   function handleNavigate(order: SimpleOrderHistory) {
     const detailed = find(orderHistory.detailedOrders, { id: order.id });
     const opts = detailed ? { state: { order: detailed } } : {};
@@ -30,6 +27,7 @@ export default function OrderHistoryList() {
   }
   return (
     <Page appNav>
+      <PageHeader title={t("food.order_history_title")} back="/food" />
       <TODO>
         {`user.unclaimedOrdersCount > 0 && (
         <SeeAlsoAlert
@@ -42,12 +40,13 @@ export default function OrderHistoryList() {
         />
       )`}
       </TODO>
-      <PageHeader title={t("food.order_history_title")} back="/food" />
-      <OrderList
-        loading={loading}
-        orders={orderHistory?.items}
-        onNavigate={handleNavigate}
-      />
+      <AsyncContent loading={loading} error={error}>
+        <OrderList
+          loading={loading}
+          orders={orderHistory?.items}
+          onNavigate={handleNavigate}
+        />
+      </AsyncContent>
     </Page>
   );
 }

@@ -15,6 +15,7 @@ interface PageProps {
   appNav?: boolean;
   /** Main page content. */
   children: React.ReactNode;
+  className?: string;
   style?: CSSProperties;
 }
 
@@ -24,6 +25,7 @@ export default function Page({
   children,
   appNav,
   gap = 3,
+  className,
 }: PageProps) {
   const navRef = React.useRef<HTMLDivElement>(null);
   const [pageHeight, setPageHeight] = React.useState("100%");
@@ -39,7 +41,7 @@ export default function Page({
   return (
     <div className="page-outer">
       <div
-        className={clsx("page", buffer ? "page-buffer" : "", `gap-${gap}`)}
+        className={clsx("page", buffer ? "page-buffer" : "", `gap-${gap}`, className)}
         style={{ height: pageHeight, ...style }}
       >
         {children}

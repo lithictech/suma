@@ -1,7 +1,6 @@
 import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
-import ErrorScreen from "../components/ErrorScreen.tsx";
-import PageLoader from "../components/PageLoader";
+import AsyncContent from "../components/AsyncContent.tsx";
 import ProgramCard from "../components/ProgramCard.tsx";
 import TODO from "../components/TODO.tsx";
 import useAsyncFetch from "../state/useAsyncFetch";
@@ -18,22 +17,17 @@ export default function Dashboard() {
     default: {} as Dashboard,
     pickData: true,
   });
-  if (dashboardError) {
-    return <ErrorScreen />;
-  }
   return (
     <Page appNav>
       <TopAlerts dashboard={dashboard} />
       <AddToHomescreen />
-      {dashboardLoading ? (
-        <PageLoader buffered />
-      ) : (
+      <AsyncContent loading={dashboardLoading} error={dashboardError}>
         <Stack col gap={3}>
           {dashboard.programs.map((program) => (
             <ProgramCard key={program.name} {...program} />
           ))}
         </Stack>
-      )}
+      </AsyncContent>
     </Page>
   );
 }

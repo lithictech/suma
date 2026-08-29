@@ -1,7 +1,6 @@
 import api from "../api";
-import ErrorScreen from "../components/ErrorScreen";
+import AsyncContent from "../components/AsyncContent.tsx";
 import OrderDetail from "../components/OrderDetail";
-import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../state/useAsyncFetch";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Page from "../ui/Page.tsx";
@@ -21,17 +20,12 @@ export default function OrderHistoryDetail() {
       location,
     }
   );
-
-  if (error) {
-    return <ErrorScreen />;
-  }
-  if (loading) {
-    return <PageLoader />;
-  }
   return (
     <Page>
       <BreadcrumbBack back />
-      <OrderDetail order={state} setOrder={replaceState} />
+      <AsyncContent loading={loading} error={error}>
+        <OrderDetail order={state} setOrder={replaceState} />
+      </AsyncContent>
     </Page>
   );
 }

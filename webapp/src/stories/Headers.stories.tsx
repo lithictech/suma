@@ -1,5 +1,6 @@
 import { RoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbBack from "../ui/BreadcrumbBack.tsx";
+import BreadcrumbButton from "../ui/BreadcrumbButton.tsx";
 import PageHeader from "../ui/PageHeader.tsx";
 import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
 import { DemoStack } from "./helpers.tsx";
@@ -25,9 +26,12 @@ export const ProgressSteps: Story = {
 export const Breadcrumbs: Story = {
   render: () => (
     <DemoStack>
-      <div>
-        <BreadcrumbBack back />
-      </div>
+      <h2>Breadcrumb Back</h2>
+      <BreadcrumbBack back />
+      <BreadcrumbBack back>Hello</BreadcrumbBack>
+      <h2>Right</h2>
+      <BreadcrumbButton right />
+      <BreadcrumbButton right>Hello</BreadcrumbButton>
     </DemoStack>
   ),
 };
