@@ -1,32 +1,21 @@
-import TODO from "../components/TODO.tsx";
+import api from "../api.ts";
+import Preferences from "../components/Preferences.tsx";
+import { t } from "../localization";
+import { FeedbackValue, success } from "../modules/feedback.ts";
+import useUser from "../state/useUser.ts";
+import React from "react";
 
 export default function PreferencesAuthed() {
-  return <TODO />;
+  const { user, setUser } = useUser();
+  const [feedback, setFeedback] = React.useState<FeedbackValue | null>(null);
+
+  function savePrefs(prefs: { subscriptions: Record<string, boolean> }) {
+    setFeedback(null);
+    return api.updatePreferences(prefs).then((r) => {
+      setUser(r.data);
+      setFeedback(success(t("preferences.success")));
+    });
+  }
+
+  return <Preferences user={user!} savePrefs={savePrefs} feedback={feedback} />;
 }
-//   const { user, setUser } = useUser();
-//   const [saved, setSaved] = React.useState(false);
-//
-//   function handleApiSubmit(prefs: { subscriptions: Record<string, boolean> }) {
-//     return api.updatePreferences(prefs);
-//   }
-//
-//   function handleSaved(r: any) {
-//     setSaved(true);
-//     setUser(r.data);
-//   }
-//
-//   return (
-//     <Preferences user={user} onApiSubmit={handleApiSubmit} onSaved={handleSaved}>
-//       {saved && (
-//         <Alert
-//           variant="success"
-//           className="mt-4 mb-0"
-//           dismissible
-//           onClose={() => setSaved(false)}
-//         >
-//           <FormSuccess message="preferences.success" className="mb-0" />
-//         </Alert>
-//       )}
-//     </Preferences>
-//   );
-// }

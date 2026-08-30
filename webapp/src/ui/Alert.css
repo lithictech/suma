@@ -1,0 +1,28 @@
+.alert {
+  padding: var(--space-2);
+  border-radius: var(--border-radius);
+}
+
+.alert.alert-success {
+  color: var(--color-success);
+  background-color: var(--tint-success);
+}
+
+.alert.alert-danger {
+  color: var(--color-danger);
+  background-color: var(--tint-danger);
+}
+
+.alert.alert-primary {
+  color: var(--color-primary);
+  background-color: var(--tint-primary);
+}
+
+.alert.alert-secondary {
+  color: var(--color-secondary-contrast);
+  background-color: var(--tint-secondary);
+}
+
+.alert-title {
+  font-weight: var(--font-weight-bold);
+}

@@ -1,7 +1,10 @@
 import TODO from "../components/TODO.tsx";
 import externalLinks from "../modules/externalLinks.ts";
+import signOut from "../modules/signOut.ts";
+import ExternalLink from "../routing/ExternalLink.tsx";
 import { externalUrl, RoutePath, RoutePathOrUrl } from "../routing/RoutePath.ts";
 import { TintColor } from "../types/theme";
+import Button from "../ui/Button.tsx";
 import Card from "../ui/Card.tsx";
 import CardBody from "../ui/CardBody.tsx";
 import CardText from "../ui/CardText.tsx";
@@ -37,6 +40,14 @@ export default function MenuPage() {
         />
         <hr />
         <NavArea
+          to="/funding"
+          color="danger"
+          icon={BanknotesIcon}
+          title="Payment methods"
+          text="Manage your saved payment methods."
+        />
+        <hr />
+        <NavArea
           to="/private-accounts"
           color="danger"
           icon={ShieldCheckIcon}
@@ -69,32 +80,49 @@ export default function MenuPage() {
         />
       </Card>
       <Card>
-        <SimpleNavArea
+        <SimpleNavAreaLink to="/preferences" icon={LanguageIcon} title="Language" />
+        <hr />
+        <SimpleNavAreaLink to="/theme" icon={EyeIcon} title="Theme" />
+        <hr />
+      </Card>
+      <Card>
+        <SimpleNavAreaLink
           to={externalUrl(externalLinks.supportMailto)}
           icon={LifebuoyIcon}
           title="Support"
         />
         <hr />
-        <SimpleNavArea to="/sitemap" icon={QuestionMarkCircleIcon} title="Sitemap" />
+        <SimpleNavAreaLink to="/sitemap" icon={QuestionMarkCircleIcon} title="Sitemap" />
         <hr />
-        <SimpleNavArea to="/preferences" icon={LanguageIcon} title="Language" />
+        <SimpleNavAreaLink
+          to="/privacy-policy"
+          icon={QuestionMarkCircleIcon}
+          title="Privacy Policy"
+        />
         <hr />
-        <SimpleNavArea to="/theme" icon={EyeIcon} title="Theme" />
+        <SimpleNavAreaLink
+          to="/terms-of-use"
+          icon={QuestionMarkCircleIcon}
+          title="Terms of Use"
+        />
+        <hr />
+        <Stack row className="justify-content-evenly py-3">
+          <ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">
+            <Icon icon={QuestionMarkCircleIcon} />
+          </ExternalLink>
+          <ExternalLink
+            href="https://www.linkedin.com/company/mysuma/"
+            aria-label="LinkedIn"
+          >
+            <Icon icon={QuestionMarkCircleIcon} />
+          </ExternalLink>
+        </Stack>
       </Card>
-      {/*const iconStyle = { fontSize: "140%" };*/}
-
-      <TODO>Funding</TODO>
-      <TODO>Sign out</TODO>
-      <TODO>terms, privacy, contact</TODO>
-      {/*<ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">*/}
-      {/*  <i className="bi bi-instagram me-3" style={iconStyle}></i>*/}
-      {/*</ExternalLink>*/}
-      {/*<ExternalLink*/}
-      {/*  href="https://www.linkedin.com/company/mysuma/"*/}
-      {/*  aria-label="LinkedIn"*/}
-      {/*>*/}
-      {/*  <i className="bi bi-linkedin" style={iconStyle}></i>*/}
-      {/*</ExternalLink>*/}
+      <Card className="d-flex">
+        <Button variant="text" inline style={{ flex: 1 }} onClick={signOut}>
+          <SimpleNavArea title="Sign Out" icon={QuestionMarkCircleIcon} />
+        </Button>
+      </Card>
     </Page>
   );
 }
@@ -130,26 +158,33 @@ function NavArea({
   );
 }
 
-function SimpleNavArea({
-  to,
-  icon,
-  title,
-}: {
-  to: RoutePathOrUrl;
+interface SimpleNavAreaProps {
   icon: IconPropsIcon;
   title: string;
-}) {
+}
+
+function SimpleNavArea({ icon, title }: SimpleNavAreaProps) {
+  return (
+    <CardBody>
+      <Stack row gap={2} className="justify-content-between" center>
+        <Stack row gap={3} center>
+          <Icon icon={icon} className="color-primary" />
+          <CardText variant="subtitle">{title}</CardText>
+        </Stack>
+        <Icon icon="right" />
+      </Stack>
+    </CardBody>
+  );
+}
+
+interface SimpleNavAreaLinkProps extends SimpleNavAreaProps {
+  to: RoutePathOrUrl;
+}
+
+function SimpleNavAreaLink({ to, ...rest }: SimpleNavAreaLinkProps) {
   return (
     <DivLink to={to}>
-      <CardBody>
-        <Stack row gap={2} className="justify-content-between" center>
-          <Stack row gap={3} center>
-            <Icon icon={icon} className="color-primary" />
-            <CardText variant="subtitle">{title}</CardText>
-          </Stack>
-          <Icon icon="right" />
-        </Stack>
-      </CardBody>
+      <SimpleNavArea {...rest} />
     </DivLink>
   );
 }

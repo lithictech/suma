@@ -17,6 +17,7 @@ import Page from "../ui/Page.tsx";
 import PhoneInput from "../ui/PhoneInput.tsx";
 import TextInput from "../ui/TextInput";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
+import noop from "lodash/noop";
 import React from "react";
 import { useController, useForm } from "react-hook-form";
 
@@ -100,7 +101,7 @@ export const Demo: Story = {
             error={errors.agree?.message}
             required
           />
-          <FormSubmit label="Continue" feedback={feedback} />
+          <FormSubmit label="Continue" feedback={feedback} back />
         </Form>
       </Page>
     );
@@ -121,7 +122,7 @@ export const WithError: Story = {
         <Form noValidate onSubmit={submit}>
           <TextInput label="Name" />
           <TextInput label="Address" />
-          <FormSubmit label="Continue" feedback={err} />
+          <FormSubmit label="Continue" feedback={err} back />
         </Form>
       </Page>
     );
@@ -142,7 +143,11 @@ export const WithSuccess: Story = {
         <Form noValidate onSubmit={submit}>
           <TextInput label="Name" />
           <TextInput label="Address" />
-          <FormSubmit label="Submit" feedback={msg} secondary="Cancel" />
+          <FormSubmit
+            label="Submit"
+            feedback={msg}
+            secondary={{ label: "Cancel", onClick: noop }}
+          />
         </Form>
       </Page>
     );

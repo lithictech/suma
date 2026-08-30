@@ -1,32 +1,24 @@
 import { t } from "../localization";
 import useI18n from "../localization/useI18n.ts";
-import todo from "../modules/todo.ts";
+import { FeedbackValue } from "../modules/feedback.ts";
 import useBackendGlobals from "../state/useBackendGlobals.ts";
 import useScreenLoader from "../state/useScreenLoader";
-import BackButton from "../ui/BackButton.tsx";
-import ButtonGroup from "../ui/ButtonGroup.tsx";
 import Checkbox from "../ui/Checkbox.tsx";
-import ContinueButton from "../ui/ContinueButton.tsx";
 import Form from "../ui/Form";
+import FormSubmit from "../ui/FormSubmit.tsx";
 import LanguageSwitcher from "../ui/LanguageSwitcher.tsx";
 import Page from "../ui/Page.tsx";
 import PageHeader from "../ui/PageHeader.tsx";
 import has from "lodash/has";
 import React from "react";
 
-interface PreferencesProps<T> {
-  user: CurrentMember;
-  onApiSubmit: (body: { subscriptions: Record<string, boolean> }) => Promise<T>;
-  children?: React.ReactNode;
-  onSaved: (response: T) => void;
+interface PreferencesProps {
+  user: PublicPrefsMember;
+  savePrefs: (body: { subscriptions: Record<string, boolean> }) => Promise<void>;
+  feedback: FeedbackValue | null;
 }
 
-export default function Preferences<T>({
-  user,
-  onApiSubmit,
-  children,
-  onSaved,
-}: PreferencesProps<T>) {
+export default function Preferences({ user, savePrefs, feedback }: PreferencesProps) {
   const { supportedLocales } = useBackendGlobals();
   const { currentLanguage, changeLanguage } = useI18n();
   const screenLoader = useScreenLoader();
@@ -35,13 +27,9 @@ export default function Preferences<T>({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     screenLoader.turnOn();
-    onApiSubmit({ subscriptions })
-      .then((r) => onSaved(r))
-      .catch((e) => todo(e))
-      .finally(() => {
-        setSubscriptions({});
-        screenLoader.turnOff();
-      });
+    savePrefs({ subscriptions })
+      .then(() => setSubscriptions({}))
+      .finally(() => screenLoader.turnOff());
   }
 
   return (
@@ -70,11 +58,7 @@ export default function Preferences<T>({
             />
           );
         })}
-        {children}
-        <ButtonGroup col bottom>
-          <ContinueButton>{t("forms.save")}</ContinueButton>
-          <BackButton />
-        </ButtonGroup>
+        <FormSubmit label={t("forms.save")} back feedback={feedback} />
       </Form>
     </Page>
   );

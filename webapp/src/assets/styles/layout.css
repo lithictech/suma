@@ -49,6 +49,7 @@
 .justify-content-start { justify-content: flex-start; }
 .justify-content-center { justify-content: center; }
 .justify-content-between { justify-content: space-between; }
+.justify-content-evenly { justify-content: space-evenly; }
 .justify-content-end { justify-content: flex-end; }
 
 .justify-self-start { justify-self: flex-start; }
@@ -71,3 +72,8 @@
 .translate-middle { transform: translate(-50%, -50%); }
 .translate-middle-x { transform: translateX(-50%); }
 .translate-middle-y { transform: translateY(-50%); }
+
+.overflow-hidden { overflow: hidden; }
+.overflow-scroll { overflow: scroll; }
+.overflow-visible { overflow: visible; }
+.overflow-clip { overflow: clip; }
