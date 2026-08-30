@@ -4,9 +4,10 @@ import { MdLink } from "../../components/SumaMarkdown";
 import { t } from "../../localization";
 import useI18n from "../../localization/useI18n";
 import { dayjs } from "../../modules/dayConfig";
+import { extractAppErrorAny } from "../../modules/errors.ts";
 import { Logger } from "../../modules/logger";
 import useNavigate from "../../routing/useNavigate";
-import { extractErrorShape, extractLocalizedError, useError } from "../../state/useError";
+import useError from "../../state/useError";
 import useToggle from "../../state/useToggle";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -53,11 +54,12 @@ export default function Start() {
           },
         })
       )
-      .catch((err: any) => {
-        setError(extractLocalizedError(err));
+      .catch((err) => {
+        const appErr = extractAppErrorAny(err);
+        setError(appErr);
         submitDisabled.turnOff();
         inputDisabled.turnOff();
-        if (extractErrorShape(err) === "auth_conflict") {
+        if (appErr.code === "auth_conflict") {
           logger.error("Unexpected auth conflict");
           window.location.reload();
         }

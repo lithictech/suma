@@ -2,7 +2,7 @@ import ErrorPage from "./components/ErrorPage.tsx";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
-import { t } from "./localization";
+import { r } from "./localization";
 import I18nProvider from "./localization/I18nProvider";
 import useI18n from "./localization/useI18n";
 import { installPromiseExtras } from "./modules/bluejay";
@@ -108,7 +108,7 @@ function AppRoutes() {
     typeRoute({
       path: "/",
       auth: "unauthed",
-      meta: { title: t("common.welcome_to_suma"), exact: true },
+      meta: { title: r("common.welcome_to_suma"), exact: true },
       Component: Home,
     }),
     typeRoute({ path: "/privacy-policy", Component: PrivacyPolicy }),
@@ -159,7 +159,7 @@ function AppRoutes() {
     typeRoute({
       path: "/contact-list",
       auth: "unauthed",
-      meta: { title: t("titles.contact_list"), exact: true },
+      meta: { title: r("titles.contact_list"), exact: true },
       Component: ContactListHome,
     }),
     typeRoute({

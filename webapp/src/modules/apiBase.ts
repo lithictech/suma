@@ -80,8 +80,8 @@ function requestChaos(chaos: number) {
   };
 }
 
-function mergeParams(params: Record<string, any> | undefined, o: Record<string, any>) {
-  const cased = humps.decamelizeKeys(params || {});
+function mergeParams(params: Record<string, any>, o: Record<string, any> | undefined) {
+  const cased = humps.decamelizeKeys(params);
   return { params: cased, ...o };
 }
 

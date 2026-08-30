@@ -96,13 +96,15 @@ function getUrl(vars?: MetricVars) {
 /**
  * Object to urlencoded string, starting with a ?.
  */
-function urlencode(obj: Record<string, any>) {
+function urlencode(obj: Record<string, Encodable>) {
   const p: string[] = [];
   for (const k in obj)
     if (obj[k] !== "" && obj[k] !== null && obj[k] !== undefined && obj[k] !== false)
       p.push(encodeURIComponent(k) + "=" + encodeURIComponent(obj[k]));
   return "?" + p.join("&");
 }
+
+type Encodable = string | number | boolean;
 
 function getPath() {
   let loc: Location | HTMLAnchorElement = window.location;

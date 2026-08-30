@@ -1,4 +1,5 @@
 import { t } from "../../localization";
+import { appError } from "../../modules/errors.ts";
 import { untypedRoutePath } from "../../routing/RoutePath.ts";
 import Button from "../../ui/Button";
 import FormError from "../../ui/FormError";
@@ -40,7 +41,7 @@ export default function DrawerContentsPreTrip({
 
   let action: React.ReactNode;
   if (vehicle.usageProhibitedReason) {
-    action = <FormError error={vehicle.usageProhibitedReason} noSurface />;
+    action = <FormError error={appError(vehicle.usageProhibitedReason)} noSurface />;
   } else if (vehicle.gotoPrivateAccount) {
     action = (
       <>

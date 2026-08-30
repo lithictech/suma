@@ -6,7 +6,7 @@ import { initSentry } from "./modules/sentry";
 // We won't have sumaDynamicEnv set (by Rack::DynamicConfigWriter) when running
 // the development server of React during local dev,
 // or if this app is built and deployed separately as a static app.
-const env: Record<string, any> = window.sumaDynamicEnv || import.meta.env;
+const env: Record<string, string> = window.sumaDynamicEnv || import.meta.env;
 
 // If the API host is configured, use that.
 // If it's '/', assume we mean 'the same server',

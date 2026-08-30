@@ -10,12 +10,14 @@ import { useLocation, useParams } from "react-router-dom";
 export default function OrderHistoryDetail() {
   const { id } = useParams();
   const location = useLocation();
-  const getOrderDetails = React.useCallback(() => api.getOrderDetails({ id }), [id]);
+  const getOrderDetails = React.useCallback(
+    () => api.getOrderDetails({ id: Number(id) }),
+    [id]
+  );
   const { state, replaceState, loading, error } = useAsyncFetch<DetailedOrderHistory>(
     getOrderDetails,
     {
       default: {} as DetailedOrderHistory,
-      pickData: true,
       pullFromState: "order",
       location,
     }

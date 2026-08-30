@@ -1,7 +1,7 @@
 import api from "../../api";
 import scooterContainer from "../../assets/images/scooter-container.svg";
 import config from "../../config";
-import { t } from "../../localization";
+import { r, t } from "../../localization";
 import { localStorageCache } from "../../modules/localStorageHelper";
 import { vehicleIconForVendorService } from "../../modules/mobilityIconLookup.js";
 import leaflet from "leaflet";
@@ -65,8 +65,8 @@ export default class MapBuilder {
     this._l.control
       .zoom({
         position: "bottomright",
-        zoomInTitle: t("mobility.zoom_in"),
-        zoomOutTitle: t("mobility.zoom_out"),
+        zoomInTitle: r("mobility.zoom_in"),
+        zoomOutTitle: r("mobility.zoom_out"),
       })
       .addTo(this._map);
     this.updateLastExtendedVehicleBounds();
@@ -452,9 +452,9 @@ export default class MapBuilder {
           container
         );
         link.href = "#";
-        link.title = t("mobility.locate_me");
+        link.title = r("mobility.locate_me");
         link.setAttribute("role", "button");
-        link.setAttribute("aria-label", t("mobility.locate_me"));
+        link.setAttribute("aria-label", r("mobility.locate_me"));
         link.innerHTML = locationSvg;
         this.options.link = link;
         L.DomEvent.on(this.options.link, "click", (e) => this.options.center(e), this);

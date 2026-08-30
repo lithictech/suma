@@ -1,4 +1,5 @@
 import api from "../../api.ts";
+import { extractAppErrorAny } from "../../modules/errors.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
 import useError from "../../state/useError.tsx";
 import useScreenLoader from "../../state/useScreenLoader.ts";
@@ -33,7 +34,6 @@ export default function OnboardingEligibility({
     items: SupportedOrganization[];
   }>(api.getSupportedOrganizations, {
     default: { items: [] },
-    pickData: true,
   });
 
   function handleSubmit(e: React.FormEvent) {
@@ -51,7 +51,7 @@ export default function OnboardingEligibility({
         stepForward();
       })
       .catch((err) => {
-        setError(err);
+        setError(extractAppErrorAny(err));
         screenLoader.turnOff();
       });
   }

@@ -1,6 +1,7 @@
 import api from "../../api";
 import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
+import { extractAppErrorAny } from "../../modules/errors.ts";
 import useError from "../../state/useError";
 import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
@@ -46,7 +47,7 @@ export default function DrawerContentsOngoingTrip({
         onEndTrip();
         setEndTrip(r.data);
       })
-      .catch((e: any) => setError(e));
+      .catch((e) => setError(extractAppErrorAny(e)));
   };
   const handleCloseTrip = () => {
     onCloseTrip();

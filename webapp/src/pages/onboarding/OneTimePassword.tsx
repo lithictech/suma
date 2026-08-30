@@ -1,9 +1,10 @@
 import api from "../../api";
 import TODO from "../../components/TODO.tsx";
-import { t } from "../../localization";
+import { r, t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
+import { extractAppErrorAny } from "../../modules/errors.ts";
 import { maskPhoneNumber } from "../../modules/maskPhoneNumber";
-import { extractLocalizedError, useError } from "../../state/useError";
+import useError from "../../state/useError";
 import useLoginRedirectLink from "../../state/useLoginRedirectLink";
 import useUser from "../../state/useUser";
 import BackButton from "../../ui/BackButton.tsx";
@@ -22,12 +23,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 const OneTimePassword = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
-  const [otpChars, setOtpChars] = React.useState(new Array(OTP_LENGTH).fill(""));
+  const [otpChars, setOtpChars] = React.useState<string[]>(
+    new Array(OTP_LENGTH).fill("")
+  );
   const [error, setError] = useError();
-  const [message, setMessage] = React.useState<any>();
+  const [message, setMessage] = React.useState<string>("");
   const { state } = useLocation();
   const submitRef = React.useRef<HTMLButtonElement | null>(null);
-  const phoneNumber = state ? state.phoneNumber : undefined;
+  const phoneNumber: string = state ? state.phoneNumber : undefined;
   const { redirectLink, clearRedirectLink } = useLoginRedirectLink();
 
   React.useEffect(() => {
@@ -109,7 +112,7 @@ const OneTimePassword = () => {
     setError(null);
     api
       .authVerify({ phone: phoneNumber, token: otpChars.join("") })
-      .then((r: any) => {
+      .then((r) => {
         setUser(r.data);
         if (r.data.onboarded && redirectLink) {
           navigate(redirectLink);
@@ -120,10 +123,10 @@ const OneTimePassword = () => {
         }
         clearRedirectLink();
       })
-      .catch((err: any) => {
+      .catch((err) => {
         setOtpChars(new Array(6).fill(""));
-        setMessage(null);
-        setError(extractLocalizedError(err));
+        setMessage("");
+        setError(extractAppErrorAny(err));
         const firstOtpField = document.getElementById("otpContainer")!
           .firstChild as HTMLElement;
         firstOtpField.focus();
@@ -133,7 +136,7 @@ const OneTimePassword = () => {
   const handleResend = () => {
     setOtpChars(new Array(6).fill(""));
     setError(null);
-    setMessage(["otp.code_resent", { phone: maskPhoneNumber(phoneNumber) }]);
+    setMessage(r("otp.code_resent", { phone: maskPhoneNumber(phoneNumber) }));
     const firstOtpField = document.getElementById("otpContainer")!
       .firstChild as HTMLElement;
     firstOtpField.focus();
@@ -142,9 +145,9 @@ const OneTimePassword = () => {
         phone: phoneNumber,
         timezone: dayjs.tz.guess(),
       })
-      .catch((err: any) => {
-        setMessage(null);
-        setError(extractLocalizedError(err));
+      .catch((err) => {
+        setMessage("");
+        setError(extractAppErrorAny(err));
       });
   };
 
@@ -171,7 +174,7 @@ const OneTimePassword = () => {
           {otpChars.map((data, index) => (
             <input
               className="otp-field"
-              type="numbers"
+              type="number"
               name="otp"
               // Must use the OTP length here, so any input can capture the full paste.
               maxLength={OTP_LENGTH}
@@ -184,7 +187,7 @@ const OneTimePassword = () => {
               onPaste={handleOtpPaste}
               onFocus={(e) => e.target.select()}
               autoFocus={index === 0}
-              aria-label={t("otp.enter_code_v2", {
+              aria-label={r("otp.enter_code_v2", {
                 index: index + 1,
                 total: OTP_LENGTH,
               })}

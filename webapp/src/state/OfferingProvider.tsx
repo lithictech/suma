@@ -2,61 +2,59 @@ import api from "../api";
 import useAsyncFetch from "./useAsyncFetch";
 import React from "react";
 
-interface OfferingContextValue {
-  initializeToOffering: (offeringId: any) => void;
+interface OfferingActions {
+  initializeToOffering: (offeringId: number) => void;
+  setOfferingFromResponse: (data: OfferingWithContext) => void;
+  reset: () => void;
+}
+
+interface OfferingData {
   offering: Offering;
-  setOfferingFromResponse: (data: any) => void;
   vendors: Vendor[];
   products: PricedOfferingProduct[];
   listableProducts: PricedOfferingProduct[];
   cart: Cart;
-  loading: boolean;
-  error: any;
-  reset: () => void;
 }
 
-export const OfferingContext = React.createContext<OfferingContextValue>(
-  {} as OfferingContextValue
-);
+type OfferingContextValue =
+  | ({ loading: true; error?: undefined } & Partial<OfferingData> &
+      Partial<OfferingActions>)
+  | ({ loading: false; error: any } & Partial<OfferingData> & Partial<OfferingActions>)
+  | ({ loading: false; error?: undefined } & OfferingData & OfferingActions);
 
-const NOOP = Symbol("noop");
+export const OfferingContext = React.createContext<OfferingContextValue>({
+  loading: true,
+});
 
 export default function OfferingProvider({ children }: { children: React.ReactNode }) {
-  const [offering, setOfferingInner] = React.useState<Offering>({} as Offering);
+  const [offering, setOfferingInner] = React.useState<Offering | null>();
   const [vendors, setVendorsInner] = React.useState<Vendor[]>([]);
   // Do not store things in local storage here:
   // because carts depend on everything else being loaded,
   // saving just the cart causes errors.
-  const [cart, setCartInner] = React.useState<Cart>({ items: [] } as unknown as Cart);
+  const [cart, setCartInner] = React.useState<Cart | null>(null);
   const [products, setProductsInner] = React.useState<PricedOfferingProduct[]>([]);
 
   const reset = React.useCallback(() => {
-    setOfferingInner({} as Offering);
+    setOfferingInner(null);
     setVendorsInner([]);
     // Do not store things in local storage here:
     // because carts depend on everything else being loaded,
     // saving just the cart causes errors.
-    setCartInner({ items: [] } as unknown as Cart);
+    setCartInner(null);
     setProductsInner([]);
   }, []);
 
-  const fetchOfferingProducts = React.useCallback(
-    (id: any) => {
-      id = parseInt(id, 10);
-      if (id === offering?.id) {
-        return Promise.resolve(NOOP);
-      }
-      return api.getCommerceOfferingDetails({ id });
-    },
-    [offering?.id]
+  const fetchOfferingDetails = React.useCallback(
+    (data?: Record<string, any>) => api.getCommerceOfferingDetails({ id: data!.id }),
+    []
   );
 
-  const { asyncFetch, loading, error } = useAsyncFetch(fetchOfferingProducts, {
-    default: {},
+  const { asyncFetch, loading, error } = useAsyncFetch(fetchOfferingDetails, {
     doNotFetchOnInit: true,
   });
 
-  const setOfferingFromResponse = React.useCallback((data: any) => {
+  const setOfferingFromResponse = React.useCallback((data: OfferingWithContext) => {
     setOfferingInner(data.offering);
     setVendorsInner(data.vendors);
     setCartInner(data.cart);
@@ -64,12 +62,9 @@ export default function OfferingProvider({ children }: { children: React.ReactNo
   }, []);
 
   const initializeToOffering = React.useCallback(
-    (offeringId: any) => {
-      asyncFetch(offeringId).then((resp: any) => {
-        if (resp === NOOP) {
-          return;
-        }
-        setOfferingFromResponse(resp.data);
+    (id: number) => {
+      asyncFetch({ id }).then((resp) => {
+        setOfferingFromResponse(resp.data as OfferingWithContext);
       });
     },
     [asyncFetch, setOfferingFromResponse]
@@ -77,8 +72,13 @@ export default function OfferingProvider({ children }: { children: React.ReactNo
 
   const listableProducts = products.filter((p) => p.listable);
 
-  const value = React.useMemo(
-    () => ({
+  const value = React.useMemo<OfferingContextValue>(() => {
+    if (loading) {
+      return { loading: true };
+    } else if (error) {
+      return { error, loading: false };
+    }
+    return {
       initializeToOffering,
       offering,
       setOfferingFromResponse,
@@ -86,23 +86,22 @@ export default function OfferingProvider({ children }: { children: React.ReactNo
       products,
       listableProducts,
       cart,
-      loading,
-      error,
       reset,
-    }),
-    [
-      cart,
-      error,
-      initializeToOffering,
-      loading,
-      offering,
-      setOfferingFromResponse,
-      products,
-      listableProducts,
-      reset,
-      vendors,
-    ]
-  );
+      loading: false,
+      error: undefined,
+    } as OfferingContextValue;
+  }, [
+    cart,
+    error,
+    initializeToOffering,
+    loading,
+    offering,
+    setOfferingFromResponse,
+    products,
+    listableProducts,
+    reset,
+    vendors,
+  ]);
 
   return <OfferingContext.Provider value={value}>{children}</OfferingContext.Provider>;
 }

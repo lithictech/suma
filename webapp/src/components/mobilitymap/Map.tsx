@@ -1,7 +1,6 @@
 import api from "../../api";
 import config from "../../config";
-import { t } from "../../localization";
-import { appError, extractAppError } from "../../modules/errors.ts";
+import { appError, extractAppErrorAny } from "../../modules/errors.ts";
 import useError from "../../state/useError.tsx";
 import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
@@ -42,7 +41,7 @@ export default function Map() {
         return;
       }
       if (config.featureMobilityRestricted) {
-        setError(t("errors.mobility_coming_soon"));
+        setError(appError("errors.mobility_coming_soon"));
         return;
       }
       const { loc, provider, disambiguator, type } = mapVehicle;
@@ -56,7 +55,7 @@ export default function Map() {
         .catch((e) => {
           setSelectedMapVehicle(null);
           setLoadedVehicle(null);
-          setError(e);
+          setError(extractAppErrorAny(e));
         });
     },
     [setError, setReserveError]
@@ -77,14 +76,14 @@ export default function Map() {
           throw new Error("unhandled user agent");
         }
         const opts = { context: "instructions", instructionsUrl: instructionsUrl };
-        const localizedError = t(
+        const localizedError = appError(
           "mobility.location_permissions_denied_instructions",
           opts
         );
         setLocationPermissionsError(localizedError);
       })
       .catch(() => {
-        setLocationPermissionsError(t("mobility.location_permissions_denied"));
+        setLocationPermissionsError(appError("mobility.location_permissions_denied"));
       });
   }, [setLocationPermissionsError]);
 
@@ -124,7 +123,7 @@ export default function Map() {
           setOngoingTrip(r.data);
           loadedMap!.beginTrip();
         })
-        .catch((e) => setReserveError(appError(e)));
+        .catch((e) => setReserveError(extractAppErrorAny(e)));
     },
     [handleUpdateCurrentMember, loadedMap, setReserveError]
   );

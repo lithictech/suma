@@ -8,6 +8,7 @@ import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPost
 import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
 import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
 import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
+import { appError } from "../modules/errors.ts";
 import { DemoStack } from "./helpers.tsx";
 import mapBackgroundPng from "./map-background.png";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
@@ -144,13 +145,13 @@ export const MapCards: Story = {
 
       <h3>Page error</h3>
       <Drawer noPosition>
-        <DrawerContentsGeneralError error="read_only_technical_error" />
+        <DrawerContentsGeneralError error={appError("read_only_technical_error")} />
       </Drawer>
 
       <h3>Vehicle error</h3>
       <Drawer noPosition>
         <DrawerContentsVehicleError
-          error="read_only_technical_error"
+          error={appError("read_only_technical_error")}
           provider={mapVendorService}
         />
       </Drawer>
@@ -173,7 +174,9 @@ export const Map: Story = {
               style={{ objectFit: "cover", objectPosition: "bottom" }}
             />
           }
-          content={<DrawerContentsGeneralError error="read_only_technical_error" />}
+          content={
+            <DrawerContentsGeneralError error={appError("read_only_technical_error")} />
+          }
         />
       </div>
     </DemoStack>

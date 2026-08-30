@@ -93,7 +93,7 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
           api
             .changeLanguage({ language })
             .then(noop)
-            .catch((r) => logger.error(r))
+            .catch((r) => logger.exception("change_language", r))
         );
       }
       promises.push(

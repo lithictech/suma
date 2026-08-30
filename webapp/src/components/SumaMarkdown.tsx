@@ -27,6 +27,6 @@ export default function SumaMarkdown({ options, children }: SumaMarkdownProps) {
 
 // Ignore 'node' because we replace it with ELink
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-export function MdLink({ node, ...rest }: { node?: any; [rest: string]: any }) {
+export function MdLink({ node, ...rest }: { node?: any }) {
   return <ELink {...rest} />;
 }

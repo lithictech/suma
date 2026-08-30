@@ -1,5 +1,6 @@
 import { t } from "../localization";
 import useI18n from "../localization/useI18n.ts";
+import todo from "../modules/todo.ts";
 import useBackendGlobals from "../state/useBackendGlobals.ts";
 import useScreenLoader from "../state/useScreenLoader";
 import BackButton from "../ui/BackButton.tsx";
@@ -36,8 +37,7 @@ export default function Preferences<T>({
     screenLoader.turnOn();
     onApiSubmit({ subscriptions })
       .then((r) => onSaved(r))
-      // TODO
-      // .catch((e) => showErrorToast(e, { extract: true }))
+      .catch((e) => todo(e))
       .finally(() => {
         setSubscriptions({});
         screenLoader.turnOff();

@@ -8,7 +8,7 @@ import { HOC } from "../hocs/hocs.ts";
 import withMetatags, { MetatagProps } from "../hocs/withMetatags.tsx";
 import withProps from "../hocs/withProps.tsx";
 import withScreenLoaderMount from "../hocs/withScreenLoaderMount.tsx";
-import { t } from "../localization";
+import { r } from "../localization";
 import applyHocs from "../modules/applyHocs.ts";
 import renderComponent from "../uir/renderComponent.tsx";
 import { RoutePattern } from "./RoutePath.ts";
@@ -49,7 +49,7 @@ export default function typeRoute({
     hocChain.push(redirectIfBoarded);
   }
   if (isString(meta)) {
-    hocChain.push(withMetatags({ title: t(meta) }));
+    hocChain.push(withMetatags({ title: r(meta) }));
   } else if (meta) {
     hocChain.push(withMetatags(meta));
   }

@@ -1,7 +1,7 @@
 import config from "./config";
 import { getCurrentLanguage } from "./localization/currentLanguage";
 import apiBase from "./modules/apiBase";
-import { AxiosResponse } from "axios";
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 import axiosRetry, { isIdempotentRequestError, isNetworkError } from "axios-retry";
 
 const instance = apiBase.create(config.apiHost, {
@@ -22,6 +22,31 @@ axiosRetry(instance, {
 
 const SAFE_HTTP_METHODS = ["get", "head", "options"];
 
+interface Params {
+  [rest: string]: any;
+}
+
+export interface IdParams {
+  id: number;
+  [rest: string]: any;
+}
+
+interface OfferingIdParams {
+  offeringId: number;
+  [rest: string]: any;
+}
+
+interface OrderIdParams {
+  orderId: number;
+  [rest: string]: any;
+}
+
+interface LocaleFileParams {
+  namespace: string;
+  locale: string;
+  [rest: string]: any;
+}
+
 instance.interceptors.request.use(
   (config) => {
     config.headers["Accept-Language"] = getCurrentLanguage();
@@ -30,42 +55,42 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-const get = <T = any>(
+const get = <T = any, D = Params>(
   path: string,
-  params?: any,
-  opts?: any
+  params?: D,
+  opts?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => {
-  return instance.get(path, apiBase.mergeParams(params, opts));
+  return instance.get(path, apiBase.mergeParams(params || {}, opts));
 };
-const post = <T = any>(
+const post = <T = any, D = Params>(
   path: string,
-  params?: any,
-  opts?: any
+  params?: D,
+  opts?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => {
   return instance.post(path, params, opts);
 };
-const patch = <T = any>(
+const patch = <T = any, D = Params>(
   path: string,
-  params?: any,
-  opts?: any
+  params?: D,
+  opts?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => {
   return instance.patch(path, params, opts);
 };
 
-const put = <T = any>(
+const put = <T = any, D = Params>(
   path: string,
-  params?: any,
-  opts?: any
+  params?: D,
+  opts?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => {
   return instance.put(path, params, opts);
 };
 
-const del = <T = any>(
+const del = <T = any, D = Params>(
   path: string,
-  params?: any,
-  opts?: any
+  params?: D,
+  opts?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => {
-  return instance.delete(path, apiBase.mergeParams(params, opts));
+  return instance.delete(path, apiBase.mergeParams(params || {}, opts));
 };
 
 export default {
@@ -76,165 +101,173 @@ export default {
   patch,
   put,
   del,
-  getMe: (data?: any, ...args: any[]) => get<CurrentMember>(`/api/v1/me`, data, ...args),
-  updateMe: (data?: any, ...args: any[]) =>
-    post<CurrentMember>(`/api/v1/me/update`, data, ...args),
-  onboard: (data?: any, ...args: any[]) =>
-    post<Onboarded>(`/api/v1/me/onboard`, data, ...args),
-  changeLanguage: (data?: any, ...args: any[]) =>
-    post<CurrentMember>(`/api/v1/me/language`, data, ...args),
-  getSupportedGeographies: (data?: any, ...args: any[]) =>
-    get<SupportedGeographies>(`/api/v1/meta/supported_geographies`, data, ...args),
-  getSupportedLocales: (data?: any, ...args: any[]) =>
-    get<Locale[]>(`/api/v1/meta/supported_locales`, data, ...args),
-  getSupportedCurrencies: (data?: any, ...args: any[]) =>
-    get<Currency[]>(`/api/v1/meta/supported_currencies`, data, ...args),
-  getSupportedPaymentMethods: (data?: any, ...args: any[]) =>
-    get<string[]>(`/api/v1/meta/supported_payment_methods`, data, ...args),
-  geolocateIp: (data?: any, ...args: any[]) =>
-    get<GeolocateIP>(`/api/v1/meta/geolocate_ip`, data, ...args),
-  getSupportedOrganizations: (data?: any, ...args: any[]) =>
-    get(`/api/v1/meta/supported_organizations`, data, ...args),
-  getLocaleFile: ({ namespace, locale, ...data }: any, ...args: any[]) =>
-    get(`/api/v1/meta/static_strings/${locale}/${namespace}`, data, ...args),
-  dashboard: (data?: any, ...args: any[]) =>
-    get<Dashboard>("/api/v1/me/dashboard", data, ...args),
-  getLedgersOverview: (data?: any, ...args: any[]) =>
-    get<LedgersView>("/api/v1/ledgers/overview", data, ...args),
-  getLedgerLines: ({ id, ...data }: any, ...args: any[]) =>
-    get<LedgerLines>(`/api/v1/ledgers/${id}/lines`, data, ...args),
-  authStart: (data?: any, ...args: any[]) =>
-    post<AuthFlowMember>(`/api/v1/auth/start`, data, ...args),
-  authVerify: (data?: any, ...args: any[]) =>
-    post<CurrentMember>(`/api/v1/auth/verify`, data, ...args),
-  authContactList: (data?: any, ...args: any[]) =>
-    post(`/api/v1/auth/contact_list`, data, ...args),
-  authSignout: (data?: any, ...args: any[]) => del(`/api/v1/auth`, data, ...args),
-  getMobilityMap: (data?: any, ...args: any[]) =>
-    get<MobilityMap>("/api/v1/mobility/map", data, ...args),
-  getMobilityMapFeatures: (data?: any, ...args: any[]) =>
-    get<MobilityMapFeatures>("/api/v1/mobility/map_features", data, ...args),
-  getMobilityVehicle: (data?: any, ...args: any[]) =>
-    get<MobilityDetailedVehicle>("/api/v1/mobility/vehicle", data, ...args),
-  beginMobilityTrip: (data?: any, ...args: any[]) =>
-    post<MobilityTrip>("/api/v1/mobility/begin_trip", data, ...args),
-  endMobilityTrip: (data?: any, ...args: any[]) =>
-    post<MobilityTrip>("/api/v1/mobility/end_trip", data, ...args),
-  getMobilityTrips: (data?: any, ...args: any[]) =>
-    get<MobilityTripCollection>("/api/v1/mobility/trips", data, ...args),
-  getUserAgent: () => get("/api/useragent"),
+  getMe: (data?: Params, config?: AxiosRequestConfig) =>
+    get<CurrentMember>(`/api/v1/me`, data, config),
+  updateMe: (data?: Params, config?: AxiosRequestConfig) =>
+    post<CurrentMember>(`/api/v1/me/update`, data, config),
+  onboard: (data?: Params, config?: AxiosRequestConfig) =>
+    post<Onboarded>(`/api/v1/me/onboard`, data, config),
+  changeLanguage: (data?: Params, config?: AxiosRequestConfig) =>
+    post<CurrentMember>(`/api/v1/me/language`, data, config),
+  getSupportedGeographies: (data?: Params, config?: AxiosRequestConfig) =>
+    get<SupportedGeographies>(`/api/v1/meta/supported_geographies`, data, config),
+  getSupportedLocales: (data?: Params, config?: AxiosRequestConfig) =>
+    get<ApiCollection<Locale>>(`/api/v1/meta/supported_locales`, data, config),
+  getSupportedCurrencies: (data?: Params, config?: AxiosRequestConfig) =>
+    get<ApiCollection<Currency>>(`/api/v1/meta/supported_currencies`, data, config),
+  getSupportedPaymentMethods: (data?: Params, config?: AxiosRequestConfig) =>
+    get<ApiCollection<string>>(`/api/v1/meta/supported_payment_methods`, data, config),
+  geolocateIp: (data?: Params, config?: AxiosRequestConfig) =>
+    get<GeolocateIP>(`/api/v1/meta/geolocate_ip`, data, config),
+  getSupportedOrganizations: (data?: Params, config?: AxiosRequestConfig) =>
+    get(`/api/v1/meta/supported_organizations`, data, config),
+  getLocaleFile: (
+    { namespace, locale, ...data }: LocaleFileParams,
+    config?: AxiosRequestConfig
+  ) => get(`/api/v1/meta/static_strings/${locale}/${namespace}`, data, config),
+  dashboard: (data?: Params, config?: AxiosRequestConfig) =>
+    get<Dashboard>("/api/v1/me/dashboard", data, config),
+  getLedgersOverview: (data?: Params, config?: AxiosRequestConfig) =>
+    get<LedgersView>("/api/v1/ledgers/overview", data, config),
+  getLedgerLines: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
+    get<LedgerLines>(`/api/v1/ledgers/${id}/lines`, data, config),
+  authStart: (data?: Params, config?: AxiosRequestConfig) =>
+    post<AuthFlowMember>(`/api/v1/auth/start`, data, config),
+  authVerify: (data?: Params, config?: AxiosRequestConfig) =>
+    post<CurrentMember>(`/api/v1/auth/verify`, data, config),
+  authContactList: (data?: Params, config?: AxiosRequestConfig) =>
+    post(`/api/v1/auth/contact_list`, data, config),
+  authSignout: (data?: Params, config?: AxiosRequestConfig) =>
+    del(`/api/v1/auth`, data, config),
+  getMobilityMap: (data?: Params, config?: AxiosRequestConfig) =>
+    get<MobilityMap>("/api/v1/mobility/map", data, config),
+  getMobilityMapFeatures: (data?: Params, config?: AxiosRequestConfig) =>
+    get<MobilityMapFeatures>("/api/v1/mobility/map_features", data, config),
+  getMobilityVehicle: (data?: Params, config?: AxiosRequestConfig) =>
+    get<MobilityDetailedVehicle>("/api/v1/mobility/vehicle", data, config),
+  beginMobilityTrip: (data?: Params, config?: AxiosRequestConfig) =>
+    post<MobilityTrip>("/api/v1/mobility/begin_trip", data, config),
+  endMobilityTrip: (data?: Params, config?: AxiosRequestConfig) =>
+    post<MobilityTrip>("/api/v1/mobility/end_trip", data, config),
+  getMobilityTrips: (data?: Params, config?: AxiosRequestConfig) =>
+    get<MobilityTripCollection>("/api/v1/mobility/trips", data, config),
+  getUserAgent: () => get<UserAgent>("/api/useragent"),
   getCommerceOfferings: () => get<{ items: Offering[] }>("/api/v1/commerce/offerings"),
-  getCommerceOfferingDetails: ({ id, ...data }: any, ...args: any[]) =>
-    get<OfferingWithContext>(`/api/v1/commerce/offerings/${id}`, data, ...args),
-  putCartItem: ({ offeringId, ...data }: any, ...args: any[]) =>
+  getCommerceOfferingDetails: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
+    get<OfferingWithContext>(`/api/v1/commerce/offerings/${id}`, data, config),
+  putCartItem: ({ offeringId, ...data }: OfferingIdParams, config?: AxiosRequestConfig) =>
     put<OfferingWithContext>(
       `/api/v1/commerce/offerings/${offeringId}/cart/item`,
       data,
-      ...args
+      config
     ),
-  startCheckout: ({ offeringId, ...data }: any, ...args: any[]) =>
-    post<Checkout>(`/api/v1/commerce/offerings/${offeringId}/checkout`, data, ...args),
-  getCheckout: ({ id, ...data }: any, ...args: any[]) =>
-    get<Checkout>(`/api/v1/commerce/checkouts/${id}`, data, ...args),
-  updateCheckoutFulfillment: ({ checkoutId, ...data }: any, ...args: any[]) =>
+  startCheckout: (
+    { offeringId, ...data }: OfferingIdParams,
+    config?: AxiosRequestConfig
+  ) => post<Checkout>(`/api/v1/commerce/offerings/${offeringId}/checkout`, data, config),
+  getCheckout: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
+    get<Checkout>(`/api/v1/commerce/checkouts/${id}`, data, config),
+  updateCheckoutFulfillment: (
+    { checkoutId, ...data }: Params,
+    config?: AxiosRequestConfig
+  ) =>
     post<Checkout>(
       `/api/v1/commerce/checkouts/${checkoutId}/modify_fulfillment`,
       data,
-      ...args
+      config
     ),
-  completeCheckout: ({ id, ...data }: any, ...args: any[]) =>
-    post<CheckoutConfirmation>(
-      `/api/v1/commerce/checkouts/${id}/complete`,
-      data,
-      ...args
-    ),
-  getCheckoutConfirmation: ({ id, ...data }: any, ...args: any[]) =>
+  completeCheckout: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
+    post<CheckoutConfirmation>(`/api/v1/commerce/checkouts/${id}/complete`, data, config),
+  getCheckoutConfirmation: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
     get<CheckoutConfirmation>(
       `/api/v1/commerce/checkouts/${id}/confirmation`,
       data,
-      ...args
+      config
     ),
-  getOrderHistory: (data?: any, ...args: any[]) =>
-    get<OrderHistoryCollection>(`/api/v1/commerce/orders`, data, ...args),
-  getOrderDetails: ({ id, ...data }: any, ...args: any[]) =>
-    get<DetailedOrderHistory>(`/api/v1/commerce/orders/${id}`, data, ...args),
-  getUnclaimedOrderHistory: (data?: any, ...args: any[]) =>
-    get<UnclaimedOrderCollection>(`/api/v1/commerce/orders/unclaimed`, data, ...args),
-  updateOrderFulfillment: ({ orderId, ...data }: any, ...args: any[]) =>
+  getOrderHistory: (data?: Params, config?: AxiosRequestConfig) =>
+    get<OrderHistoryCollection>(`/api/v1/commerce/orders`, data, config),
+  getOrderDetails: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
+    get<DetailedOrderHistory>(`/api/v1/commerce/orders/${id}`, data, config),
+  getUnclaimedOrderHistory: (data?: Params, config?: AxiosRequestConfig) =>
+    get<UnclaimedOrderCollection>(`/api/v1/commerce/orders/unclaimed`, data, config),
+  updateOrderFulfillment: (
+    { orderId, ...data }: OrderIdParams,
+    config?: AxiosRequestConfig
+  ) =>
     post<DetailedOrderHistory>(
       `/api/v1/commerce/orders/${orderId}/modify_fulfillment`,
       data,
-      ...args
+      config
     ),
-  claimOrder: ({ orderId, ...data }: any, ...args: any[]) =>
-    post<DetailedOrderHistory>(`/api/v1/commerce/orders/${orderId}/claim`, data, ...args),
+  claimOrder: ({ orderId, ...data }: OrderIdParams, config?: AxiosRequestConfig) =>
+    post<DetailedOrderHistory>(`/api/v1/commerce/orders/${orderId}/claim`, data, config),
 
-  createBankAccount: (data?: any, ...args: any[]) =>
+  createBankAccount: (data?: Params, config?: AxiosRequestConfig) =>
     post<MutationPaymentInstrument>(
       `/api/v1/payment_instruments/bank_accounts/create`,
       data,
-      ...args
+      config
     ),
-  deleteBankAccount: (data?: any, ...args: any[]) =>
+  deleteBankAccount: (data: IdParams, config?: AxiosRequestConfig) =>
     del<MutationPaymentInstrument>(
       `/api/v1/payment_instruments/bank_accounts/${data.id}`,
       data,
-      ...args
+      config
     ),
 
-  createCardStripe: (data?: any, ...args: any[]) =>
+  createCardStripe: (data?: Params, config?: AxiosRequestConfig) =>
     post<MutationPaymentInstrument>(
       `/api/v1/payment_instruments/cards/create_stripe`,
       data,
-      ...args
+      config
     ),
-  deleteCard: (data?: any, ...args: any[]) =>
+  deleteCard: (data: IdParams, config?: AxiosRequestConfig) =>
     del<MutationPaymentInstrument>(
       `/api/v1/payment_instruments/cards/${data.id}`,
       data,
-      ...args
+      config
     ),
 
-  createFundingPayment: (data?: any, ...args: any[]) =>
-    post<FundingTransaction>(`/api/v1/payments/create_funding`, data, ...args),
-  chargeLedgerBalance: (data?: any, ...args: any[]) =>
-    post<CurrentMember>(`/api/v1/payments/charge_balance`, data, ...args),
+  createFundingPayment: (data?: Params, config?: AxiosRequestConfig) =>
+    post<FundingTransaction>(`/api/v1/payments/create_funding`, data, config),
+  chargeLedgerBalance: (data?: Params, config?: AxiosRequestConfig) =>
+    post<CurrentMember>(`/api/v1/payments/charge_balance`, data, config),
 
-  getPrivateAccounts: (data?: any, ...args: any[]) =>
+  getPrivateAccounts: (data?: Params, config?: AxiosRequestConfig) =>
     get<{ items: AnonProxyVendorAccount[] }>(
       `/api/v1/anon_proxy/vendor_accounts`,
       data,
-      ...args
+      config
     ),
-  processPrivateAccountDetail: ({ id, ...data }: any, ...args: any[]) =>
+  processPrivateAccountDetail: ({ id, ...data }: IdParams, config?: AxiosRequestConfig) =>
     post<AnonProxyVendorAccount>(
       `/api/v1/anon_proxy/vendor_accounts/${id}/process`,
       data,
-      ...args
+      config
     ),
-  makePrivateAccountAuthRequest: (data?: any, ...args: any[]) =>
+  makePrivateAccountAuthRequest: (data: IdParams, config?: AxiosRequestConfig) =>
     post<AnonProxyVendorAccount>(
       `/api/v1/anon_proxy/vendor_accounts/${data.id}/make_auth_request`,
       data,
-      ...args
+      config
     ),
-  pollForNewPrivateAccountMagicLink: (data?: any, opts?: any) =>
+  pollForNewPrivateAccountMagicLink: (data: IdParams, opts?: AxiosRequestConfig) =>
     post<AnonProxyVendorAccountPollResult>(
       `/api/v1/anon_proxy/vendor_accounts/${data.id}/poll_for_new_magic_link`,
       data,
       opts
     ),
 
-  getPreferencesPublic: (data?: any, ...args: any[]) =>
-    get<PublicPrefsMember>("/api/v1/preferences/public", data, ...args),
-  updatePreferencesPublic: (data?: any, ...args: any[]) =>
-    post<PublicPrefsMember>("/api/v1/preferences/public", data, ...args),
-  updatePreferences: (data?: any, ...args: any[]) =>
-    post<CurrentMember>("/api/v1/preferences", data, ...args),
+  getPreferencesPublic: (data?: Params, config?: AxiosRequestConfig) =>
+    get<PublicPrefsMember>("/api/v1/preferences/public", data, config),
+  updatePreferencesPublic: (data?: Params, config?: AxiosRequestConfig) =>
+    post<PublicPrefsMember>("/api/v1/preferences/public", data, config),
+  updatePreferences: (data?: Params, config?: AxiosRequestConfig) =>
+    post<CurrentMember>("/api/v1/preferences", data, config),
 
-  supportRegainAccountAccess: (data?: any, ...args: any[]) =>
-    post("/api/v1/support/regain_account_access", data, ...args),
+  supportRegainAccountAccess: (data?: Params, config?: AxiosRequestConfig) =>
+    post("/api/v1/support/regain_account_access", data, config),
 
-  completeSurvey: (data?: any, ...args: any[]) =>
-    post<CurrentMember>(`/api/v1/surveys`, data, ...args),
+  completeSurvey: (data?: Params, config?: AxiosRequestConfig) =>
+    post<CurrentMember>(`/api/v1/surveys`, data, config),
 };

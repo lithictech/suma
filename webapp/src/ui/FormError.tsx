@@ -1,11 +1,11 @@
 import { t } from "../localization";
-import { OptionalError } from "../state/useError.tsx";
+import { AppError } from "../modules/errors.ts";
 import "./FormError.css";
 import clsx from "clsx";
 import React, { CSSProperties } from "react";
 
 interface FormErrorProps {
-  error: OptionalError;
+  error: AppError | React.ReactElement | null | undefined;
   noSurface?: boolean;
   className?: string;
   style?: CSSProperties;

@@ -2,6 +2,7 @@ import { t } from "../localization";
 import { Logger } from "./logger";
 import { AxiosError } from "axios";
 import get from "lodash/get";
+import React from "react";
 
 const logger = new Logger("form-error");
 
@@ -16,7 +17,7 @@ export class AppError {
     this.opts = opts;
   }
 
-  render(): string {
+  render(): React.ReactNode {
     const msg = t(`errors.${this.code}`, this.opts);
     return msg;
   }
@@ -26,7 +27,22 @@ export function appError(code: string, opts?: Record<string, any>) {
   return new AppError(code, opts || {});
 }
 
+/**
+ * Version of extractAppError that can be used when 'any' type is needed.
+ * @param error
+ */
+export function extractAppErrorAny(error: any): AppError {
+  return extractAppErrorImpl(error);
+}
+
+/**
+ * Extract an app error from an error.
+ */
 export function extractAppError(error: AxiosError | Error | ErrorCode): AppError {
+  return extractAppErrorImpl(error);
+}
+
+function extractAppErrorImpl(error: AxiosError | Error | ErrorCode | any): AppError {
   if (get(error, "message") === "Network Error") {
     return new AppError("network_error", {});
   }

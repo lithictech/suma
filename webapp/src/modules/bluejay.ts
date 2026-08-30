@@ -31,25 +31,23 @@ export function installPromiseExtras(Promise: PromiseConstructor) {
   };
 
   Promise.prototype.delay = function delay<T>(durationMs: number) {
-    return Promise.delay<T>(durationMs, this);
+    return Promise.delay<T>(durationMs, this as Promise<T>);
   };
 
-  Promise.delayOr = function delayOr(
-    durationMs,
-    otherPromise,
-    options = { buffer: 100 }
-  ) {
+  Promise.delayOr = function delayOr(durationMs, otherPromise, options?) {
+    let { buffer } = options || {};
+    buffer = buffer || 100;
     const started = Date.now();
     return otherPromise.then((r) => {
       const waited = Date.now() - started;
       const stillLeftToWait = durationMs - waited;
       // If we have a number of milliseconds or less than buffer left to wait,
       // we can return the original result without delay, because we know we took about durationMs.
-      if (stillLeftToWait <= (options.buffer as number)) {
+      if (stillLeftToWait <= buffer) {
         return r;
       }
       // Otherwise, we should delay until the intended elapsed time has been reached.
-      return Promise.delay(stillLeftToWait, r as any);
+      return Promise.delay(stillLeftToWait, Promise.resolve(r));
     });
   };
 
@@ -57,24 +55,24 @@ export function installPromiseExtras(Promise: PromiseConstructor) {
     durationMs: number,
     options?: DelayOptions
   ) {
-    return Promise.delayOr<T>(durationMs, this, options);
+    return Promise.delayOr<T>(durationMs, this as Promise<T>, options);
   };
 
   Promise.prototype.tap = function tap<T>(f: (r: T) => void) {
-    return this.then((v) => {
+    return this.then((v: T) => {
       f(v);
       return v;
     });
   };
 
-  Promise.prototype.tapCatch = function tapCatch(f) {
+  Promise.prototype.tapCatch = function tapCatch(f: (r: any) => void) {
     return this.catch((r) => {
       f(r);
       return Promise.reject(r);
     });
   };
 
-  Promise.prototype.tapTap = function tapTap<T>(f: (r: T | Error) => void) {
+  Promise.prototype.tapTap = function tapTap<T>(f: (r: T | Error | any) => void) {
     return this.tap(f).tapCatch(f);
   };
 }

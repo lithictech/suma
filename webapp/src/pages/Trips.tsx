@@ -13,7 +13,6 @@ export default function Trips() {
     error: tripsError,
   } = useAsyncFetch<MobilityTripCollection>(api.getMobilityTrips, {
     default: {} as MobilityTripCollection,
-    pickData: true,
   });
 
   return (

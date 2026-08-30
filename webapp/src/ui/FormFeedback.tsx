@@ -1,16 +1,18 @@
-import FormError, { FormErrorError } from "./FormError.tsx";
+import { AppError } from "../modules/errors.ts";
+import FormError from "./FormError.tsx";
+import React from "react";
 
 interface FormFeedbackProps {
-  error?: FormErrorError;
-  success?: FormErrorError;
+  error?: AppError | null;
+  success?: React.ReactNode | null;
 }
 
 export default function FormFeedback({ error, success }: FormFeedbackProps) {
-  if (error) {
-    return <FormError error={error} />;
-  }
-  if (success) {
-    return <FormError error={<>{success}</>} variant="success" />;
-  }
-  return null;
+  return (
+    <>
+      <FormError error={error} />
+      {/* Wrap the success as an element so it is not interpreted as an error. */}
+      <FormError error={<>{success}</>} variant="success" />
+    </>
+  );
 }

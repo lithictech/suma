@@ -1,5 +1,4 @@
 import { AppError } from "../modules/errors.ts";
-
 import ErrorPage from "./ErrorPage.tsx";
 import LoadingPage from "./LoadingPage.tsx";
 import React from "react";

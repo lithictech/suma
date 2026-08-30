@@ -1,4 +1,4 @@
-import { t } from "../localization";
+import { r, t } from "../localization";
 import CardText from "../ui/CardText.tsx";
 import CheckboxCard from "../ui/CheckboxCard.tsx";
 import "./SignupAgreement.css";
@@ -16,7 +16,7 @@ export default function SignupAgreement({ control, error }: SignupAgreementProps
   } = useController({
     name: "agree",
     control,
-    rules: { required: t("common.agree_to_continue") },
+    rules: { required: r("common.agree_to_continue") },
     defaultValue: false,
   });
   // const inputRef = React.useRef<HTMLInputElement>(null);
@@ -38,7 +38,7 @@ export default function SignupAgreement({ control, error }: SignupAgreementProps
   return (
     <CheckboxCard
       ref={agreeRef}
-      checked={!!agree}
+      checked={agree}
       onChange={onAgreeChange}
       error={error}
       required

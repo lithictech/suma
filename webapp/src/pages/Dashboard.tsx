@@ -15,7 +15,6 @@ export default function Dashboard() {
     error: dashboardError,
   } = useAsyncFetch<Dashboard>(api.dashboard, {
     default: {} as Dashboard,
-    pickData: true,
   });
   return (
     <Page appNav>

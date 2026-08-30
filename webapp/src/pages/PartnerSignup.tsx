@@ -1,6 +1,7 @@
 import api from "../api";
 import TODO from "../components/TODO.tsx";
 import { dt, t } from "../localization";
+import todo from "../modules/todo.ts";
 import useNavigate from "../routing/useNavigate";
 import { UserContextValue } from "../state/UserProvider";
 import useToggle from "../state/useToggle";
@@ -94,8 +95,7 @@ function JoinPartner() {
         navigate("/dashboard");
       })
       .catch((e) => {
-        // TODO
-        // showErrorToast(e, { extract: true });
+        todo(e);
         loading.turnOff();
       });
   }

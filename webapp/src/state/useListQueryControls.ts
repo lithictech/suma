@@ -21,7 +21,7 @@ export default function useListQueryControls() {
         }
       }
     });
-    each(more, (val, key) => sp.set(key, val));
+    each(more, (val, key) => sp.set(key, "" + val));
     setParams(sp);
   }
   return {

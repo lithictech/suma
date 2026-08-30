@@ -33,12 +33,21 @@ class Suma::API::System < Suma::Service
     status 200
     use_http_expires_caching 7.days
     browser = Browser.new(request.headers["User-Agent"], accept_language: "en-us")
-    {
+    ua = {
       device: browser.name,
       platform: browser.platform.name,
       platform_version: browser.platform.version,
       is_android: browser.platform.android?,
       is_ios: browser.platform.ios?,
     }
+    present ua, with: UserAgentEntity
+  end
+
+  class UserAgentEntity < Grape::Entity
+      expose :device, documentation: {type: String}
+      expose :platform, documentation: {type: String}
+      expose :platform_version, documentation: {type: String}
+      expose :is_android
+      expose :is_ios
   end
 end

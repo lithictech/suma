@@ -3,8 +3,9 @@ import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
+import { extractAppErrorAny } from "../modules/errors.ts";
 import { untypedRoutePath } from "../routing/RoutePath.ts";
-import { extractErrorShape, useError } from "../state/useError";
+import useError from "../state/useError.tsx";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
@@ -26,7 +27,7 @@ export default function FundingAddCard() {
   const handleCardSuccess = React.useCallback(
     (stripeToken: string) => {
       screenLoader.turnOn();
-      setError("");
+      setError(null);
       api
         .createCardStripe({ token: stripeToken })
         .tap(handleUpdateCurrentMember)
@@ -42,7 +43,7 @@ export default function FundingAddCard() {
             instrumentType: r.data.paymentMethodType,
           });
         })
-        .catch((e: any) => setError(extractErrorShape(e)))
+        .catch((e) => setError(extractAppErrorAny(e)))
         .finally(screenLoader.turnOff);
     },
     [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader, setError]

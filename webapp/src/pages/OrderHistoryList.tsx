@@ -17,7 +17,6 @@ export default function OrderHistoryList() {
     error,
   } = useAsyncFetch<OrderHistoryCollection>(api.getOrderHistory, {
     default: {} as OrderHistoryCollection,
-    pickData: true,
   });
   const navigate = useNavigate();
   function handleNavigate(order: SimpleOrderHistory) {

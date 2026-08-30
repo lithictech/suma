@@ -3,7 +3,7 @@ import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import useErrorToast from "../state/useErrorToast";
+import todo from "../modules/todo.ts";
 import useScreenLoader from "../state/useScreenLoader";
 import useToggle from "../state/useToggle";
 import useUser from "../state/useUser";
@@ -98,7 +98,7 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
   const editing = useToggle(false);
   const screenLoader = useScreenLoader();
   const [optionId, setOptionId] = React.useState(0);
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
     if (!order.fulfillmentOption) {
@@ -148,9 +148,10 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
         screenLoader.turnOff();
         onOrderUpdated(r.data);
       })
-      .catch((e: any) => {
+      .catch((e) => {
         screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
+        todo(e);
+        // showErrorToast(e, { extract: true });
       });
   }
   const chosenFulfillmentValid = order.fulfillmentOptionsForEditing.some(
@@ -198,7 +199,7 @@ function PressAndHoldToClaim({
   onOrderClaim,
 }: PressAndHoldToClaimProps) {
   const screenLoader = useScreenLoader();
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
 
   if (!canClaim) {
@@ -214,9 +215,9 @@ function PressAndHoldToClaim({
         screenLoader.turnOff();
         onOrderClaim(r.data);
       })
-      .catch((e: any) => {
+      .catch((e) => {
         screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
+        todo(e);
       });
   };
   return (
