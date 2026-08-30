@@ -137,7 +137,7 @@ export default function PrivateAccountDetail() {
 //         setUser(r.data);
 //         setView(VIEW_TERMS);
 //       })
-//       .catch((e: any) => setError(extractErrorCode(e)))
+//       .catch((e: any) => setError(extractErrorShape(e)))
 //       .finally(screenLoader.turnOff);
 //   }
 //

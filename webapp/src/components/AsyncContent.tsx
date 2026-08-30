@@ -1,11 +1,12 @@
-import { FormErrorError } from "../ui/FormError.tsx";
+import { AppError } from "../modules/errors.ts";
+
 import ErrorPage from "./ErrorPage.tsx";
 import LoadingPage from "./LoadingPage.tsx";
 import React from "react";
 
 interface AsyncContentProps {
   loading: boolean;
-  error: FormErrorError | null | undefined;
+  error: AppError | null | undefined;
   children: React.ReactElement;
 }
 

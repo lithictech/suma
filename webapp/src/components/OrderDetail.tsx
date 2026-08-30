@@ -143,7 +143,7 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
     screenLoader.turnOn();
     api
       .updateOrderFulfillment({ orderId: order.id, optionId: optionId })
-      .then((r: any) => {
+      .then((r) => {
         editing.turnOff();
         screenLoader.turnOff();
         onOrderUpdated(r.data);
@@ -210,7 +210,7 @@ function PressAndHoldToClaim({
     api
       .claimOrder({ orderId: id })
       .tap(handleUpdateCurrentMember)
-      .then((r: any) => {
+      .then((r) => {
         screenLoader.turnOff();
         onOrderClaim(r.data);
       })

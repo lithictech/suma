@@ -5,8 +5,8 @@ import { AxiosResponse } from "axios";
 import axiosRetry, { isIdempotentRequestError, isNetworkError } from "axios-retry";
 
 const instance = apiBase.create(config.apiHost, {
-  debug: config.debug,
-  chaos: config.chaos || false,
+  debug: !!config.debug,
+  chaos: Number(config.chaos || 0),
 });
 axiosRetry(instance, {
   shouldResetTimeout: true,

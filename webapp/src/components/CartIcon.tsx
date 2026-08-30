@@ -1,4 +1,4 @@
-import loaderRing from "../assets/images/loader-ring.svg";
+import TODO from "./TODO.tsx";
 import clsx from "clsx";
 import React from "react";
 
@@ -33,8 +33,8 @@ export default function CartIcon({
         <i className="bi bi-cart4 me-2"></i>
         {innerItemCount}
       </span>
-      <img
-        src={loaderRing}
+      <TODO
+        // src={<}
         className={clsx(
           "cart-icon-loader left-50 translate-middle-x h-100",
           cartLoading && "loading"

@@ -1,11 +1,11 @@
 import useId from "../state/useId";
 import "./Checkbox.css";
-import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import InputFeedback, { HasInputFeedback } from "./InputFeedback.tsx";
 import clsx from "clsx";
 import React from "react";
 
 export interface CheckboxProps
-  extends HasFormFeedback,
+  extends HasInputFeedback,
     Omit<React.InputHTMLAttributes<HTMLInputElement>, "checked" | "type"> {
   label?: React.ReactNode;
   checked: boolean;
@@ -27,7 +27,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(function Chec
           checked={checked}
           required={required}
           className={clsx(error && "is-invalid", inputClass)}
-          aria-describedby={FormFeedback.idFor(inputId)}
+          aria-describedby={InputFeedback.idFor(inputId)}
           aria-invalid={error ? true : undefined}
           {...rest}
         />
@@ -36,7 +36,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(function Chec
           {required && <span className="ml-1 color-danger">*</span>}
         </span>
       </label>
-      <FormFeedback inputId={inputId} error={error} help={help} />
+      <InputFeedback inputId={inputId} error={error} help={help} />
     </div>
   );
 });

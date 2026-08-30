@@ -3,7 +3,6 @@ import TODO from "../components/TODO.tsx";
 import { dt, t } from "../localization";
 import useNavigate from "../routing/useNavigate";
 import { UserContextValue } from "../state/UserProvider";
-import useErrorToast from "../state/useErrorToast";
 import useToggle from "../state/useToggle";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
@@ -81,7 +80,7 @@ function calculateAction(userCtx: UserContextValue) {
 function JoinPartner() {
   const navigate = useNavigate();
   const loading = useToggle();
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
   const { setUser, registrationSession } = useUser();
 
   const { organizationName, intro } = registrationSession!;
@@ -90,12 +89,13 @@ function JoinPartner() {
     loading.turnOn();
     api
       .updateMe({})
-      .then((r: any) => {
+      .then((r) => {
         setUser(r.data);
         navigate("/dashboard");
       })
-      .catch((e: any) => {
-        showErrorToast(e, { extract: true });
+      .catch((e) => {
+        // TODO
+        // showErrorToast(e, { extract: true });
         loading.turnOff();
       });
   }

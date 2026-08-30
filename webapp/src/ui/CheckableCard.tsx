@@ -1,11 +1,11 @@
 import useId from "../state/useId.ts";
 import "./CheckableCard.css";
-import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import InputFeedback, { HasInputFeedback } from "./InputFeedback.tsx";
 import clsx from "clsx";
 import React from "react";
 
 export interface CheckableCardProps
-  extends HasFormFeedback,
+  extends HasInputFeedback,
     React.InputHTMLAttributes<HTMLInputElement> {
   checked: boolean;
   name?: string;
@@ -46,7 +46,7 @@ const CheckableCard = React.forwardRef<HTMLInputElement, CheckableCardProps>(
           />
           {children}
         </label>
-        <FormFeedback inputId={inputId} error={error} help={help} />
+        <InputFeedback inputId={inputId} error={error} help={help} />
       </div>
     );
   }

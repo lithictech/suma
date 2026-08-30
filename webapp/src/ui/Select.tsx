@@ -1,5 +1,5 @@
 import useId from "../state/useId";
-import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import InputFeedback, { HasInputFeedback } from "./InputFeedback.tsx";
 import "./Select.css";
 import clsx from "clsx";
 import React from "react";
@@ -10,7 +10,7 @@ export interface SelectOption<T extends string = string> {
 }
 
 export interface SelectProps<T extends string = string>
-  extends HasFormFeedback,
+  extends HasInputFeedback,
     React.InputHTMLAttributes<HTMLSelectElement> {
   label: React.ReactNode;
   options: SelectOption<T>[];
@@ -61,7 +61,7 @@ const Select = React.forwardRef(function Select<T extends string = string>(
           value={value}
           required={required}
           disabled={disabled}
-          aria-describedby={FormFeedback.idFor(selectId)}
+          aria-describedby={InputFeedback.idFor(selectId)}
           aria-invalid={error ? true : undefined}
           {...rest}
         >
@@ -87,7 +87,7 @@ const Select = React.forwardRef(function Select<T extends string = string>(
           />
         </svg>
       </div>
-      <FormFeedback inputId={selectId} help={help} error={error} />
+      <InputFeedback inputId={selectId} help={help} error={error} />
     </div>
   );
 }) as SelectComponent;

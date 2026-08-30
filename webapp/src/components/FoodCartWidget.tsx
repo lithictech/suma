@@ -3,7 +3,6 @@ import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import xIcon from "../assets/images/ui-x-thick.svg";
 import { t } from "../localization";
-import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
@@ -28,7 +27,7 @@ export default function FoodCartWidget({
   size = size || "sm";
   const btnClasses = sizeClasses[size];
   const { offering, cart, setOfferingFromResponse } = useOffering();
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
 
   const changeAbortController = React.useRef(new AbortController());
   const [quantity, setQuantity] = React.useState(() => {
@@ -50,7 +49,7 @@ export default function FoodCartWidget({
         timestamp: Date.now(),
       })
       .then(api.pickData)
-      .then((data: any) => {
+      .then((data) => {
         if (thisAbortCtrl.signal.aborted) {
           return;
         }
@@ -59,8 +58,9 @@ export default function FoodCartWidget({
         if (onQuantityChange) {
           onQuantityChange(q);
         }
-      })
-      .catch((e: any) => showErrorToast(e, { extract: true }));
+      });
+    // TODO
+    // .catch((e: any) => showErrorToast(e, { extract: true }));
   };
 
   if (product.outOfStock) {

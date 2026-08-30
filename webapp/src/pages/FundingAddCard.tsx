@@ -4,7 +4,7 @@ import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
 import { untypedRoutePath } from "../routing/RoutePath.ts";
-import { extractErrorCode, useError } from "../state/useError";
+import { extractErrorShape, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
@@ -30,7 +30,7 @@ export default function FundingAddCard() {
       api
         .createCardStripe({ token: stripeToken })
         .tap(handleUpdateCurrentMember)
-        .then((r: any) => {
+        .then((r) => {
           if (returnToImmediate) {
             navigate(
               makeReturnUrl(returnToImmediate, r.data.id, r.data.paymentMethodType)
@@ -42,7 +42,7 @@ export default function FundingAddCard() {
             instrumentType: r.data.paymentMethodType,
           });
         })
-        .catch((e: any) => setError(extractErrorCode(e)))
+        .catch((e: any) => setError(extractErrorShape(e)))
         .finally(screenLoader.turnOff);
     },
     [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader, setError]

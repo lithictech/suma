@@ -1,7 +1,7 @@
 import api from "../../api";
 import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
-import { extractErrorCode, useError } from "../../state/useError";
+import useError from "../../state/useError";
 import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
 import FormError from "../../ui/FormError";
@@ -35,18 +35,18 @@ export default function DrawerContentsOngoingTrip({
     return <DrawerContentsLoading />;
   }
   const handleEndTrip = () => {
-    setError("");
+    setError(null);
     api
       .endMobilityTrip({
         lat: lastLocation.latlng.lat,
         lng: lastLocation.latlng.lng,
       })
       .tap(handleUpdateCurrentMember)
-      .then((r: any) => {
+      .then((r) => {
         onEndTrip();
         setEndTrip(r.data);
       })
-      .catch((e: any) => setError(extractErrorCode(e)));
+      .catch((e: any) => setError(e));
   };
   const handleCloseTrip = () => {
     onCloseTrip();

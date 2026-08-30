@@ -42,7 +42,7 @@ export default function ContactListAdd() {
 //         );
 //       })
 //       .catch((err: any) => {
-//         setError(extractErrorCode(err));
+//         setError(extractErrorShape(err));
 //       });
 //   };
 //

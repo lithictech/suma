@@ -1,34 +1,16 @@
-import React from "react";
+import FormError, { FormErrorError } from "./FormError.tsx";
 
-export interface HasFormFeedback {
-  help?: React.ReactNode;
-  error?: React.ReactNode;
+interface FormFeedbackProps {
+  error?: FormErrorError;
+  success?: FormErrorError;
 }
 
-interface FormFeedbackProps extends HasFormFeedback {
-  inputId: string;
-}
-
-/**
- * Render the error, or form feedback if no error.
- */
-export default function FormFeedback({ inputId, help, error }: FormFeedbackProps) {
-  const describedBy = FormFeedback.idFor(inputId);
+export default function FormFeedback({ error, success }: FormFeedbackProps) {
   if (error) {
-    return (
-      <div id={describedBy} className="form-text invalid-feedback" role="alert">
-        {error}
-      </div>
-    );
+    return <FormError error={error} />;
   }
-  if (help) {
-    return (
-      <div id={describedBy} className="form-text">
-        {help}
-      </div>
-    );
+  if (success) {
+    return <FormError error={<>{success}</>} variant="success" />;
   }
   return null;
 }
-
-FormFeedback.idFor = (inputId: string) => `${inputId}-feedback`;

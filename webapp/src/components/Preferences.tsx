@@ -1,7 +1,6 @@
 import { t } from "../localization";
 import useI18n from "../localization/useI18n.ts";
 import useBackendGlobals from "../state/useBackendGlobals.ts";
-import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import BackButton from "../ui/BackButton.tsx";
 import ButtonGroup from "../ui/ButtonGroup.tsx";
@@ -14,20 +13,19 @@ import PageHeader from "../ui/PageHeader.tsx";
 import has from "lodash/has";
 import React from "react";
 
-interface PreferencesProps {
+interface PreferencesProps<T> {
   user: CurrentMember;
-  onApiSubmit: (body: { subscriptions: Record<string, boolean> }) => Promise<any>;
+  onApiSubmit: (body: { subscriptions: Record<string, boolean> }) => Promise<T>;
   children?: React.ReactNode;
-  onSaved: (response: any) => void;
+  onSaved: (response: T) => void;
 }
 
-export default function Preferences({
+export default function Preferences<T>({
   user,
   onApiSubmit,
   children,
   onSaved,
-}: PreferencesProps) {
-  const { showErrorToast } = useErrorToast();
+}: PreferencesProps<T>) {
   const { supportedLocales } = useBackendGlobals();
   const { currentLanguage, changeLanguage } = useI18n();
   const screenLoader = useScreenLoader();
@@ -38,7 +36,8 @@ export default function Preferences({
     screenLoader.turnOn();
     onApiSubmit({ subscriptions })
       .then((r) => onSaved(r))
-      .catch((e) => showErrorToast(e, { extract: true }))
+      // TODO
+      // .catch((e) => showErrorToast(e, { extract: true }))
       .finally(() => {
         setSubscriptions({});
         screenLoader.turnOff();

@@ -1,13 +1,14 @@
 import api from "../../api";
 import config from "../../config";
 import { t } from "../../localization";
-import { extractErrorCode, useError } from "../../state/useError";
+import { appError, extractAppError } from "../../modules/errors.ts";
+import useError from "../../state/useError.tsx";
 import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
 import Drawer from "./Drawer";
+import DrawerContentsGeneralError from "./DrawerContentsGeneralError.tsx";
 import DrawerContentsIntro from "./DrawerContentsIntro.tsx";
 import DrawerContentsOngoingTrip, { MapLocation } from "./DrawerContentsOngoingTrip.tsx";
-import DrawerContentsPageError from "./DrawerContentsPageError.tsx";
 import DrawerContentsPreTrip from "./DrawerContentsPreTrip.tsx";
 import DrawerContentsVehicleError from "./DrawerContentsVehicleError.tsx";
 import MapBuilder, { VisualMapVehicle } from "./mapBuilder";
@@ -28,7 +29,7 @@ export default function Map() {
     user!.ongoingTrip
   );
   const [reserveError, setReserveError] = useError();
-  const [locationPermissionsError, setLocationPermissionsError] = useError("");
+  const [locationPermissionsError, setLocationPermissionsError] = useError();
   const [error, setError] = useError();
 
   const handleVehicleClick = React.useCallback(
@@ -46,16 +47,16 @@ export default function Map() {
       }
       const { loc, provider, disambiguator, type } = mapVehicle;
       if (provider.usageProhibitedReason) {
-        setError(provider.usageProhibitedReason);
+        setError(appError(provider.usageProhibitedReason));
         return;
       }
       api
         .getMobilityVehicle({ loc, providerId: provider.id, disambiguator, type })
-        .then((r: any) => setLoadedVehicle(r.data))
-        .catch((e: any) => {
+        .then((r) => setLoadedVehicle(r.data))
+        .catch((e) => {
           setSelectedMapVehicle(null);
           setLoadedVehicle(null);
-          setError(extractErrorCode(e));
+          setError(e);
         });
     },
     [setError, setReserveError]
@@ -70,7 +71,7 @@ export default function Map() {
   const handleLocationPermissionDeniedSetText = React.useCallback(() => {
     api
       .getUserAgent()
-      .then((r: any) => {
+      .then((r) => {
         const instructionsUrl = getLocationPermissionsInstructionsUrl(r.data);
         if (!instructionsUrl) {
           throw new Error("unhandled user agent");
@@ -98,13 +99,13 @@ export default function Map() {
       }
       api
         .geolocateIp()
-        .then((r: any) => {
+        .then((r) => {
           const { lat, lng } = r.data;
           map.centerLocation({ lat, lng, targetZoom: 14 });
         })
         .catch((e: any) => {
           console.error("Error fetching ip:", e);
-          setError("unhandled_error");
+          setError(appError("unhandled_error"));
         });
     },
     [handleLocationPermissionDeniedSetText, setError]
@@ -119,11 +120,11 @@ export default function Map() {
           rateId: vehicle.rate.id,
         })
         .tap(handleUpdateCurrentMember)
-        .then((r: any) => {
+        .then((r) => {
           setOngoingTrip(r.data);
           loadedMap!.beginTrip();
         })
-        .catch((e: any) => setReserveError(extractErrorCode(e)));
+        .catch((e) => setReserveError(appError(e)));
     },
     [handleUpdateCurrentMember, loadedMap, setReserveError]
   );
@@ -185,7 +186,7 @@ export default function Map() {
 
   const drawerContent = (() => {
     if (error && !selectedMapVehicle) {
-      return <DrawerContentsPageError error={error} />;
+      return <DrawerContentsGeneralError error={error} />;
     } else if (error) {
       return (
         <DrawerContentsVehicleError
@@ -219,7 +220,7 @@ export default function Map() {
       );
     }
     if (locationPermissionsError) {
-      return locationPermissionsError;
+      return <DrawerContentsGeneralError error={locationPermissionsError} />;
     }
     return <DrawerContentsIntro />;
   })();

@@ -1,9 +1,9 @@
 import TripDetail from "../components/TripDetail.tsx";
 import TripList from "../components/TripList.tsx";
 import Drawer from "../components/mobilitymap/Drawer.tsx";
+import DrawerContentsGeneralError from "../components/mobilitymap/DrawerContentsGeneralError.tsx";
 import DrawerContentsLoading from "../components/mobilitymap/DrawerContentsLoading.tsx";
 import DrawerContentsOngoingTrip from "../components/mobilitymap/DrawerContentsOngoingTrip.tsx";
-import DrawerContentsPageError from "../components/mobilitymap/DrawerContentsPageError.tsx";
 import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPostTrip.tsx";
 import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
 import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
@@ -144,7 +144,7 @@ export const MapCards: Story = {
 
       <h3>Page error</h3>
       <Drawer noPosition>
-        <DrawerContentsPageError error="read_only_technical_error" />
+        <DrawerContentsGeneralError error="read_only_technical_error" />
       </Drawer>
 
       <h3>Vehicle error</h3>
@@ -173,7 +173,7 @@ export const Map: Story = {
               style={{ objectFit: "cover", objectPosition: "bottom" }}
             />
           }
-          content={<DrawerContentsPageError error="read_only_technical_error" />}
+          content={<DrawerContentsGeneralError error="read_only_technical_error" />}
         />
       </div>
     </DemoStack>

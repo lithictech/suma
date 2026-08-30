@@ -34,17 +34,17 @@ function parseIfSet(key: string): Record<string, string> {
 
 interface AppConfig {
   apiHost: string;
-  chaos: any;
-  debug: any;
+  chaos: string;
+  debug: string;
   environment: string;
   release: string;
   sentryDsn: string | undefined;
   stripePublicKey: string;
   devCardDetails: Record<string, string>;
   devBankAccountDetails: Record<string, string>;
-  featureMobility: any;
-  featureMobilityRestricted: any;
-  featureAddFunds: any;
+  featureMobility: string;
+  featureMobilityRestricted: string;
+  featureAddFunds: string;
   mapboxAccessToken: string | undefined;
   metricsEndpoint: string | undefined;
   tracingSampleRate: number;
@@ -73,7 +73,7 @@ const config: AppConfig = {
 
 initSentry({
   dsn: config.sentryDsn,
-  debug: config.debug,
+  debug: !!config.debug,
   application: "web-app",
   release: config.release,
   environment: config.environment,

@@ -39,7 +39,7 @@ export default function Funding() {
 //     api
 //       .chargeLedgerBalance()
 //       .then((r: any) => setUser(r.data))
-//       .catch((e: any) => setError(extractErrorCode(e)))
+//       .catch((e: any) => setError(extractErrorShape(e)))
 //       .finally(screenLoader.turnOff);
 //   }
 //
@@ -232,7 +232,7 @@ export default function Funding() {
 //       .then((r: any) =>
 //         setUser({ ...user, paymentInstruments: r.data.allPaymentInstruments })
 //       )
-//       .catch((e: any) => setError(extractErrorCode(e)))
+//       .catch((e: any) => setError(extractErrorShape(e)))
 //       .finally(screenLoader.turnOff);
 //   }
 //

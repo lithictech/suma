@@ -84,7 +84,7 @@ export default function AddCreditCard({
 //       .catch((e) => {
 //         screenLoader.turnOff();
 //         const errMsg =
-//           localizeStripeError(get(e, "response.data")) || extractErrorCode(e);
+//           localizeStripeError(get(e, "response.data")) || extractErrorShape(e);
 //         setError(<span>{errMsg}</span>);
 //         (document.activeElement as HTMLElement | null)?.blur();
 //       });

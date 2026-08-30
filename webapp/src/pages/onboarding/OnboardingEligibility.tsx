@@ -1,6 +1,6 @@
 import api from "../../api.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
-import { extractErrorCode, useError } from "../../state/useError.tsx";
+import useError from "../../state/useError.tsx";
 import useScreenLoader from "../../state/useScreenLoader.ts";
 import useUser from "../../state/useUser.ts";
 import BackButton from "../../ui/BackButton.tsx";
@@ -17,7 +17,6 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import Tile from "../../ui/Tile.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
-import { AxiosResponse } from "axios";
 import React from "react";
 
 export default function OnboardingEligibility({
@@ -46,13 +45,13 @@ export default function OnboardingEligibility({
         address: onboardingState.address,
         organizationNames: onboardingState.organizationNames,
       })
-      .then((r: AxiosResponse<Onboarded>) => {
+      .then((r) => {
         setUser(r.data.member);
         setOnboardingField("onboarded", r.data);
         stepForward();
       })
-      .catch((err: any) => {
-        setError(extractErrorCode(err));
+      .catch((err) => {
+        setError(err);
         screenLoader.turnOff();
       });
   }

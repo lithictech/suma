@@ -6,7 +6,7 @@ import useI18n from "../../localization/useI18n";
 import { dayjs } from "../../modules/dayConfig";
 import { Logger } from "../../modules/logger";
 import useNavigate from "../../routing/useNavigate";
-import { extractErrorCode, extractLocalizedError, useError } from "../../state/useError";
+import { extractErrorShape, extractLocalizedError, useError } from "../../state/useError";
 import useToggle from "../../state/useToggle";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -57,7 +57,7 @@ export default function Start() {
         setError(extractLocalizedError(err));
         submitDisabled.turnOff();
         inputDisabled.turnOff();
-        if (extractErrorCode(err) === "auth_conflict") {
+        if (extractErrorShape(err) === "auth_conflict") {
           logger.error("Unexpected auth conflict");
           window.location.reload();
         }
