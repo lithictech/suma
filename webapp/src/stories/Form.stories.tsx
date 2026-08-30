@@ -1,13 +1,17 @@
-import { appError } from "../modules/errors.ts";
+import {
+  AppError,
+  appError,
+  FeedbackValue,
+  success,
+  Success,
+} from "../modules/feedback.ts";
 import ScreenLoaderProvider from "../state/ScreenLoaderProvider.tsx";
-import useError from "../state/useError.tsx";
 import useMountEffect from "../state/useMountEffect.ts";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Checkbox from "../ui/Checkbox";
 import Form from "../ui/Form.tsx";
-import FormError from "../ui/FormError.tsx";
 import FormSubmit from "../ui/FormSubmit.tsx";
 import Page from "../ui/Page.tsx";
 import PhoneInput from "../ui/PhoneInput.tsx";
@@ -33,7 +37,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Demo: Story = {
   render: () => {
-    const [error, setError] = useError();
+    const [feedback, setFeedback] = React.useState<FeedbackValue | null>();
     const screenLoader = useScreenLoader();
 
     const {
@@ -58,11 +62,14 @@ export const Demo: Story = {
 
     const handleSubmitForm = () => {
       screenLoader.turnOn();
-      setError(null);
+      setFeedback(null);
       Promise.delay(300, Promise.resolve())
         .then(() => {
-          if (Math.random() < 0.5) {
-            setError(appError("forbidden"));
+          const r = Math.random();
+          if (r < 0.3) {
+            setFeedback(appError("forbidden"));
+          } else if (r < 0.6) {
+            setFeedback(success("Good job!"));
           }
         })
         .finally(screenLoader.turnOff);
@@ -93,8 +100,7 @@ export const Demo: Story = {
             error={errors.agree?.message}
             required
           />
-          <FormError error={error} />
-          <FormSubmit label="Continue" error={error} />
+          <FormSubmit label="Continue" feedback={feedback} />
         </Form>
       </Page>
     );
@@ -104,18 +110,18 @@ export const Demo: Story = {
 export const WithError: Story = {
   render: () => {
     const ae = appError("forbidden");
-    const [err, setErr] = useError(ae);
+    const [err, setErr] = React.useState<AppError | null>(ae);
     function submit(e: React.FormEvent) {
       e.preventDefault();
       setErr(null);
-      window.setTimeout(() => setErr(ae), 1000);
+      window.setTimeout(() => setErr(ae), 500);
     }
     return (
       <Page>
         <Form noValidate onSubmit={submit}>
           <TextInput label="Name" />
           <TextInput label="Address" />
-          <FormSubmit label="Continue" error={err} />
+          <FormSubmit label="Continue" feedback={err} />
         </Form>
       </Page>
     );
@@ -124,19 +130,19 @@ export const WithError: Story = {
 
 export const WithSuccess: Story = {
   render: () => {
-    const m = "It worked!";
-    const [msg, setMsg] = React.useState(m);
+    const m = success("It worked!");
+    const [msg, setMsg] = React.useState<Success | null>(m);
     function submit(e: React.FormEvent) {
       e.preventDefault();
-      setMsg("");
-      window.setTimeout(() => setMsg(m), 1000);
+      setMsg(null);
+      window.setTimeout(() => setMsg(m), 500);
     }
     return (
       <Page>
         <Form noValidate onSubmit={submit}>
           <TextInput label="Name" />
           <TextInput label="Address" />
-          <FormSubmit label="Submit" success={msg} secondary="Cancel" />
+          <FormSubmit label="Submit" feedback={msg} secondary="Cancel" />
         </Form>
       </Page>
     );

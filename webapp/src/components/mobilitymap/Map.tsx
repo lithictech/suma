@@ -1,7 +1,6 @@
 import api from "../../api";
 import config from "../../config";
-import { appError, extractAppErrorAny } from "../../modules/errors.ts";
-import useError from "../../state/useError.tsx";
+import { AppError, appError, extractAppErrorAny } from "../../modules/feedback.ts";
 import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
 import Drawer from "./Drawer";
@@ -27,9 +26,10 @@ export default function Map() {
   const [ongoingTrip, setOngoingTrip] = React.useState<MobilityTrip | null>(
     user!.ongoingTrip
   );
-  const [reserveError, setReserveError] = useError();
-  const [locationPermissionsError, setLocationPermissionsError] = useError();
-  const [error, setError] = useError();
+  const [reserveError, setReserveError] = React.useState<AppError | null>();
+  const [locationPermissionsError, setLocationPermissionsError] =
+    React.useState<AppError | null>();
+  const [error, setError] = React.useState<AppError | null>();
 
   const handleVehicleClick = React.useCallback(
     (mapVehicle: VisualMapVehicle | null) => {

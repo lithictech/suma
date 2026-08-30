@@ -1,7 +1,6 @@
 import api from "../../api.ts";
-import { extractAppErrorAny } from "../../modules/errors.ts";
+import { AppError, extractAppErrorAny } from "../../modules/feedback.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
-import useError from "../../state/useError.tsx";
 import useScreenLoader from "../../state/useScreenLoader.ts";
 import useUser from "../../state/useUser.ts";
 import BackButton from "../../ui/BackButton.tsx";
@@ -12,7 +11,7 @@ import CardText from "../../ui/CardText.tsx";
 import CheckableCard from "../../ui/CheckableCard.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form.tsx";
-import FormError from "../../ui/FormError.tsx";
+import FormFeedback from "../../ui/FormFeedback.tsx";
 import Grid from "../../ui/Grid.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
@@ -28,7 +27,7 @@ export default function OnboardingEligibility({
 }: OnboardingProps) {
   const { setUser } = useUser();
   const screenLoader = useScreenLoader();
-  const [error, setError] = useError();
+  const [error, setError] = React.useState<AppError | null>();
 
   const { state: supportedOrganizations } = useAsyncFetch<{
     items: SupportedOrganization[];
@@ -90,7 +89,7 @@ export default function OnboardingEligibility({
             </CheckableCard>
           ))}
         </Grid>
-        <FormError error={error} />
+        <FormFeedback feedback={error} />
         <ButtonGroup col bottom>
           <ContinueButton />
           <BackButton onClick={stepBackward} />

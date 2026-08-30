@@ -64,3 +64,16 @@ function extractAppErrorImpl(error: AxiosError | Error | ErrorCode | any): AppEr
 }
 
 const defaultCode = "unhandled_error";
+
+export class Success {
+  value: React.ReactNode;
+  constructor(value: React.ReactNode) {
+    this.value = value;
+  }
+}
+
+export function success(value: React.ReactNode) {
+  return new Success(value);
+}
+
+export type FeedbackValue = Success | AppError;

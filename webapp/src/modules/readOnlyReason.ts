@@ -1,4 +1,4 @@
-import { appError, AppError } from "./errors.ts";
+import { appError, AppError } from "./feedback.ts";
 import isArray from "lodash/isArray";
 
 /**

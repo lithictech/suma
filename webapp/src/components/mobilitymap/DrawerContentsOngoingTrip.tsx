@@ -1,11 +1,10 @@
 import api from "../../api";
 import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
-import { extractAppErrorAny } from "../../modules/errors.ts";
-import useError from "../../state/useError";
+import { AppError, extractAppErrorAny } from "../../modules/feedback.ts";
 import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
-import FormError from "../../ui/FormError";
+import FormFeedback from "../../ui/FormFeedback";
 import DrawerContents from "./DrawerContents";
 import DrawerContentsLoading from "./DrawerContentsLoading.tsx";
 import DrawerContentsPostTrip from "./DrawerContentsPostTrip.tsx";
@@ -31,7 +30,7 @@ export default function DrawerContentsOngoingTrip({
 }: TripProps) {
   const { handleUpdateCurrentMember } = useUser();
   const [endTrip, setEndTrip] = React.useState<MobilityTrip | null>(null);
-  const [error, setError] = useError();
+  const [error, setError] = React.useState<AppError | null>();
   if (!endTrip && !lastLocation) {
     return <DrawerContentsLoading />;
   }
@@ -70,7 +69,7 @@ export default function DrawerContentsOngoingTrip({
               at: dayjs(trip.beganAt).format("LT"),
             })}
           </p>
-          <FormError error={error} />
+          <FormFeedback feedback={error} />
           <Button size="sm" variant="outline" className="w-100" onClick={handleEndTrip}>
             {t("mobility.end_trip")}
           </Button>

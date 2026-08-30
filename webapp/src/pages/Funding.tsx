@@ -49,7 +49,7 @@ export default function Funding() {
 //     <Card className={styles["balance-warning"]}>
 //       <CardBody className="d-flex flex-column gap-4">
 //         <div>{t("payments.negative_balance_warning", { amount: balance })}</div>
-//         <FormError error={error} />
+//         <FormFeedback error={error} />
 //         <Button variant="secondary" className="align-self-center" onClick={handleClick}>
 //           {t("payments.negative_balance_action", { amount: balance })}
 //         </Button>
@@ -249,7 +249,7 @@ export default function Funding() {
 //       <p>
 //         <strong>{t("payments.unlink_account_question_subtitle")}</strong>
 //       </p>
-//       <FormError error={error} />
+//       <FormFeedback error={error} />
 //       <FormButtons
 //         variant="secondary"
 //         primaryProps={{

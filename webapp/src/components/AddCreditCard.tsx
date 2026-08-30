@@ -265,7 +265,7 @@ export default function AddCreditCard({
 //             onBlur={handleBlur}
 //           />
 //         </Row>
-//         <FormError
+//         <FormFeedback
 //           ref={errorRowRef}
 //           error={error}
 //           className="cc-animate"

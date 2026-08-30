@@ -146,7 +146,7 @@ export default function PrivateAccountDetail() {
 //   return (
 //     <ProgressContainer progress={40} header={t("private_accounts.checklist_pay_balance")}>
 //       <div>{t("private_accounts.pay_balance_explanation", { amount: balance })}</div>
-//       <FormError error={error} />
+//       <FormFeedback error={error} />
 //       <FormButtons
 //         margin={0}
 //         secondaryProps={{
@@ -305,7 +305,7 @@ export default function PrivateAccountDetail() {
 //           </div>
 //         )}
 //       </Alert>
-//       <FormError error={error} />
+//       <FormFeedback error={error} />
 //       <FormButtons
 //         margin={0}
 //         secondaryProps={secondaryBtnProps}

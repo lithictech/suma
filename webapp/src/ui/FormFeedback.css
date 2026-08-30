@@ -1,0 +1,58 @@
+.form-feedback {
+    transform: scaleY(100%);
+    transform-origin: bottom;
+    animation: form-feedback-pop-in 180ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.form-feedback-surface {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--border-radius);
+}
+
+.form-feedback-hidden {
+    transform: scaleY(0%);
+}
+
+.form-feedback-hidden {
+    animation: form-feedback-pop-out 80ms ease-in forwards;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .form-feedback {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    .form-feedback-hidden {
+        animation: none;
+        opacity: 0;
+    }
+}
+
+@keyframes form-feedback-pop-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.01);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Reverse/exit, if the error can be dismissed */
+@keyframes form-feedback-pop-out {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}

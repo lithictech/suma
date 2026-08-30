@@ -89,7 +89,7 @@ export default function RegainAccountAccess({ success }: { success?: boolean }) 
 //           disabled={submitting.isOn}
 //           onChange={handleChange}
 //         />
-//         <FormError error={error} />
+//         <FormFeedback error={error} />
 //         <TODO>
 //           {`<FormButtons
 //           back

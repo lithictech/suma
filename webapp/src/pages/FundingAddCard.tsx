@@ -3,9 +3,8 @@ import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
-import { extractAppErrorAny } from "../modules/errors.ts";
+import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
 import { untypedRoutePath } from "../routing/RoutePath.ts";
-import useError from "../state/useError.tsx";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
@@ -22,7 +21,7 @@ export default function FundingAddCard() {
   const [submitSuccessful, setSubmitSuccessful] = React.useState<any>(null);
   const { handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
-  const [error, setError] = useError();
+  const [error, setError] = React.useState<AppError | null>();
 
   const handleCardSuccess = React.useCallback(
     (stripeToken: string) => {

@@ -153,7 +153,7 @@ export default function ContactListAdd() {
 //         )}
 //       />*/}
 //         {/*<SignupAgreement register={register} errors={errors} />*/}
-//         <FormError error={error} />
+//         <FormFeedback error={error} />
 //         <FormButtons
 //           variant="outline"
 //           back

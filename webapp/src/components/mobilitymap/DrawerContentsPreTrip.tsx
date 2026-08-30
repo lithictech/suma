@@ -1,8 +1,8 @@
 import { t } from "../../localization";
-import { appError } from "../../modules/errors.ts";
+import { appError } from "../../modules/feedback.ts";
 import { untypedRoutePath } from "../../routing/RoutePath.ts";
 import Button from "../../ui/Button";
-import FormError from "../../ui/FormError";
+import FormFeedback from "../../ui/FormFeedback";
 import TODO from "../TODO.tsx";
 import DrawerContents from "./DrawerContents";
 import DrawerContentsLoading from "./DrawerContentsLoading.tsx";
@@ -41,7 +41,9 @@ export default function DrawerContentsPreTrip({
 
   let action: React.ReactNode;
   if (vehicle.usageProhibitedReason) {
-    action = <FormError error={appError(vehicle.usageProhibitedReason)} noSurface />;
+    action = (
+      <FormFeedback feedback={appError(vehicle.usageProhibitedReason)} noSurface />
+    );
   } else if (vehicle.gotoPrivateAccount) {
     action = (
       <>
@@ -97,7 +99,7 @@ export default function DrawerContentsPreTrip({
     <DrawerContents>
       <DrawerTitle>{vehicle.vendorService.name}</DrawerTitle>
       <MicromobilityRate rate={vehicle.rate} />
-      <FormError error={reserveError} />
+      <FormFeedback feedback={reserveError} />
       {action}
       {matchDiv}
     </DrawerContents>

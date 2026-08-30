@@ -2,9 +2,8 @@ import api from "../../api";
 import TODO from "../../components/TODO.tsx";
 import { r, t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
-import { extractAppErrorAny } from "../../modules/errors.ts";
+import { AppError, extractAppErrorAny } from "../../modules/feedback.ts";
 import { maskPhoneNumber } from "../../modules/maskPhoneNumber";
-import useError from "../../state/useError";
 import useLoginRedirectLink from "../../state/useLoginRedirectLink";
 import useUser from "../../state/useUser";
 import BackButton from "../../ui/BackButton.tsx";
@@ -13,7 +12,7 @@ import Button from "../../ui/Button";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form";
-import FormError from "../../ui/FormError";
+import FormFeedback from "../../ui/FormFeedback";
 import Page from "../../ui/Page.tsx";
 import Stack from "../../ui/Stack.tsx";
 import "./OneTimePassword.css";
@@ -26,7 +25,7 @@ const OneTimePassword = () => {
   const [otpChars, setOtpChars] = React.useState<string[]>(
     new Array(OTP_LENGTH).fill("")
   );
-  const [error, setError] = useError();
+  const [error, setError] = React.useState<AppError | null>();
   const [message, setMessage] = React.useState<string>("");
   const { state } = useLocation();
   const submitRef = React.useRef<HTMLButtonElement | null>(null);
@@ -195,7 +194,7 @@ const OneTimePassword = () => {
             />
           ))}
         </fieldset>
-        <FormError error={error} className="mb-1" />
+        <FormFeedback feedback={error} className="mb-1" />
         <TODO
           message={message}
         >{`<FormSuccess message={message} center className="mb-1" />`}</TODO>

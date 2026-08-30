@@ -8,7 +8,7 @@ import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPost
 import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
 import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
 import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
-import { appError } from "../modules/errors.ts";
+import { appError } from "../modules/feedback.ts";
 import { DemoStack } from "./helpers.tsx";
 import mapBackgroundPng from "./map-background.png";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
