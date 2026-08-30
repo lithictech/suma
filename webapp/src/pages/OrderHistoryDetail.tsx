@@ -26,7 +26,7 @@ export default function OrderHistoryDetail() {
     <Page>
       <BreadcrumbBack back />
       <AsyncContent loading={loading} error={error}>
-        <OrderDetail order={state} setOrder={replaceState} />
+        {() => <OrderDetail order={state} setOrder={replaceState} />}
       </AsyncContent>
     </Page>
   );

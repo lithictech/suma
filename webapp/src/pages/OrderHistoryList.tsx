@@ -40,11 +40,13 @@ export default function OrderHistoryList() {
       )`}
       </TODO>
       <AsyncContent loading={loading} error={error}>
-        <OrderList
-          loading={loading}
-          orders={orderHistory?.items}
-          onNavigate={handleNavigate}
-        />
+        {() => (
+          <OrderList
+            loading={loading}
+            orders={orderHistory?.items}
+            onNavigate={handleNavigate}
+          />
+        )}
       </AsyncContent>
     </Page>
   );

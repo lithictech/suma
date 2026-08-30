@@ -19,7 +19,7 @@ export default function Trips() {
     <Page appNav>
       <PageHeader title={t("titles.trips")} subtitle={t("trips.intro")} />
       <AsyncContent loading={tripsLoading} error={tripsError}>
-        <TripList tripCollection={trips} />
+        {() => <TripList tripCollection={trips} />}
       </AsyncContent>
     </Page>
   );

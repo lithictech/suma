@@ -18,7 +18,6 @@ import PhoneInput from "../../ui/PhoneInput";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-
 export default function Start() {
   const { currentLanguage } = useI18n();
   const navigate = useNavigate();

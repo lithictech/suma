@@ -6,7 +6,7 @@ import React from "react";
 interface AsyncContentProps {
   loading: boolean;
   error: AppError | null | undefined;
-  children: React.ReactElement;
+  children: () => React.ReactElement;
 }
 
 /**
@@ -19,5 +19,5 @@ export default function AsyncContent({ loading, error, children }: AsyncContentP
   if (error) {
     return <ErrorPage variant="back" page={false} />;
   }
-  return children;
+  return children();
 }

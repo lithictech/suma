@@ -21,11 +21,13 @@ export default function Dashboard() {
       <TopAlerts dashboard={dashboard} />
       <AddToHomescreen />
       <AsyncContent loading={dashboardLoading} error={dashboardError}>
-        <Stack col gap={3}>
-          {dashboard.programs.map((program) => (
-            <ProgramCard key={program.name} {...program} />
-          ))}
-        </Stack>
+        {() => (
+          <Stack col gap={3}>
+            {dashboard.programs.map((program) => (
+              <ProgramCard key={program.name} {...program} />
+            ))}
+          </Stack>
+        )}
       </AsyncContent>
     </Page>
   );

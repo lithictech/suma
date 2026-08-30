@@ -5,12 +5,11 @@ export interface TODOProps {
   [rest: string]: any;
 }
 
-export default function TODO({ children, ...rest }: TODOProps) {
+export default function TODO({ ...rest }: TODOProps) {
   todo(rest);
   return (
     <div>
       <h1>TODO</h1>
-      {children}
     </div>
   );
 }
