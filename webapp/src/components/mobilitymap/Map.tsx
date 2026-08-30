@@ -1,13 +1,12 @@
 import api from "../../api";
 import config from "../../config";
-import { t } from "../../localization";
-import { extractErrorCode, useError } from "../../state/useError";
+import { AppError, appError, extractAppErrorAny } from "../../modules/feedback.ts";
 import useMountEffect from "../../state/useMountEffect";
 import useUser from "../../state/useUser";
 import Drawer from "./Drawer";
+import DrawerContentsGeneralError from "./DrawerContentsGeneralError.tsx";
 import DrawerContentsIntro from "./DrawerContentsIntro.tsx";
 import DrawerContentsOngoingTrip, { MapLocation } from "./DrawerContentsOngoingTrip.tsx";
-import DrawerContentsPageError from "./DrawerContentsPageError.tsx";
 import DrawerContentsPreTrip from "./DrawerContentsPreTrip.tsx";
 import DrawerContentsVehicleError from "./DrawerContentsVehicleError.tsx";
 import MapBuilder, { VisualMapVehicle } from "./mapBuilder";
@@ -25,11 +24,12 @@ export default function Map() {
     null
   );
   const [ongoingTrip, setOngoingTrip] = React.useState<MobilityTrip | null>(
-    user.ongoingTrip
+    user!.ongoingTrip
   );
-  const [reserveError, setReserveError] = useError();
-  const [locationPermissionsError, setLocationPermissionsError] = useError("");
-  const [error, setError] = useError();
+  const [reserveError, setReserveError] = React.useState<AppError | null>();
+  const [locationPermissionsError, setLocationPermissionsError] =
+    React.useState<AppError | null>();
+  const [error, setError] = React.useState<AppError | null>();
 
   const handleVehicleClick = React.useCallback(
     (mapVehicle: VisualMapVehicle | null) => {
@@ -41,21 +41,21 @@ export default function Map() {
         return;
       }
       if (config.featureMobilityRestricted) {
-        setError(t("errors.mobility_coming_soon"));
+        setError(appError("errors.mobility_coming_soon"));
         return;
       }
       const { loc, provider, disambiguator, type } = mapVehicle;
       if (provider.usageProhibitedReason) {
-        setError(provider.usageProhibitedReason);
+        setError(appError(provider.usageProhibitedReason));
         return;
       }
       api
         .getMobilityVehicle({ loc, providerId: provider.id, disambiguator, type })
-        .then((r: any) => setLoadedVehicle(r.data))
-        .catch((e: any) => {
+        .then((r) => setLoadedVehicle(r.data))
+        .catch((e) => {
           setSelectedMapVehicle(null);
           setLoadedVehicle(null);
-          setError(extractErrorCode(e));
+          setError(extractAppErrorAny(e));
         });
     },
     [setError, setReserveError]
@@ -70,20 +70,20 @@ export default function Map() {
   const handleLocationPermissionDeniedSetText = React.useCallback(() => {
     api
       .getUserAgent()
-      .then((r: any) => {
+      .then((r) => {
         const instructionsUrl = getLocationPermissionsInstructionsUrl(r.data);
         if (!instructionsUrl) {
           throw new Error("unhandled user agent");
         }
         const opts = { context: "instructions", instructionsUrl: instructionsUrl };
-        const localizedError = t(
+        const localizedError = appError(
           "mobility.location_permissions_denied_instructions",
           opts
         );
         setLocationPermissionsError(localizedError);
       })
       .catch(() => {
-        setLocationPermissionsError(t("mobility.location_permissions_denied"));
+        setLocationPermissionsError(appError("mobility.location_permissions_denied"));
       });
   }, [setLocationPermissionsError]);
 
@@ -98,13 +98,13 @@ export default function Map() {
       }
       api
         .geolocateIp()
-        .then((r: any) => {
+        .then((r) => {
           const { lat, lng } = r.data;
           map.centerLocation({ lat, lng, targetZoom: 14 });
         })
         .catch((e: any) => {
           console.error("Error fetching ip:", e);
-          setError("unhandled_error");
+          setError(appError("unhandled_error"));
         });
     },
     [handleLocationPermissionDeniedSetText, setError]
@@ -119,11 +119,11 @@ export default function Map() {
           rateId: vehicle.rate.id,
         })
         .tap(handleUpdateCurrentMember)
-        .then((r: any) => {
+        .then((r) => {
           setOngoingTrip(r.data);
           loadedMap!.beginTrip();
         })
-        .catch((e: any) => setReserveError(extractErrorCode(e)));
+        .catch((e) => setReserveError(extractAppErrorAny(e)));
     },
     [handleUpdateCurrentMember, loadedMap, setReserveError]
   );
@@ -148,7 +148,7 @@ export default function Map() {
     if (!mapRef.current) {
       return;
     }
-    const map = new MapBuilder(mapRef.current).init().startTrackingLocation({
+    const map = new MapBuilder(mapRef.current).startTrackingLocation({
       onLocationFound: handleLocationFound,
       onLocationError: handleLocationError,
     });
@@ -185,19 +185,23 @@ export default function Map() {
 
   const drawerContent = (() => {
     if (error && !selectedMapVehicle) {
-      return <DrawerContentsPageError error={error} />;
+      return <DrawerContentsGeneralError error={error} />;
     } else if (error) {
       return (
         <DrawerContentsVehicleError
           error={error}
-          provider={selectedMapVehicle.provider}
+          provider={selectedMapVehicle!.provider}
         />
       );
     }
     if (ongoingTrip) {
       return (
         <DrawerContentsOngoingTrip
-          lastLocation={lastMarkerLocation}
+          lastLocation={
+            lastMarkerLocation || {
+              latlng: { lat: ongoingTrip.beginLat, lng: ongoingTrip.beginLng },
+            }
+          }
           trip={ongoingTrip}
           onCloseTrip={handleCloseTrip}
           onEndTrip={handleEndTrip}
@@ -215,7 +219,7 @@ export default function Map() {
       );
     }
     if (locationPermissionsError) {
-      return locationPermissionsError;
+      return <DrawerContentsGeneralError error={locationPermissionsError} />;
     }
     return <DrawerContentsIntro />;
   })();

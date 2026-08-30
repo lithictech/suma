@@ -54,9 +54,9 @@ declare module "./RouteParams.ts" {
 }
 declare module "./RouteQuery.ts" {
   interface RouteQuery {
-    "/contact-list/add": { eventName?: string };
-    "/contact-list": { eventName?: string };
-    "/add-funds": { id?: string | number; paymentMethodType?: string };
+    "/contact-list/add": { eventName?: string | null };
+    "/contact-list": { eventName?: string | null };
+    "/add-funds": { id?: string | number | null; paymentMethodType?: string | null };
     "/trip/:id": { trip: string };
   }
 }

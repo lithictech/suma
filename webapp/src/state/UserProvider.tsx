@@ -54,14 +54,14 @@ export default function UserProvider({ children }: { children: React.ReactNode }
   const fetchUser = React.useCallback(() => {
     return api
       .getMe()
-      .then((r: any) => setUser(r.data))
-      .catch((e: any) => {
+      .then((r) => setUser(r.data))
+      .catch((e) => {
         setUserInner(null);
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
         setUserError(e);
         const camelErr = humps.camelizeKeys(e.response?.data?.error || {});
-        setRegLinkFromError(camelErr.registrationLink);
+        setRegLinkFromError(camelErr.registrationLink as RegistrationLink);
       });
   }, [setUser]);
 
@@ -72,7 +72,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
   // See add_current_member_header for more info.
   const handleUpdateCurrentMember = React.useCallback(
     (response: any) => {
-      const memberBase64 = get(response, ["headers", "suma-current-member"]);
+      const memberBase64: string = get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
         logger.error(
           "handleUpdateCurrentMember not used properly, response or header is malformed"
@@ -81,7 +81,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
       }
       const j = base64decode(memberBase64);
       const member = JSON.parse(j);
-      setUser(humps.camelizeKeys(member));
+      setUser(humps.camelizeKeys(member) as CurrentMember);
     },
     [setUser]
   );

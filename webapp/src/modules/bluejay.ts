@@ -1,75 +1,78 @@
-interface DelayOrOptions {
+interface DelayOptions {
   buffer?: number;
 }
 
 declare global {
   interface Promise<T> {
     delay(durationMs: number): Promise<T>;
-    delayOr(durationMs: number, options?: DelayOrOptions): Promise<T>;
+    delayOr(durationMs: number, options?: DelayOptions): Promise<T>;
     tap(f: (value: T) => void): Promise<T>;
-    tapCatch(f: (reason: any) => void): Promise<T>;
-    tapTap(f: (value: any) => void): Promise<T>;
+    tapCatch(f: (reason: Error) => void): Promise<T>;
+    tapTap(f: (value: T) => void): Promise<T>;
   }
 
   interface PromiseConstructor {
-    delay<T>(durationMs: number, p?: Promise<T>): Promise<T>;
+    delay<T>(durationMs: number, p: Promise<T>): Promise<T>;
     delayOr<T>(
       durationMs: number,
       otherPromise: Promise<T>,
-      options?: DelayOrOptions
+      options?: DelayOptions
     ): Promise<T>;
   }
 }
 
 export function installPromiseExtras(Promise: PromiseConstructor) {
-  Promise.delay = function delay(durationMs, p: any) {
-    p = p || Promise.resolve();
-    return p.then((r: any) => {
+  Promise.delay = function delay(durationMs, p) {
+    return p.then((r) => {
       return new Promise((resolve) => {
         window.setTimeout(() => resolve(r), durationMs);
       });
     });
   };
 
-  Promise.prototype.delay = function delay(durationMs) {
-    return Promise.delay(durationMs, this);
+  Promise.prototype.delay = function delay<T>(durationMs: number) {
+    return Promise.delay<T>(durationMs, this as Promise<T>);
   };
 
-  Promise.delayOr = function delayOr(durationMs, otherPromise, options) {
-    options = options || { buffer: 100 };
+  Promise.delayOr = function delayOr(durationMs, otherPromise, options?) {
+    let { buffer } = options || {};
+    buffer = buffer || 100;
     const started = Date.now();
     return otherPromise.then((r) => {
       const waited = Date.now() - started;
       const stillLeftToWait = durationMs - waited;
       // If we have a number of milliseconds or less than buffer left to wait,
       // we can return the original result without delay, because we know we took about durationMs.
-      if (stillLeftToWait <= (options.buffer as number)) {
+      if (stillLeftToWait <= buffer) {
         return r;
       }
       // Otherwise, we should delay until the intended elapsed time has been reached.
-      return Promise.delay(stillLeftToWait, r as any);
+      return Promise.delay(stillLeftToWait, Promise.resolve(r));
     });
   };
 
-  Promise.prototype.delayOr = function delayOr(durationMs, options) {
-    return Promise.delayOr(durationMs, this, options);
+  Promise.prototype.delayOr = function delayOr<T>(
+    durationMs: number,
+    options?: DelayOptions
+  ) {
+    return Promise.delayOr<T>(durationMs, this as Promise<T>, options);
   };
 
-  Promise.prototype.tap = function tap(f) {
-    return this.then((v) => {
+  Promise.prototype.tap = function tap<T>(f: (r: T) => void) {
+    return this.then((v: T) => {
       f(v);
       return v;
     });
   };
 
-  Promise.prototype.tapCatch = function tapCatch(f) {
+  Promise.prototype.tapCatch = function tapCatch(f: (r: any) => void) {
     return this.catch((r) => {
       f(r);
       return Promise.reject(r);
     });
   };
 
-  Promise.prototype.tapTap = function tapTap(f) {
+  Promise.prototype.tapTap = function tapTap<T>(f: (r: T | Error | any) => void) {
     return this.tap(f).tapCatch(f);
   };
 }

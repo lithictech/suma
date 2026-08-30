@@ -1,561 +1,521 @@
-import api from "../api";
-import ErrorScreen from "../components/ErrorScreen";
-import FoodPrice from "../components/FoodPrice";
-import FormRadioInputs from "../components/FormRadioInputs";
-import FormStateError from "../components/FormStateError";
-import LayoutContainer from "../components/LayoutContainer";
-import PageLoader from "../components/PageLoader";
-import SumaImage from "../components/SumaImage";
-import { dt, t } from "../localization";
-import idempotency from "../modules/idempotency";
-import { anyMoney } from "../modules/money";
-import ExternalLink from "../routing/ExternalLink.tsx";
-import useAsyncFetch from "../state/useAsyncFetch";
-import useBackendGlobals from "../state/useBackendGlobals";
-import useErrorToast from "../state/useErrorToast";
-import useOffering from "../state/useOffering";
-import useScreenLoader from "../state/useScreenLoader";
-import useUser from "../state/useUser";
-import useValidationError from "../state/useValidationError";
-import Alert from "../ui/Alert";
-import BreadcrumbBack from "../ui/BreadcrumbBack";
-import Form from "../ui/Form";
-import FormButtons from "../ui/FormButtons";
-import FormControlFeedback from "../ui/FormControlFeedback";
-import FormGroup from "../ui/FormGroup";
-import Stack from "../ui/Stack";
-import Money from "../uir/Money";
-import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
-import clsx from "clsx";
-import find from "lodash/find";
-import isEmpty from "lodash/isEmpty";
-import map from "lodash/map";
-import merge from "lodash/merge";
-import sum from "lodash/sum";
-import React from "react";
-import { useForm } from "react-hook-form";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import TODO from "../components/TODO.tsx";
 
 export default function FoodCheckout() {
-  const { id } = useParams();
-  const { handleUpdateCurrentMember } = useUser();
-  const { showErrorToast } = useErrorToast();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const screenLoader = useScreenLoader();
-  const navigate = useNavigate();
-  const { reset: resetOffering } = useOffering();
-  const { register, handleSubmit, clearErrors, setValue, formState } = useForm({
-    mode: "all",
-  });
-
-  const getCheckout = React.useCallback(() => api.getCheckout({ id }), [id]);
-  const {
-    state: fetchedCheckout,
-    loading,
-    error,
-  } = useAsyncFetch<Checkout>(getCheckout, {
-    default: {} as Checkout,
-    pickData: true,
-    pullFromState: "checkout",
-    location,
-  });
-
-  const runSetter = React.useCallback(
-    (name: string, set: (value: any) => void, value: any) => {
-      clearErrors(name);
-      setValue(name, value);
-      set(value);
-    },
-    [clearErrors, setValue]
-  );
-
-  const [checkoutMutations, setCheckoutMutations] = React.useState({});
-  const checkout: Checkout = merge({}, fetchedCheckout, checkoutMutations);
-
-  const [manuallySelectedInstrument, setManuallySelectedInstrument] =
-    React.useState<PaymentInstrument | null>(null);
-  const instrumentFromUrl = find(checkout.availablePaymentInstruments, {
-    id: Number(searchParams.get("instrumentId")),
-    paymentMethodType: searchParams.get("instrumentType"),
-  });
-
-  const chosenInstrument =
-    manuallySelectedInstrument || instrumentFromUrl || checkout.paymentInstrument;
-
-  if (error) {
-    return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
-    );
-  }
-  if (loading || isEmpty(checkout)) {
-    return <PageLoader buffered />;
-  }
-  function handleSubmitInner() {
-    screenLoader.turnOn();
-    api
-      .completeCheckout({
-        ...checkout,
-        paymentInstrument: chosenInstrument,
-        chargeAmountCents: checkout.chargeableTotal.cents,
-      })
-      .tap(handleUpdateCurrentMember)
-      .then(api.pickData)
-      .then((d: any) => {
-        resetOffering();
-        navigate(`/checkout/${id}/confirmation`, { state: { checkout: d } });
-      })
-      .catch((e: any) => {
-        screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
-      });
-  }
-  return (
-    <>
-      <LayoutContainer gutters>
-        <BreadcrumbBack back={["/cart/:id", { id: checkout.offering.id }]} />
-      </LayoutContainer>
-      <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
-        {checkout.requiresPaymentInstrument && (
-          <>
-            <LayoutContainer gutters className="mb-4">
-              <CheckoutPayment
-                checkout={checkout}
-                selectedInstrument={chosenInstrument}
-                onSelectedInstrumentChange={(pi: PaymentInstrument) =>
-                  runSetter("paymentOption", setManuallySelectedInstrument, pi)
-                }
-                register={register}
-                errors={formState.errors}
-              />
-            </LayoutContainer>
-            <hr />
-          </>
-        )}
-        {!isEmpty(checkout.availableFulfillmentOptions) && (
-          <>
-            <LayoutContainer gutters className="my-4">
-              <CheckoutFulfillment
-                checkout={checkout}
-                register={register}
-                errors={formState.errors}
-                onCheckoutChange={(attrs: any) =>
-                  runSetter("fulfillmentOption", setCheckoutMutations, {
-                    ...checkoutMutations,
-                    ...attrs,
-                  })
-                }
-              />
-            </LayoutContainer>
-            <hr />
-          </>
-        )}
-        <LayoutContainer gutters className="my-4">
-          <CheckoutItems checkout={checkout} />
-        </LayoutContainer>
-        <hr />
-        <LayoutContainer gutters className="my-4">
-          <OrderSummary
-            checkout={checkout}
-            chosenInstrument={chosenInstrument}
-            formState={formState}
-          />
-        </LayoutContainer>
-      </Form>
-    </>
-  );
+  return <TODO />;
 }
-
-interface CheckoutPaymentProps {
-  checkout: Checkout;
-  selectedInstrument?: PaymentInstrument | null;
-  onSelectedInstrumentChange: (pi: PaymentInstrument) => void;
-  register: (name: string, options?: any) => any;
-  errors: any;
-}
-
-function CheckoutPayment({
-  checkout,
-  selectedInstrument,
-  onSelectedInstrumentChange,
-  register,
-  errors,
-}: CheckoutPaymentProps) {
-  const paymentValidationInputName = "paymentInputBackupValidationError";
-  const isInvalid = !!errors[paymentValidationInputName];
-  const { isPaymentMethodSupported } = useBackendGlobals();
-  const addPaymentLinks = (
-    <>
-      {isPaymentMethodSupported("card") && (
-        <Link
-          to={`/add-card?returnToImmediate=/checkout/${checkout.id}`}
-          className={clsx(isInvalid && "link-danger")}
-        >
-          <i className="bi bi-credit-card me-2" />
-          {t("food.add_card")}
-        </Link>
-      )}
-      {isPaymentMethodSupported("bank_account") && (
-        <Link
-          to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
-          className={clsx(isInvalid && "link-danger")}
-        >
-          <i className="bi bi-bank2 me-2" />
-          {t("payments.link_bank_account")}
-        </Link>
-      )}
-    </>
-  );
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const instrumentKey = e.target.value;
-    const instrument = checkout.availablePaymentInstruments.find(
-      (pi) => pi.key === instrumentKey
-    );
-    onSelectedInstrumentChange(instrument as PaymentInstrument);
-  }
-  const inputs = checkout.availablePaymentInstruments.map((pi) => ({
-    id: pi.key,
-    label: <PaymentLabel {...pi} />,
-  }));
-  return (
-    <>
-      <h5>{t("food.payment_title")}</h5>
-      <Stack gap={2}>
-        {checkout.unavailablePaymentInstruments
-          .filter((pi) => pi.status === "expired")
-          .map((pi) => (
-            <Stack key={pi.id} direction="horizontal" className="opacity-50">
-              <PaymentLabel {...pi} />
-            </Stack>
-          ))}
-        {isEmpty(checkout.availablePaymentInstruments) ? (
-          <>
-            <span className="small text-secondary">{t("food.link_new_payment")}</span>
-            {addPaymentLinks}
-            <PaymentsInputValidationMessage
-              name={paymentValidationInputName}
-              register={register}
-              errors={errors}
-            />
-          </>
-        ) : (
-          <>
-            <FormGroup>
-              <FormRadioInputs
-                inputs={inputs}
-                name="paymentOption"
-                selected={selectedInstrument?.key}
-                register={register}
-                errors={errors}
-                onChange={handleChange}
-                required
-              />
-            </FormGroup>
-            <div>{t("food.link_new_payment_or")}</div>
-            {addPaymentLinks}
-          </>
-        )}
-      </Stack>
-    </>
-  );
-}
-
-type PaymentLabelProps = PaymentInstrument;
-
-function PaymentLabel({ institution, last4, name, status }: PaymentLabelProps) {
-  name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
-  return (
-    <>
-      {status === "expired" && (
-        <span className="text-danger me-2">{t("payments.payment_account_expired")}</span>
-      )}
-      {!isEmpty(institution.logoSrc) && (
-        <img
-          className="me-2"
-          style={{ width: "28px" }}
-          src={`${institution.logoSrc}`}
-          alt=""
-        />
-      )}
-      <span className="me-1">{name}</span>
-      <span className="text-secondary me-2">{t("food.ending_in", { last4: last4 })}</span>
-    </>
-  );
-}
-
-interface CheckoutFulfillmentProps {
-  checkout: Checkout;
-  onCheckoutChange: (attrs: any) => void;
-  register: (name: string, options?: any) => any;
-  errors: any;
-}
-
-function CheckoutFulfillment({
-  checkout,
-  onCheckoutChange,
-  register,
-  errors,
-}: CheckoutFulfillmentProps) {
-  const handleCheckoutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const id = Number(e.target.value);
-    if (checkout.fulfillmentOptionId === id) {
-      return;
-    }
-    // We save the fulfillment choice, but it is only a convenience-
-    // because we also submit the option id
-    // when completing the checkout, we don't need to worry about any failures or latency
-    // when saving the selected option.
-    onCheckoutChange({ fulfillmentOptionId: id });
-    idempotency.runAsync("update-checkout-fulfillment", () =>
-      api.updateCheckoutFulfillment({ checkoutId: checkout.id, optionId: id })
-    );
-  };
-  const inputs = checkout.availableFulfillmentOptions.map((fo) => ({
-    id: String(fo.id),
-    label: <FulfillmentOptionLabel {...fo} />,
-  }));
-  return (
-    <>
-      {checkout.offering.fulfillmentPrompt && (
-        <h5>{dt(checkout.offering.fulfillmentPrompt)}</h5>
-      )}
-      {checkout.offering.fulfillmentInstructions && (
-        <p className="mb-2">{dt(checkout.offering.fulfillmentInstructions)}</p>
-      )}
-      <FormRadioInputs
-        inputs={inputs}
-        name="fulfillmentOption"
-        selected={String(checkout.fulfillmentOptionId)}
-        register={register}
-        errors={errors}
-        required
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCheckoutChange(e)}
-      />
-    </>
-  );
-}
-
-function FulfillmentOptionLabel({
-  description,
-  address,
-}: {
-  description: string;
-  address?: { oneLineAddress?: string };
-}) {
-  return (
-    <>
-      {dt(description)}
-      {address?.oneLineAddress && (
-        <ExternalLink
-          href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
-          className="ms-1 text-nowrap"
-        >
-          <i className="bi bi-geo-alt-fill me-1"></i>
-          {t("food.address")}
-        </ExternalLink>
-      )}
-    </>
-  );
-}
-
-function CheckoutItems({ checkout }: { checkout: Checkout }) {
-  return (
-    <>
-      <h5>{t("food.checkout_items_title")}</h5>
-      {checkout.items?.map((it, idx: number) => {
-        return (
-          <React.Fragment key={it.product.productId}>
-            {idx > 0 && <hr className="my-3" />}
-            <CheckoutItem item={it} />
-          </React.Fragment>
-        );
-      })}
-      <div className="mt-3">
-        <Link to={`/cart/${checkout.offering.id}`}>
-          <i className="bi bi-pencil-fill me-2" />
-          {t("food.edit_quantities")}
-        </Link>
-      </div>
-    </>
-  );
-}
-
-interface OrderSummaryProps {
-  checkout: Checkout;
-  chosenInstrument: any;
-  formState: any;
-}
-
-function OrderSummary({ checkout, chosenInstrument, formState }: OrderSummaryProps) {
-  const itemCount = sum(map(checkout.items, "quantity"));
-  // We only handle this reason explicitly; other reasons, assume we can still submit,
-  // and if there's an error we'll deal with it.
-  const showSubmit = checkout.checkoutProhibitedReason !== "member_unverified";
-  return (
-    <>
-      <h5>{t("food.order_summary_title")}</h5>
-      <div>
-        <SummaryLine
-          label={t("food.labels.items_count", { itemCount: itemCount })}
-          price={checkout.undiscountedCost}
-        />
-        <SummaryLine label={t("food.labels.handling")} price={checkout.handling} />
-        {anyMoney(checkout.savings) && (
-          <SummaryLine
-            label={t("food.labels.total_savings")}
-            price={checkout.savings}
-            subtract
-            className="text-success"
-          />
-        )}
-        <hr className="ms-auto w-25 my-1" />
-        <SummaryLine
-          label={t("food.labels.total_before_tax")}
-          price={checkout.taxableCost}
-        />
-        <SummaryLine label={t("food.labels.tax")} price={checkout.tax} />
-        {checkout.existingFundsAvailable.map(({ amount, name }) => (
-          <SummaryLine key={name} label={name} price={amount} subtract credit />
-        ))}
-        <hr className="mt-1 mb-2" />
-        {checkout.requiresPaymentInstrument ? (
-          <>
-            <SummaryLine
-              label={t("food.labels.chargeable_total")}
-              price={checkout.chargeableTotal}
-              className="text-success fw-bold fs-5"
-            />
-            {chosenInstrument && (
-              <p className="small text-secondary mb-1">
-                {t("food.charge_to", { instrumentName: chosenInstrument.name })}.
-              </p>
-            )}
-          </>
-        ) : (
-          <SummaryLine
-            label={t("food.labels.chargeable_total")}
-            price={checkout.chargeableTotal}
-            className="text-success"
-          />
-        )}
-        {checkout.checkoutProhibitedReason === "member_unverified" && (
-          <Alert variant="danger" className="mt-3">
-            {t("errors.read_only_unverified")}
-          </Alert>
-        )}
-        {showSubmit && (
-          <>
-            <p className="small text-secondary mt-2">
-              {t("food.terms_of_use_agreement")}
-            </p>
-            <FormStateError formState={formState} />
-            <FormButtons
-              primaryProps={{
-                variant: "success",
-                children: t("food.order_button"),
-              }}
-            />
-          </>
-        )}
-      </div>
-    </>
-  );
-}
-
-interface SummaryLineProps {
-  label: React.ReactNode;
-  price: Money;
-  subtract?: boolean;
-  className?: string;
-  credit?: boolean;
-}
-
-function SummaryLine({ label, price, subtract, className, credit }: SummaryLineProps) {
-  return (
-    <p className={clsx("d-flex justify-content-between mb-0", className)}>
-      <span>{label}:</span>
-      <span className={clsx(credit && "text-success")}>
-        {subtract && "-"}
-        <Money>{price}</Money>
-      </span>
-    </p>
-  );
-}
-
-function CheckoutItem({ item }: { item: CheckoutItem }) {
-  const { product, quantity } = item;
-  return (
-    <Stack direction="horizontal" gap={3} className="align-items-start">
-      <SumaImage image={product.images[0]} className="rounded" width={80} height={80} />
-      {product.outOfStock ? (
-        <Stack>
-          <h6 className="mb-2">{dt(product.name)}</h6>
-          <p className="text-secondary mb-0">{product.outOfStockReasonText}</p>
-        </Stack>
-      ) : (
-        <>
-          <Stack className="justify-content-between">
-            <h6 className="mb-0">{dt(product.name)}</h6>
-            <p className="text-secondary mb-0">
-              <small>{t("food.from_vendor", { vendorName: product.vendor.name })}</small>
-            </p>
-            <div className="text-secondary mb-0 lh-1">
-              <small>{t("food.quantity", { quantity: quantity })}</small>
-            </div>
-          </Stack>
-          <div className="text-end">
-            <FoodPrice
-              undiscountedPrice={product.undiscountedPrice}
-              isDiscounted={product.isDiscounted}
-              displayableCashPrice={product.displayableCashPrice}
-              direction="vertical"
-            />
-          </div>
-        </>
-      )}
-    </Stack>
-  );
-}
-
-/**
- * The payments component, when it's empty, shows two links.
- * If someone submits, and nothing is selected, we want to show an error,
- * just like if it was a radiobutton group with nothing selected.
- * However these are not inputs, so the validation system doesn't work.
- * We have to create a fake input (with d-none) and then show the error message.
- */
-interface PaymentsInputValidationMessageProps {
-  name: string;
-  register: (name: string, options?: any) => any;
-  errors: any;
-}
-
-function PaymentsInputValidationMessage({
-  name,
-  register,
-  errors,
-}: PaymentsInputValidationMessageProps) {
-  const registerOptions = { required: true };
-  const message = useValidationError(name, errors, registerOptions, {
-    required: "forms.invalid_required",
-  });
-  return (
-    <>
-      <input {...register(name, registerOptions)} className="d-none" required />
-      {message && (
-        <>
-          <ScrollTopOnMount />
-          <FormControlFeedback type="invalid">{message}</FormControlFeedback>
-        </>
-      )}
-    </>
-  );
-}
+//   const { id } = useParams();
+//   const { handleUpdateCurrentMember } = useUser();
+//   const { showErrorToast } = useErrorToast();
+//   const location = useLocation();
+//   const [searchParams] = useSearchParams();
+//   const screenLoader = useScreenLoader();
+//   const navigate = useNavigate();
+//   const { reset: resetOffering } = useOffering();
+//   const { register, handleSubmit, clearErrors, setValue, formState } = useForm({
+//     mode: "all",
+//   });
+//
+//   const getCheckout = React.useCallback(() => api.getCheckout({ id }), [id]);
+//   const {
+//     state: fetchedCheckout,
+//     loading,
+//     error,
+//   } = useAsyncFetch<Checkout>(getCheckout, {
+//     default: {} as Checkout,
+//     pickData: true,
+//     pullFromState: "checkout",
+//     location,
+//   });
+//
+//   const runSetter = React.useCallback(
+//     (name: string, set: (value: any) => void, value: any) => {
+//       clearErrors(name);
+//       setValue(name, value);
+//       set(value);
+//     },
+//     [clearErrors, setValue]
+//   );
+//
+//   const [checkoutMutations, setCheckoutMutations] = React.useState({});
+//   const checkout: Checkout = merge({}, fetchedCheckout, checkoutMutations);
+//
+//   const [manuallySelectedInstrument, setManuallySelectedInstrument] =
+//     React.useState<PaymentInstrument | null>(null);
+//   const instrumentFromUrl = find(checkout.availablePaymentInstruments, {
+//     id: Number(searchParams.get("instrumentId")),
+//     paymentMethodType: searchParams.get("instrumentType"),
+//   });
+//
+//   const chosenInstrument =
+//     manuallySelectedInstrument || instrumentFromUrl || checkout.paymentInstrument;
+//
+//   if (error) {
+//     return (
+//       <LayoutContainer top>
+//         <ErrorScreen />
+//       </LayoutContainer>
+//     );
+//   }
+//   if (loading || isEmpty(checkout)) {
+//     return <PageLoader buffered />;
+//   }
+//   function handleSubmitInner() {
+//     screenLoader.turnOn();
+//     api
+//       .completeCheckout({
+//         ...checkout,
+//         paymentInstrument: chosenInstrument,
+//         chargeAmountCents: checkout.chargeableTotal.cents,
+//       })
+//       .tap(handleUpdateCurrentMember)
+//       .then(api.pickData)
+//       .then((d: any) => {
+//         resetOffering();
+//         navigate(`/checkout/${id}/confirmation`, { state: { checkout: d } });
+//       })
+//       .catch((e: any) => {
+//         screenLoader.turnOff();
+//         showErrorToast(e, { extract: true });
+//       });
+//   }
+//   return (
+//     <>
+//       <LayoutContainer gutters>
+//         <BreadcrumbBack back={["/cart/:id", { id: checkout.offering.id }]} />
+//       </LayoutContainer>
+//       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
+//         {checkout.requiresPaymentInstrument && (
+//           <>
+//             <LayoutContainer gutters className="mb-4">
+//               <CheckoutPayment
+//                 checkout={checkout}
+//                 selectedInstrument={chosenInstrument}
+//                 onSelectedInstrumentChange={(pi: PaymentInstrument) =>
+//                   runSetter("paymentOption", setManuallySelectedInstrument, pi)
+//                 }
+//                 register={register}
+//                 errors={formState.errors}
+//               />
+//             </LayoutContainer>
+//             <hr />
+//           </>
+//         )}
+//         {!isEmpty(checkout.availableFulfillmentOptions) && (
+//           <>
+//             <LayoutContainer gutters className="my-4">
+//               <CheckoutFulfillment
+//                 checkout={checkout}
+//                 register={register}
+//                 errors={formState.errors}
+//                 onCheckoutChange={(attrs: any) =>
+//                   runSetter("fulfillmentOption", setCheckoutMutations, {
+//                     ...checkoutMutations,
+//                     ...attrs,
+//                   })
+//                 }
+//               />
+//             </LayoutContainer>
+//             <hr />
+//           </>
+//         )}
+//         <LayoutContainer gutters className="my-4">
+//           <CheckoutItems checkout={checkout} />
+//         </LayoutContainer>
+//         <hr />
+//         <LayoutContainer gutters className="my-4">
+//           <OrderSummary
+//             checkout={checkout}
+//             chosenInstrument={chosenInstrument}
+//             formState={formState}
+//           />
+//         </LayoutContainer>
+//       </Form>
+//     </>
+//   );
+// }
+//
+// interface CheckoutPaymentProps {
+//   checkout: Checkout;
+//   selectedInstrument?: PaymentInstrument | null;
+//   onSelectedInstrumentChange: (pi: PaymentInstrument) => void;
+//   register: (name: string, options?: any) => any;
+//   errors: any;
+// }
+//
+// function CheckoutPayment({
+//   checkout,
+//   selectedInstrument,
+//   onSelectedInstrumentChange,
+//   register,
+//   errors,
+// }: CheckoutPaymentProps) {
+//   const paymentValidationInputName = "paymentInputBackupValidationError";
+//   const isInvalid = !!errors[paymentValidationInputName];
+//   const { isPaymentMethodSupported } = useBackendGlobals();
+//   const addPaymentLinks = (
+//     <>
+//       {isPaymentMethodSupported("card") && (
+//         <Link
+//           to={`/add-card?returnToImmediate=/checkout/${checkout.id}`}
+//           className={clsx(isInvalid && "link-danger")}
+//         >
+//           <i className="bi bi-credit-card me-2" />
+//           {t("food.add_card")}
+//         </Link>
+//       )}
+//       {isPaymentMethodSupported("bank_account") && (
+//         <Link
+//           to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
+//           className={clsx(isInvalid && "link-danger")}
+//         >
+//           <i className="bi bi-bank2 me-2" />
+//           {t("payments.link_bank_account")}
+//         </Link>
+//       )}
+//     </>
+//   );
+//   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+//     const instrumentKey = e.target.value;
+//     const instrument = checkout.availablePaymentInstruments.find(
+//       (pi) => pi.key === instrumentKey
+//     );
+//     onSelectedInstrumentChange(instrument as PaymentInstrument);
+//   }
+//   const inputs = checkout.availablePaymentInstruments.map((pi) => ({
+//     id: pi.key,
+//     label: <PaymentLabel {...pi} />,
+//   }));
+//   return (
+//     <>
+//       <h5>{t("food.payment_title")}</h5>
+//       <Stack gap={2}>
+//         {checkout.unavailablePaymentInstruments
+//           .filter((pi) => pi.status === "expired")
+//           .map((pi) => (
+//             <Stack key={pi.id} direction="horizontal" className="opacity-50">
+//               <PaymentLabel {...pi} />
+//             </Stack>
+//           ))}
+//         {isEmpty(checkout.availablePaymentInstruments) ? (
+//           <>
+//             <span className="small text-secondary">{t("food.link_new_payment")}</span>
+//             {addPaymentLinks}
+//             <PaymentsInputValidationMessage
+//               name={paymentValidationInputName}
+//               register={register}
+//               errors={errors}
+//             />
+//           </>
+//         ) : (
+//           <>
+//             <FormGroup>
+//               <FormRadioInputs
+//                 inputs={inputs}
+//                 name="paymentOption"
+//                 selected={selectedInstrument?.key}
+//                 register={register}
+//                 errors={errors}
+//                 onChange={handleChange}
+//                 required
+//               />
+//             </FormGroup>
+//             <div>{t("food.link_new_payment_or")}</div>
+//             {addPaymentLinks}
+//           </>
+//         )}
+//       </Stack>
+//     </>
+//   );
+// }
+//
+// type PaymentLabelProps = PaymentInstrument;
+//
+// function PaymentLabel({ institution, last4, name, status }: PaymentLabelProps) {
+//   name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
+//   return (
+//     <>
+//       {status === "expired" && (
+//         <span className="text-danger me-2">{t("payments.payment_account_expired")}</span>
+//       )}
+//       {!isEmpty(institution.logoSrc) && (
+//         <img
+//           className="me-2"
+//           style={{ width: "28px" }}
+//           src={`${institution.logoSrc}`}
+//           alt=""
+//         />
+//       )}
+//       <span className="me-1">{name}</span>
+//       <span className="text-secondary me-2">{t("food.ending_in", { last4: last4 })}</span>
+//     </>
+//   );
+// }
+//
+// interface CheckoutFulfillmentProps {
+//   checkout: Checkout;
+//   onCheckoutChange: (attrs: any) => void;
+//   register: (name: string, options?: any) => any;
+//   errors: any;
+// }
+//
+// function CheckoutFulfillment({
+//   checkout,
+//   onCheckoutChange,
+//   register,
+//   errors,
+// }: CheckoutFulfillmentProps) {
+//   const handleCheckoutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const id = Number(e.target.value);
+//     if (checkout.fulfillmentOptionId === id) {
+//       return;
+//     }
+//     // We save the fulfillment choice, but it is only a convenience-
+//     // because we also submit the option id
+//     // when completing the checkout, we don't need to worry about any failures or latency
+//     // when saving the selected option.
+//     onCheckoutChange({ fulfillmentOptionId: id });
+//     idempotency.runAsync("update-checkout-fulfillment", () =>
+//       api.updateCheckoutFulfillment({ checkoutId: checkout.id, optionId: id })
+//     );
+//   };
+//   const inputs = checkout.availableFulfillmentOptions.map((fo) => ({
+//     id: String(fo.id),
+//     label: <FulfillmentOptionLabel {...fo} />,
+//   }));
+//   return (
+//     <>
+//       {checkout.offering.fulfillmentPrompt && (
+//         <h5>{dt(checkout.offering.fulfillmentPrompt)}</h5>
+//       )}
+//       {checkout.offering.fulfillmentInstructions && (
+//         <p className="mb-2">{dt(checkout.offering.fulfillmentInstructions)}</p>
+//       )}
+//       <FormRadioInputs
+//         inputs={inputs}
+//         name="fulfillmentOption"
+//         selected={String(checkout.fulfillmentOptionId)}
+//         register={register}
+//         errors={errors}
+//         required
+//         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCheckoutChange(e)}
+//       />
+//     </>
+//   );
+// }
+//
+// function FulfillmentOptionLabel({
+//   description,
+//   address,
+// }: {
+//   description: string;
+//   address?: { oneLineAddress?: string };
+// }) {
+//   return (
+//     <>
+//       {dt(description)}
+//       {address?.oneLineAddress && (
+//         <ExternalLink
+//           href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
+//           className="ms-1 text-nowrap"
+//         >
+//           <i className="bi bi-geo-alt-fill me-1"></i>
+//           {t("food.address")}
+//         </ExternalLink>
+//       )}
+//     </>
+//   );
+// }
+//
+// function CheckoutItems({ checkout }: { checkout: Checkout }) {
+//   return (
+//     <>
+//       <h5>{t("food.checkout_items_title")}</h5>
+//       {checkout.items?.map((it, idx: number) => {
+//         return (
+//           <React.Fragment key={it.product.productId}>
+//             {idx > 0 && <hr className="my-3" />}
+//             <CheckoutItem item={it} />
+//           </React.Fragment>
+//         );
+//       })}
+//       <div className="mt-3">
+//         <Link to={`/cart/${checkout.offering.id}`}>
+//           <i className="bi bi-pencil-fill me-2" />
+//           {t("food.edit_quantities")}
+//         </Link>
+//       </div>
+//     </>
+//   );
+// }
+//
+// interface OrderSummaryProps {
+//   checkout: Checkout;
+//   chosenInstrument: any;
+//   formState: any;
+// }
+//
+// function OrderSummary({ checkout, chosenInstrument, formState }: OrderSummaryProps) {
+//   const itemCount = sum(map(checkout.items, "quantity"));
+//   // We only handle this reason explicitly; other reasons, assume we can still submit,
+//   // and if there's an error we'll deal with it.
+//   const showSubmit = checkout.checkoutProhibitedReason !== "member_unverified";
+//   return (
+//     <>
+//       <h5>{t("food.order_summary_title")}</h5>
+//       <div>
+//         <SummaryLine
+//           label={t("food.labels.items_count", { itemCount: itemCount })}
+//           price={checkout.undiscountedCost}
+//         />
+//         <SummaryLine label={t("food.labels.handling")} price={checkout.handling} />
+//         {anyMoney(checkout.savings) && (
+//           <SummaryLine
+//             label={t("food.labels.total_savings")}
+//             price={checkout.savings}
+//             subtract
+//             className="text-success"
+//           />
+//         )}
+//         <hr className="ms-auto w-25 my-1" />
+//         <SummaryLine
+//           label={t("food.labels.total_before_tax")}
+//           price={checkout.taxableCost}
+//         />
+//         <SummaryLine label={t("food.labels.tax")} price={checkout.tax} />
+//         {checkout.existingFundsAvailable.map(({ amount, name }) => (
+//           <SummaryLine key={name} label={name} price={amount} subtract credit />
+//         ))}
+//         <hr className="mt-1 mb-2" />
+//         {checkout.requiresPaymentInstrument ? (
+//           <>
+//             <SummaryLine
+//               label={t("food.labels.chargeable_total")}
+//               price={checkout.chargeableTotal}
+//               className="text-success fw-bold fs-5"
+//             />
+//             {chosenInstrument && (
+//               <p className="small text-secondary mb-1">
+//                 {t("food.charge_to", { instrumentName: chosenInstrument.name })}.
+//               </p>
+//             )}
+//           </>
+//         ) : (
+//           <SummaryLine
+//             label={t("food.labels.chargeable_total")}
+//             price={checkout.chargeableTotal}
+//             className="text-success"
+//           />
+//         )}
+//         {checkout.checkoutProhibitedReason === "member_unverified" && (
+//           <Alert variant="danger" className="mt-3">
+//             {t("errors.read_only_unverified")}
+//           </Alert>
+//         )}
+//         {showSubmit && (
+//           <>
+//             <p className="small text-secondary mt-2">
+//               {t("food.terms_of_use_agreement")}
+//             </p>
+//             <FormStateError formState={formState} />
+//             <FormButtons
+//               primaryProps={{
+//                 variant: "success",
+//                 children: t("food.order_button"),
+//               }}
+//             />
+//           </>
+//         )}
+//       </div>
+//     </>
+//   );
+// }
+//
+// interface SummaryLineProps {
+//   label: React.ReactNode;
+//   price: Money;
+//   subtract?: boolean;
+//   className?: string;
+//   credit?: boolean;
+// }
+//
+// function SummaryLine({ label, price, subtract, className, credit }: SummaryLineProps) {
+//   return (
+//     <p className={clsx("d-flex justify-content-between mb-0", className)}>
+//       <span>{label}:</span>
+//       <span className={clsx(credit && "text-success")}>
+//         {subtract && "-"}
+//         <Money>{price}</Money>
+//       </span>
+//     </p>
+//   );
+// }
+//
+// function CheckoutItem({ item }: { item: CheckoutItem }) {
+//   const { product, quantity } = item;
+//   return (
+//     <Stack direction="horizontal" gap={3} className="align-items-start">
+//       <SumaImage image={product.images[0]} className="rounded" width={80} height={80} />
+//       {product.outOfStock ? (
+//         <Stack>
+//           <h6 className="mb-2">{dt(product.name)}</h6>
+//           <p className="text-secondary mb-0">{product.outOfStockReasonText}</p>
+//         </Stack>
+//       ) : (
+//         <>
+//           <Stack className="justify-content-between">
+//             <h6 className="mb-0">{dt(product.name)}</h6>
+//             <p className="text-secondary mb-0">
+//               <small>{t("food.from_vendor", { vendorName: product.vendor.name })}</small>
+//             </p>
+//             <div className="text-secondary mb-0 lh-1">
+//               <small>{t("food.quantity", { quantity: quantity })}</small>
+//             </div>
+//           </Stack>
+//           <div className="text-end">
+//             <FoodPrice
+//               undiscountedPrice={product.undiscountedPrice}
+//               isDiscounted={product.isDiscounted}
+//               displayableCashPrice={product.displayableCashPrice}
+//               direction="vertical"
+//             />
+//           </div>
+//         </>
+//       )}
+//     </Stack>
+//   );
+// }
+//
+// /**
+//  * The payments component, when it's empty, shows two links.
+//  * If someone submits, and nothing is selected, we want to show an error,
+//  * just like if it was a radiobutton group with nothing selected.
+//  * However these are not inputs, so the validation system doesn't work.
+//  * We have to create a fake input (with d-none) and then show the error message.
+//  */
+// interface PaymentsInputValidationMessageProps {
+//   name: string;
+//   register: (name: string, options?: any) => any;
+//   errors: any;
+// }
+//
+// function PaymentsInputValidationMessage({
+//   name,
+//   register,
+//   errors,
+// }: PaymentsInputValidationMessageProps) {
+//   const registerOptions = { required: true };
+//   const message = useValidationError(name, errors, registerOptions, {
+//     required: "forms.invalid_required",
+//   });
+//   return (
+//     <>
+//       <input {...register(name, registerOptions)} className="d-none" required />
+//       {message && (
+//         <>
+//           <ScrollTopOnMount />
+//           <FormControlFeedback type="invalid">{message}</FormControlFeedback>
+//         </>
+//       )}
+//     </>
+//   );
+// }

@@ -1,5 +1,5 @@
 import api from "../../api.ts";
-import { t } from "../../localization";
+import { r, t } from "../../localization";
 import { buildValidators } from "../../modules/formValidators.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
 import BackButton from "../../ui/BackButton.tsx";
@@ -25,7 +25,6 @@ export default function OnboardingAddress({
     api.getSupportedGeographies,
     {
       default: { countries: [], provinces: [] },
-      pickData: true,
     }
   );
 
@@ -83,7 +82,7 @@ export default function OnboardingAddress({
             {...register("stateOrProvince", buildValidators({ required: true }))}
             error={errors.stateOrProvince?.message}
             required
-            placeholder={t("forms.choose_state")}
+            placeholder={r("forms.choose_state")}
             options={supportedGeographies.provinces.map(({ label, value }) => ({
               label,
               value,

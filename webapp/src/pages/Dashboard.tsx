@@ -1,17 +1,12 @@
 import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
-import LayoutContainer from "../components/LayoutContainer";
-import PageLoader from "../components/PageLoader";
+import AsyncContent from "../components/AsyncContent.tsx";
 import ProgramCard from "../components/ProgramCard.tsx";
-import SeeAlsoAlert from "../components/SeeAlsoAlert";
-import { t } from "../localization";
-import readOnlyReason from "../modules/readOnlyReason";
+import TODO from "../components/TODO.tsx";
 import useAsyncFetch from "../state/useAsyncFetch";
 import useUser from "../state/useUser";
-import Alert from "../ui/Alert";
 import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
-import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const {
@@ -20,29 +15,20 @@ export default function Dashboard() {
     error: dashboardError,
   } = useAsyncFetch<Dashboard>(api.dashboard, {
     default: {} as Dashboard,
-    pickData: true,
   });
-  if (dashboardError) {
-    return (
-      <LayoutContainer top>
-        <h2>{t("errors.something_went_wrong_title")}</h2>
-        <p>{t("errors.unhandled_error")}</p>
-      </LayoutContainer>
-    );
-  }
   return (
     <Page appNav>
       <TopAlerts dashboard={dashboard} />
       <AddToHomescreen />
-      {dashboardLoading ? (
-        <PageLoader buffered />
-      ) : (
-        <Stack col gap={3}>
-          {dashboard.programs.map((program) => (
-            <ProgramCard key={program.name} {...program} />
-          ))}
-        </Stack>
-      )}
+      <AsyncContent loading={dashboardLoading} error={dashboardError}>
+        {() => (
+          <Stack col gap={3}>
+            {dashboard.programs.map((program) => (
+              <ProgramCard key={program.name} {...program} />
+            ))}
+          </Stack>
+        )}
+      </AsyncContent>
     </Page>
   );
 }
@@ -50,7 +36,11 @@ export default function Dashboard() {
 function TopAlerts({ dashboard }: { dashboard: Dashboard }) {
   const { user, registrationSession } = useUser();
   return (
-    <>
+    <TODO>
+      {dashboard}
+      {user}
+      {registrationSession}
+      {`
       {registrationSession && (
         <SeeAlsoAlert
           alertClass="blinking-alert mb-0"
@@ -102,6 +92,7 @@ function TopAlerts({ dashboard }: { dashboard: Dashboard }) {
           {t(localizationKey, localizationParams)}
         </Alert>
       ))}
-    </>
+    `}
+    </TODO>
   );
 }

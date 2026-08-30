@@ -6,14 +6,14 @@ import externalLinks from "../../modules/externalLinks";
 import ExternalLink from "../../routing/ExternalLink.tsx";
 import useUser from "../../state/useUser";
 import Button from "../../ui/Button";
-import Container from "../../ui/Container";
+import Page from "../../ui/Page.tsx";
 import Stack from "../../ui/Stack.tsx";
 
 export default function Home() {
   const { registrationSession } = useUser();
 
   return (
-    <Container>
+    <Page>
       <Stack direction="vertical" center>
         <img
           src={sumaLogo}
@@ -36,6 +36,6 @@ export default function Home() {
         </Stack>
       </Stack>
       <AddToHomescreen />
-    </Container>
+    </Page>
   );
 }

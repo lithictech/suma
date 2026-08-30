@@ -1,23 +1,19 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
-import FormSaveCancel from "../components/FormSaveCancel";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import useErrorToast from "../state/useErrorToast";
+import todo from "../modules/todo.ts";
 import useScreenLoader from "../state/useScreenLoader";
 import useToggle from "../state/useToggle";
 import useUser from "../state/useUser";
-import Alert from "../ui/Alert";
 import Button from "../ui/Button";
 import Form from "../ui/Form";
-import FormCheck from "../ui/FormCheck";
-import FormGroup from "../ui/FormGroup";
 import Grid from "../ui/Grid";
 import Stack from "../ui/Stack";
 import Money from "../uir/Money";
 import ScrollTopOnMount from "../uir/ScrollToTopOnMount";
-import PressAndHold from "./PressAndHold";
+import TODO from "./TODO.tsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
@@ -58,7 +54,7 @@ export default function OrderDetail({ order, setOrder }: OrderDetailProps) {
       </p>
       <FulfillmentOption order={order} onOrderUpdated={setOrder} />
       {!order.canClaim && order.fulfilledAt && (
-        <Alert variant="info" className="mb-0">
+        <TODO name="ALERT" variant="info" className="mb-0">
           <ScrollTopOnMount />
           <Stack direction="horizontal" gap={3}>
             {t("food.order_for_claimed_on", {
@@ -69,7 +65,7 @@ export default function OrderDetail({ order, setOrder }: OrderDetailProps) {
               <AnimatedCheckmark />
             </div>
           </Stack>
-        </Alert>
+        </TODO>
       )}
       <SumaImage image={order.image} w={350} height={150} cover />
       <hr className="my-0" />
@@ -102,7 +98,7 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
   const editing = useToggle(false);
   const screenLoader = useScreenLoader();
   const [optionId, setOptionId] = React.useState(0);
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
     if (!order.fulfillmentOption) {
@@ -147,14 +143,15 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
     screenLoader.turnOn();
     api
       .updateOrderFulfillment({ orderId: order.id, optionId: optionId })
-      .then((r: any) => {
+      .then((r) => {
         editing.turnOff();
         screenLoader.turnOff();
         onOrderUpdated(r.data);
       })
-      .catch((e: any) => {
+      .catch((e) => {
         screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
+        todo(e);
+        // showErrorToast(e, { extract: true });
       });
   }
   const chosenFulfillmentValid = order.fulfillmentOptionsForEditing.some(
@@ -163,26 +160,27 @@ function FulfillmentOption({ order, onOrderUpdated }: FulfillmentOptionProps) {
 
   return (
     <Form noValidate>
-      <FormGroup>
-        <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>
-        {order.fulfillmentOptionsForEditing.map((fo) => (
-          <FormCheck
-            key={fo.id}
-            id={String(fo.id)}
-            name={fo.description}
-            type="radio"
-            label={fo.description}
-            checked={optionId === fo.id}
-            onChange={() => setOptionId(fo.id)}
-          />
-        ))}
-      </FormGroup>
-      <FormSaveCancel
-        saveDisabled={!chosenFulfillmentValid}
-        className="mt-2"
-        onCancel={editing.turnOff}
-        onSave={updateFulfillment}
-      />
+      <TODO x={updateFulfillment} y={chosenFulfillmentValid} />
+      {/*<FormGroup>*/}
+      {/*  <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>*/}
+      {/*  {order.fulfillmentOptionsForEditing.map((fo) => (*/}
+      {/*    <FormCheck*/}
+      {/*      key={fo.id}*/}
+      {/*      id={String(fo.id)}*/}
+      {/*      name={fo.description}*/}
+      {/*      type="radio"*/}
+      {/*      label={fo.description}*/}
+      {/*      checked={optionId === fo.id}*/}
+      {/*      onChange={() => setOptionId(fo.id)}*/}
+      {/*    />*/}
+      {/*  ))}*/}
+      {/*</FormGroup>*/}
+      {/*<FormSaveCancel*/}
+      {/*  saveDisabled={!chosenFulfillmentValid}*/}
+      {/*  className="mt-2"*/}
+      {/*  onCancel={editing.turnOff}*/}
+      {/*  onSave={updateFulfillment}*/}
+      {/*/>*/}
     </Form>
   );
 }
@@ -201,7 +199,7 @@ function PressAndHoldToClaim({
   onOrderClaim,
 }: PressAndHoldToClaimProps) {
   const screenLoader = useScreenLoader();
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
 
   if (!canClaim) {
@@ -213,39 +211,22 @@ function PressAndHoldToClaim({
     api
       .claimOrder({ orderId: id })
       .tap(handleUpdateCurrentMember)
-      .then((r: any) => {
+      .then((r) => {
         screenLoader.turnOff();
         onOrderClaim(r.data);
       })
-      .catch((e: any) => {
+      .catch((e) => {
         screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
+        todo(e);
       });
   };
   return (
-    <div className="text-center">
-      <Alert variant="info" className="mb-0">
-        <p className="small mb-0">
-          {t("food.claiming_instructions", { offeringDescription: offeringDescription })}
-        </p>
-        <PressAndHold size={200} onHeld={handleOrderClaim}>
-          {t(
-            "food.press_and_hold",
-            {},
-            {
-              markdown: {
-                overrides: {
-                  p: {
-                    props: {
-                      className: "mb-0 fs-6",
-                    },
-                  },
-                },
-              },
-            }
-          )}
-        </PressAndHold>
-      </Alert>
-    </div>
+    <TODO
+      handle={handleOrderClaim}
+      instructions={t("food.claiming_instructions", {
+        offeringDescription: offeringDescription,
+      })}
+      in2={t("food.press_and_hold")}
+    />
   );
 }

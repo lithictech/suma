@@ -1,5 +1,4 @@
-import ErrorScreen from "../components/ErrorScreen";
-import LayoutContainer from "../components/LayoutContainer";
+import ErrorPage from "../components/ErrorPage.tsx";
 import TripDetail from "../components/TripDetail.tsx";
 import useUrlMarshal from "../state/useUrlMarshal";
 import Page from "../ui/Page.tsx";
@@ -14,11 +13,7 @@ export default function TripDetailPage() {
       new URLSearchParams(window.location.search).get("trip")
     ) as MobilityTrip;
   } catch {
-    return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
-    );
+    return <ErrorPage variant="back" page />;
   }
   return (
     <Page>

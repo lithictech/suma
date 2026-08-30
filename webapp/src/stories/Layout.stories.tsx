@@ -11,7 +11,7 @@ function GridDemo({
   columnSize?: string;
 }) {
   return (
-    <Grid columns={columnCount || columnSize}>
+    <Grid columns={(columnCount || columnSize)!}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Card key={i}>
           <CardBody>

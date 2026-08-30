@@ -39,7 +39,7 @@ class I18n {
   };
 
   addFormatters = () => {
-    this.addFormatter("sumaCurrency", (v) => formatMoney(v));
+    this.addFormatter("sumaCurrency", (v: Money) => formatMoney(v));
   };
 
   /**

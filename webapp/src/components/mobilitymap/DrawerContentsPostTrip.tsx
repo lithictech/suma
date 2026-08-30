@@ -1,6 +1,6 @@
 import { t } from "../../localization";
 import Button from "../../ui/Button";
-import FormError from "../../ui/FormError";
+import FormFeedback from "../../ui/FormFeedback";
 import DrawerContents from "./DrawerContents";
 
 interface PostTripProps {
@@ -23,7 +23,7 @@ export default function DrawerContentsPostTrip({
         totalCost: charge.customerCost,
         discountAmount: charge.savings,
       })}
-      <FormError error={error} />
+      <FormFeedback feedback={error} />
       <Button size="sm" variant="outline" className="w-100" onClick={handleClose}>
         {t("common.close")}
       </Button>

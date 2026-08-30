@@ -1,5 +1,5 @@
+import { DirectionProps, getDirection } from "../types/direction.ts";
 import "./ButtonGroup.css";
-import { DirectionProps, getDirection } from "./types.ts";
 import clsx from "clsx";
 import React from "react";
 

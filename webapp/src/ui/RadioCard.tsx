@@ -1,5 +1,5 @@
 import useId from "../state/useId";
-import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import InputFeedback, { HasInputFeedback } from "./InputFeedback.tsx";
 import "./RadioCard.css";
 import clsx from "clsx";
 import React from "react";
@@ -9,7 +9,7 @@ export interface RadioOption<T extends string = string> {
   label: React.ReactNode;
 }
 
-export interface RadioCardProps<T extends string = string> extends HasFormFeedback {
+export interface RadioCardProps<T extends string = string> extends HasInputFeedback {
   /** Shared name so the browser treats these as one mutually-exclusive group */
   name: string;
   /** Accessible group label, rendered as the fieldset's <legend> */
@@ -49,7 +49,7 @@ const RadioCard = React.forwardRef(function RadioCard<T extends string = string>
       <fieldset
         ref={ref}
         className={clsx("card radio-card", className)}
-        aria-describedby={FormFeedback.idFor(groupId)}
+        aria-describedby={InputFeedback.idFor(groupId)}
       >
         {legend && (
           <legend>
@@ -72,7 +72,7 @@ const RadioCard = React.forwardRef(function RadioCard<T extends string = string>
           </label>
         ))}
       </fieldset>
-      <FormFeedback inputId={groupId} error={error} help={help} />
+      <InputFeedback inputId={groupId} error={error} help={help} />
     </div>
   );
 }) as RadioCardComponent;

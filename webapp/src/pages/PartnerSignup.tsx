@@ -1,12 +1,13 @@
 import api from "../api";
-import PageLoader from "../components/PageLoader";
+import TODO from "../components/TODO.tsx";
 import { dt, t } from "../localization";
+import todo from "../modules/todo.ts";
 import useNavigate from "../routing/useNavigate";
 import { UserContextValue } from "../state/UserProvider";
-import useErrorToast from "../state/useErrorToast";
 import useToggle from "../state/useToggle";
 import useUser from "../state/useUser";
 import Button from "../ui/Button";
+import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
@@ -27,13 +28,13 @@ export default function PartnerSignup() {
 
   const action = calculateAction(userCtx);
   if (action === LOADING) {
-    return <PageLoader buffered />;
+    return <IndeterminateLoader />;
   } else if (action === UNAUTHED) {
-    return <PageLoader buffered />;
+    return <IndeterminateLoader />;
   } else if (action === NOT_ONBOARDED) {
     // If the user is not onboarded, they can finish that process
     // with this partner org pre-selected.
-    return <PageLoader buffered />;
+    return <IndeterminateLoader />;
   } else if (action === INVALID_LINK) {
     // If there is no registration link, let the user know.
     return (
@@ -68,7 +69,7 @@ function calculateAction(userCtx: UserContextValue) {
   if (userError || userUnauthed) {
     return UNAUTHED;
   }
-  if (!user.onboarded) {
+  if (!user!.onboarded) {
     return NOT_ONBOARDED;
   }
   if (!registrationSession) {
@@ -80,7 +81,7 @@ function calculateAction(userCtx: UserContextValue) {
 function JoinPartner() {
   const navigate = useNavigate();
   const loading = useToggle();
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
   const { setUser, registrationSession } = useUser();
 
   const { organizationName, intro } = registrationSession!;
@@ -89,12 +90,12 @@ function JoinPartner() {
     loading.turnOn();
     api
       .updateMe({})
-      .then((r: any) => {
+      .then((r) => {
         setUser(r.data);
         navigate("/dashboard");
       })
-      .catch((e: any) => {
-        showErrorToast(e, { extract: true });
+      .catch((e) => {
+        todo(e);
         loading.turnOff();
       });
   }
@@ -111,6 +112,7 @@ function JoinPartner() {
         <Button to="/dashboard" variant="text">
           {t("common.go_to_dashboard")}
         </Button>
+        <TODO />
       </div>
     </>
   );

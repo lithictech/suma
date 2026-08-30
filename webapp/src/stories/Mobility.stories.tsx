@@ -1,13 +1,14 @@
 import TripDetail from "../components/TripDetail.tsx";
 import TripList from "../components/TripList.tsx";
 import Drawer from "../components/mobilitymap/Drawer.tsx";
+import DrawerContentsGeneralError from "../components/mobilitymap/DrawerContentsGeneralError.tsx";
 import DrawerContentsLoading from "../components/mobilitymap/DrawerContentsLoading.tsx";
 import DrawerContentsOngoingTrip from "../components/mobilitymap/DrawerContentsOngoingTrip.tsx";
-import DrawerContentsPageError from "../components/mobilitymap/DrawerContentsPageError.tsx";
 import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPostTrip.tsx";
 import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
 import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
 import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
+import { appError } from "../modules/feedback.ts";
 import { DemoStack } from "./helpers.tsx";
 import mapBackgroundPng from "./map-background.png";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
@@ -33,7 +34,7 @@ const baseRate: Rate = {
   surcharge: { cents: 100, currency: "USD" },
   unitAmount: { cents: 20, currency: "USD" },
   name: "demo",
-  undiscountedRate: null as Rate,
+  undiscountedRate: null,
 };
 
 const mapVendorService: MobilityMapProvider = {
@@ -69,7 +70,7 @@ const privateAccountVehicle = {
   gotoPrivateAccount: "#private-accounts",
 };
 
-const trip = {
+const trip: MobilityTrip = {
   id: 1,
   vehicleId: "vehicle5",
   vehicleType: "ebike",
@@ -90,7 +91,7 @@ const trip = {
     lineItems: [{ amount: { cents: 100, currency: "USD" }, memo: "Unlock" }],
   },
   minutes: 20,
-  image: null as Image,
+  image: null,
 };
 
 export const MapCards: Story = {
@@ -144,13 +145,13 @@ export const MapCards: Story = {
 
       <h3>Page error</h3>
       <Drawer noPosition>
-        <DrawerContentsPageError error="read_only_technical_error" />
+        <DrawerContentsGeneralError error={appError("read_only_technical_error")} />
       </Drawer>
 
       <h3>Vehicle error</h3>
       <Drawer noPosition>
         <DrawerContentsVehicleError
-          error="read_only_technical_error"
+          error={appError("read_only_technical_error")}
           provider={mapVendorService}
         />
       </Drawer>
@@ -173,7 +174,9 @@ export const Map: Story = {
               style={{ objectFit: "cover", objectPosition: "bottom" }}
             />
           }
-          content={<DrawerContentsPageError error="read_only_technical_error" />}
+          content={
+            <DrawerContentsGeneralError error={appError("read_only_technical_error")} />
+          }
         />
       </div>
     </DemoStack>
@@ -190,17 +193,17 @@ export const NoTrips: Story = {
 
 export const BikeTripDetail: Story = {
   render: () => (
-    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "ebike")} />
+    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "ebike")!} />
   ),
 };
 
 export const ScooterTripDetail: Story = {
   render: () => (
-    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "escooter")} />
+    <TripDetail trip={tripHistory.items.find((x) => x.vehicleType === "escooter")!} />
   ),
 };
 
-const tripHistory = {
+const tripHistory: MobilityTripCollection = {
   object: "list",
   currentPage: 1,
   pageCount: 1,

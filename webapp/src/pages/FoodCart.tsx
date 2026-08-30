@@ -1,163 +1,149 @@
-import api from "../api";
-import ErrorScreen from "../components/ErrorScreen";
-import FoodCartWidget from "../components/FoodCartWidget";
-import FoodPrice from "../components/FoodPrice";
-import LayoutContainer from "../components/LayoutContainer";
-import PageLoader from "../components/PageLoader";
-import SumaImage from "../components/SumaImage";
-import { dt, t } from "../localization";
-import { anyMoney } from "../modules/money";
-import useErrorToast from "../state/useErrorToast";
-import useOffering from "../state/useOffering";
-import BreadcrumbBack from "../ui/BreadcrumbBack";
-import Button from "../ui/Button";
-import Stack from "../ui/Stack";
-import isEmpty from "lodash/isEmpty";
-import React from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import TODO from "../components/TODO.tsx";
 
 export default function FoodCart() {
-  const { id: offeringId } = useParams();
-  const navigate = useNavigate();
-  const { cart, products, vendors, error, loading, initializeToOffering } = useOffering();
-  const { showErrorToast } = useErrorToast();
-
-  React.useEffect(() => {
-    initializeToOffering(offeringId);
-  }, [initializeToOffering, offeringId]);
-  if (error) {
-    return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
-    );
-  }
-  if (loading) {
-    return <PageLoader buffered />;
-  }
-  function handleCheckout(e: React.MouseEvent) {
-    e.preventDefault();
-    api
-      .startCheckout({ offeringId })
-      .then(api.pickData)
-      .then((d: any) => navigate(`/checkout/${d.id}`, { state: { checkout: d } }))
-      .catch((e: any) => showErrorToast(e, { extract: true }));
-  }
-  const productsById = Object.fromEntries(products.map((p) => [p.productId, p]));
-  const vendorsById = Object.fromEntries(vendors.map((v) => [v.id, v]));
-  const { items } = cart;
-  return (
-    <>
-      <LayoutContainer gutters>
-        <BreadcrumbBack back={["/food/:id", { id: offeringId }]} />
-        <Stack direction="horizontal" gap={3} className="align-items-end">
-          <h4 className="mb-0">{t("food.cart_title")}</h4>
-          <span className="text-secondary ms-auto">{t("food.price")}</span>
-        </Stack>
-      </LayoutContainer>
-      <hr className="mt-2 mb-4" />
-      <LayoutContainer gutters>
-        {!isEmpty(items) ? (
-          <Stack gap={4}>
-            {items.map((item) => {
-              const product = productsById[item.productId];
-              const vendor = vendorsById[product.vendor.id];
-              return (
-                <CartItem
-                  key={product.name}
-                  offeringId={offeringId}
-                  product={product}
-                  vendor={vendor}
-                />
-              );
-            })}
-          </Stack>
-        ) : (
-          <span>{t("food.no_cart_items")}</span>
-        )}
-      </LayoutContainer>
-      <hr className="my-4" />
-      <LayoutContainer gutters>
-        {!isEmpty(items) ? (
-          <Stack gap={2} className="align-items-end">
-            <div>
-              {t("food.subtotal_items", {
-                totalItems: items.length,
-                customerCost: cart.customerCost,
-              })}
-            </div>
-            {anyMoney(cart.noncashLedgerContributionAmount) && (
-              <div className="text-success">
-                {t("food.cart_available_credit", {
-                  amount: cart.noncashLedgerContributionAmount,
-                })}
-              </div>
-            )}
-            {anyMoney(cart.cashCost) && (
-              <div>
-                {t("food.cart_cash_cost", {
-                  amount: cart.cashCost,
-                })}
-              </div>
-            )}
-            <Button onClick={handleCheckout} variant="primary">
-              {t("food.continue_to_checkout")}
-            </Button>
-          </Stack>
-        ) : (
-          <div className="button-stack">
-            <Button to="/food" title={t("food.title")}>
-              {t("food.available_offerings")}
-            </Button>
-          </div>
-        )}
-      </LayoutContainer>
-    </>
-  );
+  return <TODO />;
 }
-
-interface CartItemProps {
-  offeringId?: string;
-  product: PricedOfferingProduct;
-  vendor: Vendor;
-}
-
-function CartItem({ offeringId, product, vendor }: CartItemProps) {
-  const {
-    productId,
-    name,
-    isDiscounted,
-    displayableCashPrice,
-    undiscountedPrice,
-    images,
-  } = product;
-  return (
-    <Stack direction="horizontal" gap={3} className="align-items-start">
-      <Link to={`/product/${offeringId}/${productId}`}>
-        <SumaImage image={images[0]} width={100} height={100} />
-      </Link>
-      <div>
-        <Link to={`/product/${offeringId}/${productId}`}>
-          <h6 className="mb-2">{dt(name)}</h6>
-        </Link>
-        <p className="text-secondary mb-2 small">
-          {t("food.from_vendor", { vendorName: vendor.name })}
-        </p>
-        <FoodCartWidget product={product} />
-      </div>
-      <div className="ms-auto text-end">
-        <FoodPrice
-          isDiscounted={isDiscounted}
-          undiscountedPrice={undiscountedPrice}
-          // We don't want to show noncash contributions here,
-          // so use the customer price as the cash price.
-          // except for turkey hacking holiday 2023.
-          displayableCashPrice={displayableCashPrice}
-          fs={6}
-          bold={false}
-          direction="vertical"
-        />
-      </div>
-    </Stack>
-  );
-}
+//   const { id: offeringId } = useParams();
+//   const navigate = useNavigate();
+//   const { cart, products, vendors, error, loading, initializeToOffering } = useOffering();
+//   const { showErrorToast } = useErrorToast();
+//
+//   React.useEffect(() => {
+//     initializeToOffering(offeringId);
+//   }, [initializeToOffering, offeringId]);
+//   if (error) {
+//     return (
+//       <LayoutContainer top>
+//         <ErrorScreen />
+//       </LayoutContainer>
+//     );
+//   }
+//   if (loading) {
+//     return <PageLoader buffered />;
+//   }
+//   function handleCheckout(e: React.MouseEvent) {
+//     e.preventDefault();
+//     api
+//       .startCheckout({ offeringId })
+//       .then(api.pickData)
+//       .then((d: any) => navigate(`/checkout/${d.id}`, { state: { checkout: d } }))
+//       .catch((e: any) => showErrorToast(e, { extract: true }));
+//   }
+//   const productsById = Object.fromEntries(products.map((p) => [p.productId, p]));
+//   const vendorsById = Object.fromEntries(vendors.map((v) => [v.id, v]));
+//   const { items } = cart;
+//   return (
+//     <>
+//       <LayoutContainer gutters>
+//         <BreadcrumbBack back={["/food/:id", { id: offeringId }]} />
+//         <Stack direction="horizontal" gap={3} className="align-items-end">
+//           <h4 className="mb-0">{t("food.cart_title")}</h4>
+//           <span className="text-secondary ms-auto">{t("food.price")}</span>
+//         </Stack>
+//       </LayoutContainer>
+//       <hr className="mt-2 mb-4" />
+//       <LayoutContainer gutters>
+//         {!isEmpty(items) ? (
+//           <Stack gap={4}>
+//             {items.map((item) => {
+//               const product = productsById[item.productId];
+//               const vendor = vendorsById[product.vendor.id];
+//               return (
+//                 <CartItem
+//                   key={product.name}
+//                   offeringId={offeringId}
+//                   product={product}
+//                   vendor={vendor}
+//                 />
+//               );
+//             })}
+//           </Stack>
+//         ) : (
+//           <span>{t("food.no_cart_items")}</span>
+//         )}
+//       </LayoutContainer>
+//       <hr className="my-4" />
+//       <LayoutContainer gutters>
+//         {!isEmpty(items) ? (
+//           <Stack gap={2} className="align-items-end">
+//             <div>
+//               {t("food.subtotal_items", {
+//                 totalItems: items.length,
+//                 customerCost: cart.customerCost,
+//               })}
+//             </div>
+//             {anyMoney(cart.noncashLedgerContributionAmount) && (
+//               <div className="text-success">
+//                 {t("food.cart_available_credit", {
+//                   amount: cart.noncashLedgerContributionAmount,
+//                 })}
+//               </div>
+//             )}
+//             {anyMoney(cart.cashCost) && (
+//               <div>
+//                 {t("food.cart_cash_cost", {
+//                   amount: cart.cashCost,
+//                 })}
+//               </div>
+//             )}
+//             <Button onClick={handleCheckout} variant="primary">
+//               {t("food.continue_to_checkout")}
+//             </Button>
+//           </Stack>
+//         ) : (
+//           <div className="button-stack">
+//             <Button to="/food" title={t("food.title")}>
+//               {t("food.available_offerings")}
+//             </Button>
+//           </div>
+//         )}
+//       </LayoutContainer>
+//     </>
+//   );
+// }
+//
+// interface CartItemProps {
+//   offeringId?: string;
+//   product: PricedOfferingProduct;
+//   vendor: Vendor;
+// }
+//
+// function CartItem({ offeringId, product, vendor }: CartItemProps) {
+//   const {
+//     productId,
+//     name,
+//     isDiscounted,
+//     displayableCashPrice,
+//     undiscountedPrice,
+//     images,
+//   } = product;
+//   return (
+//     <Stack direction="horizontal" gap={3} className="align-items-start">
+//       <Link to={`/product/${offeringId}/${productId}`}>
+//         <SumaImage image={images[0]} width={100} height={100} />
+//       </Link>
+//       <div>
+//         <Link to={`/product/${offeringId}/${productId}`}>
+//           <h6 className="mb-2">{dt(name)}</h6>
+//         </Link>
+//         <p className="text-secondary mb-2 small">
+//           {t("food.from_vendor", { vendorName: vendor.name })}
+//         </p>
+//         <FoodCartWidget product={product} />
+//       </div>
+//       <div className="ms-auto text-end">
+//         <FoodPrice
+//           isDiscounted={isDiscounted}
+//           undiscountedPrice={undiscountedPrice}
+//           // We don't want to show noncash contributions here,
+//           // so use the customer price as the cash price.
+//           // except for turkey hacking holiday 2023.
+//           displayableCashPrice={displayableCashPrice}
+//           fs={6}
+//           bold={false}
+//           direction="vertical"
+//         />
+//       </div>
+//     </Stack>
+//   );
+// }

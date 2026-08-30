@@ -1,5 +1,5 @@
 import { t } from "../../localization";
-import Badge from "../../ui/Badge";
+import Chip from "../../ui/Chip.tsx";
 
 export default function MicromobilityRate({ rate }: { rate: Rate | SimpleRate }) {
   let disc,
@@ -18,11 +18,7 @@ export default function MicromobilityRate({ rate }: { rate: Rate | SimpleRate })
         </s>
       </p>
     );
-    badge = (
-      <Badge bg="success" className="ms-2">
-        {fullRate.name}
-      </Badge>
-    );
+    badge = <Chip variant="success">{fullRate.name}</Chip>;
   }
   return (
     <div className="d-flex flex-column gap-2">

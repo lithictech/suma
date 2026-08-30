@@ -12,7 +12,6 @@ export interface ButtonProps {
   disabled?: boolean;
   inline?: boolean;
   children?: React.ReactNode;
-  state?: ShimProps;
   style?: CSSProperties;
   title?: string;
   type?: "submit" | "reset" | "button" | undefined;

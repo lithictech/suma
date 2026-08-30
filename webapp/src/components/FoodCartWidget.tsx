@@ -2,20 +2,16 @@ import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import xIcon from "../assets/images/ui-x-thick.svg";
-import { t } from "../localization";
-import useErrorToast from "../state/useErrorToast";
+import { imageAltT, r, t } from "../localization";
+import todo from "../modules/todo.ts";
 import useOffering from "../state/useOffering";
 import Button from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
-import Dropdown from "../ui/Dropdown";
-import DropdownItem from "../ui/DropdownItem";
-import DropdownMenu from "../ui/DropdownMenu";
-import DropdownToggle from "../ui/DropdownToggle";
 import SoldOutText from "./SoldOutText";
+import TODO from "./TODO.tsx";
 import clsx from "clsx";
 import find from "lodash/find";
 import noop from "lodash/noop";
-import times from "lodash/times";
 import React from "react";
 
 interface FoodCartWidgetProps {
@@ -32,13 +28,14 @@ export default function FoodCartWidget({
   size = size || "sm";
   const btnClasses = sizeClasses[size];
   const { offering, cart, setOfferingFromResponse } = useOffering();
-  const { showErrorToast } = useErrorToast();
+  // const { showErrorToast } = useErrorToast();
 
   const changeAbortController = React.useRef(new AbortController());
   const [quantity, setQuantity] = React.useState(() => {
-    const item = find(cart.items, ({ productId }) => productId === product.productId);
+    const item = find(cart!.items, ({ productId }) => productId === product.productId);
     return item?.quantity || 0;
   });
+
   const handleQuantityChange = (q: number) => {
     if (q === quantity) {
       return;
@@ -48,23 +45,23 @@ export default function FoodCartWidget({
     changeAbortController.current = thisAbortCtrl;
     api
       .putCartItem({
-        offeringId: offering.id,
+        offeringId: offering!.id,
         productId: product.productId,
         quantity: q,
         timestamp: Date.now(),
       })
       .then(api.pickData)
-      .then((data: any) => {
+      .then((data) => {
         if (thisAbortCtrl.signal.aborted) {
           return;
         }
-        setOfferingFromResponse(data);
+        setOfferingFromResponse!(data);
         setQuantity(q);
         if (onQuantityChange) {
           onQuantityChange(q);
         }
       })
-      .catch((e: any) => showErrorToast(e, { extract: true }));
+      .catch((e) => todo(e));
   };
 
   if (product.outOfStock) {
@@ -82,12 +79,12 @@ export default function FoodCartWidget({
           onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
         >
           <span className="text-capitalize fs-5 align-middle mx-1">
-            <SoldOutText cart={cart} product={product} />
+            <SoldOutText cart={cart!} product={product} />
           </span>
           {quantity > 0 && (
             <img
               src={xIcon}
-              alt={t("food.remove_from_cart")}
+              alt={imageAltT("food.remove_from_cart")}
               width="20px"
               className="ms-1"
             />
@@ -105,10 +102,15 @@ export default function FoodCartWidget({
           <Button
             onClick={() => handleQuantityChange(quantity - 1)}
             className={btnClasses}
-            title={t("food.remove_from_cart")}
+            title={r("food.remove_from_cart")}
           >
-            <img src={subtractIcon} alt={t("food.remove_from_cart")} width="32px" />
+            <img
+              src={subtractIcon}
+              alt={imageAltT("food.remove_from_cart")}
+              width="32px"
+            />
           </Button>
+          <TODO>{`
           <Dropdown
             as={ButtonGroup}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
@@ -119,7 +121,7 @@ export default function FoodCartWidget({
             <DropdownMenu className="food-widget-dropdown-menu">
               <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
             </DropdownMenu>
-          </Dropdown>
+          </Dropdown>`}</TODO>
         </>
       )}
       <Button
@@ -129,9 +131,9 @@ export default function FoodCartWidget({
           quantity === maxQuantity && "disabled",
           "text-nowrap"
         )}
-        title={t("food.add_to_cart")}
+        title={r("food.add_to_cart")}
       >
-        <img src={addIcon} alt={t("food.add_to_cart")} width="32px" />
+        <img src={addIcon} alt={imageAltT("food.add_to_cart")} width="32px" />
         {size === "lg" && quantity === 0 && (
           <span
             className="text-capitalize fs-5 align-middle ms-1 pe-2"
@@ -146,23 +148,23 @@ export default function FoodCartWidget({
   );
 }
 
-const DropdownQuantities = ({
-  maxQuantity,
-  selectedQuantity,
-}: {
-  maxQuantity: number;
-  selectedQuantity: number;
-}) => {
-  return times(maxQuantity + 1).map((_, i) => (
-    <DropdownItem
-      key={i}
-      eventKey={"" + i}
-      className={clsx(i === selectedQuantity && "active")}
-    >
-      {i}
-    </DropdownItem>
-  ));
-};
+// const DropdownQuantities = ({
+//   maxQuantity,
+//   selectedQuantity,
+// }: {
+//   maxQuantity: number;
+//   selectedQuantity: number;
+// }) => {
+//   return times(maxQuantity + 1).map((_, i) => (
+//     <DropdownItem
+//       key={i}
+//       eventKey={"" + i}
+//       className={clsx(i === selectedQuantity && "active")}
+//     >
+//       {i}
+//     </DropdownItem>
+//   ));
+// };
 
 const sizeClasses: Record<string, string> = {
   lg: "lh-1 m-0 p-2",

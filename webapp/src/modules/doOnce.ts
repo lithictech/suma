@@ -3,8 +3,11 @@
  * like as part of a React mount effect. Use this to run something
  * just once ever for the page's lifetime (key is stored at module level).
  */
-export default function doOnce(key: string, cb: (...args: any[]) => void) {
-  return (...args: any[]) => {
+export default function doOnce<Args extends unknown[]>(
+  key: string,
+  cb: (...args: Args) => void
+) {
+  return (...args: Args) => {
     if (done[key]) {
       return;
     }

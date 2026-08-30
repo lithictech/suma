@@ -3,14 +3,14 @@ import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { withQuery } from "../routing/withQuery.ts";
 import Button from "../ui/Button";
-import Container from "../ui/Container";
+import Page from "../ui/Page.tsx";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListSuccess() {
   const [params] = useSearchParams();
   const { changeLanguage } = useI18n();
   return (
-    <Container className="text-center">
+    <Page>
       {t("contact_list.success_intro")}
       <div className="button-stack">
         <Button
@@ -23,6 +23,6 @@ export default function ContactListSuccess() {
         </Button>
         <ContactListTags />
       </div>
-    </Container>
+    </Page>
   );
 }

@@ -24,7 +24,7 @@ export default function CreditCardPreview({
   if (typeof localeValid !== "string") {
     localeValid = DEFAULT_VALID_THRU;
   }
-  let issuer = cardInfo.cct?.type;
+  let issuer = cardInfo.cct?.type || "";
   issuer = ISSUER_RENAMES[issuer] || issuer;
   return (
     <div key="Cards" className="rccs">
@@ -88,7 +88,7 @@ export default function CreditCardPreview({
   );
 }
 
-const ISSUER_RENAMES = {
+const ISSUER_RENAMES: Record<string, string> = {
   "american-express": "amex",
   "diners-club": "diners-club",
 };

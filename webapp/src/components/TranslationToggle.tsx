@@ -1,4 +1,4 @@
-import { t } from "../localization";
+import { r, t } from "../localization";
 import useI18n from "../localization/useI18n";
 import Button from "../ui/Button";
 import Icon from "../ui/Icon.tsx";
@@ -12,20 +12,20 @@ export default function TranslationToggle({ className }: { className?: string })
       className={className}
       to="en"
       label={t("common.in_english")}
-      title={t("common.translate_to_english")}
+      title={r("common.translate_to_english")}
     />
   ) : (
     <Translate
       className={className}
       to="es"
       label={t("common.in_spanish")}
-      title={t("common.translate_to_spanish")}
+      title={r("common.translate_to_spanish")}
     />
   );
 }
 
 interface TranslateProps {
-  className: string;
+  className?: string;
   to: string;
   label: React.ReactNode;
   title: string;

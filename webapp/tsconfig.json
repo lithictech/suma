@@ -15,7 +15,7 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "checkJs": false,
-    "strict": false
+    "strict": true
   },
   "include": ["src", "vite.config.ts", "vitest.shims.d.ts", ".storybook"]
 }

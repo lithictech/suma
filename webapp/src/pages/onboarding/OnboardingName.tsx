@@ -1,4 +1,4 @@
-import { t } from "../../localization";
+import { r } from "../../localization";
 import BackButton from "../../ui/BackButton.tsx";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -43,7 +43,7 @@ export default function OnboardingName({
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <TextInput
           label="Name"
-          {...register("name", { required: t("errors.required") })}
+          {...register("name", { required: r("errors.required") })}
           error={errors.name?.message}
           autoFocus
           required

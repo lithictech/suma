@@ -1,6 +1,5 @@
-import { t } from "../localization";
+import { appError, AppError } from "./feedback.ts";
 import isArray from "lodash/isArray";
-import type { ReactElement } from "react";
 
 /**
  * Return the translated read-only reason on the user.
@@ -11,30 +10,28 @@ import type { ReactElement } from "react";
  *
  * This method is mostly useful because the fallback reason of technical
  * errors will get translated.
+ *
+ * @param user
  * @param oneOf Read-only reason to look for.
  */
 export default function readOnlyReason(
   user: CurrentMember,
-  oneOf: string | string[],
-  unlocalized?: boolean
-): string | ReactElement {
-  const r = user.readOnlyReason;
-  if (!r) {
-    return "";
+  oneOf: string | string[]
+): AppError | null {
+  const rs = user.readOnlyReason;
+  if (!rs) {
+    return null;
   }
   let useReason = false;
-  if (r === "read_only_technical_error") {
+  if (rs === "read_only_technical_error") {
     useReason = true;
-  } else if (r === oneOf) {
+  } else if (rs === oneOf) {
     useReason = true;
-  } else if (isArray(oneOf) && oneOf.includes(r)) {
+  } else if (isArray(oneOf) && oneOf.includes(rs)) {
     useReason = true;
   }
   if (!useReason) {
-    return "";
+    return null;
   }
-  if (unlocalized) {
-    return r;
-  }
-  return t(`errors.${user.readOnlyReason}`);
+  return appError(user.readOnlyReason);
 }

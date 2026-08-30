@@ -1,8 +1,8 @@
-import ErrorScreen from "./components/ErrorScreen";
+import ErrorPage from "./components/ErrorPage.tsx";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
-import { t } from "./localization";
+import { r } from "./localization";
 import I18nProvider from "./localization/I18nProvider";
 import useI18n from "./localization/useI18n";
 import { installPromiseExtras } from "./modules/bluejay";
@@ -18,7 +18,6 @@ import FoodDetails from "./pages/FoodDetails";
 import FoodList from "./pages/FoodList";
 import Funding from "./pages/Funding";
 import FundingAddCard from "./pages/FundingAddCard";
-import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
@@ -109,7 +108,7 @@ function AppRoutes() {
     typeRoute({
       path: "/",
       auth: "unauthed",
-      meta: { title: t("common.welcome_to_suma"), exact: true },
+      meta: { title: r("common.welcome_to_suma"), exact: true },
       Component: Home,
     }),
     typeRoute({ path: "/privacy-policy", Component: PrivacyPolicy }),
@@ -160,7 +159,7 @@ function AppRoutes() {
     typeRoute({
       path: "/contact-list",
       auth: "unauthed",
-      meta: { title: t("titles.contact_list"), exact: true },
+      meta: { title: r("titles.contact_list"), exact: true },
       Component: ContactListHome,
     }),
     typeRoute({
@@ -280,14 +279,6 @@ function AppRoutes() {
       Component: FundingAddCard,
     }),
     typeRoute({
-      path: "/add-funds",
-      auth: "require",
-      onboarded: "require",
-      screenLoader: true,
-      meta: "payments.add_funds",
-      Component: FundingAddFunds,
-    }),
-    typeRoute({
       path: "/ledgers",
       auth: "require",
       onboarded: "require",
@@ -369,7 +360,7 @@ function AppRoutes() {
       meta: "titles.theme",
       Component: ThemePage,
     }),
-    typeRoute({ path: "/error", meta: "common.error", Component: ErrorScreen }),
+    typeRoute({ path: "/error", meta: "common.error", Component: ErrorPage }),
     typeRoute({ path: "/*", pageProps: { to: "/" }, Component: Redirect }),
   ];
   const element = useRoutes(routes);

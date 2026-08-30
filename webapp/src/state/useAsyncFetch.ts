@@ -1,13 +1,30 @@
+import { AxiosResponse } from "axios";
 import get from "lodash/get";
 import React from "react";
 import { Location } from "react-router-dom";
+
+/**
+ * Perform an async fetch, which must hit the API.
+ *
+ * Note that the fetch does not accept an axios request configuration,
+ * since it is not part of the cache key.
+ *
+ * If callers require passing the configuration,
+ * they can wrap the fetch in a useCallback.
+ */
+type AsyncFetch<T> = (data?: Record<string, any>) => Promise<AxiosResponse<T>>;
+
+/**
+ * Similar to AsyncDataFetch,
+ * but returns the underlying data, not the response.
+ * The data may be returned from the cache.
+ */
+type AsyncDataFetch<T> = (data?: Record<string, any>) => Promise<T>;
 
 interface UseAsyncFetchOptions<T = any> {
   default?: T;
   /** If true, do not fetch right away. You will need to call asyncFetch manually. */
   doNotFetchOnInit?: boolean;
-  /** The 'state' will pick the 'data' field of the response, rather than being an axios Response. */
-  pickData?: boolean;
   /**
    * If given, pull this field from location.state as the initial/default value.
    * Allows passing of data in the history state, while fetching from the URL if it is not present.
@@ -24,43 +41,45 @@ interface UseAsyncFetchOptions<T = any> {
   cache?: boolean;
 }
 
-interface UseAsyncFetchResult<T> {
+interface UseAsyncFetchResult<T = any> {
   state: T;
+  response: AxiosResponse<T>;
   replaceState: React.Dispatch<React.SetStateAction<T>>;
-  asyncFetch: (...args: any[]) => Promise<any>;
+  asyncFetch: AsyncFetch<T>;
   error: any;
   loading: boolean;
 }
 
 // When `default` is provided, `state` is never undefined.
 function useAsyncFetch<T>(
-  makeRequest: (...args: any[]) => Promise<any>,
+  makeRequest: AsyncFetch<T>,
   options: UseAsyncFetchOptions<T> & { default: T }
 ): UseAsyncFetchResult<T>;
 
 function useAsyncFetch<T = any>(
-  makeRequest: (...args: any[]) => Promise<any>,
+  makeRequest: AsyncFetch<T>,
   options?: UseAsyncFetchOptions<T>
 ): UseAsyncFetchResult<T | undefined>;
 
 function useAsyncFetch<T = any>(
-  makeRequest: (...args: any[]) => Promise<any>,
+  makeRequest: AsyncFetch<T>,
   options?: UseAsyncFetchOptions<T>
 ) {
-  const { location, pickData, pullFromState, cache } = options || {};
+  const { location, pullFromState, cache } = options || {};
   let { default: defaultVal, doNotFetchOnInit } = options || {};
   if (pullFromState && get(location, ["state", pullFromState])) {
     defaultVal = location?.state?.[pullFromState];
     doNotFetchOnInit = true;
     window.history.replaceState({}, document.title);
   }
-  const [state, setState] = React.useState(defaultVal);
+  const [state, setState] = React.useState<T | undefined>(defaultVal);
+  const [response, setResponse] = React.useState<AxiosResponse<T> | undefined>();
   const [error, setError] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(!doNotFetchOnInit);
   const cacheRef = React.useRef<Record<string, any>>({});
 
-  const asyncFetch = React.useCallback(
-    (...args: any[]) => {
+  const asyncFetch: AsyncDataFetch<T> = React.useCallback(
+    (data) => {
       setLoading(true);
       setError(false);
       let cacheKey: string;
@@ -69,39 +88,41 @@ function useAsyncFetch<T = any>(
         // then return it from the cache. Use a 200ms delay to mimic a very fast
         // network call, since when callers use this they normally expect some delay.
         // We can add options to control this in the future.
-        cacheKey = "" + makeRequest + JSON.stringify(args);
-        if (cacheRef.current[cacheKey]) {
-          return Promise.delay(200).then(() => {
-            const st = cacheRef.current[cacheKey];
+        cacheKey = "" + makeRequest + JSON.stringify(data);
+        const cached = cacheRef.current[cacheKey];
+        if (cached) {
+          return Promise.delay(200, Promise.resolve()).then(() => {
+            const st = cached as T;
             setState(st);
             setLoading(false);
             return st;
           });
         }
       }
-      return makeRequest(...args)
-        .then((x) => {
-          const st = pickData ? x.data : x;
-          setState(st);
+      return makeRequest(data)
+        .then((r) => {
+          setResponse(r);
+          setState(r.data);
           if (cache) {
-            cacheRef.current[cacheKey] = st;
+            cacheRef.current[cacheKey] = r.data;
           }
-          return st;
+          return r.data;
         })
         .tapCatch((e) => setError(e))
         .tap(() => setLoading(false))
         .tapCatch(() => setLoading(false));
     },
-    [cache, makeRequest, pickData]
+    [cache, makeRequest]
   );
 
   React.useEffect(() => {
     if (!doNotFetchOnInit) {
-      asyncFetch();
+      asyncFetch().then();
     }
   }, [asyncFetch, doNotFetchOnInit]);
   return {
     state,
+    response,
     replaceState: setState,
     asyncFetch,
     error,

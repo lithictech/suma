@@ -40,7 +40,7 @@ export default function useStripeErrorMessage() {
       }
       const errCode = data.error.declineCode || data.error.code;
       const key = `errors.${errCode}`;
-      const localized = stripeTextLookup.t(key);
+      const localized = stripeTextLookup.r(key);
       if (localized.endsWith(key)) {
         return data.error.message;
       }

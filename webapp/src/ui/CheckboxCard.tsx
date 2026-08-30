@@ -2,12 +2,12 @@ import useId from "../state/useId.ts";
 import CardBody from "./CardBody";
 import CardText from "./CardText";
 import "./CheckboxCard.css";
-import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import InputFeedback, { HasInputFeedback } from "./InputFeedback.tsx";
 import clsx from "clsx";
 import React from "react";
 
 export interface CheckboxCardProps
-  extends HasFormFeedback,
+  extends HasInputFeedback,
     Omit<React.InputHTMLAttributes<HTMLInputElement>, "checked" | "type" | "title"> {
   checked: boolean;
   title?: React.ReactNode;
@@ -41,7 +41,7 @@ const CheckboxCard = React.forwardRef<HTMLInputElement, CheckboxCardProps>(
             ref={ref}
             id={inputId}
             type="checkbox"
-            aria-describedby={FormFeedback.idFor(inputId)}
+            aria-describedby={InputFeedback.idFor(inputId)}
             aria-invalid={error ? true : undefined}
             {...rest}
           />
@@ -49,7 +49,7 @@ const CheckboxCard = React.forwardRef<HTMLInputElement, CheckboxCardProps>(
             {title && <CardText variant="subtitle">{title}</CardText>}
             {text && <CardText variant="subtext">{text}</CardText>}
             {children && children}
-            <FormFeedback inputId={inputId} error={error} />
+            <InputFeedback inputId={inputId} error={error} />
           </div>
         </CardBody>
       </label>

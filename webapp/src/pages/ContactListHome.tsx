@@ -5,13 +5,13 @@ import useI18n from "../localization/useI18n";
 import { withQuery } from "../routing/withQuery.ts";
 import useBackendGlobals from "../state/useBackendGlobals";
 import Button from "../ui/Button";
-import Container from "../ui/Container";
+import Page from "../ui/Page.tsx";
 import { useSearchParams } from "react-router-dom";
 
 export default function ContactListHome() {
   const [params] = useSearchParams();
   return (
-    <Container className="text-center">
+    <Page>
       <img
         src={sumaLogo}
         alt={imageAltT("suma_logo")}
@@ -24,7 +24,7 @@ export default function ContactListHome() {
         <LanguageButtons eventName={params.get("eventName")} />
       </div>
       <ContactListTags />
-    </Container>
+    </Page>
   );
 }
 

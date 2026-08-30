@@ -1,10 +1,10 @@
 import useId from "../state/useId";
-import FormFeedback, { HasFormFeedback } from "./FormFeedback.tsx";
+import InputFeedback, { HasInputFeedback } from "./InputFeedback.tsx";
 import clsx from "clsx";
 import React from "react";
 
 export interface TextInputProps
-  extends HasFormFeedback,
+  extends HasInputFeedback,
     React.DetailedHTMLProps<
       React.InputHTMLAttributes<HTMLInputElement>,
       HTMLInputElement
@@ -45,11 +45,11 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(function Te
         className={cls}
         required={required}
         disabled={disabled}
-        aria-describedby={FormFeedback.idFor(inputId)}
+        aria-describedby={InputFeedback.idFor(inputId)}
         aria-invalid={error ? true : undefined}
         {...rest}
       />
-      <FormFeedback inputId={inputId} help={help} error={error} />
+      <InputFeedback inputId={inputId} help={help} error={error} />
     </div>
   );
 });

@@ -1,4 +1,4 @@
-import { t } from "../localization";
+import { r } from "../localization";
 
 /**
  * Return the localized validation error value for an input.
@@ -19,7 +19,7 @@ export default function useValidationError(
   }
   const allErrKeys = { ...errorKeys, ...additionalErrorKeys };
   const errKey = allErrKeys[err.type] || "forms.invalid_field";
-  const message = t(errKey, {
+  const message = r(errKey, {
     constraint: validations[err.type],
     value: err.ref.value,
   });

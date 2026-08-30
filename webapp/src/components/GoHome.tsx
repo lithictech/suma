@@ -1,19 +1,10 @@
 import { t } from "../localization";
-import { RoutePath } from "../routing/RoutePath.ts";
 import Button from "../ui/Button";
-import React from "react";
 
-interface GoHomeProps {
-  to?: RoutePath;
-  label?: React.ReactNode;
-}
-
-export default function GoHome({ to, label }: GoHomeProps) {
+export default function GoHome() {
   return (
-    <div className="button-stack mt-4">
-      <Button variant="outline" to={to || "/dashboard"}>
-        {label || t("common.go_home")}
-      </Button>
-    </div>
+    <Button size="lg" to="/dashboard">
+      {t("common.go_home")}
+    </Button>
   );
 }

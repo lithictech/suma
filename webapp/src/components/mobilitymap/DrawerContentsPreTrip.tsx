@@ -1,7 +1,9 @@
 import { t } from "../../localization";
+import { appError } from "../../modules/feedback.ts";
 import { untypedRoutePath } from "../../routing/RoutePath.ts";
 import Button from "../../ui/Button";
-import FormError from "../../ui/FormError";
+import FormFeedback from "../../ui/FormFeedback";
+import TODO from "../TODO.tsx";
 import DrawerContents from "./DrawerContents";
 import DrawerContentsLoading from "./DrawerContentsLoading.tsx";
 import DrawerTitle from "./DrawerTitle";
@@ -10,7 +12,8 @@ import React from "react";
 
 interface PreTripProps {
   loading?: boolean;
-  vehicle: MobilityDetailedVehicle;
+  /** Can be null while loading is true. */
+  vehicle: MobilityDetailedVehicle | null;
   onReserve: (vehicle: MobilityDetailedVehicle) => void;
   reserveError?: any;
 }
@@ -27,14 +30,20 @@ export default function DrawerContentsPreTrip({
   if (loading) {
     return <DrawerContentsLoading />;
   }
+  if (!vehicle) {
+    return <TODO>error page, vehicle must be passed, is static/dev error</TODO>;
+  }
+
   const handleReserve = (e: React.MouseEvent) => {
     e.preventDefault();
-    onReserve(vehicle);
+    onReserve(vehicle!);
   };
 
   let action: React.ReactNode;
   if (vehicle.usageProhibitedReason) {
-    action = <FormError error={vehicle.usageProhibitedReason} noSurface />;
+    action = (
+      <FormFeedback feedback={appError(vehicle.usageProhibitedReason)} noSurface />
+    );
   } else if (vehicle.gotoPrivateAccount) {
     action = (
       <>
@@ -90,7 +99,7 @@ export default function DrawerContentsPreTrip({
     <DrawerContents>
       <DrawerTitle>{vehicle.vendorService.name}</DrawerTitle>
       <MicromobilityRate rate={vehicle.rate} />
-      <FormError error={reserveError} />
+      <FormFeedback feedback={reserveError} />
       {action}
       {matchDiv}
     </DrawerContents>

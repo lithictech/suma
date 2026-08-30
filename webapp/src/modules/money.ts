@@ -100,14 +100,14 @@ export function scaleMoney(m: Money, n: number): Money {
 /**
  * Return true if m is present and its cents are non-zero.
  */
-export function anyMoney(m: Money): boolean {
+export function anyMoney(m: Money | null | undefined): boolean {
   return moneySign(m) !== 0;
 }
 
 /**
  * Return -1 if money is negative, 0 if zero or falsey, 1 if positive.
  */
-export function moneySign(m: Money): number {
+export function moneySign(m: Money | null | undefined): number {
   if (!m) {
     return 0;
   }

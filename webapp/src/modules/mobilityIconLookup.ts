@@ -1,6 +1,5 @@
 import biketownEbikeIcon from "../assets/images/biketown-ebike.png";
 import limeEscooterIcon from "../assets/images/lime-escooter.png";
-import unknownVehicleIcon from "../assets/images/loader-ring.svg";
 
 /**
  * Build a map of vehicle type to vendor service internal name.
@@ -25,6 +24,8 @@ const defaultIconsLookup: Record<string, string> = {
   ebike: biketownEbikeIcon,
   escooter: limeEscooterIcon,
 };
+
+const unknownVehicleIcon = limeEscooterIcon;
 
 export function vehicleIconForVendorService(
   vehicleType: string,

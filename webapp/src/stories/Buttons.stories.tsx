@@ -88,7 +88,7 @@ export const Groups: Story = {
         <p>Some text</p>
         <Stack row center className="justify-content-between" style={{ maxWidth: 250 }}>
           <p>Some text</p>
-          <Button variant="text">
+          <Button variant="text" inline>
             <Icon icon={ChevronRightIcon} />
           </Button>
         </Stack>

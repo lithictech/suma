@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/preact-vite";
 
 const meta = {
   title: "Styleguide/Typography",
-} satisfies Meta<typeof meta>;
+} satisfies Meta;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

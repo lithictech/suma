@@ -17,20 +17,13 @@ export default function BackendGlobalsProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { state: supportedLocales } = useAsyncFetch<{ items: Locale[] }>(
+  const { state: supportedLocales } = useAsyncFetch<UnboundedApiCollection<Locale>>(
     api.getSupportedLocales,
-    {
-      default: { items: [] },
-      pickData: true,
-    }
+    { default: { items: [] } }
   );
-  const { state: supportedPaymentMethods } = useAsyncFetch<{ items: string[] }>(
-    api.getSupportedPaymentMethods,
-    {
-      default: { items: [] },
-      pickData: true,
-    }
-  );
+  const { state: supportedPaymentMethods } = useAsyncFetch<
+    UnboundedApiCollection<string>
+  >(api.getSupportedPaymentMethods, { default: { items: [] } });
 
   const isPaymentMethodSupported = React.useCallback(
     (pm: string) => supportedPaymentMethods.items.includes(pm),

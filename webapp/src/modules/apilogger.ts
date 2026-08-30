@@ -14,7 +14,7 @@ function reqSuccessDebug(config: InternalAxiosRequestConfig) {
 }
 
 function reqError(error: any) {
-  reqLogger.error(error);
+  reqLogger.exception("request_error", error);
   return Promise.reject(error);
 }
 

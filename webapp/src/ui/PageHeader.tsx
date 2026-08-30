@@ -1,12 +1,13 @@
 import { RoutePath } from "../routing/RoutePath.ts";
 import BreadcrumbBack from "./BreadcrumbBack.tsx";
 import "./PageHeader.css";
+import React from "react";
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   /** The text of the title. */
-  title: string;
+  title: React.ReactNode;
   /** The text under the title. */
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   /** Primary uses primary color text.
    * Secondary doesn't use special colors.
    * Default is primary is there is no back,

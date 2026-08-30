@@ -1,7 +1,3 @@
-declare global {
-  type ShimProps = any;
-}
-
 export type Direction = "horizontal" | "vertical";
 
 export interface DirectionProps {
@@ -22,5 +18,3 @@ export function getDirection(props: DirectionProps): Direction {
   }
   return props.direction || "horizontal";
 }
-
-export {};

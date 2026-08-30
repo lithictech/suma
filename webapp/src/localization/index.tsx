@@ -1,14 +1,9 @@
-import SumaMarkdownUntyped from "../components/SumaMarkdown";
+import SumaMarkdown from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
 import { Logger } from "../modules/logger";
 import i18n from "./i18n";
 import { capitalize } from "lodash";
 import React from "react";
-
-// SumaMarkdown is still untyped (.jsx); TS's JS-inference for it drops
-// `children` from the inferred prop type, so cast it here as a stopgap.
-// eslint-disable-next-line react-refresh/only-export-components
-const SumaMarkdown = SumaMarkdownUntyped as React.ComponentType<any>;
 
 const runChecks = import.meta.env.DEV;
 
@@ -45,7 +40,7 @@ export class Lookup {
     key: string,
     i18noptions: Record<string, any> = {},
     { markdown }: { markdown?: Record<string, any> } = {}
-  ): any => {
+  ): React.ReactNode => {
     if (runChecks) {
       this.checkKeyName(key);
     }
@@ -66,6 +61,26 @@ export class Lookup {
     return <SumaMarkdown options={mdopts}>{localized}</SumaMarkdown>;
   };
 
+  /**
+   * Return the resolved string.
+   *
+   * That is, 's' formatting is returned as normal,
+   * but markdown formatting is returned as markdown,
+   * NOT html.
+   *
+   * Use this where a string is always needed.
+   */
+  r = (key: string, i18noptions: Record<string, any> = {}): string => {
+    if (runChecks) {
+      this.checkKeyName(key);
+    }
+    const [, localized] = i18n.resolve(this.prefix + key, {
+      ...i18noptions,
+      externalLinks,
+    });
+    return localized;
+  };
+
   checkKeyName(key: string) {
     if (key.startsWith(this.prefix)) {
       logger
@@ -79,15 +94,18 @@ export class Lookup {
 
 const lu = new Lookup("strings");
 export const t = lu.t;
+export const r = lu.r;
 
 /**
  * Applies image alt 'best practices' to localization strings like
  * punctuation and capitalization, then returns it.
- * @param altKey the key to find the localized string
+ *
+ * @param altKey Key to find the localized string
+ * @param i18noptions Passed to the render function.
  * @returns i18n localized alt string
  */
 export function imageAltT(altKey: string, i18noptions: Record<string, any> = {}): string {
-  let altStr = t("alts." + altKey, i18noptions);
+  let altStr = r("alts." + altKey, i18noptions);
   const lastChar = altStr[altStr.length - 1];
   if (lastChar !== ".") {
     altStr += ".";

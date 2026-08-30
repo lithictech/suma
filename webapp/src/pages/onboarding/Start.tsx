@@ -4,17 +4,18 @@ import { MdLink } from "../../components/SumaMarkdown";
 import { t } from "../../localization";
 import useI18n from "../../localization/useI18n";
 import { dayjs } from "../../modules/dayConfig";
+import { AppError, extractAppErrorAny } from "../../modules/feedback.ts";
 import { Logger } from "../../modules/logger";
 import useNavigate from "../../routing/useNavigate";
-import { extractErrorCode, extractLocalizedError, useError } from "../../state/useError";
 import useToggle from "../../state/useToggle";
 import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form";
-import FormError from "../../ui/FormError";
+import FormFeedback from "../../ui/FormFeedback";
 import Page from "../../ui/Page.tsx";
 import PhoneInput from "../../ui/PhoneInput";
+import React from "react";
 import { useForm } from "react-hook-form";
 
 export default function Start() {
@@ -22,7 +23,7 @@ export default function Start() {
   const navigate = useNavigate();
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
-  const [error, setError] = useError();
+  const [error, setError] = React.useState<AppError | null>();
 
   const {
     handleSubmit,
@@ -53,11 +54,12 @@ export default function Start() {
           },
         })
       )
-      .catch((err: any) => {
-        setError(extractLocalizedError(err));
+      .catch((err) => {
+        const appErr = extractAppErrorAny(err);
+        setError(appErr);
         submitDisabled.turnOff();
         inputDisabled.turnOff();
-        if (extractErrorCode(err) === "auth_conflict") {
+        if (appErr.code === "auth_conflict") {
           logger.error("Unexpected auth conflict");
           window.location.reload();
         }
@@ -90,7 +92,7 @@ export default function Start() {
           )}
         </p>
         <SignupAgreement error={errors.agree?.message} control={control} />
-        <FormError error={error} />
+        <FormFeedback feedback={error} />
         <ButtonGroup bottom>
           <ContinueButton />
         </ButtonGroup>

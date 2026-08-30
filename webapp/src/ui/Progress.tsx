@@ -5,7 +5,6 @@ interface ProgressProps {
   size?: number;
   stroke?: number;
   variant?: "bar" | "circle";
-  className?: ShimProps;
 }
 
 export default function Progress({

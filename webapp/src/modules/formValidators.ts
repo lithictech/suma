@@ -1,4 +1,4 @@
-import { t } from "../localization";
+import { r } from "../localization";
 import isString from "lodash/isString";
 import { Message, ValidationRule } from "react-hook-form";
 
@@ -43,33 +43,33 @@ export function buildValidators({
 }: BuildValidatorsProps): BuiltValidators {
   const result: BuiltValidators = {};
   if (required) {
-    result.required = { value: true, message: t("forms.invalid_required") };
+    result.required = { value: true, message: r("forms.invalid_required") };
   }
   if (minLength) {
     result.minLength = {
       value: minLength,
-      message: t("forms.invalid_min_length", { constraint: minLength }),
+      message: r("forms.invalid_min_length", { constraint: minLength }),
     };
   }
   if (maxLength) {
     result.maxLength = {
       value: maxLength,
-      message: t("forms.invalid_max_length", { constraint: maxLength }),
+      message: r("forms.invalid_max_length", { constraint: maxLength }),
     };
   }
   if (min) {
-    result.min = { value: min, message: t("forms.invalid_min", { constraint: min }) };
+    result.min = { value: min, message: r("forms.invalid_min", { constraint: min }) };
   }
   if (pattern) {
     result.pattern = {
       value: isString(pattern) ? new RegExp(pattern) : pattern,
-      message: t("forms.invalid_field"),
+      message: r("forms.invalid_field"),
     };
   }
   if (phone) {
     result.pattern = {
       value: PHONE_RE,
-      message: t("errors.impossible_phone_number"),
+      message: r("errors.impossible_phone_number"),
     };
   }
   return result;
