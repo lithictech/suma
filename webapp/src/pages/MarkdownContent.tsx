@@ -1,9 +1,11 @@
-import ScreenLoader from "../components/ScreenLoader";
+import LoadingPage from "../components/LoadingPage.tsx";
 import SumaMarkdown from "../components/SumaMarkdown";
 import { t as loct } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "../state/useMountEffect";
+import Page from "../ui/Page.tsx";
+import "./MarkdownContent.css";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
@@ -18,27 +20,16 @@ export default function MarkdownContent({ languageFile }: MarkdownContentProps) 
     loadLanguageFile(languageFile).then(() => setI18nLoading(false));
   });
   if (i18nLoading) {
-    return (
-      <div className="bg-light">
-        <div className="main-container">
-          <ScreenLoader show />
-        </div>
-      </div>
-    );
+    return <LoadingPage page />;
   }
   const title = loct(`titles.${languageFile}`) + " | " + loct("titles.suma_app");
   const contentKey = `${languageFile}.contents`;
   return (
-    <div className="bg-light">
-      <div className="main-container">
-        <Helmet>
-          <title>{title}</title>
-        </Helmet>
-        {/*<TopNav />*/}
-        {/*<LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>*/}
-        <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
-        {/*</LayoutContainer>*/}
-      </div>
-    </div>
+    <Page className="markdown-content">
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
+      <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
+    </Page>
   );
 }
