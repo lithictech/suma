@@ -109,6 +109,9 @@
 
     --select-arrow-size: 0.75rem;
 
+    --alert-icon-size: 24px;
+    --alert-arrow-size: 16px;
+
     /* ---- Z-index management ---- */
     --z-index-dialog: 100;
     --z-index-loader: 200;

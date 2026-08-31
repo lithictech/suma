@@ -8,19 +8,19 @@
   background-color: var(--tint-success);
 }
 
-.alert.alert-danger {
-  color: var(--color-danger);
-  background-color: var(--tint-danger);
-}
-
-.alert.alert-primary {
+.alert.alert-info {
   color: var(--color-primary);
   background-color: var(--tint-primary);
 }
 
-.alert.alert-secondary {
-  color: var(--color-secondary-contrast);
+.alert.alert-warning {
+  color: var(--color-danger);
   background-color: var(--tint-secondary);
+}
+
+.alert.alert-danger {
+  color: var(--color-danger);
+  background-color: var(--tint-danger);
 }
 
 .alert-title {

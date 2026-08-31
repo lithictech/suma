@@ -550,7 +550,7 @@ declare global {
   interface Program {
     name: string;
     description: string;
-    image: Image;
+    image: Image | null;
     periodBegin: string;
     periodEnd: string;
     appLink: string;

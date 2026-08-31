@@ -17,7 +17,8 @@ export const Variants: Story = {
       <Alert text="Something terrible has happened!" variant="danger" />
       <Alert text="Something great has happened!" variant="success" />
       <Alert title="This also has a title" text="Something terrible has happened!" />
-      <Alert title="This only has a title" variant="secondary" />
+      <Alert title="This only has a title" variant="info" />
+      <Alert text="This only has text" variant="warning" />
       <Alert title="This has a custom icon" icon={ShoppingBagIcon} />
       <Alert
         title="This goes somewhere"
