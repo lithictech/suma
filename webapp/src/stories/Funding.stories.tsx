@@ -1,3 +1,4 @@
+import AddCreditCard from "../components/AddCreditCard.tsx";
 import Funding from "../components/Funding.tsx";
 import { bankAccount, currentMember, paymentInstrument } from "./fixtures.ts";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
@@ -70,6 +71,18 @@ export const SupportAddingFunds: Story = {
       setUser={noop}
       supportedPaymentMethods={["bank_account", "card"]}
       featureAddFunds={true}
+    />
+  ),
+};
+
+export const AddCard: Story = {
+  render: () => (
+    <AddCreditCard
+      user={currentMember()}
+      onSuccess={function (data: string): void {
+        alert("ok: " + JSON.stringify(data));
+      }}
+      stripePublicKey={""}
     />
   ),
 };

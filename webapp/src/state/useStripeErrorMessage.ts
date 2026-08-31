@@ -32,7 +32,7 @@ export default function useStripeErrorMessage() {
   });
 
   const localizeStripeError = React.useCallback(
-    (data: any) => {
+    (data: any): string | null => {
       if (!get(data, "error.type")) {
         return null;
       } else if (!loaded) {

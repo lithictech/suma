@@ -12,16 +12,19 @@ interface StackProps extends DirectionProps {
   style?: CSSProperties;
 }
 
-export default function Stack({
-  id,
-  gap = 0,
-  wrap = false,
-  center = false,
-  className,
-  children,
-  style,
-  ...rest
-}: StackProps) {
+const Stack = React.forwardRef<HTMLDivElement, StackProps>(function Stack(
+  {
+    id,
+    gap = 0,
+    wrap = false,
+    center = false,
+    className,
+    children,
+    style,
+    ...rest
+  }: StackProps,
+  ref
+) {
   const direction = getDirection(rest);
   const cls = clsx(
     `gap-${gap}`,
@@ -32,10 +35,12 @@ export default function Stack({
     className
   );
   return (
-    <div id={id} className={cls} style={style}>
+    <div ref={ref} id={id} className={cls} style={style}>
       {children}
     </div>
   );
-}
+});
+
+export default Stack;
 
 const FLEX_CLS = { horizontal: "flex-row", vertical: "flex-column" };

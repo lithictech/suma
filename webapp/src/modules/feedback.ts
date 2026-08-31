@@ -11,13 +11,18 @@ type ErrorCode = string;
 export class AppError {
   code: string;
   opts: Record<string, any>;
+  explicit?: string;
 
-  constructor(code: string, opts: Record<string, any>) {
+  constructor(code: string, opts: Record<string, any>, explicit?: string) {
     this.code = code;
     this.opts = opts;
+    this.explicit = explicit;
   }
 
   render(): React.ReactNode {
+    if (this.explicit) {
+      return this.explicit;
+    }
     const msg = t(`errors.${this.code}`, this.opts);
     return msg;
   }

@@ -13,7 +13,7 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-export default function FundingAddCard() {
+export default function FundingAddCardPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const returnTo = params.get("returnTo");
