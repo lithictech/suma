@@ -1,26 +1,20 @@
-import api from "../api";
-import AddToHomescreen from "../components/AddToHomescreen";
 import AsyncContent from "../components/AsyncContent.tsx";
 import ProgramCard from "../components/ProgramCard.tsx";
 import TODO from "../components/TODO.tsx";
-import useAsyncFetch from "../state/useAsyncFetch";
-import useUser from "../state/useUser";
-import Page from "../ui/Page.tsx";
+import { AppError } from "../modules/feedback.ts";
 import Stack from "../ui/Stack";
 
-export default function Dashboard() {
-  const {
-    state: dashboard,
-    loading: dashboardLoading,
-    error: dashboardError,
-  } = useAsyncFetch<Dashboard>(api.dashboard, {
-    default: {} as Dashboard,
-  });
+interface DashboardProps {
+  user: CurrentMember;
+  dashboard: Dashboard;
+  loading: boolean;
+  error: AppError | null;
+}
+export default function DashboardC({ user, dashboard, loading, error }: DashboardProps) {
   return (
-    <Page appNav>
-      <TopAlerts dashboard={dashboard} />
-      <AddToHomescreen />
-      <AsyncContent loading={dashboardLoading} error={dashboardError}>
+    <>
+      <TopAlerts user={user} dashboard={dashboard} />
+      <AsyncContent loading={loading} error={error}>
         {() => (
           <Stack col gap={3}>
             {dashboard.programs.map((program) => (
@@ -29,17 +23,15 @@ export default function Dashboard() {
           </Stack>
         )}
       </AsyncContent>
-    </Page>
+    </>
   );
 }
 
-function TopAlerts({ dashboard }: { dashboard: Dashboard }) {
-  const { user, registrationSession } = useUser();
+function TopAlerts({ user, dashboard }: { user: CurrentMember; dashboard: Dashboard }) {
   return (
     <TODO>
       {dashboard}
       {user}
-      {registrationSession}
       {`
       {registrationSession && (
         <SeeAlsoAlert

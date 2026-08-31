@@ -17,6 +17,7 @@ import ScreenLoader from "../components/ScreenLoader";
 import { imageAltT, Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
+import Link from "../routing/Link.tsx";
 import { externalUrl } from "../routing/RoutePath.ts";
 import useMountEffect from "../state/useMountEffect";
 import useScrollToHashOnMount from "../state/useScrollToHashOnMount.tsx";
@@ -56,7 +57,9 @@ export default function PrivacyPolicy({ contentOnly }: { contentOnly?: boolean }
             <title>{`${t("sections.title")} | ${loct("titles.suma_app")}`}</title>
           </Helmet>
           <Stack row gap={3} center className="bgcolor-tint-primary px-3 py-2">
-            <img src={sumaLogo} height={64} alt={imageAltT("suma_logo")} />
+            <Link to="/">
+              <img src={sumaLogo} height={64} alt={imageAltT("suma_logo")} />
+            </Link>
             <Stack col gap={1}>
               <h1>Privacy Policy</h1>
             </Stack>

@@ -8,7 +8,7 @@ import { installPromiseExtras } from "./modules/bluejay";
 import ContactListAdd from "./pages/ContactListAdd";
 import ContactListHome from "./pages/ContactListHome";
 import ContactListSuccess from "./pages/ContactListSuccess";
-import Dashboard from "./pages/Dashboard";
+import DashboardPage from "./pages/DashboardPage.tsx";
 import Food from "./pages/Food";
 import FoodCart from "./pages/FoodCart";
 import FoodCheckout from "./pages/FoodCheckout";
@@ -183,7 +183,7 @@ function AppRoutes() {
       onboarded: "require",
       meta: "titles.dashboard",
       screenLoader: true,
-      Component: Dashboard,
+      Component: DashboardPage,
     }),
     typeRoute({
       path: "/menu",
