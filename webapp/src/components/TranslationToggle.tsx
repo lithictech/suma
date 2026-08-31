@@ -1,46 +1,51 @@
-import { r, t } from "../localization";
 import useI18n from "../localization/useI18n";
-import Button from "../ui/Button";
-import Icon from "../ui/Icon.tsx";
-import LanguageIcon from "@heroicons/react/24/outline/LanguageIcon";
-import React from "react";
+import clearHashFunc from "../routing/clearHash.ts";
+import useBackendGlobals from "../state/useBackendGlobals.ts";
+import { Direction } from "../types/direction.ts";
+import LanguageSwitcher from "../ui/LanguageSwitcher.tsx";
+import React, { CSSProperties } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export default function TranslationToggle({ className }: { className?: string }) {
-  const { currentLanguage } = useI18n();
-  return currentLanguage !== "en" ? (
-    <Translate
-      className={className}
-      to="en"
-      label={t("common.in_english")}
-      title={r("common.translate_to_english")}
-    />
-  ) : (
-    <Translate
-      className={className}
-      to="es"
-      label={t("common.in_spanish")}
-      title={r("common.translate_to_spanish")}
-    />
-  );
-}
-
-interface TranslateProps {
+interface TranslationToggleProps {
   className?: string;
-  to: string;
-  label: React.ReactNode;
-  title: string;
+  style?: CSSProperties;
+  direction?: Direction;
+  clearHash?: boolean;
 }
 
-const Translate = ({ className, to, label, title }: TranslateProps) => {
-  const { changeLanguage } = useI18n();
-  return (
-    <Button
-      className={className}
-      variant="text"
-      onClick={() => changeLanguage(to)}
-      title={title}
-    >
-      <Icon icon={LanguageIcon} /> <i>{label}</i>
-    </Button>
+export default function TranslationToggle({
+  direction,
+  className,
+  style,
+  clearHash,
+}: TranslationToggleProps) {
+  const { currentLanguage, changeLanguage } = useI18n();
+  const { supportedLocales } = useBackendGlobals();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const changeLang = React.useCallback(
+    (lang: string) => {
+      if (clearHash && location.hash) {
+        // When we change the language, the components rebuild.
+        // If we are scrolling on mount, this causes us to re-scroll.
+        // It seems reasonable to clear the hash globally,
+        // but if this is a problem,
+        clearHashFunc(location, navigate);
+      }
+      return changeLanguage(lang);
+    },
+    [changeLanguage, clearHash, location, navigate]
   );
-};
+
+  return (
+    <LanguageSwitcher
+      supportedLocales={supportedLocales?.items || []}
+      currentLanguage={currentLanguage}
+      changeLanguage={changeLang}
+      direction={direction}
+      className={className}
+      style={style}
+    />
+  );
+}

@@ -70,28 +70,33 @@ export const Switches: Story = {
 };
 
 export const RadioCards: Story = {
-  render: () => (
-    <DemoStack>
-      <RadioCard
-        name="radio"
-        options={[
-          { value: "a", label: "Option A" },
-          {
-            value: "b",
-            label: (
-              <div>
-                <p>The radio card contents</p>
-                <p className="text-muted font-weight-bold">can be styled normally.</p>
-              </div>
-            ),
-          },
-          { value: "c", label: "Option C" },
-        ]}
-        value=""
-        onValueChange={noop}
-      />
-    </DemoStack>
-  ),
+  render: () => {
+    const options = [
+      { value: "a", label: "Option A" },
+      {
+        value: "b",
+        label: (
+          <div>
+            <p>The radio card contents</p>
+            <p className="text-muted font-weight-bold">can be styled normally.</p>
+          </div>
+        ),
+      },
+      { value: "c", label: "Option C" },
+    ];
+    return (
+      <DemoStack>
+        <RadioCard name="radio" options={options} value="" onValueChange={noop} />
+        <RadioCard
+          name="radio"
+          options={options}
+          value=""
+          onValueChange={noop}
+          direction="horizontal"
+        />
+      </DemoStack>
+    );
+  },
 };
 
 export const CheckboxCards: Story = {

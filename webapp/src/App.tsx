@@ -1,5 +1,4 @@
 import ErrorPage from "./components/ErrorPage.tsx";
-import PrivacyPolicy from "./components/PrivacyPolicy.tsx";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
 import { r } from "./localization";
@@ -112,7 +111,11 @@ function AppRoutes() {
       Component: Home,
     }),
     typeRoute({ path: "/privacy-policy", Component: PrivacyPolicyPage }),
-    typeRoute({ path: "/privacy-policy-content", Component: PrivacyPolicyPage }),
+    typeRoute({
+      path: "/privacy-policy-content",
+      Component: PrivacyPolicyPage,
+      pageProps: { contentOnly: true },
+    }),
     typeRoute({
       path: "/terms-of-use",
       pageProps: {

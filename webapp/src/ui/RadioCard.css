@@ -1,6 +1,5 @@
 .radio-card {
     display: flex;
-    flex-direction: column;
     border: none;
     padding: 0;
     margin: 0;
@@ -21,20 +20,63 @@
     font-weight: var(--font-weight-normal);
 }
 
-/** We use an outline to show an item checked.
-The outline must follow the card on the first/last item. */
-.radio-card-option:first-child {
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+.radio-card-vertical {
+    flex-direction: column;
+
+    /** We use an outline to show an item checked.
+    The outline must follow the card on the first/last item. */
+    .radio-card-option:first-child {
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+    }
+
+    .radio-card-option:last-child {
+        border-bottom-left-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+    }
+
+    .radio-card-option:not(:last-child) {
+        border-bottom: var(--border-width) var(--color-border) solid;
+    }
+
+    /** Hide the border for the item before the item that is selected.
+     That is, if we have options A, B, and C, there are borders between A/B and B/C.
+     If B is selected, A has a bottom border; this hides the border so we don't have
+     a small visual artifact above the focus outline about B. */
+    .radio-card-option:has(+ .radio-card-option input:checked) {
+        border-bottom-color: transparent;
+    }
 }
 
-.radio-card-option:last-child {
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-}
+.radio-card-horizontal {
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: stretch;
 
-.radio-card-option:not(:last-child) {
-    border-bottom: var(--border-width) var(--color-border) solid;
+    .radio-card-option {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .radio-card-option:first-child {
+        border-top-left-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+    }
+
+    .radio-card-option:last-child {
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+    }
+
+    .radio-card-option:not(:last-child) {
+        border-right: var(--border-width) var(--color-border) solid;
+    }
+
+    .radio-card-option:has(+ .radio-card-option input:checked) {
+        border-right-color: transparent;
+    }
 }
 
 .radio-card-option input[type="radio"] {
@@ -57,14 +99,6 @@ The outline must follow the card on the first/last item. */
 
 .radio-card-option:has(input:focus-visible) {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
-}
-
-/** Hide the border for the item before the item that is selected.
- That is, if we have options A, B, and C, there are borders between A/B and B/C.
- If B is selected, A has a bottom border; this hides the border so we don't have
- a small visual artifact above the focus outline about B. */
-.radio-card-option:has(+ .radio-card-option input:checked) {
-    border-bottom-color: transparent;
 }
 
 .radio-card-option:has(input:disabled) {

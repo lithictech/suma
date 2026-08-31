@@ -1,7 +1,8 @@
 import OrderDetail from "../components/OrderDetail.tsx";
 import OrderList from "../components/OrderList.tsx";
 import TODO from "../components/TODO.tsx";
-import { currentMember, DemoStack } from "./helpers.tsx";
+import { currentMember } from "./fixtures.tsx";
+import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 

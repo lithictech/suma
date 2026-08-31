@@ -31,9 +31,7 @@ import clsx from "clsx";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
-const Container = (props: any) => <div {...props} />;
-
-export default function PrivacyPolicy() {
+export default function PrivacyPolicy({ contentOnly }: { contentOnly?: boolean }) {
   const [i18nLoading, setI18nLoading] = React.useState(true);
   const { loadLanguageFile } = useI18n();
   const [language] = useCurrentLanguage();
@@ -49,38 +47,41 @@ export default function PrivacyPolicy() {
   if (i18nLoading) {
     return <ScreenLoader show />;
   }
+
   return (
     <Page buffer={false} gap={0} className="pp">
-      <Helmet>
-        <title>{`${t("sections.title")} | ${loct("titles.suma_app")}`}</title>
-      </Helmet>
-
-      <Stack row gap={3} center className="bgcolor-tint-primary px-3 py-2">
-        <img src={sumaLogo} height={64} alt={imageAltT("suma_logo")} />
-        <Stack col gap={1}>
-          <h1>Privacy Policy</h1>
-          <TranslationToggle />
-        </Stack>
-      </Stack>
-
+      {!contentOnly && (
+        <>
+          <Helmet>
+            <title>{`${t("sections.title")} | ${loct("titles.suma_app")}`}</title>
+          </Helmet>
+          <Stack row gap={3} center className="bgcolor-tint-primary px-3 py-2">
+            <img src={sumaLogo} height={64} alt={imageAltT("suma_logo")} />
+            <Stack col gap={1}>
+              <h1>Privacy Policy</h1>
+            </Stack>
+          </Stack>
+        </>
+      )}
       <TableOfContentsNav />
+      <TranslationToggle className="mt-3" clearHash />
       <Stack col gap={3} className="p-3">
         <Stack id="overview" col gap={5} className="pp-target">
           <p className="fw-light">{t("overview.intro")}</p>
-          <p className="pt-2">
-            <a href="#title">
-              <i>{t("overview.jump_to_privacy_policy")}</i>
-            </a>
-          </p>
-          <Button
-            variant="outline"
-            to={externalUrl(`https://mysuma.org/faq-${language}`)}
-          >
-            {t("overview.faq")}
-          </Button>
-          <Button variant="outline" to={externalUrl(`mailto:info@mysuma.org`)}>
-            {t("overview.contact_us")}
-          </Button>
+          <a href="#title">
+            <i>{t("overview.jump_to_privacy_policy")}</i>
+          </a>
+          <Stack col gap={1}>
+            <Button
+              variant="outline"
+              to={externalUrl(`https://mysuma.org/faq-${language}`)}
+            >
+              {t("overview.faq")}
+            </Button>
+            <Button variant="outline" to={externalUrl(`mailto:info@mysuma.org`)}>
+              {t("overview.contact_us")}
+            </Button>
+          </Stack>
           <Card>
             <CardBody>
               <h2 className="display-5">{t("overview.community_driven_title")}</h2>
@@ -98,7 +99,7 @@ export default function PrivacyPolicy() {
           <PedalCol sectionKey="overview.trust" img={trustIcon} imgAlt="" right={true} />
         </Stack>
         <hr className="my-5" />
-        <Container>
+        <Stack col>
           <h1 id="title" className="text-center mb-2 pp-target">
             {t("sections.title")}
           </h1>
@@ -228,7 +229,7 @@ export default function PrivacyPolicy() {
             sectionKey="sections.contact_information"
             p={t("sections.contact_information.paragraph")}
           />
-        </Container>
+        </Stack>
       </Stack>
     </Page>
   );
