@@ -21,6 +21,7 @@ export interface RadioCardProps<T extends string = string> extends HasInputFeedb
   disabled?: boolean;
   required?: boolean;
   className?: string;
+  optionClass?: string;
   style?: React.CSSProperties;
   direction?: Direction;
 }
@@ -43,6 +44,7 @@ const RadioCard = React.forwardRef(function RadioCard<T extends string = string>
     error,
     help,
     className,
+    optionClass,
     style,
     direction = "vertical",
   }: RadioCardProps<T>,
@@ -64,7 +66,7 @@ const RadioCard = React.forwardRef(function RadioCard<T extends string = string>
           </legend>
         )}
         {options.map((option) => (
-          <label key={option.value} className="radio-card-option">
+          <label key={option.value} className={clsx("radio-card-option", optionClass)}>
             <input
               type="radio"
               name={name}

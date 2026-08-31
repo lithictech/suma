@@ -32,13 +32,19 @@ export const Language: Story = {
           supportedLocales={supported}
           currentLanguage={language}
           changeLanguage={setLanguage}
-          direction="horizontal"
+          variant="horizontal"
         />
         <LanguageSwitcher
           supportedLocales={supported}
           currentLanguage={language}
           changeLanguage={setLanguage}
-          direction="vertical"
+          variant="vertical"
+        />
+        <LanguageSwitcher
+          supportedLocales={supported}
+          currentLanguage={language}
+          changeLanguage={setLanguage}
+          variant="short"
         />
       </DemoStack>
     );

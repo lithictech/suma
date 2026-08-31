@@ -3,11 +3,13 @@ import CardText from "./CardText.tsx";
 import RadioCard from "./RadioCard.tsx";
 import React from "react";
 
+export type LanguageSwitcherVariant = "horizontal" | "vertical" | "short";
+
 interface LanguageSwitcherProps {
   supportedLocales: Locale[];
   currentLanguage: string;
   changeLanguage: (language: string) => void;
-  direction?: Direction;
+  variant?: LanguageSwitcherVariant;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -16,12 +18,16 @@ export default function LanguageSwitcher({
   supportedLocales,
   currentLanguage,
   changeLanguage,
-  direction = "horizontal",
+  variant = "horizontal",
   className,
   style,
 }: LanguageSwitcherProps) {
   if (!supportedLocales) {
     return null;
+  }
+  let direction: Direction = "horizontal";
+  if (variant === "vertical") {
+    direction = "vertical";
   }
   return (
     <RadioCard
@@ -32,6 +38,7 @@ export default function LanguageSwitcher({
         value: code,
       }))}
       value={currentLanguage}
+      optionClass={variant === "short" ? "py-1 px-0" : ""}
       className={className}
       style={style}
       onValueChange={(v) => changeLanguage(v)}

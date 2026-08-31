@@ -10,4 +10,8 @@
   p {
     margin-bottom: var(--space-3);
   }
+
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+  padding-bottom: var(--space-6);
 }

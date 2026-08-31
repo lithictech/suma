@@ -12,12 +12,10 @@ import transparencyIcon from "../assets/images/privacypolicy/overview-transparen
 import trustIcon from "../assets/images/privacypolicy/overview-trust-icon.svg";
 import policyChanges from "../assets/images/privacypolicy/policy-changes.svg";
 import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access.svg";
-import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import ScreenLoader from "../components/ScreenLoader";
-import { imageAltT, Lookup, t as loct } from "../localization";
+import { Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
-import Link from "../routing/Link.tsx";
 import { externalUrl } from "../routing/RoutePath.ts";
 import useMountEffect from "../state/useMountEffect";
 import useScrollToHashOnMount from "../state/useScrollToHashOnMount.tsx";
@@ -26,8 +24,8 @@ import Card from "../ui/Card.tsx";
 import CardBody from "../ui/CardBody.tsx";
 import Page from "../ui/Page.tsx";
 import Stack from "../ui/Stack";
+import ContentPageHeader from "./ContentPageHeader.tsx";
 import "./PrivacyPolicy.css";
-import TranslationToggle from "./TranslationToggle";
 import clsx from "clsx";
 import React from "react";
 import { Helmet } from "react-helmet-async";
@@ -50,24 +48,16 @@ export default function PrivacyPolicy({ contentOnly }: { contentOnly?: boolean }
   }
 
   return (
-    <Page buffer={false} gap={0} className="pp">
+    <Page buffer={false} gap={0} className="pp content-page">
       {!contentOnly && (
         <>
           <Helmet>
             <title>{`${t("sections.title")} | ${loct("titles.suma_app")}`}</title>
           </Helmet>
-          <Stack row gap={3} center className="bgcolor-tint-primary px-3 py-2">
-            <Link to="/">
-              <img src={sumaLogo} height={64} alt={imageAltT("suma_logo")} />
-            </Link>
-            <Stack col gap={1}>
-              <h1>Privacy Policy</h1>
-            </Stack>
-          </Stack>
+          <ContentPageHeader title={loct("common.privacy_policy")} />
         </>
       )}
       <TableOfContentsNav />
-      <TranslationToggle className="mt-3" clearHash />
       <Stack col gap={3} className="p-3">
         <Stack id="overview" col gap={5} className="pp-target">
           <p className="fw-light">{t("overview.intro")}</p>

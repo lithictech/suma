@@ -1,6 +1,7 @@
+import ContentPageHeader from "../components/ContentPageHeader.tsx";
 import LoadingPage from "../components/LoadingPage.tsx";
 import SumaMarkdown from "../components/SumaMarkdown";
-import { t as loct } from "../localization";
+import { t } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "../state/useMountEffect";
@@ -22,14 +23,17 @@ export default function MarkdownContent({ languageFile }: MarkdownContentProps) 
   if (i18nLoading) {
     return <LoadingPage page />;
   }
-  const title = loct(`titles.${languageFile}`) + " | " + loct("titles.suma_app");
+  const title = t(`titles.${languageFile}`) + " | " + t("titles.suma_app");
   const contentKey = `${languageFile}.contents`;
   return (
-    <Page className="markdown-content">
+    <Page buffer={false} gap={0}>
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
+      <ContentPageHeader title={t("common.terms_of_use")} />
+      <div className="markdown-content">
+        <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
+      </div>
     </Page>
   );
 }

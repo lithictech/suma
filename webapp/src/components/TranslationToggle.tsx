@@ -1,23 +1,22 @@
 import useI18n from "../localization/useI18n";
 import clearHashFunc from "../routing/clearHash.ts";
 import useBackendGlobals from "../state/useBackendGlobals.ts";
-import { Direction } from "../types/direction.ts";
-import LanguageSwitcher from "../ui/LanguageSwitcher.tsx";
+import LanguageSwitcher, { LanguageSwitcherVariant } from "../ui/LanguageSwitcher.tsx";
 import React, { CSSProperties } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface TranslationToggleProps {
   className?: string;
   style?: CSSProperties;
-  direction?: Direction;
   clearHash?: boolean;
+  variant?: LanguageSwitcherVariant;
 }
 
 export default function TranslationToggle({
-  direction,
   className,
   style,
   clearHash,
+  variant,
 }: TranslationToggleProps) {
   const { currentLanguage, changeLanguage } = useI18n();
   const { supportedLocales } = useBackendGlobals();
@@ -43,7 +42,7 @@ export default function TranslationToggle({
       supportedLocales={supportedLocales?.items || []}
       currentLanguage={currentLanguage}
       changeLanguage={changeLang}
-      direction={direction}
+      variant={variant}
       className={className}
       style={style}
     />
