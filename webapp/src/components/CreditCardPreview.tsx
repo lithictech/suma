@@ -1,9 +1,10 @@
-import Payment, { PaymentCardInfo } from "../modules/payment.js";
+import Payment, { PaymentCardField, PaymentCardInfo } from "../modules/payment.js";
+import "./CreditCardPreview.css";
 import clsx from "clsx";
 
 interface CreditCardPreviewProps {
   cardInfo: PaymentCardInfo;
-  focused?: string;
+  focused?: PaymentCardField | null;
   name?: string;
   /** "YOUR NAME HERE" */
   placeholderName?: string;

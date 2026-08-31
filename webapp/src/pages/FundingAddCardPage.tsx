@@ -1,8 +1,8 @@
 import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
+import config from "../config.ts";
 import { t } from "../localization";
-import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
 import { untypedRoutePath } from "../routing/RoutePath.ts";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
@@ -15,18 +15,18 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function FundingAddCardPage() {
   const [params] = useSearchParams();
+  const {user} = useUser();
   const navigate = useNavigate();
   const returnTo = params.get("returnTo");
   const returnToImmediate = params.get("returnToImmediate");
   const [submitSuccessful, setSubmitSuccessful] = React.useState<any>(null);
   const { handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
-  const [error, setError] = React.useState<AppError | null>();
 
   const handleCardSuccess = React.useCallback(
     (stripeToken: string) => {
       screenLoader.turnOn();
-      setError(null);
+      // setError(null);
       api
         .createCardStripe({ token: stripeToken })
         .tap(handleUpdateCurrentMember)
@@ -42,10 +42,10 @@ export default function FundingAddCardPage() {
             instrumentType: r.data.paymentMethodType,
           });
         })
-        .catch((e) => setError(extractAppErrorAny(e)))
+        // .catch((e) => setError(extractAppErrorAny(e)))
         .finally(screenLoader.turnOff);
     },
-    [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader, setError]
+    [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader]
   );
 
   return (
@@ -58,8 +58,8 @@ export default function FundingAddCardPage() {
           <PageHeader title={t("payments.add_card")} />
           <p>{t("payments.payment_intro.privacy_statement")}</p>
           <AddCreditCard
-            error={error}
-            setError={setError}
+            user={user!}
+            stripePublicKey={config.stripePublicKey}
             onSuccess={handleCardSuccess}
           />
         </>
