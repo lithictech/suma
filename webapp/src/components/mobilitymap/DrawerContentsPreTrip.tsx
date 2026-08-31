@@ -52,7 +52,7 @@ export default function DrawerContentsPreTrip({
             vendorName: vehicle.vendorService.vendorName,
           })}
         </p>
-        <Button size="sm" variant="primary" className="w-100" to="/private-accounts">
+        <Button size="sm" preset="primary" className="w-100" to="/private-accounts">
           {t("forms.get_started")}
         </Button>
       </>
@@ -78,7 +78,7 @@ export default function DrawerContentsPreTrip({
     );
   } else {
     action = (
-      <Button size="sm" variant="primary" className="w-100" onClick={handleReserve}>
+      <Button size="sm" preset="primary" className="w-100" onClick={handleReserve}>
         {t("mobility.reserve_scooter")}
       </Button>
     );

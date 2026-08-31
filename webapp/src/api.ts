@@ -116,7 +116,11 @@ export default {
   getSupportedCurrencies: (data?: Params, config?: AxiosRequestConfig) =>
     get<ApiCollection<Currency>>(`/api/v1/meta/supported_currencies`, data, config),
   getSupportedPaymentMethods: (data?: Params, config?: AxiosRequestConfig) =>
-    get<ApiCollection<string>>(`/api/v1/meta/supported_payment_methods`, data, config),
+    get<ApiCollection<PaymentMethodType>>(
+      `/api/v1/meta/supported_payment_methods`,
+      data,
+      config
+    ),
   geolocateIp: (data?: Params, config?: AxiosRequestConfig) =>
     get<GeolocateIP>(`/api/v1/meta/geolocate_ip`, data, config),
   getSupportedOrganizations: (data?: Params, config?: AxiosRequestConfig) =>

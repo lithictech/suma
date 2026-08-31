@@ -28,7 +28,7 @@ const mapVendorService: MobilityMapProvider = {
   rate: rate(),
 };
 
-const baseVehicle = {
+const baseVehicle: MobilityDetailedVehicle = {
   precision: 1,
   vendorService: vendorService(),
   vehicleId: "vehicle1",

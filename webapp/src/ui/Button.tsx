@@ -4,15 +4,28 @@ import "./Button.css";
 import clsx from "clsx";
 import React, { CSSProperties, MouseEventHandler } from "react";
 
+export type ButtonVariant = "filled" | "text" | "outline";
+export type ButtonColor = "primary" | "secondary" | "danger" | "success";
+export type ButtonPreset = "primary" | "secondary";
+export type ButtonSize = "sm" | "md" | "lg";
+interface ButtonStyle extends CSSProperties {
+  "--btn-color"?: string;
+  "--btn-color-hover"?: string;
+  "--btn-bg"?: string;
+  "--btn-bg-hover"?: string;
+}
+
 export interface ButtonProps {
-  variant?: "primary" | "secondary" | "text" | "outline";
-  size?: "sm" | "md" | "lg";
+  variant?: ButtonVariant;
+  color?: ButtonColor;
+  size?: ButtonSize;
+  preset?: ButtonPreset;
   className?: string;
+  style?: ButtonStyle;
   to?: RoutePathOrUrl;
   disabled?: boolean;
   inline?: boolean;
   children?: React.ReactNode;
-  style?: CSSProperties;
   title?: string;
   type?: "submit" | "reset" | "button" | undefined;
   value?: string;
@@ -23,9 +36,12 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
   function Button(
     {
       className,
+      style,
       to,
-      variant = "primary",
+      variant = "filled",
+      color = "primary",
       size = "md",
+      preset,
       disabled,
       inline,
       children,
@@ -34,6 +50,13 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     },
     ref
   ) {
+    if (preset === "primary") {
+      color = "primary";
+      variant = "filled";
+    } else if (preset === "secondary") {
+      color = "secondary";
+      variant = "filled";
+    }
     const cls = clsx(
       className,
       `btn`,
@@ -42,12 +65,14 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
       inline && `btn-inline btn-inline-${size}`,
       to && "btn-link"
     );
+    const sty: ButtonStyle = { ...toColorStyle(variant, color), ...style };
     if (to) {
       return (
         <Link
           ref={ref as React.Ref<HTMLAnchorElement>}
           to={to}
           className={cls}
+          style={sty}
           aria-disabled={disabled}
           {...rest}
         >
@@ -61,6 +86,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
         type={type}
         disabled={disabled}
         className={cls}
+        style={sty}
         {...rest}
       >
         {children}
@@ -68,4 +94,32 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     );
   }
 );
+
 export default Button;
+
+function toColorStyle(v: ButtonVariant, c: ButtonColor): ButtonStyle {
+  const transparentBg = v === "outline" || v === "text";
+  if (transparentBg) {
+    return {
+      "--btn-color": `var(--color-${c})`,
+      "--btn-color-hover": `var(--color-${c}-hover)`,
+      "--btn-bg": `transparent`,
+      "--btn-bg-hover": `transparent`,
+    };
+  }
+  const contrastBased = c === "primary" || c === "secondary";
+  if (contrastBased) {
+    return {
+      "--btn-color": `var(--color-${c}-contrast)`,
+      "--btn-color-hover": `var(--color-${c}-contrast)`,
+      "--btn-bg": `var(--color-${c})`,
+      "--btn-bg-hover": `var(--color-${c}-hover)`,
+    };
+  }
+  return {
+    "--btn-color": `var(--color-primary-contrast)`,
+    "--btn-color-hover": `var(--color-primary-contrast)`,
+    "--btn-bg": `var(--color-${c})`,
+    "--btn-bg-hover": `var(--color-${c}-hover)`,
+  };
+}

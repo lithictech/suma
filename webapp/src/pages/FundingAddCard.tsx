@@ -1,7 +1,6 @@
 import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
-import PageHeading from "../components/PageHeading";
 import { t } from "../localization";
 import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
 import { untypedRoutePath } from "../routing/RoutePath.ts";
@@ -9,6 +8,7 @@ import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
 import Button from "../ui/Button";
+import PageHeader from "../ui/PageHeader.tsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -55,7 +55,7 @@ export default function FundingAddCard() {
       ) : (
         <>
           <BreadcrumbBack back={returnTo ? untypedRoutePath(returnTo) : true} />
-          <PageHeading>{t("payments.add_card")}</PageHeading>
+          <PageHeader title={t("payments.add_card")} />
           <p>{t("payments.payment_intro.privacy_statement")}</p>
           <AddCreditCard
             error={error}

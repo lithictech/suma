@@ -78,7 +78,7 @@ export const RadioCards: Story = {
         label: (
           <div>
             <p>The radio card contents</p>
-            <p className="text-muted font-weight-bold">can be styled normally.</p>
+            <p className="color-text-muted font-weight-bold">can be styled normally.</p>
           </div>
         ),
       },

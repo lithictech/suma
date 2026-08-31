@@ -32,7 +32,7 @@ export default function LedgerItemModal({ item, onClose }: LedgerItemModalProps)
             {t("common.reference_id")}: {opaqueId}
           </p>
           <div className="d-flex justify-content-end mt-4">
-            <Button variant="primary" className="mt-2" onClick={onClose}>
+            <Button preset="primary" className="mt-2" onClick={onClose}>
               {t("common.close")}
             </Button>
           </div>

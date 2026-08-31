@@ -49,7 +49,7 @@ export default function OrderList({ user, orders, loading, onNavigate }: OrderLi
     <>
       {t("food.no_orders")}
       <div className="button-stack mt-2">
-        <Button variant="primary" to="/food">
+        <Button preset="primary" to="/food">
           {t("food.available_offerings")}
         </Button>
       </div>

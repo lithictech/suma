@@ -1,22 +1,26 @@
 import api from "../api";
 import { base64decode } from "../modules/base64";
+import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
 import { localStorageCache } from "../modules/localStorageHelper";
 import { Logger } from "../modules/logger";
 import { withSentry } from "../modules/sentry";
+import { AxiosResponse } from "axios";
 import humps from "humps";
 import get from "lodash/get";
 import React from "react";
 
 const logger = new Logger("user");
 
+export type SetCurrentMember = (u: CurrentMember | null) => void;
+
 export interface UserContextValue {
   user: CurrentMember | null;
-  setUser: (u: CurrentMember | null) => void;
+  setUser: SetCurrentMember;
   userLoading: boolean;
   userError: any;
   userAuthed: boolean;
   userUnauthed: boolean;
-  handleUpdateCurrentMember: (response: any) => void;
+  handleUpdateCurrentMember: (response: AxiosResponse) => void;
   registrationSession: RegistrationLink | null;
 }
 
@@ -33,7 +37,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     localStorageCache.getItem(STORAGE_KEY, null)
   );
   const [userLoading, setUserLoading] = React.useState(!user);
-  const [userError, setUserError] = React.useState<any>(null);
+  const [userError, setUserError] = React.useState<AppError | null>(null);
 
   const setUser = React.useCallback((u: CurrentMember | null) => {
     withSentry((sentry) => {
@@ -55,11 +59,11 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     return api
       .getMe()
       .then((r) => setUser(r.data))
-      .catch((e) => {
+      .catch((e: any) => {
         setUserInner(null);
         localStorageCache.removeItem(STORAGE_KEY);
         setUserLoading(false);
-        setUserError(e);
+        setUserError(extractAppErrorAny(e));
         const camelErr = humps.camelizeKeys(e.response?.data?.error || {});
         setRegLinkFromError(camelErr.registrationLink as RegistrationLink);
       });
@@ -71,7 +75,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
 
   // See add_current_member_header for more info.
   const handleUpdateCurrentMember = React.useCallback(
-    (response: any) => {
+    (response: AxiosResponse) => {
       const memberBase64: string = get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
         logger.error(

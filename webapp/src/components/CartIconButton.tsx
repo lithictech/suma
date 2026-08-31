@@ -14,7 +14,7 @@ export default function CartIconButton({ offeringId, cart }: CartIconButtonProps
   return (
     <Button
       to={["/cart/:id", { id: offeringId }]}
-      variant={cart.items?.length > 0 ? "primary" : "outline"}
+      variant={cart.items?.length > 0 ? "filled" : "outline"}
       className="py-1"
       size="sm"
     >

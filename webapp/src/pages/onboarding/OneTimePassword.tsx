@@ -198,7 +198,7 @@ const OneTimePassword = () => {
         <TODO
           message={message}
         >{`<FormSuccess message={message} center className="mb-1" />`}</TODO>
-        <Stack gap={1} className="text-muted font-size-sm" wrap center>
+        <Stack gap={1} className="color-text-muted font-size-sm" wrap center>
           {t("otp.did_not_receive")}
           <Button size="sm" variant="text" onClick={handleResend}>
             {t("otp.send_new_code")}

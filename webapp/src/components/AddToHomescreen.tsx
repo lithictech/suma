@@ -144,7 +144,7 @@ export default function AddToHomescreen() {
       </TODO>
       <p>{t("common.add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
-        <Button ref={addToHomescreenButtonRef} variant="primary">
+        <Button ref={addToHomescreenButtonRef} preset="primary">
           {t("common.install_suma")}
         </Button>
       </div>

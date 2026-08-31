@@ -36,7 +36,7 @@ function DialogDemo() {
                 >
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={dialogToggle.turnOff}>
+                <Button preset="primary" onClick={dialogToggle.turnOff}>
                   Delete
                 </Button>
               </ButtonGroup>

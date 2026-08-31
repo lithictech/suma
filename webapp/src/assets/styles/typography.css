@@ -5,7 +5,6 @@
 
 .text-transform-unset { text-transform: unset !important; }
 
-.text-muted { color: var(--color-text-muted); }
 .text-left { text-align: left; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }

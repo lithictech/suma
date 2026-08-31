@@ -90,8 +90,7 @@ export const Alerts: Story = {
             },
           ],
         }}
-        user={{
-          ...currentMember(),
+        user={currentMember({
           ongoingTrip: mobilityTrip(),
           readOnlyReason: "",
           unclaimedOrdersCount: 1,
@@ -99,7 +98,7 @@ export const Alerts: Story = {
             organizationName: "Housing Co",
             intro: "",
           },
-        }}
+        })}
       />
     </Page>
   ),

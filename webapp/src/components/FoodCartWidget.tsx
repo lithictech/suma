@@ -68,7 +68,7 @@ export default function FoodCartWidget({
     return (
       <ButtonGroup aria-label="add-to-cart" className="shadow">
         <Button
-          variant="secondary"
+          preset="secondary"
           className={clsx(
             btnClasses,
             size === "sm" && "p-1",
