@@ -1,0 +1,63 @@
+.pp {
+  scroll-behavior: smooth;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pp-toc {
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-nav);
+}
+
+.pp-toc summary {
+  cursor: pointer;
+  font-weight: var(--font-weight-bold);
+  padding: 0.5rem 0;
+  list-style: none; /* removes default marker so we can add our own */
+}
+
+/* custom disclosure arrow, since list-style: none removes the native one */
+.pp-toc summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 150ms ease;
+}
+
+.pp-toc[open] summary::before,
+.pp-toc details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.pp-toc ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.pp-toc li {
+  padding: 0.25rem 0;
+}
+
+.pp-toc a {
+  text-decoration: none;
+  color: var(--color-text-muted, #444);
+}
+
+.pp-toc a:hover,
+.pp-toc a:focus-visible {
+  color: var(--color-text, #000);
+  text-decoration: underline;
+}
+
+.pp-target {
+  scroll-margin-top: 60px;
+}
+
+.pp-image {
+  height: 150px;
+}
