@@ -8,7 +8,6 @@ import "./funding.css";
 import "./layout.css";
 import "./mobility.css";
 import "./onboarding.css";
-import "./privacy-policy.css";
 import "./spacing.css";
 import "./tables.css";
 import "./topnav.css";

@@ -3,6 +3,7 @@ import clsx from "clsx";
 import React, { CSSProperties } from "react";
 
 interface StackProps extends DirectionProps {
+  id?: string;
   gap?: number;
   wrap?: boolean;
   center?: boolean;
@@ -12,6 +13,7 @@ interface StackProps extends DirectionProps {
 }
 
 export default function Stack({
+  id,
   gap = 0,
   wrap = false,
   center = false,
@@ -30,7 +32,7 @@ export default function Stack({
     className
   );
   return (
-    <div className={cls} style={style}>
+    <div id={id} className={cls} style={style}>
       {children}
     </div>
   );

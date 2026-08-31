@@ -1,6 +1,6 @@
 import sumaLogo from "../../assets/images/suma-logo-word-512.png";
 import AddToHomescreen from "../../components/AddToHomescreen";
-import TranslationToggle from "../../components/TranslationToggle";
+import TranslationToggle from "../../components/TranslationToggle.tsx";
 import { dt, imageAltT, t } from "../../localization";
 import externalLinks from "../../modules/externalLinks";
 import ExternalLink from "../../routing/ExternalLink.tsx";
@@ -32,7 +32,7 @@ export default function Home() {
           <ExternalLink href={externalLinks.sumaIntroLink} className="text-nowrap">
             {t("common.learn_more")}
           </ExternalLink>
-          <TranslationToggle className="my-3" />
+          <TranslationToggle className="my-3" direction="horizontal" />
         </Stack>
       </Stack>
       <AddToHomescreen />

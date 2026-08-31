@@ -1,6 +1,6 @@
 .div-link {
   text-decoration: none !important;
-  color: inherit !important;
+  color: inherit;
 }
 
 .div-link * {

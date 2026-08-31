@@ -338,17 +338,17 @@ declare global {
     onboarded: boolean;
     roleAccess: RoleAccessType;
     unclaimedOrdersCount: number;
-    ongoingTrip: MobilityTrip;
+    ongoingTrip: MobilityTrip | null;
     readOnlyMode: boolean;
     readOnlyReason: string;
     paymentInstruments: PaymentInstrument[];
-    adminMember: CurrentMember;
+    adminMember: CurrentMember | null;
     showPrivateAccounts: boolean;
     preferences: MemberPreferences;
     hasOrderHistory: boolean;
     chargeableCashBalance: Money;
     finishedSurveyTopics: string[];
-    registrationLink: RegistrationLink;
+    registrationLink: RegistrationLink | null;
   }
 
   /** Auto-generated from Suma::API::Entities::ImageEntity */
@@ -550,7 +550,7 @@ declare global {
   interface Program {
     name: string;
     description: string;
-    image: Image;
+    image: Image | null;
     periodBegin: string;
     periodEnd: string;
     appLink: string;

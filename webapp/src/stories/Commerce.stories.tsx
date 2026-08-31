@@ -1,6 +1,7 @@
 import OrderDetail from "../components/OrderDetail.tsx";
 import OrderList from "../components/OrderList.tsx";
 import TODO from "../components/TODO.tsx";
+import { currentMember } from "./fixtures.tsx";
 import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
@@ -16,11 +17,28 @@ export const OrderHistoryList: Story = {
   render: () => (
     <DemoStack>
       <h2>Order List</h2>
-      <OrderList orders={orders} loading={false} onNavigate={noop} />
+      <OrderList
+        orders={orders}
+        loading={false}
+        onNavigate={noop}
+        user={currentMember()}
+      />
       <h2>Loading</h2>
-      <OrderList orders={orders} loading={true} onNavigate={noop} />
+      <OrderList
+        orders={orders}
+        loading={true}
+        onNavigate={noop}
+        user={currentMember()}
+      />
       <h2>Empty</h2>
-      <OrderList orders={[]} loading={false} onNavigate={noop} />
+      <OrderList orders={[]} loading={false} onNavigate={noop} user={currentMember()} />
+      <h2>Pending Orders</h2>
+      <OrderList
+        orders={[orders[0]]}
+        loading={false}
+        onNavigate={noop}
+        user={{ ...currentMember(), unclaimedOrdersCount: 1 }}
+      />
     </DemoStack>
   ),
 };

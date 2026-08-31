@@ -21,17 +21,30 @@ export const Theme: Story = {
 
 export const Language: Story = {
   render: () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const supported = [
+      { code: "en", language: "English", native: "English" },
+      { code: "es", language: "Spanish", native: "Español" },
+    ];
     const [language, setLanguage] = React.useState("en");
     return (
       <DemoStack>
         <LanguageSwitcher
-          supportedLocales={[
-            { code: "en", language: "English", native: "English" },
-            { code: "es", language: "Spanish", native: "Español" },
-          ]}
+          supportedLocales={supported}
           currentLanguage={language}
           changeLanguage={setLanguage}
+          variant="horizontal"
+        />
+        <LanguageSwitcher
+          supportedLocales={supported}
+          currentLanguage={language}
+          changeLanguage={setLanguage}
+          variant="vertical"
+        />
+        <LanguageSwitcher
+          supportedLocales={supported}
+          currentLanguage={language}
+          changeLanguage={setLanguage}
+          variant="short"
         />
       </DemoStack>
     );

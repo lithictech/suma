@@ -1,0 +1,17 @@
+.markdown-content {
+  h1, h2, h3 {
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+  h4, h5, h6 {
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  p {
+    margin-bottom: var(--space-3);
+  }
+
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+  padding-bottom: var(--space-6);
+}

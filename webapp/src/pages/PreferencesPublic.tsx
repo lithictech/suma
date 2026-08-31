@@ -1,45 +1,41 @@
-import TODO from "../components/TODO.tsx";
+import api from "../api.ts";
+import ErrorPage from "../components/ErrorPage.tsx";
+import LoadingPage from "../components/LoadingPage.tsx";
+import Preferences from "../components/Preferences.tsx";
+import { t } from "../localization";
+import { extractAppErrorAny, FeedbackValue, success } from "../modules/feedback.ts";
+import useAsyncFetch from "../state/useAsyncFetch.ts";
+import React from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function PreferencesPublic() {
-  return <TODO />;
+  const [searchParams] = useSearchParams();
+  const accessToken = searchParams.get("token");
+  const [feedback, setFeedback] = React.useState<FeedbackValue | null>(null);
+
+  const getPreferences = React.useCallback(() => {
+    return api
+      .getPreferencesPublic({ accessToken })
+      .tapCatch((e) => setFeedback(extractAppErrorAny(e)));
+  }, [accessToken]);
+
+  const { state, loading, error } = useAsyncFetch<PublicPrefsMember>(getPreferences);
+
+  function savePrefs(prefs: { subscriptions: Record<string, boolean> }) {
+    setFeedback(null);
+    return api
+      .updatePreferencesPublic({ accessToken, ...prefs })
+      .then(() => {
+        setFeedback(success(t("preferences.success")));
+      })
+      .catch((e) => setFeedback(extractAppErrorAny(e)));
+  }
+
+  if (loading) {
+    return <LoadingPage page />;
+  }
+  if (error) {
+    return <ErrorPage variant="home" page />;
+  }
+  return <Preferences user={state!} savePrefs={savePrefs} feedback={feedback} />;
 }
-// export default function PreferencesPublic() {
-//   const [searchParams] = useSearchParams();
-//   const accessToken = searchParams.get("token");
-//   const { showErrorToast } = useErrorToast();
-//   const successView = useToggle(false);
-//
-//   const getPreferences = React.useCallback(() => {
-//     return api
-//       .getPreferencesPublic({ accessToken })
-//       .catch((e: any) => showErrorToast(e, { extract: true }));
-//   }, [accessToken, showErrorToast]);
-//   const { state, loading, error } = useAsyncFetch<any>(getPreferences, {
-//     pickData: true,
-//   });
-//
-//   function handleApiSubmit(prefs: { subscriptions: Record<string, boolean> }) {
-//     return api.updatePreferencesPublic({ accessToken, ...prefs });
-//   }
-//
-//   if (loading) {
-//     return <PageLoader overlay />;
-//   }
-//   if (error) {
-//     return (
-//       <LayoutContainer top>
-//         <ErrorScreen />
-//       </LayoutContainer>
-//     );
-//   }
-//   if (successView.isOn) {
-//     return <FormSuccess message={"preferences.success"} />;
-//   }
-//   return (
-//     <Preferences
-//       user={state}
-//       onApiSubmit={handleApiSubmit}
-//       onSaved={() => successView.turnOn()}
-//     />
-//   );
-// }

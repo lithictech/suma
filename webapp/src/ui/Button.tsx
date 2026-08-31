@@ -1,5 +1,5 @@
 import Link from "../routing/Link.tsx";
-import { RoutePath } from "../routing/RoutePath.ts";
+import { RoutePathOrUrl } from "../routing/RoutePath.ts";
 import "./Button.css";
 import clsx from "clsx";
 import React, { CSSProperties, MouseEventHandler } from "react";
@@ -8,7 +8,7 @@ export interface ButtonProps {
   variant?: "primary" | "secondary" | "text" | "outline";
   size?: "sm" | "md" | "lg";
   className?: string;
-  to?: RoutePath;
+  to?: RoutePathOrUrl;
   disabled?: boolean;
   inline?: boolean;
   children?: React.ReactNode;

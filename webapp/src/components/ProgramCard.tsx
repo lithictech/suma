@@ -22,20 +22,9 @@ export default function ProgramCard({
   return (
     <Card>
       <CardBody>
-        {/*<HeaderLink to={appLink}>*/}
-        {/*  <h5*/}
-        {/*    className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"*/}
-        {/*    style={{ zIndex: 1 }}*/}
-        {/*  >*/}
-        {/*    {name}*/}
-        {/*  </h5>*/}
-        {/*</HeaderLink>*/}
-        <ImageComp
-          to={appLink}
-          // className="flex-shrink-0 overflow-hidden position-relative"
-        >
+        <ImageComp to={appLink}>
           <SumaImage
-            image={image}
+            image={image || undefined}
             w={500}
             height={200}
             params={{ crop: "entropy", resize: "fill" }}

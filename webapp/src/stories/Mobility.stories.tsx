@@ -9,6 +9,7 @@ import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTr
 import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
 import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
 import { appError } from "../modules/feedback.ts";
+import { mobilityTrip, rate, vendorService } from "./fixtures.ts";
 import { DemoStack } from "./helpers.tsx";
 import mapBackgroundPng from "./map-background.png";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
@@ -21,34 +22,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const vendorService: VendorService = {
-  id: 2,
-  name: "Bikeshare",
-  slug: "bikeshare",
-  vendorName: "Bikeshare Operator",
-  vendorSlug: "bikeop",
-};
-
-const baseRate: Rate = {
-  id: 50,
-  surcharge: { cents: 100, currency: "USD" },
-  unitAmount: { cents: 20, currency: "USD" },
-  name: "demo",
-  undiscountedRate: null,
-};
-
 const mapVendorService: MobilityMapProvider = {
-  ...vendorService,
+  ...vendorService(),
   usageProhibitedReason: "usage_prohibited_cash_balance",
-  rate: baseRate,
+  rate: rate(),
 };
 
 const baseVehicle = {
   precision: 1,
-  vendorService,
+  vendorService: vendorService(),
   vehicleId: "vehicle1",
   loc: [40, 120],
-  rate: baseRate,
+  rate: rate(),
   subsidyMatchPercentage: 0,
   deeplink: "",
   gotoPrivateAccount: "",
@@ -70,29 +55,7 @@ const privateAccountVehicle = {
   gotoPrivateAccount: "#private-accounts",
 };
 
-const trip: MobilityTrip = {
-  id: 1,
-  vehicleId: "vehicle5",
-  vehicleType: "ebike",
-  provider: vendorService,
-  beginLat: 0,
-  beginLng: 1,
-  beginAddress: { part1: "123 Main St", part2: "Portland, OR" },
-  beganAt: "2020-01-01T12:00:00Z",
-  endLat: 10,
-  endLng: 11,
-  endAddress: { part1: "123 Main St", part2: "Portland, OR" },
-  endedAt: "2020-01-01T12:00:00Z",
-  ongoing: false,
-  charge: {
-    undiscountedCost: { cents: 200, currency: "USD" },
-    customerCost: { cents: 200, currency: "USD" },
-    savings: { cents: 200, currency: "USD" },
-    lineItems: [{ amount: { cents: 100, currency: "USD" }, memo: "Unlock" }],
-  },
-  minutes: 20,
-  image: null,
-};
+const trip = mobilityTrip();
 
 export const MapCards: Story = {
   render: () => (
@@ -410,7 +373,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 13,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_e9ur4tq2g91iogpisxejrk9au",
+        url: "",
       },
     },
     {
@@ -449,7 +412,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 8,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_ddthtboqualpt9hjsgbb47uwh",
+        url: "",
       },
     },
     {
@@ -491,7 +454,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 23,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_8wtfia4h8ftgh2tngh286xabl",
+        url: "",
       },
     },
     {
@@ -533,7 +496,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 33,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_dsyaywokluvk590rgskjb7mfn",
+        url: "",
       },
     },
     {
@@ -572,7 +535,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 3,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_d362fia2a5ybv2b6mepnvr7yx",
+        url: "",
       },
     },
     {
@@ -611,7 +574,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 4,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_9uqlriq3v7ygzl2x67r6fz0m9",
+        url: "",
       },
     },
     {
@@ -653,7 +616,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 10,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_bbpq2lujbflqh6zvpjz46meog",
+        url: "",
       },
     },
     {
@@ -695,7 +658,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 14,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_3bnaca4lmgv59qjuetrhjjgu9",
+        url: "",
       },
     },
     {
@@ -734,7 +697,7 @@ const tripHistory: MobilityTripCollection = {
       minutes: 3,
       image: {
         caption: "",
-        url: "https://app.mysuma.org/api/v1/images/im_d6v7w7r0gms7b25i1wlv8h2hj",
+        url: "",
       },
     },
     {

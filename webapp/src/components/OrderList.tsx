@@ -2,6 +2,7 @@ import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { RoutePath } from "../routing/RoutePath.ts";
+import Alert from "../ui/Alert.tsx";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
@@ -9,20 +10,30 @@ import CardText from "../ui/CardText";
 import DivLink from "../ui/DivLink.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Stack from "../ui/Stack";
+import { ShoppingBagIcon } from "@heroicons/react/24/outline";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 interface OrderListProps {
+  user: CurrentMember;
   orders: SimpleOrderHistory[];
   loading: boolean;
   onNavigate: (o: SimpleOrderHistory) => void;
 }
 
-export default function OrderList({ orders, loading, onNavigate }: OrderListProps) {
+export default function OrderList({ user, orders, loading, onNavigate }: OrderListProps) {
   return loading ? (
     <IndeterminateLoader variant="plain" />
   ) : !isEmpty(orders) ? (
     <Stack col gap={3}>
+      {user!.unclaimedOrdersCount > 0 && (
+        <Alert
+          variant="success"
+          text={t("dashboard.claim_orders")}
+          icon={ShoppingBagIcon}
+          to="/unclaimed-orders"
+        />
+      )}
       {orders.map((o) => (
         <Order
           key={o.id}

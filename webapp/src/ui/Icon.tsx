@@ -12,12 +12,19 @@ export type IconPropsIcon =
 export interface IconProps {
   icon: IconPropsIcon;
   size?: number | string | "inherit" | null;
+  /**
+   * If given, wrap the icon in a div which also has an explicit size.
+   * Since the icon is an SVG, simply setting size may not result
+   * in the desired size.
+   */
+  forceSize?: boolean;
   className?: string;
   color?: ThemeColor;
 }
 export default function Icon({
   icon: IconComponent,
   size = "inherit",
+  forceSize,
   color,
   className,
 }: IconProps) {
@@ -35,5 +42,9 @@ export default function Icon({
     style.height = size;
   }
   const cls = clsx(color ? `color-${color}` : "", className);
-  return <IconComponent className={cls} style={style} />;
+  const el = <IconComponent className={cls} style={style} />;
+  if (forceSize) {
+    return <div style={style}>{el}</div>;
+  }
+  return el;
 }

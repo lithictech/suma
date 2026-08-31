@@ -12,27 +12,31 @@ import React from "react";
 
 const logger = new Logger("i18n.hook");
 
+type ChangeLanguage = (language: string) => Promise<void>;
+
 interface LoadLanguageFileOptions {
   language?: string;
 }
 
+type LoadLanguageFile = (
+  namespace: string,
+  options?: LoadLanguageFileOptions
+) => Promise<void>;
+
 interface I18nContextValue {
   initializing: boolean;
   currentLanguage: string;
-  changeLanguage: (language: string) => Promise<any> | null;
-  loadLanguageFileUnsafe: (namespace: string, options?: LoadLanguageFileOptions) => any;
-  loadLanguageFile: (namespace: string, options?: LoadLanguageFileOptions) => any;
+  changeLanguage: ChangeLanguage;
+  loadLanguageFileUnsafe: LoadLanguageFile;
+  loadLanguageFile: LoadLanguageFile;
 }
 
 export const I18nContext = React.createContext<I18nContextValue>({
   initializing: true,
   currentLanguage: "",
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  changeLanguage: (_lng) => null,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loadLanguageFileUnsafe: (_ns, _opts) => null,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loadLanguageFile: (_ns, _opts) => null,
+  changeLanguage: Promise.resolve,
+  loadLanguageFileUnsafe: Promise.resolve,
+  loadLanguageFile: Promise.resolve,
 });
 
 export default function I18nProvider({ children }: { children: React.ReactNode }) {
@@ -46,7 +50,7 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
    * to the unlocalized string keys.
    * But in some cases we need to know if the load failed.
    */
-  const loadLanguageFileUnsafe = React.useCallback(
+  const loadLanguageFileUnsafe: LoadLanguageFile = React.useCallback(
     (namespace: string, { language }: LoadLanguageFileOptions = {}) => {
       language = language || currentLanguage;
       if (i18n.hasFile(language, namespace)) {
@@ -73,9 +77,9 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
    * @param namespace Name of the file, like 'strings'.
    * @param language Language ('en', 'es') or empty to use current language.
    */
-  const loadLanguageFile = React.useCallback(
+  const loadLanguageFile: LoadLanguageFile = React.useCallback(
     (namespace: string, { language }: LoadLanguageFileOptions = {}) => {
-      return loadLanguageFileUnsafe(namespace, { language }).catch(() => null);
+      return loadLanguageFileUnsafe(namespace, { language }).then(noop).catch(noop);
     },
     [loadLanguageFileUnsafe]
   );
@@ -85,9 +89,9 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
    * loading the language file, and changing other locale info.
    * @param language 'en', 'es', etc.
    */
-  const changeLanguage = React.useCallback(
+  const changeLanguage: ChangeLanguage = React.useCallback(
     (language: string) => {
-      const promises: Promise<any>[] = [];
+      const promises: Promise<void>[] = [];
       if (userAuthed) {
         promises.push(
           api
@@ -106,7 +110,7 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
           })
         )
       );
-      return Promise.all(promises);
+      return Promise.all(promises).then(noop);
     },
     [loadLanguageFile, setCurrentLanguage, userAuthed]
   );
@@ -137,6 +141,5 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
     ]
   );
 
-  // noinspection JSValidateTypes
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

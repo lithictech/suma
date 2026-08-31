@@ -2,6 +2,7 @@ import { Lookup } from "../localization";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "./useMountEffect";
 import get from "lodash/get.js";
+import noop from "lodash/noop";
 import React from "react";
 
 /**
@@ -24,11 +25,11 @@ export default function useStripeErrorMessage() {
   const { loadLanguageFileUnsafe } = useI18n();
   const [loaded, setLoaded] = React.useState(false);
 
-  useMountEffect(() =>
+  useMountEffect(() => {
     loadLanguageFileUnsafe("stripe")
       .then(() => setLoaded(true))
-      .catch(() => null)
-  );
+      .catch(noop);
+  });
 
   const localizeStripeError = React.useCallback(
     (data: any) => {

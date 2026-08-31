@@ -1,5 +1,4 @@
 import ErrorPage from "./components/ErrorPage.tsx";
-import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import history from "./history";
 import { r } from "./localization";
@@ -9,7 +8,7 @@ import { installPromiseExtras } from "./modules/bluejay";
 import ContactListAdd from "./pages/ContactListAdd";
 import ContactListHome from "./pages/ContactListHome";
 import ContactListSuccess from "./pages/ContactListSuccess";
-import Dashboard from "./pages/Dashboard";
+import DashboardPage from "./pages/DashboardPage.tsx";
 import Food from "./pages/Food";
 import FoodCart from "./pages/FoodCart";
 import FoodCheckout from "./pages/FoodCheckout";
@@ -28,7 +27,7 @@ import OrderHistoryList from "./pages/OrderHistoryList";
 import PartnerSignup from "./pages/PartnerSignup";
 import PreferencesAuthed from "./pages/PreferencesAuthed";
 import PreferencesPublic from "./pages/PreferencesPublic";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.tsx";
 import PrivateAccountDetail from "./pages/PrivateAccountDetail";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess";
@@ -111,8 +110,12 @@ function AppRoutes() {
       meta: { title: r("common.welcome_to_suma"), exact: true },
       Component: Home,
     }),
-    typeRoute({ path: "/privacy-policy", Component: PrivacyPolicy }),
-    typeRoute({ path: "/privacy-policy-content", Component: PrivacyPolicyContent }),
+    typeRoute({ path: "/privacy-policy", Component: PrivacyPolicyPage }),
+    typeRoute({
+      path: "/privacy-policy-content",
+      Component: PrivacyPolicyPage,
+      pageProps: { contentOnly: true },
+    }),
     typeRoute({
       path: "/terms-of-use",
       pageProps: {
@@ -180,7 +183,7 @@ function AppRoutes() {
       onboarded: "require",
       meta: "titles.dashboard",
       screenLoader: true,
-      Component: Dashboard,
+      Component: DashboardPage,
     }),
     typeRoute({
       path: "/menu",
