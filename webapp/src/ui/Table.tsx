@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import "./Table.css";
 import React from "react";
 
 export interface TableProps {

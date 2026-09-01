@@ -6,6 +6,7 @@ import useHashSelector from "../state/useHashSelector.ts";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
 import PageHeader from "../ui/PageHeader.tsx";
+import Stack from "../ui/Stack.tsx";
 import Table from "../ui/Table.tsx";
 import Money from "../uir/Money.tsx";
 import AsyncContent from "./AsyncContent.tsx";
@@ -36,7 +37,6 @@ export default function TransactionHistory({
   ledgerId,
   getLedgerLines,
 }: TransactionHistoryProps) {
-
   const fetchLedgerLines = React.useCallback(
     (data?: Record<string, any>) => getLedgerLines(data as IdParams),
     [getLedgerLines]
@@ -78,27 +78,29 @@ export default function TransactionHistory({
     ? ledgersOverview.recentLines
     : ledgerLines.items || [];
 
+  const selector = (
+    <LedgerSelect
+      activeLedger={activeLedger}
+      ledgers={ledgersOverview.ledgers}
+      onLedgerSelected={(ledgerId: number) => console.log(ledgerId)}
+      //   setListQueryParams({ page: 0 }, { ledger: ledgerId })
+      // }
+    />
+  );
+
   return (
     <Page appNav>
       <PageHeader title={t("payments.ledger_transactions")} back />
       <p>{t("payments.ledgers_intro")}</p>
       <AsyncContent loading={loading || false} error={error}>
-        {/*<LedgerSelect*/}
-        {/*  activeLedger={activeLedger}*/}
-        {/*  ledgers={ledgersOverview.ledgers}*/}
-        {/*  onLedgerSelected={(ledgerId: number) =>*/}
-        {/*    setListQueryParams({ page: 0 }, { ledger: ledgerId })*/}
-        {/*  }*/}
-        {/*/>*/}
         {() =>
           recentLinesSelected ? (
             <>
-              <div>
-                <RecentLinesSubheader
-                  totalBalance={ledgersOverview.totalBalance}
-                  lifetimeSavings={ledgersOverview.lifetimeSavings}
-                />
-              </div>
+              {selector}
+              <RecentLinesSubheader
+                totalBalance={ledgersOverview.totalBalance}
+                lifetimeSavings={ledgersOverview.lifetimeSavings}
+              />
               <LedgerLinesTable
                 lines={ledgersOverview.recentLines}
                 linesLoading={loading}
@@ -141,6 +143,7 @@ interface LedgerSelectProps {
 }
 
 function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectProps) {
+  return null;
   // const showRecentLines = activeLedger === RECENT_LINES_LEDGER;
   // const selectedLedgerLabel = showRecentLines
   //   ? t("payments.recent_ledger_lines")
@@ -198,20 +201,20 @@ function RecentLinesSubheader({
   lifetimeSavings?: Money;
 }) {
   return (
-    <div className="d-flex justify-content-between align-items-start mt-3">
-      <div>
+    <Stack row justify="between">
+      <Stack col align="start">
         <h3>
           <Money>{totalBalance}</Money>
         </h3>
-        <p className="m-0 mb-2">{t("payments.total_balance")}</p>
-      </div>
-      <div className="text-end">
+        <p>{t("payments.total_balance")}</p>
+      </Stack>
+      <Stack col align="end">
         <h3>
           <Money>{lifetimeSavings}</Money>
         </h3>
-        <p className="m-0">{t("payments.lifetime_savings")}</p>
-      </div>
-    </div>
+        <p>{t("payments.lifetime_savings")}</p>
+      </Stack>
+    </Stack>
   );
 }
 
@@ -226,20 +229,13 @@ function LedgerLinesTable({
   return (
     <div className="position-relative">
       {linesLoading && <IndeterminateLoader variant="content" />}
-      <Table
-        striped
-        hover
-        className={clsx(
-          "mt-1 table-flush table-borderless",
-          linesLoading && "opacity-50"
-        )}
-      >
+      <Table striped hover className={clsx(linesLoading && "opacity-50")}>
         <tbody>
           {lines.map((line) => (
             <tr key={line.id}>
-              <td className="pt-3 pb-3">
-                <div className="d-flex justify-content-between align-items-center gap-3 mb-1">
-                  <div>
+              <td>
+                <Stack row justify="between">
+                  <Stack col>
                     <a
                       className="ps-0"
                       href={`#${line.opaqueId}`}
@@ -248,15 +244,15 @@ function LedgerLinesTable({
                       <strong>{dayjs(line.at).format("lll")}</strong>
                     </a>
                     <div>{line.memo}</div>
-                  </div>
+                  </Stack>
                   <Money
                     className={clsx(
-                      line.amount.cents < 0 ? "text-danger" : "text-success"
+                      line.amount.cents < 0 ? "color-danger" : "color-success"
                     )}
                   >
                     {line.amount}
                   </Money>
-                </div>
+                </Stack>
               </td>
             </tr>
           ))}

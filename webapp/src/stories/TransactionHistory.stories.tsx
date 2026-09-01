@@ -7,7 +7,6 @@ import {
   ledgerLineOrder,
   ledgerLineTrip,
   ledgersOverview,
-  money,
 } from "./fixtures.ts";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 

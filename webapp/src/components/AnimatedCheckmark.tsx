@@ -1,3 +1,4 @@
+import "./AnimatedCheckmark.css";
 import clsx from "clsx";
 
 export default function AnimatedCheckmark({ className }: { className?: string }) {
