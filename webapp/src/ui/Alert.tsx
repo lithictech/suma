@@ -48,7 +48,7 @@ export default function Alert({ title, text, variant = "danger", to, icon }: Ale
 
 const variantIcons: Record<AlertVariant, IconPropsIcon> = {
   danger: ExclamationTriangleIcon,
-  warning: BellAlertIcon,
+  warning: ExclamationTriangleIcon,
   success: HandThumbUpIcon,
   info: BellAlertIcon,
 };

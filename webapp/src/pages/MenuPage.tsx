@@ -24,7 +24,6 @@ import {
   TruckIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import LanguageIcon from "@heroicons/react/24/outline/LanguageIcon";
 
 export default function MenuPage() {
   return (

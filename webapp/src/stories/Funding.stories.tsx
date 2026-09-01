@@ -52,13 +52,15 @@ export const WithPaymentMethods: Story = {
 export const WithBalance: Story = {
   render: () => (
     <Funding
-      user={currentMember({ chargeableCashBalance: { cents: -345, currency: "USD" } })}
+      user={currentMember({ chargeableCashBalance })}
       setUser={noop}
       supportedPaymentMethods={[]}
       featureAddFunds={false}
     />
   ),
 };
+
+const chargeableCashBalance = { cents: -345, currency: "USD" };
 
 export const SupportAddingFunds: Story = {
   render: () => (
@@ -103,7 +105,7 @@ const handleAddCardSubmit = () => {
 export const AddCardWithStub: Story = {
   render: () => (
     <AddCreditCard
-      user={currentMember()}
+      user={currentMember({ chargeableCashBalance })}
       onSubmit={handleAddCardSubmit}
       handleUpdateCurrentMember={noop}
       navigate={fakeNavigate}

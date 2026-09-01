@@ -181,7 +181,7 @@ export default function AddCreditCard({
   return (
     <>
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
-        <Stack col gap={2} className="cc-animate">
+        <Stack col gap={2}>
           <TextInput
             required
             type="text"
@@ -210,7 +210,7 @@ export default function AddCreditCard({
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
-          <Stack row className="mb-3 cc-animate gap-3">
+          <Stack row gap={3}>
             <TextInput
               required
               type="text"
@@ -246,7 +246,7 @@ export default function AddCreditCard({
               onBlur={handleBlur}
             />
           </Stack>
-          <Stack center col>
+          <Stack center col className="my-3">
             <CreditCardPreview cardInfo={cardInfo} focused={focused} name={values.name} />
           </Stack>
           <NegativeBalanceAddInstrumentNotice user={user} />
