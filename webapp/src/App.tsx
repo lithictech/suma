@@ -15,9 +15,9 @@ import FoodCheckout from "./pages/FoodCheckout";
 import FoodCheckoutConfirmation from "./pages/FoodCheckoutConfirmation";
 import FoodDetails from "./pages/FoodDetails";
 import FoodList from "./pages/FoodList";
-import Funding from "./pages/Funding";
-import FundingAddCard from "./pages/FundingAddCard";
+import FundingAddCardPage from "./pages/FundingAddCardPage.tsx";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
+import FundingPage from "./pages/FundingPage.tsx";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
 import MenuPage from "./pages/MenuPage.tsx";
@@ -263,7 +263,7 @@ function AppRoutes() {
       onboarded: "require",
       screenLoader: true,
       meta: "titles.funding",
-      Component: Funding,
+      Component: FundingPage,
     }),
     typeRoute({
       path: "/link-bank-account",
@@ -279,7 +279,7 @@ function AppRoutes() {
       onboarded: "require",
       screenLoader: true,
       meta: "payments.add_card",
-      Component: FundingAddCard,
+      Component: FundingAddCardPage,
     }),
     typeRoute({
       path: "/ledgers",

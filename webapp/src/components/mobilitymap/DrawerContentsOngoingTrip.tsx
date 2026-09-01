@@ -64,7 +64,7 @@ export default function DrawerContentsOngoingTrip({
       {trip && !endTrip && lastLocation && (
         <DrawerContents>
           <DrawerTitle>{trip.provider.name}</DrawerTitle>
-          <p className="text-muted">
+          <p className="color-text-muted">
             {t("mobility.trip_started_at", {
               at: dayjs(trip.beganAt).format("LT"),
             })}

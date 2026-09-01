@@ -13,6 +13,9 @@ declare global {
     items: T[];
   }
 
+  type PaymentMethodType = "card" | "bank_account";
+  type PaymentMethodStatus = "expired" | "unverified" | "deleted" | "ok";
+
   interface ApiCollection<T> {
     object: string;
     currentPage: number;
@@ -346,7 +349,7 @@ declare global {
     showPrivateAccounts: boolean;
     preferences: MemberPreferences;
     hasOrderHistory: boolean;
-    chargeableCashBalance: Money;
+    chargeableCashBalance: Money | null;
     finishedSurveyTopics: string[];
     registrationLink: RegistrationLink | null;
   }
@@ -458,10 +461,10 @@ declare global {
     id: number;
     createdAt: string;
     paymentInstrumentId: number;
-    paymentMethodType: string;
+    paymentMethodType: PaymentMethodType;
     usableForFunding: boolean;
-    status: string;
-    expiresAt: string;
+    status: PaymentMethodStatus;
+    expiresAt: string | null;
     institution: Institution;
     name: string;
     last4: string;
@@ -691,7 +694,7 @@ declare global {
     paymentMethodType: string;
     usableForFunding: boolean;
     status: string;
-    expiresAt: string;
+    expiresAt: string | null;
     institution: Institution;
     name: string;
     last4: string;

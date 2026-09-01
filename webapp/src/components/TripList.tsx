@@ -72,7 +72,7 @@ function Trip({ trip }: { trip: MobilityTrip }) {
               })}{" "}
               &bull; {t(`trips.minutes`, { minutes: trip.minutes })}
             </div>
-            <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
+            <div className="color-text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
           </Stack>
         </Stack>
         <Stack row center gap={3}>

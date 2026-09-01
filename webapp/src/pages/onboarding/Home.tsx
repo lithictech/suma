@@ -26,13 +26,13 @@ export default function Home() {
           {registrationSession && (
             <div className="mb-4">{dt(registrationSession.intro)}</div>
           )}
-          <Button to="/start" variant="primary" size="lg" className="w-100">
+          <Button to="/start" preset="primary" size="lg" className="w-100">
             {t("forms.continue")}
           </Button>
           <ExternalLink href={externalLinks.sumaIntroLink} className="text-nowrap">
             {t("common.learn_more")}
           </ExternalLink>
-          <TranslationToggle className="my-3" direction="horizontal" />
+          <TranslationToggle className="my-3" variant="horizontal" />
         </Stack>
       </Stack>
       <AddToHomescreen />

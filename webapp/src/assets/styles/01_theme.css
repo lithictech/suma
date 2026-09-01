@@ -23,7 +23,11 @@
     --color-secondary-contrast: #2B2620;
 
     --color-success: #4D6B44;
+    --color-success-hover: #69935d;
+
     --color-danger: #A3521F;
+    --color-danger-hover: #ba581a;
+
     --color-accent: #F5A98D;
 
     --tint-primary: #CFDAF0;

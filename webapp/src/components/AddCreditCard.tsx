@@ -1,297 +1,303 @@
-import TODO from "./TODO.tsx";
+import { r, t } from "../localization";
+import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
+import keepDigits from "../modules/keepDigits.ts";
+import { scaleMoney } from "../modules/money.ts";
+import Payment, { PaymentCardField, PaymentCardParams } from "../modules/payment.ts";
+import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
+import { HandleUpdateCurrentMember } from "../state/UserProvider.tsx";
+import useScreenLoader from "../state/useScreenLoader.ts";
+import useStripeErrorMessage from "../state/useStripeErrorMessage.ts";
+import useValidationError from "../state/useValidationError.ts";
+import Alert from "../ui/Alert.tsx";
+import Button from "../ui/Button.tsx";
+import Form from "../ui/Form.tsx";
+import FormSubmit from "../ui/FormSubmit.tsx";
+import Stack from "../ui/Stack.tsx";
+import TextInput from "../ui/TextInput.tsx";
+import CreditCardPreview from "./CreditCardPreview.tsx";
+import GoHome from "./GoHome.tsx";
+import { AxiosResponse } from "axios";
+import get from "lodash/get";
+import React from "react";
+import { useForm } from "react-hook-form";
 
 interface AddCreditCardProps {
-  onSuccess: (data: any) => void;
-  error?: any;
-  setError: (e?: any) => any;
+  user: CurrentMember;
+  handleUpdateCurrentMember: HandleUpdateCurrentMember;
+  onSubmit: (
+    params: PaymentCardParams
+  ) => Promise<AxiosResponse<MutationPaymentInstrument>>;
+  navigate: (p: RoutePath) => void;
+  /** Where to return to after adding the card. Shows on the success screen. */
+  returnTo?: string;
+  /** Where to return to after adding the card. Navigates immediately. */
+  returnToImmediate?: string;
+  /** For testing only. */
+  stubData?: { name: string; number: string; expiry: string; cvc: string };
+  /** For testing only. */
+  stubCreatedInstrument?: CreatedInstrument;
+}
+
+interface CreatedInstrument {
+  id: number;
+  paymentMethodType: string;
 }
 
 export default function AddCreditCard({
-  onSuccess,
-  error,
-  setError,
+  user,
+  handleUpdateCurrentMember,
+  returnTo,
+  returnToImmediate,
+  navigate,
+  onSubmit,
+  stubData,
+  stubCreatedInstrument,
 }: AddCreditCardProps) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setFocus,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<PaymentCardParams>({
+    mode: "all",
+    reValidateMode: "onBlur",
+    defaultValues: {
+      name: stubData?.name || "",
+      number: stubData?.number || "",
+      expiry: stubData?.expiry || "",
+      cvc: stubData?.cvc || "",
+    },
+  });
+
+  const values = watch();
+  const [error, setError] = React.useState<AppError | null>();
+  const [createdCard, setCreatedCard] = React.useState<CreatedInstrument | null>(
+    stubCreatedInstrument || null
+  );
+  const screenLoader = useScreenLoader();
+  const cardInfo = React.useMemo(() => {
+    return new Payment.CardInfo(values);
+  }, [values]);
+
+  const [focused, setFocused] = React.useState<PaymentCardField | null>();
+
+  const numberValidation = {
+    validate: (number: string) =>
+      !Payment.invalidCardNumberReason(cardInfo.change({ number })),
+  };
+  const numberError = useValidationError("number", errors, numberValidation, {
+    validate: "forms.invalid_card_number",
+  });
+
+  const expiryValidation = {
+    validate: {
+      format: (expiry: string) =>
+        Payment.invalidCardExpiryReason(cardInfo.change({ expiry })) !==
+        Payment.Invalid.FORMAT,
+      expired: (expiry: string) =>
+        Payment.invalidCardExpiryReason(cardInfo.change({ expiry })) !==
+        Payment.Invalid.EXPIRED,
+    },
+  };
+  const expiryError = useValidationError("expiry", errors, expiryValidation, {
+    format: "forms.invalid_card_expiry",
+    expired: "forms.invalid_card_expired",
+  });
+
+  const cvcValidation = {
+    validate: (cvc: string) => !Payment.invalidCardCvcReason(cardInfo.change({ cvc })),
+  };
+  const cvcError = useValidationError("cvc", errors, cvcValidation, {
+    validate: "forms.invalid_card_cvc",
+  });
+
+  const { localizeStripeError } = useStripeErrorMessage();
+
+  const handleSubmitInner = React.useCallback(() => {
+    const v = getValues();
+    screenLoader.turnOn();
+    setError(null);
+    onSubmit(v)
+      .then((r) => {
+        handleUpdateCurrentMember(r);
+        if (returnToImmediate) {
+          navigate(makeReturnUrl(returnToImmediate, r.data));
+          return;
+        }
+        setCreatedCard(r.data);
+        screenLoader.turnOff();
+      })
+      .catch((e: any) => {
+        screenLoader.turnOff();
+        const errMsg = localizeStripeError(get(e, "response.data"));
+        const feedback = errMsg ? new AppError("", {}, errMsg) : extractAppErrorAny(e);
+        setError(feedback);
+      });
+  }, [
+    getValues,
+    screenLoader,
+    onSubmit,
+    handleUpdateCurrentMember,
+    returnToImmediate,
+    navigate,
+    localizeStripeError,
+  ]);
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setFocused(e.target.name as PaymentCardField);
+  };
+  const handleBlur = () => setFocused(null);
+
+  function handleCardNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = Payment.handleDigitInputWithFormatting(e, {
+      pci: cardInfo,
+      field: "number",
+    });
+    setValue("number", value, { shouldValidate: true });
+  }
+
+  function handleCardExpiryChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = Payment.handleDigitInputWithFormatting(e, {
+      pci: cardInfo,
+      field: "expiry",
+    });
+    setValue("expiry", value, { shouldValidate: true });
+    if (value.length === 4) {
+      setFocus("cvc");
+    }
+  }
+
+  function handleCardCvcChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = keepDigits(e.target.value);
+    setValue("cvc", value, { shouldValidate: true });
+  }
+
+  if (createdCard) {
+    return <Success instrument={createdCard} returnTo={returnTo} />;
+  }
   return (
-    <TODO>
-      {onSuccess} {error} {setError}
-    </TODO>
+    <>
+      <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
+        <Stack col gap={2}>
+          <TextInput
+            required
+            type="text"
+            autoComplete="name"
+            autoCorrect="off"
+            spellCheck="false"
+            label={t("forms.name")}
+            {...register("name", { required: r("errors.required") })}
+            error={errors.name?.message}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          />
+          <TextInput
+            required
+            type="text"
+            pattern="\d*"
+            inputMode="numeric"
+            autoComplete="cc-number"
+            autoCorrect="off"
+            spellCheck="false"
+            label={t("forms.card_number")}
+            {...register("number", numberValidation)}
+            value={Payment.formatCardNumber(cardInfo, { editing: true })}
+            error={numberError}
+            onChange={handleCardNumberChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          />
+          <Stack row gap={3}>
+            <TextInput
+              required
+              type="text"
+              pattern="\d*"
+              inputMode="numeric"
+              autoComplete="cc-exp"
+              autoCorrect="off"
+              spellCheck="false"
+              label={"MM / YY"}
+              className="w-50"
+              {...register("expiry", expiryValidation)}
+              value={Payment.formatCardExpiry(cardInfo, { editing: true })}
+              error={expiryError}
+              onChange={handleCardExpiryChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+            />
+            <TextInput
+              required
+              type="text"
+              pattern="\d*"
+              inputMode="numeric"
+              autoComplete="cc-cvc"
+              autoCorrect="off"
+              spellCheck="false"
+              label="CVC"
+              className="w-50"
+              {...register("cvc", cvcValidation)}
+              value={Payment.formatCardCvc(cardInfo, { editing: true })}
+              error={cvcError}
+              onChange={handleCardCvcChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+            />
+          </Stack>
+          <Stack center col className="my-3">
+            <CreditCardPreview cardInfo={cardInfo} focused={focused} name={values.name} />
+          </Stack>
+          <NegativeBalanceAddInstrumentNotice user={user} />
+          <FormSubmit label={t("forms.submit")} back feedback={error} />
+        </Stack>
+      </Form>
+    </>
   );
 }
-//   const {
-//     register,
-//     handleSubmit,
-//     clearErrors,
-//     setValue,
-//     formState: { errors },
-//   } = useForm({
-//     mode: "all",
-//   });
-//
-//   const screenLoader = useScreenLoader();
-//   const numberRowRef = React.useRef<HTMLDivElement>(null);
-//   const expiryRowRef = React.useRef<HTMLDivElement>(null);
-//   const cvcRef = React.useRef<HTMLInputElement>(null);
-//   const errorRowRef = React.useRef<HTMLElement>(null);
-//   const buttonRowRef = React.useRef<HTMLDivElement>(null);
-//   const cardRowRef = React.useRef<HTMLDivElement>(null);
-//   const [rerender, setRerender] = React.useState(1);
-//
-//   const [name, setName] = React.useState(config.devCardDetails.name || "");
-//   const [cardNumber, setCardNumber] = React.useState(config.devCardDetails.number || "");
-//   const [cardExpiry, setCardExpiry] = React.useState(config.devCardDetails.expiry || "");
-//   const [cardCvc, setCardCvc] = React.useState(config.devCardDetails.cvc || "");
-//
-//   const cardInfo = React.useMemo(
-//     () => new Payment.CardInfo(cardNumber, cardExpiry, cardCvc),
-//     [cardNumber, cardExpiry, cardCvc]
-//   );
-//
-//   const [focus, setFocus] = React.useState("");
-//
-//   const { localizeStripeError } = useStripeErrorMessage();
-//
-//   const runSetter = React.useCallback(
-//     (name: string, set: (value: string) => void, value: string) => {
-//       setError("");
-//       clearErrors(name);
-//       setValue(name, value);
-//       set(value);
-//     },
-//     [clearErrors, setError, setValue]
-//   );
-//
-//   const handleSubmitInner = React.useCallback(() => {
-//     const exp = keepDigits(cardExpiry);
-//     screenLoader.turnOn();
-//     setError("");
-//     const form = new FormData();
-//     form.set("card[name]", name);
-//     form.set("card[number]", cardNumber);
-//     form.set("card[exp_month]", exp[0] + exp[1]);
-//     form.set("card[exp_year]", exp[2] + exp[3]);
-//     form.set("card[cvc]", cardCvc);
-//     const body = new URLSearchParams(
-//       form as unknown as Record<string, string>
-//     ).toString();
-//     api.axios
-//       .post("https://api.stripe.com/v1/tokens", body, {
-//         headers: {
-//           "Content-Type": "application/x-www-form-urlencoded",
-//           Authorization: `Bearer ${config.stripePublicKey}`,
-//         },
-//       })
-//       .then((r) => onSuccess(r.data))
-//       .catch((e) => {
-//         screenLoader.turnOff();
-//         const errMsg =
-//           localizeStripeError(get(e, "response.data")) || extractErrorShape(e);
-//         setError(<span>{errMsg}</span>);
-//         (document.activeElement as HTMLElement | null)?.blur();
-//       });
-//   }, [
-//     cardCvc,
-//     cardExpiry,
-//     localizeStripeError,
-//     name,
-//     cardNumber,
-//     onSuccess,
-//     screenLoader,
-//     setError,
-//   ]);
-//
-//   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-//     setFocus(e.target.name);
-//     setTimeout(() => setRerender(rerender + 1), 0);
-//   };
-//   const handleBlur = () => setFocus("");
-//
-//   function handleCardNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
-//     const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
-//     runSetter(e.target.name, setCardNumber, value);
-//   }
-//
-//   function handleCardExpiryChange(e: React.ChangeEvent<HTMLInputElement>) {
-//     const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
-//     runSetter(e.target.name, setCardExpiry, value);
-//     if (value.length === 4) {
-//       cvcRef.current?.focus();
-//     }
-//   }
-//
-//   function handleCardCvcChange(e: React.ChangeEvent<HTMLInputElement>) {
-//     const { name } = e.target;
-//     let { value } = e.target;
-//     value = keepDigits(value);
-//     runSetter(name, setCardCvc, value);
-//   }
-//
-//   let numberOffset = 0,
-//     expOffset = 0,
-//     errorOffset = 0,
-//     buttonsOffset = 0,
-//     cardOffset = 0;
-//   if (focus) {
-//     const numberDims = elementDimensions(numberRowRef.current);
-//     const expiryDims = elementDimensions(expiryRowRef.current);
-//     const errorDims = elementDimensions(errorRowRef.current);
-//     const buttonDims = elementDimensions(buttonRowRef.current);
-//     const cardDims = elementDimensions(cardRowRef.current);
-//     if (focus === "name") {
-//       numberOffset = cardDims.h;
-//       expOffset = cardDims.h;
-//       errorOffset = cardDims.h;
-//       buttonsOffset = cardDims.h;
-//       cardOffset =
-//         -buttonDims.h - errorDims.h - expiryDims.h - numberDims.h + cardDims.my;
-//     } else if (focus === "number") {
-//       expOffset = cardDims.h;
-//       errorOffset = cardDims.h;
-//       buttonsOffset = cardDims.h;
-//       cardOffset = -buttonDims.h - errorDims.h - expiryDims.h + cardDims.my;
-//     } else if (focus === "expiry" || focus === "cvc") {
-//       errorOffset = cardDims.h;
-//       buttonsOffset = cardDims.h;
-//       cardOffset = -buttonDims.h - errorDims.h + cardDims.my;
-//     }
-//   }
-//   return (
-//     <>
-//       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
-//         <Row className="mb-3">
-//           <FormControlGroup
-//             name="name"
-//             as={Col}
-//             required
-//             type="text"
-//             autoComplete="name"
-//             autoCorrect="off"
-//             spellCheck="false"
-//             label={t("forms.name")}
-//             value={name}
-//             errors={errors}
-//             register={register}
-//             onChange={(e) => runSetter(e.target.name, setName, e.target.value)}
-//             onFocus={handleFocus}
-//             onBlur={handleBlur}
-//           />
-//         </Row>
-//         <Row
-//           ref={numberRowRef}
-//           className="mb-3 cc-animate"
-//           style={{ transform: `translateY(${numberOffset}px)` }}
-//         >
-//           <FormControlGroup
-//             name="number"
-//             as={Col}
-//             required
-//             type="text"
-//             pattern="\d*"
-//             inputMode="numeric"
-//             autoComplete="cc-number"
-//             autoCorrect="off"
-//             spellCheck="false"
-//             label={t("forms.card_number")}
-//             value={Payment.formatCardNumber(cardInfo, { editing: true })}
-//             errors={errors}
-//             registerOptions={{
-//               validate: (number) =>
-//                 !Payment.invalidCardNumberReason(cardInfo.change({ number })),
-//             }}
-//             errorKeys={{ validate: "forms.invalid_card_number" }}
-//             register={register}
-//             onChange={handleCardNumberChange}
-//             onFocus={handleFocus}
-//             onBlur={handleBlur}
-//           />
-//         </Row>
-//         <Row
-//           ref={expiryRowRef}
-//           className="mb-3 cc-animate"
-//           style={{ transform: `translateY(${expOffset}px)` }}
-//         >
-//           <FormControlGroup
-//             name="expiry"
-//             as={Col}
-//             required
-//             type="text"
-//             pattern="\d*"
-//             inputMode="numeric"
-//             autoComplete="cc-exp"
-//             autoCorrect="off"
-//             spellCheck="false"
-//             label={"MM / YY"}
-//             value={Payment.formatCardExpiry(cardInfo, { editing: true })}
-//             errors={errors}
-//             register={register}
-//             registerOptions={{
-//               validate: {
-//                 format: (expiry) =>
-//                   Payment.invalidCardExpiryReason(cardInfo.change({ expiry })) !==
-//                   Payment.Invalid.FORMAT,
-//                 expired: (expiry) =>
-//                   Payment.invalidCardExpiryReason(cardInfo.change({ expiry })) !==
-//                   Payment.Invalid.EXPIRED,
-//               },
-//             }}
-//             errorKeys={{
-//               format: "forms.invalid_card_expiry",
-//               expired: "forms.invalid_card_expired",
-//             }}
-//             onChange={handleCardExpiryChange}
-//             onFocus={handleFocus}
-//             onBlur={handleBlur}
-//           />
-//           <FormControlGroup
-//             inputRef={cvcRef}
-//             name="cvc"
-//             as={Col}
-//             required
-//             type="text"
-//             pattern="\d*"
-//             inputMode="numeric"
-//             autoComplete="cc-cvc"
-//             autoCorrect="off"
-//             spellCheck="false"
-//             label={"CVC"}
-//             value={Payment.formatCardCvc(cardInfo, { editing: true })}
-//             errors={errors}
-//             register={register}
-//             registerOptions={{
-//               validate: (cvc) => !Payment.invalidCardCvcReason(cardInfo.change({ cvc })),
-//             }}
-//             errorKeys={{ validate: "forms.invalid_card_cvc" }}
-//             onChange={handleCardCvcChange}
-//             onFocus={handleFocus}
-//             onBlur={handleBlur}
-//           />
-//         </Row>
-//         <FormFeedback
-//           ref={errorRowRef}
-//           error={error}
-//           className="cc-animate"
-//           style={{ transform: `translateY(${errorOffset}px)` }}
-//         />
-//         <NegativeBalanceAddInstrumentNotice />
-//         <FormButtons
-//           ref={buttonRowRef}
-//           className="mb-3 cc-animate"
-//           style={{ transform: `translateY(${buttonsOffset}px)` }}
-//           variant="outline"
-//           back
-//           primaryProps={{
-//             children: t("forms.continue"),
-//           }}
-//         />
-//         <Row
-//           ref={cardRowRef}
-//           className="mb-3 cc-animate"
-//           style={{ transform: `translateY(${cardOffset}px)` }}
-//         >
-//           <Col>
-//             <CreditCardPreview cardInfo={cardInfo} focused={focus} name={name} />
-//           </Col>
-//         </Row>
-//       </Form>
-//     </>
-//   );
-// }
+
+function NegativeBalanceAddInstrumentNotice({ user }: { user: CurrentMember }) {
+  if (!user.chargeableCashBalance) {
+    return null;
+  }
+  const balance = scaleMoney(user!.chargeableCashBalance, -1);
+  return (
+    <Alert
+      variant="warning"
+      text={t("payments.negative_balance_add_instrument_notice", {
+        amount: balance,
+      })}
+    />
+  );
+}
+
+function Success({
+  instrument,
+  returnTo,
+}: {
+  instrument: CreatedInstrument;
+  returnTo?: string;
+}) {
+  return (
+    <Stack col gap={4}>
+      <h2>{t("payments.added_card")}</h2>
+      {t("payments.added_card_successful")}
+      {returnTo ? (
+        <div className="button-stack mt-4">
+          <Button to={makeReturnUrl(returnTo, instrument)} variant="outline">
+            {t("forms.continue")}
+          </Button>
+        </div>
+      ) : (
+        <GoHome />
+      )}
+    </Stack>
+  );
+}
+
+function makeReturnUrl(returnTo: string, instr: CreatedInstrument) {
+  return untypedRoutePath(
+    `${returnTo}?instrumentId=${instr.id}&instrumentType=${instr.paymentMethodType}`
+  );
+}

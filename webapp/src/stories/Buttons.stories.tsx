@@ -1,21 +1,28 @@
 import type { RoutePath } from "../routing/RoutePath.ts";
-import Button from "../ui/Button";
+import Button, { ButtonProps } from "../ui/Button";
 import ButtonGroup from "../ui/ButtonGroup";
 import Icon from "../ui/Icon.tsx";
+import IconButton from "../ui/IconButton.tsx";
 import Stack from "../ui/Stack";
 import { DemoStack } from "./helpers.tsx";
+import { TrashIcon } from "@heroicons/react/24/outline";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import React from "react";
 
-const BUTTON_PROPS = [
-  { title: "Primary", children: "Continue", variant: "primary" },
-  { title: "Secondary", children: "Back", variant: "secondary" },
-  { title: "Text", children: "Skip for now", variant: "text" },
-  { title: "Outline", children: "Add", variant: "outline" },
-  { title: "Large", children: "Large Btn", size: "lg" },
-  { title: "Small", children: "Small Btn", variant: "outline", size: "sm" },
-  { title: "Inline", children: "Inline", variant: "text", inline: true },
+const BUTTON_PROPS: ButtonProps[] = [
+  { children: "Continue", variant: "filled" },
+  { children: "Skip for now", variant: "text" },
+  { children: "Add", variant: "outline" },
+  { children: "Danger", variant: "filled", color: "danger" },
+  { children: "Danger", variant: "text", color: "danger" },
+  { children: "Danger", variant: "outline", color: "danger" },
+  { children: "Success", variant: "filled", color: "success" },
+  { children: "Success", variant: "text", color: "success" },
+  { children: "Success", variant: "outline", color: "success" },
+  { children: "Large Btn", size: "lg" },
+  { children: "Small Btn", variant: "outline", size: "sm" },
+  { children: "Inline", variant: "text", inline: true },
 ] as const;
 
 const BUTTON_STATES = ["", "is-hover", "is-focus-visible", "is-disabled"];
@@ -30,9 +37,8 @@ type Story = StoryObj<typeof meta>;
 export const Variants: Story = {
   render: () => (
     <DemoStack>
-      {BUTTON_PROPS.map(({ title, ...props }, i) => (
+      {BUTTON_PROPS.map(({ ...props }, i) => (
         <React.Fragment key={i}>
-          <h2>{title}</h2>
           <Stack gap={2}>
             {BUTTON_STATES.map((st) => (
               <Button
@@ -75,12 +81,12 @@ export const Groups: Story = {
       <h2>Horizontal</h2>
       <ButtonGroup>
         <Button>Primary Action</Button>
-        <Button variant="secondary">Secondary Action</Button>
+        <Button preset="secondary">Secondary Action</Button>
       </ButtonGroup>
       <h2>Vertical</h2>
       <ButtonGroup vertical>
         <Button>Primary Action</Button>
-        <Button variant="secondary">Secondary Action</Button>
+        <Button preset="secondary">Secondary Action</Button>
       </ButtonGroup>
       <h2>Inline</h2>
       <Stack col>
@@ -95,6 +101,20 @@ export const Groups: Story = {
         <p>Some text</p>
         <p>Some text</p>
       </Stack>
+    </DemoStack>
+  ),
+};
+
+export const Icons: Story = {
+  render: () => (
+    <DemoStack>
+      <IconButton icon={TrashIcon} />
+      <IconButton icon={TrashIcon} color="success" />
+      <IconButton icon={TrashIcon} color="danger" />
+      <IconButton icon={TrashIcon} variant="outline" />
+      <IconButton icon={TrashIcon} variant="text" />
+      <IconButton icon={TrashIcon} size="sm" />
+      <IconButton icon={TrashIcon} size="lg" />
     </DemoStack>
   ),
 };

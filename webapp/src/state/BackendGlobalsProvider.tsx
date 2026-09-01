@@ -3,9 +3,8 @@ import useAsyncFetch from "./useAsyncFetch";
 import React from "react";
 
 interface BackendGlobalsContextValue {
-  supportedLocales: { items: Locale[] };
-  supportedPaymentMethods: { items: string[] };
-  isPaymentMethodSupported: (pm: string) => boolean;
+  supportedLocales: UnboundedApiCollection<Locale>;
+  supportedPaymentMethods: UnboundedApiCollection<PaymentMethodType>;
 }
 
 export const BackendGlobalsContext = React.createContext<BackendGlobalsContextValue>(
@@ -22,20 +21,14 @@ export default function BackendGlobalsProvider({
     { default: { items: [] } }
   );
   const { state: supportedPaymentMethods } = useAsyncFetch<
-    UnboundedApiCollection<string>
+    UnboundedApiCollection<PaymentMethodType>
   >(api.getSupportedPaymentMethods, { default: { items: [] } });
-
-  const isPaymentMethodSupported = React.useCallback(
-    (pm: string) => supportedPaymentMethods.items.includes(pm),
-    [supportedPaymentMethods]
-  );
 
   return (
     <BackendGlobalsContext.Provider
       value={{
         supportedLocales,
         supportedPaymentMethods,
-        isPaymentMethodSupported,
       }}
     >
       {children}

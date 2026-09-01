@@ -34,9 +34,9 @@ interface I18nContextValue {
 export const I18nContext = React.createContext<I18nContextValue>({
   initializing: true,
   currentLanguage: "",
-  changeLanguage: Promise.resolve,
-  loadLanguageFileUnsafe: Promise.resolve,
-  loadLanguageFile: Promise.resolve,
+  changeLanguage: () => Promise.resolve(),
+  loadLanguageFileUnsafe: () => Promise.resolve(),
+  loadLanguageFile: () => Promise.resolve(),
 });
 
 export default function I18nProvider({ children }: { children: React.ReactNode }) {

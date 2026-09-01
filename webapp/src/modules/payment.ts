@@ -2,17 +2,27 @@ import cct from "credit-card-type";
 import { CreditCardType } from "credit-card-type/dist/types";
 import luhn from "luhn";
 
+export interface PaymentCardParams {
+  name: string;
+  number: string;
+  expiry: string;
+  cvc: string;
+}
+export type PaymentCardField = keyof PaymentCardParams;
+
 export class PaymentCardInfo {
+  name: string;
   number: string;
   expiry: string;
   cvc: string;
   ccts: CreditCardType[];
   cct: CreditCardType | null;
 
-  constructor(number: string | null, expiry: string | null, cvc: string | null) {
-    this.number = keepDigits(number);
-    this.expiry = keepDigits(expiry);
-    this.cvc = keepDigits(cvc);
+  constructor({ name, number, expiry, cvc }: Partial<PaymentCardParams>) {
+    this.name = name || "";
+    this.number = keepDigits(number || "");
+    this.expiry = keepDigits(expiry || "");
+    this.cvc = keepDigits(cvc || "");
     this.ccts = cct(this.number);
     this.cct = null;
     if (this.ccts.length === 1) {
@@ -20,9 +30,15 @@ export class PaymentCardInfo {
     }
   }
 
-  change(fields: CardSeed) {
-    const args = { number: this.number, expiry: this.expiry, cvc: this.cvc, ...fields };
-    return new PaymentCardInfo(args.number, args.expiry, args.cvc);
+  change(fields: Partial<PaymentCardParams>) {
+    const args: PaymentCardParams = {
+      name: this.name,
+      number: this.number,
+      expiry: this.expiry,
+      cvc: this.cvc,
+      ...fields,
+    };
+    return new PaymentCardInfo({ ...args });
   }
 }
 
@@ -31,29 +47,20 @@ const Invalid = {
   FORMAT: "format",
 };
 
-type CardField = "number" | "expiry" | "cvc";
-
-interface CardSeed {
-  number?: string;
-  expiry?: string;
-  cvc?: string;
-}
-
 /**
  * Given a function like invalidCardNumberReason,
  * return a function that takes a string, creates a PaymentCardInfo
  * using the seed and the given string,
  * and returns true if valid and false if not.
- * @param seed If given, use this as data
  */
 function validator(
-  field: CardField,
+  field: PaymentCardField,
   reasonFunc: (ci: PaymentCardInfo) => string,
-  seed?: CardSeed
+  seed?: Partial<PaymentCardParams>
 ): (s: string) => boolean {
   return (s) => {
     const arg = { ...seed, [field]: s };
-    const pci = new PaymentCardInfo(arg.number || "", arg.expiry || "", arg.cvc || "");
+    const pci = new PaymentCardInfo(arg);
     return !reasonFunc(pci);
   };
 }
@@ -79,7 +86,7 @@ function invalidCardNumberReason(ci: PaymentCardInfo): string {
  */
 function invalidCardExpiryReason(ci: PaymentCardInfo, today: Date = new Date()): string {
   const exp = parseExpiry(ci.expiry);
-  if (!exp?.year) {
+  if (!exp || !exp.year || !exp.full) {
     return Invalid.FORMAT;
   }
   if (exp.year < today.getFullYear()) {
@@ -249,7 +256,7 @@ interface DigitInputOptions {
   /** The card info being changed. */
   pci: PaymentCardInfo;
   /** The name of the field being changed. Default to ev.target.name. */
-  field?: CardField;
+  field: PaymentCardField;
 }
 
 /**
@@ -266,7 +273,7 @@ function handleDigitInputWithFormatting(
   ev: DigitInputEvent,
   options: DigitInputOptions
 ): string {
-  const formatter = FORMATTERS[(options.field || ev.target.name) as CardField];
+  const formatter = FORMATTERS[options.field];
   const previousFormattedValue = formatter(options.pci, { editing: true });
   const d = keepDigits(ev.target.value);
   if (
@@ -279,9 +286,10 @@ function handleDigitInputWithFormatting(
 }
 
 const FORMATTERS: Record<
-  CardField,
+  PaymentCardField,
   (ci: PaymentCardInfo, options?: FormatOptions) => string
 > = {
+  name: () => "",
   number: formatCardNumber,
   expiry: formatCardExpiry,
   cvc: formatCardCvc,

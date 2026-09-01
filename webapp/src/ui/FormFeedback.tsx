@@ -35,7 +35,7 @@ const FormFeedback = React.forwardRef<HTMLElement, FormFeedbackProps>(function (
   const cls = clsx(
     "form-feedback",
     !noSurface && "form-feedback-surface",
-    !feedback && "form-feedback-hidden",
+    feedback && "form-feedback-visible",
     className
   );
   return (

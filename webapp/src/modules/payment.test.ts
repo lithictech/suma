@@ -5,25 +5,23 @@ const amex = "378282246310005";
 
 describe("PaymentCardInfo", () => {
   it("is null for null or empty string", () => {
-    let pci = new PCI("", "", "");
-    expect(pci.ccts).toHaveLength(13);
-    expect(pci.cct).toBeNull();
-    pci = new PCI(null, "", "");
+    const pci = new PCI({});
     expect(pci.ccts).toHaveLength(13);
     expect(pci.cct).toBeNull();
   });
   it("sets the credit card type", () => {
-    let pci = new PCI("4", "", "");
+    let pci = new PCI({ number: "4" });
     expect(pci.ccts).toHaveLength(3);
     expect(pci.cct).toBeNull();
-    pci = new PCI("42", "", "");
+    pci = new PCI({ number: "42" });
     expect(pci.ccts).toHaveLength(1);
     expect(pci.cct).toHaveProperty("type", "visa");
   });
 });
 
 describe("invalidCardNumberReason", () => {
-  const getreason = (x: string) => Payment.invalidCardNumberReason(new PCI(x, "", ""));
+  const getreason = (x: string) =>
+    Payment.invalidCardNumberReason(new PCI({ number: x }));
   it("fails a lund check", () => {
     expect(getreason("4111 1111 1111 1112")).toEqual(Payment.Invalid.FORMAT);
   });
@@ -58,7 +56,8 @@ describe("parseExpiry", () => {
 });
 
 describe("invalidCardExpiryReason", () => {
-  const getreason = (x: string) => Payment.invalidCardExpiryReason(new PCI("", x, ""));
+  const getreason = (x: string) =>
+    Payment.invalidCardExpiryReason(new PCI({ expiry: x }));
   it("fails if expired", () => {
     expect(getreason("10 / 01")).toEqual(Payment.Invalid.EXPIRED);
   });
@@ -78,7 +77,7 @@ describe("invalidCardExpiryReason", () => {
 
 describe("invalidCardCvcReason", () => {
   const getreason = (x: string, number?: string) =>
-    Payment.invalidCardCvcReason(new PCI(number || visa, "", x));
+    Payment.invalidCardCvcReason(new PCI({ number: number || visa, cvc: x }));
   it("fails for an invalid format", () => {
     expect(getreason("11")).toEqual(Payment.Invalid.FORMAT);
     expect(getreason("11111")).toEqual(Payment.Invalid.FORMAT);
@@ -109,7 +108,7 @@ describe("validator", () => {
 
 describe("formatCardNumber", () => {
   const fmt = (x: string, opts?: { placeholder?: string; editing?: boolean }) =>
-    Payment.formatCardNumber(new PCI(x, "", ""), opts);
+    Payment.formatCardNumber(new PCI({ number: x }), opts);
   it("formats a full number", () => {
     expect(fmt("4242 4242 4242 4242")).toEqual("4242 4242 4242 4242");
     expect(fmt("4242-4242-42424242")).toEqual("4242 4242 4242 4242");
@@ -149,7 +148,7 @@ describe("formatCardExpiry", () => {
   const fmt = (
     x: string,
     opts?: { placeholder?: string; editing?: boolean; infer?: boolean }
-  ) => Payment.formatCardExpiry(new PCI("", x, ""), opts);
+  ) => Payment.formatCardExpiry(new PCI({ expiry: x }), opts);
   it("formats a full number", () => {
     expect(fmt("0123")).toEqual("01 / 23");
     expect(fmt("1223")).toEqual("12 / 23");
@@ -200,7 +199,7 @@ describe("formatCardExpiry", () => {
 
 describe("formatCardCvc", () => {
   const fmt = (x: string, opts?: { placeholder?: string }, number?: string) =>
-    Payment.formatCardCvc(new PCI(number || visa, "", x), opts);
+    Payment.formatCardCvc(new PCI({ number: number || visa, cvc: x }), opts);
   it("formats a full number", () => {
     expect(fmt("123")).toEqual("123");
     expect(fmt("1234", {}, amex)).toEqual("1234");

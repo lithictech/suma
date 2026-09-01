@@ -1,0 +1,4 @@
+.funding-balance-warning {
+  border-color: var(--color-danger) !important;
+  border-width: 3px !important;
+}

@@ -4,7 +4,6 @@ import "./03_theme_variants.css";
 import "./animated-checkmark.css";
 import "./colors.css";
 import "./forms.css";
-import "./funding.css";
 import "./layout.css";
 import "./mobility.css";
 import "./onboarding.css";

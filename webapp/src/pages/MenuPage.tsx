@@ -1,3 +1,4 @@
+import TranslationToggle from "../components/TranslationToggle.tsx";
 import externalLinks from "../modules/externalLinks.ts";
 import signOut from "../modules/signOut.ts";
 import ExternalLink from "../routing/ExternalLink.tsx";
@@ -23,7 +24,6 @@ import {
   TruckIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import LanguageIcon from "@heroicons/react/24/outline/LanguageIcon";
 
 export default function MenuPage() {
   return (
@@ -79,7 +79,7 @@ export default function MenuPage() {
         />
       </Card>
       <Card>
-        <SimpleNavAreaLink to="/preferences" icon={LanguageIcon} title="Language" />
+        <TranslationToggle variant="horizontal" />
         <hr />
         <SimpleNavAreaLink to="/theme" icon={EyeIcon} title="Theme" />
         <hr />
