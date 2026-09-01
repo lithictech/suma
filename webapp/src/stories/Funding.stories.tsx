@@ -6,7 +6,7 @@ import {
   currentMember,
   paymentInstrument,
 } from "./fixtures.ts";
-import { fakeNavigate } from "./helpers.tsx";
+import { fakeNavigate } from "./fixtures.ts";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 

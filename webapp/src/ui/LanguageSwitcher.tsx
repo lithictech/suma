@@ -1,6 +1,9 @@
 import { Direction } from "../types/direction.ts";
 import CardText from "./CardText.tsx";
+import Icon from "./Icon.tsx";
 import RadioCard from "./RadioCard.tsx";
+import LanguageIcon from "@heroicons/react/24/outline/LanguageIcon";
+import clsx from "clsx";
 import React from "react";
 
 export type LanguageSwitcherVariant = "horizontal" | "vertical" | "short";
@@ -34,7 +37,15 @@ export default function LanguageSwitcher({
       name="language"
       direction={direction}
       options={supportedLocales.map(({ code, native }) => ({
-        label: <CardText variant="subtitle">{native}</CardText>,
+        label: (
+          <CardText variant="subtitle">
+            <Icon
+              icon={LanguageIcon}
+              className={clsx("mr-2", code !== currentLanguage && "hidden")}
+            />
+            {native}
+          </CardText>
+        ),
         value: code,
       }))}
       value={currentLanguage}
