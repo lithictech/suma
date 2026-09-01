@@ -3,8 +3,27 @@ import { RoutePath } from "../routing/RoutePath.ts";
 import resolveRoutePath from "../routing/resolveRoutePath.ts";
 import { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
-
 let id = 0;
+
+export function money(cents: number, currency: string = "USD") {
+  return { cents, currency };
+}
+
+export function apiCollection<T>(
+  items: T[],
+  o: Omit<Partial<ApiCollection<T>>, "items"> = {}
+): ApiCollection<T> {
+  return {
+    object: "fake",
+    currentPage: 1,
+    pageCount: 1,
+    totalCount: items.length,
+    hasMore: false,
+    url: "/fake",
+    items,
+    ...o,
+  };
+}
 
 export function currentMember(o: Partial<CurrentMember> = {}): CurrentMember {
   return {
@@ -45,8 +64,8 @@ export function vendorService(o: Partial<VendorService> = {}): VendorService {
 export function rate(o: Partial<Rate> = {}): Rate {
   return {
     id: id++,
-    surcharge: { cents: 100, currency: "USD" },
-    unitAmount: { cents: 20, currency: "USD" },
+    surcharge: money(100),
+    unitAmount: money(20),
     name: "demo",
     undiscountedRate: null,
     ...o,
@@ -69,10 +88,10 @@ export function mobilityTrip(o: Partial<MobilityTrip> = {}): MobilityTrip {
     endedAt: "2020-01-01T12:00:00Z",
     ongoing: false,
     charge: {
-      undiscountedCost: { cents: 200, currency: "USD" },
-      customerCost: { cents: 200, currency: "USD" },
-      savings: { cents: 200, currency: "USD" },
-      lineItems: [{ amount: { cents: 100, currency: "USD" }, memo: "Unlock" }],
+      undiscountedCost: money(200),
+      customerCost: money(200),
+      savings: money(200),
+      lineItems: [{ amount: money(100), memo: "Unlock" }],
     },
     minutes: 20,
     image: null,
@@ -134,4 +153,64 @@ export function axiosResponse<T>(
 
 export function fakeNavigate(p: RoutePath): void {
   console.log("navigating toL:", resolveRoutePath(p));
+}
+
+export function ledger(o: Partial<Ledger> = {}): Ledger {
+  const nextId = id++;
+  return {
+    id: nextId,
+    name: `Ledger ${nextId}`,
+    contributionText: `Contribs ${nextId}`,
+    balance: money(0),
+    ...o,
+  };
+}
+export function ledgersOverview(o: Partial<LedgersView> = {}): LedgersView {
+  return {
+    totalBalance: money(0),
+    lifetimeSavings: money(12300),
+    ledgers: [ledger({ name: "Cash" })],
+    recentLines: [],
+    ...o,
+  };
+}
+
+export function ledgerLine(o: Partial<LedgerLine> = {}): LedgerLine {
+  const nid = id++;
+  return {
+    id: nid,
+    opaqueId: `opaque-${nid}`,
+    at: dayjs().toISOString(),
+    memo: `Memo for ${nid}`,
+    amount: money(150),
+    usageDetails: [
+      {
+        code: "misc",
+        args: { discount_amount: money(225), service_name: "Misc Service" },
+      },
+    ],
+    ...o,
+  };
+}
+
+export function ledgerLineTrip(): LedgerLine {
+  return ledgerLine({
+    usageDetails: [
+      {
+        code: "mobility_trip",
+        args: { discount_amount: money(225), service_name: "Suma Bikes" },
+      },
+    ],
+  });
+}
+
+export function ledgerLineOrder(): LedgerLine {
+  return ledgerLine({
+    usageDetails: [
+      {
+        code: "commerce_order",
+        args: { discount_amount: money(225), service_name: "Suma Food" },
+      },
+    ],
+  });
 }

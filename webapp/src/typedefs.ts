@@ -378,7 +378,7 @@ declare global {
   /** Auto-generated from Suma::API::Entities::LedgerLineEntity */
   interface LedgerLine {
     id: number;
-    opaqueId: number;
+    opaqueId: string;
     at: string;
     memo: string;
     amount: Money;
