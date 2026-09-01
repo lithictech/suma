@@ -5,7 +5,6 @@ import {
   success,
   Success,
 } from "../modules/feedback.ts";
-import ScreenLoaderProvider from "../state/ScreenLoaderProvider.tsx";
 import useMountEffect from "../state/useMountEffect.ts";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import Button from "../ui/Button";
@@ -23,14 +22,6 @@ import { useController, useForm } from "react-hook-form";
 
 const meta = {
   title: "Styleguide/Form",
-  decorators: [
-    (Story) => (
-      <ScreenLoaderProvider>
-        {/* @ts-expect-error Story's Preact/React JSX typings don't line up here; safe to render. */}
-        <Story />
-      </ScreenLoaderProvider>
-    ),
-  ],
 } satisfies Meta;
 
 export default meta;

@@ -694,7 +694,7 @@ declare global {
     paymentMethodType: string;
     usableForFunding: boolean;
     status: string;
-    expiresAt: string;
+    expiresAt: string | null;
     institution: Institution;
     name: string;
     last4: string;

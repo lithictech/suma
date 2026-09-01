@@ -1,6 +1,7 @@
 import "../src/assets/styles/imports";
 import i18n from "../src/localization/i18n";
 import { installPromiseExtras } from "../src/modules/bluejay.ts";
+import ScreenLoaderProvider from "../src/state/ScreenLoaderProvider.tsx";
 import type { Preview } from "@storybook/preact-vite";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
@@ -31,7 +32,9 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <MemoryRouter>
-        <Story />
+        <ScreenLoaderProvider>
+          <Story />
+        </ScreenLoaderProvider>
       </MemoryRouter>
     ),
   ],

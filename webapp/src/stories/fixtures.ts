@@ -1,4 +1,8 @@
 import { dayjs } from "../modules/dayConfig.ts";
+import { RoutePath } from "../routing/RoutePath.ts";
+import resolveRoutePath from "../routing/resolveRoutePath.ts";
+import { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+
 
 let id = 0;
 
@@ -112,4 +116,22 @@ export function bankAccount(o: Partial<PaymentInstrument> = {}): PaymentInstrume
     ...o,
   };
   return paymentInstrument(o2);
+}
+
+export function axiosResponse<T>(
+  data: T,
+  overrides: Partial<AxiosResponse<T>> = {}
+): AxiosResponse<T> {
+  return {
+    data,
+    status: 200,
+    statusText: "OK",
+    headers: {},
+    config: {} as InternalAxiosRequestConfig,
+    ...overrides,
+  };
+}
+
+export function fakeNavigate(p: RoutePath): void {
+  console.log("navigating toL:", resolveRoutePath(p));
 }

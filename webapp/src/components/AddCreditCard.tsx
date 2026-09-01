@@ -1,37 +1,57 @@
-import api from "../api.ts";
 import { r, t } from "../localization";
-// import elementDimensions from "../modules/elementDimensions.ts";
 import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
 import keepDigits from "../modules/keepDigits.ts";
 import { scaleMoney } from "../modules/money.ts";
-import Payment, { PaymentCardField } from "../modules/payment.ts";
+import Payment, { PaymentCardField, PaymentCardParams } from "../modules/payment.ts";
+import { RoutePath, untypedRoutePath } from "../routing/RoutePath.ts";
+import { HandleUpdateCurrentMember } from "../state/UserProvider.tsx";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import useStripeErrorMessage from "../state/useStripeErrorMessage.ts";
 import useValidationError from "../state/useValidationError.ts";
 import Alert from "../ui/Alert.tsx";
+import Button from "../ui/Button.tsx";
 import Form from "../ui/Form.tsx";
 import FormSubmit from "../ui/FormSubmit.tsx";
 import Stack from "../ui/Stack.tsx";
 import TextInput from "../ui/TextInput.tsx";
 import CreditCardPreview from "./CreditCardPreview.tsx";
+import GoHome from "./GoHome.tsx";
+import { AxiosResponse } from "axios";
 import get from "lodash/get";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-type StripeToken = string;
-
 interface AddCreditCardProps {
   user: CurrentMember;
-  onSuccess: (data: StripeToken) => void;
-  stripePublicKey: string;
+  handleUpdateCurrentMember: HandleUpdateCurrentMember;
+  onSubmit: (
+    params: PaymentCardParams
+  ) => Promise<AxiosResponse<MutationPaymentInstrument>>;
+  navigate: (p: RoutePath) => void;
+  /** Where to return to after adding the card. Shows on the success screen. */
+  returnTo?: string;
+  /** Where to return to after adding the card. Navigates immediately. */
+  returnToImmediate?: string;
+  /** For testing only. */
   stubData?: { name: string; number: string; expiry: string; cvc: string };
+  /** For testing only. */
+  stubCreatedInstrument?: CreatedInstrument;
+}
+
+interface CreatedInstrument {
+  id: number;
+  paymentMethodType: string;
 }
 
 export default function AddCreditCard({
   user,
-  onSuccess,
-  stripePublicKey,
+  handleUpdateCurrentMember,
+  returnTo,
+  returnToImmediate,
+  navigate,
+  onSubmit,
   stubData,
+  stubCreatedInstrument,
 }: AddCreditCardProps) {
   const {
     register,
@@ -41,7 +61,7 @@ export default function AddCreditCard({
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<{ name: string; number: string; expiry: string; cvc: string }>({
+  } = useForm<PaymentCardParams>({
     mode: "all",
     reValidateMode: "onBlur",
     defaultValues: {
@@ -51,8 +71,12 @@ export default function AddCreditCard({
       cvc: stubData?.cvc || "",
     },
   });
+
   const values = watch();
   const [error, setError] = React.useState<AppError | null>();
+  const [createdCard, setCreatedCard] = React.useState<CreatedInstrument | null>(
+    stubCreatedInstrument || null
+  );
   const screenLoader = useScreenLoader();
   const cardInfo = React.useMemo(() => {
     return new Payment.CardInfo(values);
@@ -94,39 +118,31 @@ export default function AddCreditCard({
 
   const handleSubmitInner = React.useCallback(() => {
     const v = getValues();
-    const exp = keepDigits(v.expiry);
     screenLoader.turnOn();
     setError(null);
-    const form = new FormData();
-    form.set("card[name]", v.name);
-    form.set("card[number]", v.number);
-    form.set("card[exp_month]", exp[0] + exp[1]);
-    form.set("card[exp_year]", exp[2] + exp[3]);
-    form.set("card[cvc]", v.cvc);
-    const body = new URLSearchParams(
-      form as unknown as Record<string, string>
-    ).toString();
-    api.axios
-      .post("https://api.stripe.com/v1/tokens", body, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${stripePublicKey}`,
-        },
+    onSubmit(v)
+      .then((r) => {
+        handleUpdateCurrentMember(r);
+        if (returnToImmediate) {
+          navigate(makeReturnUrl(returnToImmediate, r.data));
+          return;
+        }
+        setCreatedCard(r.data);
+        screenLoader.turnOff();
       })
-      .then((r) => onSuccess(r.data as string))
       .catch((e: any) => {
         screenLoader.turnOff();
         const errMsg = localizeStripeError(get(e, "response.data"));
         const feedback = errMsg ? new AppError("", {}, errMsg) : extractAppErrorAny(e);
         setError(feedback);
-        (document.activeElement as HTMLElement | null)?.blur();
       });
   }, [
     getValues,
     screenLoader,
-    setError,
-    stripePublicKey,
-    onSuccess,
+    onSubmit,
+    handleUpdateCurrentMember,
+    returnToImmediate,
+    navigate,
     localizeStripeError,
   ]);
 
@@ -159,6 +175,9 @@ export default function AddCreditCard({
     setValue("cvc", value, { shouldValidate: true });
   }
 
+  if (createdCard) {
+    return <Success instrument={createdCard} returnTo={returnTo} />;
+  }
   return (
     <>
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
@@ -242,9 +261,7 @@ function NegativeBalanceAddInstrumentNotice({ user }: { user: CurrentMember }) {
   if (!user.chargeableCashBalance) {
     return null;
   }
-
   const balance = scaleMoney(user!.chargeableCashBalance, -1);
-
   return (
     <Alert
       variant="warning"
@@ -252,5 +269,35 @@ function NegativeBalanceAddInstrumentNotice({ user }: { user: CurrentMember }) {
         amount: balance,
       })}
     />
+  );
+}
+
+function Success({
+  instrument,
+  returnTo,
+}: {
+  instrument: CreatedInstrument;
+  returnTo?: string;
+}) {
+  return (
+    <Stack col gap={4}>
+      <h2>{t("payments.added_card")}</h2>
+      {t("payments.added_card_successful")}
+      {returnTo ? (
+        <div className="button-stack mt-4">
+          <Button to={makeReturnUrl(returnTo, instrument)} variant="outline">
+            {t("forms.continue")}
+          </Button>
+        </div>
+      ) : (
+        <GoHome />
+      )}
+    </Stack>
+  );
+}
+
+function makeReturnUrl(returnTo: string, instr: CreatedInstrument) {
+  return untypedRoutePath(
+    `${returnTo}?instrumentId=${instr.id}&instrumentType=${instr.paymentMethodType}`
   );
 }

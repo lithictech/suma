@@ -1,100 +1,62 @@
 import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
-import GoHome from "../components/GoHome";
 import config from "../config.ts";
 import { t } from "../localization";
+import keepDigits from "../modules/keepDigits.ts";
+import { PaymentCardParams } from "../modules/payment.ts";
 import { untypedRoutePath } from "../routing/RoutePath.ts";
-import useScreenLoader from "../state/useScreenLoader";
+import useNavigate from "../routing/useNavigate.ts";
 import useUser from "../state/useUser";
 import BreadcrumbBack from "../ui/BreadcrumbBack";
-import Button from "../ui/Button";
+import Page from "../ui/Page.tsx";
 import PageHeader from "../ui/PageHeader.tsx";
-import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export default function FundingAddCardPage() {
   const [params] = useSearchParams();
-  const {user} = useUser();
   const navigate = useNavigate();
   const returnTo = params.get("returnTo");
   const returnToImmediate = params.get("returnToImmediate");
-  const [submitSuccessful, setSubmitSuccessful] = React.useState<any>(null);
-  const { handleUpdateCurrentMember } = useUser();
-  const screenLoader = useScreenLoader();
+  const { user, handleUpdateCurrentMember } = useUser();
 
-  const handleCardSuccess = React.useCallback(
-    (stripeToken: string) => {
-      screenLoader.turnOn();
-      // setError(null);
-      api
-        .createCardStripe({ token: stripeToken })
-        .tap(handleUpdateCurrentMember)
-        .then((r) => {
-          if (returnToImmediate) {
-            navigate(
-              makeReturnUrl(returnToImmediate, r.data.id, r.data.paymentMethodType)
-            );
-            return;
-          }
-          setSubmitSuccessful({
-            instrumentId: r.data.id,
-            instrumentType: r.data.paymentMethodType,
-          });
-        })
-        // .catch((e) => setError(extractAppErrorAny(e)))
-        .finally(screenLoader.turnOff);
-    },
-    [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader]
-  );
+  const handleSubmit = React.useCallback((v: PaymentCardParams) => {
+    const exp = keepDigits(v.expiry);
+    const form = new FormData();
+    form.set("card[name]", v.name);
+    form.set("card[number]", v.number);
+    form.set("card[exp_month]", exp[0] + exp[1]);
+    form.set("card[exp_year]", exp[2] + exp[3]);
+    form.set("card[cvc]", v.cvc);
+    const body = new URLSearchParams(
+      form as unknown as Record<string, string>
+    ).toString();
+    return api.axios
+      .post("https://api.stripe.com/v1/tokens", body, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${config.stripePublicKey}`,
+        },
+      })
+      .then((r) => {
+        const stripeToken = r.data as string;
+        return api.createCardStripe({ token: stripeToken });
+      });
+  }, []);
 
   return (
-    <>
-      {!isEmpty(submitSuccessful) ? (
-        <Success {...submitSuccessful} returnTo={returnTo} />
-      ) : (
-        <>
-          <BreadcrumbBack back={returnTo ? untypedRoutePath(returnTo) : true} />
-          <PageHeader title={t("payments.add_card")} />
-          <p>{t("payments.payment_intro.privacy_statement")}</p>
-          <AddCreditCard
-            user={user!}
-            stripePublicKey={config.stripePublicKey}
-            onSuccess={handleCardSuccess}
-          />
-        </>
-      )}
-    </>
+    <Page>
+      <BreadcrumbBack back={returnTo ? untypedRoutePath(returnTo) : true} />
+      <PageHeader title={t("payments.add_card")} />
+      <p>{t("payments.payment_intro.privacy_statement")}</p>
+      <AddCreditCard
+        user={user!}
+        navigate={navigate}
+        handleUpdateCurrentMember={handleUpdateCurrentMember}
+        returnTo={returnTo || undefined}
+        returnToImmediate={returnToImmediate || undefined}
+        onSubmit={handleSubmit}
+      />
+    </Page>
   );
-}
-
-interface SuccessProps {
-  instrumentId: number;
-  instrumentType: string;
-  returnTo: string | null;
-}
-
-function Success({ instrumentId, instrumentType, returnTo }: SuccessProps) {
-  return (
-    <>
-      <h2>{t("payments.added_card")}</h2>
-      {t("payments.added_card_successful")}
-      {returnTo ? (
-        <div className="button-stack mt-4">
-          <Button
-            to={untypedRoutePath(makeReturnUrl(returnTo, instrumentId, instrumentType))}
-            variant="outline"
-          >
-            {t("forms.continue")}
-          </Button>
-        </div>
-      ) : (
-        <GoHome />
-      )}
-    </>
-  );
-}
-
-function makeReturnUrl(returnTo: string, instrumentId: number, instrumentType: string) {
-  return `${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`;
 }

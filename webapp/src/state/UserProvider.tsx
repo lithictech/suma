@@ -12,6 +12,7 @@ import React from "react";
 const logger = new Logger("user");
 
 export type SetCurrentMember = (u: CurrentMember | null) => void;
+export type HandleUpdateCurrentMember = (response: AxiosResponse) => void;
 
 export interface UserContextValue {
   user: CurrentMember | null;
@@ -20,7 +21,7 @@ export interface UserContextValue {
   userError: any;
   userAuthed: boolean;
   userUnauthed: boolean;
-  handleUpdateCurrentMember: (response: AxiosResponse) => void;
+  handleUpdateCurrentMember: HandleUpdateCurrentMember;
   registrationSession: RegistrationLink | null;
 }
 

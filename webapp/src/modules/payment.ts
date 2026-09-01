@@ -71,7 +71,6 @@ function validator(
  */
 function invalidCardNumberReason(ci: PaymentCardInfo): string {
   const number = keepDigits(ci.number);
-  console.log(number, luhn.validate(number));
   if (!luhn.validate(number) || !ci.cct) {
     return Invalid.FORMAT;
   }
