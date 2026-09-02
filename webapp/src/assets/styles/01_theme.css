@@ -38,6 +38,7 @@
     --color-bg: #FFEDD8;
     --color-bg-subtle: #FFEDD8;
     --color-surface: #FDFCFA;
+    --color-surface-alt: #f1f0ee;
     --color-border: #D2C5AE;
     --color-border-strong: #D2C5AE;
 
@@ -77,6 +78,7 @@
     /* ---- Borders / radius ---- */
     --border-width: 1px;
     --border-width-checked: 1px;
+    --border-width-highlighted: 4px;
     --border-radius-sm: 0.25rem;
     --border-radius: 0.375rem;
     --border-radius-lg: 0.5rem;
@@ -115,6 +117,9 @@
 
     --alert-icon-size: 24px;
     --alert-arrow-size: 16px;
+
+    /* ---- Other input behavior ---- */
+    --disabled-opacity: 45%;
 
     /* ---- Z-index management ---- */
     --z-index-dialog: 100;

@@ -1,14 +1,10 @@
 import "./01_theme.css";
 import "./02_baseline.css";
 import "./03_theme_variants.css";
-import "./animated-checkmark.css";
 import "./colors.css";
 import "./forms.css";
 import "./layout.css";
 import "./mobility.css";
-import "./onboarding.css";
 import "./spacing.css";
-import "./tables.css";
-import "./topnav.css";
 import "./typography.css";
 import "./utilities.css";

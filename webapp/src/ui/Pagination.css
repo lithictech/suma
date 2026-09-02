@@ -1,0 +1,28 @@
+.pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.pagination-back {
+  border-right: none;
+  border-radius: var(--border-radius);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.pagination-divider {
+  width: var(--border-width);
+  background-color: var(--color-primary);
+}
+
+.pagination-divider-disabled {
+  opacity: var(--disabled-opacity);
+}
+
+.pagination-forward {
+  border-left: none;
+  border-radius: var(--border-radius);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

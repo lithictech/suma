@@ -1,7 +1,11 @@
+.indeterminate-loader {
+  isolation: isolate;
+  z-index: var(--z-index-loader)
+}
+
 .indeterminate-loader-screen {
   width: 100vw;
   height: 100vh;
-  z-index: var(--z-index-loader);
   position: fixed;
   background-color: color-mix(in srgb, var(--color-bg) 50%, transparent);
   top: 0;

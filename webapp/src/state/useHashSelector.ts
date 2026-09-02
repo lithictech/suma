@@ -1,45 +1,44 @@
-import { Logger } from "../modules/logger";
-import relativeUrl from "../modules/relativeUrl";
-import setUrlPart from "../modules/setUrlPart";
-import find from "lodash/find";
-import trimStart from "lodash/trimStart";
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
-const logger = new Logger("hashselector");
+export default function useHashSelector<F extends string, T extends Record<F, string>>(
+  items: T[],
+  field: F
+) {
+  const [selectedId, setSelectedId] = React.useState<string | null>(
+    () => window.location.hash.slice(1) || null // read once, on mount
+  );
+  const selectedHashItem = items.find((it) => it[field] === selectedId);
 
-export default function useHashSelector(items: any[], property: string) {
-  if (!property) {
-    logger.error("property cannot be empty");
-  }
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedItem, setSelectedItem] = React.useState<any>(null);
+  const selectHashItem = React.useCallback(
+    (item: T | null) => {
+      const hash = item ? `#${item[field]}` : "";
+      window.history.replaceState(
+        null,
+        "",
+        hash || window.location.pathname + window.location.search
+      );
+      setSelectedId(item ? item[field] : null);
+    },
+    [field]
+  );
+
   React.useEffect(() => {
-    if (!location.hash) {
-      return;
-    }
-    const item = find(items, { [property]: trimStart(location.hash, "#") });
-    if (!item) {
-      return;
-    }
-    setSelectedItem(item);
-  }, [location, items, property]);
+    const onHashChange = () => setSelectedId(window.location.hash.slice(1) || null);
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   const onHashItemSelected = React.useCallback(
-    (event: { preventDefault: () => void } | undefined, item: any) => {
-      event && event.preventDefault();
-      const hash = item ? item[property] : "#";
-      navigate(relativeUrl({ location: setUrlPart({ location, hash }) }), {
-        replace: true,
-      });
-      setSelectedItem(item);
+    (e: React.SyntheticEvent, item: T) => {
+      e.preventDefault();
+      selectHashItem(item);
     },
-    [location, navigate, property]
+    [selectHashItem]
   );
 
   return {
-    selectedHashItem: selectedItem,
+    selectedHashItem,
+    selectHashItem,
     onHashItemSelected,
   };
 }

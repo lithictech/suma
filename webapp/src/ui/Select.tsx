@@ -12,7 +12,7 @@ export interface SelectOption<T extends string = string> {
 export interface SelectProps<T extends string = string>
   extends HasInputFeedback,
     React.InputHTMLAttributes<HTMLSelectElement> {
-  label: React.ReactNode;
+  label?: React.ReactNode;
   options: SelectOption<T>[];
   value?: T;
   placeholder?: string;
