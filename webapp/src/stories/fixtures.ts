@@ -3,7 +3,7 @@ import { RoutePath } from "../routing/RoutePath.ts";
 import resolveRoutePath from "../routing/resolveRoutePath.ts";
 import { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
-let id = 0;
+let id = 1;
 
 export function money(cents: number, currency: string = "USD") {
   return { cents, currency };
@@ -149,6 +149,10 @@ export function axiosResponse<T>(
     config: {} as InternalAxiosRequestConfig,
     ...overrides,
   };
+}
+
+export function axiosResponseMocker<T>(data: T): (arg: any) => Promise<AxiosResponse<T>> {
+  return () => Promise.resolve(axiosResponse<T>(data));
 }
 
 export function fakeNavigate(p: RoutePath): void {

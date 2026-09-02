@@ -1,15 +1,18 @@
 import { IdParams } from "../api.ts";
-import { t } from "../localization";
+import { r, t } from "../localization";
 import { AppError } from "../modules/feedback.ts";
 import useAsyncFetch from "../state/useAsyncFetch.ts";
 import useHashSelector from "../state/useHashSelector.ts";
+import ForwardBackPagination from "../ui/ForwardBackPagination.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
 import PageHeader from "../ui/PageHeader.tsx";
+import Select from "../ui/Select.tsx";
 import Stack from "../ui/Stack.tsx";
 import Table from "../ui/Table.tsx";
 import Money from "../uir/Money.tsx";
 import AsyncContent from "./AsyncContent.tsx";
+import { page } from "@vitest/browser/context";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -17,25 +20,27 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 interface TransactionHistoryProps {
-  params: URLSearchParams;
-  page: number;
   ledgersOverview: LedgersView;
+  loading?: boolean;
+  error?: AppError | null;
   getLedgerLines: (
     params: IdParams,
     cfg?: AxiosRequestConfig
   ) => Promise<AxiosResponse<LedgerLines>>;
-  loading?: boolean;
-  error?: AppError | null;
-  ledgerId?: number;
+  ledgerId: number | null;
+  setLedgerId: (ledgerId: number) => void;
+  ledgerLinesPage: number;
+  setLedgerLinesPage: (page: number) => void;
 }
 export default function TransactionHistory({
-  params,
-  page,
   ledgersOverview,
   loading,
   error,
   ledgerId,
+  setLedgerId,
   getLedgerLines,
+  ledgerLinesPage,
+  setLedgerLinesPage,
 }: TransactionHistoryProps) {
   const fetchLedgerLines = React.useCallback(
     (data?: Record<string, any>) => getLedgerLines(data as IdParams),
@@ -45,9 +50,9 @@ export default function TransactionHistory({
   const {
     state: ledgerLines,
     loading: ledgerLinesLoading,
+    error: ledgerLinesError,
     asyncFetch: ledgerLinesFetch,
   } = useAsyncFetch<LedgerLines>(fetchLedgerLines, {
-    default: {} as LedgerLines,
     doNotFetchOnInit: true,
     cache: true,
   });
@@ -62,29 +67,26 @@ export default function TransactionHistory({
     }
     if (isEmpty(ledgerLines)) {
       // Initial load should fetch whatever page is in the url
-      ledgerLinesFetch({ id: ledgerId, page: page + 1 });
+      ledgerLinesFetch({ id: ledgerId, page: ledgerLinesPage + 1 });
     } else if (ledgerLines.ledgerId !== activeLedger.id) {
       // When the ID changes, fetch the first page. The call to setListQueryParams has already set page:0.
       ledgerLinesFetch({ id: ledgerId, page: 1 });
-    } else if (ledgerLines.currentPage !== page + 1) {
+    } else if (ledgerLines.currentPage !== ledgerLinesPage + 1) {
       // Happens when paginating.
-      ledgerLinesFetch({ id: ledgerId, page: page + 1 });
+      ledgerLinesFetch({ id: ledgerId, page: ledgerLinesPage + 1 });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeLedger, page, ledgerId]);
+  }, [activeLedger, ledgerLinesPage, ledgerId, ledgerLines, ledgerLinesFetch]);
 
   const recentLinesSelected = activeLedger === RECENT_LINES_LEDGER;
   const activeLines = recentLinesSelected
     ? ledgersOverview.recentLines
-    : ledgerLines.items || [];
+    : ledgerLines?.items || [];
 
   const selector = (
     <LedgerSelect
       activeLedger={activeLedger}
       ledgers={ledgersOverview.ledgers}
-      onLedgerSelected={(ledgerId: number) => console.log(ledgerId)}
-      //   setListQueryParams({ page: 0 }, { ledger: ledgerId })
-      // }
+      onLedgerSelected={setLedgerId}
     />
   );
 
@@ -101,30 +103,29 @@ export default function TransactionHistory({
                 totalBalance={ledgersOverview.totalBalance}
                 lifetimeSavings={ledgersOverview.lifetimeSavings}
               />
-              <LedgerLinesTable
-                lines={ledgersOverview.recentLines}
-                linesLoading={loading}
-              />
+              <LedgerLinesTable lines={ledgersOverview.recentLines} />
               {isEmpty(ledgersOverview.recentLines) && (
                 <p className="text-center">{t("payments.no_transaction_history")}</p>
               )}
             </>
           ) : (
             <>
-              {/*<LedgerLinesTable*/}
-              {/*  lines={activeLines}*/}
-              {/*  linesLoading={ledgersOverviewLoading || ledgerLinesLoading}*/}
-              {/*/>*/}
-              {/*<div>*/}
-              {/*  {!isEmpty(activeLines) && (*/}
-              {/*    <ForwardBackPagination*/}
-              {/*      page={page}*/}
-              {/*      pageCount={ledgerLines.pageCount}*/}
-              {/*      onPageChange={(pg) => setListQueryParams({ page: pg })}*/}
-              {/*      scrollTop={140}*/}
-              {/*    />*/}
-              {/*  )}*/}
-              {/*</div>*/}
+              {selector}
+              <LedgerLinesTable
+                lines={activeLines}
+                loading={ledgerLinesLoading}
+                error={ledgerLinesError}
+              />
+              <div>
+                {!isEmpty(activeLines) && (
+                  <ForwardBackPagination
+                    page={ledgerLinesPage}
+                    pageCount={ledgerLines!.pageCount}
+                    onPageChange={setLedgerLinesPage}
+                    // scrollTop={140}
+                  />
+                )}
+              </div>
             </>
           )
         }
@@ -143,54 +144,30 @@ interface LedgerSelectProps {
 }
 
 function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectProps) {
-  return null;
-  // const showRecentLines = activeLedger === RECENT_LINES_LEDGER;
-  // const selectedLedgerLabel = showRecentLines
-  //   ? t("payments.recent_ledger_lines")
-  //   : t("payments.ledger_label", {
-  //       amount: activeLedger.balance,
-  //       label: activeLedger.contributionText,
-  //     });
-  // return null;
-  // return (
-  //   <Dropdown drop="down" className="mb-2">
-  //     <DropdownToggle
-  //       className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center"
-  //       title={selectedLedgerLabel}
-  //     >
-  //       <Stack direction="horizontal" gap={2} className="overflow-hidden">
-  //         {selectedLedgerLabel}
-  //       </Stack>
-  //       <div className="dropdown-toggle-manual"></div>
-  //     </DropdownToggle>
-  //     <DropdownMenu className="w-100">
-  //       <DropdownItem
-  //         as={Stack}
-  //         title={t("payments.recent_ledger_lines")}
-  //         active={showRecentLines}
-  //         className="overflow-hidden"
-  //         onClick={() => onLedgerSelected(0)}
-  //       >
-  //         {t("payments.recent_ledger_lines")}
-  //       </DropdownItem>
-  //       {ledgers.map((led) => (
-  //         <DropdownItem
-  //           key={led.id}
-  //           as={Stack}
-  //           title={led.contributionText}
-  //           active={activeLedger.id === led.id}
-  //           className="overflow-hidden"
-  //           onClick={() => onLedgerSelected(led.id)}
-  //         >
-  //           {t("payments.ledger_label", {
-  //             amount: led.balance,
-  //             label: led.contributionText,
-  //           })}
-  //         </DropdownItem>
-  //       ))}
-  //     </DropdownMenu>
-  //   </Dropdown>
-  // );
+  const showRecentLines = activeLedger === RECENT_LINES_LEDGER;
+  const selectedLedgerLabel = showRecentLines
+    ? t("payments.recent_ledger_lines")
+    : t("payments.ledger_label", {
+        amount: (activeLedger as Ledger).balance,
+        label: (activeLedger as Ledger).contributionText,
+      });
+  return (
+    <Select
+      title={selectedLedgerLabel}
+      value={"" + activeLedger.id}
+      options={[
+        { label: r("payments.recent_ledger_lines"), value: "0" },
+        ...ledgers.map((led) => ({
+          label: r("payments.ledger_label", {
+            amount: led.balance,
+            label: led.contributionText,
+          }),
+          value: "" + led.id,
+        })),
+      ]}
+      onChange={(e) => onLedgerSelected(Number(e.target.value))}
+    />
+  );
 }
 
 function RecentLinesSubheader({
@@ -220,16 +197,18 @@ function RecentLinesSubheader({
 
 function LedgerLinesTable({
   lines,
-  linesLoading,
+  loading,
+  error,
 }: {
   lines: LedgerLine[];
-  linesLoading?: boolean;
+  loading?: boolean;
+  error?: AppError | null;
 }) {
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
   return (
     <div className="position-relative">
-      {linesLoading && <IndeterminateLoader variant="content" />}
-      <Table striped hover className={clsx(linesLoading && "opacity-50")}>
+      {loading && <IndeterminateLoader variant="content" />}
+      <Table striped hover className={clsx(loading && "opacity-50")}>
         <tbody>
           {lines.map((line) => (
             <tr key={line.id}>
