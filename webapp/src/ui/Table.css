@@ -74,3 +74,8 @@
 .table-lg {
     font-size: var(--font-size-lg);
 }
+
+.table-row-highlight {
+    outline: var(--border-width-highlighted) solid var(--tcolor-header);
+    outline-offset: calc(-1 * var(--border-width-highlighted));
+}

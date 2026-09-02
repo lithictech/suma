@@ -34,7 +34,7 @@ export const Standard: Story = {
               "22",
             ]}
           />
-          <TableRow cells={["Dennis", "Web accessibility", "45"]} />
+          <TableRow highlight cells={["Dennis", "Web accessibility", "45"]} />
           <TableRow
             cells={[
               <TableHeader key={1} row colSpan={2}>

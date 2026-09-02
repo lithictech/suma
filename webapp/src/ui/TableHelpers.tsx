@@ -17,16 +17,13 @@ export function renderTableCell(
     return tblElement;
   }
   let cellProps: HTMLTableCellProps = { ...more };
-  let key;
   if (typeof c === "string" || React.isValidElement(c)) {
     cellProps = { ...cellProps, children: c };
-    key = "" + c;
   } else {
     cellProps = { ...cellProps, ...c };
-    key = "" + cellProps;
   }
   const C = elementType;
-  return <C key={key} {...cellProps} />;
+  return <C {...cellProps} />;
 }
 
 function asTableElement(c: TableCell) {

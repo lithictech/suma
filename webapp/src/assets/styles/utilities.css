@@ -10,3 +10,7 @@
 .opacity-25 { opacity: 25%; }
 .opacity-50 { opacity: 50%; }
 .opacity-75 { opacity: 75%; }
+
+.whitespace-nowrap {
+  white-space: nowrap;
+}

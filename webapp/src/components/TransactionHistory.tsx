@@ -28,7 +28,7 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 interface TransactionHistoryProps {
-  ledgersOverview: LedgersView;
+  ledgersOverview?: LedgersView;
   loading?: boolean;
   error?: AppError | null;
   getLedgerLines: (
@@ -73,7 +73,7 @@ export default function TransactionHistory({
 
   // If we don't have a ledgerId parameter, or it's invalid, use 'recent lines'.
   const activeLedger =
-    ledgersOverview.ledgers.find((ld) => ld.id === ledgerId) || RECENT_LINES_LEDGER;
+    ledgersOverview?.ledgers.find((ld) => ld.id === ledgerId) || RECENT_LINES_LEDGER;
 
   React.useEffect(() => {
     if (!activeLedger.id) {
@@ -92,21 +92,20 @@ export default function TransactionHistory({
   }, [activeLedger, ledgerLinesPage, ledgerId, ledgerLines, ledgerLinesFetch]);
 
   const recentLinesSelected = activeLedger === RECENT_LINES_LEDGER;
-  const activeLines = recentLinesSelected
-    ? ledgersOverview.recentLines
-    : ledgerLines?.items || [];
+  const activeLines =
+    (recentLinesSelected ? ledgersOverview?.recentLines : ledgerLines?.items) ?? [];
 
   const selector = (
     <LedgerSelect
       activeLedger={activeLedger}
-      ledgers={ledgersOverview.ledgers}
+      ledgers={ledgersOverview?.ledgers || []}
       onLedgerSelected={setLedgerId}
     />
   );
 
   return (
     <Page>
-      <PageHeader title={t("payments.ledger_transactions")} back />
+      <PageHeader title={t("payments.ledger_transactions")} back="/menu" />
       <p>{t("payments.ledgers_intro")}</p>
       <AsyncContent loading={loading || false} error={error}>
         {() =>
@@ -114,14 +113,14 @@ export default function TransactionHistory({
             <>
               {selector}
               <RecentLinesSubheader
-                totalBalance={ledgersOverview.totalBalance}
-                lifetimeSavings={ledgersOverview.lifetimeSavings}
+                totalBalance={ledgersOverview!.totalBalance}
+                lifetimeSavings={ledgersOverview!.lifetimeSavings}
               />
               <LedgerLinesTable
-                ledgers={ledgersOverview.ledgers}
-                lines={ledgersOverview.recentLines}
+                ledgers={ledgersOverview!.ledgers}
+                lines={ledgersOverview!.recentLines}
               />
-              {isEmpty(ledgersOverview.recentLines) && (
+              {isEmpty(ledgersOverview!.recentLines) && (
                 <p className="text-center">{t("payments.no_transaction_history")}</p>
               )}
             </>
@@ -129,7 +128,7 @@ export default function TransactionHistory({
             <>
               {selector}
               <LedgerLinesTable
-                ledgers={ledgersOverview.ledgers}
+                ledgers={ledgersOverview!.ledgers}
                 lines={activeLines}
                 loading={ledgerLinesLoading}
                 error={ledgerLinesError}
@@ -226,7 +225,6 @@ function LedgerLinesTable({
     "opaqueId"
   );
   const feedback = error ? extractAppErrorAny(error) : null;
-  console.log(lines.map((line) => line.id));
   return (
     <div className="position-relative">
       {loading && <IndeterminateLoader variant="content" />}
@@ -236,6 +234,7 @@ function LedgerLinesTable({
           {lines.map((line) => (
             <TableRow
               key={line.id}
+              highlight={line === selectedHashItem}
               cells={[
                 <Stack key={1} col>
                   <a
@@ -250,6 +249,7 @@ function LedgerLinesTable({
                 <Money
                   key={2}
                   className={clsx(
+                    "whitespace-nowrap",
                     line.amount.cents < 0 ? "color-danger" : "color-success"
                   )}
                 >
