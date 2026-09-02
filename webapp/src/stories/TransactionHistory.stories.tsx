@@ -1,6 +1,8 @@
 import TransactionHistory from "../components/TransactionHistory.tsx";
 import { AppError } from "../modules/feedback.ts";
+import useHashSelector from "../state/useHashSelector.ts";
 import useLazyRef from "../state/useLazyRef.ts";
+import useMountEffect from "../state/useMountEffect.ts";
 import {
   apiCollection,
   axiosResponse,
@@ -22,17 +24,23 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const defaultLedger = ledger();
+
 export const RecentHistory: Story = {
   render: () => (
     <TransactionHistory
       ledgerLinesPage={0}
       ledgersOverview={ledgersOverview({
-        recentLines: [ledgerLine(), ledgerLineTrip(), ledgerLineOrder()],
+        recentLines: [
+          ledgerLine(defaultLedger.id),
+          ledgerLineTrip(defaultLedger.id),
+          ledgerLineOrder(defaultLedger.id),
+        ],
         ledgers: [],
       })}
       getLedgerLines={axiosResponseMocker<LedgerLines>({
         ...apiCollection<LedgerLine>([]),
-        ledgerId: 0,
+        ledgerId: defaultLedger.id,
       })}
       ledgerId={0}
       setLedgerId={noop}
@@ -63,12 +71,12 @@ export const SwitchingLedgers: Story = {
     const led1 = useLazyRef(() => ledger({ name: "Mobility" }));
     const led2 = useLazyRef(() => ledger({ name: "Food" }));
     const ledgerLines = useLazyRef(() => ({
-      [led1.id + ""]: [ledgerLine(), ledgerLineTrip()],
+      [led1.id + ""]: [ledgerLine(led1.id), ledgerLineTrip(led1.id)],
       [led2.id + ""]: [
-        ledgerLineOrder(),
-        ledgerLine(),
-        ledgerLineTrip(),
-        ledgerLineOrder(),
+        ledgerLineOrder(led2.id),
+        ledgerLine(led2.id),
+        ledgerLineTrip(led2.id),
+        ledgerLineOrder(led2.id),
       ],
     }));
     const [ledgerId, setLedgerId] = React.useState(led1.id);
@@ -85,6 +93,33 @@ export const SwitchingLedgers: Story = {
         })}
         ledgerId={ledgerId}
         setLedgerId={setLedgerId}
+        setLedgerLinesPage={noop}
+      />
+    );
+  },
+};
+
+export const ViewingDetail: Story = {
+  render: () => {
+    const led = useLazyRef(ledger);
+    const line = useLazyRef(() => ledgerLineTrip(led.id));
+    const { selectHashItem } = useHashSelector([line], "opaqueId");
+    useMountEffect(() => {
+      selectHashItem(line);
+    });
+    return (
+      <TransactionHistory
+        ledgerLinesPage={0}
+        ledgersOverview={ledgersOverview({
+          recentLines: [ledgerLine(led.id), line, ledgerLineOrder(led.id)],
+          ledgers: [led],
+        })}
+        getLedgerLines={axiosResponseMocker<LedgerLines>({
+          ...apiCollection<LedgerLine>([]),
+          ledgerId: 0,
+        })}
+        ledgerId={0}
+        setLedgerId={noop}
         setLedgerLinesPage={noop}
       />
     );

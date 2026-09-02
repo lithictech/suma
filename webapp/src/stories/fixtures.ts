@@ -173,15 +173,16 @@ export function ledgersOverview(o: Partial<LedgersView> = {}): LedgersView {
   return {
     totalBalance: money(0),
     lifetimeSavings: money(12300),
-    ledgers: [ledger({ name: "Cash" })],
+    ledgers: [],
     recentLines: [],
     ...o,
   };
 }
 
-export function ledgerLine(o: Partial<LedgerLine> = {}): LedgerLine {
+export function ledgerLine(ledgerId: number, o: Partial<LedgerLine> = {}): LedgerLine {
   const nid = id++;
   return {
+    ledgerId,
     id: nid,
     opaqueId: `opaque-${nid}`,
     at: dayjs().toISOString(),
@@ -190,31 +191,39 @@ export function ledgerLine(o: Partial<LedgerLine> = {}): LedgerLine {
     usageDetails: [
       {
         code: "misc",
-        args: { discount_amount: money(225), service_name: "Misc Service" },
+        args: { discountAmount: money(225), serviceName: "Misc Service" },
       },
     ],
     ...o,
   };
 }
 
-export function ledgerLineTrip(): LedgerLine {
-  return ledgerLine({
+export function ledgerLineTrip(
+  ledgerId: number,
+  o: Partial<LedgerLine> = {}
+): LedgerLine {
+  return ledgerLine(ledgerId, {
     usageDetails: [
       {
         code: "mobility_trip",
-        args: { discount_amount: money(225), service_name: "Suma Bikes" },
+        args: { discountAmount: money(225), serviceName: "Suma Bikes" },
       },
     ],
+    ...o,
   });
 }
 
-export function ledgerLineOrder(): LedgerLine {
-  return ledgerLine({
+export function ledgerLineOrder(
+  ledgerId: number,
+  o: Partial<LedgerLine> = {}
+): LedgerLine {
+  return ledgerLine(ledgerId, {
     usageDetails: [
       {
         code: "commerce_order",
-        args: { discount_amount: money(225), service_name: "Suma Food" },
+        args: { discountAmount: money(225), serviceName: "Suma Food" },
       },
     ],
+    ...o,
   });
 }

@@ -3,6 +3,12 @@ import { r, t } from "../localization";
 import { AppError } from "../modules/feedback.ts";
 import useAsyncFetch from "../state/useAsyncFetch.ts";
 import useHashSelector from "../state/useHashSelector.ts";
+import Button from "../ui/Button.tsx";
+import Card from "../ui/Card.tsx";
+import CardBody from "../ui/CardBody.tsx";
+import CardText from "../ui/CardText.tsx";
+import { Dialog } from "../ui/Dialog.tsx";
+import DialogHeader from "../ui/DialogHeader.tsx";
 import ForwardBackPagination from "../ui/ForwardBackPagination.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
@@ -12,7 +18,6 @@ import Stack from "../ui/Stack.tsx";
 import Table from "../ui/Table.tsx";
 import Money from "../uir/Money.tsx";
 import AsyncContent from "./AsyncContent.tsx";
-import { page } from "@vitest/browser/context";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -91,7 +96,7 @@ export default function TransactionHistory({
   );
 
   return (
-    <Page appNav>
+    <Page>
       <PageHeader title={t("payments.ledger_transactions")} back />
       <p>{t("payments.ledgers_intro")}</p>
       <AsyncContent loading={loading || false} error={error}>
@@ -103,7 +108,10 @@ export default function TransactionHistory({
                 totalBalance={ledgersOverview.totalBalance}
                 lifetimeSavings={ledgersOverview.lifetimeSavings}
               />
-              <LedgerLinesTable lines={ledgersOverview.recentLines} />
+              <LedgerLinesTable
+                ledgers={ledgersOverview.ledgers}
+                lines={ledgersOverview.recentLines}
+              />
               {isEmpty(ledgersOverview.recentLines) && (
                 <p className="text-center">{t("payments.no_transaction_history")}</p>
               )}
@@ -112,6 +120,7 @@ export default function TransactionHistory({
             <>
               {selector}
               <LedgerLinesTable
+                ledgers={ledgersOverview.ledgers}
                 lines={activeLines}
                 loading={ledgerLinesLoading}
                 error={ledgerLinesError}
@@ -146,8 +155,8 @@ interface LedgerSelectProps {
 function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }: LedgerSelectProps) {
   const showRecentLines = activeLedger === RECENT_LINES_LEDGER;
   const selectedLedgerLabel = showRecentLines
-    ? t("payments.recent_ledger_lines")
-    : t("payments.ledger_label", {
+    ? r("payments.recent_ledger_lines")
+    : r("payments.ledger_label", {
         amount: (activeLedger as Ledger).balance,
         label: (activeLedger as Ledger).contributionText,
       });
@@ -196,15 +205,20 @@ function RecentLinesSubheader({
 }
 
 function LedgerLinesTable({
+  ledgers,
   lines,
   loading,
   error,
 }: {
+  ledgers: Ledger[];
   lines: LedgerLine[];
   loading?: boolean;
   error?: AppError | null;
 }) {
-  const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
+  const { selectedHashItem, selectHashItem, onHashItemSelected } = useHashSelector(
+    lines,
+    "opaqueId"
+  );
   return (
     <div className="position-relative">
       {loading && <IndeterminateLoader variant="content" />}
@@ -237,10 +251,64 @@ function LedgerLinesTable({
           ))}
         </tbody>
       </Table>
-      {/*<LedgerItemModal*/}
-      {/*  item={selectedHashItem}*/}
-      {/*  onClose={() => onHashItemSelected(null, null)}*/}
-      {/*/>*/}
+      <LedgerItemModal
+        ledgers={ledgers}
+        item={selectedHashItem}
+        open={!!selectedHashItem}
+        onClose={() => selectHashItem(null)}
+      />
     </div>
+  );
+}
+
+interface LedgerItemModalProps {
+  ledgers: Ledger[];
+  item?: LedgerLine | null;
+  open: boolean;
+  onClose: () => void;
+}
+
+function LedgerItemModal({ ledgers, item, open, onClose }: LedgerItemModalProps) {
+  item = item || {
+    id: 0,
+    ledgerId: 0,
+    opaqueId: "",
+    at: "",
+    memo: "",
+    amount: { cents: 0, currency: "" },
+    usageDetails: [],
+  };
+  const ledger = ledgers.find((led) => led.id === item.ledgerId);
+  const dlgId = `transaction-${item.id}`;
+  return (
+    <Dialog open={open} onClose={onClose} labelledBy={dlgId}>
+      <Card>
+        <CardBody className="d-flex flex-column gap-3">
+          <DialogHeader id={dlgId}>
+            <Money
+              className={clsx(item.amount.cents < 0 ? "color-danger" : "color-success")}
+            >
+              {item.amount}
+            </Money>{" "}
+            from {ledger?.contributionText}
+          </DialogHeader>
+          <CardText variant="title"></CardText>
+          <CardText variant="text">
+            {item.usageDetails.map(({ code, args }, i) => (
+              <p key={i}>{t("ledgerusage." + code, { ...args })}</p>
+            ))}
+          </CardText>
+          <Stack col gap={1}>
+            <CardText variant="subtext">{dayjs(item.at).format("LLL")}</CardText>
+            <CardText variant="subtext">
+              {t("common.reference_id")}: {item.opaqueId}
+            </CardText>
+          </Stack>
+          <Button variant="outline" onClick={onClose}>
+            {t("common.close")}
+          </Button>
+        </CardBody>
+      </Card>
+    </Dialog>
   );
 }
