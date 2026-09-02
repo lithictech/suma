@@ -126,6 +126,43 @@ export const ViewingDetail: Story = {
   },
 };
 
+export const PaginatedLinesDetail: Story = {
+  render: () => {
+    const pageSize = 10;
+    const pageCount = 3;
+    const totalCount = pageSize * (pageCount - 0.5);
+    const [currentPage, setCurrentPage] = React.useState(0);
+
+    const led = useLazyRef(ledger);
+    const allLines = useLazyRef(() => {
+      const arr: LedgerLine[] = new Array(totalCount);
+      for (let i = 0; i < totalCount; i++) {
+        arr[i] = ledgerLine(led.id);
+      }
+      return arr;
+    });
+    return (
+      <TransactionHistory
+        ledgerLinesPage={currentPage}
+        ledgersOverview={ledgersOverview({
+          recentLines: [],
+          ledgers: [led],
+        })}
+        getLedgerLines={axiosResponseMocker<LedgerLines>({
+          ...apiCollection<LedgerLine>(
+            allLines.slice(currentPage * pageSize, (currentPage + 1) * pageSize),
+            { currentPage, pageCount, totalCount }
+          ),
+          ledgerId: led.id,
+        })}
+        ledgerId={led.id}
+        setLedgerId={noop}
+        setLedgerLinesPage={setCurrentPage}
+      />
+    );
+  },
+};
+
 export const OverviewLoading: Story = {
   render: () => (
     <TransactionHistory

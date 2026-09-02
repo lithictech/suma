@@ -117,6 +117,9 @@
     --alert-icon-size: 24px;
     --alert-arrow-size: 16px;
 
+    /* ---- Other input behavior ---- */
+    --disabled-opacity: 45%;
+
     /* ---- Z-index management ---- */
     --z-index-dialog: 100;
     --z-index-loader: 200;

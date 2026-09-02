@@ -35,7 +35,7 @@
 .btn[aria-disabled="true"],
 .btn.is-disabled {
   cursor: not-allowed;
-  opacity: 45%;
+  opacity: var(--disabled-opacity);
 }
 
 .btn:focus-visible,

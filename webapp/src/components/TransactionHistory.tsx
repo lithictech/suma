@@ -10,10 +10,10 @@ import CardText from "../ui/CardText.tsx";
 import { Dialog } from "../ui/Dialog.tsx";
 import DialogHeader from "../ui/DialogHeader.tsx";
 import FormFeedback from "../ui/FormFeedback.tsx";
-import ForwardBackPagination from "../ui/ForwardBackPagination.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
 import PageHeader from "../ui/PageHeader.tsx";
+import Pagination from "../ui/Pagination.tsx";
 import Select from "../ui/Select.tsx";
 import Stack from "../ui/Stack.tsx";
 import Table from "../ui/Table.tsx";
@@ -134,16 +134,13 @@ export default function TransactionHistory({
                 loading={ledgerLinesLoading}
                 error={ledgerLinesError}
               />
-              <div>
-                {!isEmpty(activeLines) && (
-                  <ForwardBackPagination
-                    page={ledgerLinesPage}
-                    pageCount={ledgerLines!.pageCount}
-                    onPageChange={setLedgerLinesPage}
-                    // scrollTop={140}
-                  />
-                )}
-              </div>
+              {ledgerLines && (
+                <Pagination
+                  page={ledgerLinesPage}
+                  pageCount={ledgerLines!.pageCount}
+                  onPageChange={setLedgerLinesPage}
+                />
+              )}
             </>
           )
         }
@@ -229,6 +226,7 @@ function LedgerLinesTable({
     "opaqueId"
   );
   const feedback = error ? extractAppErrorAny(error) : null;
+  console.log(lines.map((line) => line.id));
   return (
     <div className="position-relative">
       {loading && <IndeterminateLoader variant="content" />}

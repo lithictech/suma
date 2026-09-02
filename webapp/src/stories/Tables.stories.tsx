@@ -1,6 +1,7 @@
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
 import DefinitionTable from "../ui/DefinitionTable.tsx";
+import CPagination from "../ui/Pagination.tsx";
 import Table from "../ui/Table.tsx";
 import TableBody from "../ui/TableBody.tsx";
 import TableFooter from "../ui/TableFooter.tsx";
@@ -9,6 +10,7 @@ import TableHeaders from "../ui/TableHeaders.tsx";
 import TableRow from "../ui/TableRow.tsx";
 import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
+import React from "react";
 
 const meta = {
   title: "Styleguide/Tables",
@@ -78,6 +80,35 @@ export const Standard: Story = {
         >
           {children}
         </Table>
+      </DemoStack>
+    );
+  },
+};
+
+export const Pagination: Story = {
+  render: () => {
+    const [page, setPage] = React.useState(0);
+    const items = ["a" + page, "b" + page, "c" + page, "d" + page];
+    return (
+      <DemoStack>
+        <h2>Pages</h2>
+        <Table>
+          <TableBody>
+            {items.map((s, i) => (
+              <TableRow key={s} cells={[s, "" + i]} />
+            ))}
+          </TableBody>
+        </Table>
+        <CPagination page={page} pageCount={4} onPageChange={setPage} />
+        <h2>One Page</h2>
+        <Table>
+          <TableBody>
+            {items.map((s, i) => (
+              <TableRow key={s} cells={[s, "" + i]} />
+            ))}
+          </TableBody>
+        </Table>
+        <CPagination size="sm" page={0} pageCount={1} onPageChange={setPage} />
       </DemoStack>
     );
   },
