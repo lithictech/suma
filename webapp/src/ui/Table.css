@@ -1,21 +1,76 @@
-table {
+.table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: var(--space-4);
+
+    --tcolor-header: var(--tint-primary);
+    --tcolor-bg1: var(--color-surface);
+    --tcolor-bg2: var(--color-surface-alt);
+    --tcolor-hover: color-mix(in srgb, var(--tcolor-bg1) 50%, var(--tcolor-bg2));
+
+    thead,
+    tfoot {
+        background-color: var(--tcolor-header);
+    }
+
+    th,
+    td {
+        padding: var(--space-2) var(--space-3);
+    }
+
+    th {
+        text-align: left;
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-muted);
+    }
+
+    caption {
+        margin-top: var(--space-2);
+        caption-side: bottom;
+    }
+
+    tbody {
+        background-color: var(--tcolor-bg1);
+    }
 }
 
-th,
-td {
-    padding: var(--space-2) var(--space-3);
-    text-align: left;
-    border-bottom: var(--border-width) solid var(--color-border);
+.table-borders {
+    th,
+    td {
+        border: 1px solid var(--color-border);
+    }
 }
 
-th {
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-muted);
+.table-striped {
+    tbody > tr:nth-of-type(even) {
+        background-color: var(--tcolor-bg2);
+    }
 }
 
-tbody tr:hover {
-    background-color: var(--color-bg-subtle);
+.table-hover {
+    tr:hover, tbody > tr:hover {
+        background-color: var(--tcolor-hover);
+    }
+}
+
+.table-compact {
+    th,
+    td {
+        padding: var(--space-1) var(--space-1);
+        font-size: var(--font-size-sm);
+    }
+    caption {
+        margin-top: var(--space-1);
+    }
+}
+
+.table-sm {
+    font-size: var(--font-size-sm);
+}
+
+.table-md {
+    font-size: var(--font-size-base);
+}
+
+.table-lg {
+    font-size: var(--font-size-lg);
 }

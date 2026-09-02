@@ -17,6 +17,8 @@ import PageHeader from "../ui/PageHeader.tsx";
 import Select from "../ui/Select.tsx";
 import Stack from "../ui/Stack.tsx";
 import Table from "../ui/Table.tsx";
+import TableBody from "../ui/TableBody.tsx";
+import TableRow from "../ui/TableRow.tsx";
 import Money from "../uir/Money.tsx";
 import AsyncContent from "./AsyncContent.tsx";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -231,34 +233,34 @@ function LedgerLinesTable({
     <div className="position-relative">
       {loading && <IndeterminateLoader variant="content" />}
       <FormFeedback feedback={feedback} />
-      <Table striped hover className={clsx(loading && "opacity-25")}>
-        <tbody>
+      <Table striped hover borders={false} className={clsx(loading && "opacity-25")}>
+        <TableBody>
           {lines.map((line) => (
-            <tr key={line.id}>
-              <td>
-                <Stack row justify="between">
-                  <Stack col>
-                    <a
-                      className="ps-0"
-                      href={`#${line.opaqueId}`}
-                      onClick={(e) => onHashItemSelected(e, line)}
-                    >
-                      <strong>{dayjs(line.at).format("lll")}</strong>
-                    </a>
-                    <div>{line.memo}</div>
-                  </Stack>
-                  <Money
-                    className={clsx(
-                      line.amount.cents < 0 ? "color-danger" : "color-success"
-                    )}
+            <TableRow
+              key={line.id}
+              cells={[
+                <Stack key={1} col>
+                  <a
+                    className="ps-0"
+                    href={`#${line.opaqueId}`}
+                    onClick={(e) => onHashItemSelected(e, line)}
                   >
-                    {line.amount}
-                  </Money>
-                </Stack>
-              </td>
-            </tr>
+                    <strong>{dayjs(line.at).format("lll")}</strong>
+                  </a>
+                  <div>{line.memo}</div>
+                </Stack>,
+                <Money
+                  key={2}
+                  className={clsx(
+                    line.amount.cents < 0 ? "color-danger" : "color-success"
+                  )}
+                >
+                  {line.amount}
+                </Money>,
+              ]}
+            ></TableRow>
           ))}
-        </tbody>
+        </TableBody>
       </Table>
       <LedgerItemModal
         ledgers={ledgers}

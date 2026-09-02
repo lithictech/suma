@@ -1,5 +1,4 @@
 import "./ForwardBackPagination.css";
-import { page } from "@vitest/browser/context";
 
 export interface ForwardBackPaginationProps {
   page: number;

@@ -1,5 +1,5 @@
 import TransactionHistory from "../components/TransactionHistory.tsx";
-import { appError, AppError } from "../modules/feedback.ts";
+import { AppError } from "../modules/feedback.ts";
 import useHashSelector from "../state/useHashSelector.ts";
 import useLazyRef from "../state/useLazyRef.ts";
 import useMountEffect from "../state/useMountEffect.ts";
