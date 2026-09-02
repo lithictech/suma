@@ -31,7 +31,7 @@ interface SizedProps {
 }
 
 function ScreenLoader({ size, className, style }: SizedProps) {
-  const cls = clsx("indeterminate-loader-screen", className);
+  const cls = clsx("indeterminate-loader", "indeterminate-loader-screen", className);
   return (
     <div className={cls} style={style}>
       <div className="indeterminate-loader-screen-centerer">
@@ -42,7 +42,7 @@ function ScreenLoader({ size, className, style }: SizedProps) {
 }
 
 function ContentLoader({ size, className, style }: SizedProps) {
-  const cls = clsx("indeterminate-loader-content", className);
+  const cls = clsx("indeterminate-loader", "indeterminate-loader-content", className);
   return (
     <div className={cls} style={style}>
       <IndeterminantLoaderSvg size={size} />
@@ -51,8 +51,9 @@ function ContentLoader({ size, className, style }: SizedProps) {
 }
 
 function SizedLoader({ size, className, style }: SizedProps) {
+  const cls = clsx("indeterminate-loader", className);
   return (
-    <div className={className} style={style}>
+    <div className={cls} style={style}>
       <IndeterminantLoaderSvg size={size} />
     </div>
   );

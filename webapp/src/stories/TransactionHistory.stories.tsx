@@ -1,5 +1,5 @@
 import TransactionHistory from "../components/TransactionHistory.tsx";
-import { AppError } from "../modules/feedback.ts";
+import { appError, AppError } from "../modules/feedback.ts";
 import useHashSelector from "../state/useHashSelector.ts";
 import useLazyRef from "../state/useLazyRef.ts";
 import useMountEffect from "../state/useMountEffect.ts";
@@ -158,6 +158,62 @@ export const OverviewError: Story = {
       ledgerId={0}
       setLedgerId={noop}
       setLedgerLinesPage={noop}
+    />
+  ),
+};
+
+export const LinesLoading: Story = {
+  render: () => (
+    <TransactionHistory
+      ledgerLinesPage={0}
+      ledgersOverview={ledgersOverview({ ledgers: [defaultLedger] })}
+      ledgerId={defaultLedger.id}
+      setLedgerId={noop}
+      setLedgerLinesPage={noop}
+      fetchLinesOnInit
+      getLedgerLines={() => new Promise(noop)}
+    />
+  ),
+};
+
+export const LinesLoadingWithExistingLines: Story = {
+  render: () => (
+    <TransactionHistory
+      ledgerLinesPage={0}
+      ledgersOverview={ledgersOverview({ ledgers: [defaultLedger] })}
+      ledgerId={defaultLedger.id}
+      setLedgerId={noop}
+      setLedgerLinesPage={noop}
+      fetchLinesOnInit
+      getLedgerLines={() => new Promise(noop)}
+      initialLedgerLines={{
+        ...apiCollection<LedgerLine>(
+          Array.from({ length: 10 }, () => ledgerLine(defaultLedger.id))
+        ),
+        ledgerId: defaultLedger.id,
+      }}
+    />
+  ),
+};
+
+export const LineError: Story = {
+  render: () => (
+    <TransactionHistory
+      ledgerLinesPage={0}
+      ledgersOverview={ledgersOverview({ ledgers: [defaultLedger] })}
+      ledgerId={defaultLedger.id}
+      setLedgerId={noop}
+      setLedgerLinesPage={noop}
+      fetchLinesOnInit
+      getLedgerLines={() =>
+        Promise.reject(new AppError("", {}, "Could not load ledger lines"))
+      }
+      initialLedgerLines={{
+        ...apiCollection<LedgerLine>(
+          Array.from({ length: 10 }, () => ledgerLine(defaultLedger.id))
+        ),
+        ledgerId: defaultLedger.id,
+      }}
     />
   ),
 };

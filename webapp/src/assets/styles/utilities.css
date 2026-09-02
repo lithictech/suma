@@ -5,6 +5,8 @@
 .border-radius-xl { border-radius: var(--border-radius-xl); }
 .border-radius-pill { border-radius: var(--border-radius-pill); }
 
-.hidden {
-  visibility: hidden;
-}
+.hidden { visibility: hidden; }
+
+.opacity-25 { opacity: 25%; }
+.opacity-50 { opacity: 50%; }
+.opacity-75 { opacity: 75%; }

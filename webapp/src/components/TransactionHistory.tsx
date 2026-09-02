@@ -1,6 +1,6 @@
 import { IdParams } from "../api.ts";
 import { r, t } from "../localization";
-import { AppError } from "../modules/feedback.ts";
+import { AppError, extractAppErrorAny } from "../modules/feedback.ts";
 import useAsyncFetch from "../state/useAsyncFetch.ts";
 import useHashSelector from "../state/useHashSelector.ts";
 import Button from "../ui/Button.tsx";
@@ -9,6 +9,7 @@ import CardBody from "../ui/CardBody.tsx";
 import CardText from "../ui/CardText.tsx";
 import { Dialog } from "../ui/Dialog.tsx";
 import DialogHeader from "../ui/DialogHeader.tsx";
+import FormFeedback from "../ui/FormFeedback.tsx";
 import ForwardBackPagination from "../ui/ForwardBackPagination.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
@@ -36,6 +37,9 @@ interface TransactionHistoryProps {
   setLedgerId: (ledgerId: number) => void;
   ledgerLinesPage: number;
   setLedgerLinesPage: (page: number) => void;
+  /** Only use during testing. */
+  fetchLinesOnInit?: boolean;
+  initialLedgerLines?: LedgerLines;
 }
 export default function TransactionHistory({
   ledgersOverview,
@@ -46,6 +50,8 @@ export default function TransactionHistory({
   getLedgerLines,
   ledgerLinesPage,
   setLedgerLinesPage,
+  fetchLinesOnInit,
+  initialLedgerLines,
 }: TransactionHistoryProps) {
   const fetchLedgerLines = React.useCallback(
     (data?: Record<string, any>) => getLedgerLines(data as IdParams),
@@ -58,7 +64,8 @@ export default function TransactionHistory({
     error: ledgerLinesError,
     asyncFetch: ledgerLinesFetch,
   } = useAsyncFetch<LedgerLines>(fetchLedgerLines, {
-    doNotFetchOnInit: true,
+    doNotFetchOnInit: !fetchLinesOnInit,
+    default: initialLedgerLines,
     cache: true,
   });
 
@@ -213,16 +220,18 @@ function LedgerLinesTable({
   ledgers: Ledger[];
   lines: LedgerLine[];
   loading?: boolean;
-  error?: AppError | null;
+  error?: any;
 }) {
   const { selectedHashItem, selectHashItem, onHashItemSelected } = useHashSelector(
     lines,
     "opaqueId"
   );
+  const feedback = error ? extractAppErrorAny(error) : null;
   return (
     <div className="position-relative">
       {loading && <IndeterminateLoader variant="content" />}
-      <Table striped hover className={clsx(loading && "opacity-50")}>
+      <FormFeedback feedback={feedback} />
+      <Table striped hover className={clsx(loading && "opacity-25")}>
         <tbody>
           {lines.map((line) => (
             <tr key={line.id}>
