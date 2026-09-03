@@ -941,6 +941,20 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new.perform(true)
       expect(Suma::AnonProxy::MessageHandler::Fake.handled).to have_length(1)
     end
+
+    it "noops if webhookdb not enabled", reset_configuration: Suma::Webhookdb do
+      Suma::Webhookdb.integration_enabled = false
+      va = Suma::Fixtures.anon_proxy_vendor_account.with_contact(relay_key: "postmark").create
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        to_email: va.contact.email,
+        from_email: "fake-handler",
+        data: Sequel.pg_jsonb({"HtmlBody" => "body"}),
+        timestamp: Time.now,
+        message_id: "msgid",
+      )
+      Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new.perform(true)
+      expect(Suma::AnonProxy::MessageHandler::Fake.handled).to have_length(0)
+    end
   end
 
   describe "MemberOnboardingVerifiedDispatch" do

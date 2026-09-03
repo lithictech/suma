@@ -23,13 +23,14 @@ declare module "axios" {
 interface CreateOptions extends AxiosRequestConfig {
   debug?: boolean;
   chaos?: number;
+  timeout?: number;
 }
 
 function create(apiHost: string, config?: CreateOptions) {
-  const { debug, chaos, ...rest } = config || {};
+  const { debug, chaos, timeout, ...rest } = config || {};
   const instance = axios.create({
     baseURL: apiHost,
-    timeout: 20000,
+    timeout: timeout || 20000,
     withCredentials: true,
     transformRequest: [
       (data) => humps.decamelizeKeys(data),

@@ -26,6 +26,7 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
   def _perform
     Suma::AnonProxy::Relay.registry_each do |relay|
       next unless relay.webhookdb_dataset
+      next unless Suma::Webhookdb.integration_enabled
       self.relay_row_iterator(relay).each(relay.webhookdb_dataset) do |row|
         message = relay.parse_message(row)
         Suma::AnonProxy::MessageHandler.handle(relay, message)

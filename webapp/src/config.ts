@@ -34,6 +34,7 @@ function parseIfSet(key: string): Record<string, string> {
 
 interface AppConfig {
   apiHost: string;
+  apiTimeout: string;
   chaos: string;
   debug: string;
   environment: string;
@@ -52,6 +53,7 @@ interface AppConfig {
 
 const config: AppConfig = {
   apiHost: apiHost,
+  apiTimeout: env.VITE_API_TIMEOUT,
   chaos: env.VITE_CHAOS,
   debug: env.VITE_DEBUG,
   environment: env.NODE_ENV,

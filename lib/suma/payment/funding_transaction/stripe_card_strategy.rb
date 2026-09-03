@@ -83,6 +83,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
   # NOTE: We cannot use idempotency since that key is based on the strategy identity;
   # but we never committed the strategy because of the DB error.
   def _find_existing_lost_charge
+    return nil unless Suma::Webhookdb.integration_enabled
     cutoff = 1.hour.ago
     data = Sequel.pg_jsonb(:data)
     # rubocop:disable Style/PreferredHashMethods
@@ -192,6 +193,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
     end
 
     def run
+      return unless Suma::Webhookdb.integration_enabled
       self.each do |row|
         stripe_charge_id = row.fetch(:stripe_id)
         Suma::Idempotency.once_ever.under_key("refund-unassociated-stripe-charge-#{stripe_charge_id}") do
