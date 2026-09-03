@@ -14,10 +14,14 @@ const dirname =
     : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     preact(),
-    eslint(),
+    // Only lint in the dev server; vite-plugin-eslint's transform hook can crash
+    // ("f is not a function") when run under non-dev-server builds like
+    // `storybook build`, since its filter is only wired up in a dev buildStart hook.
+    // Real lint enforcement runs separately via `npm run eslint-check`.
+    command === "serve" ? eslint() : undefined,
     svgr({
       svgrOptions: {
         icon: true,
@@ -59,4 +63,4 @@ export default defineConfig({
       },
     ],
   },
-});
+}));
