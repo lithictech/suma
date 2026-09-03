@@ -6,7 +6,7 @@ import React from "react";
 interface AsyncContentProps {
   loading: boolean;
   error: AppError | null | undefined;
-  children: () => React.ReactElement;
+  children: () => React.ReactNode;
 }
 
 /**
