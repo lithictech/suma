@@ -17,6 +17,9 @@ end
 map "/admin" do
   run Suma::Apps::Admin.to_app
 end
+map "/storybook" do
+  run Suma::Apps::Storybook.to_app
+end
 map "/sidekiq" do
   run Suma::Apps::SidekiqWeb.to_app
 end

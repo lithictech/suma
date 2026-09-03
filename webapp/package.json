@@ -43,7 +43,7 @@
     "eslint-fix": "eslint --ext .js,.jsx,.ts,.tsx --no-error-on-unmatched-pattern --fix . './tools/' './src/'",
     "type-check": "tsc --noEmit",
     "storybook-start": "storybook dev -p 22016",
-    "storybook-build": "storybook build"
+    "storybook-build": "storybook build -o ../build-storybook"
   },
   "eslintConfig": {
     "extends": [

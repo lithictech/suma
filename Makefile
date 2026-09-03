@@ -1,4 +1,4 @@
-.PHONY: build build-webapp build-adminapp
+.PHONY: build build-webapp build-adminapp build-storybook
 
 staging_app:=suma-staging
 production_app:=suma-production
@@ -176,7 +176,10 @@ build-webapp:
 build-adminapp:
 	@bundle exec rake frontend:build_adminapp
 
-build-frontends: build-webapp build-adminapp ## Build the JS frontends and place them into their location so they can be served by Rack
+build-storybook:
+	@bundle exec rake frontend:build_storybook
+
+build-frontends: build-webapp build-adminapp build-storybook ## Build the JS frontends and place them into their location so they can be served by Rack
 
 goto-logging: cmd-exists-heroku
 	heroku addons:open coralogix --app $(production_app)

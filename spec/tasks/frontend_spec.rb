@@ -41,4 +41,27 @@ RSpec.describe Suma::Tasks::Frontend, :db, :redirect do
       expect($stderr.string).to eq("")
     end
   end
+
+  describe "frontend:build_storybook" do
+    it "builds storybook" do
+      expect(Kernel).to receive(:`).with("bin/build-storybook") do
+        Kernel.system("exit 0")
+      end
+      expect(Kernel).to_not receive(:exit)
+
+      invoke_rake_task("frontend:build_storybook")
+      expect($stdout.string).to eq("")
+      expect($stderr.string).to eq("")
+    end
+
+    it "exits if build exits nonzero" do
+      expect(Kernel).to receive(:`).with("bin/build-storybook") do
+        Kernel.system("exit 99")
+      end
+      expect(Kernel).to receive(:exit).with(99)
+      invoke_rake_task("frontend:build_storybook")
+      expect($stdout.string).to eq("Non-zero exit status: 99\n")
+      expect($stderr.string).to eq("")
+    end
+  end
 end
