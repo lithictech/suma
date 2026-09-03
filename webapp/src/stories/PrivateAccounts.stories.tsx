@@ -2,7 +2,13 @@ import PrivateAccountDetail, {
   PrivateAccountDetailApiCalls,
 } from "../components/PrivateAccountDetail.tsx";
 import PrivateAccountsList from "../components/PrivateAccountsList.tsx";
-import { anonProxyVendorAccount, axiosResponse, currentMember } from "./fixtures.ts";
+import useLazyRef from "../state/useLazyRef.ts";
+import {
+  anonProxyVendorAccount,
+  axiosResponse,
+  currentMember,
+  money,
+} from "./fixtures.ts";
 import { DemoStack } from "./helpers.tsx";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import { AxiosResponse } from "axios";
@@ -120,6 +126,99 @@ export const DetailStepsView: Story = {
   ),
 };
 
+export const DetailBalanceView: Story = {
+  render: () => (
+    <DemoStack row wrap>
+      <DemoDiv>
+        <PrivateAccountDetail
+          initialStep="balance"
+          user={currentMember({ chargeableCashBalance: money(-120) })}
+          setUser={noop}
+          id={1}
+          apiCalls={makeApiCalls({
+            accounts: [
+              anonProxyVendorAccount({
+                requiresPaymentMethod: true,
+                balancePayoffNeeded: true,
+                hasPaymentMethod: true,
+              }),
+            ],
+            charges: [currentMember()],
+          })}
+        />
+      </DemoDiv>
+    </DemoStack>
+  ),
+};
+
+export const DetailTermsView: Story = {
+  render: () => (
+    <DemoStack row wrap>
+      <DemoDiv>
+        <PrivateAccountDetail
+          initialStep="terms"
+          user={currentMember()}
+          setUser={noop}
+          id={1}
+          apiCalls={makeApiCalls({
+            accounts: [anonProxyVendorAccount()],
+          })}
+        />
+      </DemoDiv>
+    </DemoStack>
+  ),
+};
+
+export const DetailLinkView: Story = {
+  render: () => {
+    const va = useLazyRef(() => anonProxyVendorAccount());
+    return (
+      <DemoStack row wrap>
+        <DemoDiv>
+          <h2>Endless polling</h2>
+          <PrivateAccountDetail
+            initialStep="link"
+            user={currentMember()}
+            setUser={noop}
+            id={1}
+            apiCalls={makeApiCalls({
+              accounts: [va],
+              auths: [va],
+              polls: [
+                {
+                  foundChange: false,
+                  successInstructions: "Here are success instructions.",
+                  vendorAccount: va,
+                },
+              ],
+            })}
+          />
+        </DemoDiv>
+        <DemoDiv>
+          <h2>Success polling</h2>
+          <PrivateAccountDetail
+            initialStep="link"
+            user={currentMember()}
+            setUser={noop}
+            id={1}
+            apiCalls={makeApiCalls({
+              accounts: [va],
+              auths: [va],
+              polls: [
+                {
+                  foundChange: true,
+                  successInstructions: "Here are success instructions.",
+                  vendorAccount: va,
+                },
+              ],
+            })}
+          />
+        </DemoDiv>
+      </DemoStack>
+    );
+  },
+};
+
 function DemoDiv({ children }: { children: any }) {
   return <div style={{ maxWidth: 330 }}>{children}</div>;
 }
@@ -138,7 +237,10 @@ function makeApiCalls(params: BuildApiCallsParams): PrivateAccountDetailApiCalls
     polls: 0,
     auths: 0,
   };
-  function makeCall<T>(k: keyof BuildApiCallsParams): () => Promise<AxiosResponse<T>> {
+  function makeCall<T>(
+    k: keyof BuildApiCallsParams,
+    delay: number
+  ): () => Promise<AxiosResponse<T>> {
     return () => {
       const arr = params[k];
       if (!arr || arr.length === 0) {
@@ -147,13 +249,13 @@ function makeApiCalls(params: BuildApiCallsParams): PrivateAccountDetailApiCalls
       const idx = indexes[k] % arr.length;
       const val = arr[idx] as T;
       indexes[k]++;
-      return Promise.resolve(axiosResponse(val));
+      return Promise.delay(delay, Promise.resolve(axiosResponse(val)));
     };
   }
   return {
-    processAccount: makeCall("accounts"),
-    chargeLedgerBalance: makeCall("charges"),
-    pollForNewPrivateAccountMagicLink: makeCall("polls"),
-    makeAuthRequest: makeCall("auths"),
+    processAccount: makeCall("accounts", 0),
+    chargeLedgerBalance: makeCall("charges", 250),
+    pollForNewPrivateAccountMagicLink: makeCall("polls", 500),
+    makeAuthRequest: makeCall("auths", 500),
   };
 }

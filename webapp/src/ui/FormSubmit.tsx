@@ -12,16 +12,14 @@ interface LabeledButtonProps extends ButtonProps {
   label?: string;
 }
 
-interface AllFormSubmitProps {
+export interface FormSubmitProps {
   /** Label for the primary button. */
   label?: React.ReactNode;
   feedback?: FeedbackValue | null;
-  back: true | RoutePath;
+  back?: true | RoutePath;
   primary?: LabeledButtonProps;
   secondary?: LabeledButtonProps;
 }
-
-export type FormSubmitProps = RequireOnlyOne<AllFormSubmitProps, "back" | "secondary">;
 
 export default function FormSubmit({
   label,

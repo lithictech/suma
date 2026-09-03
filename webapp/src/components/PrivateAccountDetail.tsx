@@ -12,12 +12,15 @@ import { ButtonProps } from "../ui/Button.tsx";
 import Checklist from "../ui/Checklist.tsx";
 import ChecklistItem from "../ui/ChecklistItem.tsx";
 import FormSubmit from "../ui/FormSubmit.tsx";
-import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
+import PageHeader from "../ui/PageHeader.tsx";
 import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
 import AsyncContent from "./AsyncContent.tsx";
+import { DevicePhoneMobileIcon } from "@heroicons/react/24/outline";
 import { AxiosRequestConfig, AxiosResponse, CanceledError } from "axios";
 import React from "react";
+
+export type PrivateAccountDetailStep = "steps" | "balance" | "terms" | "link";
 
 export interface PrivateAccountDetailApiCalls {
   processAccount: (
@@ -40,6 +43,8 @@ export interface PrivateAccountDetailProps {
   apiCalls: PrivateAccountDetailApiCalls;
   user: CurrentMember;
   setUser: SetCurrentMember;
+  /** For demo purposes. */
+  initialStep?: PrivateAccountDetailStep;
 }
 
 /**
@@ -61,24 +66,27 @@ export default function PrivateAccountDetail({
   apiCalls,
   user,
   setUser,
+  initialStep,
 }: PrivateAccountDetailProps) {
   const makeRequest = React.useCallback(
     () => apiCalls.processAccount({ id }),
     [apiCalls, id]
   );
   const { state, loading, error } = useAsyncFetch<AnonProxyVendorAccount>(makeRequest);
-  const [view, setView] = React.useState(VIEW_STEPS);
+  const [view, setView] = React.useState<PrivateAccountDetailStep>(
+    initialStep || "steps"
+  );
 
   return (
     <AsyncContent loading={loading} error={error}>
       {() => {
         const account = state!;
         const props = { account, setView, apiCalls, user, setUser };
-        if (view === VIEW_BALANCE) {
+        if (view === "balance") {
           return <BalanceView {...props} />;
-        } else if (view === VIEW_TERMS) {
+        } else if (view === "terms") {
           return <TermsView {...props} />;
-        } else if (view === VIEW_LINK) {
+        } else if (view === "link") {
           return <LinkView {...props} />;
         }
         return <StepsView {...props} />;
@@ -89,7 +97,7 @@ export default function PrivateAccountDetail({
 
 interface ViewProps {
   account: AnonProxyVendorAccount;
-  setView: (view: string) => void;
+  setView: (view: PrivateAccountDetailStep) => void;
   apiCalls: PrivateAccountDetailApiCalls;
   user: CurrentMember;
   setUser: SetCurrentMember;
@@ -103,12 +111,12 @@ function StepsView({ account, setView }: ViewProps) {
     children: t("common.next"),
     preset: "primary",
   };
-  if (account.uiStateV1.requiresPaymentMethod && !account.uiStateV1.hasPaymentMethod) {
+  if (requiresPaymentMethod && !hasPaymentMethod) {
     primaryProps.to = withQuery(`/add-card`, {
       returnToImmediate: `/private-account/${account.id}`,
     });
   } else {
-    const nextView = balancePayoffNeeded ? VIEW_BALANCE : VIEW_TERMS;
+    const nextView = balancePayoffNeeded ? "balance" : "terms";
     primaryProps.onClick = () => setView(nextView);
   }
   let potentialFirstStep;
@@ -132,11 +140,8 @@ function StepsView({ account, setView }: ViewProps) {
   }
 
   return (
-    <ProgressContainer
-      step={1}
-      account={account}
-      header={t("private_accounts.view_header_steps")}
-    >
+    <Page>
+      <PageHeader title={t("private_accounts.view_header_steps")} back />
       <Checklist>
         {potentialFirstStep}
         <ChecklistItem key={20} variant="future">
@@ -147,7 +152,7 @@ function StepsView({ account, setView }: ViewProps) {
         </ChecklistItem>
       </Checklist>
       <FormSubmit back primary={primaryProps} />
-    </ProgressContainer>
+    </Page>
   );
 }
 
@@ -163,7 +168,7 @@ function BalanceView({ account, setView, apiCalls, user, setUser }: ViewProps) {
       .chargeLedgerBalance()
       .then((r) => {
         setUser(r.data);
-        setView(VIEW_TERMS);
+        setView("terms");
       })
       .catch((e: any) => setError(extractAppErrorAny(e)))
       .finally(screenLoader.turnOff);
@@ -173,7 +178,7 @@ function BalanceView({ account, setView, apiCalls, user, setUser }: ViewProps) {
 
   return (
     <ProgressContainer
-      step={2}
+      step="balance"
       account={account}
       header={t("private_accounts.checklist_pay_balance")}
     >
@@ -182,7 +187,7 @@ function BalanceView({ account, setView, apiCalls, user, setUser }: ViewProps) {
         feedback={error}
         secondary={{
           children: t("common.back"),
-          onClick: () => setView(VIEW_STEPS),
+          onClick: () => setView("steps"),
         }}
         primary={{
           children: t("payments.negative_balance_action", { amount: balance }),
@@ -198,19 +203,19 @@ function BalanceView({ account, setView, apiCalls, user, setUser }: ViewProps) {
 function TermsView({ account, setView }: ViewProps) {
   return (
     <ProgressContainer
-      step={3}
+      step="terms"
       account={account}
       header={t("private_accounts.view_header_terms")}
     >
       {dt(account.uiStateV1.termsText)}
       <FormSubmit
-        secondary={{
-          children: t("common.back"),
-          onClick: () => setView(VIEW_STEPS),
-        }}
         primary={{
           children: t("common.agree"),
-          onClick: () => setView(VIEW_LINK),
+          onClick: () => setView("link"),
+        }}
+        secondary={{
+          children: t("common.back"),
+          onClick: () => setView("steps"),
         }}
       />
     </ProgressContainer>
@@ -276,13 +281,13 @@ function LinkView({ account, setView, apiCalls }: ViewProps) {
   }
 
   let primaryBtnProps: ButtonProps;
-  let secondaryBtnProps: object | null;
+  let secondaryBtnProps: ButtonProps | null = null;
   let alertVariant: AlertVariant | null = null;
   if (buttonStatus === LINKBTN_SENT) {
-    primaryBtnProps = {};
-    secondaryBtnProps = {
+    primaryBtnProps = {
       children: t("private_accounts.linkview_back_to_list"),
       to: `/private-accounts`,
+      variant: "outline",
     };
     alertVariant = "success";
   } else if (buttonStatus === LINKBTN_POLLING) {
@@ -293,7 +298,7 @@ function LinkView({ account, setView, apiCalls }: ViewProps) {
     };
     secondaryBtnProps = {
       children: t("common.cancel"),
-      onClick: () => setView(VIEW_STEPS),
+      onClick: () => setView("steps"),
     };
     alertVariant = "info";
   } else {
@@ -304,39 +309,32 @@ function LinkView({ account, setView, apiCalls }: ViewProps) {
     };
     secondaryBtnProps = {
       children: t("common.back"),
-      onClick: () => setView(VIEW_STEPS),
+      onClick: () => setView("steps"),
     };
   }
 
   return (
     <ProgressContainer
       account={account}
-      step={3}
+      step="link"
       header={t("private_accounts.view_header_link")}
     >
       {t("private_accounts.linkview_instructions")}
       {alertVariant && (
         <Alert
           variant={alertVariant!}
+          icon={buttonStatus === LINKBTN_SENT ? DevicePhoneMobileIcon : "loader"}
           text={
-            buttonStatus === LINKBTN_SENT ? (
-              <span>
-                <i className="bi bi-phone-vibrate d-inline me-2"></i>
-                {dt(pollingSuccessResponse?.successInstructions || "")}
-              </span>
-            ) : (
-              <div>
-                <IndeterminateLoader variant="plain" size={30} />
-                {t("private_accounts.linkview_polling_detail")}
-              </div>
-            )
+            buttonStatus === LINKBTN_SENT
+              ? dt(pollingSuccessResponse?.successInstructions || "")
+              : t("private_accounts.linkview_polling_detail")
           }
         />
       )}
       <FormSubmit
         feedback={error}
         primary={primaryBtnProps}
-        secondary={secondaryBtnProps}
+        secondary={secondaryBtnProps || undefined}
       />
     </ProgressContainer>
   );
@@ -353,21 +351,34 @@ function ProgressContainer({
   children,
 }: {
   header: React.ReactNode;
-  step: number;
+  step: PrivateAccountDetailStep;
   account: AnonProxyVendorAccount;
   children?: React.ReactNode;
 }) {
-  const steps = account.uiStateV1.requiresPaymentMethod ? 3 : 2;
+  let mapping: Record<PrivateAccountDetailStep, number>;
+  let stepCount: number;
+  if (account.uiStateV1.requiresPaymentMethod) {
+    mapping = {
+      steps: 0,
+      balance: 1,
+      terms: 2,
+      link: 3,
+    };
+    stepCount = 3;
+  } else {
+    mapping = {
+      steps: 0,
+      balance: 0,
+      terms: 1,
+      link: 2,
+    };
+    stepCount = 2;
+  }
   return (
     <Page>
-      <ProgressStepHeader step={step} steps={steps} />
+      <ProgressStepHeader step={mapping[step]} steps={stepCount} />
       <h2>{header}</h2>
       {children}
     </Page>
   );
 }
-
-const VIEW_STEPS = "steps";
-const VIEW_BALANCE = "balance";
-const VIEW_TERMS = "terms";
-const VIEW_LINK = "link";

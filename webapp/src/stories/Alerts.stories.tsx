@@ -25,6 +25,7 @@ export const Variants: Story = {
         text="Check the hash."
         to={untypedRoutePath("#hello")}
       />
+      <Alert text="Using the loader" icon="loader" />
     </DemoStack>
   ),
 };

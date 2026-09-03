@@ -5,7 +5,7 @@ import React from "react";
 
 interface IndeterminateLoaderProps {
   variant?: "plain" | "screen" | "content";
-  size?: number;
+  size?: number | string;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -25,7 +25,7 @@ export default function IndeterminateLoader({
 }
 
 interface SizedProps {
-  size: number;
+  size: number | string;
   className?: string;
   style?: React.CSSProperties;
 }

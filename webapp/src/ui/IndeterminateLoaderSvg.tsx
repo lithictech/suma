@@ -1,6 +1,6 @@
 import useId from "../state/useId";
 
-export default function IndeterminantLoaderSvg({ size }: { size?: number }) {
+export default function IndeterminantLoaderSvg({ size }: { size?: number | string }) {
   size = size || 300;
   const gradientId = `ldio-4tvqiefh3c8-gradient-${useId()}`;
   // Fragment-only url() references to in-page <defs> can silently stop

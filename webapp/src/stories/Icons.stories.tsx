@@ -14,7 +14,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const icons: IconPropsIcon[] = [LanguageIcon, MapIcon, MapPinIcon, "right", "left"];
+const icons: IconPropsIcon[] = [
+  LanguageIcon,
+  MapIcon,
+  MapPinIcon,
+  "right",
+  "left",
+  "loader",
+];
 const colors = ["primary", "secondary", "success", "danger"];
 
 export const Icons: Story = {

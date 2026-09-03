@@ -1,4 +1,5 @@
 import { ThemeColor } from "../types/theme";
+import IndeterminateLoader from "./IndeterminateLoader.tsx";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
 import clsx from "clsx";
@@ -7,7 +8,8 @@ import React, { CSSProperties } from "react";
 export type IconPropsIcon =
   | React.ComponentType<React.SVGProps<SVGSVGElement>>
   | "right"
-  | "left";
+  | "left"
+  | "loader";
 
 export interface IconProps {
   icon: IconPropsIcon;
@@ -28,11 +30,6 @@ export default function Icon({
   color,
   className,
 }: IconProps) {
-  if (IconComponent === "left") {
-    IconComponent = ChevronLeftIcon;
-  } else if (IconComponent === "right") {
-    IconComponent = ChevronRightIcon;
-  }
   const style: CSSProperties = {};
   if (size === "inherit") {
     style.width = "1em";
@@ -41,8 +38,18 @@ export default function Icon({
     style.width = size;
     style.height = size;
   }
-  const cls = clsx(color ? `color-${color}` : "", className);
-  const el = <IconComponent className={cls} style={style} />;
+  const elProps = { className: clsx(color ? `color-${color}` : "", className), style };
+
+  let el: React.ReactElement;
+  if (IconComponent === "left") {
+    el = <ChevronLeftIcon {...elProps} />;
+  } else if (IconComponent === "right") {
+    el = <ChevronRightIcon {...elProps} />;
+  } else if (IconComponent === "loader") {
+    el = <IndeterminateLoader variant="plain" size={size || "inherit"} {...elProps} />;
+  } else {
+    el = <IconComponent {...elProps} />;
+  }
   if (forceSize) {
     return <div style={style}>{el}</div>;
   }
