@@ -7,15 +7,20 @@ import { MemoryRouter } from "react-router-dom";
 
 installPromiseExtras(window.Promise);
 
-// Load real, already-formatted strings from production so stories show localized
-// text instead of raw keys. If production is unreachable, stories just fall back
-// to placeholder keys.
+// Load real, already-formatted strings so stories show localized text instead of
+// raw keys. In local dev there's no API running alongside Storybook, so default to
+// production; the built static output is always served same-origin with the API
+// (see bin/build-storybook), so that build sets VITE_STORYBOOK_API_HOST to "" for
+// a relative request instead. If the request fails, stories just show placeholder keys.
+const staticStringsHost =
+  import.meta.env.VITE_STORYBOOK_API_HOST ?? "https://app.mysuma.org";
+
 (async () => {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
     const resp = await fetch(
-      "https://app.mysuma.org/api/v1/meta/static_strings/en/strings",
+      `${staticStringsHost}/api/v1/meta/static_strings/en/strings`,
       { signal: controller.signal }
     );
     clearTimeout(timeout);

@@ -3,4 +3,5 @@ set -e
 
 cd webapp
 npm install
+export VITE_STORYBOOK_API_HOST=
 npm run storybook-build
