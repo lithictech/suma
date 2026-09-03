@@ -294,6 +294,9 @@ module Suma::Apps
   end
 
   Storybook = Rack::Builder.new do
+    # Storybook's built index.html references its assets with relative paths,
+    # so it must be served with a trailing slash to resolve correctly.
+    self.use(Rack::SimpleRedirect, routes: {"" => ->(env) { "#{env['SCRIPT_NAME']}/" }})
     self.use(Rack::ConditionalGet)
     self.use(Rack::ETag)
     self.use(Rack::Static, urls: [""], root: "build-storybook", index: "index.html")
