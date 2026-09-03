@@ -16,11 +16,9 @@ export const Default: Story = {
       <Checklist>
         <ChecklistItem variant="checked">How it works</ChecklistItem>
         <ChecklistItem variant="checked">Agree</ChecklistItem>
-        <ChecklistItem variant="current" step={3}>
-          Get text
-        </ChecklistItem>
-        <ChecklistItem step={4}>Get link</ChecklistItem>
-        <ChecklistItem step={5}>Finish linking</ChecklistItem>
+        <ChecklistItem variant="current">Get text</ChecklistItem>
+        <ChecklistItem>Get link</ChecklistItem>
+        <ChecklistItem step={20}>Explicit step</ChecklistItem>
       </Checklist>
     </DemoStack>
   ),

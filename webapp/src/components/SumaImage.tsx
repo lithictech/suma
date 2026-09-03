@@ -7,7 +7,7 @@ import mapValues from "lodash/mapValues";
 import React from "react";
 
 interface SumaImageProps {
-  image?: Image;
+  image?: Image | null;
   /** The 'w' crop parameter. */
   w?: number | string;
   /** The 'h' crop parameter. */

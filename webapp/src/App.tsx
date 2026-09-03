@@ -28,8 +28,8 @@ import PartnerSignup from "./pages/PartnerSignup";
 import PreferencesAuthed from "./pages/PreferencesAuthed";
 import PreferencesPublic from "./pages/PreferencesPublic";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.tsx";
-import PrivateAccountDetail from "./pages/PrivateAccountDetail";
-import PrivateAccountsList from "./pages/PrivateAccountsList";
+import PrivateAccountDetailPage from "./pages/PrivateAccountDetailPage";
+import PrivateAccountsListPage from "./pages/PrivateAccountsListPage";
 import RegainAccountAccess from "./pages/RegainAccountAccess";
 import ThemePage from "./pages/ThemePage.tsx";
 import TripDetailPage from "./pages/TripDetailPage.tsx";
@@ -319,7 +319,7 @@ function AppRoutes() {
       onboarded: "require",
       screenLoader: true,
       meta: "titles.private_accounts",
-      Component: PrivateAccountsList,
+      Component: PrivateAccountsListPage,
     }),
     typeRoute({
       path: "/private-account/:id",
@@ -327,7 +327,7 @@ function AppRoutes() {
       onboarded: "require",
       screenLoader: true,
       meta: "titles.private_accounts",
-      Component: PrivateAccountDetail,
+      Component: PrivateAccountDetailPage,
     }),
     typeRoute({
       path: "/trips",

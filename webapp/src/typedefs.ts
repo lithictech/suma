@@ -32,7 +32,7 @@ declare global {
     magicLink: string;
     vendorName: string;
     vendorSlug: string;
-    vendorImage: Image;
+    vendorImage: Image | null;
     uiStateV1: AnonProxyVendorAccountUIState;
   }
 
@@ -45,7 +45,7 @@ declare global {
 
   /** Auto-generated from Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity */
   interface AnonProxyVendorAccountUIState {
-    indexCardMode: string;
+    indexCardMode: "link" | "relink" | "payment";
     needsLinking: boolean;
     requiresPaymentMethod: boolean;
     hasPaymentMethod: boolean;

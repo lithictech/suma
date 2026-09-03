@@ -227,3 +227,31 @@ export function ledgerLineOrder(
     ...o,
   });
 }
+
+export function anonProxyVendorAccount(
+  uis?: Partial<AnonProxyVendorAccountUIState>,
+  va?: Partial<AnonProxyVendorAccount>
+): AnonProxyVendorAccount {
+  return {
+    id: id++,
+    magicLink: "",
+    vendorName: "Great Shop",
+    vendorSlug: "great-shop",
+    vendorImage: null,
+    uiStateV1: {
+      indexCardMode: "link",
+      needsLinking: false,
+      requiresPaymentMethod: false,
+      hasPaymentMethod: false,
+      balancePayoffNeeded: false,
+      showPaymentStep: false,
+      termStepIndex: 0,
+      linkStepIndex: 0,
+      descriptionText: "Link your suma and Great Shop accounts for more savings.",
+      termsText: "Here are the terms and conditions.",
+      helpText: "1. Do the first step.\n2. Do the second step.\n3. **Profit!**",
+      ...uis,
+    },
+    ...va,
+  };
+}

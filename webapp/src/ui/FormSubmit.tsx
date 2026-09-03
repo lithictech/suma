@@ -2,30 +2,29 @@ import { t } from "../localization";
 import { FeedbackValue } from "../modules/feedback.ts";
 import { RoutePath } from "../routing/RoutePath.ts";
 import BackButton from "./BackButton.tsx";
-import Button from "./Button.tsx";
+import Button, { ButtonProps } from "./Button.tsx";
 import ButtonGroup from "./ButtonGroup.tsx";
 import FormFeedback from "./FormFeedback.tsx";
 import Stack from "./Stack.tsx";
-import React, { MouseEventHandler } from "react";
+import React from "react";
 
-interface SecondaryProps {
+interface LabeledButtonProps extends ButtonProps {
   label?: string;
-  onClick: MouseEventHandler;
 }
 
-interface AllFormSubmitProps {
+export interface FormSubmitProps {
   /** Label for the primary button. */
-  label: React.ReactNode;
+  label?: React.ReactNode;
   feedback?: FeedbackValue | null;
-  back: true | RoutePath;
-  secondary: SecondaryProps;
+  back?: true | RoutePath;
+  primary?: LabeledButtonProps;
+  secondary?: LabeledButtonProps;
 }
-
-export type FormSubmitProps = RequireOnlyOne<AllFormSubmitProps, "back" | "secondary">;
 
 export default function FormSubmit({
   label,
   back,
+  primary,
   secondary,
   feedback,
 }: FormSubmitProps) {
@@ -41,11 +40,12 @@ export default function FormSubmit({
       </Button>
     );
   }
+  primary = { children: label, type: "submit", ...primary };
   return (
     <Stack col gap={3} style={{ marginTop: "auto" }}>
       <FormFeedback feedback={feedback} />
       <ButtonGroup col bottom>
-        <Button type="submit">{label}</Button>
+        <Button {...primary} />
         {sec}
       </ButtonGroup>
     </Stack>
