@@ -14,6 +14,9 @@ class Suma::Tasks::Frontend < Rake::TaskLib
       task :build_adminapp do
         self.runcmd("bin/build-adminapp")
       end
+      task :build_storybook do
+        self.runcmd("bin/build-storybook")
+      end
     end
   end
 

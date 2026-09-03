@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+cd webapp
+npm install
+npm run storybook-build

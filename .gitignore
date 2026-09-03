@@ -61,6 +61,7 @@ temp/
 # top-level Node files are for tooling only
 build-webapp/
 build-adminapp/
+build-storybook/
 node_modules/
 /package-lock.json
 dist/
