@@ -9,13 +9,14 @@ import useScreenLoader from "../state/useScreenLoader.ts";
 import useUnmountEffect from "../state/useUnmountEffect.ts";
 import Alert, { AlertVariant } from "../ui/Alert.tsx";
 import { ButtonProps } from "../ui/Button.tsx";
+import Checklist from "../ui/Checklist.tsx";
+import ChecklistItem from "../ui/ChecklistItem.tsx";
 import FormSubmit from "../ui/FormSubmit.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Page from "../ui/Page.tsx";
-import Progress from "../ui/Progress.tsx";
+import ProgressStepHeader from "../ui/ProgressStepHeader.tsx";
 import AsyncContent from "./AsyncContent.tsx";
 import { AxiosRequestConfig, AxiosResponse, CanceledError } from "axios";
-import clsx from "clsx";
 import React from "react";
 
 export interface PrivateAccountDetailApiCalls {
@@ -95,13 +96,8 @@ interface ViewProps {
 }
 
 function StepsView({ account, setView }: ViewProps) {
-  const {
-    requiresPaymentMethod,
-    hasPaymentMethod,
-    balancePayoffNeeded,
-    termStepIndex,
-    linkStepIndex,
-  } = account.uiStateV1;
+  const { requiresPaymentMethod, hasPaymentMethod, balancePayoffNeeded } =
+    account.uiStateV1;
 
   const primaryProps: ButtonProps = {
     children: t("common.next"),
@@ -129,34 +125,33 @@ function StepsView({ account, setView }: ViewProps) {
       checked = true;
     }
     potentialFirstStep = (
-      <li>
-        <i
-          className={clsx("me-2", "bi", checked ? "bi-check-square-fill" : "bi-1-square")}
-        />
+      <ChecklistItem key={10} variant={checked ? "checked" : "current"}>
         {t(locKey)}
-      </li>
+      </ChecklistItem>
     );
   }
 
   return (
-    <ProgressContainer progress={20} header={t("private_accounts.view_header_steps")}>
-      <ul className="list-unstyled mb-0">
+    <ProgressContainer
+      step={1}
+      account={account}
+      header={t("private_accounts.view_header_steps")}
+    >
+      <Checklist>
         {potentialFirstStep}
-        <li>
-          <i className={clsx("me-2", `bi bi-${termStepIndex + 1}-square`)} />
+        <ChecklistItem key={20} variant="future">
           {t("private_accounts.checklist_review_terms")}
-        </li>
-        <li>
-          <i className={clsx("me-2", `bi bi-${linkStepIndex + 1}-square`)} />
+        </ChecklistItem>
+        <ChecklistItem key={30} variant="future">
           {t("private_accounts.checklist_link_app")}
-        </li>
-      </ul>
+        </ChecklistItem>
+      </Checklist>
       <FormSubmit back primary={primaryProps} />
     </ProgressContainer>
   );
 }
 
-function BalanceView({ setView, apiCalls, user, setUser }: ViewProps) {
+function BalanceView({ account, setView, apiCalls, user, setUser }: ViewProps) {
   const [error, setError] = React.useState<AppError | null>();
   const screenLoader = useScreenLoader();
 
@@ -177,7 +172,11 @@ function BalanceView({ setView, apiCalls, user, setUser }: ViewProps) {
   const balance = scaleMoney(user.chargeableCashBalance!, -1);
 
   return (
-    <ProgressContainer progress={40} header={t("private_accounts.checklist_pay_balance")}>
+    <ProgressContainer
+      step={2}
+      account={account}
+      header={t("private_accounts.checklist_pay_balance")}
+    >
       <div>{t("private_accounts.pay_balance_explanation", { amount: balance })}</div>
       <FormSubmit
         feedback={error}
@@ -198,7 +197,11 @@ function BalanceView({ setView, apiCalls, user, setUser }: ViewProps) {
 
 function TermsView({ account, setView }: ViewProps) {
   return (
-    <ProgressContainer progress={60} header={t("private_accounts.view_header_terms")}>
+    <ProgressContainer
+      step={3}
+      account={account}
+      header={t("private_accounts.view_header_terms")}
+    >
       {dt(account.uiStateV1.termsText)}
       <FormSubmit
         secondary={{
@@ -307,7 +310,8 @@ function LinkView({ account, setView, apiCalls }: ViewProps) {
 
   return (
     <ProgressContainer
-      progress={buttonStatus === LINKBTN_SENT ? 100 : 80}
+      account={account}
+      step={3}
       header={t("private_accounts.view_header_link")}
     >
       {t("private_accounts.linkview_instructions")}
@@ -344,16 +348,19 @@ const LINKBTN_SENT = "link-sent";
 
 function ProgressContainer({
   header,
-  progress,
+  step,
+  account,
   children,
 }: {
   header: React.ReactNode;
-  progress: number;
+  step: number;
+  account: AnonProxyVendorAccount;
   children?: React.ReactNode;
 }) {
+  const steps = account.uiStateV1.requiresPaymentMethod ? 3 : 2;
   return (
     <Page>
-      <Progress value={progress} />
+      <ProgressStepHeader step={step} steps={steps} />
       <h2>{header}</h2>
       {children}
     </Page>

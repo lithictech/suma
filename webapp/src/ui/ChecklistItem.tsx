@@ -1,18 +1,21 @@
 import "./ChecklistItem.css";
 import React from "react";
 
-interface ChecklistItemProps {
+export interface ChecklistItemProps {
   variant?: "checked" | "current" | "future";
   step?: number;
+  /** Added automatically by Checklist. */
+  autostep?: number;
   children?: React.ReactNode;
 }
 
 export default function ChecklistItem({
   variant = "future",
   step,
+  autostep,
   children,
 }: ChecklistItemProps) {
-  step = step || 0;
+  step = step || autostep || 0;
   let iconContent: React.ReactNode;
   if (variant === "checked") {
     iconContent = (
