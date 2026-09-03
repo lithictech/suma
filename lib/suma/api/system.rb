@@ -44,10 +44,10 @@ class Suma::API::System < Suma::Service
   end
 
   class UserAgentEntity < Grape::Entity
-      expose :device, documentation: {type: String}
-      expose :platform, documentation: {type: String}
-      expose :platform_version, documentation: {type: String}
-      expose :is_android
-      expose :is_ios
+    expose :device, documentation: {type: String}
+    expose :platform, documentation: {type: String}
+    expose :platform_version, documentation: {type: String}
+    expose :is_android
+    expose :is_ios
   end
 end
