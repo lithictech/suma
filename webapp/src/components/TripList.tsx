@@ -76,7 +76,7 @@ function Trip({ trip }: { trip: MobilityTrip }) {
           </Stack>
         </Stack>
         <Stack row center gap={3}>
-          <Money>{charge.customerCost}</Money>
+          <Money>{charge?.customerCost}</Money>
           <Icon icon="right" />
         </Stack>
       </Stack>

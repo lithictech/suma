@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/service"
+require "suma/enum"
 require "grape_entity"
 
 class Suma::Service::Typewriter
@@ -15,10 +16,11 @@ class Suma::Service::Typewriter
       @aliases = {}
     end
 
-    def metadata(classes)
+    def metadata(classes, enums)
       @lines << "// Auto-generated typedefs from Grape::Entity"
       @lines << "// Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
-      @lines << "// Entities: #{classes.map(&:name).join(', ')}"
+      @lines << "// Entities: #{classes.map(&:name).join(', ')}" if classes.any?
+      @lines << "// Enums: #{enums.map(&:fqn).join(', ')}" if enums.any?
       @lines << ""
     end
 
@@ -27,6 +29,7 @@ class Suma::Service::Typewriter
     end
 
     def preamble = nil
+    def add_enumeration(name, values) = raise NotImplementedError
     def add_typealias(name, definition) = raise NotImplementedError
     def open_typedef(typename, sourcename) = raise NotImplementedError
     def add_property(js_type, js_name, desc_text) = raise NotImplementedError
@@ -42,6 +45,16 @@ class Suma::Service::Typewriter
   end
 
   class JSDocFormatter < Formatter
+    def add_enumeration(name, values)
+      self.lines << "/**"
+      self.lines << " * @enum {string}"
+      self.lines << " */"
+      self.lines << "const #{name} = {"
+      values.each { |v| self.lines << "  #{v}: '#{v}'," }
+      self.lines << "};"
+      self.lines << ""
+    end
+
     def open_typedef(typename, sourcename)
       self.lines << "/**"
       self.lines << " * @typedef {object} #{typename}"
@@ -77,6 +90,12 @@ class Suma::Service::Typewriter
       self.lines << "}"
       self.lines << ""
       self.lines << "export {};"
+      self.lines << ""
+    end
+
+    def add_enumeration(name, values)
+      e = values.map { |v| "\"#{v}\"" }.join(" | ")
+      self.lines << "  type #{name} = #{e};"
       self.lines << ""
     end
 
@@ -128,6 +147,25 @@ class Suma::Service::Typewriter
     Object: ANYTYPE,
   }.freeze
 
+  def self.global_classes
+    return [
+      Class.new(Grape::Entity) do
+        define_singleton_method(:js_typename) { "UnboundedApiCollection<T>" }
+        expose :items, documentation: {type: "T", array: true}
+      end,
+      Class.new(Grape::Entity) do
+        define_singleton_method(:js_typename) { "ApiCollection<T>" }
+        expose :object, documentation: {type: String}
+        expose :current_page, documentation: {type: Integer}
+        expose :page_count, documentation: {type: Integer}
+        expose :total_count, documentation: {type: Integer}
+        expose :has_more, documentation: {type: "boolean"}
+        expose :url, documentation: {type: String}
+        expose :items, documentation: {type: "T", array: true}
+      end,
+    ]
+  end
+
   def self.gather_web_entity_classes
     cls = [
       Class.new(Grape::Entity) do
@@ -135,6 +173,7 @@ class Suma::Service::Typewriter
         expose :cents, documentation: {type: "Integer"}
         expose :currency, documentation: {type: "String"}
       end,
+      *self.global_classes,
     ]
     cls.concat(self.gather_entity_classes(glob: "suma/api/*.rb", prefix: "Suma::API::"))
     return cls
@@ -153,6 +192,7 @@ class Suma::Service::Typewriter
         expose :url, documentation: {type: "String"}
         expose :label, documentation: {type: "String"}
       end,
+      *self.global_classes,
     ]
     cls.concat(self.gather_entity_classes(glob: "suma/admin_api/*.rb", prefix: "Suma::AdminAPI::"))
     return cls
@@ -161,9 +201,10 @@ class Suma::Service::Typewriter
   def self.gather_entity_classes(glob: nil, prefix: nil)
     Dir.glob(Suma::SELF_DIR + glob).each { |f| require f } if glob
     classes = ObjectSpace.each_object(Class).select do |klass|
-      klass < Grape::Entity &&
-        klass.name && # skip anonymous classes
-        !klass.name.empty?
+      next false unless klass < Grape::Entity
+      next false unless klass.name.present? # skip anonymous classes
+      next false if klass.respond_to?(:spec_defined?) && klass.spec_defined?
+      true
     end.sort_by(&:name)
     classes = classes.select { |cls| cls.name.start_with?(prefix) } if prefix
     return classes
@@ -173,6 +214,8 @@ class Suma::Service::Typewriter
   # @param [true,false] strict
   def initialize(formatter=JSDocFormatter.new, strict: false)
     @formatter = formatter
+    # Map enum modules to the typename written into the JS.
+    @enum_typenames = {}
     @strict = strict
     @strict_errors = []
   end
@@ -192,6 +235,7 @@ class Suma::Service::Typewriter
     if (typename = self.register_typealiases(type))
       return typename
     end
+    return @enum_typenames[type] if @enum_typenames.key?(type)
 
     # Grape uses :type as a class, string, or symbol. If we get a mapped hit, just use it.
     mapped = GRAPE_TO_JSTYPE[type.to_s.to_sym]
@@ -296,7 +340,9 @@ class Suma::Service::Typewriter
 
   # Derive a clean JSDoc identifier from an entity class name.
   protected def jsdoc_entity_name(klass)
+    return klass.js_typename if klass.respond_to?(:js_typename)
     name = getname(klass)
+    raise "class must have a name, but name was: #{name.inspect}" unless name.present?
     # We don't want namespaces
     name = name.split("::").last
     # Strip trailing "Entity" suffix for brevity, e.g. UserEntity → User
@@ -354,16 +400,29 @@ class Suma::Service::Typewriter
     js_type = self.guess_jsdoc_type(attr_name) if js_type == ANYTYPE
 
     js_type = "#{js_type}[]" if doc[:array]
+    js_type = "#{js_type} | null" if doc[:optional]
     desc_text = (doc[:desc] || doc[:description] || "").to_s
 
     js_name = attr_name.to_s.camelize(:lower)
     property_type_and_desc_for_name[js_name] = [js_type, desc_text]
   end
 
-  def build(entity_classes)
-    @formatter.metadata(entity_classes)
+  # @param {Array<Suma::Enum::Definition>} enum_registry
+  protected def handle_registry(enum_registry)
+    enum_registry.each do |definition|
+      js_enum_name = definition.fqn.split("::")[1..].join
+      @formatter.add_enumeration(js_enum_name, definition.values)
+      @enum_typenames[definition.module] = js_enum_name
+    end
+  end
+
+  # @param {Array<Class>} entity_classes
+  # @param {Array<Suma::Enum::Definition>} enum_registry
+  def build(entity_classes, enum_registry: [])
+    @formatter.metadata(entity_classes, enum_registry)
 
     @formatter.preamble
+    self.handle_registry(enum_registry)
     entity_classes.each do |klass|
       self.write_typedef(klass)
     end

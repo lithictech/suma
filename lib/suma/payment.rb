@@ -7,6 +7,9 @@ require "mimemagic"
 module Suma::Payment
   include Appydays::Configurable
 
+  InstrumentType = Suma::Enum.define(self, :InstrumentType, [:card, :bank_account])
+  InstrumentStatus = Suma::Enum.define(self, :InstrumentStatus, [:expired, :unverified, :deleted, :ok])
+
   class Institution
     attr_reader :name, :logo_src, :color
 

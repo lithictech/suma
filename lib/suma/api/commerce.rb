@@ -363,7 +363,7 @@ class Suma::API::Commerce < Suma::API::V1
 
     expose :id
     expose_translated :description
-    expose :address, with: FulfillmentOptionAddressEntity
+    expose? :address, with: FulfillmentOptionAddressEntity
   end
 
   class CheckoutProductEntity < PricedOfferingProductEntity
@@ -439,7 +439,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :id
     expose :serial, documentation: {type: String}
     expose :created_at
-    expose :fulfilled_at
+    expose? :fulfilled_at
     expose :total, with: MoneyEntity, &self.delegate_to(:checkout, :total)
     expose :image, with: ImageEntity do |inst|
       inst.checkout.items.sample&.offering_product&.product&.images&.first

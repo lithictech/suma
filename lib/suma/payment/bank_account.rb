@@ -37,7 +37,7 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
     Suma::MethodUtilities.timestamp_set(self, :verified_at, v)
   end
 
-  def payment_method_type = "bank_account"
+  def payment_method_type = Suma::Payment::InstrumentType.bank_account.to_s
   def usable_for_funding? = self.verified?
   def usable_for_payout? = true
   def expired? = false

@@ -85,7 +85,7 @@ class Suma::API::Images < Suma::API::V1
   class UploadedFileEntity < BaseEntity
     include Suma::API::Entities
 
-    expose :opaque_id
+    expose :opaque_id, documentation: {type: String}
     expose :content_type
     expose :content_length
     expose :absolute_url

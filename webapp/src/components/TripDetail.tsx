@@ -38,7 +38,7 @@ export default function TripDetail({ trip }: TripDetailProps) {
           />
         </div>
         <Money as="h4" className="mb-0">
-          {charge.customerCost}
+          {charge?.customerCost}
         </Money>
         <p className="mb-0">{t("trips.thanks")}</p>
       </Stack>
@@ -56,7 +56,7 @@ export default function TripDetail({ trip }: TripDetailProps) {
           iconColor="text"
         />
         <StartEnd
-          t={endedAt}
+          t={endedAt!}
           address={endAddress}
           label={t("trips.end")}
           iconColor="success"
@@ -65,7 +65,7 @@ export default function TripDetail({ trip }: TripDetailProps) {
       <div className="trips-week-divider" />
       <Stack direction="vertical" gap={3} className="p-3">
         <h3>{t("trips.payment")}</h3>
-        {charge.lineItems.map(({ memo, amount }) => (
+        {charge?.lineItems.map(({ memo, amount }) => (
           <Stack key={memo} direction="horizontal" className="justify-content-between">
             <div>{memo}</div>
             <Money>{amount}</Money>

@@ -10,6 +10,7 @@ RSpec.describe Suma::Service::Typewriter do
       expose :x
       expose :y, using: self
       expose_array :z, self
+      expose? :n, documentation: {type: Integer}
       expose :doc, documentation: {type: "String", desc: "Help text"}
       expose :doc_t, documentation: {type: self, desc: "Help text"}
       expose :predicate?, as: :predicate
@@ -26,6 +27,7 @@ RSpec.describe Suma::Service::Typewriter do
        * @property {any} x
        * @property {Test} y
        * @property {Test[]} z
+       * @property {number | null} n
        * @property {string} doc - Help text
        * @property {Test} docT - Help text
        * @property {boolean} predicate
@@ -41,6 +43,7 @@ RSpec.describe Suma::Service::Typewriter do
           x: any;
           y: Test;
           z: Test[];
+          n: number | null;
           /** Help text */
           doc: string;
           /** Help text */
@@ -53,7 +56,7 @@ RSpec.describe Suma::Service::Typewriter do
     STR
   end
 
-  it "uses the jsdoc_type method on the type class" do
+  it "uses the jsdoc_type methods on the type class" do
     t1 = Class.new do
       define_singleton_method(:name) { "AliasedType1" }
       define_singleton_method(:js_typealias) { "number[]" }
@@ -69,6 +72,14 @@ RSpec.describe Suma::Service::Typewriter do
       define_singleton_method(:name) { "AliasedType3" }
       define_singleton_method(:js_typealias) { "AliasedType2[]" }
       define_singleton_method(:js_typeincludes) { [t2] }
+    end
+
+    t4 = Class.new(Suma::Service::Entities::Base) do
+      define_singleton_method(:name) { "AliasedType4" }
+      define_singleton_method(:js_typename) { "AliasedType4<T>" }
+      expose :f, documentation: {type: "T"}
+      expose :farr, documentation: {type: "T[]"}
+      expose :farr2, documentation: {type: "T", array: true}
     end
 
     cls = Class.new(Suma::Service::Entities::Base) do
@@ -108,6 +119,82 @@ RSpec.describe Suma::Service::Typewriter do
         type AliasedType2 = AliasedType1[];
         type AliasedType1 = number[];
       }
+    STR
+  end
+
+  it "uses the jsdoc_typename method if defined" do
+    generic = Class.new(Suma::Service::Entities::Base) do
+      define_singleton_method(:name) { "Generic" }
+      define_singleton_method(:js_typename) { "Generic<T>" }
+      expose :f, documentation: {type: "T"}
+      expose :farr, documentation: {type: "T[]"}
+      expose :farr2, documentation: {type: "T", array: true}
+    end
+
+    jsdoc = described_class.new.build([generic])
+    expect(jsdoc).to include(<<~STR)
+      /**
+       * @typedef {object} Generic<T>
+       * @description Auto-generated from Generic
+       * @property {T} f
+       * @property {T[]} farr
+       * @property {T[]} farr2
+       */
+    STR
+
+    tsdoc = described_class.new(described_class::TypescriptFormatter.new).build([generic])
+    expect(tsdoc).to include(<<~STR)
+      declare global {
+        /** Auto-generated from Generic */
+        interface Generic<T> {
+          f: T;
+          farr: T[];
+          farr2: T[];
+        }
+    STR
+  end
+
+  it "can write enums" do
+    registry = []
+    host = Module.new do
+      define_singleton_method(:name) { "Suma::Hello" }
+    end
+    enum = Suma::Enum.define(host, :TypewriterEnum, [:a, :b], registry:)
+    cls = Class.new(Suma::Service::Entities::Base) do
+      define_singleton_method(:name) { "HasEnum" }
+      expose :e, documentation: {type: enum}
+    end
+
+    jsdoc = described_class.new.build([cls], enum_registry: registry)
+    expect(jsdoc).to include(<<~STR)
+      // Enums: Suma::Hello::TypewriterEnum
+
+      /**
+       * @enum {string}
+       */
+      const HelloTypewriterEnum = {
+        a: 'a',
+        b: 'b',
+      };
+
+      /**
+       * @typedef {object} HasEnum
+       * @description Auto-generated from HasEnum
+       * @property {HelloTypewriterEnum} e
+       */
+    STR
+
+    tsdoc = described_class.new(described_class::TypescriptFormatter.new).build([cls], enum_registry: registry)
+    expect(tsdoc).to include(<<~STR)
+      // Enums: Suma::Hello::TypewriterEnum
+
+      declare global {
+        type HelloTypewriterEnum = "a" | "b";
+
+        /** Auto-generated from HasEnum */
+        interface HasEnum {
+          e: HelloTypewriterEnum;
+        }
     STR
   end
 

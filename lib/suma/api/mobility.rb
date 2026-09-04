@@ -213,7 +213,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class RateEntity < SimpleRateEntity
     expose :external_name, as: :name
-    expose :undiscounted_rate, with: SimpleRateEntity
+    expose? :undiscounted_rate, with: SimpleRateEntity
   end
 
   class MobilityMapProviderEntity < BaseEntity
@@ -305,7 +305,7 @@ class Suma::API::Mobility < Suma::API::V1
     include Suma::API::Entities
 
     expose_array :items, MobilityTripEntity
-    expose :ongoing, with: MobilityTripEntity do |_, opts|
+    expose? :ongoing, with: MobilityTripEntity do |_, opts|
       opts.fetch(:ongoing)
     end
     expose_array :weeks, MobilityTripCollectionWeekEntity do |_, opts|

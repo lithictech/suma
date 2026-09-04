@@ -145,7 +145,7 @@ class Suma::API::AnonProxy < Suma::API::V1
   end
 
   class AnonProxyVendorAccountUIStateEntity < BaseEntity
-    expose :index_card_mode
+    expose :index_card_mode, documentation: {type: Suma::AnonProxy::VendorAccount::IndexCardMode}
     expose :needs_linking
     expose :requires_payment_method
     expose :has_payment_method
@@ -167,7 +167,7 @@ class Suma::API::AnonProxy < Suma::API::V1
     end
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
-    expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
+    expose? :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
     expose :ui_state_v1, with: AnonProxyVendorAccountUIStateEntity do |inst|
       inst.ui_state_v1(now: self.current_time)
     end

@@ -20,7 +20,7 @@ class Suma::Payment::LedgersView
   end
 
   class RecentLine < Suma::TypedStruct
-    attr_accessor :id, :amount, :apply_at, :memo, :opaque_id, :usage_details
+    attr_accessor :id, :amount, :apply_at, :memo, :opaque_id, :usage_details, :ledger
 
     def directed? = true
   end
@@ -70,6 +70,7 @@ class Suma::Payment::LedgersView
             memo: bx.memo,
             opaque_id: bx.opaque_id,
             usage_details: bx.usage_details,
+            ledger: bx.directed_relative_to,
           )
       end
     end
