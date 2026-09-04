@@ -1,6 +1,6 @@
 export function isPaymentMethodSupported(
-  supported: PaymentMethodType[],
-  m: PaymentMethodType
+  supported: PaymentInstrumentType[],
+  m: PaymentInstrumentType
 ) {
   return supported.includes(m);
 }

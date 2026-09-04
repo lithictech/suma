@@ -43,10 +43,10 @@ module Suma::API::Entities
     expose :id
     expose :created_at
     expose :id, as: :payment_instrument_id
-    expose :payment_method_type
+    expose :payment_method_type, documentation: {type: Suma::Payment::InstrumentType}
     expose :usable_for_funding?, as: :usable_for_funding
-    expose :status
-    expose :expires_at
+    expose :status, documentation: {type: Suma::Payment::InstrumentStatus}
+    expose? :expires_at
     expose :institution, with: InstitutionEntity
     expose :name
     expose :last4
@@ -82,21 +82,21 @@ module Suma::API::Entities
 
   class MobilityTripEntity < BaseEntity
     expose :id
-    expose :vehicle_id
+    expose :vehicle_id, documentation: {type: String}
     expose :vehicle_type
     expose :vendor_service, as: :provider, with: VendorServiceEntity
     expose :begin_lat
     expose :begin_lng
-    expose :begin_address_parsed, as: :begin_address, with: MobilityTripParsedAddressEntity
+    expose? :begin_address_parsed, as: :begin_address, with: MobilityTripParsedAddressEntity
     expose :began_at
-    expose :end_lat
-    expose :end_lng
-    expose :end_address_parsed, as: :end_address, with: MobilityTripParsedAddressEntity
-    expose :ended_at
+    expose? :end_lat
+    expose? :end_lng
+    expose? :end_address_parsed, as: :end_address, with: MobilityTripParsedAddressEntity
+    expose? :ended_at
     expose :ongoing?, as: :ongoing
-    expose :charge, with: MobilityChargeEntity
-    expose :duration_minutes, as: :minutes, documentation: {type: Integer}
-    expose :image, with: ImageEntity
+    expose? :charge, with: MobilityChargeEntity
+    expose? :duration_minutes, as: :minutes, documentation: {type: Integer}
+    expose? :image, with: ImageEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity
@@ -122,11 +122,11 @@ module Suma::API::Entities
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
-    expose :ongoing_trip, with: MobilityTripEntity
+    expose? :ongoing_trip, with: MobilityTripEntity
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
     expose_array :public_payment_instruments, as: :payment_instruments, with: PaymentInstrumentEntity
-    expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
+    expose? :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end
     expose :show_private_accounts do |m, opts|
@@ -136,7 +136,7 @@ module Suma::API::Entities
     expose :has_order_history do |m|
       !m.orders_dataset.empty?
     end
-    expose :chargeable_cash_balance, with: MoneyEntity do |m|
+    expose? :chargeable_cash_balance, with: MoneyEntity do |m|
       b = m.payment_account&.cash_ledger&.balance
       Suma::Payment.chargeable_balance?(b || Money.new(0)) ? b : nil
     end
@@ -144,46 +144,8 @@ module Suma::API::Entities
     expose :finished_survey_topics, documentation: {type: String, array: true} do |m|
       m.db[:member_surveys].where(member_id: m.id).select_map(:topic).sort
     end
-    expose :registration_link, with: RegistrationLinkEntity do |_|
+    expose? :registration_link, with: RegistrationLinkEntity do |_|
       RegistrationLinkEntity.link_and_code_from_env(self.options.fetch(:env))&.link
     end
-  end
-
-  class LedgerLineUsageDetailsEntity < Grape::Entity
-    expose :code
-    expose :args, documentation: {type: Suma::Service::Entities::RecordString}
-  end
-
-  module LedgerLineAmountMixin
-    def xyz; end
-
-    def self.included(ctx)
-      ctx.expose :amount, with: Suma::API::Entities::MoneyEntity do |inst, opts|
-        if inst.directed?
-          inst.amount
-        elsif (ledger = opts[:ledger])
-          inst.receiving_ledger === ledger ? inst.amount : (inst.amount * -1)
-        else
-          raise "Must use directed ledger lines or pass :ledger option"
-        end
-      end
-    end
-  end
-
-  class LedgerLineEntity < BaseEntity
-    expose :id
-    expose :opaque_id
-    expose :apply_at, as: :at
-    expose_translated :memo
-    include Suma::API::Entities::LedgerLineAmountMixin
-
-    expose_array :usage_details, LedgerLineUsageDetailsEntity
-  end
-
-  class LedgerEntity < BaseEntity
-    expose :id
-    expose :name
-    expose_translated :contribution_text
-    expose :balance, with: MoneyEntity
   end
 end

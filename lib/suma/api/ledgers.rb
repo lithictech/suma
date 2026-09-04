@@ -33,13 +33,56 @@ class Suma::API::Ledgers < Suma::API::V1
     end
   end
 
+  class LedgerLineUsageDetailsEntity < Grape::Entity
+    expose :code
+    expose :args, documentation: {type: Suma::Service::Entities::RecordString}
+  end
+
+  module LedgerLineAmountMixin
+    def xyz; end
+
+    def self.included(ctx)
+      ctx.expose :amount, with: Suma::API::Entities::MoneyEntity do |inst, opts|
+        if inst.directed?
+          inst.amount
+        elsif (ledger = opts[:ledger])
+          inst.receiving_ledger === ledger ? inst.amount : (inst.amount * -1)
+        else
+          raise "Must use directed ledger lines or pass :ledger option"
+        end
+      end
+    end
+  end
+
+  class LedgerLineEntity < BaseEntity
+    expose :id
+    expose :ledger_id do |inst, opts|
+      # Can be taken from the directed book transaction in a recent line,
+      # or the explicit ledger in the ledger lines.
+      inst.respond_to?(:ledger) ? inst.ledger.id : opts.fetch(:ledger).id
+    end
+    expose :opaque_id, documentation: {type: String}
+    expose :apply_at, as: :at
+    expose_translated :memo
+    include LedgerLineAmountMixin
+
+    expose_array :usage_details, LedgerLineUsageDetailsEntity
+  end
+
+  class LedgerEntity < BaseEntity
+    include Suma::API::Entities
+
+    expose :id
+    expose :name
+    expose_translated :contribution_text
+    expose :balance, with: MoneyEntity
+  end
+
   class LedgerLinesEntity < Suma::Service::Collection::BaseEntity
     include Suma::API::Entities
 
     expose_array :items, LedgerLineEntity
-    expose :ledger_id do |_, opts|
-      opts.fetch(:ledger).id
-    end
+    expose(:ledger_id) { |_, opts| opts.fetch(:ledger).id }
   end
 
   class LedgersViewEntity < BaseEntity

@@ -111,6 +111,8 @@ class Suma::API::TestService < Suma::Service
   end
 
   class MyEntity < Grape::Entity
+    def self.spec_defined? = true
+
     expose :attr do |_|
       "got it"
     end
@@ -131,6 +133,8 @@ class Suma::API::TestService < Suma::Service
 
   class EtaggedEntity < Grape::Entity
     prepend Suma::Service::Entities::EtaggedMixin
+
+    def self.spec_defined? = true
 
     expose :field1 do |_|
       25

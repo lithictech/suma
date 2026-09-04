@@ -60,16 +60,18 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     end
     id = dup.delete(:id)
     inst = self.class.new(dup)
-    inst.values[:_directed] = true
+    inst.values[:_directed_relative_to] = relative_to_ledger
     inst.values[:id] = id
     inst.freeze
     return inst
   end
 
+  # Returns the ledger #directed was called with, or nil if not directed.
+  # @return [Suma::Payment::Ledger,nil]
+  def directed_relative_to = self.values[:_directed_relative_to]
+
   # Return true if the received is an output of +directed+.
-  def directed?
-    return self.values.fetch(:_directed, false)
-  end
+  def directed? = !!self.directed_relative_to
 
   def debug_description
     return "BookTransaction[#{self.id}] for #{self.amount.format} from " \

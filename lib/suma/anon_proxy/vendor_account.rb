@@ -142,11 +142,11 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     requires_payment_method = self.require_payment_instrument?(as_of: now)
     has_payment_method = !self.member.default_payment_instrument.nil?
     index_card_mode = if needs_linking
-                        :link
+                        IndexCardMode.link
                       elsif requires_payment_method && !has_payment_method
-                        :payment
+                        IndexCardMode.payment
                       else
-                        :relink
+                        IndexCardMode.relink
                       end
     cash_ledger = self.member.payment_account&.cash_ledger!
     balance_payoff_needed = has_payment_method && cash_ledger && Suma::Payment.chargeable_balance?(cash_ledger.balance)
@@ -161,6 +161,8 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       help_text: self.configuration.help_text,
     )
   end
+
+  IndexCardMode = Suma::Enum.define(self, :IndexCardMode, [:link, :payment, :relink])
 
   # V1 UI state with the following design:
   # - If the account has not been linked, users get a card on the private account list

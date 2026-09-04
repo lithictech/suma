@@ -242,6 +242,7 @@ module Suma
   def self.as_ary(x)  = x.respond_to?(:to_ary) ? x : [x]
 end
 
+require "suma/enum"
 require "suma/enumerable"
 require "suma/feature_flags"
 require "suma/phone_number"

@@ -39,7 +39,7 @@ interface UsesUserProps {
 }
 
 export interface FundingProps extends UsesUserProps {
-  supportedPaymentMethods: PaymentMethodType[];
+  supportedPaymentMethods: PaymentInstrumentType[];
   featureAddFunds: boolean;
 }
 

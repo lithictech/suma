@@ -4,7 +4,7 @@ import React from "react";
 
 interface BackendGlobalsContextValue {
   supportedLocales: UnboundedApiCollection<Locale>;
-  supportedPaymentMethods: UnboundedApiCollection<PaymentMethodType>;
+  supportedPaymentMethods: UnboundedApiCollection<PaymentInstrumentType>;
 }
 
 export const BackendGlobalsContext = React.createContext<BackendGlobalsContextValue>(
@@ -21,7 +21,7 @@ export default function BackendGlobalsProvider({
     { default: { items: [] } }
   );
   const { state: supportedPaymentMethods } = useAsyncFetch<
-    UnboundedApiCollection<PaymentMethodType>
+    UnboundedApiCollection<PaymentInstrumentType>
   >(api.getSupportedPaymentMethods, { default: { items: [] } });
 
   return (

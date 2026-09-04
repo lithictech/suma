@@ -20,8 +20,8 @@ export default function DrawerContentsPostTrip({
     <DrawerContents>
       {t("mobility.trip_ended", {
         vendor: provider.vendorName,
-        totalCost: charge.customerCost,
-        discountAmount: charge.savings,
+        totalCost: charge!.customerCost,
+        discountAmount: charge!.savings,
       })}
       <FormFeedback feedback={error} />
       <Button size="sm" variant="outline" className="w-100" onClick={handleClose}>

@@ -34,7 +34,7 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     def expired_as_of(t) = self.where { expires_at <= Sequel[t] }
   end
 
-  def payment_method_type = "card"
+  def payment_method_type = Suma::Payment::InstrumentType.card.to_s
   def usable_for_funding? = !self.expired?
   def usable_for_payout? = false
   def verified? = true

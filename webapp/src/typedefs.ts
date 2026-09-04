@@ -1,21 +1,27 @@
 // Auto-generated typedefs from Grape::Entity
-// Generated: 2026-08-30 10:13:14
-// Entities: Money, Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::AddressEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::InstitutionEntity, Suma::API::Entities::LedgerEntity, Suma::API::Entities::LedgerLineEntity, Suma::API::Entities::LedgerLineUsageDetailsEntity, Suma::API::Entities::LegalEntityEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::MobilityTripParsedAddressEntity, Suma::API::Entities::MoneyEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::MembershipEntity, Suma::API::Me::OnboardedEntity, Suma::API::Me::ProgramEntity, Suma::API::Meta::GeolocateIPEntity, Suma::API::Meta::SupportedCountryEntity, Suma::API::Meta::SupportedGeographiesEntity, Suma::API::Meta::SupportedOrganizationEntity, Suma::API::Meta::SupportedProvinceEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionBoundsEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::MobilityTripCollectionWeekEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity, Suma::API::System::UserAgentEntity
+// Generated: 2026-09-04 08:17:33
+// Entities: Money, , , Suma::API::AnonProxy::AnonProxyVendorAccountEntity, Suma::API::AnonProxy::AnonProxyVendorAccountPollResultEntity, Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity, Suma::API::Auth::AuthFlowMemberEntity, Suma::API::Commerce::BaseOfferingProductEntity, Suma::API::Commerce::CartEntity, Suma::API::Commerce::CartItemEntity, Suma::API::Commerce::ChargeContributionEntity, Suma::API::Commerce::CheckoutConfirmationEntity, Suma::API::Commerce::CheckoutConfirmationItemEntity, Suma::API::Commerce::CheckoutConfirmationProductEntity, Suma::API::Commerce::CheckoutEntity, Suma::API::Commerce::CheckoutItemEntity, Suma::API::Commerce::CheckoutProductEntity, Suma::API::Commerce::DetailedOrderHistoryEntity, Suma::API::Commerce::FulfillmentOptionAddressEntity, Suma::API::Commerce::FulfillmentOptionEntity, Suma::API::Commerce::OfferingEntity, Suma::API::Commerce::OfferingWithContextEntity, Suma::API::Commerce::OrderHistoryCollection, Suma::API::Commerce::OrderHistoryFundingTransactionEntity, Suma::API::Commerce::OrderHistoryItemEntity, Suma::API::Commerce::PricedOfferingProductEntity, Suma::API::Commerce::SimpleOrderHistoryEntity, Suma::API::Commerce::UnclaimedOrderCollection, Suma::API::Commerce::VendorEntity, Suma::API::Entities::AddressEntity, Suma::API::Entities::BaseEntity, Suma::API::Entities::CurrencyEntity, Suma::API::Entities::CurrentMemberEntity, Suma::API::Entities::ImageEntity, Suma::API::Entities::InstitutionEntity, Suma::API::Entities::LegalEntityEntity, Suma::API::Entities::LocaleEntity, Suma::API::Entities::MemberPreferencesEntity, Suma::API::Entities::MobilityChargeEntity, Suma::API::Entities::MobilityChargeLineItemEntity, Suma::API::Entities::MobilityTripEntity, Suma::API::Entities::MobilityTripParsedAddressEntity, Suma::API::Entities::MoneyEntity, Suma::API::Entities::PaymentInstrumentEntity, Suma::API::Entities::PreferencesSubscriptionEntity, Suma::API::Entities::RegistrationLinkEntity, Suma::API::Entities::VendorServiceEntity, Suma::API::Images::UploadedFileEntity, Suma::API::Ledgers::LedgerEntity, Suma::API::Ledgers::LedgerLineEntity, Suma::API::Ledgers::LedgerLineUsageDetailsEntity, Suma::API::Ledgers::LedgerLinesEntity, Suma::API::Ledgers::LedgersViewEntity, Suma::API::Me::DashboardAlertEntity, Suma::API::Me::DashboardEntity, Suma::API::Me::MembershipEntity, Suma::API::Me::OnboardedEntity, Suma::API::Me::ProgramEntity, Suma::API::Meta::GeolocateIPEntity, Suma::API::Meta::SupportedCountryEntity, Suma::API::Meta::SupportedGeographiesEntity, Suma::API::Meta::SupportedOrganizationEntity, Suma::API::Meta::SupportedProvinceEntity, Suma::API::Mobility::MobilityDetailedVehicleEntity, Suma::API::Mobility::MobilityMapEntity, Suma::API::Mobility::MobilityMapFeaturesEntity, Suma::API::Mobility::MobilityMapProviderEntity, Suma::API::Mobility::MobilityMapRestrictionBoundsEntity, Suma::API::Mobility::MobilityMapRestrictionEntity, Suma::API::Mobility::MobilityMapVehicleEntity, Suma::API::Mobility::MobilityTripCollectionEntity, Suma::API::Mobility::MobilityTripCollectionWeekEntity, Suma::API::Mobility::RateEntity, Suma::API::Mobility::SimpleRateEntity, Suma::API::PaymentInstruments::MutationPaymentInstrumentEntity, Suma::API::Payments::FundingTransactionEntity, Suma::API::Preferences::PublicPrefsEntity, Suma::API::Preferences::PublicPrefsMemberEntity, Suma::API::System::UserAgentEntity
+// Enums: Suma::AnonProxy::VendorAccount::IndexCardMode, Suma::Payment::InstrumentType, Suma::Payment::InstrumentStatus
 
 declare global {
+  type AnonProxyVendorAccountIndexCardMode = "link" | "payment" | "relink";
+
+  type PaymentInstrumentType = "card" | "bank_account";
+
+  type PaymentInstrumentStatus = "expired" | "unverified" | "deleted" | "ok";
+
   /** Auto-generated from Money */
   interface Money {
     cents: number;
     currency: string;
   }
 
+  /** Auto-generated from  */
   interface UnboundedApiCollection<T> {
     items: T[];
   }
 
-  type PaymentMethodType = "card" | "bank_account";
-  type PaymentMethodStatus = "expired" | "unverified" | "deleted" | "ok";
-
+  /** Auto-generated from  */
   interface ApiCollection<T> {
     object: string;
     currentPage: number;
@@ -45,7 +51,7 @@ declare global {
 
   /** Auto-generated from Suma::API::AnonProxy::AnonProxyVendorAccountUIStateEntity */
   interface AnonProxyVendorAccountUIState {
-    indexCardMode: "link" | "relink" | "payment";
+    indexCardMode: AnonProxyVendorAccountIndexCardMode;
     needsLinking: boolean;
     requiresPaymentMethod: boolean;
     hasPaymentMethod: boolean;
@@ -174,7 +180,7 @@ declare global {
     id: number;
     serial: string;
     createdAt: string;
-    fulfilledAt: string;
+    fulfilledAt: string | null;
     total: Money;
     image: Image;
     availableForPickupAt: string;
@@ -367,31 +373,6 @@ declare global {
     color: string;
   }
 
-  /** Auto-generated from Suma::API::Entities::LedgerEntity */
-  interface Ledger {
-    id: number;
-    name: string;
-    contributionText: string;
-    balance: Money;
-  }
-
-  /** Auto-generated from Suma::API::Entities::LedgerLineEntity */
-  interface LedgerLine {
-    id: number;
-    ledgerId: number;
-    opaqueId: string;
-    at: string;
-    memo: string;
-    amount: Money;
-    usageDetails: LedgerLineUsageDetails[];
-  }
-
-  /** Auto-generated from Suma::API::Entities::LedgerLineUsageDetailsEntity */
-  interface LedgerLineUsageDetails {
-    code: string;
-    args: RecordString;
-  }
-
   /** Auto-generated from Suma::API::Entities::LegalEntityEntity */
   interface LegalEntity {
     id: number;
@@ -435,13 +416,13 @@ declare global {
     beginLng: number;
     beginAddress: MobilityTripParsedAddress | null;
     beganAt: string;
-    endLat: number;
-    endLng: number;
+    endLat: number | null;
+    endLng: number | null;
     endAddress: MobilityTripParsedAddress | null;
-    endedAt: string;
+    endedAt: string | null;
     ongoing: boolean;
-    charge: MobilityCharge;
-    minutes: number;
+    charge: MobilityCharge | null;
+    minutes: number | null;
     image: Image | null;
   }
 
@@ -462,9 +443,9 @@ declare global {
     id: number;
     createdAt: string;
     paymentInstrumentId: number;
-    paymentMethodType: PaymentMethodType;
+    paymentMethodType: PaymentInstrumentType;
     usableForFunding: boolean;
-    status: PaymentMethodStatus;
+    status: PaymentInstrumentStatus;
     expiresAt: string | null;
     institution: Institution;
     name: string;
@@ -496,10 +477,35 @@ declare global {
 
   /** Auto-generated from Suma::API::Images::UploadedFileEntity */
   interface UploadedFile {
-    opaqueId: number;
+    opaqueId: string;
     contentType: string;
     contentLength: number;
     absoluteUrl: string;
+  }
+
+  /** Auto-generated from Suma::API::Ledgers::LedgerEntity */
+  interface Ledger {
+    id: number;
+    name: string;
+    contributionText: string;
+    balance: Money;
+  }
+
+  /** Auto-generated from Suma::API::Ledgers::LedgerLineEntity */
+  interface LedgerLine {
+    id: number;
+    ledgerId: number;
+    opaqueId: string;
+    at: string;
+    memo: string;
+    amount: Money;
+    usageDetails: LedgerLineUsageDetails[];
+  }
+
+  /** Auto-generated from Suma::API::Ledgers::LedgerLineUsageDetailsEntity */
+  interface LedgerLineUsageDetails {
+    code: string;
+    args: RecordString;
   }
 
   /** Auto-generated from Suma::API::Ledgers::LedgerLinesEntity */
@@ -692,9 +698,9 @@ declare global {
     id: number;
     createdAt: string;
     paymentInstrumentId: number;
-    paymentMethodType: string;
+    paymentMethodType: PaymentInstrumentType;
     usableForFunding: boolean;
-    status: string;
+    status: PaymentInstrumentStatus;
     expiresAt: string | null;
     institution: Institution;
     name: string;

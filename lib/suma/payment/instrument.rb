@@ -39,10 +39,10 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def expired? = self.expired_as_of?(Time.now)
 
     def status
-      return :expired if expired?
-      return :unverified unless verified?
-      return :deleted if soft_deleted?
-      return :ok
+      return Suma::Payment::InstrumentStatus.expired if expired?
+      return Suma::Payment::InstrumentStatus.unverified unless verified?
+      return Suma::Payment::InstrumentStatus.deleted if soft_deleted?
+      return Suma::Payment::InstrumentStatus.ok
     end
 
     def admin_label

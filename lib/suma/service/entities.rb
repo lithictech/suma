@@ -109,6 +109,13 @@ module Suma::Service::Entities
       opts[:with] ||= with
       expose(name, documentation:, **opts, &)
     end
+
+    # Mark an exposure as optional.
+    # Used by typewriter to mark an optional, nullable type.
+    def self.expose?(*a, **opts, &)
+      documentation = (opts.delete(:documentation) || {}).merge(optional: true)
+      expose(*a, documentation:, **opts, &)
+    end
   end
 
   class Image < Base

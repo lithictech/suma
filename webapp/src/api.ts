@@ -117,7 +117,7 @@ export default {
   getSupportedCurrencies: (data?: Params, config?: AxiosRequestConfig) =>
     get<ApiCollection<Currency>>(`/api/v1/meta/supported_currencies`, data, config),
   getSupportedPaymentMethods: (data?: Params, config?: AxiosRequestConfig) =>
-    get<ApiCollection<PaymentMethodType>>(
+    get<ApiCollection<PaymentInstrumentType>>(
       `/api/v1/meta/supported_payment_methods`,
       data,
       config
