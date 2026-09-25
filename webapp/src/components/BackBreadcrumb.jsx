@@ -36,6 +36,7 @@ export default function BackBreadcrumb({ back, children, ...rest }) {
           size="sm"
           style={{ marginLeft: ICON_OFFSET }}
           className={short && "link-unstyled"}
+          aria-label={short ? t("common.back") : undefined}
           {...backProps}
         >
           {short ? null : t("common.back")}

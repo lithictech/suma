@@ -9,6 +9,10 @@ const AdminLink = React.forwardRef(function AdminLink(
   ref
 ) {
   const [newTo, isRelative] = relativeLink(model?.adminLink || href || to || "");
+  if (!newTo) {
+    // No destination (usually a null model): render the text, if any, rather than an empty link.
+    return children ? <>{children}</> : null;
+  }
   const newProps = {
     ...rest,
     ref,

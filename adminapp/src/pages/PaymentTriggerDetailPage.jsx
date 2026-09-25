@@ -62,7 +62,12 @@ export default function PaymentTriggerDetailPage() {
             <SimpleTable
               rows={model.activeDuring}
               headers={["Start", "End"]}
-              toCells={(row) => [formatDate(row.start), formatDate(row.end)]}
+              toCells={(row) => [
+                formatDate(row.start),
+                dayjs(row.end).isBefore(now)
+                  ? `${formatDate(row.end)} (expired)`
+                  : formatDate(row.end),
+              ]}
               rowSx={(row) =>
                 dayjs(row.end).isBefore(now)
                   ? { "& .MuiTableCell-root": { color: "text.disabled" } }

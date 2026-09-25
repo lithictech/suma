@@ -221,7 +221,11 @@ export default function OrganizationMembershipForm({
               This member has already been removed from the following organization. Create
               a new membership to re-add them.
             </Typography>
-            <TextField disabled value={resource.formerOrganization.name} />
+            <TextField
+              disabled
+              label="Former organization"
+              value={resource.formerOrganization.name}
+            />
           </>
         )}
       </Stack>

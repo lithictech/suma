@@ -63,7 +63,12 @@ export default function SimpleTable({
     cellProps.sx = { width: "1%", whiteSpace: "nowrap" };
   }
   const tbl = (
-    <TableContainer className={className}>
+    <TableContainer
+      className={className}
+      tabIndex={0}
+      aria-labelledby={tableProps?.["aria-labelledby"]}
+      aria-label={tableProps?.["aria-labelledby"] ? undefined : "Table"}
+    >
       <Table {...tableProps}>
         <TableHead>
           <TableRow>
@@ -72,7 +77,7 @@ export default function SimpleTable({
                 {h}
               </TableCell>
             ))}
-            {pushLeft && <TableCell />}
+            {pushLeft && <TableCell component="td" aria-hidden="true" />}
           </TableRow>
         </TableHead>
         <TableBody>

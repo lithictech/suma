@@ -45,7 +45,7 @@ function ActivityHtml({ md }) {
 
 const useStyles = makeStyles((theme) => ({
   code: { fontSize: "95%" },
-  quote: { color: theme.palette.success.main },
+  quote: { color: theme.palette.success.main, fontStyle: "italic" },
   email: { fontWeight: "bold" },
   action: { fontWeight: "bold" },
 }));

@@ -1,3 +1,4 @@
+import { t } from "../localization";
 import CartIcon from "./CartIcon";
 import RLink from "./RLink";
 import clsx from "clsx";
@@ -11,13 +12,15 @@ import Button from "react-bootstrap/Button";
  * @param cart
  */
 export default function CartIconButton({ offeringId, cart }) {
+  const count = cart.items?.length || 0;
   return (
     <Button
       href={`/cart/${offeringId}`}
-      variant={clsx(cart.items?.length > 0 ? "success" : "primary")}
+      variant={clsx(count > 0 ? "success" : "primary")}
       className="py-1"
       size="sm"
       as={RLink}
+      aria-label={t("food.cart_with_items", { count })}
     >
       <CartIcon cart={cart} className="d-flex flex-row position-relative" />
     </Button>

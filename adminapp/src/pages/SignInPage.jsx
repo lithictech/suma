@@ -9,6 +9,7 @@ import {
   Container,
   FormControl,
   TextField,
+  Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import React from "react";
@@ -30,16 +31,20 @@ export default function SignInPage() {
   }
 
   return (
-    <Container>
+    <Container component="main">
       <ScrollTopOnMount top={0} />
       <Card className={classes.card}>
         <CardContent>
+          <Typography component="h1" variant="h5" gutterBottom>
+            Sign in
+          </Typography>
           <form noValidate onSubmit={onSubmit}>
             <FormControl margin="normal" required fullWidth>
               <TextField
                 label="Email Address"
                 required
                 type="email"
+                autoComplete="username"
                 value={email}
                 variant="outlined"
                 onChange={(e) => setEmail(e.target.value)}
@@ -50,12 +55,13 @@ export default function SignInPage() {
                 label="Password"
                 required
                 type="password"
+                autoComplete="current-password"
                 variant="outlined"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </FormControl>
-            <Button variant="contained" color="primary" role="submit" onClick={onSubmit}>
+            <Button variant="contained" color="primary" type="submit">
               Sign In
             </Button>
           </form>

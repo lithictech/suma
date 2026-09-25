@@ -56,7 +56,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
 
   if (product.outOfStock) {
     return (
-      <ButtonGroup aria-label="add-to-cart" className="shadow">
+      <ButtonGroup aria-label={t("food.add_to_cart")} className="shadow">
         <Button
           variant="secondary"
           className={clsx(
@@ -86,7 +86,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
 
   const maxQuantity = Math.min(MAX_DISPLAYABLE_QUANTITY, product.maxQuantity);
   return (
-    <ButtonGroup aria-label="add-to-cart" className="shadow">
+    <ButtonGroup aria-label={t("food.add_to_cart")} className="shadow">
       {quantity > 0 && (
         <>
           <Button
@@ -117,11 +117,8 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       )}
       <Button
         onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(
-          btnClasses,
-          quantity === maxQuantity && "disabled",
-          "text-nowrap"
-        )}
+        className={clsx(btnClasses, "text-nowrap")}
+        disabled={quantity === maxQuantity}
         title={t("food.add_to_cart")}
       >
         <img src={addIcon} alt={t("food.add_to_cart")} width="32px" />

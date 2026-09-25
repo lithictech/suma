@@ -8,6 +8,8 @@ const StateMachineStateSelect = React.forwardRef(function StateMachineStateSelec
   ref
 ) {
   label = label || "Status";
+  const id = React.useId();
+  const labelId = React.useId();
   const stateMachineData = useGlobalApiState(
     (data, ...args) => api.getStateMachine({ ...data, name: stateMachineName }, ...args),
     { stateNames: [] },
@@ -16,9 +18,10 @@ const StateMachineStateSelect = React.forwardRef(function StateMachineStateSelec
 
   return (
     <FormControl className={className} sx={sx}>
-      {label && <InputLabel htmlFor="smstate-select">{label}</InputLabel>}
+      {label && <InputLabel id={labelId}>{label}</InputLabel>}
       <Select
-        id="smstate-select"
+        id={id}
+        labelId={label ? labelId : undefined}
         ref={ref}
         value={value}
         label={label}

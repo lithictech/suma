@@ -13,6 +13,7 @@ export default function FileUploadInput({ accept, label, onUpload }) {
   const uploading = useToggle();
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { enqueueSnackbar } = useSnackbar();
+  const inputRef = React.useRef(null);
 
   function handleFileChange(e) {
     setFile(e.target.files?.[0] ?? null);
@@ -38,10 +39,18 @@ export default function FileUploadInput({ accept, label, onUpload }) {
 
   return (
     <ButtonGroup variant="outlined">
-      <Button component="label" variant="outlined">
+      <Button variant="outlined" onClick={() => inputRef.current?.click()}>
         {file ? file.name : label}
-        <input type="file" accept={accept || "*.*"} hidden onChange={handleFileChange} />
       </Button>
+      {/* Hidden input lives beside the button so no interactive control is nested. */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept || "*.*"}
+        hidden
+        tabIndex={-1}
+        onChange={handleFileChange}
+      />
 
       <Button
         aria-label="Upload"

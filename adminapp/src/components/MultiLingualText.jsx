@@ -30,11 +30,14 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
     },
     [search, searchParams]
   );
+  const enLabel = label ? `English ${label}` : "English text";
+  const esLabel = label ? `Spanish ${label}` : "Spanish text";
   return (
     <>
       <AutocompleteSearch
         {...rest}
-        label={`English ${label}`}
+        label={enLabel}
+        lang="en"
         search={(o) => doSearch("en", o)}
         value={value.en}
         onValueSelect={handleSelect}
@@ -43,7 +46,8 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
       />
       <AutocompleteSearch
         {...rest}
-        label={`Spanish ${label}`}
+        label={esLabel}
+        lang="es"
         search={(o) => doSearch("es", o)}
         value={value.es}
         onValueSelect={handleSelect}

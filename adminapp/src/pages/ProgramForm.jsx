@@ -85,13 +85,15 @@ export default function ProgramForm({
         </FormHelperText>
         <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
           <SafeDateTimePicker
-            label="Program Opens *"
+            label="Program Opens"
             value={resource.periodBegin}
+            required
             onChange={(v) => setField("periodBegin", formatOrNull(v))}
           />
           <SafeDateTimePicker
-            label="Program Closes *"
+            label="Program Closes"
             value={resource.periodEnd}
+            required
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
           />
         </ResponsiveStack>

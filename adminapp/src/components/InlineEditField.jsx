@@ -32,6 +32,24 @@ export default function InlineEditField({
   const [editing, setEditing] = React.useState(false);
   const [editingState, setEditingState] = React.useState(initialEditingState);
   const [saving, setSaving] = React.useState(false);
+  // Set when leaving edit mode, so focus returns to the Edit button.
+  const [restoreFocus, setRestoreFocus] = React.useState(false);
+  const editButtonRef = React.useRef(null);
+  const editContainerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (editing) {
+      // Move focus into the edit control when editing starts.
+      const el = editContainerRef.current?.querySelector(
+        "input, textarea, select, [tabindex]:not([tabindex='-1'])"
+      );
+      el?.focus();
+    } else if (restoreFocus) {
+      editButtonRef.current?.focus();
+      setRestoreFocus(false);
+    }
+  }, [editing, restoreFocus]);
+
   function startEditing(e) {
     setEditing(true);
     setSaving(false);
@@ -42,12 +60,14 @@ export default function InlineEditField({
     try {
       await onSave(editingState);
       setEditing(false);
+      setRestoreFocus(true);
     } finally {
       setSaving(false);
     }
   }
   function discardChanges(e) {
     setEditing(false);
+    setRestoreFocus(true);
     setEditingState(initialEditingState); // Not strictly needed
   }
   if (!canWriteResource(resource)) {
@@ -57,22 +77,30 @@ export default function InlineEditField({
     return (
       <div>
         {renderDisplay}
-        <IconButton onClick={startEditing}>
+        <IconButton ref={editButtonRef} aria-label="Edit" onClick={startEditing}>
           <EditIcon color="info" />
         </IconButton>
       </div>
     );
   }
   return (
-    <div>
+    <div ref={editContainerRef}>
       {renderEdit(editingState, setEditingState)}
-      <IconButton sx={{ display: saving ? null : "none" }}>
+      <IconButton disabled aria-label="Saving" sx={{ display: saving ? null : "none" }}>
         <HourglassTopIcon />
       </IconButton>
-      <IconButton sx={{ display: saving ? "none" : null }} onClick={saveChanges}>
+      <IconButton
+        aria-label="Save"
+        sx={{ display: saving ? "none" : null }}
+        onClick={saveChanges}
+      >
         <SaveIcon color="success" />
       </IconButton>
-      <IconButton sx={{ display: saving ? "none" : null }} onClick={discardChanges}>
+      <IconButton
+        aria-label="Cancel"
+        sx={{ display: saving ? "none" : null }}
+        onClick={discardChanges}
+      >
         <CancelIcon color="error" />
       </IconButton>
     </div>

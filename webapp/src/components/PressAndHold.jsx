@@ -9,7 +9,18 @@ import Button from "react-bootstrap/Button";
 const HOLD_SECS = 2;
 const SIZE_RATIO = 0.7;
 
-export default function PressAndHold({ size, onHeld, children }) {
+const HOLD_KEYS = ["Enter", " "];
+
+/**
+ * Button that must be pressed and held (mouse, touch, or keyboard)
+ * for HOLD_SECS before onHeld is called.
+ *
+ * @param {number=} size
+ * @param {function} onHeld
+ * @param {string=} label Optional accessible name for the button.
+ *   If not given, the name is computed from the children text.
+ */
+export default function PressAndHold({ size, onHeld, label, children }) {
   size = size || 160;
   const innerSize = size * SIZE_RATIO;
 
@@ -28,6 +39,25 @@ export default function PressAndHold({ size, onHeld, children }) {
 
   const buttonRef = React.useRef(null);
 
+  // Keyboard users hold Space or Enter, same as holding the mouse/touch.
+  // Ignore auto-repeat so the timer is only started once per hold.
+  const handleKeyDown = (e) => {
+    if (!HOLD_KEYS.includes(e.key)) {
+      return;
+    }
+    e.preventDefault();
+    if (!e.repeat) {
+      isPressed.turnOn();
+    }
+  };
+  const handleKeyUp = (e) => {
+    if (!HOLD_KEYS.includes(e.key)) {
+      return;
+    }
+    e.preventDefault();
+    isPressed.turnOff();
+  };
+
   return (
     <div
       className="position-relative d-flex align-items-center justify-content-center mt-0"
@@ -43,17 +73,23 @@ export default function PressAndHold({ size, onHeld, children }) {
         />
       </div>
       <Button
+        type="button"
         variant="primary"
         ref={buttonRef}
         className="position-absolute press-and-hold-button"
         style={{ width: innerSize, height: innerSize }}
+        aria-label={label}
         onMouseDown={isPressed.turnOn}
         onMouseUp={isPressed.turnOff}
         onMouseLeave={isPressed.turnOff}
         onTouchStart={isPressed.turnOn}
         onTouchEnd={isPressed.turnOff}
+        onTouchCancel={isPressed.turnOff}
+        onKeyDown={handleKeyDown}
+        onKeyUp={handleKeyUp}
+        onBlur={isPressed.turnOff}
       >
-        {children}
+        <span className="press-and-hold-label">{children}</span>
       </Button>
     </div>
   );

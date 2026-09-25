@@ -57,7 +57,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
           href={vehicle.deeplink}
         >
           {t("mobility.open_app_ride", { vendorName: vehicle.vendorService.vendorName })}{" "}
-          <i className="ms-2 bi bi-box-arrow-right"></i>
+          <i className="ms-2 bi bi-box-arrow-right" aria-hidden="true"></i>
         </Button>
         <div>
           {t("mobility.relink_private_account_with_vendor", {

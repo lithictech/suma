@@ -9,6 +9,10 @@
     min-height: 100vh;
 }
 
+#main:focus {
+    outline: none;
+}
+
 .table-flush {
     > tbody > tr > td:first-child, > thead > tr > th {
         padding-left: map-get($spacers, 4) !important;
@@ -49,7 +53,7 @@
     border-radius: 0 !important;
     flex-grow: 1 !important;;
     font-size: $font-size-base !important;;
-    background: rgba(0, 0, 0, 0.05) !important;;
+    background: rgba(0, 0, 0, 0.05);
     padding-left: 4px !important; /* We don't really need these anyway since text is centered */
     padding-right: 4px !important;
 }
@@ -66,7 +70,7 @@
 }
 
 .app-link-active {
-    background: $white !important;;
+    background: $white;
 }
 
 .thin-header-image {

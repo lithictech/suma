@@ -25,6 +25,8 @@ const VendorServiceCategoryMultiSelect = React.forwardRef(
     ref
   ) {
     assertFullCollection(collection);
+    const id = React.useId();
+    const labelId = React.useId();
     const theme = useTheme();
     const categories = useGlobalApiState(
       api.getVendorServiceCategoriesMeta,
@@ -52,9 +54,10 @@ const VendorServiceCategoryMultiSelect = React.forwardRef(
 
     return (
       <FormControl className={className} style={style}>
-        {label && <InputLabel htmlFor="vscategory-select">{label}</InputLabel>}
+        {label && <InputLabel id={labelId}>{label}</InputLabel>}
         <Select
-          id="vscategory-select"
+          id={id}
+          labelId={label ? labelId : undefined}
           multiple
           ref={ref}
           value={collection.items}

@@ -12,6 +12,11 @@ import Form from "react-bootstrap/Form";
  * @param {string} selected The value to compare against the checked radio id.
  * @param {string} name 'name' attribute for the input (and validation)
  * @param {string} className Form.Check classname attribute.
+ * @param {string|JSX.Element} legend Label for the whole group. When given, the radios
+ *  are wrapped in a fieldset with this as its legend. When omitted, the caller
+ *  is responsible for grouping the radios (usually with its own fieldset/legend).
+ * @param {string} legendClassName Classes for the legend (e.g. "h5" to keep heading styling).
+ * @param {JSX.Element} description Optional content rendered between the legend and the radios.
  * @param {string} text Helper that goes in a Form.Text.
  * @param {function} onChange Handles input changes with radio element event.
  * @param {boolean} required Adds react-hook-form validation
@@ -24,6 +29,9 @@ export default function FormRadioInputs({
   selected,
   name,
   className,
+  legend,
+  legendClassName,
+  description,
   text,
   onChange,
   required,
@@ -35,8 +43,9 @@ export default function FormRadioInputs({
   const message = useValidationError(name, errors, registerOptions, {
     required: "forms.invalid_required",
   });
-  return (
+  const body = (
     <>
+      {description}
       {inputs.map(({ id, label }) => (
         <Form.Check
           {...register(name, registerOptions)}
@@ -60,5 +69,14 @@ export default function FormRadioInputs({
       </Form.Control.Feedback>
       {text && <FormText>{text}</FormText>}
     </>
+  );
+  if (!legend) {
+    return body;
+  }
+  return (
+    <fieldset>
+      <legend className={legendClassName}>{legend}</legend>
+      {body}
+    </fieldset>
   );
 }

@@ -3,10 +3,14 @@ import Link from "./Link";
 import RightIcon from "@mui/icons-material/ChevronRight";
 import React from "react";
 
-export default function ForwardTo({ to }) {
+/**
+ * @param to Where to link to.
+ * @param {string=} label Accessible name for the link. Defaults to 'Forward'.
+ */
+export default function ForwardTo({ to, label }) {
   const [relto] = relativeLink(to);
   return (
-    <Link to={relto} sx={{ verticalAlign: "text-top" }}>
+    <Link to={relto} aria-label={label || "Forward"} sx={{ verticalAlign: "text-top" }}>
       <RightIcon />
     </Link>
   );

@@ -2,6 +2,7 @@ import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import invokeIfFunc from "../modules/invokeIfFunc";
+import pluralize from "../modules/pluralize";
 import { resourceEditRoute, resourceListRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
@@ -106,18 +107,24 @@ export default function ResourceDetail({
   }
   canDelete = canDelete ? invokeIfFunc(canDelete, state) : Boolean(apiDelete);
 
-  const backToVal =
-    backTo === BackTo.BACK
-      ? BackTo.BACK
-      : invokeIfFunc(backTo, state) || resourceListRoute(resource);
+  const explicitBackTo =
+    backTo === BackTo.BACK ? BackTo.BACK : invokeIfFunc(backTo, state);
+  const backToVal = explicitBackTo || resourceListRoute(resource);
+  const backToLabel = explicitBackTo
+    ? "Back"
+    : `Back to ${pluralize(startCase(resource))}`;
   const topCards = [
     <DetailGrid
       key={-1}
-      title={
-        <Title onDelete={canDelete && handleDelete} toEdit={toEdit}>
-          <BackTo to={backToVal} />
-          {title(state)}
-        </Title>
+      titleComponent="h1"
+      beforeTitle={<BackTo to={backToVal} label={backToLabel} />}
+      title={title(state)}
+      titleActions={
+        <TitleActions
+          onDelete={canDelete && handleDelete}
+          toEdit={toEdit}
+          editLabel={`Edit ${startCase(resource)}`}
+        />
       }
       properties={properties(state, replaceState)}
     />,
@@ -151,7 +158,7 @@ export default function ResourceDetail({
   );
 }
 
-function Title({ toEdit, onDelete, children }) {
+function TitleActions({ toEdit, editLabel, onDelete }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const deleteDialogToggle = useToggle();
   const [deleting, setDeleting] = React.useState(false);
@@ -168,18 +175,20 @@ function Title({ toEdit, onDelete, children }) {
     [deleteDialogToggle, enqueueErrorSnackbar, onDelete]
   );
 
+  if (!toEdit && !onDelete) {
+    return null;
+  }
   return (
-    <>
-      {children}
+    <Stack direction="row" alignItems="center">
       {toEdit && (
-        <IconButton to={toEdit} component={AdminLink}>
+        <IconButton to={toEdit} component={AdminLink} aria-label={editLabel || "Edit"}>
           <EditIcon color="info" />
         </IconButton>
       )}
       {onDelete && deleting && <CircularProgress />}
       {onDelete && !deleting && (
         <>
-          <IconButton onClick={deleteDialogToggle.turnOn}>
+          <IconButton aria-label="Delete" onClick={deleteDialogToggle.turnOn}>
             <DeleteIcon color="error" />
           </IconButton>
           <Dialog open={deleteDialogToggle.isOn} onClose={deleteDialogToggle.turnOff}>
@@ -199,7 +208,7 @@ function Title({ toEdit, onDelete, children }) {
           </Dialog>
         </>
       )}
-    </>
+    </Stack>
   );
 }
 

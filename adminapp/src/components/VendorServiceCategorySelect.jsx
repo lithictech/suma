@@ -9,6 +9,8 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
   { value, defaultValue, helperText, label, className, style, onChange, ...rest },
   ref
 ) {
+  const id = React.useId();
+  const labelId = React.useId();
   const categories = useGlobalApiState(
     api.getVendorServiceCategoriesMeta,
     [{ slug: "cash", label: "Cash" }],
@@ -31,12 +33,13 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
 
   return (
     <FormControl className={className} style={style}>
-      {label && <InputLabel htmlFor="vscategory-select">{label}</InputLabel>}
+      {label && <InputLabel id={labelId}>{label}</InputLabel>}
       <Select
-        id="vscategory-select"
+        id={id}
+        labelId={label ? labelId : undefined}
         ref={ref}
         value={value}
-        label="Category"
+        label={label || "Category"}
         onChange={(e) => handleChange(e.target.value)}
         {...rest}
       >

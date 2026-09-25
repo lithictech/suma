@@ -160,6 +160,7 @@ function Members({ members, setMembers }) {
             <TextField
               variant="outlined"
               type="search"
+              label="Search members"
               value={search}
               placeholder="Search"
               helperText={`${eligibleMembers.length || "No"} results`}
@@ -172,8 +173,8 @@ function Members({ members, setMembers }) {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
+                      aria-label="Clear search"
                       onClick={() => setSearch("")}
-                      onMouseDown={() => setSearch("")}
                       edge="end"
                     >
                       <ClearIcon />

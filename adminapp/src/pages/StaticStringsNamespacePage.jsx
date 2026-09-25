@@ -11,7 +11,7 @@ import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
+import EditIcon from "@mui/icons-material/Edit";
 import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -161,7 +161,18 @@ function StaticStringsTable({ strings, onRowEdit, onSavePromise }) {
 
   const columns = React.useMemo(
     () => [
-      { field: "key", headerName: "Key", width: 250 },
+      {
+        field: "key",
+        headerName: "Key",
+        width: 250,
+        renderCell: ({ row, value }) => (
+          <span className={row.deprecated ? classes.deprecatedKey : undefined}>
+            {value}
+            {row.deprecated && " (deprecated)"}
+            {!row.deprecated && row.needsText && " (needs text)"}
+          </span>
+        ),
+      },
       { field: "en", headerName: "English", editable: true, flex: 1 },
       { field: "es", headerName: "Spanish", editable: true, flex: 1 },
       {
@@ -172,7 +183,7 @@ function StaticStringsTable({ strings, onRowEdit, onSavePromise }) {
         getActions: ({ row }) => {
           return [
             <GridActionsCellItem
-              icon={<FormatColorTextIcon />}
+              icon={<EditIcon />}
               label="Edit"
               onClick={() => handleEditClick(row)}
               color="inherit"
@@ -196,7 +207,7 @@ function StaticStringsTable({ strings, onRowEdit, onSavePromise }) {
         },
       },
     ],
-    [handleDeleteClick, handleEditClick, handleRestoreClick]
+    [classes.deprecatedKey, handleDeleteClick, handleEditClick, handleRestoreClick]
   );
 
   const getRowClassName = React.useCallback(
@@ -322,6 +333,9 @@ const useStyles = makeStyles(() => ({
   deprecatedRow: {
     opacity: 0.3,
   },
+  deprecatedKey: {
+    textDecoration: "line-through",
+  },
   needsTextRow: {
     backgroundColor: "rgb(255, 244, 244)",
   },
@@ -352,7 +366,7 @@ function DocsModal({ toggle, selectedRow }) {
   return (
     <Dialog onClose={toggle.turnOff} open={toggle.isOn}>
       <DialogTitle>Static Strings Help</DialogTitle>
-      <DialogWindowButtons onClick={toggle.turnOff} />
+      <DialogWindowButtons onExit={toggle.turnOff} />
       <DialogContent>
         <DialogContentText>
           Static strings are not tied to specific pieces of content, like program

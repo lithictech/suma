@@ -3,9 +3,15 @@
   border-width: 3px !important;
   animation-duration: 1s;
   animation-name: blinkingAlertAnimation;
-  animation-iteration-count: infinite;
+  animation-iteration-count: 4;
   animation-direction: alternate;
   animation-timing-function: cubic-bezier(0.670, 1.140, 0.840, 0.980); /* custom */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blinking-alert {
+    animation: none;
+  }
 }
 
 @keyframes blinkingAlertAnimation {

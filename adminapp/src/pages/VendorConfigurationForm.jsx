@@ -47,7 +47,7 @@ export default function VendorConfigurationForm({
         <ResponsiveStack>
           <MultiLingualText
             {...register("descriptionText")}
-            label=""
+            label="Description"
             fullWidth
             value={resource.descriptionText}
             multiline
@@ -60,7 +60,7 @@ export default function VendorConfigurationForm({
         <ResponsiveStack>
           <MultiLingualText
             {...register("helpText")}
-            label=""
+            label="Help Text"
             fullWidth
             value={resource.helpText}
             multiline
@@ -73,7 +73,7 @@ export default function VendorConfigurationForm({
         <ResponsiveStack>
           <MultiLingualText
             {...register("termsText")}
-            label=""
+            label="Terms"
             fullWidth
             value={resource.termsText}
             multiline
@@ -86,7 +86,7 @@ export default function VendorConfigurationForm({
         <ResponsiveStack>
           <MultiLingualText
             {...register("linkedSuccessInstructions")}
-            label=""
+            label="Linked Success Instructions"
             fullWidth
             value={resource.linkedSuccessInstructions}
             multiline

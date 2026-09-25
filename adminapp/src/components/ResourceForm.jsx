@@ -87,9 +87,7 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
   );
   return (
     <>
-      <HelmetTitle
-        title={isCreate ? "Create" : `Edit | ${resource.label} | ${resource.id}`}
-      />
+      {isCreate && <HelmetTitle title="Create" />}
       <InnerForm
         isCreate={isCreate}
         resource={resource}
@@ -101,6 +99,7 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
         isBusy={isBusy}
         onSubmit={handleSubmit(submitter)}
       />
+      {!isCreate && <HelmetTitle title={`Edit | ${resource.label} | ${resource.id}`} />}
     </>
   );
 }

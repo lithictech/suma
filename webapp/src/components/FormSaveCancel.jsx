@@ -1,3 +1,4 @@
+import { t } from "../localization";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
@@ -16,9 +17,10 @@ export default function FormSaveCancel({
           variant="danger"
           className="h-100 fs-6 fw-bolder"
           size="sm"
+          aria-label={t("common.cancel")}
           onClick={onCancel}
         >
-          <i className="bi bi-x-lg"></i>
+          <i className="bi bi-x-lg" aria-hidden="true"></i>
         </Button>
         <Button
           variant="success"
@@ -26,9 +28,10 @@ export default function FormSaveCancel({
           type="submit"
           size="sm"
           disabled={saveDisabled}
+          aria-label={t("forms.save")}
           onClick={onSave}
         >
-          <i className="bi bi-check-lg"></i>
+          <i className="bi bi-check-lg" aria-hidden="true"></i>
         </Button>
       </Stack>
     </div>

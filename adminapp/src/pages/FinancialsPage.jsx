@@ -25,7 +25,7 @@ export default function FinancialsPage() {
   return (
     <Stack gap={2}>
       <HelmetTitle title="Platform Financials" />
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" component="h1" gutterBottom>
         Platform Financials
       </Typography>
       <DetailGrid

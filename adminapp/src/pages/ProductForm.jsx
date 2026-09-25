@@ -103,7 +103,9 @@ export default function ProductForm({
           style={{ flex: 1 }}
           onChange={(_, c) => setField("vendorServiceCategories", c)}
         />
-        <Typography variant="h6">Inventory</Typography>
+        <Typography variant="h6" component="h2">
+          Inventory
+        </Typography>
         <ResponsiveStack>
           <TextField
             name="inventory.maxQuantityPerMemberPerOffering"

@@ -70,13 +70,15 @@ export default function OfferingForm({
         </FormHelperText>
         <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
           <SafeDateTimePicker
-            label="Open offering *"
+            label="Open offering"
             value={resource.periodBegin}
+            required
             onChange={(v) => setField("periodBegin", formatOrNull(v))}
           />
           <SafeDateTimePicker
-            label="Close offering *"
+            label="Close offering"
             value={resource.periodEnd}
+            required
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
           />
         </ResponsiveStack>
@@ -194,6 +196,7 @@ function FulfillmentOptions({ options, setOptions }) {
 }
 
 function FulfillmentOption({ index, type, description, address, onChange, onRemove }) {
+  const typeLabelId = React.useId();
   return (
     <Box sx={{ p: 2, border: "1px dashed grey" }}>
       <Stack
@@ -202,7 +205,7 @@ function FulfillmentOption({ index, type, description, address, onChange, onRemo
         mb={2}
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
-        <FormLabel>Option {index}</FormLabel>
+        <FormLabel>Option {index + 1}</FormLabel>
         <Button onClick={(e) => onRemove(e)} variant="warning" sx={{ marginLeft: "5px" }}>
           <Icon color="warning">
             <DeleteIcon />
@@ -212,8 +215,9 @@ function FulfillmentOption({ index, type, description, address, onChange, onRemo
       </Stack>
       <Stack spacing={2}>
         <FormControl required>
-          <InputLabel>Type</InputLabel>
+          <InputLabel id={typeLabelId}>Type</InputLabel>
           <Select
+            labelId={typeLabelId}
             label="Type"
             value={type}
             onChange={(e) => onChange({ type: e.target.value })}

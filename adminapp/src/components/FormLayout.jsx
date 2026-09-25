@@ -1,5 +1,6 @@
 import theme from "../theme";
 import FormButtons from "./FormButtons";
+import HelmetTitle from "./HelmetTitle";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
@@ -14,7 +15,8 @@ export default function FormLayout({
 }) {
   return (
     <div style={{ maxWidth: 650, ...style }}>
-      <Typography variant="h4" gutterBottom>
+      {typeof title === "string" && title && <HelmetTitle title={title} />}
+      <Typography variant="h4" component="h1" gutterBottom>
         {title}
       </Typography>
       <Typography variant="body1" gutterBottom>

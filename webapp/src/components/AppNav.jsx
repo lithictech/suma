@@ -7,7 +7,11 @@ import { Link, useLocation } from "react-router-dom";
 export default function AppNav() {
   const { setAppNav } = useGlobalViewState();
   return (
-    <div ref={setAppNav} className="app-nav d-flex flex-row">
+    <nav
+      ref={setAppNav}
+      aria-label={t("nav.sections")}
+      className="app-nav d-flex flex-row"
+    >
       <AppLink to="/dashboard" label={t("titles.home")} className="border-end-0" />
       <AppLink to="/mobility" label={t("titles.mobility")} className="border-end-0" />
       <AppLink
@@ -17,7 +21,7 @@ export default function AppNav() {
         prefixes={["/checkout"]}
       />
       <AppLink to="/utilities" label={t("utilities.title")} />
-    </div>
+    </nav>
   );
 }
 
@@ -27,9 +31,10 @@ const AppLink = ({ to, label, prefixes, className }) => {
   return (
     <Link
       to={to}
+      aria-current={active ? "page" : undefined}
       className={clsx(
         "btn btn-outline-primary app-link",
-        active && "app-link-active",
+        active && "app-link-active fw-bold text-decoration-underline",
         className
       )}
     >

@@ -24,6 +24,7 @@ export default function TopNav() {
   return (
     <Navbar
       ref={setTopNav}
+      aria-label={t("nav.main")}
       className="pt-1 pb-0"
       bg={user?.adminMember ? "danger" : "primary"}
       expand={false}
@@ -47,15 +48,21 @@ export default function TopNav() {
           <p className="brand-text">{t("common.app_name")}</p>
         </Navbar.Brand>
         <div
+          role="status"
+          aria-hidden={isOnline}
           className={clsx(
             "offline-status fs-4 ms-2 ms-auto",
             isOnline ? "opacity-0" : "offline-status-fadein"
           )}
         >
-          <i className="bi bi-wifi-off text-white"></i>
+          <i className="bi bi-wifi-off text-white" aria-hidden="true"></i>
+          <span className="visually-hidden">{t("common.offline")}</span>
         </div>
 
-        <Navbar.Toggle className={clsx(expanded && "expanded")}>
+        <Navbar.Toggle
+          className={clsx(expanded && "expanded")}
+          label={t("nav.toggle_navigation")}
+        >
           <div className="navbar-toggler-icon-bar" />
           <div className="navbar-toggler-icon-bar" />
           <div className="navbar-toggler-icon-bar" />
@@ -108,6 +115,7 @@ function LanguageButtons({ className }) {
           variant="outline-primary"
           className={clsx(currentLanguage === code && "active-outline-button")}
           onClick={() => changeLanguage(code)}
+          lang={code}
         >
           {native}
         </Button>
@@ -169,7 +177,7 @@ function AuthedUserButtons({ className, user, onCollapse }) {
         variant="outline-danger"
         className="nav-menu-button text-start mt-2"
       >
-        <i className="bi bi-box-arrow-right me-2"></i>
+        <i className="bi bi-box-arrow-right me-2" aria-hidden="true"></i>
         {t("common.logout")}
       </Button>
       <LanguageButtons className="mt-3" />
@@ -187,9 +195,9 @@ function NavLinkButton({ href, className, icon, label, onNoChangeClick }) {
     }
   }
   const hereIcon = isAtHref ? (
-    <i className="bi bi-caret-right-fill me-2"></i>
+    <i className="bi bi-caret-right-fill me-2" aria-hidden="true"></i>
   ) : (
-    <i className="bi bi-caret-right me-2"></i>
+    <i className="bi bi-caret-right me-2" aria-hidden="true"></i>
   );
   return (
     <Button
@@ -198,9 +206,14 @@ function NavLinkButton({ href, className, icon, label, onNoChangeClick }) {
       className={clsx("nav-menu-button text-start d-flex align-items-center", className)}
       as={RLink}
       onClick={handleClick}
+      aria-current={isAtHref ? "page" : undefined}
     >
       {hereIcon}
-      <i className={`me-2 bi bi-${icon}`} style={{ fontSize: "120%" }}></i>
+      <i
+        className={`me-2 bi bi-${icon}`}
+        style={{ fontSize: "120%" }}
+        aria-hidden="true"
+      ></i>
       {label}
     </Button>
   );
@@ -218,13 +231,13 @@ function NavFooter({ className }) {
         </div>
         <div className="d-flex flex-row justify-content-center">
           <ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">
-            <i className="bi bi-instagram me-3" style={iconStyle}></i>
+            <i className="bi bi-instagram me-3" style={iconStyle} aria-hidden="true"></i>
           </ExternalLink>
           <ExternalLink
             href="https://www.linkedin.com/company/mysuma/"
             aria-label="LinkedIn"
           >
-            <i className="bi bi-linkedin" style={iconStyle}></i>
+            <i className="bi bi-linkedin" style={iconStyle} aria-hidden="true"></i>
           </ExternalLink>
         </div>
       </div>

@@ -110,6 +110,7 @@ export default function OfferingDetailPage() {
             <AdminLink key="id" model={row} />,
             <AdminLink key="id" model={row}>
               {row.productName}
+              {row.closedAt && " (closed)"}
             </AdminLink>,
             row.vendorName,
             <Money key="customer_price">{row.customerPrice}</Money>,

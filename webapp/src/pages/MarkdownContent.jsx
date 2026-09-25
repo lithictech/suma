@@ -33,9 +33,11 @@ export default function MarkdownContent({ languageFile }) {
           <title>{title}</title>
         </Helmet>
         <TopNav />
-        <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
-          <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
-        </LayoutContainer>
+        <main id="main" tabIndex={-1}>
+          <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
+            <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
+          </LayoutContainer>
+        </main>
       </div>
     </div>
   );

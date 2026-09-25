@@ -2,7 +2,7 @@ import api from "../api";
 import bankAccountCheckDetails from "../assets/images/bank-account-check-details.gif";
 import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
+import FormControlGroup, { RequiredFieldsNote } from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading.jsx";
@@ -120,6 +120,7 @@ function LinkBankAccount({ onSuccess, returnTo }) {
       <PageHeading>{t("payments.link_bank_account")}</PageHeading>
       <p>{t("payments.payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
+        <RequiredFieldsNote />
         <Row className="mb-3">
           <FormControlGroup
             as={Col}
@@ -196,8 +197,8 @@ function LinkBankAccount({ onSuccess, returnTo }) {
           />
         </Row>
         <Row className="mb-3">
-          <Form.Group as={Col}>
-            <Form.Label>{t("forms.bank_account_type")}</Form.Label>
+          <Col as="fieldset" aria-describedby="account-type-text">
+            <legend className="form-label fs-6">{t("forms.bank_account_type")}</legend>
             <div>
               <Form.Check
                 inline
@@ -218,8 +219,10 @@ function LinkBankAccount({ onSuccess, returnTo }) {
                 onChange={() => setAccountType("savings")}
               />
             </div>
-            <Form.Text>{t("forms.bank_account_type_caption")}</Form.Text>
-          </Form.Group>
+            <Form.Text id="account-type-text">
+              {t("forms.bank_account_type_caption")}
+            </Form.Text>
+          </Col>
         </Row>
 
         <p>{t("payments.account_submission_statement")}</p>

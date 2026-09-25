@@ -17,7 +17,10 @@ export default function FormSuccess({ message, center, className }) {
   }
   const msg = t(msgkey, { ...vars });
   return (
-    <p className={clsx("d-block text-success small", center && "text-center", className)}>
+    <p
+      className={clsx("d-block text-success small", center && "text-center", className)}
+      role="status"
+    >
       {msg}
     </p>
   );

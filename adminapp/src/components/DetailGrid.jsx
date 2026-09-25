@@ -1,5 +1,5 @@
 import { dayjs } from "../modules/dayConfig";
-import { Typography, Card, CardContent } from "@mui/material";
+import { Typography, Card, CardContent, Stack } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -11,6 +11,11 @@ import React from "react";
 
 /**
  * @param title The title of the detailgrid section
+ * @param titleComponent Element to render the title as. Defaults to 'h2';
+ *   the top-level grid on a detail page should use 'h1'.
+ * @param beforeTitle Rendered before the title heading (like a 'back' link).
+ * @param titleActions Rendered after the title heading, as a toolbar of controls
+ *   (like edit/delete buttons). Kept outside the heading element.
  * @param anchorLeft If true, use width:1% and white-space:no-wrap to make the left column
  *   use the minimum width.
  * @param footer Render this after the table.
@@ -18,7 +23,17 @@ import React from "react";
  * @param cardProps
  * @constructor
  */
-export default function DetailGrid({ title, anchorLeft, footer, properties, cardProps }) {
+export default function DetailGrid({
+  title,
+  titleComponent,
+  beforeTitle,
+  titleActions,
+  anchorLeft,
+  footer,
+  properties,
+  cardProps,
+}) {
+  const titleId = React.useId();
   const usedProperties = properties
     .filter(Boolean)
     .filter(({ hideEmpty, value, children }) => {
@@ -35,15 +50,22 @@ export default function DetailGrid({ title, anchorLeft, footer, properties, card
     leftStyle.width = "1%";
     leftStyle.whiteSpace = "nowrap";
   }
+  const hasTitle = Boolean(title);
   return (
     <Card {...cardProps}>
       <CardContent sx={{ padding: 2 }}>
-        {title && (
-          <Typography variant="h6" gutterBottom mb={2}>
-            {title}
-          </Typography>
+        {(hasTitle || beforeTitle || titleActions) && (
+          <Stack direction="row" alignItems="center" flexWrap="wrap" mb={2}>
+            {beforeTitle}
+            {hasTitle && (
+              <Typography id={titleId} variant="h6" component={titleComponent || "h2"}>
+                {title}
+              </Typography>
+            )}
+            {titleActions}
+          </Stack>
         )}
-        <Table size="small">
+        <Table size="small" aria-labelledby={hasTitle ? titleId : undefined}>
           <TableBody>
             {usedProperties.map(({ label, value, tableCells, children }, index) => (
               <TableRow key={index}>
@@ -51,7 +73,7 @@ export default function DetailGrid({ title, anchorLeft, footer, properties, card
                   tableCells({ sx: { padding: 0.25, border: "none" } })
                 ) : (
                   <>
-                    <TableCell sx={leftStyle}>
+                    <TableCell component="th" scope="row" sx={leftStyle}>
                       <Label>{label}</Label>
                     </TableCell>
                     <TableCell sx={{ padding: 0.25, border: "none" }}>
@@ -85,7 +107,15 @@ function Value({ value, children }) {
   if (value instanceof dayjs) {
     fmtVal = value.format("lll");
   } else if (isBoolean(value)) {
-    fmtVal = value ? "✔️" : "❌";
+    fmtVal = value ? (
+      <span role="img" aria-label="Yes">
+        ✔️
+      </span>
+    ) : (
+      <span role="img" aria-label="No">
+        ❌
+      </span>
+    );
   }
   return <Typography variant="body1">{fmtVal}</Typography>;
 }

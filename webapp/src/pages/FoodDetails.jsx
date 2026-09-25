@@ -122,8 +122,8 @@ export default function FoodDetails() {
       <hr className="my-4" />
       <LayoutContainer gutters>
         <Row>
-          <h5>{t("food.from_vendor", { vendorName: vendor.name })}</h5>
-          <h4>{t("food.details_header")}</h4>
+          <h2 className="h5">{t("food.from_vendor", { vendorName: vendor.name })}</h2>
+          <h2 className="h4">{t("food.details_header")}</h2>
           <div>{dt(product.description)}</div>
         </Row>
       </LayoutContainer>

@@ -27,7 +27,7 @@ export default function Copyable({
   return (
     <React.Fragment>
       {buttonOnly ? null : children || text}
-      <Button title="Copy" variant="link" sx={sx} onClick={onCopy}>
+      <Button title="Copy" aria-label="Copy" variant="link" sx={sx} onClick={onCopy}>
         <ContentCopyIcon {...iconProps} />
       </Button>
     </React.Fragment>

@@ -82,7 +82,7 @@ export default function UnclaimedOrderList() {
           <LayoutContainer gutters>
             <div className="button-stack">
               <Button variant="primary" href="/order-history" as={RLink}>
-                <i className="bi bi-bag-check-fill me-2"></i>
+                <i className="bi bi-bag-check-fill me-2" aria-hidden="true"></i>
                 {t("food.order_history_title")}
               </Button>
             </div>

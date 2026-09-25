@@ -43,6 +43,8 @@ export default function MarketingSmsBroadcastEditPage() {
 function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onSubmit }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const [preview, setPreview] = React.useState(resource.preview);
+  const sendingNumberLabelId = React.useId();
+  const optoutFieldLabelId = React.useId();
 
   const previewDebounced = React.useMemo(
     () =>
@@ -95,9 +97,12 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
         />
         <ResponsiveStack>
           <FormControl sx={{ flex: 1 }}>
-            <InputLabel shrink>Sending Number</InputLabel>
+            <InputLabel shrink id={sendingNumberLabelId}>
+              Sending Number
+            </InputLabel>
             <Select
               {...register("sendingNumber")}
+              labelId={sendingNumberLabelId}
               label="Sending Number"
               name="sendingNumber"
               value={resource.sendingNumber || ""}
@@ -118,9 +123,12 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
             </FormHelperText>
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
-            <InputLabel shrink>Preferences Opt-Out</InputLabel>
+            <InputLabel shrink id={optoutFieldLabelId}>
+              Preferences Opt-Out
+            </InputLabel>
             <OptoutFieldSelect
               {...register("preferencesOptoutField")}
+              labelId={optoutFieldLabelId}
               label="Preferences Opt-Out"
               name="preferencesOptoutField"
               value={resource.preferencesOptoutField}
@@ -188,6 +196,7 @@ function BodyPreview({ register, resource, onBodyChange, language, preview }) {
 }
 
 function MarketingLists({ allLists, lists, setLists }) {
+  const listLabelId = React.useId();
   const checkedListIds = lists.items.map((l) => l.id);
 
   const handleToggle = (value) => {
@@ -208,16 +217,22 @@ function MarketingLists({ allLists, lists, setLists }) {
         <List dense>
           {allLists.map(({ id, label }) => (
             <ListItem key={id} disablePadding dense>
-              <ListItemButton dense onClick={() => handleToggle(id)}>
+              <ListItemButton
+                dense
+                role="checkbox"
+                aria-checked={checkedListIds.includes(id)}
+                onClick={() => handleToggle(id)}
+              >
                 <ListItemIcon>
                   <Checkbox
                     edge="start"
                     checked={checkedListIds.includes(id)}
                     tabIndex={-1}
                     disableRipple
+                    inputProps={{ "aria-labelledby": `${listLabelId}-${id}` }}
                   />
                 </ListItemIcon>
-                <ListItemText primary={label} />
+                <ListItemText id={`${listLabelId}-${id}`} primary={label} />
               </ListItemButton>
             </ListItem>
           ))}

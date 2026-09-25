@@ -24,6 +24,7 @@ export default function DialogWindowButtons({ fullscreenToggle, onExit }) {
           sx={{
             color: (theme) => theme.palette.grey[500],
           }}
+          aria-label="Toggle full screen"
           onClick={fullscreenToggle.toggle}
         >
           {fullscreenToggle.isOn ? <FullscreenExitIcon /> : <FullscreenIcon />}
@@ -34,6 +35,7 @@ export default function DialogWindowButtons({ fullscreenToggle, onExit }) {
           sx={{
             color: (theme) => theme.palette.grey[500],
           }}
+          aria-label="Close"
           onClick={onExit}
         >
           <CloseIcon />

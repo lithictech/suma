@@ -79,6 +79,7 @@ export default function OrganizationMembershipVerificationDetailPage() {
                 return (
                   <TextField
                     size="small"
+                    label="EBT account number"
                     value={st.accountNumber || ""}
                     onChange={(e) =>
                       set({
@@ -156,14 +157,15 @@ export default function OrganizationMembershipVerificationDetailPage() {
                 sx={{ marginLeft: 1 }}
                 startIcon={<RefreshIcon />}
                 onClick={() => handleRebuildDuplicates(model, setModel)}
-              />
+              >
+                Check again
+              </LoadingButton>
             </span>
           }
           emptyState={
             <div>
-              No potential duplicates detected. Press the{" "}
-              <RefreshIcon sx={{ verticalAlign: "bottom" }} /> button above to check
-              again.
+              No potential duplicates detected. Press the &lsquo;Check again&rsquo; button
+              above to check again.
             </div>
           }
           rows={model.duplicates}
@@ -182,7 +184,7 @@ export default function OrganizationMembershipVerificationDetailPage() {
               {row.factors.map(({ reason, risk }) => (
                 <Chip
                   key={reason}
-                  label={startCase(reason)}
+                  label={`${startCase(reason)} (${risk} risk)`}
                   variant="filled"
                   color={membershipVerificationDuplicateRiskColor(risk)}
                 />
