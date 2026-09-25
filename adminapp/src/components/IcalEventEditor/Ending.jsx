@@ -10,7 +10,6 @@ import React from "react";
  * @param {function(object): void} onChange
  */
 export default function Ending({ state, onChange }) {
-  const labelId = React.useId();
   const [endMode, setEndModeInner] = React.useState(endModes[0]);
   const setEndMode = React.useCallback(
     (v) => {
@@ -27,9 +26,8 @@ export default function Ending({ state, onChange }) {
     <Stack spacing={2}>
       <Stack gap={2}>
         <FormControl>
-          <FormLabel id={labelId}>End After:</FormLabel>
+          <FormLabel>End After:</FormLabel>
           <SimpleRadioGroup
-            labelId={labelId}
             value={endMode}
             row
             onChange={setEndMode}

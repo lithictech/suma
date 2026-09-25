@@ -61,8 +61,6 @@ export default function ResourceTable({
   eventsToken,
 }) {
   const classes = useStyles();
-  const titleId = React.useId();
-  const tableLabel = typeof title === "string" ? title : "Scrollable table";
 
   function handleSearchKeyDown(e) {
     if (e.key === "Enter") {
@@ -79,9 +77,7 @@ export default function ResourceTable({
     <Stack gap={1}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap={1}>
-          <Typography id={titleId} variant="h5" component="h1">
-            {title}
-          </Typography>
+          <Typography variant="h5">{title}</Typography>
           {eventsUrl && eventsToken && (
             <EventSourceChanges
               eventsUrl={eventsUrl}
@@ -104,8 +100,8 @@ export default function ResourceTable({
           )}
         </Stack>
       </Stack>
-      <TableContainer component={Paper} tabIndex={0} aria-label={tableLabel}>
-        <Table aria-labelledby={title ? titleId : undefined} {...tableProps}>
+      <TableContainer component={Paper}>
+        <Table {...tableProps}>
           <TableHead>
             <TableRow>
               {columns.map((col) => (
@@ -168,7 +164,7 @@ export default function ResourceTable({
       {!listLoading && (
         <div className={classes.pageControls}>
           {downloadUrl && (
-            <IconButton href={downloadUrl} aria-label="Download CSV">
+            <IconButton href={downloadUrl}>
               <DownloadIcon />
             </IconButton>
           )}

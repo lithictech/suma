@@ -7,7 +7,6 @@ import React from "react";
 export function OrganizationMembershipUnverifiedIcon() {
   return (
     <CheckCircleOutlineIcon
-      titleAccess="Unverified"
       color="error"
       fontSize="small"
       sx={{ verticalAlign: "middle", marginRight: 1 }}
@@ -18,7 +17,6 @@ export function OrganizationMembershipUnverifiedIcon() {
 export function OrganizationMembershipVerifiedIcon() {
   return (
     <VerifiedIcon
-      titleAccess="Verified"
       color="success"
       fontSize="small"
       sx={{ verticalAlign: "middle", marginRight: 1 }}
@@ -29,7 +27,6 @@ export function OrganizationMembershipVerifiedIcon() {
 export function OrganizationMembershipRemovedIcon() {
   return (
     <VerifiedIcon
-      titleAccess="Removed"
       color="disabled"
       fontSize="small"
       sx={{ verticalAlign: "middle", marginRight: 1 }}

@@ -11,13 +11,11 @@ import React from "react";
  * @param {function(object): void} onChange
  */
 export default function Frequency({ state, onChange }) {
-  const labelId = React.useId();
   return (
     <Stack gap={2}>
       <FormControl>
-        <FormLabel id={labelId}>Frequency:</FormLabel>
+        <FormLabel>Frequency:</FormLabel>
         <SimpleRadioGroup
-          labelId={labelId}
           value={state.FREQ}
           onChange={(v) => onChange({ FREQ: v })}
           options={[

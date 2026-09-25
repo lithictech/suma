@@ -3,7 +3,6 @@ import { useGlobalApiState } from "../hooks/globalApiState";
 import useRoleAccess from "../hooks/useRoleAccess";
 import { assertFullCollection } from "../modules/apicollection";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import CheckIcon from "@mui/icons-material/Check";
 import {
   Box,
   Chip,
@@ -18,7 +17,6 @@ import React from "react";
 export default function RoleEditor({ roles, setRoles }) {
   assertFullCollection(roles);
 
-  const labelId = React.useId();
   const { canWriteResource } = useRoleAccess();
   const allRoles = useGlobalApiState(api.getRoles, null, { pick: (r) => r.data.items });
 
@@ -45,17 +43,11 @@ export default function RoleEditor({ roles, setRoles }) {
 
   return (
     <Box>
-      <FormLabel id={labelId}>Roles</FormLabel>
+      <FormLabel>Roles</FormLabel>
       <FormHelperText>
         If you remove special roles like "admin", you will be logged out of this account.
       </FormHelperText>
-      <Stack
-        direction="row"
-        gap={1}
-        sx={{ marginTop: 1, flexWrap: "wrap" }}
-        role="group"
-        aria-labelledby={labelId}
-      >
+      <Stack direction="row" gap={1} sx={{ marginTop: 1, flexWrap: "wrap" }}>
         {allRoles === null && <CircularProgress />}
         {allRoles?.map((r) => {
           const hasRole = hasRoleIds.has(r.id);
@@ -65,9 +57,6 @@ export default function RoleEditor({ roles, setRoles }) {
               key={r.id}
               label={r.label}
               color={hasRole ? "success" : undefined}
-              variant={hasRole ? "filled" : "outlined"}
-              icon={hasRole ? <CheckIcon /> : undefined}
-              aria-pressed={hasRole}
               title={hasRole ? "Delete Role" : "Add Role"}
               deleteIcon={hasRole ? null : <AddCircleOutlineIcon />}
               onClick={handler}

@@ -19,12 +19,12 @@ export default function StaticStringsPage() {
   return (
     <>
       <HelmetTitle title="Static Strings" />
-      <Typography variant="h4" component="h1" gutterBottom>
+      <Typography variant="h4" gutterBottom>
         Static Strings
       </Typography>
       <Stack gap={2}>
         {state.items.map(({ namespace }) => (
-          <Typography key={namespace} variant="h5" component="h2">
+          <Typography key={namespace} variant="h5">
             <Link to={`/static-strings-namespace/${namespace}`}>
               {startCase(namespace)}
             </Link>

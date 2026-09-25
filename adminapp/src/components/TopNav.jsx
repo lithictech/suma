@@ -25,7 +25,6 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/styles";
 import * as React from "react";
-import { useLocation } from "react-router-dom";
 
 export default function TopNav() {
   const theme = useTheme();
@@ -56,7 +55,7 @@ export default function TopNav() {
               size="large"
               edge="start"
               color="inherit"
-              aria-label="Open navigation"
+              aria-label="menu"
               onClick={openToggle.toggle}
               sx={{ mr: 2, display: { [drawerBP]: "none" } }}
             >
@@ -111,16 +110,13 @@ function SlidingNavDrawer({ open, onClose }) {
       ModalProps={{ keepMounted: true }}
       sx={drawerSx}
     >
-      <Box component="nav" aria-label="navigation drawer">
-        <DrawerContents />
-      </Box>
+      <DrawerContents />
     </Drawer>
   );
 }
 
 function DrawerContents() {
   const navLinks = useNavLinks();
-  const location = useLocation();
   return (
     <Box md={{ width: drawerWidth }} role="presentation">
       <Toolbar />
@@ -133,24 +129,18 @@ function DrawerContents() {
               title && <ListSubheader sx={{ lineHeight: "unset" }}>{title}</ListSubheader>
             }
           >
-            {items.map(({ label, href, icon }) => {
-              const selected =
-                location.pathname === href || location.pathname.startsWith(href + "/");
-              return (
-                <ListItem key={label} disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    href={href}
-                    selected={selected}
-                    aria-current={selected ? "page" : undefined}
-                    sx={{ paddingTop: 0.75, paddingBottom: 0.75 }}
-                  >
-                    <ListItemIcon>{icon}</ListItemIcon>
-                    <ListItemText primary={label} />
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
+            {items.map(({ label, href, icon }) => (
+              <ListItem key={label} disablePadding>
+                <ListItemButton
+                  component={Link}
+                  href={href}
+                  sx={{ paddingTop: 0.75, paddingBottom: 0.75 }}
+                >
+                  <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
           </List>
         );
       })}

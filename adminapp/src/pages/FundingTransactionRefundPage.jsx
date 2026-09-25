@@ -1,7 +1,6 @@
 import api from "../api";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
-import HelmetTitle from "../components/HelmetTitle";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -34,7 +33,6 @@ export default function FundingTransactionRefundPage() {
   const [amount, setAmount] = React.useState(defaultMoney);
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
-  const amountModeLabelId = React.useId();
 
   function submit() {
     busy();
@@ -55,16 +53,10 @@ export default function FundingTransactionRefundPage() {
       onSubmit={handleSubmit(submit)}
       isBusy={isBusy}
     >
-      <HelmetTitle title={`Refund Funding Transaction ${id}`} />
       <Stack spacing={2}>
         <FormControl>
-          <FormLabel id={amountModeLabelId}>Amount</FormLabel>
-          <RadioGroup
-            aria-labelledby={amountModeLabelId}
-            value={mode}
-            row
-            onChange={(e) => setMode(e.target.value)}
-          >
+          <FormLabel>Amount</FormLabel>
+          <RadioGroup value={mode} row onChange={(e) => setMode(e.target.value)}>
             <FormControlLabel value="full" control={<Radio />} label="Full" />
             <FormControlLabel value="partial" control={<Radio />} label="Partial" />
           </RadioGroup>

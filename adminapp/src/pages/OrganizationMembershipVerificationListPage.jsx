@@ -103,8 +103,6 @@ export default function OrganizationMembershipVerificationListPage() {
     return c.top ? { sx: { borderBottom: "none" } } : { sx: { paddingTop: 0 } };
   }
 
-  const statusLabelId = React.useId();
-
   return (
     <>
       <HelmetTitle title="Verification Workflow" />
@@ -124,9 +122,8 @@ export default function OrganizationMembershipVerificationListPage() {
         onEventChangesClicked={handleEventChangesClicked}
         filters={[
           <FormControl key="status">
-            <InputLabel id={statusLabelId}>Status</InputLabel>
+            <InputLabel>Status</InputLabel>
             <Select
-              labelId={statusLabelId}
               value={params.get("status") || "todo"}
               label="Status"
               size="small"
@@ -265,8 +262,6 @@ function StatusCell({ verification, makeApiCall }) {
 function StatusPicker({ value, options, onOptionSelected, href }) {
   const toggle = useToggle();
   const anchorRef = React.useRef(null);
-  const arrowButtonRef = React.useRef(null);
-  const menuId = React.useId();
 
   const handleMenuItemClick = (event, option) => {
     onOptionSelected(option);
@@ -278,16 +273,6 @@ function StatusPicker({ value, options, onOptionSelected, href }) {
       return;
     }
     toggle.turnOff();
-  };
-
-  const handleMenuKeyDown = (event) => {
-    if (event.key === "Escape" || event.key === "Tab") {
-      if (event.key === "Escape") {
-        event.preventDefault();
-      }
-      toggle.turnOff();
-      arrowButtonRef.current?.focus();
-    }
   };
 
   const bprops = {
@@ -302,15 +287,7 @@ function StatusPicker({ value, options, onOptionSelected, href }) {
         <Button component={Link} href={href} sx={{ display: "flex", flex: 1 }}>
           {value}
         </Button>
-        <Button
-          ref={arrowButtonRef}
-          size="small"
-          aria-label="Change status"
-          aria-haspopup="menu"
-          aria-expanded={toggle.isOn}
-          aria-controls={toggle.isOn ? menuId : undefined}
-          onClick={toggle.toggle}
-        >
+        <Button size="small" onClick={toggle.toggle}>
           <ArrowRightIcon />
         </Button>
       </ButtonGroup>
@@ -332,7 +309,7 @@ function StatusPicker({ value, options, onOptionSelected, href }) {
           >
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id={menuId} autoFocusItem onKeyDown={handleMenuKeyDown}>
+                <MenuList id="split-button-menu" autoFocusItem>
                   {options.map((option) => (
                     <MenuItem
                       key={option}
@@ -444,11 +421,8 @@ function DuplicateBadge({ verification }) {
     return null;
   }
   return (
-    <AdminLink model={verification} aria-label={`Duplicate risk ${risk}`}>
-      <PolicyIcon
-        color={membershipVerificationDuplicateRiskColor(risk)}
-        titleAccess={`Duplicate risk ${risk}`}
-      />
+    <AdminLink model={verification}>
+      <PolicyIcon color={membershipVerificationDuplicateRiskColor(risk)} />
     </AdminLink>
   );
 }
@@ -531,7 +505,6 @@ function NotesViewer({ verification, makeApiCall }) {
                         renderEdit={(st, set) => (
                           <TextField
                             size="small"
-                            label="EBT account number"
                             value={st.accountNumber || ""}
                             onChange={(e) =>
                               set({

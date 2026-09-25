@@ -4,14 +4,7 @@ import ResourceCreate from "../components/ResourceCreate";
 import config from "../config";
 import { dayjs } from "../modules/dayConfig";
 import OffPlatformTransactionInputs from "./OffPlatformTransactionInputs";
-import {
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-} from "@mui/material";
+import { FormControlLabel, Radio, RadioGroup, Stack } from "@mui/material";
 import React from "react";
 
 export default function OffPlatformTransactionCreatePage() {
@@ -32,7 +25,6 @@ export default function OffPlatformTransactionCreatePage() {
 }
 
 function Form({ resource, setField, setFieldFromInput, register, isBusy, onSubmit }) {
-  const typeLabelId = React.useId();
   return (
     <FormLayout
       title="Create an Off Platform Transaction"
@@ -47,18 +39,14 @@ function Form({ resource, setField, setFieldFromInput, register, isBusy, onSubmi
       isBusy={isBusy}
     >
       <Stack gap={2}>
-        <FormControl>
-          <FormLabel id={typeLabelId}>Type</FormLabel>
-          <RadioGroup
-            aria-labelledby={typeLabelId}
-            value={resource.type}
-            row
-            onChange={(e) => setField("type", e.target.value)}
-          >
-            <FormControlLabel value="funding" control={<Radio />} label="Funding" />
-            <FormControlLabel value="payout" control={<Radio />} label="Payout" />
-          </RadioGroup>
-        </FormControl>
+        <RadioGroup
+          value={resource.type}
+          row
+          onChange={(e) => setField("type", e.target.value)}
+        >
+          <FormControlLabel value="funding" control={<Radio />} label="Funding" />
+          <FormControlLabel value="payout" control={<Radio />} label="Payout" />
+        </RadioGroup>
         <OffPlatformTransactionInputs
           register={register}
           resource={resource}

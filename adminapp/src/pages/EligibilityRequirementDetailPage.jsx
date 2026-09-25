@@ -26,7 +26,6 @@ export default function EligibilityRequirementDetailPage() {
                 component={Link}
                 size="small"
                 color="success"
-                aria-label="Edit formula"
                 href={createRelativeUrl(
                   `/eligibility-requirement/${model.id}/edit-expression`
                 )}

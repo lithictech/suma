@@ -19,7 +19,6 @@ import React from "react";
  */
 function ImageFileInput({ image, caption, required, onImageChange, onCaptionChange }) {
   caption = caption || stub.translation;
-  const inputRef = React.useRef(null);
   let src = {};
   if (image?.url) {
     src = image.url;
@@ -30,29 +29,20 @@ function ImageFileInput({ image, caption, required, onImageChange, onCaptionChan
   return (
     <Stack spacing={1}>
       <FormLabel>Image:</FormLabel>
-      <Button
-        variant="contained"
-        startIcon={<CloudUploadIcon />}
-        onClick={() => inputRef.current?.click()}
-      >
+      <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
         Set image
+        <input
+          type="file"
+          name="image"
+          accept=".jpg,.jpeg,.png"
+          // zero opacity hides the input and allows form validation
+          // error messages to popup, unlike 'hidden' attribute. 0px also
+          // prevents validation errors from popping up, so use 1px.
+          style={{ opacity: "0", width: "1px" }}
+          required={required}
+          onChange={(e) => onImageChange(e.target.files[0])}
+        />
       </Button>
-      {/* The real input is a sibling of the button (not nested inside it) so the
-          button is the only interactive control; it is kept out of the tab order. */}
-      <input
-        ref={inputRef}
-        type="file"
-        tabIndex={-1}
-        aria-hidden="true"
-        name="image"
-        accept=".jpg,.jpeg,.png"
-        // zero opacity hides the input and allows form validation
-        // error messages to popup, unlike 'hidden' attribute. 0px also
-        // prevents validation errors from popping up, so use 1px.
-        style={{ opacity: "0", width: "1px", height: "1px", position: "absolute" }}
-        required={required}
-        onChange={(e) => onImageChange(e.target.files[0])}
-      />
       <FormHelperText sx={{ mb: 2 }}>
         Use JPEG and PNG formats. Suggest using size 500x500 pixels or above to avoid
         display issues.

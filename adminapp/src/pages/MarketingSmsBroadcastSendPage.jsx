@@ -1,7 +1,6 @@
 import api from "../api";
 import BackTo from "../components/BackTo";
 import DetailGrid from "../components/DetailGrid";
-import HelmetTitle from "../components/HelmetTitle";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import elementJoin from "../modules/elementJoin";
@@ -40,7 +39,6 @@ export default function MarketingSmsBroadcastSendPage() {
 
   return (
     <Stack gap={3}>
-      <HelmetTitle title={`Send SMS Broadcast ${id}`} />
       <DetailGrid
         title={
           <>

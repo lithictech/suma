@@ -32,7 +32,6 @@ export default function RelatedList({
 }) {
   const expanded = useToggle();
   const topRef = React.useRef();
-  const titleId = React.useId();
 
   const handleExpandCollapse = React.useCallback(
     (e) => {
@@ -67,11 +66,7 @@ export default function RelatedList({
   if (isEmpty(rows) && !addNew && !emptyState) {
     return null;
   }
-  tableProps = merge(
-    { size: "small" },
-    title ? { "aria-labelledby": titleId } : {},
-    tableProps
-  );
+  tableProps = merge({ size: "small" }, tableProps);
   const showExpandCollapse = showMore && rows.length > showMore;
   let rowsTrimmed = false;
   if (showMore && expanded.isOff && rows.length > showMore) {
@@ -83,7 +78,7 @@ export default function RelatedList({
       <CardContent>
         <div ref={topRef} />
         {title && (
-          <Typography id={titleId} variant="h6" component="h2" gutterBottom>
+          <Typography variant="h6" gutterBottom>
             {title} <ListCount items={rows} showMore={showMore} />
           </Typography>
         )}

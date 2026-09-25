@@ -55,6 +55,9 @@ export default function ResourceList({
   return (
     <>
       <HelmetTitle title={title} />
+      {canCreate && canWriteResource(resource) && (
+        <FabAdd component={Link} href={resourceCreateRoute(resource)} />
+      )}
       <ResourceTable
         page={page}
         perPage={perPage}
@@ -70,13 +73,6 @@ export default function ResourceList({
         columns={columns}
         downloadUrl={downloadUrl}
       />
-      {canCreate && canWriteResource(resource) && (
-        <FabAdd
-          component={Link}
-          href={resourceCreateRoute(resource)}
-          aria-label={`Create ${startCase(resource)}`}
-        />
-      )}
     </>
   );
 }

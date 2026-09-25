@@ -85,7 +85,6 @@ export default function MemberDetailPage() {
                   return (
                     <Switch
                       checked={mem.onboardingVerified}
-                      inputProps={{ "aria-label": "Verified" }}
                       onChange={(e) =>
                         set({
                           ...st,
@@ -307,7 +306,6 @@ function Notes({ notes, model, setModel }) {
             <IconButton
               size="small"
               sx={{ marginRight: 1 }}
-              aria-label="Edit note"
               onClick={() => handleEditClick(row)}
             >
               <EditIcon />
@@ -693,7 +691,7 @@ function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
     display = (
       <>
         {"- "}
-        <IconButton aria-label="Soft delete member" onClick={() => showModal.turnOn()}>
+        <IconButton onClick={() => showModal.turnOn()}>
           <DeleteIcon color="error" />
         </IconButton>
       </>

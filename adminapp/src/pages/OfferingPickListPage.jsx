@@ -1,6 +1,5 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import HelmetTitle from "../components/HelmetTitle";
 import Link from "../components/Link";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -45,8 +44,6 @@ export default function OfferingPickListPage() {
     pickData: true,
   });
   const { searchParams, setSearchParam } = useClientsideSearchParams();
-  const productLabelId = React.useId();
-  const fulfillmentLabelId = React.useId();
   const selectedProduct = searchParams.get("product") || "";
   const selectedFulfillment = searchParams.get("fulfillment") || "";
   const productChoices = picklist.orderItems.map((oi) => ({
@@ -118,17 +115,15 @@ export default function OfferingPickListPage() {
   });
   return (
     <>
-      <HelmetTitle title={`Pick List | Offering ${id}`} />
       {!isEmpty(picklist) && (
         <>
-          <Typography variant="h5" component="h1" gutterBottom>
+          <Typography variant="h5" gutterBottom>
             <Link to={`/offering/${id}`}>Offering {id}</Link> Pick/Pack List
           </Typography>
           <Stack direction="row" gap={1} sx={{ marginY: 1 }}>
             <FormControl sx={{ flex: 1, maxWidth: 300 }}>
-              <InputLabel id={productLabelId}>Product</InputLabel>
+              <InputLabel>Product</InputLabel>
               <Select
-                labelId={productLabelId}
                 value={selectedProduct}
                 label="Product"
                 onChange={(e) => setSearchParam("product", e.target.value || null)}
@@ -137,9 +132,8 @@ export default function OfferingPickListPage() {
               </Select>
             </FormControl>
             <FormControl sx={{ flex: 1, maxWidth: 300 }}>
-              <InputLabel id={fulfillmentLabelId}>Fulfillment</InputLabel>
+              <InputLabel>Fulfillment</InputLabel>
               <Select
-                labelId={fulfillmentLabelId}
                 value={selectedFulfillment}
                 label="Fulfillment"
                 onChange={(e) => setSearchParam("fulfillment", e.target.value || null)}
@@ -181,7 +175,7 @@ export default function OfferingPickListPage() {
                 headerName: "Product",
                 width: 250,
                 renderCell: ({ value }) => (
-                  <AdminLink model={value} title={value.name}>
+                  <AdminLink model={value} title={value}>
                     {value.name}
                   </AdminLink>
                 ),
@@ -215,7 +209,7 @@ export default function OfferingPickListPage() {
                 headerName: "Member",
                 width: 125,
                 renderCell: ({ value }) => (
-                  <AdminLink model={value} title={value.name}>
+                  <AdminLink model={value} title={value}>
                     {value.name}
                   </AdminLink>
                 ),
@@ -243,7 +237,7 @@ export default function OfferingPickListPage() {
                 headerName: "Product",
                 width: 200,
                 renderCell: ({ value }) => (
-                  <AdminLink model={value} title={value.product.name}>
+                  <AdminLink model={value} title={value}>
                     {value.product.name}
                   </AdminLink>
                 ),

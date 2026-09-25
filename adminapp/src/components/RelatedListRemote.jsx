@@ -33,7 +33,6 @@ export default function RelatedListRemote({
   const [latestCollection, setLatestCollection] = React.useState(collection);
   const [nextPage, setNextPage] = React.useState(1);
   const [pageLoading, setPageLoading] = React.useState(false);
-  const titleId = React.useId();
 
   const { canWriteResource } = useRoleAccess();
 
@@ -93,7 +92,7 @@ export default function RelatedListRemote({
   return (
     <Card {...cardProps}>
       <CardContent sx={{ paddingBottom: "0 !important", marginBottom: 1 }}>
-        <ListTitle id={titleId} title={title} count={latestCollection.totalCount} />
+        <ListTitle title={title} count={latestCollection.totalCount} />
         {addNew && (
           <Link to={addNewLink} onClick={onAddNewClick}>
             <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
@@ -104,10 +103,7 @@ export default function RelatedListRemote({
           emptyState
         ) : (
           <SimpleTable
-            tableProps={{
-              size: "small",
-              "aria-labelledby": title ? titleId : undefined,
-            }}
+            tableProps={{ size: "small" }}
             headers={headers}
             pushLeft={pushLeft}
             rows={allRows}
@@ -130,12 +126,12 @@ export default function RelatedListRemote({
   );
 }
 
-export function ListTitle({ id, title, count }) {
+export function ListTitle({ title, count }) {
   if (!title) {
     return null;
   }
   return (
-    <Typography id={id} variant="h6" component="h2" gutterBottom>
+    <Typography variant="h6" gutterBottom>
       {title} <ListCount count={count} />
     </Typography>
   );

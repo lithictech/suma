@@ -6,7 +6,6 @@ import useToggle from "../shared/react/useToggle";
 import AdminLink from "./AdminLink";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import CancelIcon from "@mui/icons-material/Cancel";
-import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import RemoveCircleOutlinedIcon from "@mui/icons-material/RemoveCircleOutlined";
 import SaveIcon from "@mui/icons-material/Save";
@@ -68,7 +67,6 @@ export default function Programs({
           model: c,
           color: combinedProgramStates[c.id] ? "success" : "muted",
           variant: "outlined",
-          icon: combinedProgramStates[c.id] ? <CheckIcon /> : undefined,
           sx: {
             "& .MuiChip-label": {
               fontWeight: combinedProgramStates[c.id] ? "bold" : null,
@@ -82,7 +80,7 @@ export default function Programs({
         <Typography variant="h6" gutterBottom mb={2}>
           Programs
           {canWriteResource(resource) && (
-            <IconButton aria-label="Edit programs" onClick={toggleEditing}>
+            <IconButton onClick={toggleEditing}>
               <EditIcon color="info" />
             </IconButton>
           )}
@@ -121,11 +119,11 @@ export default function Programs({
       <Typography variant="h6" gutterBottom mb={2}>
         Programs{" "}
         {!loading && (
-          <IconButton aria-label="Save" onClick={saveChanges}>
+          <IconButton onClick={saveChanges}>
             <SaveIcon color="success" />
           </IconButton>
         )}
-        <IconButton aria-label="Cancel" onClick={toggleEditing}>
+        <IconButton onClick={toggleEditing}>
           <CancelIcon color="error" />
         </IconButton>
       </Typography>
@@ -137,9 +135,7 @@ export default function Programs({
               label={c.name.en || c.name}
               clickable
               color={combinedProgramStates[c.id] ? "success" : "secondary"}
-              variant={combinedProgramStates[c.id] ? "filled" : "outlined"}
-              icon={combinedProgramStates[c.id] ? <CheckIcon /> : undefined}
-              aria-pressed={Boolean(combinedProgramStates[c.id])}
+              variant="solid"
               onClick={() => handleClick(c)}
               onDelete={() => handleClick(c)}
               deleteIcon={

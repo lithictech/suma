@@ -50,8 +50,6 @@ export default function AddressInputs({ address, onFieldChange }) {
 }
 
 function AddressFields({ address, onFieldChange }) {
-  const stateSelectId = React.useId();
-  const stateLabelId = React.useId();
   const supportedGeographies = useGlobalApiState(api.getSupportedGeographies, {});
   if (!address) {
     return null;
@@ -94,10 +92,8 @@ function AddressFields({ address, onFieldChange }) {
           required
         />
         <FormControl size="small" sx={{ width: { xs: "100%", sm: "50%" } }} required>
-          <InputLabel id={stateLabelId}>State</InputLabel>
+          <InputLabel>State</InputLabel>
           <Select
-            id={stateSelectId}
-            labelId={stateLabelId}
             label="State"
             name="stateOrProvince"
             value={

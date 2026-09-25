@@ -9,7 +9,6 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   Stack,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
@@ -82,7 +81,6 @@ export default function AdminActions({ adminActions, updateModel }) {
         )}
       </CardContent>
       <Dialog open={Boolean(confirmingAction)} onClose={() => setConfirmingAction(null)}>
-        <DialogTitle>Confirm</DialogTitle>
         <DialogContent>
           <DialogContentText>{confirmingAction?.confirmationPrompt}</DialogContentText>
         </DialogContent>

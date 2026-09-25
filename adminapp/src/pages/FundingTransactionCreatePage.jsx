@@ -73,7 +73,7 @@ export default function FundingTransactionCreatePage() {
       <ResponsiveStack>
         <MultiLingualText
           {...register("memo")}
-          label="Memo"
+          label=""
           fullWidth
           value={memo}
           multiline

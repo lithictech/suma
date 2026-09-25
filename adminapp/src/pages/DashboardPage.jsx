@@ -8,7 +8,7 @@ export default function DashboardPage() {
   return (
     <>
       <HelmetTitle title="Dashboard" />
-      <Typography variant="h6" component="h1" gutterBottom>
+      <Typography variant="h6" gutterBottom>
         Hello, {user.name}
       </Typography>
       <Typography gutterBottom>

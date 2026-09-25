@@ -28,7 +28,6 @@ export default function VendorServiceForm({
   isBusy,
   onSubmit,
 }) {
-  const mobilityAdapterLabelId = React.useId();
   return (
     <FormLayout
       title={isCreate ? "Create a Vendor Service" : "Update Vendor Service"}
@@ -101,11 +100,10 @@ export default function VendorServiceForm({
           onChange={(_, c) => setField("categories", c)}
         />
         <FormControl>
-          <InputLabel id={mobilityAdapterLabelId}>Mobility Adapter</InputLabel>
+          <InputLabel>Mobility Adapter</InputLabel>
           <MobilityAdapterSelect
             {...register("mobilityAdapterSetting")}
-            labelId={mobilityAdapterLabelId}
-            label="Mobility Adapter"
+            label="Mobility Adapter Key"
             name="mobilityAdapterSetting"
             value={resource.mobilityAdapterSetting}
             onChange={setFieldFromInput}

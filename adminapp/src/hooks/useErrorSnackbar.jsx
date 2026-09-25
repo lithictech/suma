@@ -1,5 +1,4 @@
 import extractErrorMessage from "../modules/extractErrorMessage";
-import isNil from "lodash/isNil";
 import { useSnackbar } from "notistack";
 import React from "react";
 
@@ -9,10 +8,6 @@ export default function useErrorSnackbar() {
     (e, options = {}) => {
       options = options || {};
       options.variant = options.variant || "error";
-      if (isNil(options.persist) && isNil(options.autoHideDuration)) {
-        // Errors stay until dismissed, so they are not missed.
-        options.persist = true;
-      }
       enqueueSnackbar(extractErrorMessage(e), options);
     },
     [enqueueSnackbar]

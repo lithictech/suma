@@ -1101,7 +1101,9 @@ Severity: Critical blocks a task for some users, High degrades a core task, Medi
 - **Fix:** Confirm the flag is on in production; consider 6 attempts per 2 minutes so users who mistype are not locked out.
 
 
-# Level A remediation status (branch `a11y-level-a`, 2026-09-25, uncommitted)
+# Level A remediation status (branch `a11y-level-a`, 2026-09-25)
+
+The upstream project asked that only member-app changes be proposed, so this branch carries the `webapp/` and string-seed fixes; the admin-app fixes described below were made and verified but live on the separate local branch `a11y-level-a-admin`.
 
 Verified by re-running the same axe-core crawl (47 member-app and 58 admin-app page loads) and scripted probes against the rebuilt apps.
 

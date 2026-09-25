@@ -138,7 +138,6 @@ import renderComponent from "./shared/react/renderComponent";
 import withLayout from "./state/withLayout";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material";
-import Button from "@mui/material/Button";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { SnackbarProvider } from "notistack";
@@ -149,23 +148,10 @@ import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-d
 installPromiseExtras(window.Promise);
 
 export default function App() {
-  const notistackRef = React.useRef(null);
-  const snackbarAction = React.useCallback(
-    (key) => (
-      <Button
-        color="inherit"
-        size="small"
-        onClick={() => notistackRef.current?.closeSnackbar(key)}
-      >
-        Dismiss
-      </Button>
-    ),
-    []
-  );
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <SnackbarProvider ref={notistackRef} action={snackbarAction}>
+        <SnackbarProvider>
           <UserProvider>
             <GlobalApiStateProvider>
               <Router basename={import.meta.env.BASE_URL}>

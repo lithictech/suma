@@ -4,15 +4,12 @@ import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
 import React from "react";
 
-/**
- * Floating 'add' button. Pass aria-label to override the default accessible name.
- */
 export default function FabAdd(props) {
   const classes = useStyles();
   return (
     <Fab
       color="primary"
-      aria-label="Create"
+      aria-label="add"
       className={clsx(classes.fab, props.className)}
       {...props}
     >

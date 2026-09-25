@@ -96,11 +96,7 @@ export default function BookTransactionCreatePage() {
       <Stack spacing={2}>
         <ResponsiveStack
           divider={
-            <IconButton
-              color="primary"
-              aria-label="Swap ledgers"
-              onClick={handleSwapLedgers}
-            >
+            <IconButton color="primary" onClick={handleSwapLedgers}>
               <SwapHorizontalIcon />
             </IconButton>
           }

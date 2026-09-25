@@ -129,10 +129,6 @@ export default function EligibilityRequirementExpressionEditor({
   // Keyboard support when canvas is focused
   const handleKeyDown = React.useCallback(
     (e) => {
-      if (e.target !== e.currentTarget) {
-        // A focused token chip handles its own keys (like delete); don't double-handle.
-        return;
-      }
       if (e.key === "Backspace") {
         e.preventDefault();
         deleteBeforeCursor();
@@ -159,7 +155,6 @@ export default function EligibilityRequirementExpressionEditor({
   );
 
   const isValid = tokens.length > 0 && !error;
-  const instructionsId = React.useId();
 
   if (editorSettingsLoading) {
     return <CircularProgress />;
@@ -175,7 +170,7 @@ export default function EligibilityRequirementExpressionEditor({
         associated resource. Choose a member to check against the expression and see how
         their attributes check out.
       </Typography>
-      <Typography id={instructionsId} variant="body2" color="text.secondary">
+      <Typography variant="body2" color="text.secondary">
         Click a gap between tokens to place your cursor, then pick from the palette to
         insert. Use <HelpChar>← →</HelpChar> to move, <HelpChar>backspace</HelpChar> to
         delete, <HelpChar>&</HelpChar> for AND, <HelpChar>|</HelpChar> for OR,{" "}
@@ -240,29 +235,10 @@ export default function EligibilityRequirementExpressionEditor({
       </Paper>
 
       {/* Expression canvas */}
-      <Box
-        aria-live="polite"
-        sx={{
-          position: "absolute",
-          width: "1px",
-          height: "1px",
-          overflow: "hidden",
-          clip: "rect(0 0 0 0)",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {tokens.length === 0
-          ? "Expression is empty"
-          : `Cursor after token ${cursorPos} of ${tokens.length}`}
-      </Box>
       <Paper
         ref={canvasRef}
         variant="outlined"
         tabIndex={0}
-        role="textbox"
-        aria-multiline="false"
-        aria-label="Eligibility expression"
-        aria-describedby={instructionsId}
         onKeyDown={handleKeyDown}
         onClick={() => {
           // clicking blank space in the canvas moves cursor to end
@@ -288,9 +264,6 @@ export default function EligibilityRequirementExpressionEditor({
           // Empty state: show a cursor + placeholder text
           <Box sx={{ display: "flex", alignItems: "center", minHeight: 32 }}>
             <CursorSlot
-              role="button"
-              tabIndex={-1}
-              aria-label="Place cursor here"
               onClick={(e) => {
                 e.stopPropagation();
                 setCursorPos(0);
@@ -323,9 +296,6 @@ export default function EligibilityRequirementExpressionEditor({
           >
             {/* Slot BEFORE index 0 */}
             <CursorSlot
-              role="button"
-              tabIndex={-1}
-              aria-label="Place cursor here"
               onClick={() => {
                 setCursorPos(0);
               }}
@@ -353,9 +323,6 @@ export default function EligibilityRequirementExpressionEditor({
                 />
                 {/* Slot AFTER token i */}
                 <CursorSlot
-                  role="button"
-                  tabIndex={-1}
-                  aria-label="Place cursor here"
                   onClick={(e) => {
                     e.stopPropagation();
                     setCursorPos(i + 1);
