@@ -49,7 +49,7 @@ function ImageFileInput({ image, caption, required, onImageChange, onCaptionChan
         // zero opacity hides the input and allows form validation
         // error messages to popup, unlike 'hidden' attribute. 0px also
         // prevents validation errors from popping up, so use 1px.
-        style={{ opacity: "0", width: "1px", height: "1px" }}
+        style={{ opacity: "0", width: "1px", height: "1px", position: "absolute" }}
         required={required}
         onChange={(e) => onImageChange(e.target.files[0])}
       />

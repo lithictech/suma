@@ -401,7 +401,7 @@ const PedalCol = ({ sectionKey, img, imgAlt, right, mobile }) => {
             right && !mobile && "order-lg-last"
           )}
         >
-          <h3>{title}</h3>
+          <h3 className="h5">{title}</h3>
           <p className="fw-light">{t(sectionKey + ".statement")}</p>
         </div>
       </Stack>
@@ -420,9 +420,9 @@ const PrivacyPolicySection = ({ p, img, imgAlt, list, sectionKey, children, mobi
       className={clsx(!subsection && "mt-5", !mobile && !subsection && "mx-lg-5")}
     >
       {!subsection ? (
-        <h3 className="mb-4 pt-4">{title}</h3>
+        <h3 className="h4 mb-4 pt-4">{title}</h3>
       ) : (
-        <h4 className="mb-3">{title}</h4>
+        <h4 className="h5 mb-3">{title}</h4>
       )}
       {img && (
         <img
