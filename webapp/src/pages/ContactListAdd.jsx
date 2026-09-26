@@ -85,6 +85,7 @@ export default function ContactListAdd() {
         <FormControlGroup
           className="mb-3"
           name="name"
+          autoComplete="name"
           label={t("forms.name")}
           required
           register={register}

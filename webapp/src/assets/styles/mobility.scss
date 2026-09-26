@@ -33,6 +33,85 @@
   font-size: 0.85rem;
 }
 
+/* Map control buttons (zoom, locate, pan): 44px targets, 3:1 borders,
+and a visible focus ring. Selectors are scoped under .leaflet-container
+so they beat Leaflet's own .leaflet-touch rules. */
+$map-control-size: 44px;
+$map-control-border: #725328;
+
+.leaflet-container .leaflet-bar,
+.leaflet-container.leaflet-touch .leaflet-bar {
+  border: 2px solid $map-control-border;
+  border-radius: 4px;
+}
+
+.leaflet-container .leaflet-bar a,
+.leaflet-container.leaflet-touch .leaflet-bar a {
+  width: $map-control-size;
+  height: $map-control-size;
+  line-height: $map-control-size;
+  border-bottom-color: $map-control-border;
+}
+
+.leaflet-container .leaflet-control-zoom-in,
+.leaflet-container .leaflet-control-zoom-out,
+.leaflet-container.leaflet-touch .leaflet-control-zoom-in,
+.leaflet-container.leaflet-touch .leaflet-control-zoom-out {
+  font-size: 22px;
+}
+
+.leaflet-container .leaflet-control-locate .bi {
+  line-height: $map-control-size;
+}
+
+.leaflet-container .leaflet-control-pan {
+  display: grid;
+  grid-template-columns: repeat(3, $map-control-size);
+  grid-template-rows: repeat(3, $map-control-size);
+  gap: 2px;
+}
+
+.leaflet-container .leaflet-control-pan-button {
+  width: $map-control-size;
+  height: $map-control-size;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #000;
+  background-color: #fff;
+  border: 2px solid $map-control-border;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f4f4f4;
+  }
+}
+
+.leaflet-container .leaflet-control-pan-up {
+  grid-area: 1 / 2;
+}
+
+.leaflet-container .leaflet-control-pan-left {
+  grid-area: 2 / 1;
+}
+
+.leaflet-container .leaflet-control-pan-right {
+  grid-area: 2 / 3;
+}
+
+.leaflet-container .leaflet-control-pan-down {
+  grid-area: 3 / 2;
+}
+
+.leaflet-container .leaflet-bar a:focus-visible,
+.leaflet-container .leaflet-control-pan-button:focus-visible {
+  outline: 2px solid $map-control-border;
+  outline-offset: 2px;
+}
+
 .leaflet-div-icon {
   background: none;
   border: none;
@@ -84,8 +163,10 @@
   height: 36px !important;
   font-size: 16px;
   border-radius: 50%;
-  color: $primary;
+  /* 6.74:1 on #fafafa; the gold $primary is only 2.17:1. */
+  color: #725328;
   background-color: #fafafa;
+  border: 2px solid #725328;
   /* lower than scooter value (240) */
   z-index: 230;
   box-shadow: 0 0 5px 0 rgba(201, 201, 201, 1);

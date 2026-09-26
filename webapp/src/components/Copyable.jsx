@@ -20,7 +20,7 @@ export default function Copyable({ className, children, delay, inline, text }) {
         {children || text}
         <Button
           variant="link"
-          className={clsx(inline && "p-0 ps-2")}
+          className={clsx(inline && "px-2 py-1")}
           onClick={onCopy}
           aria-label={t("common.copy")}
         >

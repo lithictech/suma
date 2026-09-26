@@ -136,6 +136,7 @@ export default function OnboardingSignup() {
           <FormControlGroup
             as={Col}
             name="state"
+            autoComplete="address-level1"
             label={t("forms.state")}
             required
             Input={Form.Select}

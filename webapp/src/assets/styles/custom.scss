@@ -1,5 +1,11 @@
 @import "./theme.scss";
 
+// 2.4.11 Focus Not Obscured: keep focused/anchored content clear of the
+// sticky TopNav + AppNav (about 108px tall).
+html {
+    scroll-padding-top: 130px;
+}
+
 .main-container {
     max-width: 500px;
     margin: 0 auto;
@@ -50,6 +56,7 @@
 }
 
 .app-link {
+    color: #604522; // 7.09:1 on the grey tab, 8.85:1 on the white active tab (1.4.3)
     border-radius: 0 !important;
     flex-grow: 1 !important;;
     font-size: $font-size-base !important;;

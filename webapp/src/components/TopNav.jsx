@@ -28,7 +28,8 @@ export default function TopNav() {
       className="pt-1 pb-0"
       bg={user?.adminMember ? "danger" : "primary"}
       expand={false}
-      variant="dark"
+      // Dark text on the gold bar (9.29:1); keep light text on the red admin bar.
+      variant={user?.adminMember ? "dark" : "light"}
       sticky="top"
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
@@ -226,7 +227,7 @@ function NavFooter({ className }) {
   return (
     <>
       <div className={clsx("d-flex flex-column", className)}>
-        <div className={clsx("text-primary", rowCls)}>
+        <div className={clsx("text-dark", rowCls)}>
           &copy; {new Date().getFullYear()} mysuma.org
         </div>
         <div className="d-flex flex-row justify-content-center">

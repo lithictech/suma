@@ -160,7 +160,7 @@ const OneTimePassword = () => {
           <legend className="text-center mt-4 mb-4">
             <h1 className="h4 mb-0">{t("otp.verify_code")}</h1>
           </legend>
-          <div id="otpContainer" className="d-flex justify-content-center mt-4">
+          <div id="otpContainer" className="d-flex flex-wrap justify-content-center mt-4">
             {otpChars.map((data, index) => (
               <input
                 className="otp-field mb-2 p-1"

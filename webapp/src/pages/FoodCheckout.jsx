@@ -472,7 +472,7 @@ function CheckoutItem({ item }) {
             <p className="text-secondary mb-0">
               <small>{t("food.from_vendor", { vendorName: product.vendor.name })}</small>
             </p>
-            <div className="text-secondary mb-0 lh-1">
+            <div className="text-secondary mb-0">
               <small>{t("food.quantity", { quantity: quantity })}</small>
             </div>
           </Stack>

@@ -4,7 +4,8 @@
 // to avoid any unexpected bugs
 @import "bootstrap/scss/_functions";
 
-$min-contrast-ratio: 2.5;
+// WCAG 2.2 AA (1.4.3): never let Bootstrap's color-contrast() pick white on gold.
+$min-contrast-ratio: 4.5;
 
 $font-family-sans-serif: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
 $font-family-serif: 'Raleway', $font-family-sans-serif;
@@ -12,10 +13,13 @@ $font-size-base: 1.05rem;
 
 $enable-smooth-scroll: false;
 
-$primary: rgb(205, 166, 113); // #CDA671FF
-$secondary: rgb(132, 134, 130); // #848682FF
-$success: #498567;
-$danger: #b53d00;
+$primary: rgb(205, 166, 113); // #CDA671FF, used for fills (gold stays gold)
+// Dark gold for text, links, outlines and focus rings on white/light backgrounds.
+// 7.04:1 on white, 6.29:1 on $light, 3.11:1 against the $primary fill.
+$primary-dark: #725328;
+$secondary: #575956; // 7.07:1 on white
+$success: #35614b; // 7.09:1 on white
+$danger: #9e3500; // 7.09:1 on white
 $info: rgb(159, 175, 209);
 $info-light: lighten($info, 20%);
 $light: #f2f2f2;
@@ -45,12 +49,19 @@ $headings-font-family: $font-family-serif;
 
 $input-btn-padding-y: .5rem;
 $input-btn-padding-x: 1rem;
-$input-border-color: lighten($primary, 20%);
+$input-border-color: #be8b46; // 3.01:1 on white (1.4.11)
 $input-border-width: 2px;
 $input-border-radius: 0;
-$input-placeholder-color: $gray-500;
+$input-placeholder-color: #505963; // 7.12:1 on white
 $border-color: $gray-600;
-$link-color: darken($primary, 16%);
+$link-color: $primary-dark;
+$component-active-bg: $primary-dark; // checked checks/radios, active dropdown items
+$body-secondary-color: rgba($gray-900, .8); // .text-muted / .form-text
+
+// Focus indicators (2.4.7 / 1.4.11): solid, 2px, dark gold.
+$focus-ring-width: .125rem;
+$focus-ring-opacity: 1;
+$focus-ring-color: $primary-dark;
 
 @import "bootstrap/scss/_variables";
 @import "bootstrap/scss/_maps";
@@ -103,12 +114,36 @@ $link-color: darken($primary, 16%);
   text-transform: uppercase;
 }
 
+// Gold fill with dark text (#0d0d0d on #CDA671 = 8.60:1).
 .btn-primary {
-  @include button-variant(darken($primary, 5%), darken($primary, 5%));
+  @include button-variant($primary, $primary, $color: $dark);
 }
 
-.btn-link {
-  text-decoration: none;
+// Dark gold text and border (7.04:1 on white); white on brown when hovered/active.
+.btn-outline-primary {
+  @include button-outline-variant(
+    $primary-dark,
+    $color-hover: #fff,
+    $active-background: $primary-dark,
+    $active-border: $primary-dark
+  );
+}
+
+// 2.4.7 Focus Visible / 1.4.11: one consistent, high-contrast focus indicator.
+// The white box-shadow keeps the outline visible on dark or gold backgrounds.
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.nav-link:focus-visible,
+.btn-close:focus,
+.navbar-toggler:focus-visible,
+.dropdown-item:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid $primary-dark;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .card-header {

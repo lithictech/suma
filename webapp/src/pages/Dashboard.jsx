@@ -174,9 +174,9 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
           style={{ maxWidth: "100%", objectFit: "cover" }}
         />
       </ImageComp>
-      <div className="mt-3 text-links-dark">{dt(description)}</div>
+      <div className="mt-3 text-dark text-links-dark">{dt(description)}</div>
       {periodEnd && (
-        <p className="mt-1 mb-0 small">
+        <p className="mt-1 mb-0 small text-dark">
           {t("dashboard.program_ends", { date: dayjs(periodEnd).format("ll") })}
         </p>
       )}

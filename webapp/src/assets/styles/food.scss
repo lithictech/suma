@@ -29,3 +29,13 @@
     opacity: 0;
   }
 }
+// Keep the "Add to cart" label on one line where it fits, but let it wrap on
+// very narrow viewports so the layout reflows instead of overflowing (1.4.10).
+.food-cart-widget-btn {
+  white-space: nowrap;
+}
+@media (max-width: 359px) {
+  .food-cart-widget-btn {
+    white-space: normal;
+  }
+}

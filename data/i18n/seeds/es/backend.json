@@ -8,7 +8,7 @@
   "funding_transaction_reversal": "Transferencia a suma revertida",
   "payout_transaction_default": "Transferencia de suma",
   "subsidy_default": "Apoyo de financiadores locales",
-  "subsidy_rebalancing_uncategorized": "Rebalancing uncategorized subsidy",
+  "subsidy_rebalancing_uncategorized": "Reequilibrio de subsidio sin categoría",
   "trip_receipt_additional_charges": "Cargos adicionales",
   "trip_receipt_additional_discount": "Descuento de {{vendor}}",
   "trip_receipt_ride_canceled": "Viaje cancelado",

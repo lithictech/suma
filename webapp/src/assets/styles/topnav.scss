@@ -8,6 +8,7 @@
   letter-spacing: 1.2px;
   margin-bottom: 0;
   z-index: 1;
+  color: $dark; // 9.29:1 on the gold navbar (1.4.3)
 }
 
 .navbar-container {
@@ -20,7 +21,7 @@
   display: block;
   margin: 8px auto;
   position: relative;
-  background-color: $light;
+  background-color: currentColor; // $dark on gold, 9.29:1 (1.4.11)
   @include border-radius(10px);
   @include transition(.4s);
 }
@@ -31,7 +32,11 @@
   position: absolute;
   right: 0;
 
-  &:focus-visible, &:focus {
+  // The toggler sits on the gold bar, so use a dark ring instead of the
+  // global brown one ($dark on gold is 8.60:1).
+  &:focus-visible {
+    outline: 3px solid $dark;
+    outline-offset: 2px;
     box-shadow: none;
   }
 

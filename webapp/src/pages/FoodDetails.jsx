@@ -97,7 +97,7 @@ export default function FoodDetails() {
               {...product}
               vendorName={vendor.name}
               fs={4}
-              className="mb-2 lh-1 gap-2"
+              className="mb-2 gap-2"
             />
           </Col>
           <Col>

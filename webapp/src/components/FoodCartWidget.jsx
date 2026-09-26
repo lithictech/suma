@@ -117,7 +117,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       )}
       <Button
         onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(btnClasses, "text-nowrap")}
+        className={btnClasses}
         disabled={quantity === maxQuantity}
         title={t("food.add_to_cart")}
       >
@@ -149,7 +149,7 @@ const DropdownQuantities = ({ maxQuantity, selectedQuantity }) => {
 };
 
 const sizeClasses = {
-  lg: "lh-1 m-0 p-2",
+  lg: "m-0 p-2 food-cart-widget-btn",
   sm: "lh-1 m-0 p-0",
 };
 
