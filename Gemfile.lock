@@ -501,7 +501,7 @@ DEPENDENCIES
   yajl-ruby
 
 RUBY VERSION
-  ruby 4.0.2p0
+  ruby 4.0.7
 
 BUNDLED WITH
-  4.0.9
+  4.0.20
