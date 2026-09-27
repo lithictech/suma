@@ -3,6 +3,15 @@
 require "image_processing"
 require "vips"
 
+# Block files that can leak to allow inspection/control of the filesystem.
+# See https://www.penligent.ai/hackinglabs/cve-2026-66066/
+# for a good writeup of why we need this (the CVE is in the URL,
+# as I am guessing this URL will break at some point soon).
+# While we don't use Rails, the logic is the same.
+# If we need to allow untrusted operations, there are other ways
+# we can be more explicit about checking the actual content-type.
+Vips.block_untrusted(true)
+
 module Suma::ImageProcessor
   class InvalidOption < StandardError
     def initialize(field, value)
