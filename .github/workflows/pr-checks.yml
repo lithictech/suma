@@ -4,8 +4,8 @@ on:
   push: { branches: [main] }
 jobs:
   backend-checks:
-    # Match Heroku 22 stack
-    runs-on: ubuntu-22.04
+    # Match Heroku 26 stack
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2

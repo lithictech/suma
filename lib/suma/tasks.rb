@@ -8,10 +8,8 @@ module Suma::Tasks
   class << self
     def load_all
       return if @loaded
-      pattern = File.join(Pathname(__FILE__).dirname, "tasks", "*.rb")
-      Gem.find_files(pattern).each do |path|
-        require path
-      end
+      pattern = Suma::SELF_DIR.join("suma", "tasks", "*.rb")
+      Dir.glob(pattern).each { |path| require path }
       Rake::TaskLib.descendants.each do |task|
         next unless task.name&.start_with?("Suma::Tasks")
         task.new
