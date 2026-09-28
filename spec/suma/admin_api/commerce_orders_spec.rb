@@ -89,4 +89,16 @@ RSpec.describe Suma::AdminAPI::CommerceOrders, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/commerce_orders/:id/state_machines/:machine/:event" do
+    it "processes the state" do
+      o = Suma::Fixtures.order.as_purchased_by(admin).create
+      expect(o).to have_attributes(order_status: "open")
+
+      post "/v1/commerce_orders/#{o.id}/state_machines/order_status/complete"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: o.id, order_status: "completed")
+    end
+  end
 end

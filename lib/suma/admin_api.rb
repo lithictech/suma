@@ -85,7 +85,7 @@ module Suma::AdminAPI
         end
 
         rescue_from StateMachines::Sequel::FailedTransition do |e|
-          invalid!(e.message)
+          adminerror!(409, e.message, code: "transition_failed", more: {event: e.event})
         end
 
         before do

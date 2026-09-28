@@ -436,4 +436,34 @@ module Suma::AdminAPI::CommonEndpoints
       end
     end
   end
+
+  # Register an endpoint like 'POST /:id/state_machines/:name/:event', which just calls 'must_process'
+  # and returns the correct error on failure.
+  # 'make_args' is called with the model and the event name;
+  # it returns args called to 'model.send(event, *args)'.
+  def self.process_state_machine(route_def, model_type, entity, name, make_args: ->(_m, _event) { [] })
+    route_def.instance_exec do
+      route_param :id, type: Integer do
+        resource :state_machines do
+          resource name do
+            route_param :event, type: Symbol do
+              helpers MutationHelpers
+              post do
+                check_admin_role_access!(:write, model_type)
+                _throwsafe_transaction(model_type.db) do
+                  (m = model_type[params[:id]]) or forbidden!
+                  args = make_args.call(m, params[:event])
+                  m.must_process(params[:event], *args)
+                  created_resource_headers(m.id, m.admin_link)
+                  admin_action_handler :update
+                  status 200
+                  present m, with: entity
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
 end

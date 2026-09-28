@@ -72,10 +72,14 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   state_machine :order_status, initial: :open do
     state :open, :completed, :canceled
 
-    event :cancel do
-      transition open: :canceled
+    event :complete do
+      transition open: :completed
     end
-    after_transition on: :cancel, do: :after_open_order_canceled
+
+    event :cancel do
+      transition [:open, :completed] => :canceled
+    end
+    after_transition on: :cancel, do: :after_order_canceled
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
@@ -118,6 +122,14 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     ],
   )
 
+  def order_status_machine
+    return @order_status_machine ||= Suma::StateMachine.new(self, :order_status, "commerce_orders")
+  end
+
+  def fulfillment_status_machine
+    return @fulfillment_status_machine ||= Suma::StateMachine.new(self, :fulfillment_status, "commerce_orders")
+  end
+
   def serial = "%04d" % self.id
 
   def member = self.checkout.cart.member
@@ -127,7 +139,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   def checkout_items_dataset = self.checkout.items_dataset
 
-  def after_open_order_canceled
+  def after_order_canceled
     return if self.fulfillment_status == "fulfilled"
     self.items_and_product_inventories.each do |ci, inv|
       inv.quantity_pending_fulfillment -= ci.quantity

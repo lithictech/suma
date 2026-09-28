@@ -5,6 +5,7 @@ import ChargeDetailGrid from "../components/ChargeDetailGrid";
 import DetailGrid from "../components/DetailGrid";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
+import StateMachineProcessor from "../components/StateMachineProcessor";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import Money from "../shared/react/Money";
 import React from "react";
@@ -16,7 +17,7 @@ export default function OrderDetailPage() {
       title={(model) => `Order ${model.serial}`}
       apiGet={api.getCommerceOrder}
       canEdit={false}
-      properties={(model) => [
+      properties={(model, setModel) => [
         ...resourceDetailCommonFields(model),
         {
           label: "Member",
@@ -27,8 +28,25 @@ export default function OrderDetailPage() {
           ),
         },
         {
-          label: "Status",
-          value: model.statusLabel,
+          label: "Order Status",
+          children: (
+            <StateMachineProcessor
+              machine={model.orderStatusMachine}
+              onProcessed={setModel}
+              sx={{ width: "100%" }}
+            />
+          ),
+        },
+
+        {
+          label: "Fulfillment Status",
+          children: (
+            <StateMachineProcessor
+              machine={model.fulfillmentStatusMachine}
+              onProcessed={setModel}
+              sx={{ width: "100%" }}
+            />
+          ),
         },
       ]}
     >

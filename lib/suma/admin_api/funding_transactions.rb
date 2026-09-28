@@ -26,6 +26,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     expose_related :audit_activities, with: ActivityEntity, inherit_permissions: true
     expose_related :audit_logs, with: FundingAuditLogEntity, inherit_permissions: true
     expose :strategy, with: PaymentStrategyEntity
+    expose :status_machine, with: StateMachineEntity
   end
 
   resource :funding_transactions do
@@ -96,21 +97,14 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
           present px, with: PayoutTransactionEntity
         end
       end
-
-      resource :process do
-        route_param :event, type: Symbol do
-          post do
-            check_admin_role_access!(:write, Suma::Payment::FundingTransaction)
-            (fx = Suma::Payment::FundingTransaction[params[:id]]) or forbidden!
-            args = params[:event] == :put_into_review ? ["Flagged by admin"] : []
-            fx.must_process(params[:event], *args)
-            created_resource_headers(fx.id, fx.admin_link)
-            admin_action_handler :update
-            status 200
-            present fx, with: DetailedFundingTransactionEntity
-          end
-        end
-      end
     end
+
+    Suma::AdminAPI::CommonEndpoints.process_state_machine(
+      self,
+      Suma::Payment::FundingTransaction,
+      DetailedFundingTransactionEntity,
+      :status,
+      make_args: ->(_m, e) { e == :put_into_review ? ["Flagged by admin"] : [] },
+    )
   end
 end

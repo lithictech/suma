@@ -49,6 +49,8 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose_related :audit_logs, with: OrderAuditLogEntity, inherit_permissions: true
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
     expose :checkout, with: CheckoutEntity
+    expose :order_status_machine, with: StateMachineEntity
+    expose :fulfillment_status_machine, with: StateMachineEntity
   end
 
   resource :commerce_orders do
@@ -74,5 +76,17 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
         dataset_method: :checkout_items_dataset,
       )
     end
+    Suma::AdminAPI::CommonEndpoints.process_state_machine(
+      self,
+      Suma::Commerce::Order,
+      DetailedCommerceOrderEntity,
+      :order_status,
+    )
+    Suma::AdminAPI::CommonEndpoints.process_state_machine(
+      self,
+      Suma::Commerce::Order,
+      DetailedCommerceOrderEntity,
+      :fulfillment_status,
+    )
   end
 end
