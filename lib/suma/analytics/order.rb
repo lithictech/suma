@@ -8,6 +8,7 @@ class Suma::Analytics::Order < Suma::Analytics::Model(Sequel[:analytics][:orders
   destroy_from Suma::Commerce::Order
   denormalize Suma::Commerce::Order, with: [
     [:order_id, :id],
+    :checkout_id,
     :created_at,
     :order_status,
     :fulfillment_status,
@@ -29,6 +30,13 @@ class Suma::Analytics::Order < Suma::Analytics::Model(Sequel[:analytics][:orders
     [:offering_name, [:checkout, :cart, :offering, :description, :en]],
     [:offering_begin, [:checkout, :cart, :offering, :period, :begin]],
     [:offering_end, [:checkout, :cart, :offering, :period, :end]],
+
+    [:card_id, [:checkout, :card_id]],
+    [:bank_account_id, [:checkout, :bank_account_id]],
+    [:fulfillment_option_id, [:checkout, :fulfillment_option_id]],
+    [:fulfillment_option_address_id, [:checkout, :fulfillment_option, :address_id]],
+    [:fulfillment_option_address, [:checkout, :fulfillment_option, :address, :one_line_address]],
+    [:fulfillment_option_description, [:checkout, :fulfillment_option, :description, :en]],
   ]
 end
 
