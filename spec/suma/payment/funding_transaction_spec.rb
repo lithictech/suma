@@ -348,22 +348,6 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
     end
   end
 
-  describe "actions" do
-    it "has actions for available st" do
-      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      expect(fx.admin_actions).to contain_exactly(
-        have_attributes(label: "Put into review"),
-        have_attributes(label: "Collect funds"),
-        have_attributes(label: "Cancel"),
-      )
-      fx.update(status: "cleared")
-      expect(fx.admin_actions).to contain_exactly(
-        have_attributes(label: "Put into review"),
-        have_attributes(label: "Reset status"),
-      )
-    end
-  end
-
   describe "hooks" do
     it "saves strategy changes after save" do
       payment = Suma::Fixtures.funding_transaction.with_fake_strategy.create

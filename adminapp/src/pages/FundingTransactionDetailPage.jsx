@@ -7,6 +7,7 @@ import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import RelatedListRemote from "../components/RelatedListRemote";
 import ResourceDetail from "../components/ResourceDetail";
+import StateMachineProcessor from "../components/StateMachineProcessor";
 import resourceDetailCommonFields from "../components/resourceDetailCommonFields";
 import formatDate from "../modules/formatDate";
 import { directEditRoute } from "../modules/resourceRoutes";
@@ -21,7 +22,7 @@ export default function FundingTransactionDetailPage() {
       canEdit={(model) =>
         model.strategy.adminLink && directEditRoute(model.strategy.adminLink)
       }
-      properties={(model) => [
+      properties={(model, setModel) => [
         ...resourceDetailCommonFields(model),
         {
           label: "Originating Payment Account",
@@ -31,7 +32,12 @@ export default function FundingTransactionDetailPage() {
             </AdminLink>
           ),
         },
-        { label: "Status", value: model.status },
+        {
+          label: "Status",
+          children: (
+            <StateMachineProcessor machine={model.statusMachine} onProcessed={setModel} />
+          ),
+        },
         { label: "Amount", value: <Money>{model.amount}</Money> },
         model.refundedAmount.cents > 0 && {
           label: "Refunded Amount",

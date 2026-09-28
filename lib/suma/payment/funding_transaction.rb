@@ -78,6 +78,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     after_failure(&:commit_audit_log)
   end
 
+  def status_machine = @status_machine ||= Suma::StateMachine.new(self, :status, "funding_transactions")
+
   timestamp_accessors(
     [
       [{to: "collecting"}, :funds_collecting_at],
@@ -219,14 +221,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     return super
   end
 
-  def _admin_actions_self
-    return Suma::StateMachine.new(self, :status).available_events.map do |ev|
-      self._admin_action(
-        ev.to_s.humanize,
-        "/adminapi/v1/funding_transactions/#{self.id}/process/#{ev}",
-      )
-    end
-  end
+  def _admin_actions_self = []
 
   def hybrid_search_fields
     return [

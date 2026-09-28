@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/common_endpoints"
+require "suma/admin_api/commerce_orders"
 require "suma/admin_api/vendors"
 require "suma/api/behaviors"
 
@@ -265,6 +266,56 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
 
       r = Suma::Fixtures.vendor.create
       post "/v1/vendors/#{r.id}/destroy"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
+
+  describe "state_machine" do
+    let(:app) { Suma::AdminAPI::CommerceOrders.build_app }
+
+    it "processes the event" do
+      o = Suma::Fixtures.order.as_purchased_by(admin).create
+
+      post "/v1/commerce_orders/#{o.id}/state_machines/order_status/complete"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: o.id, order_status: "completed")
+      expect(o.refresh).to have_attributes(order_status: "completed")
+    end
+
+    it "errors if the processing fails" do
+      o = Suma::Fixtures.order.as_purchased_by(admin).create
+      o.update(order_status: "completed")
+
+      post "/v1/commerce_orders/#{o.id}/state_machines/order_status/complete"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(event: "complete", code: "transition_failed"))
+    end
+
+    it "403s if the resource does not exist" do
+      post "/v1/commerce_orders/0/state_machines/order_status/complete"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "401s if the user does not have admin access" do
+      replace_admin_role(nil)
+
+      o = Suma::Fixtures.order.as_purchased_by(admin).create
+      post "/v1/commerce_orders/#{o.id}/state_machines/order_status/complete"
+
+      expect(last_response).to have_status(401)
+    end
+
+    it "403s if the user cannot write the resource" do
+      replace_admin_role(Suma::Role.cache.noop_admin)
+
+      o = Suma::Fixtures.order.as_purchased_by(admin).create
+      post "/v1/commerce_orders/#{o.id}/state_machines/order_status/complete"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))

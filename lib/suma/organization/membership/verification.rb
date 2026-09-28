@@ -135,7 +135,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     end
   end
 
-  def state_machine = @state_machine ||= Suma::StateMachine.new(self, :status)
+  def state_machine = @state_machine ||= Suma::StateMachine.new(self, :status, "organization_membership_verifications")
 
   def start!
     admin = Suma.request_user_and_admin[1]

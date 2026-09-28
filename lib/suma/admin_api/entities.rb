@@ -25,6 +25,12 @@ module Suma::AdminAPI::Entities
     expose :caption, with: TranslatedTextEntity
   end
 
+  class StateMachineEntity < Suma::Service::Entities::Base
+    expose :name
+    expose :current_state
+    expose :available_processing
+  end
+
   class BaseEntity < Suma::Service::Entities::Base
     class << self
       def expose_image(name, &block)
