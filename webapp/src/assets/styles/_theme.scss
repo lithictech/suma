@@ -4,8 +4,9 @@
 // to avoid any unexpected bugs
 @import "bootstrap/scss/_functions";
 
-// WCAG 2.2 AA (1.4.3): never let Bootstrap's color-contrast() pick white on gold.
-$min-contrast-ratio: 4.5;
+// WCAG 2.2 AAA (1.4.6): Bootstrap's color-contrast() must pick a text colour
+// with at least 7:1 on every fill (so never white on gold).
+$min-contrast-ratio: 7;
 
 $font-family-sans-serif: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
 $font-family-serif: 'Raleway', $font-family-sans-serif;
@@ -14,12 +15,17 @@ $font-size-base: 1.05rem;
 $enable-smooth-scroll: false;
 
 $primary: rgb(205, 166, 113); // #CDA671FF, used for fills (gold stays gold)
-// Dark gold for text, links, outlines and focus rings on white/light backgrounds.
-// 7.04:1 on white, 6.29:1 on $light, 3.11:1 against the $primary fill.
-$primary-dark: #725328;
-$secondary: #575956; // 7.07:1 on white
-$success: #35614b; // 7.09:1 on white
-$danger: #9e3500; // 7.09:1 on white
+// Text colours meet WCAG 2.2 AAA (1.4.6, 7:1) on every light background in the
+// app: white, $light (#f2f2f2), the tab grey (#e6e6e6), the signup agreement box
+// (#fbf9f5) and card headers (#e5e5e5). Ratios below are listed in that order.
+// White text on each of these as a fill is at least 8.85:1.
+//
+// Dark gold for text, links, outlines and focus rings.
+// 8.85 / 7.91 / 7.09 / 8.42 / 7.03, and 3.92:1 against the $primary fill.
+$primary-dark: #604522;
+$secondary: #484a47; // 8.95 / 8.00 / 7.17 / 8.51 / 7.11
+$success: #2c503e; // 9.04 / 8.07 / 7.24 / 8.59 / 7.17
+$danger: #842c00; // 8.97 / 8.01 / 7.19 / 8.53 / 7.12
 $info: rgb(159, 175, 209);
 $info-light: lighten($info, 20%);
 $light: #f2f2f2;
@@ -56,9 +62,28 @@ $input-placeholder-color: #505963; // 7.12:1 on white
 $border-color: $gray-600;
 $link-color: $primary-dark;
 $component-active-bg: $primary-dark; // checked checks/radios, active dropdown items
-$body-secondary-color: rgba($gray-900, .8); // .text-muted / .form-text
+// .text-muted / .form-text: 9.53 / 8.78 / 8.10 / 9.18 / 8.05 on the backgrounds above.
+$body-secondary-color: rgba($gray-900, .85);
 
-// Focus indicators (2.4.7 / 1.4.11): solid, 2px, dark gold.
+// 2.5.5 Target Size (Enhanced): pointer targets reach 44 by 44 CSS px through an
+// invisible hit area (see the hit-area rules below) instead of growing the
+// control, so the layout does not change.
+$target-size-min: 44px;
+// Opt-in: taller rows for stacked lists of options and links (checkboxes,
+// radios, dropdown items, nav links, pagination). Off by default because it
+// changes the layout of every form and menu that has such a list. Stacked
+// targets closer than 44px cannot get a full-size hit area without it.
+$a11y-large-option-rows: false !default;
+@if $a11y-large-option-rows {
+  $btn-padding-y-sm: .375rem !global;
+  $nav-link-padding-y: .6rem !global;
+  $dropdown-item-padding-y: .6rem !global;
+  $pagination-padding-y: .6rem !global;
+  $form-check-input-width: 1.5em !global;
+  $form-switch-width: 3em !global;
+}
+
+// Focus indicators (2.4.7 / 1.4.11 / 2.4.13): solid, 2px, dark gold.
 $focus-ring-width: .125rem;
 $focus-ring-opacity: 1;
 $focus-ring-color: $primary-dark;
@@ -129,8 +154,86 @@ $focus-ring-color: $primary-dark;
   );
 }
 
-// 2.4.7 Focus Visible / 1.4.11: one consistent, high-contrast focus indicator.
-// The white box-shadow keeps the outline visible on dark or gold backgrounds.
+// 2.5.5 Target Size (Enhanced) without changing layout: a transparent
+// pseudo-element, centred on the control, extends its pointer target to at
+// least 44 by 44 CSS px. The visible box and everything around it stay put.
+// :where() keeps the specificity at zero, so an existing `position`
+// (the absolute cart button, the navbar toggler) still wins.
+:where(.btn, .btn-close, .page-link, .card-link, .a11y-target, .navbar-toggler) {
+  position: relative;
+}
+
+.btn,
+.btn-close,
+.page-link,
+.card-link,
+.a11y-target,
+.navbar-toggler {
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    min-width: $target-size-min;
+    min-height: $target-size-min;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@if $a11y-large-option-rows {
+  .btn,
+  .nav-link,
+  .dropdown-item,
+  .page-link,
+  .navbar-toggler {
+    min-height: $target-size-min;
+    min-width: $target-size-min;
+  }
+
+  // Checkboxes and radios: the row is 44px tall and the label is the target.
+  // The label fills the height of the row and reaches underneath the box,
+  // so a tap anywhere around the box toggles it.
+  .form-check {
+    display: flex;
+    align-items: center;
+    min-height: $target-size-min;
+
+    .form-check-input {
+      flex: 0 0 auto;
+      float: none;
+      margin-top: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-check-label {
+      display: flex;
+      align-items: center;
+      align-self: stretch;
+      min-height: $target-size-min;
+      min-width: 0; // let long words wrap instead of widening the row (1.4.10)
+      overflow-wrap: anywhere;
+      margin-left: -$form-check-input-width;
+      padding-left: $form-check-input-width + .5em;
+    }
+  }
+
+  .form-switch .form-check-label {
+    margin-left: -$form-switch-width;
+    padding-left: $form-switch-width + .5em;
+  }
+
+  .form-check-inline {
+    display: inline-flex;
+  }
+}
+
+// 2.4.7 Focus Visible / 1.4.11 / 2.4.13 Focus Appearance: one consistent focus
+// indicator. The 2px outline is 7:1 or better against the light backgrounds and
+// 3.92:1 against the gold fill; the 2px white halo inside it is what shows on
+// dark fills ($success, $danger, $dark, $primary-dark), at 8.85:1 or better.
 .btn:focus-visible,
 .form-control:focus,
 .form-select:focus,

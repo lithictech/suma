@@ -10,6 +10,7 @@ import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
 import { imageAltT, t } from "../localization";
+import continueContextKey from "../modules/continueContextKey";
 import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -56,6 +57,7 @@ function Success({ instrumentId, instrumentType, returnTo }) {
             variant="outline-primary"
           >
             {t("forms.continue")}
+            <span className="visually-hidden"> {t(continueContextKey(returnTo))}</span>
           </Button>
         </div>
       ) : (

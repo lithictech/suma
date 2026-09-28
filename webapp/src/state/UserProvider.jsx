@@ -1,4 +1,5 @@
 import api from "../api";
+import { USER_STORAGE_KEY as STORAGE_KEY } from "../modules/sessionExpired";
 import { base64decode } from "../shared/base64";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
@@ -101,5 +102,3 @@ export default function UserProvider({ children }) {
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
-
-const STORAGE_KEY = "sumauser";

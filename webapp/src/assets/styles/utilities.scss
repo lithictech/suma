@@ -18,3 +18,7 @@
 .text-transform-unset {
   text-transform: unset !important;
 }
+
+// 2.5.5 Target Size (Enhanced): `.a11y-target` marks standalone links that have
+// no class of their own; the hit-area rule in _theme.scss gives them a 44px
+// pointer target without changing their size.

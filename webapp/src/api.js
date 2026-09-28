@@ -1,5 +1,6 @@
 import config from "./config";
 import { getCurrentLanguage } from "./localization/currentLanguage";
+import { handleSessionExpired } from "./modules/sessionExpired";
 import apiBase from "./shared/apiBase";
 import axiosRetry, { isIdempotentRequestError, isNetworkError } from "axios-retry";
 
@@ -27,6 +28,37 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+/**
+ * Return true if the request was made to the Suma API,
+ * rather than a third party (like Stripe) using the same axios instance.
+ */
+function isSumaApiRequest(requestConfig) {
+  const url = requestConfig?.url || "";
+  const isAbsolute = /^[a-z][a-z\d+\-.]*:\/\//i.test(url);
+  if (!isAbsolute) {
+    return true;
+  }
+  return Boolean(config.apiHost) && url.startsWith(config.apiHost);
+}
+
+// When the session ends while the user is doing something (HTTP 401),
+// remember where they were and ask them to sign in again.
+// See handleSessionExpired for details.
+// Pass `skipSessionExpired: true` in the request options to opt out.
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error?.response?.status === 401 &&
+      !error.config?.skipSessionExpired &&
+      isSumaApiRequest(error.config)
+    ) {
+      handleSessionExpired();
+    }
+    return Promise.reject(error);
+  }
 );
 
 const get = (path, params, opts) => {

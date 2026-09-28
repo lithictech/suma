@@ -13,13 +13,19 @@
   .form-check-input {
     flex: 0 0 auto;
     margin-left: 0;
-    margin-top: 0.2em;
+    margin-top: 0;
     border-color: darken($blue, 5%);
   }
 
+  // The whole box is the pointer target (it toggles the checkbox),
+  // so keep the box aligned with the first line of text.
+  .form-check {
+    display: block;
+    min-height: 0;
+  }
+
   a {
-    // this needs to be replaced eventually...
-    color: darken($blue, 5%) !important;
+    color: $primary-dark; // 8.42:1 on the box background #fbf9f5 (1.4.6)
   }
 }
 

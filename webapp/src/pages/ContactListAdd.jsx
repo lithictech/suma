@@ -10,6 +10,7 @@ import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
+import useFormDraft from "../shared/react/useFormDraft";
 import { extractErrorCode, useError } from "../state/useError";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -28,6 +29,7 @@ export default function ContactListAdd() {
     handleSubmit,
     clearErrors,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     mode: "all",
@@ -38,6 +40,19 @@ export default function ContactListAdd() {
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
   const [organizationName, setOrganizationName] = React.useState("");
+  // Keep what was typed if the page is reloaded before submitting (2.2.5).
+  // The agreement checkbox is not stored, since consent must be given each time.
+  const { clearDraft } = useFormDraft({
+    watch,
+    setValue,
+    fields: DRAFT_FIELDS,
+    onRestore: (draft) => {
+      draft.name && setName(draft.name);
+      draft.phone && setPhone(draft.phone);
+      draft.channel && setReferral(draft.channel);
+      draft.organizationName && setOrganizationName(draft.organizationName);
+    },
+  });
   const handleFormSubmit = () => {
     api
       .authContactList({
@@ -51,6 +66,7 @@ export default function ContactListAdd() {
         organizationName,
       })
       .then(() => {
+        clearDraft();
         navigate(
           eventName
             ? `/contact-list/success?eventName=${eventName}`
@@ -98,6 +114,7 @@ export default function ContactListAdd() {
           type="tel"
           name="phone"
           label={t("forms.phone")}
+          text={t("forms.phone_help")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           required
           errorKeys={{ required: "forms.invalid_phone", pattern: "forms.invalid_phone" }}
@@ -153,6 +170,8 @@ export default function ContactListAdd() {
     </>
   );
 }
+
+const DRAFT_FIELDS = ["name", "phone", "channel", "organizationName"];
 
 const referralList = [
   { key: "contact_list.labels.friends_family", value: "friends_family" },

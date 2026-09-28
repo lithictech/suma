@@ -9,7 +9,7 @@ function redirectUnless(to, test, options) {
   return (Wrapped) => {
     return (props) => {
       const userCtx = useUser();
-      const { pathname } = useLocation();
+      const { pathname, search } = useLocation();
       const { setRedirectLink } = useLoginRedirectLink();
 
       if (userCtx.userLoading) {
@@ -20,7 +20,8 @@ function redirectUnless(to, test, options) {
         return <Wrapped {...props} />;
       }
       if (setRedirectLinkOnTestFalse) {
-        setRedirectLink(pathname);
+        // Include the query, so pages that depend on it work when we come back.
+        setRedirectLink(pathname + search);
       }
       return <Redirect to={to} />;
     };

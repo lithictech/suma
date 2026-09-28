@@ -24,5 +24,7 @@ export default function SumaMarkdown({ options, children }) {
 // Ignore 'node' because we replace it with ELink
 // eslint-disable-next-line no-unused-vars
 export function MdLink({ node, ...rest }) {
-  return <ELink {...rest} />;
+  // Links inside localized content (including the legal documents) keep their
+  // original width: the new-window warning is added as hidden text only.
+  return <ELink noIcon {...rest} />;
 }

@@ -7,8 +7,11 @@
   overflow-y: scroll;
 }
 
-.order-confirmation-spinner-duration {
-  animation-duration: 3s !important;
+// Not under "reduce motion": this would outrank the global rule in custom.scss (2.3.3).
+@media (prefers-reduced-motion: no-preference) {
+  .order-confirmation-spinner-duration {
+    animation-duration: 3s !important;
+  }
 }
 
 .cart-icon-loader {

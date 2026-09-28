@@ -1,6 +1,7 @@
 import sumaLogo from "../assets/images/suma-logo-plain-128.png";
 import { imageAltT, t } from "../localization";
 import useI18n from "../localization/useI18n";
+import { getReadingComfort, setReadingComfort } from "../modules/readingComfort";
 import signOut from "../modules/signOut";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useGlobalViewState from "../state/useGlobalViewState";
@@ -13,6 +14,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
 import Navbar from "react-bootstrap/Navbar";
 import { Link, useLocation } from "react-router-dom";
 
@@ -93,6 +95,7 @@ export default function TopNav() {
               ) : (
                 <LanguageButtons className="mt-3" />
               )}
+              <ReadingComfortSwitch className="mt-3" />
               <NavFooter className="mt-4" />
             </div>
           </div>
@@ -111,29 +114,65 @@ function LanguageButtons({ className }) {
     return null;
   }
   return (
-    <ButtonGroup vertical className={clsx("nav-lang-btn-group", className)}>
-      {supportedLocales.items.map(({ code, native }) => (
-        <Button
-          key={code}
-          variant="outline-primary"
-          className={clsx(currentLanguage === code && "active-outline-button")}
-          onClick={() => changeLanguage(code)}
-          lang={code}
-          // Same name as the language link on the public pages ("En Español"),
-          // so the control is identified consistently (WCAG 3.2.4).
-          aria-label={LANGUAGE_LABEL_KEYS[code] ? t(LANGUAGE_LABEL_KEYS[code]) : native}
-          aria-pressed={currentLanguage === code}
-        >
-          {native}
-        </Button>
-      ))}
-    </ButtonGroup>
+    <>
+      <h2 id="nav-language-heading" className="visually-hidden">
+        {t("nav.language_heading")}
+      </h2>
+      <ButtonGroup
+        vertical
+        className={clsx("nav-lang-btn-group", className)}
+        aria-labelledby="nav-language-heading"
+      >
+        {supportedLocales.items.map(({ code, native }) => (
+          <Button
+            key={code}
+            variant="outline-primary"
+            className={clsx(currentLanguage === code && "active-outline-button")}
+            onClick={() => changeLanguage(code)}
+            lang={code}
+            // Same name as the language link on the public pages ("En Español"),
+            // so the control is identified consistently (WCAG 3.2.4).
+            aria-label={LANGUAGE_LABEL_KEYS[code] ? t(LANGUAGE_LABEL_KEYS[code]) : native}
+            aria-pressed={currentLanguage === code}
+          >
+            {native}
+          </Button>
+        ))}
+      </ButtonGroup>
+    </>
+  );
+}
+
+/**
+ * Let the member choose more spacing between lines and paragraphs
+ * (WCAG 1.4.8 Visual Presentation). See modules/readingComfort.
+ */
+function ReadingComfortSwitch({ className }) {
+  const [checked, setChecked] = React.useState(getReadingComfort);
+  function handleChange(e) {
+    setReadingComfort(e.target.checked);
+    setChecked(e.target.checked);
+  }
+  return (
+    // Limit the width so the long label wraps, rather than widening the menu.
+    <div className={className} style={{ maxWidth: 240 }}>
+      <h2 className="visually-hidden">{t("nav.display_heading")}</h2>
+      <Form.Check
+        type="switch"
+        id="nav-reading-comfort"
+        className="text-dark"
+        label={t("common.reading_comfort")}
+        checked={checked}
+        onChange={handleChange}
+      />
+    </div>
   );
 }
 
 function AuthedUserButtons({ className, user, onCollapse }) {
   return (
     <>
+      <h2 className="visually-hidden">{t("nav.menu_heading")}</h2>
       <NavLinkButton
         href="/dashboard"
         icon="house-door-fill"
@@ -232,36 +271,47 @@ function NavFooter({ className }) {
   const iconStyle = { fontSize: "140%" };
   return (
     <>
+      <h2 className="visually-hidden">{t("nav.footer_heading")}</h2>
       <div className={clsx("d-flex flex-column", className)}>
         <div className={clsx("text-dark", rowCls)}>
           &copy; {new Date().getFullYear()} mysuma.org
         </div>
         <div className="d-flex flex-row justify-content-center">
-          <ExternalLink href="https://www.instagram.com/mysuma/" aria-label="Instagram">
+          <ExternalLink
+            href="https://www.instagram.com/mysuma/"
+            aria-label="Instagram"
+            noIcon
+          >
             <i className="bi bi-instagram me-3" style={iconStyle} aria-hidden="true"></i>
           </ExternalLink>
           <ExternalLink
             href="https://www.linkedin.com/company/mysuma/"
             aria-label="LinkedIn"
+            noIcon
           >
             <i className="bi bi-linkedin" style={iconStyle} aria-hidden="true"></i>
           </ExternalLink>
         </div>
       </div>
       <div className={rowCls}>
-        <Link to="/terms-of-use" className={linkCls}>
+        <FooterLink to="/terms-of-use" className={linkCls}>
           {t("common.terms_of_use")}
-        </Link>
+        </FooterLink>
       </div>
       <div className={rowCls}>
-        <Link to="/privacy-policy" className={linkCls}>
+        <FooterLink to="/privacy-policy" className={linkCls}>
           {t("common.privacy_policy")}
-        </Link>
+        </FooterLink>
       </div>
       <div className={rowCls}>
-        <Link to="/sitemap" className={linkCls}>
+        <FooterLink to="/glossary" className={linkCls}>
+          {t("glossary.title")}
+        </FooterLink>
+      </div>
+      <div className={rowCls}>
+        <FooterLink to="/sitemap" className={linkCls}>
           {t("sitemap.title")}
-        </Link>
+        </FooterLink>
       </div>
       <div className={rowCls}>
         <a href="mailto:info@mysuma.org" className={linkCls}>
@@ -269,5 +319,16 @@ function NavFooter({ className }) {
         </a>
       </div>
     </>
+  );
+}
+
+function FooterLink({ to, ...rest }) {
+  const location = useLocation();
+  return (
+    <Link
+      to={to}
+      aria-current={location.pathname === to ? "page" : undefined}
+      {...rest}
+    />
   );
 }

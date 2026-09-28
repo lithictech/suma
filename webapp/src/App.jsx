@@ -26,6 +26,7 @@ import Funding from "./pages/Funding";
 import FundingAddCard from "./pages/FundingAddCard";
 import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
+import Glossary from "./pages/Glossary";
 import Home from "./pages/Home";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
@@ -147,6 +148,15 @@ function AppRoutes() {
             withMetatags({ title: t("titles.sitemap") }),
             withPageLayout({ gutters: true, top: true }),
             Sitemap
+          )}
+        />
+        <Route
+          path="/glossary"
+          exact
+          element={renderWithHocs(
+            withMetatags({ title: t("titles.glossary") }),
+            withPageLayout({ gutters: true, top: true }),
+            Glossary
           )}
         />
         <Route

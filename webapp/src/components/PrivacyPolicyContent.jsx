@@ -81,7 +81,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 <h1 className="display-4">{t("overview.title")}</h1>
                 <p className="fw-light">{t("overview.intro")}</p>
                 <p className="pt-2">
-                  <a href="#privacy_policy_title">
+                  <a href="#privacy_policy_title" className="a11y-target">
                     <i>{t("overview.jump_to_privacy_policy")}</i>
                   </a>
                 </p>
@@ -89,7 +89,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               <Col xs={12} className={clsx("pt-3", !mobile && "col-md-4")}>
                 <Stack gap={3}>
                   <TabLink
-                    label={t("overview.faq")}
+                    label={<FaqLabel />}
                     to={`https://mysuma.org/faq-${language}`}
                   />
                   <TabLink label={t("overview.contact_us")} to="mailto:info@mysuma.org" />
@@ -370,6 +370,24 @@ const TableOfContentsNav = ({ mobile }) => {
       </Navbar.Collapse>
     </Navbar>
   );
+};
+
+/**
+ * The privacy policy strings use the abbreviation 'FAQ' in some languages.
+ * Expand it using an abbr element (3.1.4 Abbreviations), unless the label
+ * is already the expanded form.
+ */
+const FaqLabel = () => {
+  const label = t("overview.faq");
+  const expanded = loct("common.faq_expanded");
+  if (
+    typeof label !== "string" ||
+    typeof expanded !== "string" ||
+    label.toLowerCase() === expanded.toLowerCase()
+  ) {
+    return label;
+  }
+  return <abbr title={expanded}>{label}</abbr>;
 };
 
 const TabLink = ({ to, label }) => {

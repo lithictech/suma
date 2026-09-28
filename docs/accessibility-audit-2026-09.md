@@ -1198,3 +1198,46 @@ From a second review of the member app:
 - 2.5.8: the copy, edit-fulfillment and payment-options icon buttons get a transparent 24px hit area (`.a11y-target-min`) instead of padding, so the layout does not change.
 - 1.3.5 was already met (name, address, ZIP and phone fields have autocomplete tokens); the review looked at production, which does not include these branches yet.
 - 4.1.3 for the "verify your account" notice: it is present when the dashboard renders, not inserted later, so it stays a labelled region rather than a live region.
+
+# Level AAA remediation status (branch `a11y-level-aaa`, 2026-09-27, member app only)
+
+Branched from `a11y-level-aa`. The terms of use, the privacy policy, the SMS consent text and the SMS message templates were deliberately not edited; the AAA items that depend on them are listed under "Needs an owner decision".
+
+| Check | AA branch | AAA branch |
+|---|---|---|
+| axe `color-contrast-enhanced` (1.4.6, 7:1) nodes | 130 on 36 pages | 0 |
+| Text colours measured on white, `#f2f2f2`, `#e6e6e6`, `#fbf9f5`, `#e5e5e5` | 6.3:1 on the grey surfaces | 7.03:1 or better on every surface |
+| Buttons and standalone links with an effective pointer target under 44×44 (click-tested on 11 pages) | 40+ distinct controls | 1 (the privacy page table-of-contents toggle, 54×42) |
+| Elements that moved or resized compared with AA, outside added content (element-by-element comparison, 22 routes) | n/a | 0 |
+| Longest transition or animation with reduced motion set (live) | up to 2s, infinite pulse | 0.00001s |
+| Expired session during use (live) | generic error toast, input lost | redirect to sign-in with a notice, return to the same page, drafts restored on non-sensitive forms |
+| Horizontal scroll at 320px on 11 pages, and with extra text spacing on | none | none |
+| Map: pause vehicle updates, 44px controls and markers | no pause control | present; label switches between Pause and Resume and the change is announced |
+
+## Fixed
+
+- 1.4.6: `$primary-dark #604522`, `$secondary #484a47`, `$success #2c503e`, `$danger #842c00`, muted text at 85% alpha, `$min-contrast-ratio: 7`; agreement-box links use the dark gold instead of blue.
+- 1.4.8: opt-in "More spacing between lines and paragraphs" switch in the menu (persists in localStorage); `!important` removed from colour rules so user style sheets apply.
+- 2.2.3 / 2.2.4: the "copied" toast is a persistent inline status; vehicle updates can be paused.
+- 2.2.5: 401 responses store the location, send the user to sign-in with a notice, and return them afterwards; drafts are kept in sessionStorage for onboarding, contact-list, regain-access and survey forms. Card and bank forms store nothing.
+- 2.3.3: global reduced-motion rule plus guards in the map (no fly-to animation, static location marker, no cluster animation) and the checkmark.
+- 2.4.8 / 2.4.10: hidden section headings on the dashboard and in the menu; h1 on the map page.
+- 2.4.9: link names extended with hidden context ("Learn More about suma", "Address …, open in maps", "Continue to checkout").
+- 2.5.5: buttons, standalone links, the tab bar, close buttons and pagination get a 44px pointer target through an invisible hit area, so their size and the page layout do not change; code-entry boxes, map controls, markers and clusters are 44px. Stacked lists (checkbox and radio groups, dropdown items, menu links) keep their original spacing; enlarging them is available behind the Sass flag `$a11y-large-option-rows` (off by default) because it changes the layout of every form.
+- 3.1.3: member glossary page at `/glossary`, linked from the menu. 3.1.4: abbreviations expanded in UI strings. 3.1.5: four UI intro strings reworded in plainer language.
+- 3.2.5: links that open a new window say so in their accessible name; standalone interface links also show an icon, while links inside localized content (including the legal pages) get the hidden text only so their layout is unchanged; internal and mailto links no longer open new windows; the stale-cache reload waits 5 seconds and can be triggered or cancelled.
+- 3.3.5: help text under phone, ZIP, card and amount fields. 3.3.6: review step before the survey is submitted.
+- Bug fixes found along the way: keyboard activation of a map marker threw; `PrivateAccountsList` referenced a string key that does not exist.
+
+## Needs an owner decision (not changed)
+
+- 2.5.5 for stacked option lists: meeting 44px there requires taller rows (the utilities survey grows by about 310px). Turn on `$a11y-large-option-rows` if that redesign is acceptable.
+- 3.2.5 for content links: sighted users get no visual cue that links inside localized content open a new window. Showing the icon there widens those links and re-wraps some lines in the legal pages.
+
+- 3.1.5 Reading level: the terms of use (grade 15) and privacy policy (grade 10) need plain-language summaries written or approved by whoever owns the legal text.
+- 2.4.9: raw URLs used as link text inside the terms of use.
+- 3.1.4 / 3.1.5: `auth.sign_up_agreement` (SMS consent) uses SMS and MMS unexpanded; the SMS templates use "Msg&Data".
+- 2.3.3: the loader ring animates inside an SVG image, which CSS cannot stop; replacing the asset would fix it.
+- 1.4.8: foreground and background colour selection relies on the browser or user style sheets; there is no in-app theme picker.
+- Backend policy: one-time code lifetime and rate limits are server settings.
+- Pre-existing, unrelated: the theme names the font 'Source Sans Pro' while the font file is registered as 'SourceSansPro', so that font never loads.

@@ -26,8 +26,6 @@ export default function NavButton({ left, right, className, children, ...rest })
       variant="link"
       className={clsx("p-0", className)}
       aria-label={short ? shortLabel : undefined}
-      // Chevron-only buttons must still be at least 24px wide (2.5.8 Target Size).
-      style={short ? { minWidth: 24 } : undefined}
       {...rest}
     >
       {left && <i className={`bi bi-chevron-${leftIcon} me-1`} aria-hidden="true" />}

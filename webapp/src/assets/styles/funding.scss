@@ -3,15 +3,17 @@
 }
 
 /* Numpad keyboard */
-.numpad-number-button {
-  border: 0px !important;
-  border-bottom: 2px solid #949494 !important; /* 3.03:1 on white (1.4.11) */
-  border-radius: 10px !important;
-  background-color: #e5e5e5 !important;
+/* Colours are set through the button variables rather than with !important,
+   so user style sheets can replace them (1.4.8). */
+.btn.numpad-number-button {
+  --bs-btn-bg: #e5e5e5;
+  --bs-btn-hover-bg: #e5e5e5;
+  --bs-btn-active-bg: #ececec;
+  --bs-btn-border-color: #949494; /* 3.03:1 on white (1.4.11) */
+  --bs-btn-hover-border-color: #949494;
+  --bs-btn-active-border-color: #949494;
+  border-width: 0 0 2px;
+  border-radius: 10px;
   width: 32%;
   margin-left: 1.5%;
-}
-
-.numpad-number-button:active {
-  background-color: #ececec !important;
 }
