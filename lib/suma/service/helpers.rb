@@ -34,6 +34,22 @@ module Suma::Service::Helpers
   # @return [Suma::Member::Session,nil]
   def current_session? = yosoy.authenticated_object?
 
+  # Check if we're currently within a 'rescue_from' block.
+  #
+  # When error! (via merror!) is called, it uses throw, not raise.
+  # Calling error! (merror!, invalid!, etc) from within a db transaction
+  # will end up using `throw`, and bypass Sequel's "rollback on exception" behavior.
+  #
+  # So merror! raises a RollbackCarrier exception.
+  # This gets caught by rescue_from, which then calls back into error!.
+  #
+  # Any calls to merror! that go through a rescue_from handler, we know have already
+  # unwound the exception stack and rolled back the transaction.
+  # So in those cases, we do not want to re-raise the RollbackCarrier,
+  # as this would 500 and makes no sense.
+  # Instead, we check if we're within a rescue_from and call Grape's error!.
+  def in_rescue_from? = env["suma.in_rescue_from"] || false
+
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
   # @return [Suma::Member]
@@ -100,6 +116,10 @@ module Suma::Service::Helpers
   def merror!(status, message, code:, more: {}, skip_loc_check: false)
     if !skip_loc_check && !Suma::Service.error_code_localized?(code)
       merror!(500, "Error code is unlocalized: #{code}", code: "unhandled_error")
+    end
+    # See in_rescue_from? for more information.
+    if !in_rescue_from? && Suma::Postgres::Model.db.in_transaction?
+      raise Suma::Service::RollbackCarrier.new(message, status, message, {code:, more:, skip_loc_check:})
     end
     header Rack::CONTENT_TYPE, "application/json"
     body = Suma::Service.error_body(status, message, code:, more:)

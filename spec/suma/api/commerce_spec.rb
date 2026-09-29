@@ -388,6 +388,17 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "card_generic"))
     end
 
+    it "does not persist a partial order/charge when the payment fails to process", :i18n do
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.ready.failing) do
+        post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
+      end
+
+      expect(last_response).to have_status(409)
+      expect(checkout.refresh).to_not be_completed
+      expect(checkout.order).to be_nil
+      expect(Suma::Charge.all).to be_empty
+    end
+
     it "sets the instrument on the checkout", :i18n do
       newcard = Suma::Fixtures.card.create(legal_entity: card.legal_entity)
 

@@ -205,7 +205,7 @@ class Suma::Service < Grape::API
   # This will make sure the exception bubbles past the transaction boundary (rolling it back)
   # and then hits here, turning it into a standard error shape.
   class RollbackCarrier < StandardError
-    attr_reader :carried, :status, :message, :kwargs
+    attr_reader :carrier, :status, :message, :kwargs
 
     def initialize(carrier, status, message, kwargs)
       @carrier = carrier
