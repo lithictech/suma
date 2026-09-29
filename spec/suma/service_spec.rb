@@ -36,6 +36,13 @@ class Suma::API::TestService < Suma::Service
     merror!(403, "Hello!", code: params[:code], more: {doc_url: "http://some-place"})
   end
 
+  get :merror_in_transaction do
+    Suma::Postgres::Model.db.transaction do
+      Suma::Fixtures.member.create
+      merror!(403, "Hello!", code: params[:code], more: {doc_url: "http://some-place"})
+    end
+  end
+
   params do
     requires :arg1
     requires :arg2
@@ -333,6 +340,20 @@ RSpec.describe Suma::Service, :db do
     expect(last_response_json_body).to eq(
       error: {doc_url: "http://some-place", message: "Hello!", status: 403, code: "test_err"},
     )
+  end
+
+  it "rolls back an open transaction when merror! is called from within it",
+     reset_configuration: described_class do
+    described_class.verify_localized_error_codes = false
+    before_count = Suma::Member.count
+
+    get "/merror_in_transaction?code=test_err"
+
+    expect(last_response).to have_status(403)
+    expect(last_response_json_body).to eq(
+      error: {doc_url: "http://some-place", message: "Hello!", status: 403, code: "test_err"},
+    )
+    expect(Suma::Member.count).to eq(before_count)
   end
 
   it "uses a consistent error shape for validation errors" do
