@@ -24,3 +24,13 @@
         transform: scale(1);
     }
 }
+.press-and-hold-label {
+    display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .press-and-hold-feedback-active {
+        animation: none;
+        transform: scale(1);
+    }
+}

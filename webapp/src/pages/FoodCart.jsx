@@ -52,7 +52,7 @@ export default function FoodCart() {
       <LayoutContainer gutters>
         <BackBreadcrumb back={`/food/${offeringId}`} />
         <Stack direction="horizontal" gap={3} className="align-items-end">
-          <h4 className="mb-0">{t("food.cart_title")}</h4>
+          <h1 className="h4 mb-0">{t("food.cart_title")}</h1>
           <span className="text-secondary ms-auto">{t("food.price")}</span>
         </Stack>
       </LayoutContainer>
@@ -128,7 +128,7 @@ function CartItem({ offeringId, product, vendor }) {
   } = product;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
-      <Link to={`/product/${offeringId}/${productId}`}>
+      <Link to={`/product/${offeringId}/${productId}`} aria-hidden="true" tabIndex={-1}>
         <SumaImage image={images[0]} width={100} height={100} variant="dark" />
       </Link>
       <div>

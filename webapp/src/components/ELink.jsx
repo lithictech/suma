@@ -1,6 +1,6 @@
 import ExternalLink from "./ExternalLink";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 /**
  * Use this where we don't know if we have an internal or external link.
@@ -14,16 +14,17 @@ import { Link, useNavigate } from "react-router-dom";
  *
  * @param {string} href Same as `to`.
  * @param {string} to Same as react-router-dom Link#to.
- * @param {boolean} immediate If true, navigate directly using onPointerDown,
- *   rather than the default behavior of onClick. This allows the caller to bypass
- *   things like blur events that happen during form validation.
+ * @param {boolean} immediate If true, prevent the default mousedown behavior,
+ *   so the currently focused element is not blurred before the click navigates.
+ *   This allows the caller to bypass things like blur events that happen
+ *   during form validation, while still navigating on the normal click
+ *   (so the pointer action can be cancelled by moving off the link).
  *   This is only relevant for local URLs.
  * @param rest
  * @returns {JSX.Element}
  * @constructor
  */
 export default function ELink({ href, to, immediate, ...rest }) {
-  const navigate = useNavigate();
   const u = href || to || "";
   if (u.includes("__blank__")) {
     const clean = u.replace("__blank__", "");
@@ -33,13 +34,7 @@ export default function ELink({ href, to, immediate, ...rest }) {
     let to, replace;
     if (immediate) {
       rest = {
-        onPointerDown: () => {
-          // We have to use u here, not e.target.attributes.href.value,
-          // since href.value already has `/app/<href>` in the built app,
-          // which will cause a misnavigate. Instead, use what was passed in.
-          // Note this closes over 'to', which may change below.
-          navigate(u);
-        },
+        onMouseDown: (e) => e.preventDefault(),
         ...rest,
       };
     }

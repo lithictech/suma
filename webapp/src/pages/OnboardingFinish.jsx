@@ -8,6 +8,7 @@ export default function OnboardingFinish() {
   const { user } = useUser();
   return (
     <div className="mt-3">
+      <h1 className="visually-hidden">{t("titles.onboarding_finish")}</h1>
       {user.onboarded ? (
         <p>{t("onboarding.finish_onboarded")}</p>
       ) : (

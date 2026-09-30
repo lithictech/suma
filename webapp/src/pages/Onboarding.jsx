@@ -10,7 +10,13 @@ import Carousel from "react-bootstrap/Carousel";
 const Onboarding = () => {
   return (
     <>
-      <Carousel fade className="onboarding-carousel overflow-hidden">
+      <Carousel
+        fade
+        interval={null}
+        prevLabel={t("common.previous")}
+        nextLabel={t("common.next")}
+        className="onboarding-carousel overflow-hidden"
+      >
         <CarouselSlide
           imgSrc={onboardingMobility}
           imgAlt={imageAltT("person_riding_scooter")}
@@ -49,7 +55,7 @@ export default Onboarding;
 const CarouselSlide = React.forwardRef((props, ref) => {
   const { imgSrc, imgAlt, title, subtitle, ...rest } = props;
   return (
-    <Carousel.Item ref={ref} interval={2200} {...rest}>
+    <Carousel.Item ref={ref} {...rest}>
       <div className="onboarding-carousel-image-overlay" />
       <img className="onboarding-carousel-image" src={imgSrc} alt={imgAlt} />
       <Carousel.Caption>

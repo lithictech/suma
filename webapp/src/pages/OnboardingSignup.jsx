@@ -1,6 +1,6 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
+import FormControlGroup, { RequiredFieldsNote } from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import PageHeading from "../components/PageHeading.jsx";
@@ -85,6 +85,7 @@ export default function OnboardingSignup() {
       <PageHeading>{t("onboarding.enroll_title")}</PageHeading>
       {t("onboarding.enroll_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
+        <RequiredFieldsNote />
         <FormControlGroup
           className="mb-3"
           name="name"
@@ -164,6 +165,7 @@ export default function OnboardingSignup() {
             minLength="5"
             maxLength="10"
             required
+            errorKeys={{ pattern: "forms.invalid_zip" }}
             register={register}
             errors={errors}
             value={zipCode}

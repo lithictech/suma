@@ -50,8 +50,11 @@ export default class MapBuilder {
         return mapZoom >= 17 ? 0 : 32;
       },
       iconCreateFunction: (cluster) => {
+        const count = cluster.getChildCount();
+        // Leaflet makes the cluster a focusable role=button, so give it an accessible name.
+        const label = t("mobility.cluster_label", { count });
         return this._l.divIcon({
-          html: "<b>" + cluster.getChildCount() + "</b>",
+          html: `<b aria-hidden="true">${count}</b><span class="visually-hidden">${label}</span>`,
           className: "mobility-map-cluster-icon",
         });
       },
@@ -248,7 +251,8 @@ export default class MapBuilder {
     );
     mcg.removeLayers(removableLeftoverMarkers, { chunkedLoading: true });
 
-    // Fourth: Close the map reserve card if the marker for a scooter is now gone
+    // Fourth: Tell the reserve card the marker for the selected scooter is now gone,
+    // so it can show a message (it is not closed automatically).
     const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
     const isVehicleRemoved = removedMarkers.find(
       (marker) => this._clickedVehicle?.options.id === marker.options.id
@@ -271,6 +275,10 @@ export default class MapBuilder {
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
     const vehicleImg = vehicleIconForVendorService(vehicleType, vehicleProvider.slug);
+    const label = t("mobility.vehicle_marker", {
+      vendor: vehicleProvider.name,
+      vehicleType: t(`trips.${vehicleType}`),
+    });
     const vehicleIcon = this._l.divIcon({
       html: `
         <img src="${scooterContainer}" alt=""/>
@@ -284,7 +292,14 @@ export default class MapBuilder {
       .marker([lat, lng], {
         id,
         icon: vehicleIcon,
+        title: label,
+        alt: label,
+        keyboard: true,
         riseOnHover: true,
+      })
+      .on("add", (e) => {
+        // The divIcon has only decorative images, so name the focusable marker explicitly.
+        e.target.getElement()?.setAttribute("aria-label", label);
       })
       .on("click", (e) => {
         this.centerLocation(e.latlng);
@@ -342,14 +357,20 @@ export default class MapBuilder {
       "mobility.do_not_ride_title"
     )}</h6><p class='m-0'>${t("mobility.do_not_ride_intro")}</p>`;
 
+    let label;
     if (restriction.startsWith("do-not-park-or-ride")) {
       popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
+      // Some translations end the title with a period already.
+      const parkTitle = t("mobility.do_not_park_title").replace(/\.$/, "");
+      label = `${parkTitle}. ${t("mobility.do_not_ride_title")}`;
     } else if (restriction.startsWith("do-not-park")) {
       popup.setContent(parkingRestrictionContent);
+      label = t("mobility.do_not_park_title");
     } else if (restriction.startsWith("do-not-ride")) {
       popup.setContent(ridingRestrictionContent);
+      label = t("mobility.do_not_ride_title");
     }
-    return this._l
+    const layer = this._l
       .polygon([latlngs], {
         id: id,
         fillOpacity: 0.25,
@@ -357,6 +378,27 @@ export default class MapBuilder {
         weight: 1,
       })
       .bindPopup(popup);
+    // Polygons are pointer-only by default. Make the SVG path focusable and
+    // let keyboard users open the restriction popup with Enter or Space.
+    layer.on("add", () => {
+      const el = layer.getElement();
+      if (!el) {
+        return;
+      }
+      el.setAttribute("tabindex", "0");
+      el.setAttribute("role", "button");
+      if (label) {
+        el.setAttribute("aria-label", label);
+      }
+      this._l.DomEvent.on(el, "keydown", (ev) => {
+        if (ev.key !== "Enter" && ev.key !== " ") {
+          return;
+        }
+        this._l.DomEvent.preventDefault(ev);
+        layer.openPopup();
+      });
+    });
+    return layer;
   }
 
   stopRefreshTimer() {

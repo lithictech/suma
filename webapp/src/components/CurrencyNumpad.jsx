@@ -1,3 +1,4 @@
+import { t } from "../localization";
 import isNumber from "lodash/isNumber";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -13,12 +14,16 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
 
   return (
     <div>
-      <div className="display-4 mb-3 ms-3 me-3 d-flex flex-row justify-content-end">
+      <output
+        aria-live="polite"
+        aria-label={t("forms.amount")}
+        className="display-4 mb-3 ms-3 me-3 d-flex flex-row justify-content-end"
+      >
         <div>{currency.symbol}</div>
         <div className="text-end" style={{ minWidth: 60 }}>
           {isNumber(cents) && cents / currency.centsInDollar}
         </div>
-      </div>
+      </output>
       <Numpad cents={cents} currency={currency} onNumberClick={handleChange} />
     </div>
   );
@@ -56,8 +61,13 @@ function Numpad({ cents, currency, onNumberClick }) {
         >
           0
         </Button>
-        <Button variant="light" className={numButtonClasses} onClick={handleNumberDelete}>
-          ⌫
+        <Button
+          variant="light"
+          className={numButtonClasses}
+          aria-label={t("forms.delete_digit")}
+          onClick={handleNumberDelete}
+        >
+          <span aria-hidden="true">⌫</span>
         </Button>
       </div>
     </div>

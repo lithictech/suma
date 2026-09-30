@@ -9,7 +9,7 @@ import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
 import React from "react";
-import { FormCheck, FormLabel } from "react-bootstrap";
+import { FormCheck } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
@@ -90,7 +90,7 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
   });
   return (
     <>
-      <h2>{title}</h2>
+      <h1 className="h2">{title}</h1>
       {text}
       <Form noValidate onSubmit={onSubmit}>
         {inputs}
@@ -107,7 +107,7 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
 function AlreadyFinished({ title, text }) {
   return (
     <>
-      <h2>{title}</h2>
+      <h1 className="h2">{title}</h1>
       {text}
       <hr />
       <p className="text-center lead">{i18n.t("surveys.waitlisted_already")}</p>
@@ -153,8 +153,8 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
     [question, surveyAnswers]
   );
   return (
-    <div>
-      <FormLabel>{i18n.t(question.labelKey)}</FormLabel>
+    <fieldset>
+      <legend className="form-label fs-6">{i18n.t(question.labelKey)}</legend>
       {question.answers.map((answer) => {
         const id = surveyAnswers.answerKey(question, answer);
         return (
@@ -169,7 +169,7 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
           />
         );
       })}
-    </div>
+    </fieldset>
   );
 }
 

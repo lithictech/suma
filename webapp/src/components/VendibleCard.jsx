@@ -19,7 +19,7 @@ export default function VendibleCard({
     <Card className={clsx(className)}>
       <Card.Body className="p-2">
         <Stack direction="horizontal" gap={3}>
-          <Link to={appLink} className="flex-shrink-0">
+          <Link to={appLink} className="flex-shrink-0" aria-hidden="true" tabIndex={-1}>
             <SumaImage image={image} width={100} h={80} variant="dark" />
           </Link>
           <div>

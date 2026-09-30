@@ -155,14 +155,19 @@ const OneTimePassword = () => {
         <br />
         {maskPhoneNumber(phoneNumber)}:
       </p>
+      <p className="text-muted small text-center mt-1 mb-0">
+        {t("otp.auto_advance_note")}
+      </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
-          <h4 className="text-center mt-4">{t("otp.verify_code")}</h4>
+          <legend className="text-center mt-4">
+            <h1 className="h4 mb-0">{t("otp.verify_code")}</h1>
+          </legend>
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
             {otpChars.map((data, index) => (
               <input
                 className="otp-field mb-2 p-1"
-                type="numbers"
+                type="text"
                 name="otp"
                 // Must use the OTP length here, so any input can capture the full paste.
                 maxLength={OTP_LENGTH}

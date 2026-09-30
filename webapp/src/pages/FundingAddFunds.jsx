@@ -8,6 +8,7 @@ import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
 import idempotency from "../modules/idempotency";
 import { Logger } from "../shared/logger";
+import { formatMoney } from "../shared/money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
@@ -146,7 +147,14 @@ export default function FundingAddFunds() {
           primaryProps={{
             disabled: !amountCents,
             style: { minWidth: 120 },
-            children: t("forms.add_funds"),
+            children: amountCents
+              ? t("forms.add_amount", {
+                  amount: formatMoney({
+                    cents: amountCents,
+                    currency: selectedCurrency.code,
+                  }),
+                })
+              : t("forms.add_funds"),
           }}
         />
       </Form>

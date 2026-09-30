@@ -1,6 +1,6 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
+import FormControlGroup, { RequiredFieldsNote } from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput";
 import RLink from "../components/RLink.jsx";
@@ -59,7 +59,7 @@ export default function RegainAccountAccess({ success }) {
   if (success) {
     return (
       <div className="d-flex flex-column">
-        <h2>{t("common.thank_you")}</h2>
+        <h1 className="h2">{t("common.thank_you")}</h1>
         <p>{t("auth.access_account_confirmed")}</p>
         <Button
           variant="outline-primary"
@@ -75,9 +75,10 @@ export default function RegainAccountAccess({ success }) {
   }
   return (
     <>
-      <h2>{t("auth.access_account_title")}</h2>
+      <h1 className="h2">{t("auth.access_account_title")}</h1>
       <p>{t("auth.access_account_subtitle")}</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
+        <RequiredFieldsNote />
         <PhoneInput
           className="mb-3"
           name="previousPhone"
@@ -97,7 +98,6 @@ export default function RegainAccountAccess({ success }) {
           register={register}
           errors={errors}
           value={state.currentPhone}
-          autoFocus
           required
           disabled={submitting.isOn}
           onPhoneChange={handlePhoneChange}
