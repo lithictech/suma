@@ -83,8 +83,8 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
         headers={["Id", "Applied", "Amount", "Originating", "Receiving"]}
         keyRowAttr="id"
         toCells={(row) => [
-          row.id,
-          formatDate(row.appliedAt),
+          <AdminLink model={row} />,
+          formatDate(row.applyAt),
           <Money>
             {scaleMoney(
               row.amount,
