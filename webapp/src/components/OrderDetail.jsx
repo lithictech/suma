@@ -217,7 +217,11 @@ function PressAndHoldToClaim({ id, canClaim, offeringDescription, onOrderClaim }
         <p className="small mb-0">
           {t("food.claiming_instructions", { offeringDescription: offeringDescription })}
         </p>
-        <PressAndHold size={200} onHeld={handleOrderClaim}>
+        <PressAndHold
+          size={200}
+          onHeld={handleOrderClaim}
+          releaseLabel={t("food.release_to_confirm")}
+        >
           {t(
             "food.press_and_hold",
             {},

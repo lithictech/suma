@@ -108,3 +108,15 @@
         text-shadow: 1px 0 0 $dark;
     }
 }
+
+// Long-form pages rendered from Markdown (pages/MarkdownContent), like the terms of use.
+// The sections under the first title are h2 so heading levels do not skip;
+// they used to be h3, and keep that size. An h2 under a later title was always
+// an h2 and keeps the h2 size.
+.markdown-content h1:first-of-type ~ h2 {
+    @include font-size($h3-font-size);
+}
+
+.markdown-content h1:first-of-type ~ h1 ~ h2 {
+    @include font-size($h2-font-size);
+}

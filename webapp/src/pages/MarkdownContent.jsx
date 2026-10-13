@@ -34,7 +34,12 @@ export default function MarkdownContent({ languageFile }) {
         </Helmet>
         <TopNav />
         <main id="main" tabIndex={-1}>
-          <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
+          <LayoutContainer
+            top
+            gutters
+            className="pb-4 markdown-content"
+            style={{ maxWidth: "500px" }}
+          >
             <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
           </LayoutContainer>
         </main>

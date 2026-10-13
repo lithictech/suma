@@ -191,6 +191,7 @@
   "food.order_summary_title": "Order summary",
   "food.payment_title": "How are you paying?",
   "food.press_and_hold": "Press\n\n and\n\n hold",
+  "food.release_to_confirm": "Release to confirm",
   "food.price": "Price",
   "food.price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
   "food.product_404": "Sorry, this product is unavailable for purchase.",

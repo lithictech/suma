@@ -121,9 +121,8 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   function handleCardExpiryChange(e) {
     const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
     runSetter(e.target.name, setCardExpiry, value);
-    if (value.length === 4) {
-      cvcRef.current.focus();
-    }
+    // Do not move focus to the security code automatically: changing focus
+    // while the user types is an unexpected change of context (WCAG 3.2.2).
   }
 
   function handleCardCvcChange(e) {

@@ -9,5 +9,7 @@ import React from "react";
  */
 export default function PageHeading({ level, className, children }) {
   const C = `h${level || 1}`;
-  return <C className={clsx("page-heading", className)}>{children}</C>;
+  // Page titles default to h1 for document structure, but keep the size they
+  // had as h2 so the change of level is not a visual change.
+  return <C className={clsx("page-heading", !level && "h2", className)}>{children}</C>;
 }
