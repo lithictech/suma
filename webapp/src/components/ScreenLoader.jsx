@@ -1,5 +1,5 @@
-import loaderRing from "../assets/images/loader-ring.svg";
 import { t } from "../localization";
+import LoaderRing from "./LoaderRing";
 import clsx from "clsx";
 import React from "react";
 
@@ -21,7 +21,7 @@ export default function ScreenLoader({ show }) {
       )}
     >
       <div className="screen-loader-centerer" role="status">
-        <img src={loaderRing} alt="" aria-hidden="true" />
+        <LoaderRing />
         {show && <span className="visually-hidden">{t("common.loading")}</span>}
       </div>
     </div>

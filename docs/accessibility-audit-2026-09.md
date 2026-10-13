@@ -1220,7 +1220,7 @@ Branched from `a11y-level-aa`. The terms of use, the privacy policy, the SMS con
 - 1.4.8: opt-in "More spacing between lines and paragraphs" switch in the menu (persists in localStorage); `!important` removed from colour rules so user style sheets apply.
 - 2.2.3 / 2.2.4: the "copied" toast is a persistent inline status; vehicle updates can be paused.
 - 2.2.5: 401 responses store the location, send the user to sign-in with a notice, and return them afterwards; drafts are kept in sessionStorage for onboarding, contact-list, regain-access and survey forms. Card and bank forms store nothing.
-- 2.3.3: global reduced-motion rule plus guards in the map (no fly-to animation, static location marker, no cluster animation) and the checkmark.
+- 2.3.3: global reduced-motion rule plus guards in the map (no fly-to animation, static location marker, no cluster animation), the checkmark, and the loader ring (a still image is served when reduced motion is set, since the SVG animation cannot be stopped from CSS).
 - 2.4.8 / 2.4.10: hidden section headings on the dashboard and in the menu; h1 on the map page.
 - 2.4.9: link names extended with hidden context ("Learn More about suma", "Address …, open in maps", "Continue to checkout").
 - 2.5.5: buttons, standalone links, the tab bar, close buttons and pagination get a 44px pointer target through an invisible hit area, so their size and the page layout do not change; code-entry boxes, map controls, markers and clusters are 44px. Stacked lists (checkbox and radio groups, dropdown items, menu links) keep their original spacing; enlarging them is available behind the Sass flag `$a11y-large-option-rows` (off by default) because it changes the layout of every form.
@@ -1237,7 +1237,6 @@ Branched from `a11y-level-aa`. The terms of use, the privacy policy, the SMS con
 - 3.1.5 Reading level: the terms of use (grade 15) and privacy policy (grade 10) need plain-language summaries written or approved by whoever owns the legal text.
 - 2.4.9: raw URLs used as link text inside the terms of use.
 - 3.1.4 / 3.1.5: `auth.sign_up_agreement` (SMS consent) uses SMS and MMS unexpanded; the SMS templates use "Msg&Data".
-- 2.3.3: the loader ring animates inside an SVG image, which CSS cannot stop; replacing the asset would fix it.
 - 1.4.8: foreground and background colour selection relies on the browser or user style sheets; there is no in-app theme picker.
 - Backend policy: one-time code lifetime and rate limits are server settings.
 - Pre-existing, unrelated: the theme names the font 'Source Sans Pro' while the font file is registered as 'SourceSansPro', so that font never loads.
