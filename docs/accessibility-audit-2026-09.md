@@ -1166,7 +1166,7 @@ Branched from `a11y-level-a` after the admin-app changes were dropped. Verified 
 | Check | Level A branch | AA branch |
 |---|---|---|
 | axe `color-contrast` (1.4.3) nodes | 202 on 44 pages | 0 |
-| axe nodes tagged A or AA (all rules) | 203 | 1 (the `autocomplete-valid` hit on the card security code, a token axe rejects; the token is correct) |
+| axe nodes tagged A or AA (all rules) | 203 | 0 (the card security code used `cc-cvc`, which is not a valid autocomplete token; it is now `cc-csc`) |
 | Theme pairs measured at or above 4.5:1 text / 3:1 non-text | 24 of 59 text pairs | 39 of 39 |
 | Keyboard focus ring on tab bar, links, buttons, inputs, map controls (live) | invisible on tab bar and hamburger | 2px `#725328` outline with white halo; hamburger 3px dark outline on gold |
 | Focused element under the sticky header after Shift+Tab (live, 12 steps) | 3 | 0 (`scroll-padding-top: 130px`) |

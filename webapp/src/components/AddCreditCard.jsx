@@ -256,7 +256,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             type="text"
             pattern="\d*"
             inputMode="numeric"
-            autoComplete="cc-cvc"
+            autoComplete="cc-csc"
             autoCorrect="off"
             spellCheck="false"
             label={t("forms.card_cvc")}

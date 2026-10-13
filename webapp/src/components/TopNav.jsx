@@ -102,6 +102,8 @@ export default function TopNav() {
   );
 }
 
+const LANGUAGE_LABEL_KEYS = { en: "common.in_english", es: "common.in_spanish" };
+
 function LanguageButtons({ className }) {
   const { supportedLocales } = useBackendGlobals();
   const { currentLanguage, changeLanguage } = useI18n();
@@ -117,6 +119,10 @@ function LanguageButtons({ className }) {
           className={clsx(currentLanguage === code && "active-outline-button")}
           onClick={() => changeLanguage(code)}
           lang={code}
+          // Same name as the language link on the public pages ("En Español"),
+          // so the control is identified consistently (WCAG 3.2.4).
+          aria-label={LANGUAGE_LABEL_KEYS[code] ? t(LANGUAGE_LABEL_KEYS[code]) : native}
+          aria-pressed={currentLanguage === code}
         >
           {native}
         </Button>

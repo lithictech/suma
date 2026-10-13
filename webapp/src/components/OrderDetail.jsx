@@ -126,7 +126,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
           {order.fulfillmentOptionEditable && (
             <Button
               variant="link"
-              className="ms-2 px-2 py-1"
+              className="p-0 ms-2"
               aria-label={t("food.edit_fulfillment")}
               onClick={() => {
                 setOptionId(order.fulfillmentOption?.id || 0);
