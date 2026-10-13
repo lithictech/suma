@@ -49,12 +49,12 @@ export default function Food() {
   return (
     <>
       <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={imageAltT("local_food_stand")}>
-        <h2>{t("food.title")}</h2>
+        <h1 className="h2">{t("food.title")}</h1>
         <p className="mb-0">{t("food.intro")}</p>
       </FeaturePageHeader>
       <hr className="my-4" />
       <LayoutContainer gutters>
-        <h4 className="mb-3">{t("food.current_offerings")}</h4>
+        <h2 className="h4 mb-3">{t("food.current_offerings")}</h2>
         <Stack gap={3}>
           {items.map((it) => (
             <VendibleCard key={it.id} {...it} />
@@ -77,7 +77,7 @@ function OrderHistoryLink() {
       <LayoutContainer gutters>
         <div className="button-stack">
           <Button variant="outline-primary" href="/order-history" as={RLink}>
-            <i className="bi bi-bag-check-fill me-2"></i>
+            <i className="bi bi-bag-check-fill me-2" aria-hidden="true"></i>
             {t("food.order_history_title")}
           </Button>
         </div>

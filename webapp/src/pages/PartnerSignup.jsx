@@ -101,7 +101,7 @@ function JoinPartner() {
   return (
     <>
       <Helmet>
-        <title>Join {organizationName}</title>
+        <title>{t("titles.partner_signup_join", { organizationName })}</title>
       </Helmet>
       <div className="mt-3">{dt(intro)}</div>
       <div className="button-stack gap-3 mt-4">

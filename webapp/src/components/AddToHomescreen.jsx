@@ -118,6 +118,7 @@ export default function AddToHomescreen() {
       show={shouldPrompt}
       onClose={() => setShouldPrompt(false)}
       dismissible
+      closeLabel={t("common.close")}
     >
       <Alert.Heading>
         <img

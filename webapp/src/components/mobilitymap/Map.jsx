@@ -15,6 +15,7 @@ import MicromobilityRate from "./MicromobilityRate.jsx";
 import PreTrip from "./PreTrip";
 import Trip from "./Trip";
 import React from "react";
+import Button from "react-bootstrap/Button";
 
 export default function Map() {
   const { appNav, topNav } = useGlobalViewState();
@@ -23,6 +24,7 @@ export default function Map() {
   const [loadedMap, setLoadedMap] = React.useState(null);
   const [selectedMapVehicle, setSelectedMapVehicle] = React.useState(null);
   const [loadedVehicle, setLoadedVehicle] = React.useState(null);
+  const [selectedVehicleRemoved, setSelectedVehicleRemoved] = React.useState(false);
   const [lastMarkerLocation, setLastMarkerLocation] = React.useState(null);
   const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
   const [reserveError, setReserveError] = useError();
@@ -35,6 +37,7 @@ export default function Map() {
       setReserveError(null);
       setSelectedMapVehicle(mapVehicle);
       setLoadedVehicle(null);
+      setSelectedVehicleRemoved(false);
       if (!mapVehicle) {
         return;
       }
@@ -59,7 +62,17 @@ export default function Map() {
     [setError, setReserveError]
   );
 
-  const handleVehicleRemove = React.useCallback(() => setSelectedMapVehicle(null), []);
+  // When the selected vehicle disappears during a refresh, keep the drawer open
+  // and tell the user, rather than closing it out from under them (WCAG 2.2.2).
+  const handleVehicleRemove = React.useCallback(
+    () => setSelectedVehicleRemoved(true),
+    []
+  );
+  const handleDismissRemovedVehicle = React.useCallback(() => {
+    setSelectedMapVehicle(null);
+    setLoadedVehicle(null);
+    setSelectedVehicleRemoved(false);
+  }, []);
   const handleLocationFound = React.useCallback(
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
@@ -207,6 +220,24 @@ export default function Map() {
         />
       );
     }
+    if (selectedMapVehicle && selectedVehicleRemoved) {
+      return (
+        <DrawerContents>
+          <DrawerTitle>{selectedMapVehicle.provider.name}</DrawerTitle>
+          <p className="mb-0" role="status">
+            {t("mobility.vehicle_no_longer_available")}
+          </p>
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            className="w-100"
+            onClick={handleDismissRemovedVehicle}
+          >
+            {t("common.close")}
+          </Button>
+        </DrawerContents>
+      );
+    }
     if (selectedMapVehicle) {
       if (loadedVehicle?.subsidyMatchPercentage > 0) {
         drawerFooter = (
@@ -227,7 +258,7 @@ export default function Map() {
       );
     }
     if (locationPermissionsError) {
-      return locationPermissionsError;
+      return <div role="status">{locationPermissionsError}</div>;
     }
     return defaultDrawerContents();
   })();
@@ -235,7 +266,12 @@ export default function Map() {
   return (
     <div className="position-relative">
       <Drawer footer={drawerFooter}>{drawerContent}</Drawer>
-      <div ref={mapRef} style={{ height: `calc(100vh - ${navsHeight}px` }} />
+      <div
+        ref={mapRef}
+        role="region"
+        aria-label={t("mobility.map_label")}
+        style={{ height: `calc(100vh - ${navsHeight}px` }}
+      />
     </div>
   );
 }

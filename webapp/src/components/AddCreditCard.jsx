@@ -1,6 +1,6 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
+import FormControlGroup, { RequiredFieldsNote } from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import config from "../config";
 import { t } from "../localization";
@@ -87,7 +87,6 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
         const errMsg =
           localizeStripeError(get(e, "response.data")) || extractErrorCode(e);
         setError(<span>{errMsg}</span>);
-        document.activeElement?.blur();
       });
   }, [
     cardCvc,
@@ -99,6 +98,14 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
     screenLoader,
     setError,
   ]);
+
+  React.useEffect(() => {
+    // Move focus to the error message when one appears (instead of blurring the input),
+    // so keyboard and screen reader users land on the problem.
+    if (error) {
+      errorRowRef.current?.focus();
+    }
+  }, [error]);
 
   const handleFocus = (e) => {
     setFocus(e.target.name);
@@ -114,9 +121,8 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   function handleCardExpiryChange(e) {
     const value = Payment.handleDigitInputWithFormatting(e, { pci: cardInfo });
     runSetter(e.target.name, setCardExpiry, value);
-    if (value.length === 4) {
-      cvcRef.current.focus();
-    }
+    // Do not move focus to the security code automatically: changing focus
+    // while the user types is an unexpected change of context (WCAG 3.2.2).
   }
 
   function handleCardCvcChange(e) {
@@ -157,13 +163,14 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   return (
     <>
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
+        <RequiredFieldsNote />
         <Row className="mb-3">
           <FormControlGroup
             name="name"
             as={Col}
             required
             type="text"
-            autoComplete="name"
+            autoComplete="cc-name"
             autoCorrect="off"
             spellCheck="false"
             label={t("forms.name")}
@@ -219,7 +226,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             autoComplete="cc-exp"
             autoCorrect="off"
             spellCheck="false"
-            label={"MM / YY"}
+            label={t("forms.card_expiry")}
             value={Payment.formatCardExpiry(cardInfo, { editing: true })}
             errors={errors}
             register={register}
@@ -252,7 +259,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             autoComplete="cc-cvc"
             autoCorrect="off"
             spellCheck="false"
-            label={"CVC"}
+            label={t("forms.card_cvc")}
             value={Payment.formatCardCvc(cardInfo, { editing: true })}
             errors={errors}
             register={register}
@@ -267,6 +274,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
         </Row>
         <FormError
           ref={errorRowRef}
+          tabIndex={-1}
           error={error}
           className="cc-animate"
           style={{ transform: `translateY(${errorOffset}px)` }}

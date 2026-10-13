@@ -34,7 +34,7 @@ export default function Trips() {
   return (
     <>
       <LayoutContainer gutters>
-        <h2>{t("titles.trips")}</h2>
+        <h1 className="h2">{t("titles.trips")}</h1>
         <p className="text-secondary">{t("trips.intro")}</p>
       </LayoutContainer>
       {tripsLoading ? (
@@ -83,7 +83,7 @@ function Trip({ trip }) {
         <Stack direction="horizontal" gap={3}>
           <img
             src={vehicleIconForVendorService(vehicleType, provider.slug)}
-            alt={`${provider.slug} ${vehicleType}`}
+            alt=""
             height={42}
             className="trips-image-vehicle"
           />

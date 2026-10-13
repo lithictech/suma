@@ -3,7 +3,7 @@ import clsx from "clsx";
 import React from "react";
 
 const FormError = React.forwardRef(
-  ({ error, noMargin, center, end, component, className, style }, ref) => {
+  ({ error, noMargin, center, end, component, className, style, ...rest }, ref) => {
     if (!error) {
       return null;
     }
@@ -17,7 +17,7 @@ const FormError = React.forwardRef(
       className
     );
     return (
-      <Component ref={ref} className={cls} style={style} role="alert">
+      <Component ref={ref} className={cls} style={style} role="alert" {...rest}>
         {msg}
       </Component>
     );

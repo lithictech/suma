@@ -40,12 +40,12 @@ export default function ErrorToastProvider({ children }) {
       >
         <Toast
           show={Boolean(state)}
-          autohide={true}
+          autohide={false}
           onClose={() => setState("")}
           bg="light"
         >
-          <Toast.Header className="text-danger">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          <Toast.Header className="text-danger" closeLabel={t("common.close")}>
+            <i className="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
             <strong className="me-auto">{t("common.error")}</strong>
           </Toast.Header>
           <Toast.Body>{state}</Toast.Body>

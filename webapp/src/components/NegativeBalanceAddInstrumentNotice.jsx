@@ -14,7 +14,12 @@ export default function NegativeBalanceAddInstrumentNotice() {
   const balance = scaleMoney(user.chargeableCashBalance, -1);
 
   return (
-    <Alert variant="warning">
+    <Alert
+      variant="warning"
+      transition={false}
+      role="region"
+      aria-label={t("payments.balance_notice")}
+    >
       {t("payments.negative_balance_add_instrument_notice", {
         amount: balance,
       })}

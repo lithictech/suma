@@ -80,7 +80,7 @@ export default function FoodCheckoutConfirmation() {
         <p className="mb-0">{t("food.confirmation_transportation_subtitle")}</p>
         <div className="button-stack mt-3 mb-4">
           <Button href="/mobility" as={RLink}>
-            <i className="bi bi-scooter me-2"></i>
+            <i className="bi bi-scooter me-2" aria-hidden="true"></i>
             {t("food.mobility_options")}
           </Button>
         </div>

@@ -111,7 +111,11 @@ function StepsView({ account, setView }) {
       <li>
         <i
           className={clsx("me-2", "bi", checked ? "bi-check-square-fill" : "bi-1-square")}
+          aria-hidden="true"
         />
+        <span className="visually-hidden">
+          {checked ? t("common.completed") : t("common.step", { n: 1 })}
+        </span>
         {t(locKey)}
       </li>
     );
@@ -122,11 +126,23 @@ function StepsView({ account, setView }) {
       <ul className="list-unstyled mb-0">
         {potentialFirstStep}
         <li>
-          <i className={clsx("me-2", `bi bi-${termStepIndex + 1}-square`)} />
+          <i
+            className={clsx("me-2", `bi bi-${termStepIndex + 1}-square`)}
+            aria-hidden="true"
+          />
+          <span className="visually-hidden">
+            {t("common.step", { n: termStepIndex + 1 })}
+          </span>
           {t("private_accounts.checklist_review_terms")}
         </li>
         <li>
-          <i className={clsx("me-2", `bi bi-${linkStepIndex + 1}-square`)} />
+          <i
+            className={clsx("me-2", `bi bi-${linkStepIndex + 1}-square`)}
+            aria-hidden="true"
+          />
+          <span className="visually-hidden">
+            {t("common.step", { n: linkStepIndex + 1 })}
+          </span>
           {t("private_accounts.checklist_link_app")}
         </li>
       </ul>
@@ -306,7 +322,7 @@ function LinkView({ account, setView }) {
       <Alert variant={alertVariant} show={!!alertVariant} className="mb-0">
         {buttonStatus === LINKBTN_SENT ? (
           <span>
-            <i className="bi bi-phone-vibrate d-inline me-2"></i>
+            <i className="bi bi-phone-vibrate d-inline me-2" aria-hidden="true"></i>
             {dt(pollingSuccessResponse?.successInstructions)}
           </span>
         ) : (

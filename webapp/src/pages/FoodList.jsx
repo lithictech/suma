@@ -120,7 +120,7 @@ function Product({ product, offeringId, cart }) {
       className="mb-4 border-bottom border-secondary border-opacity-50 position-relative"
     >
       <SumaImage image={images[0]} className="w-100" width={225} h={150} variant="dark" />
-      <h5 className="mb-2 mt-2">{dt(name)}</h5>
+      <h2 className="h5 mb-2 mt-2">{dt(name)}</h2>
       <p className="my-2">{product.vendor.name}</p>
       {outOfStock ? (
         <p className="mb-3 text-secondary">
@@ -137,7 +137,9 @@ function Product({ product, offeringId, cart }) {
           />
         </>
       )}
-      <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />
+      <Link to={`/product/${offeringId}/${productId}`} className="stretched-link">
+        <span className="visually-hidden">{dt(name)}</span>
+      </Link>
     </Col>
   );
 }

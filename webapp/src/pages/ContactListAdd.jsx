@@ -1,7 +1,7 @@
 import api from "../api";
 import ContactListTags from "../components/ContactListTags";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
+import FormControlGroup, { RequiredFieldsNote } from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import PageHeading from "../components/PageHeading.jsx";
@@ -81,6 +81,7 @@ export default function ContactListAdd() {
       <PageHeading>{t("contact_list.signup_title")}</PageHeading>
       <p>{t("contact_list.signup_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
+        <RequiredFieldsNote />
         <FormControlGroup
           className="mb-3"
           name="name"
@@ -98,6 +99,7 @@ export default function ContactListAdd() {
           label={t("forms.phone")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           required
+          errorKeys={{ pattern: "forms.invalid_phone" }}
           register={register}
           errors={errors}
           value={phone}

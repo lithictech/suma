@@ -38,6 +38,13 @@
   border: none;
 }
 
+/* Vehicle markers and restricted-area paths are keyboard focusable. */
+.leaflet-container .leaflet-interactive:focus-visible,
+.leaflet-container .leaflet-marker-icon:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: 0.25rem;
   border: 1px solid #eee;

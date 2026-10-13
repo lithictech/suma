@@ -70,7 +70,7 @@ export default function Start() {
   };
   return (
     <>
-      <h2>{t("forms.get_started")}</h2>
+      <h1 className="h2">{t("forms.get_started")}</h1>
       <p id="phoneRequired">{t("forms.get_started_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <PhoneInput

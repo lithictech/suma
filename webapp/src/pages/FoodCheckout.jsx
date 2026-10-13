@@ -191,7 +191,7 @@ function CheckoutPayment({
           to={`/add-card?returnToImmediate=/checkout/${checkout.id}`}
           className={clsx(isInvalid && "link-danger")}
         >
-          <i className="bi bi-credit-card me-2" />
+          <i className="bi bi-credit-card me-2" aria-hidden="true" />
           {t("food.add_card")}
         </Link>
       )}
@@ -200,7 +200,7 @@ function CheckoutPayment({
           to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
           className={clsx(isInvalid && "link-danger")}
         >
-          <i className="bi bi-bank2 me-2" />
+          <i className="bi bi-bank2 me-2" aria-hidden="true" />
           {t("payments.link_bank_account")}
         </Link>
       )}
@@ -218,8 +218,8 @@ function CheckoutPayment({
     label: <PaymentLabel {...pi} />,
   }));
   return (
-    <>
-      <h5>{t("food.payment_title")}</h5>
+    <fieldset>
+      <legend className="h5">{t("food.payment_title")}</legend>
       <Stack gap={2}>
         {checkout.unavailablePaymentInstruments
           .filter((pi) => pi.status === "expired")
@@ -256,7 +256,7 @@ function CheckoutPayment({
           </>
         )}
       </Stack>
-    </>
+    </fieldset>
   );
 }
 
@@ -301,23 +301,24 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
     label: <FulfillmentOptionLabel {...fo} />,
   }));
   return (
-    <>
-      {checkout.offering.fulfillmentPrompt && (
-        <h5>{dt(checkout.offering.fulfillmentPrompt)}</h5>
-      )}
-      {checkout.offering.fulfillmentInstructions && (
-        <p className="mb-2">{dt(checkout.offering.fulfillmentInstructions)}</p>
-      )}
-      <FormRadioInputs
-        inputs={inputs}
-        name="fulfillmentOption"
-        selected={checkout.fulfillmentOptionId}
-        register={register}
-        errors={errors}
-        required
-        onChange={(e) => handleCheckoutChange(e)}
-      />
-    </>
+    <FormRadioInputs
+      inputs={inputs}
+      name="fulfillmentOption"
+      legend={
+        checkout.offering.fulfillmentPrompt && dt(checkout.offering.fulfillmentPrompt)
+      }
+      legendClassName="h5"
+      description={
+        checkout.offering.fulfillmentInstructions && (
+          <p className="mb-2">{dt(checkout.offering.fulfillmentInstructions)}</p>
+        )
+      }
+      selected={checkout.fulfillmentOptionId}
+      register={register}
+      errors={errors}
+      required
+      onChange={(e) => handleCheckoutChange(e)}
+    />
   );
 }
 
@@ -330,7 +331,7 @@ function FulfillmentOptionLabel({ description, address }) {
           href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
           className="ms-1 text-nowrap"
         >
-          <i className="bi bi-geo-alt-fill me-1"></i>
+          <i className="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
           {t("food.address")}
         </ExternalLink>
       )}
@@ -341,7 +342,7 @@ function FulfillmentOptionLabel({ description, address }) {
 function CheckoutItems({ checkout }) {
   return (
     <>
-      <h5>{t("food.checkout_items_title")}</h5>
+      <h2 className="h5">{t("food.checkout_items_title")}</h2>
       {checkout.items?.map((it, idx) => {
         return (
           <React.Fragment key={it.product.productId}>
@@ -352,7 +353,7 @@ function CheckoutItems({ checkout }) {
       })}
       <div className="mt-3">
         <RLink to={`/cart/${checkout.offering.id}`}>
-          <i className="bi bi-pencil-fill me-2" />
+          <i className="bi bi-pencil-fill me-2" aria-hidden="true" />
           {t("food.edit_quantities")}
         </RLink>
       </div>
@@ -367,7 +368,7 @@ function OrderSummary({ checkout, chosenInstrument, formState }) {
   const showSubmit = checkout.checkoutProhibitedReason !== "member_unverified";
   return (
     <>
-      <h5>{t("food.order_summary_title")}</h5>
+      <h2 className="h5">{t("food.order_summary_title")}</h2>
       <div>
         <SummaryLine
           label={t("food.labels.items_count", { itemCount: itemCount })}

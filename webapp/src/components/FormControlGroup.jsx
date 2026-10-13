@@ -1,6 +1,8 @@
+import { t } from "../localization";
 import setRef from "../shared/setRef";
 import useValidationError from "../state/useValidationError";
 import FormText from "./FormText";
+import clsx from "clsx";
 import isString from "lodash/isString";
 import React from "react";
 import Form from "react-bootstrap/Form";
@@ -57,6 +59,7 @@ export default function FormControlGroup({
   append,
   ...rest
 }) {
+  const { "aria-describedby": describedByProp, ...inputProps } = rest;
   const usesGroup = prepend || append;
   const registerArgs = { ...registerOptions };
   if (required) {
@@ -76,6 +79,11 @@ export default function FormControlGroup({
   }
   const { ref: registerRef, ...registerRest } = register(name, registerArgs);
   const message = useValidationError(name, errors, registerArgs, errorKeys);
+  const feedbackId = `${name}-feedback`;
+  const textId = `${name}-text`;
+  const describedBy =
+    [message && feedbackId, text && textId, describedByProp].filter(Boolean).join(" ") ||
+    undefined;
   const C = Input || Form.Control;
   const input = (
     <C
@@ -88,15 +96,25 @@ export default function FormControlGroup({
       maxLength={maxLength}
       minLength={minLength}
       isInvalid={!!message}
-      placeholder={isString(label) ? label : null}
       className={inputClass}
-      {...rest}
+      aria-required={required || undefined}
+      aria-invalid={message ? true : undefined}
+      aria-describedby={describedBy}
+      {...inputProps}
     />
+  );
+  const feedback = (
+    <Form.Control.Feedback id={feedbackId} type="invalid">
+      {message}
+    </Form.Control.Feedback>
   );
   return (
     <Form.Group className={className} controlId={name} as={as}>
       {isString(label) ? (
-        <Form.Label className="visually-hidden">{label}</Form.Label>
+        <Form.Label>
+          {label}
+          {required && <span aria-hidden="true"> *</span>}
+        </Form.Label>
       ) : (
         label
       )}
@@ -105,15 +123,27 @@ export default function FormControlGroup({
           {prepend}
           {input}
           {append}
-          <Form.Control.Feedback type="invalid">{message}</Form.Control.Feedback>
+          {feedback}
         </InputGroup>
       ) : (
         <>
           {input}
-          <Form.Control.Feedback type="invalid">{message}</Form.Control.Feedback>
+          {feedback}
         </>
       )}
-      {text && <FormText>{text}</FormText>}
+      {text && <FormText id={textId}>{text}</FormText>}
     </Form.Group>
+  );
+}
+
+/**
+ * One-line legend explaining the '*' marker used on required field labels.
+ * Render once near the top of a form that has required fields.
+ */
+export function RequiredFieldsNote({ className }) {
+  return (
+    <p className={clsx("small text-muted", className)}>
+      {t("forms.required_fields_note")}
+    </p>
   );
 }

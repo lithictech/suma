@@ -28,7 +28,10 @@ const Translate = ({ to, label, title }) => {
   const { changeLanguage } = useI18n();
   return (
     <Button variant="link" onClick={() => changeLanguage(to)} title={title}>
-      <i className="bi bi-translate"></i> <i>{label}</i>
+      <i className="bi bi-translate" aria-hidden="true"></i>{" "}
+      <i>
+        <span lang={to}>{label}</span>
+      </i>
     </Button>
   );
 };

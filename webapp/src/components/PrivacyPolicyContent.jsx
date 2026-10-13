@@ -107,7 +107,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                   xs={12}
                   className={clsx(!mobile && "col-lg-4 col-xl-5 align-self-lg-center")}
                 >
-                  <h1 className="display-5">{t("overview.community_driven_title")}</h1>
+                  <h2 className="display-5">{t("overview.community_driven_title")}</h2>
                 </Col>
                 <Col xs={12} className={clsx(!mobile && "col-lg-8 col-xl-7")}>
                   {t("overview.community_driven_intro")}
@@ -147,9 +147,9 @@ export default function PrivacyPolicyContent({ mobile }) {
           </Container>
           <hr className="my-5" />
           <Container>
-            <h1 id="privacy_policy_title" className="text-center display-4">
+            <h2 id="privacy_policy_title" className="text-center display-4">
               {t("sections.title")}
-            </h1>
+            </h2>
             <p className="text-center text-secondary mb-5">
               {t("sections.effective") + " " + t("sections.date")}
             </p>
@@ -344,6 +344,7 @@ const TableOfContentsNav = ({ mobile }) => {
                 "bi bi-card-list fs-1",
                 !expanded ? "text-dark" : "text-secondary"
               )}
+              aria-hidden="true"
             ></i>
           </Navbar.Toggle>
           <Navbar.Brand className="me-auto d-flex align-items-center">
@@ -400,7 +401,7 @@ const PedalCol = ({ sectionKey, img, imgAlt, right, mobile }) => {
             right && !mobile && "order-lg-last"
           )}
         >
-          <h5>{title}</h5>
+          <h3 className="h5">{title}</h3>
           <p className="fw-light">{t(sectionKey + ".statement")}</p>
         </div>
       </Stack>
@@ -419,9 +420,9 @@ const PrivacyPolicySection = ({ p, img, imgAlt, list, sectionKey, children, mobi
       className={clsx(!subsection && "mt-5", !mobile && !subsection && "mx-lg-5")}
     >
       {!subsection ? (
-        <h4 className="mb-4 pt-4">{title}</h4>
+        <h3 className="h4 mb-4 pt-4">{title}</h3>
       ) : (
-        <h5 className="mb-3">{title}</h5>
+        <h4 className="h5 mb-3">{title}</h4>
       )}
       {img && (
         <img

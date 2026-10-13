@@ -26,7 +26,7 @@ export default function CreditCardPreview({
   let issuer = cardInfo.cct?.type;
   issuer = ISSUER_RENAMES[issuer] || issuer;
   return (
-    <div key="Cards" className="rccs">
+    <div key="Cards" className="rccs" aria-hidden="true">
       <div
         className={clsx(
           "rccs__card",

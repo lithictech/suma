@@ -127,12 +127,13 @@ function FulfillmentOption({ order, onOrderUpdated }) {
             <Button
               variant="link"
               className="p-0 ms-2"
+              aria-label={t("food.edit_fulfillment")}
               onClick={() => {
                 setOptionId(order.fulfillmentOption?.id || 0);
                 editing.turnOn();
               }}
             >
-              <i className="bi bi-pencil-fill" />
+              <i className="bi bi-pencil-fill" aria-hidden="true" />
             </Button>
           )}
         </h6>
@@ -163,20 +164,20 @@ function FulfillmentOption({ order, onOrderUpdated }) {
 
   return (
     <Form noValidate>
-      <Form.Group>
-        <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>
+      <fieldset>
+        <legend className="h6 fw-bold lh-lg">{order.fulfillmentConfirmation}</legend>
         {order.fulfillmentOptionsForEditing.map((fo) => (
           <Form.Check
             key={fo.id}
             id={fo.id}
-            name={fo.description}
+            name="fulfillmentOption"
             type="radio"
             label={fo.description}
             checked={optionId === fo.id}
             onChange={() => setOptionId(fo.id)}
           />
         ))}
-      </Form.Group>
+      </fieldset>
       <FormSaveCancel
         saveDisabled={!chosenFulfillmentValid}
         className="mt-2"
@@ -216,7 +217,11 @@ function PressAndHoldToClaim({ id, canClaim, offeringDescription, onOrderClaim }
         <p className="small mb-0">
           {t("food.claiming_instructions", { offeringDescription: offeringDescription })}
         </p>
-        <PressAndHold size={200} onHeld={handleOrderClaim}>
+        <PressAndHold
+          size={200}
+          onHeld={handleOrderClaim}
+          releaseLabel={t("food.release_to_confirm")}
+        >
           {t(
             "food.press_and_hold",
             {},
