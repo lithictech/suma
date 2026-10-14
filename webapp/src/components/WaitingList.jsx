@@ -1,10 +1,12 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
+import FormError from "../components/FormError";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { t } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
+import { findUnansweredQuestionKeys } from "../modules/findUnansweredQuestionKeys";
 import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
@@ -23,7 +25,11 @@ export default function WaitingList({ survey, title, text }) {
   const { showErrorToast } = useErrorToast();
   const [loading, setLoading] = React.useState(true);
   const [justFinished, setJustFinished] = React.useState(false);
+  const [submitAttempted, setSubmitAttempted] = React.useState(false);
   const surveyAnswers = useSurveyAnswers();
+  const unansweredKeys = submitAttempted
+    ? findUnansweredQuestionKeys(survey, surveyAnswers.getAnswer)
+    : [];
 
   const { loadLanguageFile } = useI18n();
   useMountEffect(() => {
@@ -31,6 +37,10 @@ export default function WaitingList({ survey, title, text }) {
   });
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmitAttempted(true);
+    if (findUnansweredQuestionKeys(survey, surveyAnswers.getAnswer).length > 0) {
+      return;
+    }
     setLoading(true);
     const body = buildApiSurveyResponse(survey, surveyAnswers);
     api
@@ -59,6 +69,7 @@ export default function WaitingList({ survey, title, text }) {
       text={text}
       survey={survey}
       surveyAnswers={surveyAnswers}
+      unansweredKeys={unansweredKeys}
       onSubmit={handleSubmit}
     />
   );
@@ -69,9 +80,10 @@ export default function WaitingList({ survey, title, text }) {
  * @param {string} text
  * @param {SurveySpec} survey
  * @param {SurveyAnswers} surveyAnswers
+ * @param {Array<string>} unansweredKeys
  * @param {function} onSubmit
  */
-function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
+function WaitlistForm({ title, text, survey, surveyAnswers, unansweredKeys, onSubmit }) {
   const inputs = [];
   survey.questions.forEach((question) => {
     const key = question.key;
@@ -82,6 +94,7 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
           key={key}
           question={question}
           surveyAnswers={surveyAnswers}
+          unanswered={unansweredKeys.includes(key)}
         />
       );
     } else {
@@ -94,6 +107,9 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
       {text}
       <Form noValidate onSubmit={onSubmit}>
         {inputs}
+        {unansweredKeys.length > 0 && (
+          <FormError className="mt-4" error={<>{t("forms.invalid_fields_submit")}</>} />
+        )}
         <div className="button-stack mt-4">
           <Button type="submit" variant="primary">
             {i18n.t("surveys.join_waitlist")}
@@ -140,8 +156,9 @@ function SurveyDivider() {
 /**
  * @param {SurveySpecQuestion} question
  * @param {SurveyAnswers} surveyAnswers
+ * @param {boolean} unanswered
  */
-function SurveyCheckboxQuestion({ question, surveyAnswers }) {
+function SurveyCheckboxQuestion({ question, surveyAnswers, unanswered }) {
   const handleClick = React.useCallback(
     (e, answer) => {
       if (question.format === "radio") {
@@ -169,6 +186,7 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
           />
         );
       })}
+      <FormError error={unanswered ? "required" : null} />
     </div>
   );
 }
