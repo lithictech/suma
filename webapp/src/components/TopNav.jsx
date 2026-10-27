@@ -41,6 +41,7 @@ export default function TopNav() {
           href="/dashboard"
           className="me-auto d-flex align-items-center"
           as={RLink}
+          aria-label={t("nav.brand_link", { appName: t("common.app_name") })}
         >
           <img
             alt={imageAltT("suma_logo")}
@@ -281,13 +282,17 @@ function NavFooter({ className }) {
             href="https://www.instagram.com/mysuma/"
             aria-label="Instagram"
             noIcon
+            // The gap is a margin on the link, not the icon, so each 44px hit area
+            // is centred on its icon and the two do not overlap (2.5.5).
+            className="a11y-target me-4"
           >
-            <i className="bi bi-instagram me-3" style={iconStyle} aria-hidden="true"></i>
+            <i className="bi bi-instagram" style={iconStyle} aria-hidden="true"></i>
           </ExternalLink>
           <ExternalLink
             href="https://www.linkedin.com/company/mysuma/"
             aria-label="LinkedIn"
             noIcon
+            className="a11y-target"
           >
             <i className="bi bi-linkedin" style={iconStyle} aria-hidden="true"></i>
           </ExternalLink>

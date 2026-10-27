@@ -347,7 +347,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("food.cart_title") }),
+            withMetatags({ title: t("food.cart_title"), section: t("food.title") }),
             withPageLayout({ gutters: false, top: true }),
             FoodCart
           )}
@@ -359,7 +359,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("food.checkout") }),
+            withMetatags({ title: t("food.checkout"), section: t("food.title") }),
             withPageLayout({ gutters: false, top: true }),
             FoodCheckout
           )}
@@ -371,7 +371,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("food.checkout") }),
+            withMetatags({ title: t("food.checkout"), section: t("food.title") }),
             withPageLayout({ appNav: true, gutters: false }),
             FoodCheckoutConfirmation
           )}
@@ -408,7 +408,10 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("payments.link_bank_account") }),
+            withMetatags({
+              title: t("payments.link_bank_account"),
+              section: t("payments.payment_methods"),
+            }),
             withPageLayout({ top: true, gutters: true }),
             FundingLinkBankAccount
           )}
@@ -420,7 +423,10 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("payments.add_card") }),
+            withMetatags({
+              title: t("payments.add_card"),
+              section: t("payments.payment_methods"),
+            }),
             withPageLayout({ top: true, gutters: true }),
             FundingAddCard
           )}
@@ -456,7 +462,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles.order_history") }),
+            withMetatags({ title: t("titles.order_history"), section: t("food.title") }),
             withPageLayout(),
             OrderHistoryList
           )}
@@ -468,7 +474,10 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("food.unclaimed_order_history_title") }),
+            withMetatags({
+              title: t("food.unclaimed_order_history_title"),
+              section: t("food.title"),
+            }),
             withPageLayout(),
             UnclaimedOrderList
           )}
@@ -480,7 +489,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles.order") }),
+            withMetatags({ title: t("titles.order"), section: t("food.title") }),
             withPageLayout(),
             OrderHistoryDetail
           )}
@@ -516,7 +525,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles.trips") }),
+            withMetatags({ title: t("titles.trips"), section: t("titles.mobility") }),
             withPageLayout({ top: true, gutters: false }),
             Trips
           )}
@@ -528,7 +537,10 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles.trip_detail") }),
+            withMetatags({
+              title: t("titles.trip_detail"),
+              section: [t("titles.trips"), t("titles.mobility")],
+            }),
             withPageLayout({ top: true, gutters: false }),
             TripDetail
           )}

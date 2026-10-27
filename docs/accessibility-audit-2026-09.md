@@ -1240,3 +1240,11 @@ Branched from `a11y-level-aa`. The terms of use, the privacy policy, the SMS con
 - 1.4.8: foreground and background colour selection relies on the browser or user style sheets; there is no in-app theme picker.
 - Backend policy: one-time code lifetime and rate limits are server settings.
 - Pre-existing, unrelated: the theme names the font 'Source Sans Pro' while the font file is registered as 'SourceSansPro', so that font never loads.
+
+## AAA follow-up review fixes (2026-10-27)
+
+- 2.5.5: the Instagram and LinkedIn icons in the menu footer get 44px hit areas; the gap between them grows from 16px to 24px so the two areas do not overlap (the only visible change in this set).
+- 2.4.9: Back links name their destination ("Back to Food", or "Back to the previous page" when they go back in history), and the logo link is named "Suma, Home". Both names start with the visible text.
+- 2.4.8: page titles on pages inside a section name that section, for example "Shopping Cart | Food | Suma App" and "Trip Detail | Micromobility Trips | Mobility | Suma App" (the tab bar is only shown on the top-level section pages).
+- 3.1.3: "funding source", "private account" and "routing number" link to their glossary entries where they are used; the glossary scrolls to the term and focuses it.
+- Not changed: 3.1.4 SMS/MMS and 3.1.5 plain-language summaries are in legal and consent text (owner decision, listed above). "Back" buttons in forms are buttons, not links, so 2.4.9 does not apply to them. No "USD" appears in the member app strings.
