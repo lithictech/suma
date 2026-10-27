@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 
 const meta = {
-  title: "Styleguide/Commerce",
+  title: "Styleguide/OrderHistory",
 } satisfies Meta;
 
 export default meta;
