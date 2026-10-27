@@ -46,6 +46,7 @@ export default function Sitemap() {
       links: [
         { to: "/terms-of-use", label: t("common.terms_of_use") },
         { to: "/privacy-policy", label: t("common.privacy_policy") },
+        { to: "/glossary", label: t("glossary.title") },
       ],
     },
   ];
