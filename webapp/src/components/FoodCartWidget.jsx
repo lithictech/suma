@@ -2,7 +2,7 @@ import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import xIcon from "../assets/images/ui-x-thick.svg";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
 import SoldOutText from "./SoldOutText";
@@ -20,6 +20,10 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
   const btnClasses = sizeClasses[size];
   const { offering, cart, setOfferingFromResponse } = useOffering();
   const { showErrorToast } = useErrorToast();
+  // Name controls with the product, so on a list of products each button says
+  // which product it changes (not just "Add to cart").
+  const name = dt(product.name);
+  const [announcement, setAnnouncement] = React.useState("");
 
   const changeAbortController = React.useRef(new AbortController());
   const [quantity, setQuantity] = React.useState(() => {
@@ -47,6 +51,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
         }
         setOfferingFromResponse(data);
         setQuantity(q);
+        setAnnouncement(t("food.quantity_named", { quantity: q, name }));
         if (onQuantityChange) {
           onQuantityChange(q);
         }
@@ -56,85 +61,109 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
 
   if (product.outOfStock) {
     return (
-      <ButtonGroup aria-label={t("food.add_to_cart")} className="shadow">
-        <Button
-          variant="secondary"
-          className={clsx(
-            btnClasses,
-            size === "sm" && "p-1",
-            size === "lg" && "p-2",
-            "text-nowrap"
-          )}
-          disabled={quantity === 0}
-          onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
-        >
-          <span className="text-capitalize fs-5 align-middle mx-1">
-            <SoldOutText cart={cart} product={product} />
-          </span>
-          {quantity > 0 && (
-            <img
-              src={xIcon}
-              alt={t("food.remove_from_cart")}
-              width="20px"
-              className="ms-1"
-            />
-          )}
-        </Button>
-      </ButtonGroup>
+      <>
+        <ButtonGroup aria-label={name} className="shadow">
+          <Button
+            variant="secondary"
+            className={clsx(
+              btnClasses,
+              size === "sm" && "p-1",
+              size === "lg" && "p-2",
+              "text-nowrap"
+            )}
+            disabled={quantity === 0}
+            onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
+          >
+            <span className="text-capitalize fs-5 align-middle mx-1">
+              <SoldOutText cart={cart} product={product} />
+            </span>
+            {quantity > 0 && (
+              <img
+                src={xIcon}
+                alt={t("food.remove_from_cart_named", { name })}
+                width="20px"
+                className="ms-1"
+              />
+            )}
+          </Button>
+        </ButtonGroup>
+        <QuantityStatus announcement={announcement} />
+      </>
     );
   }
 
   const maxQuantity = Math.min(MAX_DISPLAYABLE_QUANTITY, product.maxQuantity);
   return (
-    <ButtonGroup aria-label={t("food.add_to_cart")} className="shadow">
-      {quantity > 0 && (
-        <>
-          <Button
-            onClick={() => handleQuantityChange(quantity - 1)}
-            className={btnClasses}
-            title={t("food.remove_from_cart")}
-          >
-            <img src={subtractIcon} alt={t("food.remove_from_cart")} width="32px" />
-          </Button>
-          <Dropdown
-            as={ButtonGroup}
-            title={"" + quantity}
-            onSelect={(quantity) => handleQuantityChange(Number(quantity))}
-          >
-            <>
-              <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
-                {quantity}
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-                <DropdownQuantities
-                  maxQuantity={maxQuantity}
-                  selectedQuantity={quantity}
-                />
-              </Dropdown.Menu>
-            </>
-          </Dropdown>
-        </>
-      )}
-      <Button
-        onClick={() => handleQuantityChange(quantity + 1)}
-        className={btnClasses}
-        disabled={quantity === maxQuantity}
-        title={t("food.add_to_cart")}
-      >
-        <img src={addIcon} alt={t("food.add_to_cart")} width="32px" />
-        {size === "lg" && quantity === 0 && (
-          <span
-            className="text-capitalize fs-5 align-middle ms-1 pe-2"
-            // Image always has alt text, do not have screen readers read it twice
-            aria-hidden="true"
-          >
-            {t("food.add_to_cart")}
-          </span>
+    <>
+      <ButtonGroup aria-label={name} className="shadow">
+        {quantity > 0 && (
+          <>
+            <Button
+              onClick={() => handleQuantityChange(quantity - 1)}
+              className={btnClasses}
+              title={t("food.remove_from_cart")}
+            >
+              <img
+                src={subtractIcon}
+                alt={t("food.remove_from_cart_named", { name })}
+                width="32px"
+              />
+            </Button>
+            <Dropdown
+              as={ButtonGroup}
+              title={"" + quantity}
+              onSelect={(quantity) => handleQuantityChange(Number(quantity))}
+            >
+              <>
+                <Dropdown.Toggle
+                  className="py-0 px-2"
+                  style={{ width: 60 }}
+                  aria-label={t("food.quantity_named", { quantity, name })}
+                >
+                  {quantity}
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
+                  <DropdownQuantities
+                    maxQuantity={maxQuantity}
+                    selectedQuantity={quantity}
+                  />
+                </Dropdown.Menu>
+              </>
+            </Dropdown>
+          </>
         )}
-      </Button>
-    </ButtonGroup>
+        <Button
+          onClick={() => handleQuantityChange(quantity + 1)}
+          className={btnClasses}
+          disabled={quantity === maxQuantity}
+          title={t("food.add_to_cart")}
+        >
+          <img src={addIcon} alt={t("food.add_to_cart_named", { name })} width="32px" />
+          {size === "lg" && quantity === 0 && (
+            <span
+              className="text-capitalize fs-5 align-middle ms-1 pe-2"
+              // Image always has alt text, do not have screen readers read it twice
+              aria-hidden="true"
+            >
+              {t("food.add_to_cart")}
+            </span>
+          )}
+        </Button>
+      </ButtonGroup>
+      <QuantityStatus announcement={announcement} />
+    </>
   );
 }
+
+/**
+ * Announces the new quantity after it changes. Kept outside the ButtonGroup
+ * so it does not affect the group's first/last button styling.
+ */
+const QuantityStatus = ({ announcement }) => (
+  <span role="status" className="visually-hidden">
+    {announcement}
+  </span>
+);
 
 const DropdownQuantities = ({ maxQuantity, selectedQuantity }) => {
   return times(maxQuantity + 1).map((_, i) => (

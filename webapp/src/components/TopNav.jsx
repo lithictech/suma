@@ -259,6 +259,11 @@ function NavFooter({ className }) {
         </Link>
       </div>
       <div className={rowCls}>
+        <Link to="/sitemap" className={linkCls}>
+          {t("sitemap.title")}
+        </Link>
+      </div>
+      <div className={rowCls}>
         <a href="mailto:info@mysuma.org" className={linkCls}>
           {t("common.contact_us")}
         </a>
