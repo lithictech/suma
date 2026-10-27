@@ -166,7 +166,7 @@ export default function OnboardingSignup() {
             minLength="5"
             maxLength="10"
             required
-            errorKeys={{ pattern: "forms.invalid_zip" }}
+            errorKeys={{ required: "forms.invalid_zip", pattern: "forms.invalid_zip" }}
             register={register}
             errors={errors}
             value={zipCode}

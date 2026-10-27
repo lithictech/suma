@@ -1190,3 +1190,13 @@ Branched from `a11y-level-a` after the admin-app changes were dropped. Verified 
 - 3.3.1/3.3.3: backend messages are still English until the API returns localized per-field codes.
 - The mobility map's vehicle markers and clusters could not be exercised live (no vehicles in the fixtures); their names and contrast were set in code.
 - AAA items (7:1 text on the light-grey surfaces, target size 44px everywhere, reduced motion, content reading level) are out of scope for this branch.
+
+## Follow-up review fixes (2026-10-27)
+
+From a second review of the member app:
+
+- 3.3.3: an empty required field names the field and says how to fix it ("Fill in “City” to continue.", or "Choose an option for “State”." for a dropdown); an empty phone or ZIP field gets the same example-based message as an invalid one.
+- 4.1.3: inline field errors are a polite live region, so an error that appears while typing or leaving a field is announced without moving focus.
+- 2.5.8: the copy, edit-fulfillment and payment-options icon buttons get a transparent 24px hit area (`.a11y-target-min`) instead of padding, so the layout does not change.
+- 1.3.5 was already met (name, address, ZIP and phone fields have autocomplete tokens); the review looked at production, which does not include these branches yet.
+- 4.1.3 for the "verify your account" notice: it is present when the dashboard renders, not inserted later, so it stays a labelled region rather than a live region.

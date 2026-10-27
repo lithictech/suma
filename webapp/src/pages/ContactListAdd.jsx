@@ -100,7 +100,7 @@ export default function ContactListAdd() {
           label={t("forms.phone")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           required
-          errorKeys={{ pattern: "forms.invalid_phone" }}
+          errorKeys={{ required: "forms.invalid_phone", pattern: "forms.invalid_phone" }}
           register={register}
           errors={errors}
           value={phone}

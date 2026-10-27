@@ -251,6 +251,8 @@
   "forms.invalid_min_length": "Must be at least {{constraint}} characters.",
   "forms.invalid_phone": "Enter a 10-digit US phone number, for example (503) 555-0123",
   "forms.invalid_required": "This field is required.",
+  "forms.invalid_required_choose": "Choose an option for “{{field}}”.",
+  "forms.invalid_required_named": "Fill in “{{field}}” to continue.",
   "forms.invalid_routing_number": "Please enter the 9 digit number of your bank account.",
   "forms.invalid_zip": "Enter a 5-digit ZIP code",
   "forms.name": "Name",

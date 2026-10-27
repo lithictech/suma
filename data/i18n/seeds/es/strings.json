@@ -251,6 +251,8 @@
   "forms.invalid_min_length": "Su respuesta debe ser {{constraint}} caracteres o más.",
   "forms.invalid_phone": "Ingresa un número de teléfono de EE. UU. de 10 dígitos, por ejemplo (503) 555-0123",
   "forms.invalid_required": "Respuesta requerida",
+  "forms.invalid_required_choose": "Elige una opción para «{{field}}».",
+  "forms.invalid_required_named": "Completa «{{field}}» para continuar.",
   "forms.invalid_routing_number": "Ingrese el código de ruta de 9 dígitos de su cuenta bancaria.",
   "forms.invalid_zip": "Ingresa un código postal de 5 dígitos",
   "forms.name": "Nombre",

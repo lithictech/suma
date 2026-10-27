@@ -78,7 +78,14 @@ export default function FormControlGroup({
     registerArgs.min = min;
   }
   const { ref: registerRef, ...registerRest } = register(name, registerArgs);
-  const message = useValidationError(name, errors, registerArgs, errorKeys);
+  const message = useValidationError(
+    name,
+    errors,
+    registerArgs,
+    errorKeys,
+    isString(label) ? label : null,
+    Input === Form.Select
+  );
   const feedbackId = `${name}-feedback`;
   const textId = `${name}-text`;
   const describedBy =
@@ -104,7 +111,9 @@ export default function FormControlGroup({
     />
   );
   const feedback = (
-    <Form.Control.Feedback id={feedbackId} type="invalid">
+    // Polite live region: an error that appears while the user types or leaves the field
+    // is announced without moving focus (4.1.3). It is also the field's description.
+    <Form.Control.Feedback id={feedbackId} type="invalid" aria-live="polite">
       {message}
     </Form.Control.Feedback>
   );

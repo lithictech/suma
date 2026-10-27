@@ -240,7 +240,7 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }) {
       <Dropdown as="span">
         <Dropdown.Toggle
           variant="link"
-          className="p-0 ms-2 text-muted"
+          className="p-0 ms-2 text-muted a11y-target-min"
           size="sm"
           aria-label={t("payments.account_options")}
         >
