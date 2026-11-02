@@ -30,7 +30,6 @@ export default function Mobility() {
 function MobilityImpl() {
   return (
     <div className="position-relative">
-      <h1 className="visually-hidden">{t("titles.mobility")}</h1>
       <Map />
     </div>
   );

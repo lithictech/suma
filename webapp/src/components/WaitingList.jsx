@@ -15,6 +15,7 @@ import {
 import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
+import ModalHeader from "./ModalHeader";
 import React from "react";
 import { FormCheck } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
@@ -102,11 +103,11 @@ export default function WaitingList({ survey, title, text }) {
 function ReviewAnswersModal({ show, survey, surveyAnswers, onCancel, onConfirm }) {
   return (
     <Modal show={show} onHide={onCancel} centered>
-      <Modal.Header closeButton closeLabel={t("common.close")}>
+      <ModalHeader closeButton>
         <Modal.Title as="h2" className="h5">
           {t("surveys_ui.review_title")}
         </Modal.Title>
-      </Modal.Header>
+      </ModalHeader>
       <Modal.Body>
         {survey.questions.map((question) => {
           const chosen = question.answers.filter((answer) =>

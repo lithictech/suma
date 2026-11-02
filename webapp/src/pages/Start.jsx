@@ -1,4 +1,5 @@
 import api from "../api";
+import Alert from "../components/Alert";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput.jsx";
@@ -12,7 +13,6 @@ import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import React, { useState } from "react";
-import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";

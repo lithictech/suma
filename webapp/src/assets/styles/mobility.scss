@@ -1,8 +1,5 @@
 @import "./theme";
 
-/* Text-safe gold: 8.85:1 on white, 8.48:1 on #fafafa, 7.91:1 on #f2f2f2 (WCAG 1.4.6). */
-$map-focus-color: #604522;
-
 .mobility-drawer {
   position: absolute;
   top: 0;
@@ -14,13 +11,6 @@ $map-focus-color: #604522;
 .mobility-drawer-main {
   background-color: map-get($theme-colors, "light");
   padding: map-get($spacers, 4);
-}
-
-/* The drawer and its title take focus from script when a vehicle is selected. */
-.mobility-drawer:focus-visible,
-.mobility-drawer-title:focus-visible {
-  outline: 2px solid $map-focus-color;
-  outline-offset: 2px;
 }
 
 .mobility-drawer-footer {
@@ -68,28 +58,7 @@ $map-focus-color: #604522;
   padding: 1rem 1rem!important;
 
   p {
-    /* 11.5:1 on white (WCAG 1.4.6). */
-    color: $gray-800;
-  }
-
-  /* Keep the title clear of the 44px close button
-  (which overlaps the 1rem padding by 16px). */
-  h6:first-child {
-    padding-right: 28px;
-  }
-}
-
-/* 44px target (WCAG 2.5.5); the default is 24px and #757575. */
-.leaflet-container a.leaflet-popup-close-button {
-  width: $map-control-size;
-  height: $map-control-size;
-  font-size: 22px;
-  line-height: $map-control-size;
-  color: $gray-800;
-
-  &:hover,
-  &:focus {
-    color: #000;
+    color: $gray-600;
   }
 }
 
@@ -109,12 +78,10 @@ $map-focus-color: #604522;
   display: flex!important;
   justify-content: center;
   align-items: center;
-  /* 44px target (WCAG 2.5.5), centred on the cluster location.
-  Keep in sync with the cluster iconSize in mapBuilder.js. */
-  margin-left: -22px !important;
-  margin-top: -22px !important;
-  width: 44px !important;
-  height: 44px !important;
+  margin-left: -18px !important;
+  margin-top: -18px !important;
+  width: 36px !important;
+  height: 36px !important;
   font-size: 16px;
   border-radius: 50%;
   color: $primary;
@@ -125,10 +92,8 @@ $map-focus-color: #604522;
 }
 
 .mobility-map-icon {
-  /* Height of the scooter and the square part of the container.
-  The marker is 44px wide (iconSize in mapBuilder.js), giving a 44x44 target (WCAG 2.5.5);
-  the pointer under the square overflows it. */
-  height: 44px!important;
+  /* height of scooter and container */
+  height: 43px!important;
   border-radius: 7px;
   box-shadow: 0 0 5px 0 rgba(201, 201, 201, 1);
 }
@@ -151,12 +116,6 @@ $map-focus-color: #604522;
 
 .mobility-location-accuracy-circle-transition {
   transition: all 1000ms linear 0s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mobility-location-accuracy-circle-transition {
-    transition: none;
-  }
 }
 
 .trips-week-divider {

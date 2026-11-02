@@ -1212,22 +1212,22 @@ Branched from `a11y-level-aa`. The terms of use, the privacy policy, the SMS con
 | Longest transition or animation with reduced motion set (live) | up to 2s, infinite pulse | 0.00001s |
 | Expired session during use (live) | generic error toast, input lost | redirect to sign-in with a notice, return to the same page, drafts restored on non-sensitive forms |
 | Horizontal scroll at 320px on 11 pages, and with extra text spacing on | none | none |
-| Map: pause vehicle updates, 44px controls and markers | no pause control | present; label switches between Pause and Resume and the change is announced |
 
 ## Fixed
 
 - 1.4.6: `$primary-dark #604522`, `$secondary #484a47`, `$success #2c503e`, `$danger #842c00`, muted text at 85% alpha, `$min-contrast-ratio: 7`; agreement-box links use the dark gold instead of blue.
 - 1.4.8: opt-in "More spacing between lines and paragraphs" switch in the menu (persists in localStorage); `!important` removed from colour rules so user style sheets apply.
-- 2.2.3 / 2.2.4: the "copied" toast is a persistent inline status; vehicle updates can be paused.
+- 2.2.3 / 2.2.4: the "copied" toast is a persistent inline status.
 - 2.2.5: 401 responses store the location, send the user to sign-in with a notice, and return them afterwards; drafts are kept in sessionStorage for onboarding, contact-list, regain-access and survey forms. Card and bank forms store nothing.
-- 2.3.3: global reduced-motion rule plus guards in the map (no fly-to animation, static location marker, no cluster animation), the checkmark, and the loader ring (a still image is served when reduced motion is set, since the SVG animation cannot be stopped from CSS).
-- 2.4.8 / 2.4.10: hidden section headings on the dashboard and in the menu; h1 on the map page.
+- 2.3.3: global reduced-motion rule plus guards in the checkmark and the loader ring (a still image is served when reduced motion is set, since the SVG animation cannot be stopped from CSS).
+- 2.4.8 / 2.4.10: hidden section headings on the dashboard and in the menu.
 - 2.4.9: link names extended with hidden context ("Learn More about suma", "Address …, open in maps", "Continue to checkout").
-- 2.5.5: buttons, standalone links, the tab bar, close buttons and pagination get a 44px pointer target through an invisible hit area, so their size and the page layout do not change; code-entry boxes, map controls, markers and clusters are 44px. Stacked lists (checkbox and radio groups, dropdown items, menu links) keep their original spacing; enlarging them is available behind the Sass flag `$a11y-large-option-rows` (off by default) because it changes the layout of every form.
+- 2.5.5: buttons, standalone links, the tab bar, close buttons and pagination get a 44px pointer target through an invisible hit area, so their size and the page layout do not change; code-entry boxes are 44px. Stacked lists (checkbox and radio groups, dropdown items, menu links) keep their original spacing; enlarging them is available behind the Sass flag `$a11y-large-option-rows` (off by default) because it changes the layout of every form.
 - 3.1.3: member glossary page at `/glossary`, linked from the menu. 3.1.4: abbreviations expanded in UI strings. 3.1.5: four UI intro strings reworded in plainer language.
 - 3.2.5: links that open a new window say so in their accessible name; standalone interface links also show an icon, while links inside localized content (including the legal pages) get the hidden text only so their layout is unchanged; internal and mailto links no longer open new windows; the stale-cache reload waits 5 seconds and can be triggered or cancelled.
 - 3.3.5: help text under phone, ZIP, card and amount fields. 3.3.6: review step before the survey is submitted.
-- Bug fixes found along the way: keyboard activation of a map marker threw; `PrivateAccountsList` referenced a string key that does not exist.
+- Bug fix found along the way: `PrivateAccountsList` referenced a string key that does not exist.
+- The mobility map is out of scope at the maintainers' request (2026-11-02): its AAA changes (pause control, 44px controls and markers, reduced-motion guards, the page h1, the marker keyboard fix, the glossary link in the vehicle drawer) were backed out and those findings remain open.
 
 ## Needs an owner decision (not changed)
 
