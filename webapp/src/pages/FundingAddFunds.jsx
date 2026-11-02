@@ -3,6 +3,7 @@ import CurrencyNumpad from "../components/CurrencyNumpad";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
+import ModalHeader from "../components/ModalHeader";
 import PageHeading from "../components/PageHeading.jsx";
 import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
@@ -165,9 +166,9 @@ export default function FundingAddFunds() {
         />
       </Form>
       <Modal show={showConfirm.isOn} onHide={showConfirm.turnOff} centered>
-        <Modal.Header closeButton closeLabel={t("common.close")}>
+        <ModalHeader closeButton>
           <Modal.Title as="h5">{t("payments.confirm_add_funds_title")}</Modal.Title>
-        </Modal.Header>
+        </ModalHeader>
         <Modal.Body>
           <p>
             {t("payments.confirm_add_funds_body", {

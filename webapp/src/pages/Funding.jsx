@@ -84,11 +84,11 @@ function ChargeableCashBalance() {
         </Button>
       </Card.Body>
       <Modal show={showConfirm.isOn} onHide={showConfirm.turnOff} centered>
-        <Modal.Header closeButton closeLabel={t("common.close")}>
+        <ModalHeader closeButton>
           <Modal.Title as="h5">
             {t("payments.confirm_pay_title", { amount: balance })}
           </Modal.Title>
-        </Modal.Header>
+        </ModalHeader>
         <Modal.Body>
           <p>{t("payments.confirm_pay_body", { amount: balance })}</p>
           <FormButtons

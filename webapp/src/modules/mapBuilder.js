@@ -32,9 +32,6 @@ export default class MapBuilder {
       [this._mapCache.lat || 45.5152, this._mapCache.lng || -122.6784],
       this._mapCache.zoom || this._minZoom
     );
-    // Leaflet inserts bottom-corner controls above earlier ones,
-    // so add the pan control first to have it sit under the zoom control.
-    this.newPanControl().addTo(this._map);
     this._l.control
       .zoom({
         position: "bottomright",
@@ -372,63 +369,6 @@ export default class MapBuilder {
 
   _getLocationZoom() {
     return Math.max(15, this._map.getZoom());
-  }
-
-  newPanControl() {
-    // Four-way pan buttons, so the map can be moved without dragging (WCAG 2.5.7).
-    const map = this._map;
-    const directions = [
-      { key: "up", label: t("mobility.pan_up"), icon: "bi-arrow-up", offset: [0, -100] },
-      {
-        key: "left",
-        label: t("mobility.pan_left"),
-        icon: "bi-arrow-left",
-        offset: [-100, 0],
-      },
-      {
-        key: "right",
-        label: t("mobility.pan_right"),
-        icon: "bi-arrow-right",
-        offset: [100, 0],
-      },
-      {
-        key: "down",
-        label: t("mobility.pan_down"),
-        icon: "bi-arrow-down",
-        offset: [0, 100],
-      },
-    ];
-    const PanControl = this._l.Control.extend({
-      options: { position: "bottomright" },
-      onAdd() {
-        const container = leaflet.DomUtil.create(
-          "div",
-          "leaflet-control-pan leaflet-control"
-        );
-        // Keep clicks and scrolls on the buttons from reaching the map.
-        leaflet.DomEvent.disableClickPropagation(container);
-        leaflet.DomEvent.disableScrollPropagation(container);
-        directions.forEach(({ key, label, icon, offset }) => {
-          const button = leaflet.DomUtil.create(
-            "button",
-            `leaflet-control-pan-button leaflet-control-pan-${key}`,
-            container
-          );
-          button.type = "button";
-          button.title = label;
-          button.setAttribute("aria-label", label);
-          const glyph = leaflet.DomUtil.create("i", `bi ${icon}`, button);
-          glyph.setAttribute("aria-hidden", "true");
-          leaflet.DomEvent.on(button, "click", (e) => {
-            leaflet.DomEvent.preventDefault(e);
-            map.panBy(offset);
-          });
-        });
-        return container;
-      },
-      onRemove() {},
-    });
-    return new PanControl();
   }
 
   newLocateControl() {
