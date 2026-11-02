@@ -155,12 +155,15 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
   return (
     <fieldset>
       <legend className="form-label fs-6">{i18n.t(question.labelKey)}</legend>
-      {question.answers.map((answer) => {
+      {question.answers.map((answer, idx) => {
         const id = surveyAnswers.answerKey(question, answer);
         return (
           <FormCheck
             key={id}
             id={id}
+            // A fieldset keeps its children's margins inside it, so the last check's
+            // bottom margin would add space that used to collapse into the divider's.
+            className={idx === question.answers.length - 1 ? "mb-0" : undefined}
             name={question.key}
             label={i18n.t(answer.labelKey)}
             type={question.format}

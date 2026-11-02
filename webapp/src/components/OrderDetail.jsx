@@ -11,10 +11,10 @@ import useToggle from "../shared/react/useToggle";
 import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import Alert from "./Alert";
 import PressAndHold from "./PressAndHold";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
@@ -166,10 +166,15 @@ function FulfillmentOption({ order, onOrderUpdated }) {
     <Form noValidate>
       <fieldset>
         <legend className="h6 fw-bold lh-lg">{order.fulfillmentConfirmation}</legend>
-        {order.fulfillmentOptionsForEditing.map((fo) => (
+        {order.fulfillmentOptionsForEditing.map((fo, idx) => (
           <Form.Check
             key={fo.id}
             id={fo.id}
+            // A fieldset keeps its children's margins inside it, so the last radio's
+            // bottom margin would add space that used to collapse into the parent's.
+            className={
+              idx === order.fulfillmentOptionsForEditing.length - 1 ? "mb-0" : undefined
+            }
             name="fulfillmentOption"
             type="radio"
             label={fo.description}

@@ -5,6 +5,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup, { RequiredFieldsNote } from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
+import ModalHeader from "../components/ModalHeader";
 import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
@@ -239,9 +240,9 @@ function LinkBankAccount({ onSuccess, returnTo }) {
           onHide={showCheckModalToggle.turnOff}
           centered
         >
-          <Modal.Header closeButton>
+          <ModalHeader closeButton>
             <Modal.Title>{t("payments.check_details_title")}</Modal.Title>
-          </Modal.Header>
+          </ModalHeader>
           <Modal.Body>
             <p>{t("payments.check_details_subtitle")}</p>
             <img

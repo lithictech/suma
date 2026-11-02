@@ -1,5 +1,6 @@
 import useValidationError from "../state/useValidationError";
 import FormText from "./FormText";
+import clsx from "clsx";
 import React from "react";
 import Form from "react-bootstrap/Form";
 
@@ -46,7 +47,7 @@ export default function FormRadioInputs({
   const body = (
     <>
       {description}
-      {inputs.map(({ id, label }) => (
+      {inputs.map(({ id, label }, idx) => (
         <Form.Check
           {...register(name, registerOptions)}
           key={id}
@@ -54,7 +55,9 @@ export default function FormRadioInputs({
           value={id}
           label={label}
           type="radio"
-          className={className}
+          // A fieldset keeps its children's margins inside it, so the last radio's
+          // bottom margin would add space that used to collapse into the parent's.
+          className={clsx(className, legend && idx === inputs.length - 1 && "mb-0")}
           // It's unusual to highlight the checkbox label itself when it's required,
           // but to draw more attention to it, we highlight the label and the tooltip
           // below the checkboxes.

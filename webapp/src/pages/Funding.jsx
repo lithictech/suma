@@ -2,6 +2,7 @@ import api from "../api";
 import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
+import ModalHeader from "../components/ModalHeader";
 import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
@@ -247,9 +248,9 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
 
   return (
     <Modal show={toggle.isOn} onHide={toggle.turnOff} centered>
-      <Modal.Header closeButton>
+      <ModalHeader closeButton>
         <Modal.Title as="h5">{t("payments.unlink_account")}</Modal.Title>
-      </Modal.Header>
+      </ModalHeader>
       <Modal.Body>
         <p>{t("payments.unlink_account_question")}</p>
         <p>

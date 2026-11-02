@@ -1,4 +1,5 @@
 import api from "../api";
+import Alert from "../components/Alert";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons.jsx";
 import FormError from "../components/FormError.jsx";
@@ -16,7 +17,6 @@ import { CanceledError } from "axios";
 import clsx from "clsx";
 import React from "react";
 import { ProgressBar } from "react-bootstrap";
-import Alert from "react-bootstrap/Alert";
 import { useParams } from "react-router-dom";
 
 /**

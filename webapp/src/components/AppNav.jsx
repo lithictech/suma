@@ -34,7 +34,7 @@ const AppLink = ({ to, label, prefixes, className }) => {
       aria-current={active ? "page" : undefined}
       className={clsx(
         "btn btn-outline-primary app-link",
-        active && "app-link-active fw-bold text-decoration-underline",
+        active && "app-link-active",
         className
       )}
     >

@@ -1126,7 +1126,7 @@ Verified by re-running the same axe-core crawl (47 member-app and 58 admin-app p
 
 ## Fixed
 
-- W-1 press-and-hold is keyboard operable (Space/Enter hold, Escape via blur); W-15 ledger picker items are focusable buttons; W-16 map region label, marker names, keyboard-openable restriction zones, drawer no longer auto-closes.
+- W-1 press-and-hold is keyboard operable (Space/Enter hold, Escape via blur); W-15 ledger picker items are focusable buttons.
 - W-2, W-3, A-1 every icon-only control and empty link has an accessible name; empty admin links with a null model now render text or nothing.
 - W-5 document language follows the UI language.
 - W-8, W-9, W-27 visible labels with required markers, `aria-required`/`aria-invalid`/`aria-describedby`, fieldset and legend on every radio and checkbox group, organisation dropdown labelled; A-3, A-4 all MUI selects wired with `labelId`, unlabelled fields, switches, checkbox lists and radio groups labelled.
@@ -1134,16 +1134,27 @@ Verified by re-running the same axe-core crawl (47 member-app and 58 admin-app p
 - W-12, W-13, W-14, A-5 toasts no longer auto-dismiss (errors persist with a Dismiss action in admin), carousel does not auto-advance, blinking alerts stop after four cycles.
 - W-18, A-27 no action fires on pointer-down.
 - W-20, W-21, W-22 loaders and offline state announced, decorative icons hidden, step state in text, card preview hidden, vehicle images decorative.
-- W-23, W-24, A-12, A-13 one `h1` per page, sequential levels (including the terms markdown), header-less ledger table given caption and header, admin key-value tables use row headers, related-list tables labelled and focusable.
-- W-25 disabled state uses the real `disabled` prop. W-28 language names marked with `lang`, library labels localised. W-30 auto-advance note on the code screen. W-31, A-17 focus managed on route change and inline edits. W-34 phone and ZIP have specific messages. W-40 agreement checkbox labelled by its text. W-42 invalid input type removed. W-43 partner title localised.
+- W-23, W-24, A-12, A-13 one `h1` per page, sequential levels (including the terms markdown), header-less ledger table given an accessible name and header, admin key-value tables use row headers, related-list tables labelled and focusable.
+- W-25 disabled state uses the real `disabled` prop. W-28 language names marked with `lang`, library labels localised. W-30 auto-advance note on the code screen (screen-reader only, read with the first box). W-31, A-17 focus managed on route change and inline edits. W-34 phone and ZIP have specific messages. W-40 agreement checkbox labelled by its text. W-42 invalid input type removed. W-43 partner title localised.
 - A-9 expression editor has a role, name, description and live cursor announcements; A-18 status menu closes on Escape and Tab, double Backspace fixed; A-22 sign-in uses `type="submit"` and autocomplete; A-23 dialogs titled, duplicate ids replaced with `useId`, toggle chips expose `aria-pressed`, file inputs no longer nest inside buttons; A-28 emoji booleans and status icons have text alternatives; A-11 risk, deprecated, closed and expired states have text; A-14 missing and generic page titles fixed.
 
 ## Still open at Level A
 
 - S-3 / W-34: backend validation errors are still collapsed to one generic code; per-field localised errors need an API change.
-- W-16: vehicle polling continues (treated as essential real-time data); the drawer now shows a message instead of closing.
+- W-16 and the rest of the mobility map: out of scope at the maintainers' request (2026-11-02). The map changes were backed out because the map could not be exercised with vehicles in the fixture environment; the findings remain open.
 - A-9: the expression editor uses `role="textbox"` while still containing chip buttons; consider `role="application"` after screen-reader testing.
 - MUI Autocomplete renders its multiline text areas with `role="combobox"` (axe aria-allowed-role, best practice, library behaviour).
 - Onboarding carousel indicators stay hidden by `onboarding.scss`; prev and next buttons are present and auto-advance is off.
-- Not runtime-tested with assistive technology: press-and-hold with a screen reader or switch, the map with VoiceOver or TalkBack, and checkout and add-funds forms with a linked payment method.
+- Not runtime-tested with assistive technology: press-and-hold with a screen reader or switch, and checkout and add-funds forms with a linked payment method.
 - AA and AAA items (colour palette, focus ring contrast, sticky header scroll padding, target size, reduced motion, confirmations, content reading level) are unchanged.
+
+## Review follow-up (2026-11-02)
+
+From the upstream review of this branch. Each change was compared against `main` with a seeded checkout (card, bank account, fulfillment options), ledgers, an editable order and the waiting-list survey, at 375px and 1280px: pixel diff plus element positions and sizes.
+
+- Mobility map: all map changes backed out (out of scope); see "Still open at Level A".
+- Close buttons on alerts, modals and toasts are labelled in the current language by default, through thin `Alert`, `ModalHeader` and `ToastHeader` wrappers (react-bootstrap's defaults are English only). Four modals that still said "Close" in Spanish now say "Cerrar".
+- Layout regressions found by the comparison and fixed: fieldsets keep their last check's 2px margin inside them (checkout fulfillment, order fulfillment edit, waiting-list survey), so the last row drops it; the dashboard program-card titles had picked up the link colour from the `.h5` class, now sized with `fs-5`; the ledger table's visually hidden caption shortened the page by 1px, now named with `aria-label`; the code screen's legend lost the 24px gap above the code boxes, restored with `mb-4`.
+- The code screen's auto-advance note is screen-reader only, attached to the first box with `aria-describedby`, so the screen looks as before.
+- The active tab's bold and underline moved into `.app-link.app-link-active` (the underline was not applying through `.btn`).
+- Pages now pixel-identical to `main`: checkout, ledgers (picker open and closed), funding, add funds, order detail (with the edit form open), order history, unclaimed orders, private accounts, preferences, onboarding signup, and the code screen at 375px. Remaining differences are intended: the active-tab underline, visible labels with required markers on the card, bank and contact-list forms (W-8), and the code screen's Verify button staying enabled (W-25).

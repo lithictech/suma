@@ -3,9 +3,9 @@ import config from "../config";
 import { imageAltT, t } from "../localization";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import useToggle from "../shared/react/useToggle";
+import Alert from "./Alert";
 import PageLoader from "./PageLoader";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 
 /**
@@ -118,7 +118,6 @@ export default function AddToHomescreen() {
       show={shouldPrompt}
       onClose={() => setShouldPrompt(false)}
       dismissible
-      closeLabel={t("common.close")}
     >
       <Alert.Heading>
         <img

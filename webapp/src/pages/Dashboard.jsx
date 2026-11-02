@@ -1,6 +1,7 @@
 import api from "../api";
 import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import AddToHomescreen from "../components/AddToHomescreen";
+import Alert from "../components/Alert";
 import ExternalLink from "../components/ExternalLink";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
@@ -14,7 +15,6 @@ import readOnlyReason from "../modules/readOnlyReason";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
@@ -93,7 +93,9 @@ function TopAlerts({ dashboard }) {
         <Alert
           variant="danger"
           className="border-radius-0"
-          // Static notices: pass role/aria-label to the element (needs transition off).
+          // react-bootstrap's Alert drops role and aria-label while it uses its
+          // default Fade transition. These notices never animate, so turn the
+          // transition off and the region role and label reach the DOM.
           transition={false}
           role="region"
           aria-label={t("dashboard.check_ongoing_trip_button")}
@@ -151,7 +153,7 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
     <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
       <HeaderComp to={appLink}>
         <h2
-          className="h5 border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
+          className="fs-5 border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
           style={{ zIndex: 1 }}
         >
           {name}

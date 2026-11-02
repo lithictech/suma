@@ -34,6 +34,10 @@ export default function ELink({ href, to, immediate, ...rest }) {
     let to, replace;
     if (immediate) {
       rest = {
+        // Navigating on pointer-down can't be cancelled by sliding off the link
+        // (WCAG 2.5.2 Pointer Cancellation). Cancelling mousedown instead keeps
+        // focus where it is, so a focused field doesn't blur and run validation,
+        // and the normal click does the navigation.
         onMouseDown: (e) => e.preventDefault(),
         ...rest,
       };

@@ -2,6 +2,7 @@ import api from "../api";
 import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
+import ModalHeader from "../components/ModalHeader";
 import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink.jsx";
@@ -63,13 +64,13 @@ export default function PrivateAccountsList() {
       </LayoutContainer>
       <hr className="my-4" />
       <Modal show={!!modalAccount} onHide={() => setModalAccount(null)}>
-        <Modal.Header closeButton>
+        <ModalHeader closeButton>
           <Modal.Title>
             {t("private_accounts.help_title", {
               vendorName: modalAccount?.vendorName,
             })}
           </Modal.Title>
-        </Modal.Header>
+        </ModalHeader>
         <Modal.Body>
           <div className="d-flex justify-content-center align-items-center flex-column m-2">
             <ScrollTopOnMount />

@@ -153,12 +153,11 @@ const OneTimePassword = () => {
         <br />
         {maskPhoneNumber(phoneNumber)}:
       </p>
-      <p className="text-muted small text-center mt-1 mb-0">
-        {t("otp.auto_advance_note")}
-      </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
-          <legend className="text-center mt-4">
+          {/* A legend floats, so its margin doesn't collapse with the code boxes'
+              margin the way the old heading's did; mb-4 keeps the same 24px gap. */}
+          <legend className="text-center mt-4 mb-4">
             <h1 className="h4 mb-0">{t("otp.verify_code")}</h1>
           </legend>
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
@@ -183,9 +182,15 @@ const OneTimePassword = () => {
                   total: OTP_LENGTH,
                 })}
                 autoComplete="one-time-code"
+                // Tell screen reader users up front that focus moves on its own
+                // (WCAG 3.2.2). Sighted users see it happen, so it is not shown.
+                aria-describedby={index === 0 ? "otpAutoAdvanceNote" : undefined}
               />
             ))}
           </div>
+          <span id="otpAutoAdvanceNote" className="visually-hidden">
+            {t("otp.auto_advance_note")}
+          </span>
         </fieldset>
         <FormError error={error} center className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />

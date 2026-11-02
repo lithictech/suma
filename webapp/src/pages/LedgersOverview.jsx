@@ -206,12 +206,14 @@ function LedgerLinesTable({ lines, linesLoading }) {
         responsive
         striped
         hover
+        // Named with aria-label rather than a visually hidden caption: the caption
+        // takes part in table layout and shortens the page by a pixel.
+        aria-label={t("payments.ledger_transactions")}
         className={clsx(
           "mt-1 table-flush table-borderless",
           linesLoading && "opacity-50"
         )}
       >
-        <caption className="visually-hidden">{t("payments.ledger_transactions")}</caption>
         <thead className="visually-hidden">
           <tr>
             <th scope="col">{t("payments.ledger_transactions")}</th>

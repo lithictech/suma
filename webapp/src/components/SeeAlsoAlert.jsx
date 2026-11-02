@@ -1,7 +1,7 @@
+import Alert from "./Alert";
 import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 
 export default function SeeAlsoAlert({
   label,

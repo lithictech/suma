@@ -69,8 +69,12 @@
     }
 }
 
-.app-link-active {
+// Two classes so it wins over .btn, which removes the underline.
+.app-link.app-link-active {
     background: $white;
+    // Bold and underlined too, so the current section is not shown by colour alone.
+    font-weight: $font-weight-bold;
+    text-decoration: underline;
 }
 
 .thin-header-image {

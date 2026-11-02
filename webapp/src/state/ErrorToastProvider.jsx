@@ -1,3 +1,4 @@
+import ToastHeader from "../components/ToastHeader";
 import { t } from "../localization";
 import { extractErrorCode } from "./useError";
 import useGlobalViewState from "./useGlobalViewState";
@@ -44,10 +45,10 @@ export default function ErrorToastProvider({ children }) {
           onClose={() => setState("")}
           bg="light"
         >
-          <Toast.Header className="text-danger" closeLabel={t("common.close")}>
+          <ToastHeader className="text-danger">
             <i className="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
             <strong className="me-auto">{t("common.error")}</strong>
-          </Toast.Header>
+          </ToastHeader>
           <Toast.Body>{state}</Toast.Body>
         </Toast>
       </ToastContainer>

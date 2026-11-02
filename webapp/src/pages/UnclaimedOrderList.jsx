@@ -4,6 +4,7 @@ import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import LayoutContainer from "../components/LayoutContainer";
+import ModalHeader from "../components/ModalHeader";
 import OrderDetail from "../components/OrderDetail";
 import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
@@ -96,11 +97,11 @@ export default function UnclaimedOrderList() {
 function ClaimedOrderModal({ claimedOrder, onHide }) {
   return (
     <Modal show={!isEmpty(claimedOrder)} onHide={onHide} centered>
-      <Modal.Header closeButton>
+      <ModalHeader closeButton>
         <Modal.Title>
           {t("food.order_claimed", { serial: claimedOrder.serial })}
         </Modal.Title>
-      </Modal.Header>
+      </ModalHeader>
       <Modal.Body>
         <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
           <ScrollTopOnMount />
