@@ -104,7 +104,10 @@ export default function PressAndHold({ size, onHeld, label, releaseLabel, childr
         variant="primary"
         ref={buttonRef}
         className="position-absolute press-and-hold-button"
-        style={{ width: innerSize, height: innerSize }}
+        // Use a min height so the circle grows (rather than clipping the label)
+        // when users increase text spacing (WCAG 1.4.12). At default spacing
+        // the label fits and the button stays innerSize square.
+        style={{ width: innerSize, minHeight: innerSize }}
         aria-label={label}
         onMouseDown={isPressed.turnOn}
         onMouseUp={release}

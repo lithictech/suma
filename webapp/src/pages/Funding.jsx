@@ -48,15 +48,23 @@ function ChargeableCashBalance() {
   const { user, setUser } = useUser();
   const [error, setError] = useError();
   const screenLoader = useScreenLoader();
+  const showConfirm = useToggle(false);
 
   if (!user.chargeableCashBalance) {
     return null;
   }
 
   function handleClick(e) {
-    screenLoader.turnOn();
-    setError(null);
     e.preventDefault();
+    setError(null);
+    // Money moves here, so ask for an explicit confirmation first (3.3.4).
+    showConfirm.turnOn();
+  }
+
+  function submitPayment(e) {
+    e.preventDefault();
+    showConfirm.turnOff();
+    screenLoader.turnOn();
     api
       .chargeLedgerBalance()
       .then((r) => setUser(r.data))
@@ -75,6 +83,27 @@ function ChargeableCashBalance() {
           {t("payments.negative_balance_action", { amount: balance })}
         </Button>
       </Card.Body>
+      <Modal show={showConfirm.isOn} onHide={showConfirm.turnOff} centered>
+        <ModalHeader closeButton>
+          <Modal.Title as="h5">
+            {t("payments.confirm_pay_title", { amount: balance })}
+          </Modal.Title>
+        </ModalHeader>
+        <Modal.Body>
+          <p>{t("payments.confirm_pay_body", { amount: balance })}</p>
+          <FormButtons
+            variant="danger"
+            primaryProps={{
+              children: t("payments.negative_balance_action", { amount: balance }),
+              onClick: submitPayment,
+            }}
+            secondaryProps={{
+              children: t("common.cancel"),
+              onClick: showConfirm.turnOff,
+            }}
+          />
+        </Modal.Body>
+      </Modal>
     </Card>
   );
 }
@@ -211,7 +240,7 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }) {
       <Dropdown as="span">
         <Dropdown.Toggle
           variant="link"
-          className="p-0 ms-2 text-muted"
+          className="p-0 ms-2 text-muted a11y-target-min"
           size="sm"
           aria-label={t("payments.account_options")}
         >

@@ -1,5 +1,7 @@
 .press-and-hold-button {
     border-radius: 50% !important;
+    white-space: normal;
+    overflow: visible;
 }
 
 .press-and-hold-feedback {
@@ -32,6 +34,7 @@
 }
 .press-and-hold-label {
     display: block;
+    overflow-wrap: anywhere;
 }
 
 @media (prefers-reduced-motion: reduce) {

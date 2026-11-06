@@ -28,7 +28,8 @@ export default function TopNav() {
       className="pt-1 pb-0"
       bg={user?.adminMember ? "danger" : "primary"}
       expand={false}
-      variant="dark"
+      // Dark text on the gold bar (9.29:1); keep light text on the red admin bar.
+      variant={user?.adminMember ? "dark" : "light"}
       sticky="top"
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
@@ -101,6 +102,8 @@ export default function TopNav() {
   );
 }
 
+const LANGUAGE_LABEL_KEYS = { en: "common.in_english", es: "common.in_spanish" };
+
 function LanguageButtons({ className }) {
   const { supportedLocales } = useBackendGlobals();
   const { currentLanguage, changeLanguage } = useI18n();
@@ -116,6 +119,10 @@ function LanguageButtons({ className }) {
           className={clsx(currentLanguage === code && "active-outline-button")}
           onClick={() => changeLanguage(code)}
           lang={code}
+          // Same name as the language link on the public pages ("En Español"),
+          // so the control is identified consistently (WCAG 3.2.4).
+          aria-label={LANGUAGE_LABEL_KEYS[code] ? t(LANGUAGE_LABEL_KEYS[code]) : native}
+          aria-pressed={currentLanguage === code}
         >
           {native}
         </Button>
@@ -226,7 +233,7 @@ function NavFooter({ className }) {
   return (
     <>
       <div className={clsx("d-flex flex-column", className)}>
-        <div className={clsx("text-primary", rowCls)}>
+        <div className={clsx("text-dark", rowCls)}>
           &copy; {new Date().getFullYear()} mysuma.org
         </div>
         <div className="d-flex flex-row justify-content-center">
@@ -249,6 +256,11 @@ function NavFooter({ className }) {
       <div className={rowCls}>
         <Link to="/privacy-policy" className={linkCls}>
           {t("common.privacy_policy")}
+        </Link>
+      </div>
+      <div className={rowCls}>
+        <Link to="/sitemap" className={linkCls}>
+          {t("sitemap.title")}
         </Link>
       </div>
       <div className={rowCls}>

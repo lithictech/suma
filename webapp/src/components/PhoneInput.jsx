@@ -15,7 +15,9 @@ export default function PhoneInput({ onPhoneChange, onChange, ...rest }) {
       name="phone"
       pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
       autoComplete="tel"
-      errorKeys={{ pattern: "forms.invalid_phone" }}
+      // An empty phone field gets the same message as an invalid one,
+      // so it says what to enter, not only that something is missing (3.3.3).
+      errorKeys={{ required: "forms.invalid_phone", pattern: "forms.invalid_phone" }}
       onChange={handleChange}
       {...rest}
     />

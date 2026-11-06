@@ -43,6 +43,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountDetail from "./pages/PrivateAccountDetail.jsx";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import RegainAccountAccess from "./pages/RegainAccountAccess.jsx";
+import Sitemap from "./pages/Sitemap";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
 import TripDetail from "./pages/TripDetail.jsx";
@@ -138,6 +139,15 @@ function AppRoutes() {
           path="/privacy-policy-content"
           exact
           element={renderWithHocs(PrivacyPolicyContent)}
+        />
+        <Route
+          path="/sitemap"
+          exact
+          element={renderWithHocs(
+            withMetatags({ title: t("titles.sitemap") }),
+            withPageLayout({ gutters: true, top: true }),
+            Sitemap
+          )}
         />
         <Route
           path="/terms-of-use"

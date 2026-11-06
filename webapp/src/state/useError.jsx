@@ -21,7 +21,11 @@ export function useError(initialState) {
 }
 
 /**
- * @return {string|null}
+ * Returns the error code string. For backend validation errors that include
+ * per-field messages, returns a localized element that lists them
+ * (3.3.1/3.3.3: the user learns which field failed, not just that one did).
+ * Callers comparing against a specific code string are unaffected.
+ * @return {string|JSX.Element|null}
  */
 export function extractErrorCode(error) {
   if (!error || isString(error)) {
@@ -41,7 +45,33 @@ export function extractErrorCode(error) {
     // We couldn't parse anything meaningful, so log it out
     logger.error(error);
   }
+  if (msg === "validation_error") {
+    const details = get(error, "response.data.error.errors");
+    if (Array.isArray(details) && details.length > 0) {
+      return renderValidationErrorMessage(details);
+    }
+  }
   return msg;
+}
+
+/**
+ * The localized validation message, followed by the backend's field messages.
+ * Rendered with spans (not ul/li) since FormError renders inside a <p>.
+ * The backend messages are not localized, so mark them as English (3.1.2).
+ */
+function renderValidationErrorMessage(details) {
+  return (
+    <>
+      {t("errors.validation_error")}
+      <span role="list" className="d-block mt-1" lang="en">
+        {details.map((d, i) => (
+          <span key={i} role="listitem" className="d-block">
+            {d}
+          </span>
+        ))}
+      </span>
+    </>
+  );
 }
 
 const defaultCode = "unhandled_error";
@@ -56,6 +86,9 @@ const defaultCode = "unhandled_error";
  */
 export function extractLocalizedError(error) {
   const code = extractErrorCode(error);
+  if (React.isValidElement(code)) {
+    return code;
+  }
   const opts = {};
   if (code === "too_many_requests") {
     opts.seconds = Number(get(error, "response.data.error.retryAfter", 60));

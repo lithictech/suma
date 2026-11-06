@@ -1158,3 +1158,43 @@ From the upstream review of this branch. Each change was compared against `main`
 - The code screen's auto-advance note is screen-reader only, attached to the first box with `aria-describedby`, so the screen looks as before.
 - The active tab's bold and underline moved into `.app-link.app-link-active` (the underline was not applying through `.btn`).
 - Pages now pixel-identical to `main`: checkout, ledgers (picker open and closed), funding, add funds, order detail (with the edit form open), order history, unclaimed orders, private accounts, preferences, onboarding signup, and the code screen at 375px. Remaining differences are intended: the active-tab underline, visible labels with required markers on the card, bank and contact-list forms (W-8), and the code screen's Verify button staying enabled (W-25).
+
+# Level AA remediation status (branch `a11y-level-aa`, 2026-09-25, member app only)
+
+Branched from `a11y-level-a` after the admin-app changes were dropped. Verified with the same axe-core crawl (47 member-app page loads), a Sass compile of the theme with a contrast script over 39 foreground/background pairs, and scripted probes.
+
+| Check | Level A branch | AA branch |
+|---|---|---|
+| axe `color-contrast` (1.4.3) nodes | 202 on 44 pages | 0 |
+| axe nodes tagged A or AA (all rules) | 203 | 0 (the card security code used `cc-cvc`, which is not a valid autocomplete token; it is now `cc-csc`) |
+| Theme pairs measured at or above 4.5:1 text / 3:1 non-text | 24 of 59 text pairs | 39 of 39 |
+| Keyboard focus ring on tab bar, links, buttons, inputs (live) | invisible on tab bar and hamburger | 2px `#725328` outline with white halo; hamburger 3px dark outline on gold |
+| Focused element under the sticky header after Shift+Tab (live, 12 steps) | 3 | 0 (`scroll-padding-top: 130px`) |
+| Horizontal scroll at 320px on code entry, add card, link bank, offering, dashboard, utilities (live) | code entry not tested | none; code boxes fit on one row at 38px each |
+
+## Fixed
+
+- 1.4.3, 1.4.11: brand gold stays as a fill with dark text; text, links, outline buttons, checked controls, placeholders, input borders and the focus ring use a text-safe gold (`#725328`, 7.04:1); secondary `#575956`, success `#35614b`, danger `#9e3500`; `$min-contrast-ratio` raised to 4.5 so Bootstrap never picks white on gold; navbar switched to the light variant (black on gold, 9.29:1); tab bar text `#604522`; links underlined again; numpad borders at 3:1.
+- 2.4.7, 2.4.11: one global focus rule, dark hamburger ring, `scroll-padding-top`, error toast moved to the bottom of the viewport.
+- 1.3.4: portrait lock removed from the manifest and meta tag. 1.3.5: `name` and `address-level1` tokens added.
+- 1.4.10, 1.4.12: code-entry row wraps and scales, card preview capped at 100%, add-to-cart label wraps, `lh-1` removed from text, press-and-hold grows instead of clipping.
+- 2.5.8: gear, pencil and copy buttons at least 24px.
+- 3.3.4: confirmation dialogs before adding funds and paying a balance.
+- 3.1.2: the two untranslated Spanish seed strings translated. 3.3.1/3.3.3: backend per-field validation messages are now shown under the localized message (marked `lang="en"`).
+
+## Still open at AA
+
+- 1.4.10 and 1.4.12 were verified at 320px on six pages plus the code-entry screen; checkout with a payment method was not reachable in the fixture environment (it was checked later, see the Level A review follow-up).
+- 3.3.1/3.3.3: backend messages are still English until the API returns localized per-field codes.
+- The mobility map is out of scope at the maintainers' request (2026-11-02): its AA changes (pan control, 44px map controls, marker focus ring, cluster contrast, trip confirmations) were backed out and those findings remain open.
+- AAA items (7:1 text on the light-grey surfaces, target size 44px everywhere, reduced motion, content reading level) are out of scope for this branch.
+
+## Follow-up review fixes (2026-10-27)
+
+From a second review of the member app:
+
+- 3.3.3: an empty required field names the field and says how to fix it ("Fill in “City” to continue.", or "Choose an option for “State”." for a dropdown); an empty phone or ZIP field gets the same example-based message as an invalid one.
+- 4.1.3: inline field errors are a polite live region, so an error that appears while typing or leaving a field is announced without moving focus.
+- 2.5.8: the copy, edit-fulfillment and payment-options icon buttons get a transparent 24px hit area (`.a11y-target-min`) instead of padding, so the layout does not change.
+- 1.3.5 was already met (name, address, ZIP and phone fields have autocomplete tokens); the review looked at production, which does not include these branches yet.
+- 4.1.3 for the "verify your account" notice: it is present when the dashboard renders, not inserted later, so it stays a labelled region rather than a live region.

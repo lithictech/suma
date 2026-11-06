@@ -1,7 +1,6 @@
 import ToastHeader from "../components/ToastHeader";
 import { t } from "../localization";
 import { extractErrorCode } from "./useError";
-import useGlobalViewState from "./useGlobalViewState";
 import React from "react";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
@@ -10,9 +9,6 @@ export const ErrorToastContext = React.createContext({});
 
 export default function ErrorToastProvider({ children }) {
   const [state, setState] = React.useState(null);
-  const { appNav, topNav } = useGlobalViewState();
-  const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
-
   React.useEffect(() => {
     const callback = () => {
       setState(null);
@@ -37,7 +33,13 @@ export default function ErrorToastProvider({ children }) {
     <ErrorToastContext.Provider value={value}>
       <ToastContainer
         className="d-flex justify-content-center position-fixed p-2 w-100"
-        style={{ zIndex: "1021", top: `${navsHeight}px`, left: 0 }}
+        // Anchored to the bottom (above the safe area) so the toast never covers
+        // focused content under the sticky navs (2.4.11 Focus Not Obscured).
+        style={{
+          zIndex: "1021",
+          bottom: "max(16px, env(safe-area-inset-bottom))",
+          left: 0,
+        }}
       >
         <Toast
           show={Boolean(state)}

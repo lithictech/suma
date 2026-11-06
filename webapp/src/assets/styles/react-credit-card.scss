@@ -67,10 +67,13 @@ $rccs-visaelectron-logo: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBl
 .rccs {
   perspective: 1000px;
   width: $rccs-size;
+  // Never overflow a narrow (320px) viewport (1.4.10 Reflow).
+  max-width: 100%;
 
   &__card {
     height: calc($rccs-size / $rccs-card-ratio);
     margin: 0 auto;
+    max-width: 100%;
     position: relative;
     transform-style: preserve-3d;
     transition: all 0.4s linear;

@@ -5,7 +5,7 @@
   "background_color": "#F2F2F2FF",
   "description": "Suma provides affordable housing residents and other frontline community members access to low-cost, secure and easy to use access to clean mobility, food, transportation and utility options.",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "scope": "/app/",
   "start_url": "/app/",
   "icons": [
@@ -46,7 +46,7 @@
     },
     {
       "src": "/icons/icon-384x384.png",
-      "sizes": "284x284",
+      "sizes": "384x384",
       "type": "image/png"
     },
     {
