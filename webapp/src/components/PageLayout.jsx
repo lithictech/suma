@@ -1,5 +1,6 @@
 import AppNav from "../components/AppNav";
 import TopNav from "../components/TopNav";
+import { t } from "../localization";
 import { guttersClass, topMarginClass } from "../modules/constants";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import clsx from "clsx";
@@ -7,6 +8,7 @@ import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
+import { useLocation } from "react-router-dom";
 
 /**
  * Configure the layout associated with the page.
@@ -50,6 +52,7 @@ export default function PageLayout({
   const topCls = top ? topMarginClass : null;
   const noBottomCls = noBottom ? null : "pb-5";
   const scrollTop = !noScrollTop;
+  useFocusMainOnNavigate();
   let node;
   if (gutterCls) {
     node = (
@@ -66,6 +69,9 @@ export default function PageLayout({
   }
   return (
     <div className={clsx(bg, "root", noBottomCls)}>
+      <a href="#main" className="visually-hidden-focusable">
+        {t("common.skip_to_content")}
+      </a>
       {scrollTop && <ScrollTopOnMount />}
       <div className="main-container">
         {hasNav && (
@@ -75,8 +81,27 @@ export default function PageLayout({
             {stickyNavAddon}
           </div>
         )}
-        {node}
+        <main id="main" tabIndex={-1}>
+          {node}
+        </main>
       </div>
     </div>
   );
+}
+
+// Track the last pathname across PageLayout mounts (each route mounts its own layout),
+// so we can move focus to the main content after the user navigates,
+// but not on the very first page load.
+let lastPathname = null;
+
+function useFocusMainOnNavigate() {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    if (lastPathname === null || lastPathname === pathname) {
+      lastPathname = pathname;
+      return;
+    }
+    lastPathname = pathname;
+    document.getElementById("main")?.focus({ preventScroll: true });
+  }, [pathname]);
 }

@@ -1,4 +1,5 @@
 import api from "../api";
+import Alert from "../components/Alert";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
@@ -8,7 +9,6 @@ import { dt, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
@@ -80,7 +80,7 @@ export default function FoodCheckoutConfirmation() {
         <p className="mb-0">{t("food.confirmation_transportation_subtitle")}</p>
         <div className="button-stack mt-3 mb-4">
           <Button href="/mobility" as={RLink}>
-            <i className="bi bi-scooter me-2"></i>
+            <i className="bi bi-scooter me-2" aria-hidden="true"></i>
             {t("food.mobility_options")}
           </Button>
         </div>

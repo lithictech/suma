@@ -150,27 +150,27 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }) {
       </Dropdown.Toggle>
       <Dropdown.Menu className="w-100">
         <Dropdown.Item
-          as={Stack}
           title={t("payments.recent_ledger_lines")}
           active={showRecentLines}
           className="overflow-hidden"
           onClick={() => onLedgerSelected(0)}
         >
-          {t("payments.recent_ledger_lines")}
+          <Stack>{t("payments.recent_ledger_lines")}</Stack>
         </Dropdown.Item>
         {ledgers.map((led) => (
           <Dropdown.Item
             key={led.id}
-            as={Stack}
             title={led.contributionText}
             active={activeLedger.id === led.id}
             className="overflow-hidden"
             onClick={() => onLedgerSelected(led.id)}
           >
-            {t("payments.ledger_label", {
-              amount: led.balance,
-              label: led.contributionText,
-            })}
+            <Stack>
+              {t("payments.ledger_label", {
+                amount: led.balance,
+                label: led.contributionText,
+              })}
+            </Stack>
           </Dropdown.Item>
         ))}
       </Dropdown.Menu>
@@ -182,15 +182,15 @@ function RecentLinesSubheader({ totalBalance, lifetimeSavings }) {
   return (
     <div className="d-flex justify-content-between align-items-start mt-3">
       <div>
-        <h3>
+        <h2 className="h3">
           <Money>{totalBalance}</Money>
-        </h3>
+        </h2>
         <p className="m-0 mb-2">{t("payments.total_balance")}</p>
       </div>
       <div className="text-end">
-        <h3>
+        <h2 className="h3">
           <Money>{lifetimeSavings}</Money>
-        </h3>
+        </h2>
         <p className="m-0">{t("payments.lifetime_savings")}</p>
       </div>
     </div>
@@ -206,11 +206,19 @@ function LedgerLinesTable({ lines, linesLoading }) {
         responsive
         striped
         hover
+        // Named with aria-label rather than a visually hidden caption: the caption
+        // takes part in table layout and shortens the page by a pixel.
+        aria-label={t("payments.ledger_transactions")}
         className={clsx(
           "mt-1 table-flush table-borderless",
           linesLoading && "opacity-50"
         )}
       >
+        <thead className="visually-hidden">
+          <tr>
+            <th scope="col">{t("payments.ledger_transactions")}</th>
+          </tr>
+        </thead>
         <tbody>
           {lines.map((line) => (
             <tr key={line.id}>

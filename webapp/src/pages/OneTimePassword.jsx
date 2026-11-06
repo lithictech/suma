@@ -45,7 +45,6 @@ const OneTimePassword = () => {
     // when the value equals the OTP length, we handle it
     if (value.length === OTP_LENGTH) {
       setOtpChars(value.split(""));
-      submitRef.current.disabled = false;
       submitRef.current.focus();
       return;
     }
@@ -55,13 +54,15 @@ const OneTimePassword = () => {
     const newOtp = setCharAt(otpChars, newlyTypedChar, index);
     setOtpChars(newOtp);
 
-    submitRef.current.disabled = !otpValid(newOtp);
     if (target.nextSibling) {
       // Focus next input if there is one.
       target.nextSibling.focus();
-    } else if (submitRef.current) {
-      // Focus submit if we're at the last input (will only focus if it's not disabled)
+    } else if (otpValid(newOtp)) {
+      // At the last input with a full code, so focus submit.
       submitRef.current.focus();
+    } else {
+      // At the last input but an earlier box is empty, so go back to it.
+      focusFirstEmptyField(newOtp);
     }
   };
 
@@ -69,7 +70,6 @@ const OneTimePassword = () => {
     const { key, target } = event;
     if (key === "Backspace" || key === "Delete") {
       event.preventDefault();
-      submitRef.current.disabled = true;
       if (key === "Backspace" && target.previousSibling) {
         target.previousSibling.focus();
       }
@@ -90,12 +90,20 @@ const OneTimePassword = () => {
     }
     // We know we have the right number of digits, so are valid.
     setOtpChars(digits);
-    submitRef.current.disabled = false;
     submitRef.current.focus();
   };
 
   const handleOtpSubmit = (e) => {
     e.preventDefault();
+    // The submit button is always enabled, so members are told what is missing
+    // rather than having to work out why the button does nothing.
+    if (!otpValid(otpChars)) {
+      setMessage(null);
+      setError("otp_incomplete");
+      focusFirstEmptyField(otpChars);
+      return;
+    }
+    // Disabled only while the request is in flight, to avoid double submits.
     submitRef.current.disabled = true;
     setError(null);
     api
@@ -112,6 +120,7 @@ const OneTimePassword = () => {
         clearRedirectLink();
       })
       .catch((err) => {
+        submitRef.current.disabled = false;
         setOtpChars(new Array(6).fill(""));
         setMessage(null);
         setError(extractLocalizedError(err));
@@ -137,17 +146,6 @@ const OneTimePassword = () => {
       });
   };
 
-  const handleSubmitRef = React.useCallback((r) => {
-    // On mount of the submit button, set it disabled.
-    // It's a lot easier to manage focus and disabled manually, since they are dependent;
-    // disabled is easy to drive via view state, but focus is not. So do both imperatively.
-    // NOTE: the focus does not always work reliably due to timing issues...
-    if (r) {
-      r.disabled = true;
-    }
-    submitRef.current = r;
-  }, []);
-
   return (
     <>
       <p className="text-center mb-0">
@@ -157,12 +155,16 @@ const OneTimePassword = () => {
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
-          <h4 className="text-center mt-4">{t("otp.verify_code")}</h4>
+          {/* A legend floats, so its margin doesn't collapse with the code boxes'
+              margin the way the old heading's did; mb-4 keeps the same 24px gap. */}
+          <legend className="text-center mt-4 mb-4">
+            <h1 className="h4 mb-0">{t("otp.verify_code")}</h1>
+          </legend>
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
             {otpChars.map((data, index) => (
               <input
                 className="otp-field mb-2 p-1"
-                type="numbers"
+                type="text"
                 name="otp"
                 // Must use the OTP length here, so any input can capture the full paste.
                 maxLength={OTP_LENGTH}
@@ -180,9 +182,15 @@ const OneTimePassword = () => {
                   total: OTP_LENGTH,
                 })}
                 autoComplete="one-time-code"
+                // Tell screen reader users up front that focus moves on its own
+                // (WCAG 3.2.2). Sighted users see it happen, so it is not shown.
+                aria-describedby={index === 0 ? "otpAutoAdvanceNote" : undefined}
               />
             ))}
           </div>
+          <span id="otpAutoAdvanceNote" className="visually-hidden">
+            {t("otp.auto_advance_note")}
+          </span>
         </fieldset>
         <FormError error={error} center className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />
@@ -202,7 +210,7 @@ const OneTimePassword = () => {
           back
           primaryProps={{
             children: t("otp.verify"),
-            ref: handleSubmitRef,
+            ref: submitRef,
           }}
           variant="outline-primary"
           className="px-3"
@@ -218,6 +226,14 @@ const OTP_LENGTH = 6;
 
 function otpValid(chars) {
   return chars.every(Boolean);
+}
+
+function focusFirstEmptyField(chars) {
+  const index = Math.max(
+    0,
+    chars.findIndex((ch) => !ch)
+  );
+  document.getElementById("otpContainer")?.children[index]?.focus();
 }
 
 function setCharAt(chars, newValue, index) {

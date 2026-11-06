@@ -2,6 +2,7 @@ import api from "../api";
 import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
+import ModalHeader from "../components/ModalHeader";
 import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
@@ -119,7 +120,7 @@ function InstrumentLine({ instrument }) {
                 alt=""
               />
             ) : (
-              <i className="bi bi-bank2 me-2"></i>
+              <i className="bi bi-bank2 me-2" aria-hidden="true"></i>
             )}
             {instrument.name}
           </Card.Title>
@@ -152,7 +153,8 @@ function InstrumentLine({ instrument }) {
               href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
               as={RLink}
             >
-              <i className="bi bi-plus-circle"></i> {t("payments.funds")}
+              <i className="bi bi-plus-circle" aria-hidden="true"></i>{" "}
+              {t("payments.funds")}
             </Button>
           ) : (
             <Button
@@ -183,19 +185,22 @@ function InstrumentLine({ instrument }) {
 }
 
 function InstrumentStatus({ instrument }) {
-  let cls, locKey;
+  let icon, color, locKey;
   if (instrument.status === "ok") {
-    cls = "bi-check2-circle text-success";
+    icon = "bi-check2-circle";
+    color = "text-success";
     locKey = "payments.payment_account_verified";
   } else if (instrument.status === "unverified") {
-    cls = "bi-stopwatch text-warning";
+    icon = "bi-stopwatch";
+    color = "text-warning";
     locKey = "payments.payment_account_pending";
   } else {
     return;
   }
   return (
-    <small>
-      <i className={clsx("bi", cls)}>&nbsp;{t(locKey)}</i>
+    <small className={color}>
+      <i className={clsx("bi", icon)} aria-hidden="true"></i>
+      <i>&nbsp;{t(locKey)}</i>
     </small>
   );
 }
@@ -204,8 +209,13 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }) {
   return (
     <>
       <Dropdown as="span">
-        <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
-          <i className="bi bi-gear-fill"></i>
+        <Dropdown.Toggle
+          variant="link"
+          className="p-0 ms-2 text-muted"
+          size="sm"
+          aria-label={t("payments.account_options")}
+        >
+          <i className="bi bi-gear-fill" aria-hidden="true"></i>
         </Dropdown.Toggle>
         <Dropdown.Menu align="end">
           <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
@@ -238,9 +248,9 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
 
   return (
     <Modal show={toggle.isOn} onHide={toggle.turnOff} centered>
-      <Modal.Header closeButton>
+      <ModalHeader closeButton>
         <Modal.Title as="h5">{t("payments.unlink_account")}</Modal.Title>
-      </Modal.Header>
+      </ModalHeader>
       <Modal.Body>
         <p>{t("payments.unlink_account_question")}</p>
         <p>
@@ -301,7 +311,7 @@ function PaymentsCard({ header, children }) {
   return (
     <Card className="text-center mt-3">
       <Card.Header>
-        <h5 className="mb-0">{header}</h5>
+        <h2 className="h5 mb-0">{header}</h2>
       </Card.Header>
       <Card.Body>{children}</Card.Body>
     </Card>

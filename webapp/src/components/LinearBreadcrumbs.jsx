@@ -1,3 +1,4 @@
+import { t } from "../localization";
 import clsx from "clsx";
 import React from "react";
 
@@ -10,7 +11,7 @@ import React from "react";
  */
 export default function LinearBreadcrumbs({ items, className, noBottom }) {
   return (
-    <nav className={clsx(noBottom || "mb-1", className)}>
+    <nav aria-label={t("nav.breadcrumb")} className={clsx(noBottom || "mb-1", className)}>
       <ol className="linear-breadcrumb m-0">
         {items.map((it, i) => (
           <li key={i}>{it}</li>

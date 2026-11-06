@@ -1,4 +1,5 @@
 import loaderRing from "../assets/images/loader-ring.svg";
+import { t } from "../localization";
 import clsx from "clsx";
 import React from "react";
 
@@ -24,7 +25,7 @@ export default function CartIcon({ className, cart }) {
   return (
     <span className={className}>
       <span className={clsx("cart-icon-text", cartLoading && "loading")}>
-        <i className="bi bi-cart4 me-2"></i>
+        <i className="bi bi-cart4 me-2" aria-hidden="true"></i>
         {innerItemCount}
       </span>
       <img
@@ -34,7 +35,11 @@ export default function CartIcon({ className, cart }) {
           cartLoading && "loading"
         )}
         alt=""
+        aria-hidden="true"
       />
+      <span role="status" className="visually-hidden">
+        {cartLoading ? t("common.loading") : ""}
+      </span>
     </span>
   );
 }

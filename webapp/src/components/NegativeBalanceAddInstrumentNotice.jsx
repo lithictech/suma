@@ -1,8 +1,8 @@
 import { t } from "../localization/index.jsx";
 import { scaleMoney } from "../shared/money.js";
 import useUser from "../state/useUser.jsx";
+import Alert from "./Alert";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 
 export default function NegativeBalanceAddInstrumentNotice() {
   const { user } = useUser();
@@ -14,7 +14,12 @@ export default function NegativeBalanceAddInstrumentNotice() {
   const balance = scaleMoney(user.chargeableCashBalance, -1);
 
   return (
-    <Alert variant="warning">
+    <Alert
+      variant="warning"
+      transition={false}
+      role="region"
+      aria-label={t("payments.balance_notice")}
+    >
       {t("payments.negative_balance_add_instrument_notice", {
         amount: balance,
       })}

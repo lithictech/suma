@@ -44,7 +44,7 @@ export default function TripDetail() {
         <div style={{ height: 60 }}>
           <img
             src={vehicleIconForVendorService(vehicleType, provider.slug)}
-            alt={`${provider.slug} ${vehicleType}`}
+            alt=""
             className="trips-image-vehicle"
             height={60}
           />

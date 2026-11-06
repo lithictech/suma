@@ -1,7 +1,7 @@
+import Alert from "./Alert";
 import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 
 export default function SeeAlsoAlert({
   label,
@@ -20,10 +20,10 @@ export default function SeeAlsoAlert({
   return (
     <Alert variant={variant} className={clsx("border-radius-0", alertClass)}>
       <Alert.Link as={RLink} href={to} className={linkCls}>
-        <i className={`bi ${iconClass} me-3`}></i>
+        <i className={`bi ${iconClass} me-3`} aria-hidden="true"></i>
         {label}
         <div className="ms-auto">
-          <i className="bi bi-arrow-right-circle-fill ms-1"></i>
+          <i className="bi bi-arrow-right-circle-fill ms-1" aria-hidden="true"></i>
         </div>
       </Alert.Link>
     </Alert>

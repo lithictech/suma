@@ -2,7 +2,6 @@ import api from "../api";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import FormControlGroup from "./FormControlGroup";
-import FormText from "./FormText";
 import React from "react";
 import Form from "react-bootstrap/Form";
 
@@ -20,6 +19,8 @@ export default function OrganizationInputDropdown({
     <>
       <FormControlGroup
         name="organizationName"
+        label={t("forms.organization")}
+        text={t("forms.organization_helper_text")}
         Input={Form.Select}
         inputClass={organizationName ? null : "select-noselection"}
         required
@@ -43,7 +44,6 @@ export default function OrganizationInputDropdown({
           {t("forms.option_not_listed")}
         </option>
       </FormControlGroup>
-      <FormText>{t("forms.organization_helper_text")}</FormText>
     </>
   );
 }

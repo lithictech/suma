@@ -91,6 +91,7 @@ export default function I18nProvider({ children }) {
           loadLanguageFile("strings", { language }).then(() => {
             setCurrentLanguage(language);
             i18n.language = language;
+            document.documentElement.lang = language;
             dayjs.locale(language);
           })
         )
@@ -105,6 +106,7 @@ export default function I18nProvider({ children }) {
     doOnce("i18ninit", () => {
       loadLanguageFile("strings").finally(() => setInitializing(false));
       i18n.language = currentLanguage;
+      document.documentElement.lang = currentLanguage;
       i18n.addFormatter("sumaCurrency", (v) => formatMoney(v));
     })
   );

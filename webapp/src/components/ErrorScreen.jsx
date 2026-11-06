@@ -11,7 +11,7 @@ import React from "react";
 export default function ErrorScreen({ title, body, actionLabel, actionHref }) {
   return (
     <>
-      <h2>{title || t("errors.something_went_wrong_title")}</h2>
+      <h1 className="h2">{title || t("errors.something_went_wrong_title")}</h1>
       <p>{body || t("errors.something_went_wrong_body")}</p>
       <GoHome href={actionHref} label={actionLabel} />
     </>

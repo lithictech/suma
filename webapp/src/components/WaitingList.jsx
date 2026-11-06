@@ -9,7 +9,7 @@ import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
 import React from "react";
-import { FormCheck, FormLabel } from "react-bootstrap";
+import { FormCheck } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
@@ -90,7 +90,7 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
   });
   return (
     <>
-      <h2>{title}</h2>
+      <h1 className="h2">{title}</h1>
       {text}
       <Form noValidate onSubmit={onSubmit}>
         {inputs}
@@ -107,7 +107,7 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
 function AlreadyFinished({ title, text }) {
   return (
     <>
-      <h2>{title}</h2>
+      <h1 className="h2">{title}</h1>
       {text}
       <hr />
       <p className="text-center lead">{i18n.t("surveys.waitlisted_already")}</p>
@@ -153,14 +153,17 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
     [question, surveyAnswers]
   );
   return (
-    <div>
-      <FormLabel>{i18n.t(question.labelKey)}</FormLabel>
-      {question.answers.map((answer) => {
+    <fieldset>
+      <legend className="form-label fs-6">{i18n.t(question.labelKey)}</legend>
+      {question.answers.map((answer, idx) => {
         const id = surveyAnswers.answerKey(question, answer);
         return (
           <FormCheck
             key={id}
             id={id}
+            // A fieldset keeps its children's margins inside it, so the last check's
+            // bottom margin would add space that used to collapse into the divider's.
+            className={idx === question.answers.length - 1 ? "mb-0" : undefined}
             name={question.key}
             label={i18n.t(answer.labelKey)}
             type={question.format}
@@ -169,7 +172,7 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
           />
         );
       })}
-    </div>
+    </fieldset>
   );
 }
 

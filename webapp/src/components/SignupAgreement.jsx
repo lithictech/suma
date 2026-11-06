@@ -22,7 +22,9 @@ export default function SignupAgreement({ errors, register, ...rest }) {
     <div className="d-flex signup-agreement-component" onClick={handleDivClick}>
       <Form.Check
         type="checkbox"
-        aria-label={t("auth.agree_aria_label")}
+        aria-labelledby="signup-agreement"
+        aria-describedby={errors.agree ? "signup-agreement-error" : undefined}
+        aria-invalid={errors.agree ? true : undefined}
         required
         isInvalid={!!errors.agree}
         {...registerRest}
@@ -37,6 +39,7 @@ export default function SignupAgreement({ errors, register, ...rest }) {
           {t("auth.sign_up_agreement", { buttonLabel: t("forms.continue") })}
         </div>
         <FormError
+          id="signup-agreement-error"
           error={<>{errors.agree?.message}</>}
           noMargin
           className="mt-2"

@@ -1,3 +1,4 @@
+import ToastHeader from "../components/ToastHeader";
 import { t } from "../localization";
 import { extractErrorCode } from "./useError";
 import useGlobalViewState from "./useGlobalViewState";
@@ -40,14 +41,14 @@ export default function ErrorToastProvider({ children }) {
       >
         <Toast
           show={Boolean(state)}
-          autohide={true}
+          autohide={false}
           onClose={() => setState("")}
           bg="light"
         >
-          <Toast.Header className="text-danger">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          <ToastHeader className="text-danger">
+            <i className="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
             <strong className="me-auto">{t("common.error")}</strong>
-          </Toast.Header>
+          </ToastHeader>
           <Toast.Body>{state}</Toast.Body>
         </Toast>
       </ToastContainer>

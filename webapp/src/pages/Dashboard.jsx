@@ -1,6 +1,7 @@
 import api from "../api";
 import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import AddToHomescreen from "../components/AddToHomescreen";
+import Alert from "../components/Alert";
 import ExternalLink from "../components/ExternalLink";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
@@ -14,7 +15,6 @@ import readOnlyReason from "../modules/readOnlyReason";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
@@ -45,6 +45,7 @@ export default function Dashboard() {
         className="thin-header-image"
       />
       <LayoutContainer gutters top>
+        <h1 className="visually-hidden">{t("titles.dashboard")}</h1>
         <div className="font-serif lead d-flex flex-column gap-3">
           <p className="mb-0">{t("dashboard.intro")}</p>
           <ExternalLink
@@ -89,22 +90,33 @@ function TopAlerts({ dashboard }) {
         />
       )}
       {user.ongoingTrip && (
-        <Alert variant="danger" className="border-radius-0">
+        <Alert
+          variant="danger"
+          className="border-radius-0"
+          // react-bootstrap's Alert drops role and aria-label while it uses its
+          // default Fade transition. These notices never animate, so turn the
+          // transition off and the region role and label reach the DOM.
+          transition={false}
+          role="region"
+          aria-label={t("dashboard.check_ongoing_trip_button")}
+        >
           <p>{t("dashboard.check_ongoing_trip")}</p>
           <div className="d-flex justify-content-end">
             <Link to="/mobility" className="btn btn-sm btn-danger px-3">
               {t("dashboard.check_ongoing_trip_button")}
-              <i
-                className="bi bi-box-arrow-in-right mx-1"
-                role="img"
-                aria-label="Map Icon"
-              ></i>
+              <i className="bi bi-box-arrow-in-right mx-1" aria-hidden="true"></i>
             </Link>
           </div>
         </Alert>
       )}
       {readOnlyReason(user, "read_only_unverified") && (
-        <Alert variant="danger" className="border-radius-0 mb-0">
+        <Alert
+          variant="danger"
+          className="border-radius-0 mb-0"
+          transition={false}
+          role="region"
+          aria-label={t("dashboard.notice")}
+        >
           {readOnlyReason(user, "read_only_unverified")}
         </Alert>
       )}
@@ -123,6 +135,9 @@ function TopAlerts({ dashboard }) {
           key={localizationKey}
           variant={variant}
           className="blinking-alert mb-0 border-radius-0"
+          transition={false}
+          role="region"
+          aria-label={t("dashboard.notice")}
         >
           {t(localizationKey, localizationParams)}
         </Alert>
@@ -137,14 +152,20 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
   return (
     <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
       <HeaderComp to={appLink}>
-        <h5
-          className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
+        <h2
+          className="fs-5 border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
           style={{ zIndex: 1 }}
         >
           {name}
-        </h5>
+        </h2>
       </HeaderComp>
-      <ImageComp to={appLink} className="flex-shrink-0 overflow-hidden position-relative">
+      <ImageComp
+        to={appLink}
+        className="flex-shrink-0 overflow-hidden position-relative"
+        // The title above links to the same place, so hide this image-only link.
+        aria-hidden={appLink ? "true" : undefined}
+        tabIndex={appLink ? -1 : undefined}
+      >
         <SumaImage
           image={image}
           w={500}
@@ -168,7 +189,8 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
           className="h6 mb-0 mt-3"
           size="sm"
         >
-          {appLinkText} <i className="bi bi-arrow-right-circle-fill ms-1"></i>
+          {appLinkText}{" "}
+          <i className="bi bi-arrow-right-circle-fill ms-1" aria-hidden="true"></i>
         </Button>
       )}
     </div>

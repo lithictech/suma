@@ -25,7 +25,7 @@ export default function Preferences({ user, onApiSubmit, children, onSaved }) {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <h4>{t("preferences.title")}</h4>
+      <h1 className="h4">{t("preferences.title")}</h1>
       <p>{t("preferences.intro")}</p>
       {user.preferences.subscriptions.map((sub, idx) => {
         const optedIn = has(subscriptions, sub.key)
