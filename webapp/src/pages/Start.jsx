@@ -1,4 +1,5 @@
 import api from "../api";
+import Alert from "../components/Alert";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput.jsx";
@@ -7,17 +8,20 @@ import { MdLink } from "../components/SumaMarkdown.jsx";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
+import { SESSION_EXPIRED_PARAM, SESSION_EXPIRED_VALUE } from "../modules/sessionExpired";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Start() {
   const { currentLanguage } = useI18n();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const sessionExpired = params.get(SESSION_EXPIRED_PARAM) === SESSION_EXPIRED_VALUE;
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
   const [error, setError] = useError();
@@ -70,6 +74,11 @@ export default function Start() {
   };
   return (
     <>
+      {sessionExpired && (
+        <Alert variant="info" transition={false} role="status">
+          {t("auth.session_expired")}
+        </Alert>
+      )}
       <h1 className="h2">{t("forms.get_started")}</h1>
       <p id="phoneRequired">{t("forms.get_started_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>

@@ -98,7 +98,9 @@ export default function PrivateAccountsList() {
           </Stack>
         </LayoutContainer>
       ) : (
-        <LayoutContainer>{t("private_accounts.no_private_accounts")}</LayoutContainer>
+        <LayoutContainer>
+          {t("private_accounts.list_no_private_accounts")}
+        </LayoutContainer>
       )}
     </>
   );

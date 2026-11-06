@@ -5,6 +5,7 @@ import FormError from "../components/FormError";
 import PhoneInput from "../components/PhoneInput";
 import RLink from "../components/RLink.jsx";
 import { t } from "../localization";
+import useFormDraft from "../shared/react/useFormDraft";
 import useToggle from "../shared/react/useToggle";
 import { extractLocalizedError, useError } from "../state/useError";
 import React from "react";
@@ -28,9 +29,18 @@ export default function RegainAccountAccess({ success }) {
     handleSubmit,
     clearErrors,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     mode: "all",
+  });
+
+  // Keep what was typed if the page is reloaded before submitting (2.2.5).
+  const { clearDraft } = useFormDraft({
+    watch,
+    setValue,
+    fields: DRAFT_FIELDS,
+    onRestore: (draft) => setState((s) => ({ ...s, ...draft })),
   });
 
   function handlePhoneChange(e, formatted) {
@@ -50,7 +60,10 @@ export default function RegainAccountAccess({ success }) {
     setError(null);
     api
       .supportRegainAccountAccess(state)
-      .then(() => navigate("/regain-account-access/success", { replace: true }))
+      .then(() => {
+        clearDraft();
+        navigate("/regain-account-access/success", { replace: true });
+      })
       .catch((err) => {
         setError(extractLocalizedError(err));
         submitting.turnOff();
@@ -126,3 +139,5 @@ export default function RegainAccountAccess({ success }) {
     </>
   );
 }
+
+const DRAFT_FIELDS = ["previousPhone", "currentPhone", "name"];

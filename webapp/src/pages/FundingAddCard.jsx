@@ -5,6 +5,7 @@ import GoHome from "../components/GoHome";
 import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import { t } from "../localization";
+import continueContextKey from "../modules/continueContextKey";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
@@ -81,6 +82,7 @@ function Success({ instrumentId, instrumentType, returnTo }) {
             variant="outline-primary"
           >
             {t("forms.continue")}
+            <span className="visually-hidden"> {t(continueContextKey(returnTo))}</span>
           </Button>
         </div>
       ) : (

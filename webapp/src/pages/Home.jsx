@@ -37,6 +37,7 @@ export default function Home() {
             className="w-75 mt-3 text-nowrap"
           >
             {t("common.learn_more")}
+            <span className="visually-hidden"> {t("common.learn_more_about_suma")}</span>
           </ExternalLink>
           <TranslationToggle classes="my-3 mx-auto w-75" />
         </div>

@@ -1,9 +1,25 @@
 import { t } from "../localization";
+import FormText from "./FormText";
+import clsx from "clsx";
 import isNumber from "lodash/isNumber";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
-export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }) {
+/**
+ * @param {function} onCentsChange
+ * @param {boolean} whole
+ * @param {object} currency
+ * @param {number} cents
+ * @param {string|JSX.Element=} helpText Help shown under the amount,
+ *   like the minimum and maximum allowed.
+ */
+export default function CurrencyNumpad({
+  onCentsChange,
+  whole,
+  currency,
+  cents,
+  helpText,
+}) {
   if (!whole) {
     throw new Error("whole must be true for now!");
   }
@@ -17,13 +33,22 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
       <output
         aria-live="polite"
         aria-label={t("forms.amount")}
-        className="display-4 mb-3 ms-3 me-3 d-flex flex-row justify-content-end"
+        aria-describedby={helpText ? HELP_TEXT_ID : undefined}
+        className={clsx(
+          "display-4 ms-3 me-3 d-flex flex-row justify-content-end",
+          helpText ? "mb-1" : "mb-3"
+        )}
       >
         <div>{currency.symbol}</div>
         <div className="text-end" style={{ minWidth: 60 }}>
           {isNumber(cents) && cents / currency.centsInDollar}
         </div>
       </output>
+      {helpText && (
+        <FormText id={HELP_TEXT_ID} className="text-end mt-0 mb-3 ms-3 me-3">
+          {helpText}
+        </FormText>
+      )}
       <Numpad cents={cents} currency={currency} onNumberClick={handleChange} />
     </div>
   );
@@ -91,5 +116,7 @@ function RenderButtons({ numbers, handleChange }) {
     </div>
   );
 }
+
+const HELP_TEXT_ID = "currency-numpad-help";
 
 const numButtonClasses = "numpad-number-button mb-1";

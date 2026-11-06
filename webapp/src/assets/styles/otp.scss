@@ -2,8 +2,9 @@
 
 .otp-field {
   margin: 2px;
-  // Six fields must fit in a 288px content width (320px viewport, 1.4.10 Reflow).
-  width: min(44px, 12vw);
+  // 2.5.5 Target Size (Enhanced): always 44px wide.
+  flex: 0 0 auto;
+  width: 44px;
   height: 60px;
   border-radius: 4px;
   // 3.03:1 against white (1.4.11 Non-text Contrast).
@@ -12,9 +13,28 @@
   text-align: center;
 }
 
+// Six fields take 288px, exactly the content width of a 320px viewport.
+// Tighten the gaps there (276px) so the row never depends on an exact fit
+// (1.4.10 Reflow).
+@media (max-width: 340px) {
+  .otp-field {
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+}
+
+// Too narrow for six 44px fields in a row: two rows of three, not five and one.
+@media (max-width: 307px) {
+  #otpContainer {
+    max-width: 144px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .otp-field:active, .otp-field:focus-visible {
-  border-color: #725328;
-  outline: 2px solid #725328;
+  border-color: $primary-dark;
+  outline: 2px solid $primary-dark;
   outline-offset: 2px;
 }
 

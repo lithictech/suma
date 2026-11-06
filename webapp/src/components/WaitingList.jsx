@@ -1,17 +1,26 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
+import FormButtons from "../components/FormButtons";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { t } from "../localization";
 import i18n from "../localization/i18n";
 import useI18n from "../localization/useI18n";
+import {
+  clearFormDraft,
+  formDraftKey,
+  readFormDraft,
+  writeFormDraft,
+} from "../shared/react/useFormDraft";
 import useMountEffect from "../shared/react/useMountEffect";
 import useErrorToast from "../state/useErrorToast";
 import useUser from "../state/useUser";
+import ModalHeader from "./ModalHeader";
 import React from "react";
 import { FormCheck } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 
 /**
  * @param {SurveySpec} survey
@@ -23,19 +32,29 @@ export default function WaitingList({ survey, title, text }) {
   const { showErrorToast } = useErrorToast();
   const [loading, setLoading] = React.useState(true);
   const [justFinished, setJustFinished] = React.useState(false);
-  const surveyAnswers = useSurveyAnswers();
+  const [reviewing, setReviewing] = React.useState(false);
+  // Keep the chosen answers if the member has to sign in again or reload (2.2.5).
+  const draftKey = React.useMemo(() => formDraftKey(null, survey.topic), [survey.topic]);
+  const surveyAnswers = useSurveyAnswers(draftKey);
 
   const { loadLanguageFile } = useI18n();
   useMountEffect(() => {
     loadLanguageFile("surveys").then(() => setLoading(false));
   });
+  // Answers cannot be changed after they are sent,
+  // so ask the member to review them first (3.3.6 Error Prevention).
   const handleSubmit = (e) => {
     e.preventDefault();
+    setReviewing(true);
+  };
+  const handleConfirm = () => {
+    setReviewing(false);
     setLoading(true);
     const body = buildApiSurveyResponse(survey, surveyAnswers);
     api
       .completeSurvey(body)
       .then((r) => {
+        clearFormDraft(draftKey);
         setUser(r.data);
         setJustFinished(true);
       })
@@ -54,13 +73,75 @@ export default function WaitingList({ survey, title, text }) {
     return <AlreadyFinished title={title} text={text} />;
   }
   return (
-    <WaitlistForm
-      title={title}
-      text={text}
-      survey={survey}
-      surveyAnswers={surveyAnswers}
-      onSubmit={handleSubmit}
-    />
+    <>
+      <WaitlistForm
+        title={title}
+        text={text}
+        survey={survey}
+        surveyAnswers={surveyAnswers}
+        onSubmit={handleSubmit}
+      />
+      <ReviewAnswersModal
+        show={reviewing}
+        survey={survey}
+        surveyAnswers={surveyAnswers}
+        onCancel={() => setReviewing(false)}
+        onConfirm={handleConfirm}
+      />
+    </>
+  );
+}
+
+/**
+ * Show the chosen answers so they can be checked, and changed, before they are sent.
+ * @param {boolean} show
+ * @param {SurveySpec} survey
+ * @param {SurveyAnswers} surveyAnswers
+ * @param {function} onCancel Go back to the form to change answers.
+ * @param {function} onConfirm Send the answers.
+ */
+function ReviewAnswersModal({ show, survey, surveyAnswers, onCancel, onConfirm }) {
+  return (
+    <Modal show={show} onHide={onCancel} centered>
+      <ModalHeader closeButton>
+        <Modal.Title as="h2" className="h5">
+          {t("surveys_ui.review_title")}
+        </Modal.Title>
+      </ModalHeader>
+      <Modal.Body>
+        {survey.questions.map((question) => {
+          const chosen = question.answers.filter((answer) =>
+            surveyAnswers.getAnswer(question, answer)
+          );
+          return (
+            <div key={question.key} className="mb-3">
+              <h3 className="h6">{i18n.t(question.labelKey)}</h3>
+              {chosen.length === 0 ? (
+                <p className="mb-0 text-muted">{t("surveys_ui.no_answers")}</p>
+              ) : (
+                <ul className="mb-0">
+                  {chosen.map((answer) => (
+                    <li key={answer.key}>{i18n.t(answer.labelKey)}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+        <FormButtons
+          variant="primary"
+          primaryProps={{
+            children: t("common.confirm"),
+            type: "button",
+            onClick: onConfirm,
+          }}
+          secondaryProps={{
+            children: t("common.cancel"),
+            onClick: onCancel,
+          }}
+        />
+      </Modal.Body>
+    </Modal>
   );
 }
 
@@ -184,10 +265,14 @@ function SurveyCheckboxQuestion({ question, surveyAnswers }) {
  */
 
 /**
+ * @param {string} draftKey Session storage key used to keep a draft of the answers.
  * @returns {SurveyAnswers}
  */
-function useSurveyAnswers() {
-  const [state, setState] = React.useState({});
+function useSurveyAnswers(draftKey) {
+  const [state, setState] = React.useState(() => readFormDraft(draftKey));
+  React.useEffect(() => {
+    writeFormDraft(draftKey, state);
+  }, [draftKey, state]);
   const answerKey = React.useCallback(
     (question, answer) => `${question.key}:${answer.key}`,
     []

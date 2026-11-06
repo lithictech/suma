@@ -333,6 +333,10 @@ function FulfillmentOptionLabel({ description, address }) {
         >
           <i className="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
           {t("food.address")}
+          <span className="visually-hidden">
+            {" "}
+            {t("food.open_address_in_maps", { address: address.oneLineAddress })}
+          </span>
         </ExternalLink>
       )}
     </>

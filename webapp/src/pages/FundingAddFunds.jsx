@@ -19,6 +19,7 @@ import filter from "lodash/filter";
 import find from "lodash/find";
 import first from "lodash/first";
 import includes from "lodash/includes";
+import isNumber from "lodash/isNumber";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
@@ -134,6 +135,22 @@ export default function FundingAddFunds() {
   }
 
   const amount = { cents: amountCents, currency: selectedCurrency.code };
+  // Tell the member the limits before they submit, not only in the error (3.3.5 Help).
+  const hasLimits =
+    isNumber(selectedCurrency.fundingMinimumCents) &&
+    isNumber(selectedCurrency.fundingMaximumCents);
+  const amountLimitsHelp = hasLimits
+    ? t("forms.amount_limits_help", {
+        min: formatMoney({
+          cents: selectedCurrency.fundingMinimumCents,
+          currency: selectedCurrency.code,
+        }),
+        max: formatMoney({
+          cents: selectedCurrency.fundingMaximumCents,
+          currency: selectedCurrency.code,
+        }),
+      })
+    : null;
   const addAmountLabel = t("forms.add_amount", { amount: formatMoney(amount) });
 
   return (
@@ -148,6 +165,7 @@ export default function FundingAddFunds() {
               whole
               cents={amountCents}
               onCentsChange={handleChange}
+              helpText={amountLimitsHelp}
             />
           </div>
         </div>

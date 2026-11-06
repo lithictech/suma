@@ -26,9 +26,9 @@
   "utilities_options.comcast": "Comcast",
   "utilities_options.frontier": "Frontier",
   "utilities_options.label": "Check the box for all the utilities at your household:",
-  "utilities_options.nw_natural": "NW Natural",
+  "utilities_options.nw_natural": "NW Natural (Northwest Natural gas)",
   "utilities_options.pacific_power": "Pacific Power",
-  "utilities_options.pge": "PGE",
+  "utilities_options.pge": "Portland General Electric (PGE)",
   "utilities_options.verizon": "Verizon",
   "waitlisted_already": "You are already on the waiting list. We'll let you know when we have an update!",
   "waitlist_joined": "Great! You are on the waiting list and we'll let you know when it's available."

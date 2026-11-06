@@ -56,16 +56,54 @@
       .then((r) => r.status >= 300 ? Promise.reject(`Server Error: ${r.status}`) : null)
       .catch((e) => {
         console.warn(`Suma failed to load ${hashedIndexJs}`, e);
+        // The app (and its localization) has not loaded, so this message is always English.
+        // Mark it up so assistive technology announces it, in the right language.
         const content = document.createElement("div");
         content.style.padding = "30px";
+        content.setAttribute("role", "alert");
+        content.setAttribute("lang", "en");
+        const message = document.createElement("p");
+        content.appendChild(message);
         if (!window.location.href.includes("clearcache=")) {
           console.warn("Suma reloading with clearcache to bust the cache.");
-          content.innerText = "This application has been updated. If the page does not automatically refresh, please pull down or open your browser menu to refresh the page.";
+          // Wait before reloading so the message can be read,
+          // and let the user reload right away, or stop the automatic reload.
+          const reloadDelaySeconds = 5;
+          const reload = () => {
+            window.location = window.location.href + "?clearcache=" + Date.now();
+          };
+          message.innerText = `This application has been updated. The page will reload in ${reloadDelaySeconds} seconds. If it does not, use the button below, or your browser menu, to reload the page.`;
+          const makeButton = (text) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.innerText = text;
+            button.style.minHeight = "44px";
+            button.style.minWidth = "44px";
+            button.style.padding = "8px 16px";
+            button.style.marginRight = "12px";
+            button.style.marginBottom = "12px";
+            button.style.fontSize = "1rem";
+            return button;
+          };
+          const reloadButton = makeButton("Reload now");
+          const stopButton = makeButton("Do not reload automatically");
+          const timer = window.setTimeout(reload, reloadDelaySeconds * 1000);
+          reloadButton.addEventListener("click", () => {
+            window.clearTimeout(timer);
+            reload();
+          });
+          stopButton.addEventListener("click", () => {
+            window.clearTimeout(timer);
+            message.innerText = "This application has been updated. Use the button below, or your browser menu, to reload the page.";
+            stopButton.remove();
+            reloadButton.focus();
+          });
+          content.appendChild(reloadButton);
+          content.appendChild(stopButton);
           document.body.appendChild(content);
-          window.location = window.location.href + "?clearcache=" + Date.now();
         } else {
           console.warn("Suma reloaded due to stale cache, but JS still not found. Not reloading.");
-          content.innerText = "Sorry, something went wrong loading the application. You can try refreshing, or reach out to info@mysuma.org.";
+          message.innerText = "Sorry, something went wrong loading the application. You can try refreshing, or reach out to info@mysuma.org.";
           document.body.appendChild(content);
         }
       });

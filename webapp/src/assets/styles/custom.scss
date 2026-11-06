@@ -6,6 +6,55 @@ html {
     scroll-padding-top: 130px;
 }
 
+// 2.3.3 Animation from Interactions: with "reduce motion" set, every animation
+// and transition jumps straight to its final state.
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+// 1.4.8 Visual Presentation: opt-in "Reading comfort" mode. The switch in the
+// menu toggles the `a11y-spacing` class on <html> (see modules/readingComfort).
+// Body text already has a line height of 1.5; this mode adds paragraph spacing
+// of 1.5 times the line spacing (1.5 x 1.5em = 2.25em) and wider text spacing.
+html.a11y-spacing {
+    letter-spacing: 0.12em;
+    word-spacing: 0.16em;
+    // Wider text must still fit a 320px viewport (1.4.10 Reflow):
+    // break long words and links, and let "nowrap" text wrap.
+    overflow-wrap: break-word;
+
+    .text-nowrap {
+        white-space: normal !important;
+    }
+
+    .hstack {
+        flex-wrap: wrap;
+    }
+
+    p,
+    li {
+        line-height: 1.5;
+    }
+
+    // Only the space between blocks of text changes, so a <p> used for a label
+    // or a title keeps its own margins. !important outranks the spacing
+    // utilities (mt-0, mt-1...), which are !important themselves.
+    p + p,
+    p + ul,
+    p + ol,
+    ul + p,
+    ol + p {
+        margin-top: 2.25em !important;
+    }
+}
+
 .main-container {
     max-width: 500px;
     margin: 0 auto;
@@ -39,16 +88,17 @@ html {
     }
 }
 
-.select-noselection {
-    color: $input-placeholder-color !important;
+// No !important on colours, so user style sheets can replace them (1.4.8).
+select.form-select.select-noselection {
+    color: $input-placeholder-color;
 }
 
-.inactive-outline-button {
-    background: rgba(0, 0, 0, 0.05) !important;
+.btn.inactive-outline-button {
+    --bs-btn-bg: #{rgba(0, 0, 0, 0.05)};
 }
 
-.active-outline-button {
-    background: $white !important;
+.btn.active-outline-button {
+    --bs-btn-bg: #{$white};
 }
 
 .app-nav {
@@ -56,7 +106,7 @@ html {
 }
 
 .app-link {
-    color: #604522; // 7.09:1 on the grey tab, 8.85:1 on the white active tab (1.4.3)
+    color: $primary-dark; // 7.09:1 on the grey tab, 8.85:1 on the white active tab (1.4.6)
     border-radius: 0 !important;
     flex-grow: 1 !important;;
     font-size: $font-size-base !important;;

@@ -1,7 +1,17 @@
+import { sessionStorageCache } from "../shared/localStorageHelper";
 import useSessionStorageState from "../shared/react/useSessionStorageState";
 import React from "react";
 
 const REDIRECT_LINK_SESSION_KEY = "sumaNextUrl";
+
+/**
+ * Store the login redirect link from outside of React (like an API interceptor).
+ * Components should use the useLoginRedirectLink hook instead.
+ * @param {string} link
+ */
+export function storeLoginRedirectLink(link) {
+  sessionStorageCache.setItem(REDIRECT_LINK_SESSION_KEY, link);
+}
 
 export default function useLoginRedirectLink() {
   const [redirectLink, setRedirectLinkInner] = useSessionStorageState(

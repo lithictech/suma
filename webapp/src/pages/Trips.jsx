@@ -93,7 +93,10 @@ function Trip({ trip }) {
                 vendor: provider.vendorName,
                 vehicleType: t(`trips.${vehicleType}`),
               })}{" "}
-              &bull; {t(`trips.minutes`, { minutes: trip.minutes })}
+              &bull;{" "}
+              {t(trip.minutes === 1 ? "trips.minutes_one" : "trips.minutes", {
+                minutes: trip.minutes,
+              })}
             </div>
             <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
           </Stack>

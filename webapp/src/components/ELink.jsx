@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
  * otherwise we use ExternalLink.
  *
  * There are some special behaviors available as well:
+ * - If the link is a 'mailto:', 'tel:', or 'sms:' link, use a plain anchor in the same window
+ *   (these hand off to another application, so must never open a new, blank window).
  * - If link is local, and includes ##, then replace the current URL.
  * - If the link text includes __blank__ anywhere, then use an external link with target=_blank.
  *
@@ -26,6 +28,12 @@ import { Link } from "react-router-dom";
  */
 export default function ELink({ href, to, immediate, ...rest }) {
   const u = href || to || "";
+  if (APP_HANDOFF_SCHEMES.some((scheme) => u.toLowerCase().startsWith(scheme))) {
+    // eslint-disable-next-line no-unused-vars
+    const { noIcon, ...anchorProps } = rest;
+    // Children are passed through in anchorProps.
+    return <a href={u.replace("__blank__", "")} {...anchorProps} />;
+  }
   if (u.includes("__blank__")) {
     const clean = u.replace("__blank__", "");
     return <ExternalLink href={clean} {...rest} />;
@@ -53,3 +61,5 @@ export default function ELink({ href, to, immediate, ...rest }) {
   }
   return <ExternalLink href={u} {...rest} />;
 }
+
+const APP_HANDOFF_SCHEMES = ["mailto:", "tel:", "sms:"];

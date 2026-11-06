@@ -27,6 +27,9 @@ export default function BackBreadcrumb({ back, children, ...rest }) {
     backProps = { to: back };
   }
   const short = !!children;
+  // The link name says where it goes (2.4.9), and starts with the visible "Back".
+  const page = back === true ? null : backTargetLabel(back);
+  const backName = page ? t("common.back_to", { page }) : t("common.back_previous");
   return (
     <LinearBreadcrumbs
       items={[
@@ -36,7 +39,7 @@ export default function BackBreadcrumb({ back, children, ...rest }) {
           size="sm"
           style={{ marginLeft: ICON_OFFSET }}
           className={short && "link-unstyled"}
-          aria-label={short ? t("common.back") : undefined}
+          aria-label={backName}
           {...backProps}
         >
           {short ? null : t("common.back")}
@@ -46,6 +49,29 @@ export default function BackBreadcrumb({ back, children, ...rest }) {
       {...rest}
     />
   );
+}
+
+/**
+ * Name of the page a 'back' path leads to, or null if it is not a known section page.
+ */
+function backTargetLabel(to) {
+  if (typeof to !== "string") {
+    return null;
+  }
+  const path = to.split(/[?#]/)[0];
+  if (path === "/dashboard") {
+    return t("titles.home");
+  }
+  if (path === "/food" || path.startsWith("/food/")) {
+    return t("food.title");
+  }
+  if (path.startsWith("/cart/")) {
+    return t("food.cart_title");
+  }
+  if (path === "/trips") {
+    return t("titles.trips");
+  }
+  return null;
 }
 
 /**

@@ -14,6 +14,7 @@ import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
@@ -38,6 +39,8 @@ export default function Dashboard() {
   }
   return (
     <>
+      {/* The page heading comes first so the section headings below nest under it. */}
+      <h1 className="visually-hidden">{t("titles.dashboard")}</h1>
       <TopAlerts dashboard={dashboard} />
       <img
         src={foodHeaderImage}
@@ -45,12 +48,11 @@ export default function Dashboard() {
         className="thin-header-image"
       />
       <LayoutContainer gutters top>
-        <h1 className="visually-hidden">{t("titles.dashboard")}</h1>
         <div className="font-serif lead d-flex flex-column gap-3">
           <p className="mb-0">{t("dashboard.intro")}</p>
           <ExternalLink
             href={externalLinks.sumaIntroLink}
-            className="text-dark fw-semibold"
+            className="text-dark fw-semibold a11y-target"
             style={{ alignSelf: "flex-end" }}
           >
             {t("dashboard.about_suma")}
@@ -62,6 +64,9 @@ export default function Dashboard() {
         <PageLoader buffered />
       ) : (
         <LayoutContainer gutters>
+          {!isEmpty(dashboard.programs) && (
+            <h2 className="visually-hidden">{t("dashboard.programs_heading")}</h2>
+          )}
           <Stack gap="3">
             {dashboard.programs.map((program) => (
               <ProgramCard key={program.name} {...program} />
@@ -75,8 +80,18 @@ export default function Dashboard() {
 
 function TopAlerts({ dashboard }) {
   const { user, registrationSession } = useUser();
+  const hasNotices = Boolean(
+    registrationSession ||
+      user.ongoingTrip ||
+      readOnlyReason(user, "read_only_unverified") ||
+      user.unclaimedOrdersCount > 0 ||
+      !isEmpty(dashboard?.alerts)
+  );
   return (
     <>
+      {hasNotices && (
+        <h2 className="visually-hidden">{t("dashboard.notices_heading")}</h2>
+      )}
       {registrationSession && (
         <SeeAlsoAlert
           alertClass="blinking-alert mb-0"
@@ -152,12 +167,13 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
   return (
     <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
       <HeaderComp to={appLink}>
-        <h2
+        {/* h3 since program cards are under the (visually hidden) 'Programs' h2. */}
+        <h3
           className="fs-5 border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute program-card-title"
           style={{ zIndex: 1 }}
         >
           {name}
-        </h2>
+        </h3>
       </HeaderComp>
       <ImageComp
         to={appLink}
