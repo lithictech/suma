@@ -7,7 +7,6 @@ import { AppError, extractAppErrorAny } from "../../modules/feedback.ts";
 import { Logger } from "../../modules/logger";
 import useNavigate from "../../routing/useNavigate";
 import useScreenLoader from "../../state/useScreenLoader.ts";
-import useToggle from "../../state/useToggle";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form";

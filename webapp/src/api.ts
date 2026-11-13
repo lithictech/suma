@@ -125,7 +125,11 @@ export default {
   geolocateIp: (data?: Params, config?: AxiosRequestConfig) =>
     get<GeolocateIP>(`/api/v1/meta/geolocate_ip`, data, config),
   getSupportedOrganizations: (data?: Params, config?: AxiosRequestConfig) =>
-    get(`/api/v1/meta/supported_organizations`, data, config),
+    get<ApiCollection<SupportedOrganization>>(
+      `/api/v1/meta/supported_organizations`,
+      data,
+      config
+    ),
   getLocaleFile: (
     { namespace, locale, ...data }: LocaleFileParams,
     config?: AxiosRequestConfig

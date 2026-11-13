@@ -1,8 +1,7 @@
 import { r, t } from "../../localization";
 import { buildValidators } from "../../modules/formValidators.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
-import BackButton from "../../ui/BackButton.tsx";
-import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
+import Breadcrumb from "../../ui/Breadcrumb.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form.tsx";
@@ -10,6 +9,7 @@ import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
 import Select from "../../ui/Select.tsx";
 import Stack from "../../ui/Stack.tsx";
+import TextHeader from "../../ui/TextHeader.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import { OnboardingProps, OnboardingAddressType } from "./onboardingTypes.ts";
 import { useForm } from "react-hook-form";
@@ -46,13 +46,15 @@ export default function OnboardingAddress({
 
   return (
     <Page>
+      <Breadcrumb onClick={stepBackward} />
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}
       />
-      <BreadcrumbBack back />
-      <h1>Where do you live?</h1>
-      <p>We use this to find programs near you.</p>
+      <TextHeader
+        title="Where do you live?"
+        subtitle="We use this to find programs near you."
+      />
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <TextInput
           label={t("forms.address1")}
@@ -76,7 +78,7 @@ export default function OnboardingAddress({
           required
           autoComplete="address-level2"
         />
-        <Stack row gap={2}>
+        <Stack row gap={4}>
           <Select
             label={t("forms.state")}
             {...register("stateOrProvince", buildValidators({ required: true }))}
@@ -109,7 +111,6 @@ export default function OnboardingAddress({
         </Stack>
         <ButtonGroup col bottom>
           <ContinueButton />
-          <BackButton onClick={stepBackward} />
         </ButtonGroup>
       </Form>
     </Page>

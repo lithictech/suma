@@ -597,6 +597,8 @@ declare global {
   /** Auto-generated from Suma::API::Meta::SupportedOrganizationEntity */
   interface SupportedOrganization {
     name: string;
+    initials: string;
+    description: string;
   }
 
   /** Auto-generated from Suma::API::Meta::SupportedProvinceEntity */

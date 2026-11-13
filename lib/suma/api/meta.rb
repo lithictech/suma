@@ -145,5 +145,11 @@ class Suma::API::Meta < Suma::API::V1
 
   class SupportedOrganizationEntity < BaseEntity
     expose :name
+    expose :initials do |_|
+      "TD"
+    end
+    expose :description do |_|
+      "TODO need to adjust model"
+    end
   end
 end

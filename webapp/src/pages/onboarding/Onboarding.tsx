@@ -3,48 +3,16 @@ import Checklist from "../../ui/Checklist.tsx";
 import ChecklistItem from "../../ui/ChecklistItem.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Page from "../../ui/Page.tsx";
+import TextHeader from "../../ui/TextHeader.tsx";
 import OnboardingAddress from "./OnboardingAddress.tsx";
 import OnboardingEligibility from "./OnboardingEligibility.tsx";
 import OnboardingName from "./OnboardingName.tsx";
 import OnboardingOffers from "./OnboardingOffers.tsx";
 import OnboardingTheme from "./OnboardingTheme.tsx";
-import {
-  OnboardingApiCalls,
-  OnboardingProps,
-  OnboardingState,
-} from "./onboardingTypes.ts";
-import React from "react";
+import { OnboardingProps } from "./onboardingTypes.ts";
 
-export interface OnboardingComponentProps {
-  apiCalls: OnboardingApiCalls;
-}
-
-export default function Onboarding({ apiCalls }: OnboardingComponentProps) {
-  const [state, setState] = React.useState<OnboardingState>({
-    step: 0,
-    totalSteps: 5,
-    address: {
-      address1: "",
-      address2: "",
-      city: "",
-      stateOrProvince: "",
-      postalCode: "",
-    },
-    name: "",
-    organizationNames: [],
-  });
-  const props: OnboardingProps = React.useMemo(
-    () => ({
-      apiCalls,
-      onboardingState: state,
-      setOnboardingState: setState,
-      setOnboardingField: (f: string, v: any) =>
-        setState((prev) => ({ ...prev, [f]: v })),
-      stepForward: () => setState((prev) => ({ ...prev, step: prev.step + 1 })),
-      stepBackward: () => setState((prev) => ({ ...prev, step: prev.step - 1 })),
-    }),
-    [apiCalls, state]
-  );
+export default function Onboarding(props: OnboardingProps) {
+  const state = props.onboardingState;
   if (state.step === 0) {
     return <OnboardingStep0 {...props} />;
   } else if (state.step === 1) {
@@ -63,8 +31,10 @@ export default function Onboarding({ apiCalls }: OnboardingComponentProps) {
 function OnboardingStep0({ stepForward }: OnboardingProps) {
   return (
     <Page>
-      <h1>Let&rsquo;s get you set up</h1>
-      <p>It only takes a few minutes. Here’s what we’ll ask for:</p>
+      <TextHeader
+        title="Let&rsquo;s get you set up"
+        subtitle="It only takes a few minutes. Here’s what we’ll ask for:"
+      />
       <Checklist>
         <ChecklistItem step={1}>How the app looks</ChecklistItem>
         <ChecklistItem step={2}>Your name</ChecklistItem>

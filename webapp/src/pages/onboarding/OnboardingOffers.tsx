@@ -10,6 +10,7 @@ import ContinueButton from "../../ui/ContinueButton.tsx";
 import DefinitionTable from "../../ui/DefinitionTable.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
+import TextHeader from "../../ui/TextHeader.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
 
 export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
@@ -27,8 +28,10 @@ export default function OnboardingOffers({ onboardingState }: OnboardingProps) {
         step={onboardingState.step}
         steps={onboardingState.totalSteps}
       />
-      <h1>Thanks, {onboarded.member.name}!</h1>
-      <p>Your account is in review! But here are some offers you can use right away.</p>
+      <TextHeader
+        title={`Thanks, ${onboarded.member.name}!`}
+        subtitle="Your account is in review! But here are some offers you can use right away."
+      />
       <Card>
         <CardBody>
           <DefinitionTable

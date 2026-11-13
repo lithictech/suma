@@ -50,6 +50,22 @@ export function currentMember(o: Partial<CurrentMember> = {}): CurrentMember {
   };
 }
 
+export function address(o: Partial<Address> = {}): Address {
+  const a = {
+    address1: "123 Main St",
+    address2: "Ste 2",
+    city: "Portland",
+    stateOrProvince: "Oregon",
+    postalCode: "97001",
+    country: "United States of America",
+    lat: 41,
+    lng: -121,
+    oneLineAddress: "123 Main St, Ste 2, Portland, Oregon, 97001",
+    ...o,
+  };
+  return a;
+}
+
 export function vendorService(o: Partial<VendorService> = {}): VendorService {
   return {
     id: id++,
@@ -299,5 +315,26 @@ export function anonProxyVendorAccount(
       ...uis,
     },
     ...va,
+  };
+}
+
+export function program(o: Partial<Program> = {}): Program {
+  return {
+    name: "Super Program",
+    description: "This is a longer description",
+    image: null,
+    periodBegin: "2026-01-01T12:00:00Z",
+    periodEnd: "2050-01-01T12:00:00Z",
+    appLink: "/#fake-link",
+    appLinkText: "Go here!",
+    ...o,
+  };
+}
+
+export function organizationMembership(o: Partial<Membership> = {}): Membership {
+  return {
+    organizationName: "Super Organization",
+    status: "unverified",
+    ...o,
   };
 }

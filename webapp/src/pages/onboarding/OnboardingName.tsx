@@ -1,11 +1,11 @@
 import { r } from "../../localization";
-import BackButton from "../../ui/BackButton.tsx";
-import BreadcrumbBack from "../../ui/BreadcrumbBack.tsx";
+import Breadcrumb from "../../ui/Breadcrumb.tsx";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
 import ContinueButton from "../../ui/ContinueButton.tsx";
 import Form from "../../ui/Form.tsx";
 import Page from "../../ui/Page.tsx";
 import ProgressStepHeader from "../../ui/ProgressStepHeader.tsx";
+import TextHeader from "../../ui/TextHeader.tsx";
 import TextInput from "../../ui/TextInput.tsx";
 import { OnboardingProps } from "./onboardingTypes.ts";
 import { useForm } from "react-hook-form";
@@ -33,13 +33,15 @@ export default function OnboardingName({
 
   return (
     <Page>
+      <Breadcrumb onClick={stepBackward} />
       <ProgressStepHeader
         step={onboardingState.step}
         steps={onboardingState.totalSteps}
       />
-      <BreadcrumbBack back />
-      <h1>What is your name?</h1>
-      <p>We&rsquo;d love to know what to call you!</p>
+      <TextHeader
+        title="What is your name?"
+        subtitle="We&rsquo;d love to know what to call you!"
+      />
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <TextInput
           label="Name"
@@ -50,7 +52,6 @@ export default function OnboardingName({
         />
         <ButtonGroup col bottom>
           <ContinueButton />
-          <BackButton onClick={stepBackward} />
         </ButtonGroup>
       </Form>
     </Page>

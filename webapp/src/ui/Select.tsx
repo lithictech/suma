@@ -50,7 +50,7 @@ const Select = React.forwardRef(function Select<T extends string = string>(
     <div className={clsx("form-group", className)}>
       <label className="form-label" htmlFor={selectId}>
         {label}
-        {required && " *"}
+        {required && <span className="color-danger"> *</span>}
       </label>
       <div className="select-wrapper">
         <select

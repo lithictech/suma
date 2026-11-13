@@ -9,13 +9,9 @@ export interface OnboardingApiCalls {
   getSupportedOrganizations: (
     data?: Record<string, any>,
     config?: AxiosRequestConfig
-  ) => Promise<AxiosResponse<{ items: SupportedOrganization[] }>>;
+  ) => Promise<AxiosResponse<UnboundedApiCollection<SupportedOrganization>>>;
   onboard: (
-    data: {
-      name: string;
-      address: OnboardingAddressType;
-      organizationNames: string[];
-    },
+    data?: Record<string, any>,
     config?: AxiosRequestConfig
   ) => Promise<AxiosResponse<Onboarded>>;
 }
@@ -49,4 +45,37 @@ export interface OnboardingProps {
   setOnboardingField: SetOnboardingStateField;
   stepForward: () => void;
   stepBackward: () => void;
+}
+
+export function useOnboardingProps(
+  apiCalls: OnboardingApiCalls,
+  initialState: Partial<OnboardingState> = {}
+) {
+  const [state, setState] = React.useState<OnboardingState>({
+    step: 0,
+    totalSteps: 5,
+    address: {
+      address1: "",
+      address2: "",
+      city: "",
+      stateOrProvince: "",
+      postalCode: "",
+    },
+    name: "",
+    organizationNames: [],
+    ...initialState,
+  });
+  const props: OnboardingProps = React.useMemo(
+    () => ({
+      apiCalls,
+      onboardingState: state,
+      setOnboardingState: setState,
+      setOnboardingField: (f: string, v: any) =>
+        setState((prev) => ({ ...prev, [f]: v })),
+      stepForward: () => setState((prev) => ({ ...prev, step: prev.step + 1 })),
+      stepBackward: () => setState((prev) => ({ ...prev, step: prev.step - 1 })),
+    }),
+    [apiCalls, state]
+  );
+  return props;
 }

@@ -21,7 +21,7 @@ export default function Checklist({ children }: ChecklistProps) {
   return (
     <Card>
       <CardBody>
-        <Stack gap={3} direction="vertical">
+        <Stack gap={4} direction="vertical">
           {kids}
         </Stack>
       </CardBody>

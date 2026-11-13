@@ -8,8 +8,12 @@ import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
 import clsx from "clsx";
 
 interface BreadcrumbProps {
-  /** Use it as the 'to' prop on the link. If not provided, use history.back. */
-  to?: RoutePath;
+  /**
+   * Use it as the 'to' prop on the link.
+   * If not provided, use history.back.
+   */
+  to?: RoutePath | null;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   /** back shows a back button style; left and right are more subtle breadcrumbs. */
   variant?: "back" | "left" | "right";
   /**
@@ -29,6 +33,7 @@ export default function Breadcrumb({
   to,
   variant = "back",
   noOffset,
+  onClick,
   className,
   children,
 }: BreadcrumbProps) {
@@ -40,6 +45,9 @@ export default function Breadcrumb({
       e.preventDefault();
       window.history.back();
     };
+  }
+  if (onClick) {
+    backProps.onClick = onClick;
   }
   const cls = clsx(
     "breadcrumb",

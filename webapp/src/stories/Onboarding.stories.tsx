@@ -1,7 +1,24 @@
 import Home from "../pages/onboarding/Home.tsx";
+import Onboarding from "../pages/onboarding/Onboarding.tsx";
+import OnboardingAddress from "../pages/onboarding/OnboardingAddress.tsx";
+import OnboardingEligibility from "../pages/onboarding/OnboardingEligibility.tsx";
+import OnboardingName from "../pages/onboarding/OnboardingName.tsx";
+import OnboardingOffers from "../pages/onboarding/OnboardingOffers.tsx";
+import OnboardingTheme from "../pages/onboarding/OnboardingTheme.tsx";
 import OneTimePassword from "../pages/onboarding/OneTimePassword.tsx";
 import Start from "../pages/onboarding/Start.tsx";
-import { axiosErrorMocker, axiosResponseMocker, currentMember } from "./fixtures.ts";
+import {
+  OnboardingApiCalls,
+  useOnboardingProps,
+} from "../pages/onboarding/onboardingTypes.ts";
+import {
+  address,
+  axiosErrorMocker,
+  axiosResponseMocker,
+  currentMember,
+  organizationMembership,
+  program,
+} from "./fixtures.ts";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 
@@ -72,4 +89,91 @@ export const OneTimePasswordError: Story = {
       }}
     />
   ),
+};
+
+const onboardingApiCalls: OnboardingApiCalls = {
+  getSupportedGeographies: axiosResponseMocker({
+    countries: [
+      { label: "United States", value: "usa" },
+      { label: "Mexico", value: "mx" },
+    ],
+    provinces: [
+      { label: "Oregon", value: "or", countryIdx: 0 },
+      { label: "Washing", value: "wa", countryIdx: 0 },
+      { label: "Mexico City", value: "mcty", countryIdx: 1 },
+    ],
+  }),
+  getSupportedOrganizations: axiosResponseMocker({
+    items: [
+      { name: "Homes for All", initials: "HA", description: "Affordable housing" },
+      {
+        name: "Better Things",
+        initials: "BT",
+        description: "Community center and programming",
+      },
+    ],
+  }),
+  onboard: axiosResponseMocker({
+    programs: [program()],
+    memberships: [organizationMembership()],
+    member: currentMember(),
+    address: address(),
+  }),
+};
+
+export const OnboardingIntro: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls);
+    return <Onboarding {...props} />;
+  },
+};
+
+export const OnboardingThemePage: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls, { step: 1 });
+    return <OnboardingTheme {...props} />;
+  },
+};
+
+export const OnboardingNamePage: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls, { step: 2 });
+    return <OnboardingName {...props} />;
+  },
+};
+
+export const OnboardingAddressPage: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls, { step: 3 });
+    return <OnboardingAddress {...props} />;
+  },
+};
+
+export const OnboardingEligibilityPage: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls, { step: 4 });
+    return <OnboardingEligibility {...props} />;
+  },
+};
+
+export const OnboardingOffersPage: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls, {
+      step: 5,
+      onboarded: {
+        programs: [program()],
+        memberships: [organizationMembership()],
+        member: currentMember(),
+        address: address(),
+      },
+    });
+    return <OnboardingOffers {...props} />;
+  },
+};
+
+export const OnboardingOffersNotOnboardedPage: Story = {
+  render: () => {
+    const props = useOnboardingProps(onboardingApiCalls, { step: 5 });
+    return <OnboardingOffers {...props} />;
+  },
 };
