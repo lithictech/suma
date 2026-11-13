@@ -8,10 +8,18 @@ import OnboardingEligibility from "./OnboardingEligibility.tsx";
 import OnboardingName from "./OnboardingName.tsx";
 import OnboardingOffers from "./OnboardingOffers.tsx";
 import OnboardingTheme from "./OnboardingTheme.tsx";
-import { OnboardingProps, OnboardingState } from "./onboardingTypes.ts";
+import {
+  OnboardingApiCalls,
+  OnboardingProps,
+  OnboardingState,
+} from "./onboardingTypes.ts";
 import React from "react";
 
-export default function Onboarding() {
+export interface OnboardingComponentProps {
+  apiCalls: OnboardingApiCalls;
+}
+
+export default function Onboarding({ apiCalls }: OnboardingComponentProps) {
   const [state, setState] = React.useState<OnboardingState>({
     step: 0,
     totalSteps: 5,
@@ -27,6 +35,7 @@ export default function Onboarding() {
   });
   const props: OnboardingProps = React.useMemo(
     () => ({
+      apiCalls,
       onboardingState: state,
       setOnboardingState: setState,
       setOnboardingField: (f: string, v: any) =>
@@ -34,7 +43,7 @@ export default function Onboarding() {
       stepForward: () => setState((prev) => ({ ...prev, step: prev.step + 1 })),
       stepBackward: () => setState((prev) => ({ ...prev, step: prev.step - 1 })),
     }),
-    [state]
+    [apiCalls, state]
   );
   if (state.step === 0) {
     return <OnboardingStep0 {...props} />;

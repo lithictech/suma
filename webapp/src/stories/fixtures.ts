@@ -151,8 +151,29 @@ export function axiosResponse<T>(
   };
 }
 
+const AXIOS_DELAY = 500;
+
 export function axiosResponseMocker<T>(data: T): (arg: any) => Promise<AxiosResponse<T>> {
-  return () => Promise.resolve(axiosResponse<T>(data));
+  return () => Promise.delay(AXIOS_DELAY, Promise.resolve(axiosResponse<T>(data)));
+}
+
+export function axiosErrorMocker<T>(
+  data: Partial<ApiErrorFields> = {}
+): (arg: any) => Promise<AxiosResponse<T>> {
+  const fields: ApiErrorFields = {
+    code: "fixture",
+    message: "fixture message",
+    status: 400,
+    ...data,
+  };
+  const apiErr = { error: fields };
+  return () =>
+    Promise.delay(
+      AXIOS_DELAY,
+      Promise.resolve(
+        axiosResponse<T>(apiErr as any as T, { status: apiErr.error.status })
+      )
+    ).then((r) => Promise.reject(r));
 }
 
 /**

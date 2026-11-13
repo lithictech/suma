@@ -1,18 +1,7 @@
-import Drawer from "../components/mobilitymap/Drawer.tsx";
-import DrawerContentsGeneralError from "../components/mobilitymap/DrawerContentsGeneralError.tsx";
-import DrawerContentsLoading from "../components/mobilitymap/DrawerContentsLoading.tsx";
-import DrawerContentsOngoingTrip from "../components/mobilitymap/DrawerContentsOngoingTrip.tsx";
-import DrawerContentsPostTrip from "../components/mobilitymap/DrawerContentsPostTrip.tsx";
-import DrawerContentsPreTrip from "../components/mobilitymap/DrawerContentsPreTrip.tsx";
-import DrawerContentsVehicleError from "../components/mobilitymap/DrawerContentsVehicleError.tsx";
-import MapWithDrawer from "../components/mobilitymap/MapWithDrawer.tsx";
-import { appError } from "../modules/feedback.ts";
 import Home from "../pages/onboarding/Home.tsx";
 import OneTimePassword from "../pages/onboarding/OneTimePassword.tsx";
 import Start from "../pages/onboarding/Start.tsx";
-import { mobilityTrip, money, rate, vendorService } from "./fixtures.ts";
-import { DemoStack } from "./helpers.tsx";
-import mapBackgroundPng from "./map-background.png";
+import { axiosErrorMocker, axiosResponseMocker, currentMember } from "./fixtures.ts";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 import noop from "lodash/noop";
 
@@ -24,17 +13,63 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Homepage: Story = {
+export const HomePage: Story = {
   render: () => <Home />,
 };
 
-export const Startpage: Story = {
-  render: () => <Start />,
+export const StartPageSuccess: Story = {
+  render: () => (
+    <Start
+      apiCalls={{
+        authStart: axiosResponseMocker<AuthFlowMember>({ requiresTermsAgreement: false }),
+      }}
+    />
+  ),
 };
 
-export const OneTimePasswords: Story = {
+export const StartPageError: Story = {
+  render: () => (
+    <Start
+      apiCalls={{
+        authStart: axiosErrorMocker<AuthFlowMember>(),
+      }}
+    />
+  ),
+};
+
+const otpInitialEntries = [{ pathname: "/", state: { phoneNumber: "+15551234567" } }];
+const otpApiCalls = {
+  authVerify: axiosResponseMocker<CurrentMember>(currentMember()),
+  authStart: axiosResponseMocker<AuthFlowMember>({
+    requiresTermsAgreement: false,
+  }),
+};
+export const OneTimePasswordSuccess: Story = {
   parameters: {
-    initialEntries: [{ pathname: "/", state: { phoneNumber: "+15551234567" } }],
+    initialEntries: otpInitialEntries,
   },
-  render: () => <OneTimePassword />,
+  render: () => <OneTimePassword setUser={noop} apiCalls={otpApiCalls} />,
+};
+
+export const OneTimePasswordResend: Story = {
+  parameters: {
+    initialEntries: otpInitialEntries,
+  },
+  render: () => <OneTimePassword setUser={noop} apiCalls={otpApiCalls} />,
+};
+
+export const OneTimePasswordError: Story = {
+  parameters: {
+    initialEntries: otpInitialEntries,
+  },
+  render: () => (
+    <OneTimePassword
+      setUser={noop}
+      apiCalls={{
+        ...otpApiCalls,
+        authVerify: axiosErrorMocker<CurrentMember>(),
+        authStart: axiosErrorMocker<AuthFlowMember>(),
+      }}
+    />
+  ),
 };

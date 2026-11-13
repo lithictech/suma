@@ -37,9 +37,9 @@ import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
 import Home from "./pages/onboarding/Home";
-import Onboarding from "./pages/onboarding/Onboarding";
-import OneTimePassword from "./pages/onboarding/OneTimePassword";
-import Start from "./pages/onboarding/Start";
+import OnboardingPage from "./pages/onboarding/OnboardingPage.tsx";
+import OneTimePasswordPage from "./pages/onboarding/OneTimePasswordPage.tsx";
+import StartPage from "./pages/onboarding/StartPage.tsx";
 import Redirect from "./routing/Redirect.tsx";
 import typeRoute from "./routing/typeRoute.tsx";
 import BackendGlobalsProvider from "./state/BackendGlobalsProvider";
@@ -127,7 +127,7 @@ function AppRoutes() {
       path: "/start",
       meta: "titles.start",
       auth: "unauthed",
-      Component: Start,
+      Component: StartPage,
     }),
     typeRoute({
       path: "/regain-account-access",
@@ -146,7 +146,7 @@ function AppRoutes() {
       path: "/one-time-password",
       auth: "unauthed",
       meta: "titles.otp",
-      Component: OneTimePassword,
+      Component: OneTimePasswordPage,
     }),
     typeRoute({
       path: "/partner-signup",
@@ -157,7 +157,7 @@ function AppRoutes() {
       path: "/onboarding",
       auth: "require",
       meta: "titles.onboarding",
-      Component: Onboarding,
+      Component: OnboardingPage,
     }),
     typeRoute({
       path: "/contact-list",

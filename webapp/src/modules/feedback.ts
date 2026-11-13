@@ -62,6 +62,10 @@ function extractAppErrorImpl(error: AxiosError | Error | ErrorCode | any): AppEr
   if (msg === defaultCode) {
     // We couldn't parse anything meaningful, so log it out
     logger.error("" + error);
+    if (window.__DEV__) {
+      console.error(error);
+    }
+    console.error(error);
   } else if (msg === "too_many_requests") {
     opts.seconds = Number(get(error, "response.data.error.retryAfter", 60));
   }

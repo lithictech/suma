@@ -7,7 +7,7 @@ interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   children?: React.ReactNode;
 }
 
-export default function Form({ gap = 2, children, className, ...rest }: FormProps) {
+export default function Form({ gap = 3, children, className, ...rest }: FormProps) {
   return (
     <form className={clsx("form", `gap-${gap}`, className)} {...rest}>
       {children}

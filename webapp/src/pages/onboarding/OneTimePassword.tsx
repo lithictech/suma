@@ -1,4 +1,3 @@
-import api from "../../api";
 import { r, t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
 import {
@@ -8,8 +7,8 @@ import {
   Success,
 } from "../../modules/feedback.ts";
 import { maskPhoneNumber } from "../../modules/maskPhoneNumber";
+import { SetCurrentMember } from "../../state/UserProvider.tsx";
 import useLoginRedirectLink from "../../state/useLoginRedirectLink";
-import useUser from "../../state/useUser";
 import Breadcrumb from "../../ui/Breadcrumb.tsx";
 import Button from "../../ui/Button";
 import ButtonGroup from "../../ui/ButtonGroup.tsx";
@@ -20,12 +19,28 @@ import Page from "../../ui/Page.tsx";
 import Stack from "../../ui/Stack.tsx";
 import TextHeader from "../../ui/TextHeader.tsx";
 import "./OneTimePassword.css";
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const OneTimePassword = () => {
+export interface OneTimePasswordApiCalls {
+  authVerify: (
+    data: { phone: string; token: string },
+    config?: AxiosRequestConfig
+  ) => Promise<AxiosResponse<CurrentMember>>;
+  authStart: (
+    data: { phone: string; timezone: string },
+    config?: AxiosRequestConfig
+  ) => Promise<AxiosResponse<AuthFlowMember>>;
+}
+
+export interface OneTimePasswordProps {
+  apiCalls: OneTimePasswordApiCalls;
+  setUser: SetCurrentMember;
+}
+
+const OneTimePassword = ({ apiCalls, setUser }: OneTimePasswordProps) => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
   const [otpChars, setOtpChars] = React.useState<string[]>(
     new Array(OTP_LENGTH).fill("")
   );
@@ -113,7 +128,7 @@ const OneTimePassword = () => {
     e.preventDefault();
     submitRef.current!.disabled = true;
     setError(null);
-    api
+    apiCalls
       .authVerify({ phone: phoneNumber, token: otpChars.join("") })
       .then((r) => {
         setUser(r.data);
@@ -130,6 +145,8 @@ const OneTimePassword = () => {
         setOtpChars(new Array(6).fill(""));
         setMessage(null);
         setError(extractAppErrorAny(err));
+        // Should happen due to OTP focus but let's make sure.
+        submitRef.current!.disabled = false;
         const firstOtpField = document.getElementById("otpContainer")!
           .firstChild as HTMLElement;
         firstOtpField.focus();
@@ -144,7 +161,7 @@ const OneTimePassword = () => {
     const firstOtpField = document.getElementById("otpContainer")!
       .firstChild as HTMLElement;
     firstOtpField.focus();
-    api
+    apiCalls
       .authStart({
         phone: phoneNumber,
         timezone: dayjs.tz.guess(),
@@ -203,7 +220,7 @@ const OneTimePassword = () => {
             />
           ))}
         </fieldset>
-        <FormFeedback feedback={error || message} className="my-4" />
+        <FormFeedback feedback={error || message} className="mt-2" />
         <Stack gap={4} className="color-text-muted font-size-body-sm" wrap center>
           {t("otp.did_not_receive")}
           <Button size="sm" variant="text" inline onClick={handleResend}>

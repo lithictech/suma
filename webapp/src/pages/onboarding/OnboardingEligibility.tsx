@@ -1,4 +1,3 @@
-import api from "../../api.ts";
 import { AppError, extractAppErrorAny } from "../../modules/feedback.ts";
 import useAsyncFetch from "../../state/useAsyncFetch.ts";
 import useScreenLoader from "../../state/useScreenLoader.ts";
@@ -20,6 +19,7 @@ import { OnboardingProps } from "./onboardingTypes.ts";
 import React from "react";
 
 export default function OnboardingEligibility({
+  apiCalls,
   onboardingState,
   setOnboardingField,
   stepForward,
@@ -31,14 +31,14 @@ export default function OnboardingEligibility({
 
   const { state: supportedOrganizations } = useAsyncFetch<{
     items: SupportedOrganization[];
-  }>(api.getSupportedOrganizations, {
+  }>(apiCalls.getSupportedOrganizations, {
     default: { items: [] },
   });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     screenLoader.turnOn();
-    api
+    apiCalls
       .onboard({
         name: onboardingState.name,
         address: onboardingState.address,

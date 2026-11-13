@@ -1,4 +1,24 @@
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 import React from "react";
+
+export interface OnboardingApiCalls {
+  getSupportedGeographies: (
+    data?: Record<string, any>,
+    config?: AxiosRequestConfig
+  ) => Promise<AxiosResponse<SupportedGeographies>>;
+  getSupportedOrganizations: (
+    data?: Record<string, any>,
+    config?: AxiosRequestConfig
+  ) => Promise<AxiosResponse<{ items: SupportedOrganization[] }>>;
+  onboard: (
+    data: {
+      name: string;
+      address: OnboardingAddressType;
+      organizationNames: string[];
+    },
+    config?: AxiosRequestConfig
+  ) => Promise<AxiosResponse<Onboarded>>;
+}
 
 export interface OnboardingAddressType {
   address1: string;
@@ -23,6 +43,7 @@ type SetOnboardingStateField = <K extends keyof OnboardingState>(
 ) => void;
 
 export interface OnboardingProps {
+  apiCalls: OnboardingApiCalls;
   onboardingState: OnboardingState;
   setOnboardingState: React.Dispatch<OnboardingState>;
   setOnboardingField: SetOnboardingStateField;

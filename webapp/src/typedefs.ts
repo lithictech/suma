@@ -10,6 +10,15 @@ declare global {
 
   type PaymentInstrumentStatus = "expired" | "unverified" | "deleted" | "ok";
 
+  interface ApiErrorFields {
+    status: number;
+    message: string;
+    code?: string;
+  }
+  interface ApiError {
+    error: ApiErrorFields;
+  }
+
   /** Auto-generated from Money */
   interface Money {
     cents: number;
