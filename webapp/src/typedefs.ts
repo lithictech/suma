@@ -297,9 +297,13 @@ declare global {
     serial: string;
     createdAt: string;
     fulfilledAt: string | null;
-    total: Money;
+    availableForPickupAt: string | null;
+    canceledAt: string | null;
+    total: Money | null;
+    paid: Money | null;
+    saved: Money | null;
+    refunded: Money | null;
     image: Image;
-    availableForPickupAt: string;
   }
 
   /** Auto-generated from Suma::API::Commerce::UnclaimedOrderCollection */
@@ -346,6 +350,13 @@ declare global {
     paymentMethodTypes: string[];
   }
 
+  interface SimpleUnclaimedOrder {
+    id: number;
+    offeringName: string;
+    orderedAt: string;
+    summary: string;
+  }
+
   /** Auto-generated from Suma::API::Entities::CurrentMemberEntity */
   interface CurrentMember {
     id: number;
@@ -355,7 +366,7 @@ declare global {
     phone: string;
     onboarded: boolean;
     roleAccess: RoleAccessType;
-    unclaimedOrdersCount: number;
+    unclaimedOrders: SimpleUnclaimedOrder[];
     ongoingTrip: MobilityTrip | null;
     readOnlyMode: boolean;
     readOnlyReason: string;
@@ -547,6 +558,9 @@ declare global {
   /** Auto-generated from Suma::API::Me::DashboardEntity */
   interface Dashboard {
     cashBalance: Money;
+    lifetimeSavings: Money;
+    lifetimeCashPaid: Money;
+    lifetimeSavingsRatio: number;
     programs: Program[];
     alerts: DashboardAlert[];
   }

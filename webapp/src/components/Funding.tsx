@@ -9,11 +9,13 @@ import { SetCurrentMember } from "../state/UserProvider.tsx";
 import useScreenLoader from "../state/useScreenLoader.ts";
 import useToggle, { Toggle } from "../state/useToggle.ts";
 import useUser from "../state/useUser";
+import { ThemeColor } from "../types/theme.ts";
 import Alert from "../ui/Alert.tsx";
 import Button from "../ui/Button.tsx";
 import Card from "../ui/Card.tsx";
 import CardBody from "../ui/CardBody.tsx";
 import CardText from "../ui/CardText.tsx";
+import Chip from "../ui/Chip.tsx";
 import { Dialog } from "../ui/Dialog.tsx";
 import DialogHeader from "../ui/DialogHeader.tsx";
 import Form from "../ui/Form.tsx";
@@ -27,6 +29,7 @@ import {
   BanknotesIcon,
   CheckCircleIcon,
   ClockIcon,
+  PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -97,7 +100,7 @@ function ChargeableCashBalance({ user, setUser }: UsesUserProps) {
       <CardBody className="d-flex flex-column gap-2">
         <div>{t("payments.negative_balance_warning", { amount: balance })}</div>
         <FormFeedback feedback={error} />
-        <Button preset="primary" onClick={handleClick}>
+        <Button onClick={handleClick}>
           {t("payments.negative_balance_action", { amount: balance })}
         </Button>
       </CardBody>
@@ -169,7 +172,7 @@ function InstrumentLine({
               )}
               <CardText variant="title">{instrument.name}</CardText>
             </Stack>
-            <CardText variant="text" className="mt-2">
+            <CardText variant="text" className="mt-3">
               {instrument.expiresAt &&
                 (instrument.status === "expired" ? (
                   <span className="color-danger">
@@ -188,17 +191,16 @@ function InstrumentLine({
             <InstrumentStatus instrument={instrument} />
             <Stack row gap={3} center>
               {instrument.usableForFunding && featureAddFunds && (
-                <Button
-                  variant="filled"
+                <IconButton
                   color="success"
                   size="sm"
+                  variant="secondary"
                   to={withQuery(`/add-funds`, {
                     id: instrument.id,
                     paymentMethodType: instrument.paymentMethodType,
                   })}
-                >
-                  {t("payments.funds")}
-                </Button>
+                  icon={PlusCircleIcon}
+                />
               )}
               <DeleteInstrument
                 instrument={instrument}
@@ -218,27 +220,29 @@ function InstrumentLine({
 }
 
 function InstrumentStatus({ instrument }: { instrument: PaymentInstrument }) {
-  let icon: IconPropsIcon, cls: string, locKey: string;
+  let icon: IconPropsIcon, locKey: string, color: ThemeColor;
   if (instrument.status === "ok") {
     icon = CheckCircleIcon;
-    cls = "color-success";
+    color = "success";
     locKey = "payments.payment_account_verified";
   } else if (instrument.status === "unverified") {
     icon = ClockIcon;
-    cls = "color-primary";
+    color = "primary";
     locKey = "payments.payment_account_pending";
   } else if (instrument.status === "expired") {
     icon = ClockIcon;
-    cls = "color-danger";
+    color = "danger";
     locKey = "payments.payment_account_expired";
   } else {
     return null;
   }
   return (
-    <div className={clsx(cls, "d-flex", "align-items-center")}>
-      <Icon icon={icon} size={16} />
-      &nbsp;{t(locKey)}
-    </div>
+    <Chip variant={color}>
+      <div className={clsx("d-flex", "align-items-center")}>
+        <Icon icon={icon} size={16} />
+        &nbsp;{t(locKey)}
+      </div>
+    </Chip>
   );
 }
 
@@ -260,7 +264,8 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }: DeleteInstrumen
     <>
       <IconButton
         icon={TrashIcon}
-        variant="text"
+        variant="secondary"
+        size="sm"
         color="danger"
         title={r("payments.unlink_account")}
         onClick={showDelete.turnOn}
@@ -307,15 +312,12 @@ function DeleteInstrumentModal({
       labelledBy="delete-instrument-modal-title"
     >
       <Card>
-        <CardBody className="d-flex flex-column gap-3">
+        <CardBody className="d-flex flex-column gap-5">
           <DialogHeader id="delete-instrument-modal-title">
             {t("payments.unlink_account")}
           </DialogHeader>
           <p>{t("payments.unlink_account_question")}</p>
-          <Alert
-            variant="warning"
-            title={t("payments.unlink_account_question_subtitle")}
-          />
+          <Alert color="warning" title={t("payments.unlink_account_question_subtitle")} />
           <Form onSubmit={submitDelete}>
             <FormSubmit
               feedback={error}
@@ -363,7 +365,7 @@ function CardsCard({
 function AdditionalSourcesCard() {
   return (
     <PaymentsCard header={t("payments.payment_other_sources")}>
-      <CardText className="mt-3">{t("payments.payment_support_coming")}</CardText>
+      <CardText>{t("payments.payment_support_coming")}</CardText>
     </PaymentsCard>
   );
 }
@@ -378,7 +380,7 @@ function PaymentsCard({
   return (
     <Card>
       <CardBody>
-        <Stack col gap={3}>
+        <Stack col gap={5}>
           <h2>{header}</h2>
           {children}
         </Stack>

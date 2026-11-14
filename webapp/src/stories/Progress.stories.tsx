@@ -17,6 +17,7 @@ export const Bar: Story = {
       <Progress value={50} />
       <Progress value={96} />
       <Progress value={100} />
+      <Progress value={50} completeColor="success" incompleteColor="danger" />
     </DemoStack>
   ),
 };
@@ -29,6 +30,12 @@ export const Circle: Story = {
       <Progress variant="circle" value={50} />
       <Progress variant="circle" value={96} />
       <Progress variant="circle" value={100} />
+      <Progress
+        variant="circle"
+        value={75}
+        completeColor="success"
+        incompleteColor="danger"
+      />
     </DemoStack>
   ),
 };

@@ -21,7 +21,7 @@ body {
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
     margin: 0;
-    font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-semi);
     line-height: var(--line-height-heading);
     color: var(--text-color);
 }
@@ -29,19 +29,16 @@ h1, h2, h3, h4, h5, h6,
 h1, .h1 {
     font-size: var(--font-size-heading-lg);
     font-family: var(--font-family-title);
-    margin-bottom: 0;
 }
 
 h2, .h2 {
     font-size: var(--font-size-heading-md);
     font-family: var(--font-family-title);
-    margin-bottom: 0;
 }
 
 h3, .h3 {
     font-size: var(--font-size-heading-sm);
     font-family: var(--font-family-title);
-    margin-bottom: 0;
 }
 
 p {

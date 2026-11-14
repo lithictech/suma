@@ -22,6 +22,11 @@ export interface IconProps {
    * in the desired size.
    */
   forceSize?: boolean;
+  /**
+   * If true, the color is a background chip color
+   * and the foreground is the contrast color.
+   */
+  invert?: boolean;
   className?: string;
   color?: ThemeColor;
 }
@@ -30,6 +35,7 @@ export default function Icon({
   size = "inherit",
   forceSize,
   color,
+  invert,
   className,
 }: IconProps) {
   const style: CSSProperties = {};
@@ -40,7 +46,19 @@ export default function Icon({
     style.width = size;
     style.height = size;
   }
-  const elProps = { className: clsx(color ? `color-${color}` : "", className), style };
+
+  const elProps = { className: "", style };
+  if (invert) {
+    color = color || "primary";
+    elProps.className = clsx(
+      `color-${color}-contrast`,
+      `bgcolor-${color}`,
+      "border-radius-1",
+      className
+    );
+  } else {
+    elProps.className = clsx(color && `color-${color}`, className);
+  }
 
   let el: React.ReactElement;
   if (IconComponent === "left") {

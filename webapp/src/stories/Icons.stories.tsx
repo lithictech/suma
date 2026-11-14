@@ -35,9 +35,16 @@ export const Icons: Story = {
             <Icon key={i} icon={ic} />
           ))}
         </DemoStack>
+        <h3>Colored</h3>
         <DemoStack row>
           {icons.map((ic, i) => (
             <Icon key={i} icon={ic} color="danger" size={30} />
+          ))}
+        </DemoStack>
+        <h3>Inverted</h3>
+        <DemoStack row>
+          {icons.map((ic, i) => (
+            <Icon key={i} icon={ic} invert size={30} className="p-2" />
           ))}
         </DemoStack>
         <h2>Buttons</h2>
@@ -46,11 +53,13 @@ export const Icons: Story = {
             <IconButton key={i} icon={ic} />
           ))}
         </DemoStack>
+        <h3>Text Variant</h3>
         <DemoStack row>
           {icons.map((ic, i) => (
             <IconButton key={i} variant="text" icon={ic} />
           ))}
         </DemoStack>
+        <h3>Colored</h3>
         <DemoStack row>
           {themeColors.map((c, i) => (
             <IconButton key={i} icon="info" color={c} />

@@ -19,10 +19,11 @@ export default function TextHeader({
   title,
   subtitle,
 }: TextHeaderProps) {
+  const H = variant === "page" ? "h1" : "h2";
   return (
     <Stack className={clsx("text-header", `text-header-${variant}`)} gap={4}>
       {backTo && <Breadcrumb to={backTo}>{backLabel}</Breadcrumb>}
-      <p className="text-header-title">{title}</p>
+      <H className="text-header-title">{title}</H>
       {subtitle && <p className="text-header-subtitle">{subtitle}</p>}
     </Stack>
   );

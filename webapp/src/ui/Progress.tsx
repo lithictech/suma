@@ -1,3 +1,4 @@
+import { ThemeColor, ThemeColorSpec } from "../types/theme";
 import "./Progress.css";
 import React from "react";
 
@@ -6,6 +7,8 @@ interface ProgressProps {
   size?: number;
   stroke?: number;
   variant?: "bar" | "circle";
+  completeColor?: ThemeColor | ThemeColorSpec;
+  incompleteColor?: ThemeColor | ThemeColorSpec;
 }
 
 export default function Progress({
@@ -13,14 +16,45 @@ export default function Progress({
   size = 56,
   stroke = 6,
   variant = "bar",
+  completeColor = new ThemeColorSpec("primary", "strong"),
+  incompleteColor = new ThemeColorSpec("secondary", "soft"),
 }: ProgressProps) {
+  const completeSpec = ThemeColorSpec.parse(completeColor);
+  const incompleteSpec = ThemeColorSpec.parse(incompleteColor);
   if (variant === "circle") {
-    return <ProgressCircle value={value} size={size} stroke={stroke} />;
+    return (
+      <ProgressCircle
+        value={value}
+        size={size}
+        stroke={stroke}
+        completeColor={completeSpec}
+        incompleteColor={incompleteSpec}
+      />
+    );
   }
-  return <ProgressBar value={value} stroke={stroke} />;
+  return (
+    <ProgressBar
+      value={value}
+      stroke={stroke}
+      completeColor={completeSpec}
+      incompleteColor={incompleteSpec}
+    />
+  );
 }
 
-function ProgressBar({ value, stroke }: { value: number; stroke: number }) {
+interface ProgressImplProps {
+  value: number;
+  stroke: number;
+  completeColor: ThemeColorSpec;
+  incompleteColor: ThemeColorSpec;
+}
+
+function ProgressBar({
+  value,
+  stroke,
+  completeColor,
+  incompleteColor,
+}: ProgressImplProps) {
   const commonParams: React.CSSProperties = {
     position: "absolute",
     height: "100%",
@@ -37,14 +71,14 @@ function ProgressBar({ value, stroke }: { value: number; stroke: number }) {
       <div
         style={{
           width: "100%",
-          backgroundColor: "var(--fill-secondary-soft)",
+          backgroundColor: incompleteColor.toVar(),
           ...commonParams,
         }}
       ></div>
       <div
         style={{
           width: `${value}%`,
-          backgroundColor: "var(--fill-primary-strong)",
+          backgroundColor: completeColor.toVar(),
           ...commonParams,
         }}
       />
@@ -56,11 +90,9 @@ function ProgressCircle({
   value,
   size,
   stroke,
-}: {
-  value: number;
-  size: number;
-  stroke: number;
-}) {
+  completeColor,
+  incompleteColor,
+}: { size: number } & ProgressImplProps) {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - value / 100);
@@ -85,7 +117,7 @@ function ProgressCircle({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--fill-secondary-soft)"
+          stroke={incompleteColor.toVar()}
           strokeWidth={stroke}
         />
         <circle
@@ -93,7 +125,7 @@ function ProgressCircle({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--fill-primary-strong)"
+          stroke={completeColor.toVar()}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}

@@ -12,8 +12,9 @@
 }
 
 .alert-title {
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semi);
   font-size: var(--font-size-body-md);
+  color: var(--text-color)
 }
 
 .alert-text {

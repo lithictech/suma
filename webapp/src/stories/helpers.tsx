@@ -4,7 +4,7 @@ import React from "react";
 
 export function DemoStack({
   row,
-  gap = 3,
+  gap = 4,
   wrap = false,
   className,
   children,

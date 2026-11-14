@@ -25,6 +25,12 @@ export const Variants: Story = {
           {c}
         </Chip>
       ))}
+      <h2>Bullets</h2>
+      {themeColors.map((c) => (
+        <Chip key={c} variant={c} bullet>
+          {c}
+        </Chip>
+      ))}
     </DemoStack>
   ),
 };

@@ -42,6 +42,7 @@
 .color-text-muted { color: var(--text-mute) !important; }
 .color-link { color: var(--link-color) !important; }
 .color-link-hover { color: var(--link-color-hover) !important; }
+.color-inherit { color: inherit; }
 
 /** Background color classes, just take color classes and rename .color to .bgcolor */
 

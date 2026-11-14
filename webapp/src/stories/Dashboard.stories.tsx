@@ -1,7 +1,7 @@
-import DashboardC from "../components/Dashboard.tsx";
+import Dashboard from "../components/Dashboard.tsx";
 import { floatToMoney } from "../modules/money.ts";
 import Page from "../ui/Page.tsx";
-import { currentMember, mobilityTrip } from "./fixtures.ts";
+import { currentMember, mobilityTrip, program } from "./fixtures.ts";
 import type { Meta, StoryObj } from "@storybook/preact-vite";
 
 const meta = {
@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>;
 export const Empty: Story = {
   render: () => (
     <Page>
-      <DashboardC
+      <Dashboard
         loading={false}
         error={null}
         dashboard={dashboard}
@@ -27,30 +27,26 @@ export const Empty: Story = {
 export const Programs: Story = {
   render: () => (
     <Page>
-      <DashboardC
+      <Dashboard
         loading={false}
         error={null}
         dashboard={{
           ...dashboard,
           programs: [
-            {
+            program({
               name: "Group purchase: Tails & Trotters CSA Box",
               description: "Available for a limited time",
-              image: null,
               periodBegin: "2024-01-01T12:00:00Z",
               periodEnd: "2024-03-01T12:00:00Z",
-              appLink: "",
-              appLinkText: "",
-            },
-            {
+            }),
+            program({
               name: "Group purchase: Tails & Trotters CSA Box",
               description: "Available for a limited time",
-              image: null,
               periodBegin: "2024-01-01T12:00:00Z",
               periodEnd: "2024-03-01T12:00:00Z",
               appLink: "/food",
               appLinkText: "Link to an action",
-            },
+            }),
           ],
         }}
         user={currentMember()}
@@ -62,7 +58,7 @@ export const Programs: Story = {
 export const Alerts: Story = {
   render: () => (
     <Page>
-      <DashboardC
+      <Dashboard
         loading={false}
         error={null}
         dashboard={{
@@ -76,7 +72,7 @@ export const Alerts: Story = {
                   currency: "USD",
                 },
               },
-              variant: "success",
+              variant: "danger",
             },
             {
               localizationKey: "dashboard.payment_methods_expiring",
@@ -104,8 +100,29 @@ export const Alerts: Story = {
   ),
 };
 
+export const Savings: Story = {
+  render: () => (
+    <Page>
+      <Dashboard
+        loading={false}
+        error={null}
+        dashboard={{
+          ...dashboard,
+          lifetimeSavings: floatToMoney(362.6, "USD"),
+          lifetimeCashPaid: floatToMoney(88.4, "USD"),
+          lifetimeSavingsRatio: 80,
+        }}
+        user={currentMember()}
+      />
+    </Page>
+  ),
+};
+
 const dashboard: Dashboard = {
   cashBalance: floatToMoney(0, "USD"),
+  lifetimeSavings: floatToMoney(0, "USD"),
+  lifetimeCashPaid: floatToMoney(0, "USD"),
+  lifetimeSavingsRatio: 75,
   programs: [],
   alerts: [],
 };

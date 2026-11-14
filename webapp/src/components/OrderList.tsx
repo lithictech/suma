@@ -2,12 +2,12 @@ import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { RoutePath } from "../routing/RoutePath.ts";
-import Alert from "../ui/Alert.tsx";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import CardBody from "../ui/CardBody";
 import CardText from "../ui/CardText";
 import DivLink from "../ui/DivLink.tsx";
+import Icon from "../ui/Icon.tsx";
 import IndeterminateLoader from "../ui/IndeterminateLoader.tsx";
 import Stack from "../ui/Stack";
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
@@ -23,17 +23,10 @@ interface OrderListProps {
 
 export default function OrderList({ user, orders, loading, onNavigate }: OrderListProps) {
   return loading ? (
-    <IndeterminateLoader variant="plain" />
+    <IndeterminateLoader variant="plain" color="primary" />
   ) : !isEmpty(orders) ? (
-    <Stack col gap={3}>
-      {user!.unclaimedOrdersCount > 0 && (
-        <Alert
-          variant="success"
-          text={t("dashboard.claim_orders")}
-          icon={ShoppingBagIcon}
-          to="/unclaimed-orders"
-        />
-      )}
+    <Stack col gap={5}>
+      <UnclaimedOrders user={user} />
       {orders.map((o) => (
         <Order
           key={o.id}
@@ -46,14 +39,14 @@ export default function OrderList({ user, orders, loading, onNavigate }: OrderLi
       ))}
     </Stack>
   ) : (
-    <>
-      {t("food.no_orders")}
-      <div className="button-stack mt-2">
-        <Button preset="primary" to="/food">
-          {t("food.available_offerings")}
-        </Button>
-      </div>
-    </>
+    <Card>
+      <CardBody>
+        <Stack col gap={5}>
+          {t("food.no_orders")}
+          <Button to="/food">{t("food.available_offerings")}</Button>
+        </Stack>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -99,4 +92,49 @@ function Order({
       </CardBody>
     </Card>
   );
+}
+
+function UnclaimedOrders({ user }: { user?: CurrentMember }) {
+  if (!user || user.unclaimedOrders.length === 0) {
+    return null;
+  }
+  return (
+    <Card>
+      <CardBody>
+        <Stack col gap={5}>
+          <Stack row gap={5}>
+            <Icon
+              icon={ShoppingBagIcon}
+              color="primary"
+              invert
+              className="p-3"
+              size={32}
+            />
+            <h3>{user.unclaimedOrders.length} ready to claim</h3>
+          </Stack>
+          {user.unclaimedOrders.map(({ id, offeringName, orderedAt, summary }) => (
+            <DivLink
+              key={id}
+              to={`/order/${id}` as RoutePath}
+              className="bgcolor-secondary-soft p-4 border-radius-sm"
+            >
+              <h5 className="font-size-body-md mb-1">{offeringName}</h5>
+              <p className="font-size-body-md color-text-muted">
+                Ordered {dayjs(orderedAt).format("ll")} &bull;
+                {summary}
+              </p>
+            </DivLink>
+          ))}
+        </Stack>
+      </CardBody>
+    </Card>
+  );
+
+  //   <Alert
+  //     color="success"
+  //     text={t("dashboard.claim_orders")}
+  //     icon={ShoppingBagIcon}
+  //     to="/unclaimed-orders"
+  //   />
+  // );
 }

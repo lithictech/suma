@@ -4,10 +4,6 @@
 }
 
 .text-header-page {
-  .text-header-title {
-    font-size: var(--font-size-heading-lg);
-    font-weight: var(--font-weight-semi);
-  }
   .text-header-subtitle {
     font-size: var(--font-size-body-md);
     color: var(--text-secondary-mute);
@@ -15,10 +11,6 @@
 }
 
 .text-header-section {
-  .text-header-title {
-    font-size: var(--font-size-heading-md);
-    font-weight: var(--font-weight-semi);
-  }
   .text-header-subtitle {
     font-size: var(--font-size-body-sm);
     color: var(--text-secondary-mute);

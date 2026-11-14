@@ -5,3 +5,11 @@
   font-weight: var(--font-weight-semi);
   line-height: 133%;
 }
+
+.chip-bullet {
+  display: inline-block;
+  vertical-align: middle;
+  width: calc(var(--font-size-body-sm) * 0.75);
+  height: calc(var(--font-size-body-sm) * 0.75);
+  border-radius: var(--border-radius-pill);
+}

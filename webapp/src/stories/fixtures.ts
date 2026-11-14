@@ -34,7 +34,7 @@ export function currentMember(o: Partial<CurrentMember> = {}): CurrentMember {
     phone: "(555) 123-4567",
     onboarded: true,
     roleAccess: {},
-    unclaimedOrdersCount: 0,
+    unclaimedOrders: [],
     ongoingTrip: null,
     readOnlyMode: false,
     readOnlyReason: "",
@@ -49,6 +49,11 @@ export function currentMember(o: Partial<CurrentMember> = {}): CurrentMember {
     ...o,
   };
 }
+
+export const missingImage: Image = {
+  caption: "Photo of pints of rasberries.",
+  url: "https://app.mysuma.org/api/v1/images/missing",
+};
 
 export function address(o: Partial<Address> = {}): Address {
   const a = {
@@ -110,7 +115,7 @@ export function mobilityTrip(o: Partial<MobilityTrip> = {}): MobilityTrip {
       lineItems: [{ amount: money(100), memo: "Unlock" }],
     },
     minutes: 20,
-    image: null,
+    image: missingImage,
     ...o,
   };
 }
@@ -322,7 +327,7 @@ export function program(o: Partial<Program> = {}): Program {
   return {
     name: "Super Program",
     description: "This is a longer description",
-    image: null,
+    image: missingImage,
     periodBegin: "2026-01-01T12:00:00Z",
     periodEnd: "2050-01-01T12:00:00Z",
     appLink: "/#fake-link",
@@ -336,5 +341,17 @@ export function organizationMembership(o: Partial<Membership> = {}): Membership 
     organizationName: "Super Organization",
     status: "unverified",
     ...o,
+  };
+}
+
+export function unclaimedOrder(
+  e: Partial<SimpleUnclaimedOrder> = {}
+): SimpleUnclaimedOrder {
+  return {
+    id: id++,
+    offeringName: "Holidays demo",
+    orderedAt: "2026-08-11T12:00:05Z",
+    summary: "1 item",
+    ...e,
   };
 }

@@ -9,6 +9,7 @@ import useScreenLoader from "../state/useScreenLoader.ts";
 import useStripeErrorMessage from "../state/useStripeErrorMessage.ts";
 import useValidationError from "../state/useValidationError.ts";
 import Alert from "../ui/Alert.tsx";
+import Breadcrumb from "../ui/Breadcrumb.tsx";
 import Button from "../ui/Button.tsx";
 import Form from "../ui/Form.tsx";
 import FormSubmit from "../ui/FormSubmit.tsx";
@@ -180,6 +181,7 @@ export default function AddCreditCard({
   }
   return (
     <>
+      <Breadcrumb />
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
         <Stack col gap={2}>
           <TextInput
@@ -250,7 +252,7 @@ export default function AddCreditCard({
             <CreditCardPreview cardInfo={cardInfo} focused={focused} name={values.name} />
           </Stack>
           <NegativeBalanceAddInstrumentNotice user={user} />
-          <FormSubmit label={t("forms.submit")} back feedback={error} />
+          <FormSubmit label={t("forms.submit")} feedback={error} />
         </Stack>
       </Form>
     </>
@@ -264,7 +266,7 @@ function NegativeBalanceAddInstrumentNotice({ user }: { user: CurrentMember }) {
   const balance = scaleMoney(user!.chargeableCashBalance, -1);
   return (
     <Alert
-      variant="warning"
+      color="warning"
       text={t("payments.negative_balance_add_instrument_notice", {
         amount: balance,
       })}
@@ -280,12 +282,12 @@ function Success({
   returnTo?: string;
 }) {
   return (
-    <Stack col gap={4}>
+    <Stack col gap={5}>
       <h2>{t("payments.added_card")}</h2>
       {t("payments.added_card_successful")}
       {returnTo ? (
         <div className="button-stack mt-4">
-          <Button to={makeReturnUrl(returnTo, instrument)} variant="outline">
+          <Button to={makeReturnUrl(returnTo, instrument)} variant="primary">
             {t("forms.continue")}
           </Button>
         </div>

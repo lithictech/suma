@@ -1,4 +1,6 @@
 .border-radius-0 { border-radius: 0; }
+.border-radius-1 { border-radius: var(--border-radius-1); }
+.border-radius-2 { border-radius: var(--border-radius-2); }
 .border-radius-sm { border-radius: var(--border-radius-sm); }
 .border-radius-pill { border-radius: var(--border-radius-pill); }
 

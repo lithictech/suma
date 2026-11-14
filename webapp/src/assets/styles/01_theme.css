@@ -228,7 +228,7 @@
 
     /* ---- Typography ---- */
     --font-family-base: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-family-title: 'Raleway', "Source Serif Pro", Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-family-title: 'Raleway', 'Source Serif Pro', Georgia, Cambria, "Times New Roman", Times, serif;
     --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
     --font-size-base: 18px;
@@ -249,7 +249,7 @@
     --font-weight-bold: 700;
 
     --line-height-base: 1.5;
-    --line-height-heading: 1.25;
+    --line-height-heading: 1.20;
 
     /* ---- Spacing scale ---- */
     --space-0: 0;
